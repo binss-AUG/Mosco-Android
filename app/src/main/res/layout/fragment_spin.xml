@@ -1,14 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_spin_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.SpinFragment">
+    android:background="#0A0A0A"
+    android:paddingTop="20dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!-- Giao diện Spin chính -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_spin_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_spin_ticket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/poppins"
+            android:text="Spin Ticket"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/poppins"
+            android:text="⏳ 23:39:14"
+            android:textColor="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_spin_ticket"
+            app:layout_constraintTop_toBottomOf="@+id/tv_spin_ticket" />
+
+        <!-- Các thẻ chạy nền -->
+        <ImageView
+            android:id="@+id/iv_bg_card_1"
+            android:layout_width="160dp"
+            android:layout_height="240dp"
+            android:alpha="0.2"
+            android:src="@drawable/objet_back_spin"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/card_center_slot"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
+
+        <ImageView
+            android:id="@+id/iv_bg_card_2"
+            android:layout_width="160dp"
+            android:layout_height="240dp"
+            android:alpha="0.2"
+            android:src="@drawable/objet_back_spin"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/card_center_slot"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
+
+        <ImageView
+            android:id="@+id/iv_bg_card_3"
+            android:layout_width="160dp"
+            android:layout_height="240dp"
+            android:alpha="0.2"
+            android:src="@drawable/objet_back_spin"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/card_center_slot"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_center_slot"
+            android:layout_width="220dp"
+            android:layout_height="340dp"
+            android:layout_marginTop="60dp"
+            app:cardBackgroundColor="#D91A1C29"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_timer">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <FrameLayout
+                    android:id="@+id/btn_add_objet"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_circle_dark">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="+"
+                        android:textColor="#FFFFFF"
+                        android:textSize="32sp" />
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/iv_selected_objet"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_spin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_button"
+            android:backgroundTint="#41455E"
+            android:enabled="false"
+            android:fontFamily="@font/poppins"
+            android:text="Spin"
+            android:textAllCaps="false"
+            android:textColor="#A2A2A7"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Giao diện Lưới bốc thẻ 4x4 (Chặng 4) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_reveal_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:background="#0A0A0A"
+        android:visibility="gone">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/tv_grid_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/poppins"
+            android:text="Select a card to reveal"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_secret_grid"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_confirm_select"
+            app:layout_constraintTop_toBottomOf="@id/tv_grid_title"
+            tools:listitem="@layout/item_secret_card" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_confirm_select"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_button"
+            android:backgroundTint="#41455E"
+            android:enabled="false"
+            android:fontFamily="@font/poppins"
+            android:text="Confirm Selection"
+            android:textAllCaps="false"
+            android:textColor="#A2A2A7"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Giao diện Kết quả bốc thẻ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_result_reveal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0A0A0A"
+        android:visibility="gone"
+        android:elevation="10dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_result_final"
+            android:layout_width="240dp"
+            android:layout_height="360dp"
+            app:cardBackgroundColor="#1A1C29"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_result_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Lớp Neon che phủ phía trên thẻ -->
+        <View
+            android:id="@+id/view_neon_glow"
+            android:layout_width="320dp"
+            android:layout_height="440dp"
+            android:background="@drawable/bg_neon_glow"
+            android:alpha="0.0"
+            android:elevation="20dp"
+            app:layout_constraintTop_toTopOf="@id/card_result_final"
+            app:layout_constraintBottom_toBottomOf="@id/card_result_final"
+            app:layout_constraintStart_toStartOf="@id/card_result_final"
+            app:layout_constraintEnd_toEndOf="@id/card_result_final" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Video hiệu ứng (Dùng chung cho cả 2 chặng video) -->
+    <VideoView
+        android:id="@+id/video_spin_effect"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="100dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
