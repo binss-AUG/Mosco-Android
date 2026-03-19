@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#161622"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="24dp">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.06" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.94" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.03" />
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_circle_dark"
+            android:padding="12dp"
+            android:src="@drawable/ic_back_arrow"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toTopOf="@id/gl_top"
+            app:layout_constraintWidth_percent="0.12" />
+
+        <TextView
+            android:id="@+id/tv_title_signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="Sign Up"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/edt_username"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/btn_back"
+            app:layout_constraintVertical_bias="0.1" />
+
+        <EditText
+            android:id="@+id/edt_username"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:backgroundTint="#232533"
+            android:drawableStart="@drawable/ic_user"
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/poppins"
+            android:hint="Username"
+            android:inputType="textPersonName"
+            android:paddingStart="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/edt_email"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title_signup"
+            app:layout_constraintVertical_bias="0.2" />
+
+        <EditText
+            android:id="@+id/edt_email"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:backgroundTint="#232533"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/poppins"
+            android:hint="Email Address"
+            android:inputType="textEmailAddress"
+            android:paddingStart="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/edt_password"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/edt_username"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <EditText
+            android:id="@+id/edt_password"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:backgroundTint="#232533"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawableEnd="@drawable/ic_eye"
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/poppins"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingEnd="15dp"
+            android:paddingStart="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/edt_confirm_password"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/edt_email"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <EditText
+            android:id="@+id/edt_confirm_password"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:backgroundTint="#232533"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawableEnd="@drawable/ic_eye"
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/poppins"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:paddingEnd="15dp"
+            android:paddingStart="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/edt_verification_code"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/edt_password"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <EditText
+            android:id="@+id/edt_verification_code"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="#232533"
+            android:fontFamily="@font/poppins"
+            android:hint="Verification code"
+            android:inputType="number"
+            android:maxLength="6"
+            android:paddingStart="15dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/btn_signup"
+            app:layout_constraintEnd_toStartOf="@+id/btn_send_code"
+            app:layout_constraintHeight_percent="0.07"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/edt_confirm_password"
+            app:layout_constraintVertical_bias="0.3" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_send_code"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button"
+            android:fontFamily="@font/poppins"
+            android:text="Send code"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/edt_verification_code"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.06"
+            app:layout_constraintTop_toTopOf="@+id/edt_verification_code"
+            app:layout_constraintWidth_percent="0.28" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_signup"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button"
+            android:fontFamily="@font/poppins"
+            android:text="Sign Up"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/tv_go_to_signin"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintHeight_percent="0.08"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/edt_verification_code"
+            app:layout_constraintVertical_bias="0.5" />
+
+        <TextView
+            android:id="@+id/tv_go_to_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="Already have an account? Sign In"
+            android:textColor="#A2A2A7"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/gl_end"
+            app:layout_constraintStart_toStartOf="@id/gl_start"
+            app:layout_constraintTop_toBottomOf="@+id/btn_signup"
+            app:layout_constraintVertical_bias="0.4" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
