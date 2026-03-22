@@ -1,5 +1,9 @@
 package com.vn.jet.mosco.utils;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,8 +36,8 @@ public class SpinSystem {
     private final SecureRandom random;
     
     // History to avoid recent duplicates in results
-    private final LinkedList<JsonObject> recentHistory = new LinkedList<>();
-    private static final int MAX_HISTORY = 40;
+    // private final LinkedList<JsonObject> recentHistory = new LinkedList<>();
+    // private static final int MAX_HISTORY = 40;
 
     public static class SpinResult {
         public JsonObject result;
@@ -53,6 +57,33 @@ public class SpinSystem {
             this.random.setSeed(seed);
         }
         initGroups();
+    }
+
+    // Lấy số ngẫu nhiên từ tiếng ồn khí quyển (True Random)
+    private long fetchTrueRandomSeed() {
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://www.random.org/integers/?num=1&min=1&max=1000000000&col=1&base=10&format=plain&rnd=new";
+        
+        Request request = new Request.Builder().url(url).build();
+        
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                String result = response.body().string().trim();
+                return Long.parseLong(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // Fallback: Nếu rớt mạng hoặc API lỗi, dùng nanoTime của hệ thống để chữa cháy
+        return System.nanoTime(); 
+    }
+
+    // Bơm sự hỗn loạn vào SecureRandom
+    private void injectChaos() {
+        long trueRandomSeed = fetchTrueRandomSeed();
+        // Trộn số True Random từ API với thời gian thực để tạo ra Hạt giống không thể đoán trước
+        this.random.setSeed(trueRandomSeed ^ System.currentTimeMillis());
     }
 
     private void initGroups() {
@@ -140,7 +171,7 @@ public class SpinSystem {
                 continue;
             }
 
-            double maxFluc = base * 0.20; // 20%
+            double maxFluc = base * 0.10; // 10%
             double fluctuation = (random.nextDouble() * 2 * maxFluc) - maxFluc; // range: -maxFluc to +maxFluc
             double val = base + fluctuation;
 
@@ -204,6 +235,10 @@ public class SpinSystem {
      * Spin logic implementation
      */
     public SpinResult spin() {
+
+        // TÍCH HỢP TRUE RANDOM Ở ĐÂY: Reset lại thuật toán ngẫu nhiên trước khi quay
+        injectChaos();
+
         SpinResult result = new SpinResult();
         
         // Step 1: Generate final probability table
@@ -223,33 +258,18 @@ public class SpinSystem {
             return result;
         }
 
-        // Filter out recent hits to improve variety
-        List<JsonObject> availablePool = new ArrayList<>();
-        for (JsonObject card : cardsInGroup) {
-            if (!recentHistory.contains(card)) {
-                availablePool.add(card);
-            }
-        }
-        if (availablePool.isEmpty()) {
-            availablePool = cardsInGroup; // Fallback to full pool if exhausted
-        }
-
-        int randomIndex = random.nextInt(availablePool.size());
-        JsonObject finalCard = availablePool.get(randomIndex);
+        // Bốc ngẫu nhiên 1 thẻ trúng thưởng (Đã xóa logic chặn thẻ trùng lặp)
+        int randomIndex = random.nextInt(cardsInGroup.size());
+        JsonObject finalCard = cardsInGroup.get(randomIndex);
         result.result = finalCard;
-        
-        // Update history
-        recentHistory.add(finalCard);
-        if (recentHistory.size() > MAX_HISTORY) {
-            recentHistory.removeFirst();
-        }
 
-        // Build Fake Grid Distribution
+        // Build Fake Grid Distribution (Xác định số lượng thẻ của từng group cần làm nền)
         Map<String, Integer> dist = buildCaseDistribution(selectedGroup);
         dist.put(selectedGroup, dist.getOrDefault(selectedGroup, 1) - 1);
 
-        // Generate tracking grid
+        // Generate tracking grid (Bốc 15 thẻ fake an toàn tuyệt đối)
         List<JsonObject> revealGrid = new ArrayList<>();
+        
         for (Map.Entry<String, Integer> entry : dist.entrySet()) {
             String g = entry.getKey();
             int count = entry.getValue();
@@ -257,31 +277,27 @@ public class SpinSystem {
             
             List<JsonObject> pool = groupedCards.get(g);
             if (pool == null || pool.isEmpty()) continue;
-
-            java.util.Set<Integer> selectedIndices = new java.util.HashSet<>();
-            if (g.equals(selectedGroup)) { // exclude the real result card from fake items
-                int resIdx = pool.indexOf(finalCard);
-                if (resIdx >= 0) selectedIndices.add(resIdx);
-            }
             
-            int targetSize = selectedIndices.size() + count;
-            targetSize = Math.min(targetSize, pool.size()); // safety array bounds
+            // TỐI ƯU: Tạo bản sao của kho thẻ và loại bỏ thẻ trúng thưởng (để tránh lặp mặt sau)
+            List<JsonObject> safePool = new ArrayList<>(pool);
+            safePool.remove(finalCard);
             
-            while (selectedIndices.size() < targetSize) {
-                selectedIndices.add(random.nextInt(pool.size()));
-            }
+            // Giới hạn số lượng thẻ bốc không vượt quá số thẻ an toàn đang có
+            int targetSize = Math.min(count, safePool.size());
             
-            for (Integer idx : selectedIndices) {
-                JsonObject card = pool.get(idx);
-                if (card != finalCard) {
-                    revealGrid.add(card);
-                }
+            // Trộn ngẫu nhiên danh sách bằng chính thuật toán mã hóa của SecureRandom
+            java.util.Collections.shuffle(safePool, random);
+            
+            // Cắt đúng số lượng thẻ đưa vào lưới
+            for (int i = 0; i < targetSize; i++) {
+                revealGrid.add(safePool.get(i));
             }
         }
         
-        java.util.Collections.shuffle(revealGrid, random); // shuffle visual
+        // Trộn ngẫu nhiên vị trí của 15 thẻ rác trước khi đưa lên UI
+        java.util.Collections.shuffle(revealGrid, random);
         result.revealGrid = revealGrid;
-
+        
         // Build display message
         String collectionId = (finalCard.has("collectionId") && !finalCard.get("collectionId").isJsonNull())
                 ? finalCard.get("collectionId").getAsString()
@@ -295,30 +311,45 @@ public class SpinSystem {
         Map<String, int[]> bounds = new HashMap<>(); // [min, max]
         int pProb = 0;
         int caseRoll = random.nextInt(100);
-        if (caseRoll < 32) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{10, 11});
-            bounds.put(GROUP_DOUBLE, new int[]{4, 5});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 1});
-            pProb = 1;
-            bounds.put(GROUP_NOTHING, new int[]{1, 2});
-        } else if (caseRoll < 65) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 9});
+        if (caseRoll < 24) {
+            bounds.put(GROUP_FIRST_WELCOME, new int[]{6, 11});
             bounds.put(GROUP_DOUBLE, new int[]{3, 6});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 2});
-            pProb = 5;
-            bounds.put(GROUP_NOTHING, new int[]{1, 2});
-        } else if (caseRoll < 96) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 9});
-            bounds.put(GROUP_DOUBLE, new int[]{3, 6});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{1, 2});
-            pProb = 5;
+
+            int specialCount = random.nextInt(2);
+            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
+
+            pProb = 3;
+            bounds.put(GROUP_NOTHING, new int[]{0, 2});
+        } else if (caseRoll < 48) {
+            bounds.put(GROUP_FIRST_WELCOME, new int[]{7, 10});
+            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
+            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 0});
+            pProb = 3;
+            bounds.put(GROUP_NOTHING, new int[]{1, 1});
+        } else if (caseRoll < 72) {
+            bounds.put(GROUP_FIRST_WELCOME, new int[]{7, 10});
+            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
+            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 0});
+            pProb = 0;
+            bounds.put(GROUP_NOTHING, new int[]{1, 1});
+        } else if (caseRoll < 99) {
+            bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 10});
+            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
+
+            int specialCount = random.nextInt(2);
+            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
+
+            pProb = 3;
             bounds.put(GROUP_NOTHING, new int[]{1, 1});
         } else {
             bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 9});
             bounds.put(GROUP_DOUBLE, new int[]{3, 6});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{1, 2});
+
+            int specialCount = random.nextInt(3);
+            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
+
             pProb = 100;
-            bounds.put(GROUP_NOTHING, new int[]{0, 0});
+            bounds.put(GROUP_NOTHING, new int[]{0, 1});
         }
 
         int premierCount = (resultGroup.equals(GROUP_PREMIER)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);

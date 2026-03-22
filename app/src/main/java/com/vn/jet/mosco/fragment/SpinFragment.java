@@ -264,7 +264,16 @@ public class SpinFragment extends Fragment {
                     java.util.Set<String> urlsToLoad = new java.util.HashSet<>();
                     for (int i = 0; i < gridSessionCards.size(); i++) {
                         JsonObject card = gridSessionCards.get(i);
-                        if (card.has("frontImage") && !card.get("frontImage").isJsonNull()) urlsToLoad.add(card.get("frontImage").getAsString());
+                        if (card.has("frontImage") && !card.get("frontImage").isJsonNull()) {
+                            String url = card.get("frontImage").getAsString();
+                            if (i != sessionResultIndex) {
+                                if (url.endsWith("/4x"))
+                                    url = url.substring(0, url.length() - 3) + "/1x";
+                                else if (url.endsWith("/original"))
+                                    url = url.substring(0, url.length() - 9) + "/1x";
+                            }
+                            urlsToLoad.add(url);
+                        }
                         if (i == sessionResultIndex) {
                             if (card.has("backImage") && !card.get("backImage").isJsonNull()) urlsToLoad.add(card.get("backImage").getAsString());
                         }
@@ -473,7 +482,14 @@ public class SpinFragment extends Fragment {
             JsonObject obj = gridSessionCards.get(position);
             String key = isFront ? "frontImage" : "backImage";
             if (obj != null && obj.has(key) && !obj.get(key).isJsonNull()) {
-                return obj.get(key).getAsString();
+                String url = obj.get(key).getAsString();
+                if (isFront && position != sessionResultIndex) {
+                    if (url.endsWith("/4x"))
+                        url = url.substring(0, url.length() - 3) + "/1x";
+                    else if (url.endsWith("/original"))
+                        url = url.substring(0, url.length() - 9) + "/1x";
+                }
+                return url;
             }
         }
         return "";
