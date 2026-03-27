@@ -1,13 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- ========================================== -->
+    <!-- 1. CHIPS & TAGS (Dành cho bộ lọc, nhãn)      -->
+    <!-- ========================================== -->
     <style name="FilterChipStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/bg_filter_chip</item>
         <item name="android:paddingHorizontal">16dp</item>
         <item name="android:paddingVertical">8dp</item>
-        <item name="android:textColor">#FFFFFF</item>
+        <!-- Đã gỡ hardcode #FFFFFF, dùng màu của hệ thống -->
+        <item name="android:textColor">@color/selector_filter_chip_text</item>
         <item name="android:textSize">12sp</item>
         <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <!-- ========================================== -->
+    <!-- 2. HỆ THỐNG NÚT BẤM (MOSCO BUTTON SYSTEM)  -->
+    <!-- ========================================== -->
+
+    <!-- Khuôn mẫu Nút Chính (Primary): Nền Gradient Tím, Chữ Trắng -->
+    <style name="MoscoButton.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item> <!-- Vùng chạm tiêu chuẩn -->
+        <item name="cornerRadius">24dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <!-- Bắt buộc set @null để MaterialButton cho phép dùng nền Gradient tự chế -->
+        <item name="backgroundTint">@null</item>
+        <!-- Sẽ tạo file này ở bước sau -->
+        <item name="android:background">@drawable/selector_btn_bg_primary</item>
+        <item name="android:textColor">@color/selector_btn_text_primary</item>
+    </style>
+
+    <!-- Khuôn mẫu Nút Phụ (Outlined): Viền ảo (Ghost Border), Chữ Tím -->
+    <style name="MoscoButton.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <!-- Thông số viền -->
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/selector_btn_stroke_outlined</item>
+        <!-- Thông số chữ -->
+        <item name="android:textColor">@color/selector_btn_text_outlined</item>
+        <!-- Sóng tỏa ra khi bấm (Ripple) màu tím mờ 20% -->
+        <item name="rippleColor">#336C29FD</item>
+    </style>
+
+    <!-- Khuôn mẫu Nút Chữ Trơn (Text Only): Dành cho hành động phụ -->
+    <style name="MoscoButton.TextOnly" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <!-- Chữ màu xám theo The Galactic Interface -->
+        <item name="android:textColor">@color/mosco_on_surface_variant</item>
+        <!-- Sóng tỏa ra khi bấm màu xám mờ 20% -->
+        <item name="rippleColor">#33ADAAAA</item>
+    </style>
+
+    <!-- Khuôn mẫu Nút Icon (Kính - Glassmorphism): Nút Back, Đóng popup -->
+    <style name="MoscoButton.IconGlass" parent="Widget.MaterialComponents.Button.Icon">
+        <!-- Nút hình vuông tỷ lệ 1:1 -->
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <!-- Màu icon trắng, nền xám kính -->
+        <item name="iconTint">@color/mosco_on_surface</item>
+        <!-- Độ mờ 60% (~#99) kết hợp với màu surface_variant -->
+        <item name="backgroundTint">#99262626</item>
     </style>
 </resources>

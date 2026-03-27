@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins"
             android:textAlignment="center"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="26sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/tv_description"

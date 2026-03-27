@@ -6,7 +6,7 @@
     <gradient
         android:type="radial"
         android:gradientRadius="180%p"
-        android:startColor="#FFFFFFFF"
+        android:startColor="@color/mosco_on_surface"
         android:centerColor="#CCFFFFFF"
         android:endColor="#66FFFFFF" />
 </shape>

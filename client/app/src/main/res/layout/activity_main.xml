@@ -20,7 +20,7 @@
         style="@style/Widget.MaterialComponents.BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#27273A"
+        android:background="@color/mosco_surface_container"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
         app:itemRippleColor="@android:color/transparent"

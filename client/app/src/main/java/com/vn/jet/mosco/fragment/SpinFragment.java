@@ -57,7 +57,7 @@ public class SpinFragment extends Fragment {
     private CardView cardCenterSlot;
     private VideoView videoSpinEffect;
     private FrameLayout videoContainer;
-    
+
     // UI Phases
     private View layoutSpinMain;
     private View layoutRevealGrid;
@@ -91,7 +91,7 @@ public class SpinFragment extends Fragment {
     private SpinSystem.SpinResult currentSpinResult;
     private List<JsonObject> gridSessionCards = new ArrayList<>();
     private int sessionResultIndex = -1;
-    
+
     private volatile boolean videoComplete = false;
     private volatile boolean preloadComplete = false;
 
@@ -181,7 +181,7 @@ public class SpinFragment extends Fragment {
         btnSpin.setOnClickListener(v -> showConfirmDialog());
         btnConfirmSelect.setOnClickListener(v -> {
             btnConfirmSelect.setEnabled(false);
-            
+
             // QuanTum Swap Matrix: Giúp Card mà player bấm CHẮC CHẮN là result được bốc bởi Server
             if (selectedPosition != -1 && selectedPosition != sessionResultIndex && selectedPosition < gridSessionCards.size()) {
                 JsonObject temp = gridSessionCards.get(selectedPosition);
@@ -239,7 +239,7 @@ public class SpinFragment extends Fragment {
         dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
             dialog.dismiss();
-            
+
             videoComplete = false;
             preloadComplete = false;
             playSpinVideoEffect();
@@ -252,7 +252,7 @@ public class SpinFragment extends Fragment {
                         checkReadyToReveal();
                         return;
                     }
-                    
+
                     gridSessionCards.clear();
                     gridSessionCards.add(currentSpinResult.result);
                     if (currentSpinResult.revealGrid != null) {
@@ -260,7 +260,7 @@ public class SpinFragment extends Fragment {
                     }
                     java.util.Collections.shuffle(gridSessionCards);
                     sessionResultIndex = gridSessionCards.indexOf(currentSpinResult.result);
-                    
+
                     java.util.Set<String> urlsToLoad = new java.util.HashSet<>();
                     for (int i = 0; i < gridSessionCards.size(); i++) {
                         JsonObject card = gridSessionCards.get(i);
@@ -278,17 +278,17 @@ public class SpinFragment extends Fragment {
                             if (card.has("backImage") && !card.get("backImage").isJsonNull()) urlsToLoad.add(card.get("backImage").getAsString());
                         }
                     }
-                    
+
                     int totalAssets = urlsToLoad.size();
                     if (totalAssets == 0) {
                         preloadComplete = true;
                         checkReadyToReveal();
                         return;
                     }
-                    
+
                     java.util.concurrent.atomic.AtomicInteger loadedAssets = new java.util.concurrent.atomic.AtomicInteger(0);
                     java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(8);
-                    
+
                     for (String u : urlsToLoad) {
                         pool.submit(() -> {
                             try {
@@ -296,7 +296,7 @@ public class SpinFragment extends Fragment {
                                     Glide.with(requireContext().getApplicationContext()).asBitmap().load(u).submit().get();
                                 }
                             } catch (Exception e) { e.printStackTrace(); }
-                            
+
                             int progress = loadedAssets.incrementAndGet();
                             if (progress == totalAssets) {
                                 preloadComplete = true;
@@ -317,10 +317,10 @@ public class SpinFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     if (currentSpinResult == null || currentSpinResult.result == null) {
                         new AlertDialog.Builder(getContext())
-                            .setTitle("Spin Result")
-                            .setMessage("No reward!")
-                            .setPositiveButton("OK", (d, w) -> resetToSpinMain())
-                            .show();
+                                .setTitle("Spin Result")
+                                .setMessage("No reward!")
+                                .setPositiveButton("OK", (d, w) -> resetToSpinMain())
+                                .show();
                     } else {
                         spinGridSecret();
                     }
@@ -358,7 +358,7 @@ public class SpinFragment extends Fragment {
         videoContainer.setVisibility(View.VISIBLE);
         videoContainer.setAlpha(1f);
         videoContainer.setBackgroundColor(Color.BLACK);
-        
+
         // Disable elevation which causes shadow/white frame artifacts
         if (videoSpinEffect != null) {
             videoSpinEffect.animate().cancel();
@@ -384,13 +384,13 @@ public class SpinFragment extends Fragment {
             videoSpinEffect.setScaleX(1.0f);
             videoSpinEffect.setScaleY(1.0f);
             mp.setLooping(false);
-            
+
             // Show video instantly once hardware decodes first frame
             videoSpinEffect.animate()
                     .alpha(1f)
                     .setDuration(150)
                     .start();
-                    
+
             videoSpinEffect.start();
 
             int duration = mp.getDuration();
@@ -461,7 +461,7 @@ public class SpinFragment extends Fragment {
 
                 secretAdapter = new SecretCardAdapter();
                 rvSecretGrid.setAdapter(secretAdapter);
-                
+
                 // Start shine effect loop
                 startShineEffectLoop();
 
@@ -607,10 +607,10 @@ public class SpinFragment extends Fragment {
                                                                         // PAUSE 500ms at 180°
                                                                         cardResultFinal.postDelayed(() -> {
                                                                             if (!isAdded()) return;
-                                                                            
+
                                                                             // === Phase 4.2: Rotation 180° to 360° ===
                                                                             ValueAnimator rot2 = ValueAnimator.ofFloat(180f, 360f);
-                                                                            rot2.setDuration(750); 
+                                                                            rot2.setDuration(750);
                                                                             rot2.setInterpolator(new AccelerateDecelerateInterpolator());
                                                                             rot2.addUpdateListener(anim2 -> {
                                                                                 float val = (float) anim2.getAnimatedValue();
@@ -625,7 +625,7 @@ public class SpinFragment extends Fragment {
                                                                                 @Override
                                                                                 public void onAnimationEnd(Animator animation) {
                                                                                     cardResultFinal.setRotationY(0f);
-                                                                                    
+
                                                                                     // Show frame glowing effect
                                                                                     if (getView() != null) {
                                                                                         ImageView frameSpin = getView().findViewById(R.id.iv_frame_result_spin);
@@ -689,8 +689,8 @@ public class SpinFragment extends Fragment {
         }
         // Fade-in subtitle
         if (tvResultSubtitle != null) {
-            String subMsg = currentSpinResult != null && currentSpinResult.message != null 
-                ? currentSpinResult.message : "You received the Objekt.";
+            String subMsg = currentSpinResult != null && currentSpinResult.message != null
+                    ? currentSpinResult.message : "You received the Objekt.";
             tvResultSubtitle.setText(subMsg);
             tvResultSubtitle.animate()
                     .alpha(1f)
@@ -794,7 +794,7 @@ public class SpinFragment extends Fragment {
         }
         viewNeonGlow.setAlpha(0f);
         viewNeonGlow.setVisibility(View.GONE);
-        
+
         if (getView() != null) {
             ImageView frameSpin = getView().findViewById(R.id.iv_frame_result_spin);
             if (frameSpin != null) {
@@ -802,7 +802,7 @@ public class SpinFragment extends Fragment {
                 frameSpin.setAlpha(0f);
             }
         }
-        
+
         stopShineEffectLoop(); // Reset shine loop
 
         // Reset trạng thái chọn thẻ
@@ -822,7 +822,7 @@ public class SpinFragment extends Fragment {
         // Hiện lại màn Spin chính
         layoutSpinMain.setVisibility(View.VISIBLE);
         toggleBottomNavigation(true);
-        
+
         // Reset slot nguyên liệu spin
         if (ivSelectedObjet != null) {
             ivSelectedObjet.setVisibility(View.GONE);
@@ -837,7 +837,7 @@ public class SpinFragment extends Fragment {
             btnSpin.setTextColor(Color.parseColor("#A2A2A7"));
         }
     }
-    
+
     // ========================
     // Shine Effect Logic
     // ========================
@@ -849,7 +849,7 @@ public class SpinFragment extends Fragment {
         if (isShineActive) return;
         isShineActive = true;
         // The loop triggers randomly. We set the first trigger fairly soon.
-        shineHandler.postDelayed(shineRunnable, 1000); 
+        shineHandler.postDelayed(shineRunnable, 1000);
     }
 
     private void stopShineEffectLoop() {
@@ -861,7 +861,7 @@ public class SpinFragment extends Fragment {
         @Override
         public void run() {
             if (!isShineActive || !isAdded() || secretAdapter == null || rvSecretGrid == null) return;
-            
+
             // Randomly select 1 to 2 items each time
             int count = 1 + shineRandom.nextInt(2);
             for(int i = 0; i < count; i++) {
@@ -873,13 +873,13 @@ public class SpinFragment extends Fragment {
                     holder.playShineAnimation(animDuration);
                 }
             }
-            
+
             // Every 1-2 seconds
             long delayMs = 1000 + shineRandom.nextInt(1000);
             shineHandler.postDelayed(this, delayMs);
         }
     };
-    
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -906,7 +906,7 @@ public class SpinFragment extends Fragment {
             float density = holder.itemView.getContext().getResources().getDisplayMetrics().density;
             int strokeWidth = selectedPosition == position ? (int) (3 * density) : 0;
             holder.cardRoot.setStrokeWidth(strokeWidth);
-            
+
             if (isAdded()) {
                 Glide.with(SpinFragment.this)
                         .load(R.drawable.objet_back_spin)
@@ -914,7 +914,7 @@ public class SpinFragment extends Fragment {
             }
             holder.ivCardBack.setVisibility(View.VISIBLE);
             holder.ivCardFront.setVisibility(View.INVISIBLE);
-            
+
             holder.itemView.setOnClickListener(v -> {
                 int oldPos = selectedPosition;
                 selectedPosition = holder.getBindingAdapterPosition();
@@ -943,29 +943,29 @@ public class SpinFragment extends Fragment {
                 ivCardFront = v.findViewById(R.id.iv_card_front);
                 viewShine = v.findViewById(R.id.view_metallic_shine);
             }
-            
+
             void playShineAnimation(long duration) {
                 if (viewShine == null || cardRoot == null) return;
                 int cw = cardRoot.getWidth();
                 if (cw == 0) return;
-                
+
                 viewShine.setVisibility(View.VISIBLE);
-                
+
                 // Streak diagonal sweep from right to left
                 float startX = cw * 1.5f;
                 float endX = -cw * 1.5f;
-                
+
                 ObjectAnimator txAnim = ObjectAnimator.ofFloat(viewShine, "translationX", startX, endX);
                 txAnim.setDuration(duration);
                 txAnim.setInterpolator(new android.view.animation.LinearInterpolator());
-                
+
                 ObjectAnimator fadeIn = ObjectAnimator.ofFloat(viewShine, "alpha", 0f, 1f);
                 fadeIn.setDuration((long)(duration * 0.2f));
-                
+
                 ObjectAnimator fadeOut = ObjectAnimator.ofFloat(viewShine, "alpha", 1f, 0f);
                 fadeOut.setDuration((long)(duration * 0.2f));
                 fadeOut.setStartDelay((long)(duration * 0.8f));
-                
+
                 AnimatorSet set = new AnimatorSet();
                 set.playTogether(txAnim, fadeIn, fadeOut);
                 set.addListener(new AnimatorListenerAdapter() {
@@ -1042,12 +1042,12 @@ public class SpinFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             holders.add(holder);
             holder.cardRoot.setStrokeWidth(0);
-            
+
             if (isAdded()) {
                 Glide.with(SpinFragment.this)
                         .load(R.drawable.objet_back_spin)
                         .into(holder.ivCardBack);
-                        
+
                 String frontUrl = getCardImageUrl(position, true);
                 loadCardImageInto(frontUrl, holder.ivCardFront);
             }
@@ -1056,7 +1056,7 @@ public class SpinFragment extends Fragment {
                 // Thẻ đã chọn — hiện mặt trước + badge "Get"
                 holder.ivCardBack.setVisibility(View.GONE);
                 holder.ivCardFront.setVisibility(View.VISIBLE);
-                
+
                 float density = holder.itemView.getContext().getResources().getDisplayMetrics().density;
                 holder.cardRoot.setStrokeWidth((int) (3 * density));
 

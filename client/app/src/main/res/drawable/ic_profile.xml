@@ -4,19 +4,19 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
         android:strokeWidth="1.5"
         android:pathData="M12,12m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
         android:strokeLineCap="round"
         android:strokeWidth="1.5"
         android:pathData="M12,14.5c-3,0 -5.5,1.5 -6.5,3c1.5,2 4,3.5 6.5,3.5s5,-1.5 6.5,-3.5c-1,-1.5 -3.5,-3 -6.5,-3z" />
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
         android:strokeWidth="1.5"
         android:pathData="M12,11m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
 </vector>

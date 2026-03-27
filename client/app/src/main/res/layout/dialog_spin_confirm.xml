@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins"
             android:text="Xác nhận Spin"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -62,7 +62,7 @@
                 android:paddingHorizontal="20dp"
                 android:text="Quay ngay"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 

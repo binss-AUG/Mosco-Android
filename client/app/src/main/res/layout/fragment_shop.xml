@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_surface">
+
+    <!-- ====================================================== -->
+    <!-- TOP HEADER: Glassmorphism Currency Bar                  -->
+    <!-- ====================================================== -->
+    <LinearLayout
+        android:id="@+id/header_currency_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_currency_bar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="6dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Button: MoscoButton.IconGlass -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_shop_back"
+            style="@style/MoscoButton.IconGlass"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:padding="9dp"
+            app:icon="@drawable/ic_back_arrow"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="24dp" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_shop_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/poppins"
+            android:text="Shop"
+            android:textColor="@color/mosco_on_surface"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Coins Display -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_item_coin"
+                android:contentDescription="Coins" />
+
+            <TextView
+                android:id="@+id/tv_coins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/poppins"
+                android:text="1,250"
+                android:textColor="@color/mosco_on_surface"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Diamonds Display -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_item_diamond"
+                android:contentDescription="Diamonds" />
+
+            <TextView
+                android:id="@+id/tv_diamonds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/poppins"
+                android:text="80"
+                android:textColor="@color/mosco_on_surface"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ====================================================== -->
+    <!-- CATEGORY CHIPS: Horizontal Scroll                       -->
+    <!-- ====================================================== -->
+    <HorizontalScrollView
+        android:id="@+id/hsv_categories"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_currency_bar">
+
+        <LinearLayout
+            android:id="@+id/ll_chip_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chip_all"
+                style="@style/FilterChipStyle"
+                android:layout_marginEnd="8dp"
+                android:state_selected="true"
+                android:text="All" />
+
+            <TextView
+                android:id="@+id/chip_skins"
+                style="@style/FilterChipStyle"
+                android:layout_marginEnd="8dp"
+                android:text="Skins" />
+
+            <TextView
+                android:id="@+id/chip_boosters"
+                style="@style/FilterChipStyle"
+                android:layout_marginEnd="8dp"
+                android:text="Boosters" />
+
+            <TextView
+                android:id="@+id/chip_consumables"
+                style="@style/FilterChipStyle"
+                android:layout_marginEnd="8dp"
+                android:text="Consumables" />
+
+            <TextView
+                android:id="@+id/chip_bundles"
+                style="@style/FilterChipStyle"
+                android:text="Bundles" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- ====================================================== -->
+    <!-- PRODUCT GRID: RecyclerView (GridLayoutManager span=2)   -->
+    <!-- ====================================================== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_shop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginHorizontal="10dp"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hsv_categories"
+        tools:listitem="@layout/item_shop_card" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
