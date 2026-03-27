@@ -5,16 +5,16 @@
     android:viewportHeight="24">
     
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
         android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:pathData="M18,4 C19,3 20.5,3 21.5,4 C22.5,5 22.5,6.5 21.5,7.5 L7.5,21.5 C6.5,22.5 5,22.5 4,21.5 C3,20.5 3,19 4,18 L18,4 C18,3 19.5,3 20.5,4 Z" />
         
     <path
-        android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
         android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"

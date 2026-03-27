@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- 1. Khi nút bị tắt (Disabled): Nền xám trơn -->
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="@color/mosco_btn_disabled" />
+        </shape>
+    </item>
+
+    <!-- 2. Mặc định (Được bật): Nền Gradient chéo 135 độ -->
+    <item android:drawable="@drawable/bg_btn_rainbow" />
+</selector>

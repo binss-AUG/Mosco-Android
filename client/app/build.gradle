@@ -45,6 +45,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
 
     // --- Firebase (Dùng cho Auth và lưu trữ kho đồ Online) ---
     // Import cái BOM này để không cần quản lý version từng cái lẻ

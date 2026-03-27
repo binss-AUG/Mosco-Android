@@ -2,9 +2,23 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="mosco_bg_dark">#12141D</color>
-    <color name="mosco_primary">#0066FF</color>
-    <color name="mosco_text_white">#FFFFFF</color>
-    <color name="mosco_text_hint">#8A8D9F</color>
-    <color name="mosco_input_bg">#1E2230</color>
+   <!-- <color name="mosco_bg_dark">#12141D</color>
+   <color name="mosco_text_hint">#8A8D9F</color>
+    <color name="mosco_input_bg">#1E2230</color>-->
+    <color name="mosco_primary">#6c29fd</color>
+    <color name="transparent">#00000000</color>
+    <color name="mosco_surface">#0e0e0e</color>
+    <color name="mosco_surface_container_low">#131313</color>
+    <color name="mosco_surface_container">#1a1a1a</color>
+    <color name="mosco_surface_container_high">#20201f</color>
+    <color name="mosco_surface_variant">#262626</color>
+    <color name="mosco_primary_dim">#9547f7</color>
+    <color name="mosco_secondary">#ffffff</color>
+    <color name="mosco_tertiary">#08ff00</color>
+    <color name="mosco_surface_tint">#6c29fd</color>
+    <color name="mosco_on_surface">#ffffff</color>
+    <color name="mosco_on_surface_variant">#adaaaa</color>
+    <color name="mosco_outline_variant">#484847</color>
+    <color name="mosco_btn_disabled">#41455E</color>
+    <color name="mosco_text_disabled">#A2A2A7</color>
 </resources>

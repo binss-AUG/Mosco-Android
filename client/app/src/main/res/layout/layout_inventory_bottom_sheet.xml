@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="@id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_title"
-        app:tint="#FFFFFF" />
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/tv_title"
@@ -25,7 +25,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/poppins"
         android:text="Select an Objet"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
