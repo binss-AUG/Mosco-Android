@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền xám mờ -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="4dp" />
+            <solid android:color="@color/mosco_surface_variant" />
+        </shape>
+    </item>
+    <!-- Thanh tiến trình Gradient -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="4dp" />
+                <gradient
+                    android:startColor="@color/mosco_primary"
+                    android:endColor="@color/mosco_tertiary"
+                    android:angle="0" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

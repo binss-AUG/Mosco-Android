@@ -21,4 +21,14 @@
     <color name="mosco_outline_variant">#484847</color>
     <color name="mosco_btn_disabled">#41455E</color>
     <color name="mosco_text_disabled">#A2A2A7</color>
+    
+    <color name="mosco_gold">#FFD700</color>
+    <color name="mosco_surface_container_high_80">#CC20201F</color>
+    <color name="mosco_success">#00C853</color>
+    
+    <!-- Stats Colors -->
+    <color name="stat_hp">#4CAF50</color> <!-- Xanh lá -->
+    <color name="stat_atk">#F44336</color> <!-- Đỏ -->
+    <color name="stat_def">#2196F3</color> <!-- Xanh biển -->
+    <color name="stat_crit_rate">#9C27B0</color> <!-- Tím -->
 </resources>

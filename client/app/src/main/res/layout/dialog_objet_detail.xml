@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_dialog_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="12dp"
+    app:cardBackgroundColor="@color/mosco_surface"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <!-- 1. Close Button (Top Right) -->
+        <ImageView
+            android:id="@+id/btn_close_detail"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            app:tint="@color/mosco_on_surface"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 4. Action Buttons Container (Pinned to Bottom) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ll_action_buttons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Recycle Button -->
+            <ImageView
+                android:id="@+id/btn_recycle_detail"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_recycle"
+                app:tint="@color/mosco_on_surface_variant"
+                android:background="@drawable/bg_circle_dark"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- Level Up Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_level_up_detail"
+                style="@style/MoscoButton.Primary"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="LEVEL UP"
+                android:textSize="13sp"
+                app:backgroundTint="@color/mosco_success"
+                app:icon="@drawable/ic_level_up"
+                app:iconGravity="textStart"
+                app:iconSize="30dp"
+                app:iconTint="@color/stat_def"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/btn_recycle_detail"
+                app:layout_constraintEnd_toStartOf="@id/btn_upgrade_detail"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- UPGRADE Glow (Behind Upgrade Button) -->
+            <View
+                android:id="@+id/view_upgrade_glow"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_button_glow"
+                app:layout_constraintStart_toStartOf="@id/btn_upgrade_detail"
+                app:layout_constraintEnd_toEndOf="@id/btn_upgrade_detail"
+                app:layout_constraintTop_toTopOf="@id/btn_upgrade_detail"
+                app:layout_constraintBottom_toBottomOf="@id/btn_upgrade_detail" />
+
+            <!-- UPGRADE Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_upgrade_detail"
+                style="@style/MoscoButton.Primary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="UPGRADE"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintWidth_percent="0.4" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 5. Stats Card (Pinned just above Action Buttons) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_info_box"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/mosco_surface_container_high_80"
+            app:cardCornerRadius="12dp"
+            app:strokeWidth="0dp"
+            app:layout_constraintBottom_toTopOf="@id/ll_action_buttons"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="20dp">
+
+                <!-- HP -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_hp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="HP:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_hp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_hp" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- ATK -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_atk" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="ATK:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_atk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_atk" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- DEF -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_def" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="DEF:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_def" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_def" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Crit Rate -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_crit_rate" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit Rate:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_crit_rate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="100%" android:textColor="@color/stat_crit_rate" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- SPEED -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_speed"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="SPD:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/mosco_on_surface" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Crit DMG -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_crit_dame" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit DMG:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
+                    <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="200%" android:textColor="@color/mosco_primary" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                </LinearLayout>
+
+            </GridLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 6. Level Progress (Pinned just above Stats Card) -->
+        <LinearLayout
+            android:id="@+id/cl_level_section"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="18dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toTopOf="@id/cv_info_box"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView android:id="@+id/tv_level_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Level 1" android:textColor="@color/mosco_on_surface" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_level_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9 / 100" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+            </LinearLayout>
+
+            <ProgressBar android:id="@+id/pb_level" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="24dp" android:layout_marginTop="10dp" android:progress="9" android:max="100" android:progressDrawable="@drawable/bg_progress_glow" />
+        </LinearLayout>
+
+        <!-- 6.5. Dual Tone Chip -->
+        <LinearLayout
+            android:id="@+id/ll_dual_tone_chip"
+            android:layout_width="280dp"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintTop_toBottomOf="@id/cv_objet_image_container"
+            app:layout_constraintBottom_toTopOf="@id/cl_level_section"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Vùng 30% -->
+            <TextView
+                android:id="@+id/tv_badge_class"
+                android:layout_width="0dp"
+                android:layout_weight="0.3"
+                android:layout_height="match_parent"
+                android:text="First"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins"
+                android:textStyle="bold" />
+
+            <!-- Vùng 70% -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="0.7"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_objet_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JiWoo 120A"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/poppins"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_chip_upgrade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="+1"
+                    android:textColor="@color/mosco_gold"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/poppins"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 7. Image Container (Flexible space between Title and Level box) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_objet_image_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/transparent"
+            app:layout_constraintDimensionRatio="1:1.54"
+            app:layout_constraintWidth_percent="0.75"
+            app:layout_constraintTop_toBottomOf="@id/btn_close_detail"
+            app:layout_constraintBottom_toTopOf="@id/ll_dual_tone_chip"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- 1. Metallic Background -->
+            <View
+                android:id="@+id/view_card_metallic_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+                
+            <!-- 2. Transparent Image -->
+            <ImageView
+                android:id="@+id/iv_objet_detail_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/item_shop_demo"
+                tools:src="@drawable/item_shop_demo" />
+
+            <!-- 3. Shimmer Overlay -->
+            <View
+                android:id="@+id/view_card_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
