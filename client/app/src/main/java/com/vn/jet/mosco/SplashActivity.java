@@ -11,6 +11,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.vn.jet.mosco.utils.SessionManager;
+
 public class SplashActivity extends AppCompatActivity {
 
     @Override
@@ -25,11 +27,21 @@ public class SplashActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Đợi 3000 mili-giây (3 giây) rồi tự động chuyển trang
+        // Wait 3 seconds then decide where to navigate
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
+            SessionManager sessionManager = new SessionManager(this);
+            Intent intent;
+
+            if (sessionManager.isLoggedIn()) {
+                // Already logged in → skip Onboarding & SignIn, go straight to Main
+                intent = new Intent(SplashActivity.this, MainActivity.class);
+            } else {
+                // First time / logged out → show Onboarding flow
+                intent = new Intent(SplashActivity.this, OnboardingActivity.class);
+            }
+
             startActivity(intent);
-            finish(); // Đóng Splash lại để bấm Back không quay về đây được nữa
+            finish();
         }, 3000);
     }
 }

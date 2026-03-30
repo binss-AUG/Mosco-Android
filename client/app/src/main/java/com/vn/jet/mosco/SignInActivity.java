@@ -1,86 +1,151 @@
 package com.vn.jet.mosco;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.text.style.ForegroundColorSpan;
-import android.view.MotionEvent;
+import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.vn.jet.mosco.utils.Resource;
+import com.vn.jet.mosco.utils.SessionManager;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private boolean isPasswordVisible = false;
+    private TextInputEditText edtUsername, edtPassword;
+    private TextView tvGoToSignUp;
+    private Button btnSignIn;
+    private ProgressBar loadingProgress;
+
+    private SignInViewModel viewModel;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        EditText edtPassword = findViewById(R.id.edt_password);
-        TextView tvGoToSignUp = findViewById(R.id.tv_go_to_signup);
-        Button btnSignIn = findViewById(R.id.btn_signin);
+        edtUsername = findViewById(R.id.edt_username);
+        edtPassword = findViewById(R.id.edt_password);
+        tvGoToSignUp = findViewById(R.id.tv_go_to_signup);
+        btnSignIn = findViewById(R.id.btn_signin);
+        loadingProgress = findViewById(R.id.loading_progress);
 
-        // --- 2. Làm nổi bật chữ "Sign Up" và bắt sự kiện Click ---
-        String text = "I’m a new user. Sign Up";
-        SpannableString spannableString = new SpannableString(text);
-        // Tô màu xanh (#0066FF) cho chữ "Sign Up" (từ vị trí ký tự 16 đến 23)
-        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#0066FF")), 16, 23, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tvGoToSignUp.setText(spannableString);
+        viewModel = new ViewModelProvider(this).get(SignInViewModel.class);
+        sessionManager = new SessionManager(this);
 
-        // Chuyển sang màn hình SignUp
-        tvGoToSignUp.setOnClickListener(v -> {
-            Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
-            startActivity(intent);
+        // --- Spannable link for "Sign Up" ---
+        String text = getString(R.string.msg_new_user_sign_up);
+        SpannableString spannable = new SpannableString(text);
+        int start = text.indexOf(getString(R.string.title_sign_up));
+        if (start != -1) {
+            spannable.setSpan(
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_link)),
+                    start, start + getString(R.string.title_sign_up).length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        tvGoToSignUp.setText(spannable);
+
+        // --- Navigation ---
+        tvGoToSignUp.setOnClickListener(v ->
+                startActivity(new Intent(this, SignUpActivity.class)));
+
+        // Use OnBackPressedCallback instead of deprecated onBackPressed()
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
         });
+        findViewById(R.id.btn_back).setOnClickListener(v ->
+                getOnBackPressedDispatcher().onBackPressed());
 
-        // Nút Back trên góc màn hình
-        findViewById(R.id.btn_back).setOnClickListener(v -> onBackPressed());
+        // --- Forgot Password ---
+        findViewById(R.id.tv_forgot_password).setOnClickListener(v ->
+                Toast.makeText(this, getString(R.string.msg_forgot_password_placeholder),
+                        Toast.LENGTH_SHORT).show());
 
-        // Thiết lập ẩn/hiện mật khẩu cho ô Password
-        setupPasswordVisibility(edtPassword);
+        // --- Sign In ---
+        btnSignIn.setOnClickListener(v -> validateAndSignIn());
+
+        // --- Observe API result ---
+        viewModel.getSignInResult().observe(this, resource -> {
+            switch (resource.getStatus()) {
+                case LOADING:
+                    setLoading(true);
+                    break;
+
+                case SUCCESS:
+                    setLoading(false);
+                    if (resource.getData() != null && resource.getData().isSuccess()) {
+                        // Save session
+                        sessionManager.saveSession(resource.getData().getData());
+                        Toast.makeText(this, getString(R.string.msg_sign_in_success),
+                                Toast.LENGTH_SHORT).show();
+                        // Navigate to MainActivity
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                    break;
+
+                case ERROR:
+                    setLoading(false);
+                    Toast.makeText(this, resource.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
     }
 
-    // --- CẬP NHẬT HÀM HỖ TRỢ ẨN/HIỆN MẬT KHẨU SINH ĐỘNG ---
-    private void setupPasswordVisibility(EditText editText) {
-        // Mảng 1 phần tử để lách luật biến final trong lambda expression
-        final boolean[] isVisible = {false};
+    private void validateAndSignIn() {
+        String username = edtUsername.getText().toString().trim();
+        String password = edtPassword.getText().toString().trim();
 
-        editText.setOnTouchListener((v, event) -> {
-            final int DRAWABLE_RIGHT = 2; // Vị trí của icon mắt (End)
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                // Kiểm tra chạm vào icon con mắt
-                if (editText.getCompoundDrawables()[DRAWABLE_RIGHT] != null && 
-                    event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width() - 50)) {
+        if (username.isEmpty()) {
+            edtUsername.setError(getString(R.string.error_empty_field));
+            return;
+        }
+        if (password.isEmpty()) {
+            edtPassword.setError(getString(R.string.error_empty_field));
+            return;
+        }
+        if (password.length() < 6) {
+            edtPassword.setError(getString(R.string.error_short_password));
+            return;
+        }
 
-                    if (isVisible[0]) {
-                        // ĐANG HIỆN -> CHUYỂN SANG ẨN
-                        // 1. Đổi icon thành ic_eye khi mật khẩu bị che
-                        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_lock, 0, R.drawable.ic_eye, 0);
-                        // 2. Ẩn mật khẩu (dùng PasswordTransformationMethod)
-                        editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                        isVisible[0] = false;
-                    } else {
-                        // ĐANG ẨN -> CHUYỂN SANG HIỆN
-                        // 1. Đổi icon thành ic_uneye khi mật khẩu hiện
-                        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_lock, 0, R.drawable.ic_uneye, 0);
-                        // 2. Hiện mật khẩu (dùng HideReturnsTransformationMethod)
-                        editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                        isVisible[0] = true;
-                    }
+        viewModel.signIn(username, password);
+    }
 
-                    // Đưa con trỏ chuột về cuối đoạn text
-                    editText.setSelection(editText.getText().length());
-                    return true;
-                }
-            }
-            return false;
-        });
+    private void setLoading(boolean isLoading) {
+        loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnSignIn.setEnabled(!isLoading);
+        tvGoToSignUp.setEnabled(!isLoading);
+        edtUsername.setEnabled(!isLoading);
+        edtPassword.setEnabled(!isLoading);
+
+        if (isLoading) {
+            btnSignIn.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
+            btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.mosco_text_disabled));
+        } else {
+            btnSignIn.setBackgroundTintList(null);
+            btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.white));
+        }
     }
 }

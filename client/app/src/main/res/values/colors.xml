@@ -21,4 +21,7 @@
     <color name="mosco_outline_variant">#484847</color>
     <color name="mosco_btn_disabled">#41455E</color>
     <color name="mosco_text_disabled">#A2A2A7</color>
+    <color name="mosco_screen_bg">#161622</color>
+    <color name="mosco_input_bg">#232533</color>
+    <color name="mosco_link">#0066FF</color>
 </resources>

@@ -1,5 +1,33 @@
 <resources>
     <string name="app_name">Mosco</string>
+    <string name="base_url">http://192.168.1.9:8080/</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_sign_in">Sign In</string>
+    <string name="title_sign_up">Sign Up</string>
+    <string name="label_email">Email Address</string>
+    <string name="prompt_email">Email Address</string>
+    <string name="label_password">Password</string>
+    <string name="prompt_password">Password</string>
+    <string name="label_username">Username</string>
+    <string name="prompt_username">Username</string>
+    <string name="prompt_confirm_password">Confirm Password</string>
+    <string name="prompt_verification_code">Verification code</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="action_send_code">Send code</string>
+    <string name="action_resend">Resend</string>
+    <string name="action_forgot_password">Forgot Password?</string>
+    <string name="msg_new_user_sign_up">I\'m a new user. Sign Up</string>
+    <string name="msg_already_have_account">Already have an account? Sign In</string>
+    <string name="msg_passwords_not_match">Passwords do not match!</string>
+    <string name="msg_create_account_success">Account created successfully!</string>
+    <string name="msg_code_sent">Verification code sent!</string>
+    <string name="msg_sign_in_success">Welcome back!</string>
+    <string name="msg_forgot_password_placeholder">Password recovery coming soon.</string>
+    <string name="msg_network_error">Cannot connect to server.</string>
+    <string name="error_empty_field">This field is required</string>
+    <string name="error_invalid_email">Invalid email format</string>
+    <string name="error_short_password">Password must be at least 6 characters</string>
+    <string name="format_resend_timer">%ds</string>
 </resources>

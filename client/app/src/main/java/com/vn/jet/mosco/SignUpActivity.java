@@ -1,136 +1,213 @@
 package com.vn.jet.mosco;
 
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.text.style.ForegroundColorSpan;
-import android.view.MotionEvent;
+import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.vn.jet.mosco.utils.Resource;
+import com.vn.jet.mosco.utils.SessionManager;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText edtPassword, edtConfirmPassword;
-    private Button btnSendCode;
-    private CountDownTimer countDownTimer;
+    private TextInputEditText edtUsername, edtEmail, edtVerificationCode;
+    private TextInputEditText edtPassword, edtConfirmPassword;
+    private Button btnSendCode, btnSignUp;
+    private ProgressBar loadingProgress;
+    private TextView tvGoToSignIn;
+
+    private SignUpViewModel viewModel;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        edtUsername = findViewById(R.id.edt_username);
+        edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         edtConfirmPassword = findViewById(R.id.edt_confirm_password);
+        edtVerificationCode = findViewById(R.id.edt_verification_code);
         btnSendCode = findViewById(R.id.btn_send_code);
-        TextView tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
-        Button btnSignUp = findViewById(R.id.btn_signup);
+        btnSignUp = findViewById(R.id.btn_signup);
+        tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
+        loadingProgress = findViewById(R.id.loading_progress);
         ImageView btnBack = findViewById(R.id.btn_back);
 
-        // 1. Cài đặt chức năng con mắt (ẩn/hiện) cho cả 2 ô mật khẩu
-        setupPasswordVisibility(edtPassword);
-        setupPasswordVisibility(edtConfirmPassword);
+        viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
+        sessionManager = new SessionManager(this);
 
-        // 2. Logic đếm ngược 60s cho nút Gửi Mã Xác Nhận
+        // --- Send Code button ---
         btnSendCode.setOnClickListener(v -> {
-            // TODO: Chèn API gọi gửi Email/SMS OTP ở đây
-            Toast.makeText(this, "Đã gửi mã xác nhận!", Toast.LENGTH_SHORT).show();
-            startCountdown();
+            String email = edtEmail.getText().toString().trim();
+            if (email.isEmpty()) {
+                edtEmail.setError(getString(R.string.error_empty_field));
+                return;
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                edtEmail.setError(getString(R.string.error_invalid_email));
+                return;
+            }
+            Toast.makeText(this, getString(R.string.msg_code_sent), Toast.LENGTH_SHORT).show();
+            viewModel.startCountdown();
         });
 
-        // 3. Nút đăng ký (Kiểm tra xem mật khẩu có khớp không)
-        btnSignUp.setOnClickListener(v -> {
-            String pass = edtPassword.getText().toString();
-            String confirmPass = edtConfirmPassword.getText().toString();
-
-            if (!pass.equals(confirmPass)) {
-                Toast.makeText(this, "Mật khẩu không khớp!", Toast.LENGTH_SHORT).show();
+        // --- Countdown timer observers ---
+        viewModel.getIsTimerRunning().observe(this, isRunning -> {
+            boolean sentOnce = Boolean.TRUE.equals(viewModel.getCodeSentOnce().getValue());
+            if (isRunning) {
+                btnSendCode.setEnabled(false);
+                btnSendCode.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(
+                                ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
+                btnSendCode.setTextColor(
+                        ContextCompat.getColor(this, R.color.mosco_text_disabled));
             } else {
-                Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_SHORT).show();
-                finish(); // Trở về SignIn
+                btnSendCode.setText(sentOnce ? getString(R.string.action_resend) : getString(R.string.action_send_code));
+                btnSendCode.setEnabled(true);
+                btnSendCode.setBackgroundTintList(null);
+                btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.white));
             }
         });
 
-        // 4. Highlight chữ Sign In và nút Back
-        String text = "Already have an account? Sign In";
-        SpannableString spannableString = new SpannableString(text);
-        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#0066FF")), 25, 32, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        tvGoToSignIn.setText(spannableString);
+        viewModel.getTimeLeftMillis().observe(this, millis -> {
+            if (Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
+                btnSendCode.setText(String.format(
+                        getString(R.string.format_resend_timer), millis / 1000));
+            }
+        });
+
+        viewModel.getCodeSentOnce().observe(this, sentOnce -> {
+            if (!Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
+                btnSendCode.setText(sentOnce ? getString(R.string.action_resend) : getString(R.string.action_send_code));
+            }
+        });
+
+        // --- Sign Up button ---
+        btnSignUp.setOnClickListener(v -> validateAndSignUp());
+
+        // --- Observe API result ---
+        viewModel.getSignUpResult().observe(this, resource -> {
+            switch (resource.getStatus()) {
+                case LOADING:
+                    setLoading(true);
+                    break;
+
+                case SUCCESS:
+                    setLoading(false);
+                    if (resource.getData() != null && resource.getData().isSuccess()) {
+                        sessionManager.saveSession(resource.getData().getData());
+                        Toast.makeText(this,
+                                getString(R.string.msg_create_account_success),
+                                Toast.LENGTH_SHORT).show();
+                        // Navigate directly to MainActivity (user is already authenticated)
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                    break;
+
+                case ERROR:
+                    setLoading(false);
+                    Toast.makeText(this, resource.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
+
+        // --- Spannable "Sign In" link ---
+        String text = getString(R.string.msg_already_have_account);
+        SpannableString spannable = new SpannableString(text);
+        int start = text.indexOf(getString(R.string.action_sign_in));
+        if (start != -1) {
+            spannable.setSpan(
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_link)),
+                    start, start + getString(R.string.action_sign_in).length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        tvGoToSignIn.setText(spannable);
 
         tvGoToSignIn.setOnClickListener(v -> finish());
         btnBack.setOnClickListener(v -> finish());
     }
 
-    // --- HÀM HỖ TRỢ ĐẾM NGƯỢC 60S ---
-    private void startCountdown() {
-        btnSendCode.setEnabled(false); // Khóa nút không cho ấn liên tục
-        btnSendCode.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#41455E"))); // Đổi màu xám đi
+    private void validateAndSignUp() {
+        String username = edtUsername.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim();
+        String pass = edtPassword.getText().toString().trim();
+        String confirmPass = edtConfirmPassword.getText().toString().trim();
+        String code = edtVerificationCode.getText().toString().trim();
 
-        countDownTimer = new CountDownTimer(60000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                // Cập nhật số giây còn lại
-                btnSendCode.setText((millisUntilFinished / 1000) + "s");
-            }
+        if (username.isEmpty()) {
+            edtUsername.setError(getString(R.string.error_empty_field));
+            return;
+        }
+        if (email.isEmpty()) {
+            edtEmail.setError(getString(R.string.error_empty_field));
+            return;
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edtEmail.setError(getString(R.string.error_invalid_email));
+            return;
+        }
+        if (pass.isEmpty()) {
+            edtPassword.setError(getString(R.string.error_empty_field));
+            return;
+        }
+        if (pass.length() < 6) {
+            edtPassword.setError(getString(R.string.error_short_password));
+            return;
+        }
+        if (!pass.equals(confirmPass)) {
+            edtConfirmPassword.setError(getString(R.string.msg_passwords_not_match));
+            return;
+        }
+        if (code.isEmpty()) {
+            edtVerificationCode.setError(getString(R.string.error_empty_field));
+            return;
+        }
 
-            @Override
-            public void onFinish() {
-                // Hết 60s, cho phép ấn lại
-                btnSendCode.setText("Gửi lại");
-                btnSendCode.setEnabled(true);
-                btnSendCode.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#0066FF"))); // Trả lại màu xanh
-            }
-        }.start();
+        // Call real API via ViewModel
+        viewModel.signUpUser(username, email, pass);
     }
 
-    // --- CẬP NHẬT HÀM HỖ TRỢ ẨN/HIỆN MẬT KHẨU ---
-    private void setupPasswordVisibility(EditText editText) {
-        // Mảng 1 phần tử để lách luật biến final trong lambda expression
-        final boolean[] isVisible = {false};
+    private void setLoading(boolean isLoading) {
+        loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnSignUp.setEnabled(!isLoading);
+        btnSendCode.setEnabled(!isLoading
+                && !Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue()));
+        edtUsername.setEnabled(!isLoading);
+        edtEmail.setEnabled(!isLoading);
+        edtPassword.setEnabled(!isLoading);
+        edtConfirmPassword.setEnabled(!isLoading);
+        edtVerificationCode.setEnabled(!isLoading);
+        tvGoToSignIn.setEnabled(!isLoading);
 
-        editText.setOnTouchListener((v, event) -> {
-            final int DRAWABLE_RIGHT = 2; // Vị trí của icon mắt (End)
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                // Kiểm tra chạm vào icon con mắt
-                if (editText.getCompoundDrawables()[DRAWABLE_RIGHT] != null && 
-                    event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width() - 50)) {
-
-                    if (isVisible[0]) {
-                        // ĐANG HIỆN -> CHUYỂN SANG ẨN
-                        // Mật khẩu bị che = ic_eye
-                        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_lock, 0, R.drawable.ic_eye, 0);
-                        editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                        isVisible[0] = false;
-                    } else {
-                        // ĐANG ẨN -> CHUYỂN SANG HIỆN
-                        // Mật khẩu hiện = ic_uneye
-                        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_lock, 0, R.drawable.ic_uneye, 0);
-                        editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                        isVisible[0] = true;
-                    }
-
-                    // Đưa con trỏ chuột về cuối đoạn text
-                    editText.setSelection(editText.getText().length());
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Hủy timer nếu người dùng thoát màn hình SignUp giữa chừng để tránh rò rỉ bộ nhớ
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+        if (isLoading) {
+            btnSignUp.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
+            btnSignUp.setTextColor(
+                    ContextCompat.getColor(this, R.color.mosco_text_disabled));
+        } else {
+            btnSignUp.setBackgroundTintList(null);
+            btnSignUp.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
     }
 }
