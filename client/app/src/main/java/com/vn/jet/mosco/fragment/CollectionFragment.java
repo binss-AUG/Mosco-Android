@@ -86,6 +86,102 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     // SHARED HELPER: Sort Dropdown (custom popup)
     // ==========================================
+    
+    public static void showObjetDetailDialog(Context context, String imageUrl) {
+        showObjetDetailDialog(context, imageUrl, null);
+    }
+
+    /**
+     * Shows the Objet Detail Dialog with optional data-driven JSON binding.
+     *
+     * @param context  Current context
+     * @param imageUrl Fallback image URL (used if cardJson is null)
+     * @param cardJson Optional: parsed JSON card object from database.json
+     *                 When provided, backgroundColor/textColor/frontImage are
+     *                 applied dynamically via ObjetDetailBinder.
+     */
+    public static void showObjetDetailDialog(Context context, String imageUrl, org.json.JSONObject cardJson) {
+        android.app.Dialog dialog = new android.app.Dialog(context);
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_objet_detail);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            // MATCH_PARENT — the card's own margin (12dp) creates the visual inset.
+            // No scroll: ConstraintLayout distributes space automatically.
+            dialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            );
+        }
+
+        // ── Dynamic binding from JSON (Task 2) ────────────────────────
+        if (cardJson != null) {
+            com.vn.jet.mosco.utils.ObjetDetailBinder.bind(dialog, context, cardJson);
+        } else {
+            // Fallback: load imageUrl directly via Glide
+            ImageView ivObjet = dialog.findViewById(R.id.iv_objet_detail_image);
+            if (ivObjet != null) {
+                Glide.with(context)
+                        .load(imageUrl.isEmpty() ? R.drawable.item_shop_demo : imageUrl)
+                        .placeholder(R.drawable.item_shop_demo)
+                        .into(ivObjet);
+            }
+        }
+
+        // ── Button: Close ──────────────────────────────────────────────
+        View btnClose = dialog.findViewById(R.id.btn_close_detail);
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        // ── Button: Recycle / Refresh ────────────────────────────────────
+        View btnRecycle = dialog.findViewById(R.id.btn_recycle_detail);
+        if (btnRecycle != null) {
+            btnRecycle.setOnClickListener(v -> {
+                new androidx.appcompat.app.AlertDialog.Builder(context)
+                        .setTitle("Làm mới thẻ")
+                        .setMessage("Bạn có chắc chắn muốn làm mới dữ liệu của thẻ này không?")
+                        .setPositiveButton("Chắc chắn", (d, w) -> {
+                            if (cardJson != null) {
+                                String slug = cardJson.optString("slug", "");
+                                if (!slug.isEmpty()) {
+                                    // Reload data from DatabaseLoader
+                                    org.json.JSONObject refreshedCard = com.vn.jet.mosco.utils.DatabaseLoader.findBySlug(context, slug);
+                                    if (refreshedCard != null) {
+                                        com.vn.jet.mosco.utils.ObjetDetailBinder.bind(dialog, context, refreshedCard);
+                                        android.widget.Toast.makeText(context, "Làm mới thành công!", android.widget.Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        android.widget.Toast.makeText(context, "Lỗi: Không tìm thấy thẻ", android.widget.Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                        })
+                        .setNegativeButton("Hủy", (d, w) -> d.dismiss())
+                        .show();
+            });
+        }
+
+        // ── Button: Level Up (Outlined / Secondary) ────────────────────
+        View btnLevelUp = dialog.findViewById(R.id.btn_level_up_detail);
+        if (btnLevelUp != null) {
+            btnLevelUp.setOnClickListener(v -> {
+                Toast.makeText(context, "Level Up clicked", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // ── Button: UPGRADE (Primary — unchanged behavior) ─────────────
+        View btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
+        if (btnUpgrade != null) {
+            btnUpgrade.setOnClickListener(v -> {
+                Toast.makeText(context, "Upgrade clicked", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
+        }
+
+        dialog.show();
+    }
+
+
     public static void setupSortDropdown(
             View sortBtn, ImageView arrowIcon, TextView labelView,
             String[] options, LinearLayout dropdownContainer) {
@@ -723,7 +819,8 @@ public class CollectionFragment extends Fragment {
     }
 
     // ==========================================
-    // TAB 2: OBJETS
+    // ==========================================
+    // TAB 2: OBJETS (Data-Driven from database.json)
     // ==========================================
     public static class ObjetsFragment extends Fragment {
         private final Set<String> objetFilter = new LinkedHashSet<>();
@@ -748,19 +845,18 @@ public class CollectionFragment extends Fragment {
             LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_objets);
             setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown);
 
-            // RecyclerView
+            // RecyclerView — load REAL data from assets/database.json
             RecyclerView rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-            List<String> dummyImages = new ArrayList<>();
-            for (int i = 0; i < 15; i++) dummyImages.add("");
-            rvObjets.setAdapter(new ObjetsAdapter(dummyImages));
+            List<org.json.JSONObject> cards = com.vn.jet.mosco.utils.DatabaseLoader.loadAllCards(requireContext());
+            rvObjets.setAdapter(new ObjetsAdapter(cards));
         }
     }
 
     private static class ObjetsAdapter extends RecyclerView.Adapter<ObjetsAdapter.ViewHolder> {
-        private final List<String> list;
-        public ObjetsAdapter(List<String> list) { this.list = list; }
+        private final List<org.json.JSONObject> cardList;
+        public ObjetsAdapter(List<org.json.JSONObject> cardList) { this.cardList = cardList; }
 
         @NonNull
         @Override
@@ -770,14 +866,23 @@ public class CollectionFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            org.json.JSONObject cardJson = cardList.get(position);
+            String frontImage = cardJson.optString("frontImage", "");
+
             Glide.with(holder.itemView.getContext())
-                    .load(list.get(position))
+                    .load(frontImage.isEmpty() ? R.drawable.item_shop_demo : frontImage)
                     .placeholder(R.drawable.item_shop_demo)
                     .into(holder.ivObjet);
+
+            holder.itemView.setOnClickListener(v -> {
+                // Pass the FULL card JSON → dialog will use ObjetDetailBinder
+                // for data-driven dynamic theming (backgroundColor, textColor, etc.)
+                showObjetDetailDialog(v.getContext(), frontImage, cardJson);
+            });
         }
 
         @Override
-        public int getItemCount() { return list.size(); }
+        public int getItemCount() { return cardList.size(); }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivObjet;

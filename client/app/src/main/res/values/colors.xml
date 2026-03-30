@@ -24,4 +24,14 @@
     <color name="mosco_screen_bg">#161622</color>
     <color name="mosco_input_bg">#232533</color>
     <color name="mosco_link">#0066FF</color>
+    
+    <color name="mosco_gold">#FFD700</color>
+    <color name="mosco_surface_container_high_80">#CC20201F</color>
+    <color name="mosco_success">#00C853</color>
+    
+    <!-- Stats Colors -->
+    <color name="stat_hp">#4CAF50</color> <!-- Xanh lá -->
+    <color name="stat_atk">#F44336</color> <!-- Đỏ -->
+    <color name="stat_def">#2196F3</color> <!-- Xanh biển -->
+    <color name="stat_crit_rate">#9C27B0</color> <!-- Tím -->
 </resources>

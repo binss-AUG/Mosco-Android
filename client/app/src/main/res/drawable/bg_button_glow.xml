@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="24dp" />
+    <solid android:color="@color/mosco_primary" />
+    <!-- Gradient để tạo hiệu ứng phát sáng mờ ảo -->
+    <gradient
+        android:startColor="#806C29FD"
+        android:centerColor="#336C29FD"
+        android:endColor="#006C29FD"
+        android:type="radial"
+        android:gradientRadius="100dp" />
+</shape>
