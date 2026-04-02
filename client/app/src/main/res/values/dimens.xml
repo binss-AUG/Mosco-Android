@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="item_reveal_result_overlay_elevation">1000dp</dimen>
+    <dimen name="item_reveal_result_card_corner">16dp</dimen>
+    <dimen name="item_reveal_result_card_margin_horizontal">20dp</dimen>
+    <dimen name="item_reveal_result_card_padding">24dp</dimen>
+    <dimen name="item_reveal_result_spacing_xs">8dp</dimen>
+    <dimen name="item_reveal_result_spacing_md">16dp</dimen>
+    <dimen name="item_reveal_result_spacing_lg">20dp</dimen>
+    <dimen name="item_reveal_result_image_width">220dp</dimen>
+    <dimen name="item_reveal_result_image_height">339dp</dimen>
+    <dimen name="item_reveal_result_image_corner">12dp</dimen>
+    <dimen name="item_reveal_result_image_padding">4dp</dimen>
+    <dimen name="item_reveal_result_stroke_width">1dp</dimen>
+    <dimen name="item_reveal_result_button_height">56dp</dimen>
+    <dimen name="item_reveal_result_button_corner">12dp</dimen>
+</resources>

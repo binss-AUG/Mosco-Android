@@ -1,0 +1,230 @@
+package com.vn.jet.mosco.adapter;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
+import com.vn.jet.mosco.R;
+import com.vn.jet.mosco.SplashActivity;
+import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.utils.CardAssetManager;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 👑 BaseInventoryAdapter (V5 - Local First)
+ * Chiến thuật "Local First": Ảnh bản 2x lưu sẵn ở máy → scale down hiển thị Grid.
+ * Không cần gọi mạng → tốc độ tải 0ms, cuộn mượt như bơ.
+ */
+public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public interface OnItemClickListener {
+        void onItemClick(Objet item);
+    }
+
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_LOADING = 1;
+
+    // Số ảnh nạp tức thì ban đầu (ảnh local nên load rất nhanh)
+    private static final int INSTANT_LOAD_COUNT = 100;
+    // Số ảnh gối đầu (buffer) mỗi lần cuộn
+    private static final int BUFFER_SIZE = 50;
+    // Ngưỡng kích hoạt nạp thêm
+    private static final int LOAD_THRESHOLD = 10;
+
+    // Kích thước Grid (scale down từ bản 2x) — tiết kiệm RAM
+    private static final int GRID_WIDTH = 150;
+    private static final int GRID_HEIGHT = 231;
+
+    private final List<Objet> allObjets;
+    private final List<Objet> displayObjets;
+    private final OnItemClickListener listener;
+    private final Context mContext;
+    private boolean isLoadingMore = false;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    // =============== SUPPORT FILTER & SORT ===============
+    public void updateData(List<Objet> newAllObjets) {
+        this.allObjets.clear();
+        this.allObjets.addAll(newAllObjets);
+        
+        this.displayObjets.clear();
+        this.isLoadingMore = false;
+        
+        int instantEnd = Math.min(INSTANT_LOAD_COUNT, allObjets.size());
+        if (instantEnd > 0) {
+            this.displayObjets.addAll(allObjets.subList(0, instantEnd));
+        }
+        
+        notifyDataSetChanged();
+    }
+    // =======================================================
+
+    public BaseInventoryAdapter(List<Objet> allObjets, RecyclerView rv, OnItemClickListener listener) {
+        this.allObjets = new ArrayList<>(allObjets);
+        this.displayObjets = new ArrayList<>();
+        this.listener = listener;
+        this.mContext = rv.getContext();
+
+        // Tối ưu RecyclerView
+        rv.setHasFixedSize(true);
+        rv.setItemViewCacheSize(20);
+
+        GridLayoutManager layoutManager = (GridLayoutManager) rv.getLayoutManager();
+        if (layoutManager != null) {
+            layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return getItemViewType(position) == VIEW_TYPE_LOADING ? 3 : 1;
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // CHIẾN THUẬT "LOCAL FIRST" — Ảnh đã nằm ở máy, nạp tức thì
+        // ═══════════════════════════════════════════════════════════
+
+        // Bước 1: Nạp thẳng 100 item đầu (ảnh local → 0ms)
+        int instantEnd = Math.min(INSTANT_LOAD_COUNT, allObjets.size());
+        if (instantEnd > 0) {
+            displayObjets.addAll(allObjets.subList(0, instantEnd));
+            notifyItemRangeInserted(0, instantEnd);
+        }
+
+        // Bước 2: Theo dõi cuộn để nạp thêm dữ liệu
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (layoutManager == null) return;
+                if (!isLoadingMore && dy > 0 && displayObjets.size() < allObjets.size()) {
+                    int totalVisible = layoutManager.getItemCount();
+                    int lastVisible = layoutManager.findLastVisibleItemPosition();
+
+                    if (lastVisible >= totalVisible - LOAD_THRESHOLD) {
+                        isLoadingMore = true;
+
+                        // Hiện loading footer
+                        displayObjets.add(null);
+                        notifyItemInserted(displayObjets.size() - 1);
+
+                        // Nạp chunk mới ngay lập tức (ảnh local nên không cần delay)
+                        mainHandler.post(() -> {
+                            // Xóa loading footer
+                            if (!displayObjets.isEmpty() && displayObjets.get(displayObjets.size() - 1) == null) {
+                                displayObjets.remove(displayObjets.size() - 1);
+                                notifyItemRemoved(displayObjets.size());
+                            }
+
+                            // Nạp chunk tiếp theo
+                            int start = displayObjets.size();
+                            int end = Math.min(start + BUFFER_SIZE, allObjets.size());
+                            if (start < end) {
+                                List<Objet> chunk = allObjets.subList(start, end);
+                                displayObjets.addAll(chunk);
+                                notifyItemRangeInserted(start, chunk.size());
+                            }
+
+                            isLoadingMore = false;
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position >= displayObjets.size()) return VIEW_TYPE_ITEM;
+        return displayObjets.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_LOADING) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading_footer, parent, false);
+            return new LoadingViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inventory_card, parent, false);
+            return new ItemViewHolder(v);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ItemViewHolder) {
+            ItemViewHolder itemHolder = (ItemViewHolder) holder;
+            Objet item = displayObjets.get(position);
+            if (item == null) return;
+
+            // 🚀 LOCAL FIRST: Tìm file ảnh 2x trong bộ nhớ máy
+            File localFile = CardAssetManager.getLocalFile(mContext, item.getImageUrl());
+
+            if (localFile != null && localFile.exists()) {
+                // ✅ Ảnh có sẵn ở máy → Nạp từ file local, scale down cho Grid
+                Glide.with(mContext)
+                        .load(localFile)
+                        .override(GRID_WIDTH, GRID_HEIGHT) // Scale down 2x → kích thước grid nhỏ
+                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Không cache lại (đã là file local)
+                        .skipMemoryCache(false) // Vẫn giữ trong RAM cho lần cuộn lại
+                        .dontAnimate() // Hiện ngay tức thì
+                        .placeholder(R.drawable.objet_back_spin)
+                        .into(itemHolder.ivObjet);
+            } else {
+                // ⚡ Fallback: Ảnh chưa tải → Gọi URL bản 1x từ Cloudflare (nhẹ nhất)
+                String fallbackUrl = CardAssetManager.convertToVariant(item.getImageUrl(), "1x");
+                Glide.with(mContext)
+                        .load(fallbackUrl)
+                        .override(GRID_WIDTH, GRID_HEIGHT)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .dontAnimate()
+                        .placeholder(R.drawable.objet_back_spin)
+                        .into(itemHolder.ivObjet);
+            }
+
+            // 🔥 BIND UPGRADE BADGE (Visual distinction)
+            if (itemHolder.tvUpgrade != null) {
+                itemHolder.tvUpgrade.setText("+" + item.getUpgradeLevel());
+            }
+
+            itemHolder.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(item);
+            });
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return displayObjets.size();
+    }
+
+    static class ItemViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivObjet;
+        android.widget.TextView tvUpgrade;
+        public ItemViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivObjet = itemView.findViewById(R.id.card_iv_image);
+            tvUpgrade = itemView.findViewById(R.id.tv_item_upgrade);
+        }
+    }
+
+    static class LoadingViewHolder extends RecyclerView.ViewHolder {
+        public LoadingViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
+}

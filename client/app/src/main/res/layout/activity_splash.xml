@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#161622">
+
+    <!-- 🏆 Main Animated Logo: Thay logo tĩnh bằng hiệu ứng Lottie -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/iv_logo_lottie"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_mosco"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading" />
+
+    <TextView
+        android:id="@+id/tv_mosco"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:text="MOSCO"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:letterSpacing="0.2"
+        app:layout_constraintBottom_toTopOf="@+id/layout_download_progress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logo_lottie" />
+
+    <!-- 🚀 KHU VỰC TẢI DỮ LIỆU (Ẩn mặc định) -->
+    <LinearLayout
+        android:id="@+id/layout_download_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="48dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tv_download_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Tải tài nguyên hệ thống..."
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Progress Bar Custom Style -->
+        <ProgressBar
+            android:id="@+id/pb_download"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:progressDrawable="@drawable/mosco_progress_bar"
+            android:max="100"
+            android:progress="0" />
+
+        <TextView
+            android:id="@+id/tv_download_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins"
+            android:text="0%"
+            android:textColor="@color/mosco_on_surface_variant"
+            android:textSize="12sp"
+            android:alpha="0.8"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

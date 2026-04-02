@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Dark semi-transparent background for ghost button feel -->
+    <solid android:color="#33262626" />
+    <corners android:radius="12dp" />
+    <stroke
+        android:width="1dp"
+        android:color="#33484847" />
+</shape>

@@ -1,0 +1,47 @@
+{
+  "artists": [
+    { "id": "S1", "name": "Seoyeon" },
+    { "id": "S2", "name": "Hyerin" },
+    { "id": "S3", "name": "Jiwoo" },
+    { "id": "S4", "name": "Chaeyeon" },
+    { "id": "S5", "name": "Yooyeon" },
+    { "id": "S6", "name": "SooMin" },
+    { "id": "S7", "name": "NaKyoung" },
+    { "id": "S8", "name": "YuBin" },
+    { "id": "S9", "name": "Kaede" },
+    { "id": "S10", "name": "DaHyun" },
+    { "id": "S11", "name": "Kotone" },
+    { "id": "S12", "name": "YeonJi" },
+    { "id": "S13", "name": "Nien" },
+    { "id": "S14", "name": "SoHyun" },
+    { "id": "S15", "name": "Xinyu" },
+    { "id": "S16", "name": "Mayu" },
+    { "id": "S17", "name": "Lynn" },
+    { "id": "S18", "name": "JooBin" },
+    { "id": "S19", "name": "HaYeon" },
+    { "id": "S20", "name": "ShiOn" },
+    { "id": "S21", "name": "ChaeWon" },
+    { "id": "S22", "name": "Sullin" },
+    { "id": "S23", "name": "SeoAh" },
+    { "id": "S24", "name": "JiYeon" }
+  ],
+  "card_classes": [
+    "FirstWelcome",
+    "Double",
+    "SpecialUnit",
+    "Premier"
+  ],
+  "pack_rates": {
+    "Metal": [0.8, 0.15, 0.0499, 0.0001],
+    "Copper": [0.75, 0.25, 0.0499, 0.0001],
+    "Silver": [0.25, 0.25, 0.25, 0.25],
+    "Gold": [0.25, 0.25, 0.25, 0.25],
+    "Diamond": [0, 0, 0.35, 0.65],
+    "EX": [0, 0, 0.05, 0.95]
+  },
+  "buff_types": [
+    "Attack",
+    "Defense",
+    "Speed"
+  ]
+}

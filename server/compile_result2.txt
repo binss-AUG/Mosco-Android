@@ -1,0 +1,31 @@
+﻿> Task :clean
+
+> Task :compileJava
+.\gradlew.bat : Note: 
+Some input files use or 
+override a deprecated API.
+At line:1 char:1
++ .\gradlew.bat clean 
+compileJava 2>&1 | 
+Out-File -Encoding utf8 
+compil ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (N  
+  ote: Some inpu...depr   
+ ecated API.:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Note: Recompile with 
+-Xlint:deprecation for 
+details.
+
+[Incubating] Problems report is available at: file:///D:/MEox/UITer/DOAN/Mosco/server/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 3s
+2 actionable tasks: 2 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.4.0/userguide/configuration_cache_enabling.html

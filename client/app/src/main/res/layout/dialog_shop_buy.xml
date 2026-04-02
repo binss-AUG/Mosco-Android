@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardBackgroundColor="@color/mosco_surface_container"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="10dp"
+    app:strokeColor="@color/mosco_outline_variant"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <!-- Close Button -->
+        <ImageView
+            android:id="@+id/btn_dialog_close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            app:tint="@color/mosco_on_surface"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Item Image Frame -->
+        <FrameLayout
+            android:id="@+id/fl_image_container"
+            android:layout_width="160dp"
+            android:layout_height="246dp"
+            android:layout_marginTop="10dp"
+            android:padding="3dp"
+            android:background="@drawable/card_border"
+            app:layout_constraintTop_toBottomOf="@id/btn_dialog_close"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_dialog_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true"
+                tools:src="@drawable/item_shop_demo" />
+        </FrameLayout>
+
+        <!-- Item Name -->
+        <TextView
+            android:id="@+id/tv_dialog_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/mosco_on_surface"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/fl_image_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Metal Pack" />
+
+        <!-- Rarity Badge -->
+        <TextView
+            android:id="@+id/tv_dialog_rarity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_price_tag"
+            android:fontFamily="@font/poppins"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textColor="@color/mosco_on_surface"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="PACK" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tv_dialog_desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/mosco_on_surface_variant"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_rarity"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Rates: 80% FirstWelcome, 15% Double" />
+
+        <!-- Timer FOMO -->
+        <TextView
+            android:id="@+id/tv_dialog_timer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:fontFamily="@font/poppins"
+            android:textColor="#FFB74D"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_desc"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="⏳ Ends in 6 days" />
+
+        <!-- Quantity Selector Array -->
+        <LinearLayout
+            android:id="@+id/ll_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/tv_dialog_timer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/btn_minus"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:background="@drawable/bg_filter_chip"
+                android:text="-"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/mosco_on_surface" />
+
+            <EditText
+                android:id="@+id/et_quantity"
+                android:layout_width="70dp"
+                android:layout_height="44dp"
+                android:layout_marginHorizontal="10dp"
+                android:gravity="center"
+                android:fontFamily="@font/poppins"
+                android:inputType="number"
+                android:maxLength="4"
+                android:text="1"
+                android:background="@drawable/bg_filter_chip"
+                android:textColor="@color/mosco_on_surface"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btn_plus"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:background="@drawable/bg_filter_chip"
+                android:text="+"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/mosco_on_surface" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/mosco_outline_variant"
+            app:layout_constraintTop_toBottomOf="@id/ll_quantity" />
+
+        <!-- Total Price -->
+        <LinearLayout
+            android:id="@+id/ll_total_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total: "
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/mosco_on_surface_variant"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/iv_total_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_item_coin" />
+
+            <TextView
+                android:id="@+id/tv_total_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/mosco_on_surface"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                tools:text="1000" />
+        </LinearLayout>
+
+        <!-- Buy Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_confirm_buy"
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="32dp"
+            android:text="BUY NOW"
+            android:fontFamily="@font/poppins"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:backgroundTint="@color/mosco_primary"
+            app:layout_constraintTop_toBottomOf="@id/ll_total_price"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

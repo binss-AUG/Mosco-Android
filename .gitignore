@@ -1,0 +1,20 @@
+# Java / Spring Boot
+server/build/
+server/.gradle/
+server/out/
+
+# Android
+client/.gradle/
+client/build/
+client/local.properties
+client/.navigation/
+client/captures/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Hệ điều hành
+Thumbs.db
+.DS_Store

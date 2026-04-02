@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+   <!-- <color name="mosco_bg_dark">#12141D</color>
+   <color name="mosco_text_hint">#8A8D9F</color>
+    <color name="mosco_input_bg">#1E2230</color>-->
+    <color name="mosco_primary">#6c29fd</color>
+    <color name="transparent">#00000000</color>
+    <color name="mosco_surface">#0e0e0e</color>
+    <color name="mosco_surface_container_low">#131313</color>
+    <color name="mosco_surface_container">#1a1a1a</color>
+    <color name="mosco_surface_container_high">#20201f</color>
+    <color name="mosco_surface_variant">#262626</color>
+    <color name="mosco_primary_dim">#9547f7</color>
+    <color name="mosco_secondary">#ffffff</color>
+    <color name="mosco_tertiary">#08ff00</color>
+    <color name="mosco_surface_tint">#6c29fd</color>
+    <color name="mosco_on_surface">#ffffff</color>
+    <color name="mosco_on_surface_variant">#adaaaa</color>
+    <color name="mosco_outline_variant">#484847</color>
+    <color name="mosco_outline_variant_20">#33484847</color>
+    <color name="mosco_outline">#484847</color>
+    <color name="mosco_btn_disabled">#41455E</color>
+    <color name="mosco_text_disabled">#A2A2A7</color>
+    <color name="mosco_screen_bg">#161622</color>
+    <color name="mosco_input_bg">#232533</color>
+    <color name="mosco_link">#0066FF</color>
+    
+    <color name="mosco_gold">#FFD700</color>
+    <color name="mosco_surface_container_high_80">#CC20201F</color>
+    <color name="mosco_success">#00C853</color>
+    
+    <!-- Stats Colors -->
+    <color name="stat_hp">#4CAF50</color> <!-- Xanh lá -->
+    <color name="stat_atk">#F44336</color> <!-- Đỏ -->
+    <color name="stat_def">#2196F3</color> <!-- Xanh biển -->
+    <color name="stat_crit_rate">#9C27B0</color> <!-- Tím -->
+
+    <!-- New Item & Resource Colors -->
+    <color name="item_coin">#FFD700</color>
+    <color name="item_diamond">#00E5FF</color>
+    <color name="item_pack">#FF5722</color>
+    <color name="item_buff">#76FF03</color>
+    <color name="shop_card_bg">#252836</color>
+    <color name="shop_price_bg">#1F1D2B</color>
+
+    <!-- Glass Effect -->
+    <color name="mosco_glass_fill">#22FFFFFF</color>
+    <color name="mosco_glass_stroke">@color/item_diamond</color>
+</resources>

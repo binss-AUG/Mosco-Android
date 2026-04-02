@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_item_reveal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_surface">
+
+    <!-- Back Arrow (top left) -->
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
+        android:src="@drawable/ic_back_arrow"
+        app:tint="@color/mosco_on_surface"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- ====== HEADER: Name aligned with back arrow ====== -->
+    <TextView
+        android:id="@+id/tv_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/mosco_on_surface"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:letterSpacing="-0.02"
+        android:shadowColor="@color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        tools:text="Metal Pack"
+        app:layout_constraintTop_toTopOf="@id/btn_back"
+        app:layout_constraintBottom_toBottomOf="@id/btn_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ====== CENTER ZONE: Image card centered on screen ====== -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_item"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:layout_constraintDimensionRatio="1:1.54"
+        app:layout_constraintWidth_percent="0.55"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_name"
+        app:layout_constraintBottom_toTopOf="@id/tv_item_qty"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.45"
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <!-- 1. Metallic Background -->
+        <View
+            android:id="@+id/view_card_metallic_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 2. Item Image -->
+        <ImageView
+            android:id="@+id/iv_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/item_shop_demo" />
+
+        <!-- 3. Shimmer Overlay -->
+        <View
+            android:id="@+id/view_card_shimmer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ====== QUANTITY: Glass Effect ====== -->
+    <TextView
+        android:id="@+id/tv_item_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/mosco_on_surface"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.05"
+        android:background="@drawable/bg_glass_qty"
+        android:paddingHorizontal="36dp"
+        android:paddingVertical="3dp"
+        tools:text="x7"
+        app:layout_constraintTop_toBottomOf="@id/card_item"
+        app:layout_constraintBottom_toTopOf="@id/tv_item_info"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ====== DETAIL: Info below quantity ====== -->
+    <TextView
+        android:id="@+id/tv_item_info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/mosco_on_surface_variant"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:paddingHorizontal="40dp"
+        tools:text="Rates: 80% FirstWelcome, 15% Double"
+        app:layout_constraintTop_toBottomOf="@id/tv_item_qty"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ====== BUTTONS: Pinned to bottom ====== -->
+    <LinearLayout
+        android:id="@+id/ll_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingHorizontal="24dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Open x1 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_open_one"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Open x1"
+            android:fontFamily="@font/poppins"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/mosco_primary" />
+
+        <!-- Open All (only visible when qty > 1) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_open_all"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Open All"
+            android:fontFamily="@font/poppins"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeColor="@color/mosco_primary"
+            android:textColor="@color/mosco_primary" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

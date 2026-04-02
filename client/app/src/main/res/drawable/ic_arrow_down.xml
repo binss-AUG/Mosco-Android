@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_back_arrow rotated +90° = pointing DOWN -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M4,7.5l6,6 6,-6"
+        android:strokeLineCap="round"
+        android:strokeColor="@color/mosco_on_surface"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round" />
+</vector>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_surface">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_objets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/mosco_surface"
+        app:liftOnScroll="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Title Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_currency_bar"
+                    android:gravity="bottom"
+                    android:paddingVertical="6dp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginTop="2dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_idle_objets"
+                        style="@style/MoscoButton.IconGlass"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:padding="9dp"
+                        app:icon="@drawable/ic_objets"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="24dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Objets"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/poppins"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Sort + Filter row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="8dp">
+
+                <!-- Sort Button -->
+                <TextView
+                    android:id="@+id/btn_sort_objets"
+                    style="@style/FilterChipStyle"
+                    android:layout_width="110dp"
+                    android:layout_alignParentStart="true"
+                    android:text="Newest"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    app:drawableEndCompat="@drawable/ic_arrow_down"
+                    android:drawablePadding="4dp"
+                    app:drawableTint="@color/selector_filter_chip_text" />
+
+                <!-- Filter Button -->
+                <TextView
+                    android:id="@+id/btn_filter_objets"
+                    style="@style/FilterChipStyle"
+                    android:layout_toEndOf="@id/btn_sort_objets"
+                    android:layout_marginStart="8dp"
+                    android:text="Filter"
+                    app:drawableStartCompat="@drawable/ic_filter"
+                    android:drawablePadding="6dp"
+                    app:drawableTint="@color/selector_filter_chip_text" />
+
+                <!-- Item Count -->
+                <TextView
+                    android:id="@+id/tv_objet_types_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginHorizontal="6dp"
+                    android:text="51 Items"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="#A2A2A7"
+                    android:textSize="13sp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_objets"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="6dp"
+        android:clipToPadding="false"
+        android:paddingBottom="20dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_collection_objet" />
+
+    <!-- Sort Dropdown Popup (hidden by default) -->
+    <LinearLayout
+        android:id="@+id/dropdown_sort_objets"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_sort_dropdown"
+        android:paddingVertical="8dp"
+        android:visibility="gone"
+        android:elevation="8dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,131 @@
+﻿Starting a Gradle Daemon, 1 busy and 1 incompatible and 4 stopped Daemons could not be reused, use --status for details
+
+> Task :compileJava
+.\gradlew.bat : D:\MEo
+x\UITer\DOAN\Mosco\ser
+ver\src\main\java\com\
+vn\jet\mosco\spinserve
+r\service\GachaService
+.java:188: error: no 
+suitable constructor 
+found for UserCard(Use
+r,String,int,int)
+At line:1 char:1
++ .\gradlew.bat 
+compileJava 2>&1 | 
+Out-File -Encoding 
+utf8 build_error. ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo    
+          : 
+NotSpecified: (D    
+:\MEox\UITer\D...Stri 
+   
+ng,int,int):String) [ 
+   ], RemoteException
+    + 
+FullyQualifiedError   
+ Id : 
+NativeCommandErr    or
+ 
+            UserCard 
+newUserCard = new 
+UserCard(user, 
+newItemId, 1, 0); // 
+initial level 1, 0 xp
+                      
+             ^
+    constructor 
+UserCard.UserCard() 
+is not applicable
+      (actual and 
+formal argument lists 
+differ in length)
+    constructor UserCa
+rd.UserCard(User,Strin
+g,int) is not 
+applicable
+      (actual and 
+formal argument lists 
+differ in length)
+Note: D:\MEox\UITer\DO
+AN\Mosco\server\src\ma
+in\java\com\vn\jet\mos
+co\spinserver\utils\Cr
+eateAdminRunner.java 
+uses or overrides a 
+deprecated API.
+Note: Recompile with 
+-Xlint:deprecation 
+for details.
+1 error
+
+> Task :compileJava FAILED
+
+[Incubating] Problems report is available at: file:///D:/MEox/UITer/DOAN/Mosco/server/build/reports/problems/problems-report.html
+
+FAILURE: Build failed 
+with an exception.
+
+* What went wrong:
+Execution failed for 
+task ':compileJava'.
+> Compilation failed; 
+see the compiler 
+output below.
+  Note: D:\MEox\UITer\
+DOAN\Mosco\server\src\
+main\java\com\vn\jet\m
+osco\spinserver\utils\
+CreateAdminRunner.java
+ uses or overrides a 
+deprecated API.
+  D:\MEox\UITer\DOAN\M
+osco\server\src\main\j
+ava\com\vn\jet\mosco\s
+pinserver\service\Gach
+aService.java:188: 
+error: no suitable 
+constructor found for 
+UserCard(User,String,i
+nt,int)
+              
+UserCard newUserCard 
+= new UserCard(user, 
+newItemId, 1, 0); // 
+initial level 1, 0 xp
+                      
+               ^
+      constructor 
+UserCard.UserCard() 
+is not applicable
+        (actual and 
+formal argument lists 
+differ in length)
+      constructor User
+Card.UserCard(User,Str
+ing,int) is not 
+applicable
+        (actual and 
+formal argument lists 
+differ in length)
+  Note: Recompile 
+with 
+-Xlint:deprecation 
+for details.
+  1 error
+
+* Try:
+> Check your code and 
+dependencies to fix 
+the compilation 
+error(s)
+> Run with --scan to 
+get full insights 
+from a Build Scan 
+(powered by 
+Develocity).
+
+BUILD FAILED in 11s
+1 actionable task: 1 executed
