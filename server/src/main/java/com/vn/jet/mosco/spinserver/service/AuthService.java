@@ -44,7 +44,7 @@ public class AuthService {
         this.mailSender = mailSender;
     }
 
-    public AuthResponse register(String username, String email, String password, String code) {
+    public AuthResponse register(String username, String     email, String password, String code) {
         if (username == null || username.trim().isEmpty() ||
             email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty() ||

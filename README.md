@@ -99,4 +99,11 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
         *   **Response:** `UpgradeResponse` chứa thông báo thành công `success`, tin nhắn trả về `message` và cấp độ mới `newLevel`.
 
 ---
+## 📜 Nhật Ký Cập Nhật (V5.0 - Professional Auth & UX Standardization)
+*   ✅ **Galactic UI 2026 (Auth Flow):** Chuẩn hóa toàn bộ màn hình `SignIn`, `SignUp` và `ForgotPassword` theo phong cách vũ trụ cao cấp (Galactic Dark Mode), kết hợp hiệu ứng hình nền Parallax trôi nổi, Glassmorphism mờ ảo và các nút bấm hiệu ứng Rainbow Gradient.
+*   ✅ **Advanced UX (Click Debounce):** Triển khai lớp tiện ích `ClickDebounce` giúp ngăn chặn 100% tình trạng spam click/double-click tại các nút bấm quan trọng (Sign In, Send Code, Sign Up, Reset Password), đảm bảo an toàn tuyệt đối cho các yêu cầu gửi về Server.
+*   ✅ **Tối ưu luồng điều hướng (User Flow):** Fix lỗi điều hướng mặc định của `MainActivity`, đảm bảo người dùng được đưa vào tab **Home** sau khi Đăng nhập/Đăng ký thay vì Profile.
+*   ✅ **Hiệu ứng nhịp đập vũ trụ (Cosmic Heartbeat):** Đồng bộ hóa thời gian chạy (PlayTime) của các hiệu ứng Animation giữa các Activity, tạo cảm giác chuyển cảnh mượt mà không bị ngắt quãng.
+
+---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

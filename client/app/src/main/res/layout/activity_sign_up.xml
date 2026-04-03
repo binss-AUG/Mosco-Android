@@ -82,8 +82,12 @@
                         android:id="@+id/til_username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
                         app:boxBackgroundMode="none"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_username"
@@ -112,7 +116,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         app:boxBackgroundMode="none"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_email"
@@ -143,7 +150,10 @@
                         app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_password"
@@ -175,7 +185,10 @@
                         app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_confirm_password"
@@ -208,9 +221,12 @@
                             android:id="@+id/til_verification_code"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="10dp"
+                            android:layout_marginEnd="12dp"
                             app:boxBackgroundMode="none"
                             app:hintEnabled="false"
+                            app:errorEnabled="true"
+                            app:errorTextColor="@color/stat_atk"
+                            app:errorIconDrawable="@null"
                             app:layout_constraintEnd_toStartOf="@+id/btn_send_code"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent">
@@ -224,8 +240,8 @@
                                 android:hint="@string/prompt_verification_code"
                                 android:imeOptions="actionDone"
                                 android:inputType="number"
-                                android:maxLines="1"
                                 android:maxLength="6"
+                                android:maxLines="1"
                                 android:nextFocusForward="@id/btn_signup"
                                 android:paddingStart="15dp"
                                 android:textColor="@color/white"
@@ -236,19 +252,17 @@
 
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btn_send_code"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_width="100dp"
+                            android:layout_height="52dp"
                             android:background="@drawable/bg_shop_buy_btn"
                             android:fontFamily="@font/poppins"
-                            android:nextFocusForward="@id/edt_verification_code"
                             android:text="@string/action_send_code"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
-                            android:textSize="11sp"
-                            app:layout_constraintBottom_toBottomOf="@+id/til_verification_code"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@+id/til_verification_code"
-                            app:layout_constraintWidth_percent="0.28" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->

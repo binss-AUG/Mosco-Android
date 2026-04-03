@@ -258,7 +258,7 @@ public class SpinFragment extends Fragment {
         dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
             AppCompatButton btnC = (AppCompatButton) v;
             btnC.setEnabled(false);
-            btnC.setText("Nạp năng lượng...");
+            btnC.setText("Charging energy...");
             
             // BẮT ĐẦU LOAD DATA NGẦM NGAY KHI ẤN
             gachaRepository.spinCard(new GachaSpinRequest(selectedSacrificeId), new GachaRepository.GachaCallback<GachaSpinResponse>() {

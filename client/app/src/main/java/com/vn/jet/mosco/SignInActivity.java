@@ -24,12 +24,14 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
 
 public class SignInActivity extends AppCompatActivity {
 
     private TextInputEditText edtUsername, edtPassword;
+    private TextInputLayout tilUsername, tilPassword;
     private TextView tvGoToSignUp;
     private Button btnSignIn;
     private ProgressBar loadingProgress;
@@ -46,6 +48,8 @@ public class SignInActivity extends AppCompatActivity {
 
         edtUsername = findViewById(R.id.edt_username);
         edtPassword = findViewById(R.id.edt_password);
+        tilUsername = findViewById(R.id.til_username);
+        tilPassword = findViewById(R.id.til_password);
         tvGoToSignUp = findViewById(R.id.tv_go_to_signup);
         btnSignIn = findViewById(R.id.btn_signin);
         loadingProgress = findViewById(R.id.loading_progress);
@@ -57,7 +61,7 @@ public class SignInActivity extends AppCompatActivity {
         long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
         long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
 
-        // --- 🚀 Kích hoạt cơ chế siêu cấp WOW 2026 ---
+        // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
         setupAmbientEffects(playTimeX, playTimeY);
 
         // --- Spannable link for "Sign Up" ---
@@ -73,15 +77,18 @@ public class SignInActivity extends AppCompatActivity {
         tvGoToSignUp.setText(spannable);
 
         // --- Navigation ---
-        tvGoToSignUp.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SignUpActivity.class);
-            // Truyền "Nhịp tim" cho màn hình kế tiếp
-            if (driftX != null && driftY != null) {
-                intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+        tvGoToSignUp.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+                // Transfer heartbeat to the next screen
+                if (driftX != null && driftY != null) {
+                    intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
+                    intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+                }
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         // Use OnBackPressedCallback instead of deprecated onBackPressed()
@@ -95,19 +102,27 @@ public class SignInActivity extends AppCompatActivity {
                 getOnBackPressedDispatcher().onBackPressed());
 
         // --- Forgot Password ---
-        findViewById(R.id.tv_forgot_password).setOnClickListener(v -> {
-            Intent intent = new Intent(this, ForgotPasswordActivity.class);
-            // Tiếp nối nhịp trôi vũ trụ
-            if (driftX != null && driftY != null) {
-                intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+        findViewById(R.id.tv_forgot_password).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
+                // Continue the cosmic drift
+                if (driftX != null && driftY != null) {
+                    intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
+                    intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+                }
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         // --- Sign In ---
-        btnSignIn.setOnClickListener(v -> validateAndSignIn());
+        btnSignIn.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                validateAndSignIn();
+            }
+        });
 
         // Lắng nghe sự kiện "Done" từ bàn phím để tự động đăng nhập (UX tối ưu)
         edtPassword.setOnEditorActionListener((v, actionId, event) -> {
@@ -137,7 +152,7 @@ public class SignInActivity extends AppCompatActivity {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         
-                        // Truyền "Nhịp tim" vũ trụ sang tận Trang chủ
+                        // Transfer cosmic heartbeat to MainActivity
                         if (driftX != null && driftY != null) {
                             intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                             intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
@@ -195,16 +210,19 @@ public class SignInActivity extends AppCompatActivity {
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
+        tilUsername.setError(null);
+        tilPassword.setError(null);
+
         if (username.isEmpty()) {
-            edtUsername.setError(getString(R.string.error_empty_field));
+            tilUsername.setError(getString(R.string.error_empty_field));
             return;
         }
         if (password.isEmpty()) {
-            edtPassword.setError(getString(R.string.error_empty_field));
+            tilPassword.setError(getString(R.string.error_empty_field));
             return;
         }
         if (password.length() < 6) {
-            edtPassword.setError(getString(R.string.error_short_password));
+            tilPassword.setError(getString(R.string.error_short_password));
             return;
         }
 

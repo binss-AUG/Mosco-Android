@@ -93,7 +93,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         app:boxBackgroundMode="none"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_username"
@@ -133,7 +136,10 @@
                         app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
-                        app:hintEnabled="false">
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_password"

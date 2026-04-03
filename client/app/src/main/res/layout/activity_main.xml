@@ -6,10 +6,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/mosco_screen_bg"
     tools:context=".MainActivity">
-
-    <!-- Bối cảnh vũ trụ trôi nổi (Quản lý tập trung tại layout_auth_background) -->
-    <include layout="@layout/layout_auth_background" />
 
     <FrameLayout
         android:id="@+id/frame_layout"

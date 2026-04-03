@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
 
@@ -29,6 +30,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private TextInputEditText edtUsername, edtEmail, edtVerificationCode;
     private TextInputEditText edtPassword, edtConfirmPassword;
+    private TextInputLayout tilUsername, tilEmail, tilVerificationCode, tilPassword, tilConfirmPassword;
     private Button btnSendCode, btnSignUp;
     private ProgressBar loadingProgress;
     private TextView tvGoToSignIn;
@@ -48,6 +50,11 @@ public class SignUpActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edt_password);
         edtConfirmPassword = findViewById(R.id.edt_confirm_password);
         edtVerificationCode = findViewById(R.id.edt_verification_code);
+        tilUsername = findViewById(R.id.til_username);
+        tilEmail = findViewById(R.id.til_email);
+        tilPassword = findViewById(R.id.til_password);
+        tilConfirmPassword = findViewById(R.id.til_confirm_password);
+        tilVerificationCode = findViewById(R.id.til_verification_code);
         btnSendCode = findViewById(R.id.btn_send_code);
         btnSignUp = findViewById(R.id.btn_signup);
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
@@ -62,22 +69,27 @@ public class SignUpActivity extends AppCompatActivity {
         long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
         long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
 
-        // --- 🚀 Kích hoạt cơ chế siêu cấp WOW 2026 ---
+        // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
         setupAmbientEffects(playTimeX, playTimeY);
 
         // --- Send Code button ---
-        btnSendCode.setOnClickListener(v -> {
-            String email = edtEmail.getText().toString().trim();
-            if (email.isEmpty()) {
-                edtEmail.setError(getString(R.string.error_empty_field));
-                return;
+        btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                String email = edtEmail.getText().toString().trim();
+                tilEmail.setError(null);
+
+                if (email.isEmpty()) {
+                    tilEmail.setError(getString(R.string.error_empty_field));
+                    return;
+                }
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    tilEmail.setError(getString(R.string.error_invalid_email));
+                    return;
+                }
+                // Call real API to send code
+                viewModel.sendVerificationCode(email);
             }
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                edtEmail.setError(getString(R.string.error_invalid_email));
-                return;
-            }
-            // Gọi API gửi mã thực tế
-            viewModel.sendVerificationCode(email);
         });
 
         // --- Countdown timer observers ---
@@ -119,7 +131,9 @@ public class SignUpActivity extends AppCompatActivity {
                     btnSendCode.setText("...");
                     break;
                 case SUCCESS:
-                    Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (resource.getData() != null) {
+                        Toast.makeText(this, resource.getData().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                     viewModel.startCountdown();
                     break;
                 case ERROR:
@@ -131,9 +145,14 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         // --- Sign Up button ---
-        btnSignUp.setOnClickListener(v -> validateAndSignUp());
+        btnSignUp.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                validateAndSignUp();
+            }
+        });
 
-        // Tự động Sign Up khi ấn Done (UX cao cấp)
+        // Automatic Sign Up on Done action (Premium UX)
         edtVerificationCode.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 validateAndSignUp();
@@ -161,7 +180,7 @@ public class SignUpActivity extends AppCompatActivity {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         
-                        // Truyền "Nhịp tim" vũ trụ sang tận Trang chủ
+                        // Transfer cosmic heartbeat to MainActivity
                         if (driftX != null && driftY != null) {
                             intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                             intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
@@ -242,32 +261,39 @@ public class SignUpActivity extends AppCompatActivity {
         String confirmPass = edtConfirmPassword.getText().toString().trim();
         String code = edtVerificationCode.getText().toString().trim();
 
+        // Clear all previous errors
+        tilUsername.setError(null);
+        tilEmail.setError(null);
+        tilPassword.setError(null);
+        tilConfirmPassword.setError(null);
+        tilVerificationCode.setError(null);
+
         if (username.isEmpty()) {
-            edtUsername.setError(getString(R.string.error_empty_field));
+            tilUsername.setError(getString(R.string.error_empty_field));
             return;
         }
         if (email.isEmpty()) {
-            edtEmail.setError(getString(R.string.error_empty_field));
+            tilEmail.setError(getString(R.string.error_empty_field));
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            edtEmail.setError(getString(R.string.error_invalid_email));
+            tilEmail.setError(getString(R.string.error_invalid_email));
             return;
         }
         if (pass.isEmpty()) {
-            edtPassword.setError(getString(R.string.error_empty_field));
+            tilPassword.setError(getString(R.string.error_empty_field));
             return;
         }
         if (pass.length() < 6) {
-            edtPassword.setError(getString(R.string.error_short_password));
+            tilPassword.setError(getString(R.string.error_short_password));
             return;
         }
         if (!pass.equals(confirmPass)) {
-            edtConfirmPassword.setError(getString(R.string.msg_passwords_not_match));
+            tilConfirmPassword.setError(getString(R.string.msg_passwords_not_match));
             return;
         }
         if (code.isEmpty()) {
-            edtVerificationCode.setError(getString(R.string.error_empty_field));
+            tilVerificationCode.setError(getString(R.string.error_empty_field));
             return;
         }
 
