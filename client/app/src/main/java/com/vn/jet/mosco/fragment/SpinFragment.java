@@ -61,7 +61,8 @@ public class SpinFragment extends Fragment {
     private ImageView ivSelectedObjet;
     private AppCompatButton btnSpin;
     private ImageView ivBgCard1, ivBgCard2, ivBgCard3;
-    private CardView cardCenterSlot;
+    private com.google.android.material.card.MaterialCardView cardCenterSlot;
+    private View layoutSelectedFront;
     private VideoView videoSpinEffect;
     private FrameLayout videoContainer;
 
@@ -154,7 +155,8 @@ public class SpinFragment extends Fragment {
 
         cardCenterSlot = view.findViewById(R.id.card_center_slot);
         btnAddObjet = view.findViewById(R.id.btn_add_objet);
-        ivSelectedObjet = view.findViewById(R.id.iv_selected_objet);
+        layoutSelectedFront = view.findViewById(R.id.layout_selected_front);
+        ivSelectedObjet = view.findViewById(R.id.card_iv_image);
         btnSpin = view.findViewById(R.id.btn_spin);
         ivBgCard1 = view.findViewById(R.id.iv_bg_card_1);
         ivBgCard2 = view.findViewById(R.id.iv_bg_card_2);
@@ -168,7 +170,23 @@ public class SpinFragment extends Fragment {
         getParentFragmentManager().setFragmentResultListener("objet_selection", this, (requestKey, result) -> {
             String imageUrl = result.getString("selected_objet_url");
             selectedSacrificeId = result.getString("selected_objet_id"); // Lưu ID thẻ hi sinh
-            if (imageUrl != null) updateSelectedObjetUI(imageUrl);
+            if (imageUrl != null) {
+                String collectionId = result.getString("selected_collection_id", "");
+                int level = result.getInt("selected_level", 1);
+                int exp = result.getInt("selected_exp", 0);
+                int upgrade = result.getInt("selected_upgrade", 1);
+                int ovr = result.getInt("selected_ovr", 0);
+
+                int objId = -1;
+                try {
+                    if (selectedSacrificeId != null) objId = Integer.parseInt(selectedSacrificeId);
+                } catch (NumberFormatException ignored) {}
+                
+                com.vn.jet.mosco.model.Objet selectedObj = new com.vn.jet.mosco.model.Objet(objId, collectionId, imageUrl, level, exp, upgrade);
+                selectedObj.setOvr(ovr);
+
+                updateSelectedObjetUI(selectedObj);
+            }
         });
 
         cardCenterSlot.setOnClickListener(v -> {
@@ -247,6 +265,10 @@ public class SpinFragment extends Fragment {
                 @Override
                 public void onSuccess(GachaSpinResponse response) {
                     com.vn.jet.mosco.utils.DatabaseLoader.clearUserCache();
+                    Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
+                    com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+                    com.vn.jet.mosco.utils.DatabaseLoader.reloadInventoryFromServer(requireContext(), userId, apiService);
+
                     currentSpinResult = response;
                     gridSessionCards.clear();
                     if (response.getCardData() != null) gridSessionCards.add(response.getCardData());
@@ -583,6 +605,9 @@ public class SpinFragment extends Fragment {
     private void showFinalResultWithNeonEffect() {
         if (!isAdded() || layoutResultReveal == null) return;
 
+        // 🚀 TỐI ƯU JANK: Chuẩn bị RecyclerView ngầm trên GPU trước khi người dùng bấm Reveal
+        prepareRevealResultGridOffscreen();
+
         // Kết thúc warmup: hiện thị hoàn toàn
         layoutResultReveal.setAlpha(1.0f);
 
@@ -822,40 +847,50 @@ public class SpinFragment extends Fragment {
     }
 
     // ============================================================
+    // Tối ưu Jank: Vẽ trước 16 thẻ trên GPU ngầm
+    // ============================================================
+    private void prepareRevealResultGridOffscreen() {
+        if (!isAdded() || rvRevealResultGrid == null) return;
+
+        // Đặt layout thành INVISIBLE để nó được layout và vẽ ngầm trên GPU
+        layoutRevealResultGrid.setVisibility(View.INVISIBLE);
+
+        rvRevealResultGrid.setLayoutManager(new GridLayoutManager(getContext(), 4));
+
+        rvRevealResultGrid.post(() -> {
+            if (!isAdded()) return;
+
+            float density = getResources().getDisplayMetrics().density;
+            int itemMarginPx = (int) (4 * density);
+
+            int availableWidth = rvRevealResultGrid.getWidth();
+            if (availableWidth <= 0) return;
+
+            int totalHorizontalMargins = itemMarginPx * 2 * 4;
+            int itemWidth = (availableWidth - totalHorizontalMargins) / 4;
+            revealCardHeight = (int) (itemWidth * 1.54f);
+
+            revealResultAdapter = new RevealResultAdapter(selectedPosition);
+            rvRevealResultGrid.setAdapter(revealResultAdapter);
+        });
+    }
+
+    // ============================================================
     // Reveal Result Grid — hiện khi ấn "Reveal unchosen Objekts >"
     // ============================================================
     private void showRevealResultGrid() {
         if (!isAdded()) return;
 
-        // Ẩn result, hiện reveal grid
+        // Ẩn result, hiện reveal grid (đã được vẽ sẵn)
         layoutResultReveal.setVisibility(View.GONE);
         layoutRevealResultGrid.setVisibility(View.VISIBLE);
 
-        if (rvRevealResultGrid != null) {
-            rvRevealResultGrid.setLayoutManager(new GridLayoutManager(getContext(), 4));
-
-            rvRevealResultGrid.post(() -> {
-                if (!isAdded()) return;
-
-                float density = getResources().getDisplayMetrics().density;
-                int itemMarginPx = (int) (4 * density);
-
-                int availableWidth = rvRevealResultGrid.getWidth();
-                int totalHorizontalMargins = itemMarginPx * 2 * 4;
-                int itemWidth = (availableWidth - totalHorizontalMargins) / 4;
-                revealCardHeight = (int) (itemWidth * 1.54f);
-
-                revealResultAdapter = new RevealResultAdapter(selectedPosition);
-                rvRevealResultGrid.setAdapter(revealResultAdapter);
-
-                // Sau 0.6s, flip các thẻ còn lại
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (isAdded() && revealResultAdapter != null) {
-                        revealResultAdapter.revealAllCards();
-                    }
-                }, 600);
-            });
-        }
+        // Sau 0.6s, flip các thẻ còn lại
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (isAdded() && revealResultAdapter != null) {
+                revealResultAdapter.revealAllCards();
+            }
+        }, 600);
     }
 
     private void resetToSpinMain() {
@@ -925,9 +960,14 @@ public class SpinFragment extends Fragment {
         toggleBottomNavigation(true);
 
         // Reset slot nguyên liệu spin
+        if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.GONE);
         if (ivSelectedObjet != null) {
             ivSelectedObjet.setVisibility(View.GONE);
             ivSelectedObjet.setImageDrawable(null);
+        }
+        if (cardCenterSlot != null) {
+            View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
+            com.vn.jet.mosco.utils.CardEffectHelper.remove(cardCenterSlot, shimmer);
         }
         if (btnAddObjet != null) {
             btnAddObjet.setVisibility(View.VISIBLE);
@@ -1294,12 +1334,15 @@ public class SpinFragment extends Fragment {
         animator.setCurrentPlayTime(initialPlayTime);
     }
 
-    private void updateSelectedObjetUI(String imageUrl) {
+    private void updateSelectedObjetUI(com.vn.jet.mosco.model.Objet selectedObj) {
+        String imageUrl = selectedObj.getImageUrl();
         if (btnAddObjet != null) btnAddObjet.setVisibility(View.GONE);
         com.airbnb.lottie.LottieAnimationView loader = getView() != null ? getView().findViewById(R.id.pb_card_loading) : null;
         
         if (ivSelectedObjet != null) {
             ivSelectedObjet.setVisibility(View.GONE);
+            if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.GONE);
+            
             if (loader != null) {
                 loader.setVisibility(View.VISIBLE);
                 loader.playAnimation();
@@ -1312,6 +1355,7 @@ public class SpinFragment extends Fragment {
                         loader.cancelAnimation();
                         loader.setVisibility(View.GONE);
                     }
+                    if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.VISIBLE);
                     ivSelectedObjet.setVisibility(View.VISIBLE);
                     ivSelectedObjet.setAlpha(0f);
                     
@@ -1322,6 +1366,30 @@ public class SpinFragment extends Fragment {
                             .into(ivSelectedObjet);
                             
                     ivSelectedObjet.animate().alpha(1f).setDuration(300).start();
+                    
+                    // Áp dụng Full Hiệu Ứng (OVR, Level Badge, Shimmer)
+                    android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
+                    if (tvOvr != null) {
+                        tvOvr.setText(String.valueOf(selectedObj.getOvr()));
+                        tvOvr.setVisibility(View.VISIBLE);
+                    }
+                    
+                    android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
+                    if (ivLevelBadge != null) {
+                        if (selectedObj.getUpgradeLevel() > 0) {
+                            com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getUpgradeLevel() + ".png").into(ivLevelBadge);
+                            ivLevelBadge.setVisibility(View.VISIBLE);
+                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getUpgradeLevel());
+                        } else {
+                            ivLevelBadge.setVisibility(View.GONE);
+                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevelBadge);
+                        }
+                    }
+
+                    View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
+                    if (shimmer != null) {
+                        com.vn.jet.mosco.utils.CardEffectHelper.apply(cardCenterSlot, shimmer, selectedObj, true);
+                    }
                 }
             }, 400); 
         }

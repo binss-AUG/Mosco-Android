@@ -74,6 +74,26 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
     // =======================================================
 
+    // =============== SUPPORT MULTI-SELECT ===============
+    private boolean isMultiSelectMode = false;
+    private java.util.Set<Integer> selectedIds = new java.util.HashSet<>();
+    private OnItemSelectListener selectListener;
+
+    public interface OnItemSelectListener {
+        void onItemSelected(Objet item, boolean selected);
+    }
+
+    public void setMultiSelectMode(boolean enabled, OnItemSelectListener listener) {
+        this.isMultiSelectMode = enabled;
+        this.selectListener = listener;
+    }
+
+    public void setSelectedIds(java.util.Set<Integer> ids) {
+        this.selectedIds = ids != null ? ids : new java.util.HashSet<>();
+        notifyDataSetChanged();
+    }
+    // =======================================================
+
     public BaseInventoryAdapter(List<Objet> allObjets, RecyclerView rv, OnItemClickListener listener) {
         this.allObjets = new ArrayList<>(allObjets);
         this.displayObjets = new ArrayList<>();
@@ -196,13 +216,48 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .into(itemHolder.ivObjet);
             }
 
-            // 🔥 BIND UPGRADE BADGE (Visual distinction)
-            if (itemHolder.tvUpgrade != null) {
-                itemHolder.tvUpgrade.setText("+" + item.getUpgradeLevel());
+            // BIND OVR TEXT
+            if (itemHolder.tvOvr != null) {
+                itemHolder.tvOvr.setText(String.valueOf(item.getOvr()));
+                itemHolder.tvOvr.setVisibility(View.VISIBLE);
+            }
+
+            // 🔥 BIND LEVEL BADGE
+            if (itemHolder.ivLevel != null) {
+                if (item.getCardLevel() > 0) {
+                    String assetPath = "file:///android_asset/grade/" + item.getCardLevel() + ".png";
+                    Glide.with(mContext).load(assetPath).into(itemHolder.ivLevel);
+                    itemHolder.ivLevel.setVisibility(View.VISIBLE);
+                } else {
+                    itemHolder.ivLevel.setVisibility(View.GONE);
+                }
+            }
+
+            // 🔥 BIND MULTI-SELECT OVERLAY
+            if (itemHolder.viewOverlay != null) {
+                if (isMultiSelectMode) {
+                    boolean isSelected = selectedIds.contains(item.getId());
+                    itemHolder.viewOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+                } else {
+                    itemHolder.viewOverlay.setVisibility(View.GONE);
+                }
             }
 
             itemHolder.itemView.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(item);
+                if (isMultiSelectMode) {
+                    boolean currentlySelected = selectedIds.contains(item.getId());
+                    if (currentlySelected) {
+                        selectedIds.remove(item.getId());
+                    } else {
+                        selectedIds.add(item.getId());
+                    }
+                    notifyItemChanged(position);
+                    if (selectListener != null) {
+                        selectListener.onItemSelected(item, !currentlySelected);
+                    }
+                } else {
+                    if (listener != null) listener.onItemClick(item);
+                }
             });
         }
     }
@@ -214,11 +269,16 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
         ImageView ivObjet;
-        android.widget.TextView tvUpgrade;
+        android.widget.TextView tvOvr;
+        ImageView ivLevel;
+        View viewOverlay;
+        
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
             ivObjet = itemView.findViewById(R.id.card_iv_image);
-            tvUpgrade = itemView.findViewById(R.id.tv_item_upgrade);
+            tvOvr = itemView.findViewById(R.id.card_tv_ovr);
+            ivLevel = itemView.findViewById(R.id.card_iv_level);
+            viewOverlay = itemView.findViewById(R.id.view_selected_overlay);
         }
     }
 

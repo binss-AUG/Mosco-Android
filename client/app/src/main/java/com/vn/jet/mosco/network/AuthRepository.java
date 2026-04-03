@@ -38,11 +38,16 @@ public class AuthRepository {
         apiService.signin(request).enqueue(createCallback(result));
     }
 
-    public void signUp(String username, String email, String password,
+    public void signUp(String username, String email, String password, String code,
                        MutableLiveData<Resource<AuthResponse>> result) {
         result.setValue(Resource.loading());
-        AuthRequest request = new AuthRequest(username, email, password);
+        AuthRequest request = new AuthRequest(username, email, password, code);
         apiService.signup(request).enqueue(createCallback(result));
+    }
+
+    public void sendVerificationCode(String email, MutableLiveData<Resource<AuthResponse>> result) {
+        result.setValue(Resource.loading());
+        apiService.sendCode(email).enqueue(createCallback(result));
     }
 
     private Callback<AuthResponse> createCallback(MutableLiveData<Resource<AuthResponse>> result) {

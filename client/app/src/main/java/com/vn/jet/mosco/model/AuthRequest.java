@@ -12,6 +12,9 @@ public class AuthRequest {
     @SerializedName("password")
     private String password;
 
+    @SerializedName("code")
+    private String code;
+
     /** Constructor for sign-in with username */
     public AuthRequest(String username, String password, boolean isSignIn) {
         this.username = username;
@@ -24,11 +27,12 @@ public class AuthRequest {
         this.password = password;
     }
 
-    /** Constructor for sign-up (username + email + password). */
-    public AuthRequest(String username, String email, String password) {
+    /** Constructor for sign-up (username + email + password + code). */
+    public AuthRequest(String username, String email, String password, String code) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.code = code;
     }
 
     public String getUsername() { return username; }

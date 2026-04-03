@@ -54,4 +54,11 @@ public interface GameApiService {
     @POST("/api/gacha/spin")
     Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.GachaSpinResponse>> spinCard(
             @Body com.vn.jet.mosco.model.GachaSpinRequest request);
+
+    /**
+     * Upgrade endpoint.
+     */
+    @POST("/api/gacha/upgrade")
+    Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>> upgradeCard(
+            @Body com.vn.jet.mosco.model.UpgradeRequest request);
 }

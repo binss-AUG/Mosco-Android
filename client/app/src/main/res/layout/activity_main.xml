@@ -8,6 +8,9 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Bối cảnh vũ trụ trôi nổi (Quản lý tập trung tại layout_auth_background) -->
+    <include layout="@layout/layout_auth_background" />
+
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"

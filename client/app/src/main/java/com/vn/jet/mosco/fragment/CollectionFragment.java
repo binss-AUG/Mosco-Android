@@ -913,6 +913,29 @@ public class CollectionFragment extends Fragment {
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            com.vn.jet.mosco.utils.DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            com.vn.jet.mosco.utils.DatabaseLoader.unregisterInventoryChangeListener(inventoryChangeListener);
+        }
+
+        private final com.vn.jet.mosco.utils.DatabaseLoader.OnInventoryChangeListener inventoryChangeListener = new com.vn.jet.mosco.utils.DatabaseLoader.OnInventoryChangeListener() {
+            @Override
+            public void onInventoryChanged() {
+                if (getActivity() != null && isAdded()) {
+                    getActivity().runOnUiThread(() -> {
+                        loadObjets();
+                    });
+                }
+            }
+        };
+
+        @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
@@ -937,7 +960,7 @@ public class CollectionFragment extends Fragment {
                 
                 org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, item.getCollectionId());
                 if (cardJson != null) {
-                    showObjetDetailDialog(ctx, item.getImageUrl(), cardJson, item.getLevel(), item.getExp(), item.getUpgradeLevel());
+                    com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(ctx, item);
                 } else {
                     showObjetDetailDialog(ctx, item.getImageUrl());
                 }
@@ -971,7 +994,12 @@ public class CollectionFragment extends Fragment {
                                 org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, uc.getCollectionId());
                                 if (cardJson != null) {
                                     String img = cardJson.optString("frontImage", "");
-                                    realObjets.add(new com.vn.jet.mosco.model.Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel()));
+                                    String cardClass = cardJson.optString("class", "FirstWelcome");
+                                    int ovr = com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(ctx, cardClass, uc.getLevel());
+
+                                    com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel());
+                                    objet.setOvr(ovr);
+                                    realObjets.add(objet);
                                 }
                             }
 

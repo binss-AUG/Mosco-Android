@@ -67,44 +67,33 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private void loadRealInventory(RecyclerView rvInventory, View layoutEmptyState, com.airbnb.lottie.LottieAnimationView loaderLottie) {
         if (getContext() == null) return;
 
-        // 🌟 CHIẾN THUẬT ALWAYS READY - NGẮT API MẠNG:
-        // Ưu tiên nạp dữ liệu từ bộ nhớ (đã được SplashActivity nạp sẵn) -> Tốc độ hiển thị 0ms
-        if (com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory != null) {
+        // Khởi tạo Adapter 1 lần duy nhất
+        com.vn.jet.mosco.adapter.BaseInventoryAdapter rvAdapter = new com.vn.jet.mosco.adapter.BaseInventoryAdapter(new ArrayList<>(), rvInventory, item -> {
+            com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(requireContext(), item);
+        });
+        rvInventory.setAdapter(rvAdapter);
+
+        // BƯỚC 1: Hiển thị từ Cache ngay lập tức (nếu có)
+        if (com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory != null && !com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory.isEmpty()) {
             List<Objet> realObjets = new ArrayList<>();
             for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem item : com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory) {
-                // Constructor mới: ID, CollectionID, ImageURL, Level, EXP, UpgradeLevel
                 realObjets.add(new Objet(item.id.intValue(), item.collectionId, item.frontImage, item.level, item.exp, item.upgradeLevel));
             }
-            
-            if (realObjets.isEmpty()) {
-                layoutEmptyState.setVisibility(View.VISIBLE);
-                rvInventory.setVisibility(View.GONE);
-                loaderLottie.setVisibility(View.GONE);
-            } else {
-                layoutEmptyState.setVisibility(View.GONE);
-                rvInventory.setVisibility(View.VISIBLE);
-                loaderLottie.setVisibility(View.GONE);
-                
-                com.vn.jet.mosco.adapter.BaseInventoryAdapter rvAdapter = new com.vn.jet.mosco.adapter.BaseInventoryAdapter(realObjets, rvInventory, item -> {
-                    com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(requireContext(), item);
-                });
-                rvInventory.setAdapter(rvAdapter);
-            }
-            return; // Dừng hàm ngay lập tức nếu đã có Cache!
-        }
-
-        Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-        if (userId == null) {
+            layoutEmptyState.setVisibility(View.GONE);
+            rvInventory.setVisibility(View.VISIBLE);
+            loaderLottie.setVisibility(View.GONE);
+            rvAdapter.updateData(realObjets);
+        } else {
+            // Không có cache → hiện loading
+            loaderLottie.setVisibility(View.VISIBLE);
+            loaderLottie.playAnimation();
             rvInventory.setVisibility(View.GONE);
-            layoutEmptyState.setVisibility(View.VISIBLE);
-            return;
+            layoutEmptyState.setVisibility(View.GONE);
         }
 
-        // Nếu Cache trống (trường hợp hiếm) -> Mới bật Lottie chờ API
-        loaderLottie.setVisibility(View.VISIBLE);
-        loaderLottie.playAnimation();
-        rvInventory.setVisibility(View.GONE);
-        layoutEmptyState.setVisibility(View.GONE);
+        // BƯỚC 2: LUÔN gọi API ngầm để đồng bộ data mới nhất từ Server
+        Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
+        if (userId == null) return;
 
         com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
         apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
@@ -122,30 +111,29 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                             if (cardJson != null) {
                                 String img = cardJson.optString("frontImage", "");
                                 realObjets.add(new Objet(userCard.getId().intValue(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel()));
-                                cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel()));
+                                String cardClass = cardJson.optString("class", "FirstWelcome");
+                                int ovr = com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(requireContext(), cardClass, userCard.getLevel());
+
+                                cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel(), ovr));
                             }
                         }
                         // Ghi lại cache dự phòng nếu API vừa phải gọi
                         com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory = cachedList;
 
-                        if (getActivity() != null) {
+                        if (getActivity() != null && isAdded()) {
                             getActivity().runOnUiThread(() -> {
+                                loaderLottie.cancelAnimation();
+                                loaderLottie.setVisibility(View.GONE);
                                 if (realObjets.isEmpty()) {
-                                    loaderLottie.cancelAnimation();
-                                    loaderLottie.setVisibility(View.GONE);
                                     rvInventory.setVisibility(View.GONE);
                                     layoutEmptyState.setVisibility(View.VISIBLE);
                                 } else {
-                                    loaderLottie.cancelAnimation();
-                                    loaderLottie.setVisibility(View.GONE);
                                     rvInventory.setVisibility(View.VISIBLE);
                                     layoutEmptyState.setVisibility(View.GONE);
-                                    
-                                    // 🏆 Sử dụng Shared CORE cho API Fallback
-                                    com.vn.jet.mosco.adapter.BaseInventoryAdapter rvAdapter = new com.vn.jet.mosco.adapter.BaseInventoryAdapter(realObjets, rvInventory, item -> {
-                                        com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(requireContext(), item);
-                                    });
-                                    rvInventory.setAdapter(rvAdapter);
+                                    // Sử dụng updateData() để cập nhật adapter đã khởi tạo
+                                    if (rvInventory.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                                        ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvInventory.getAdapter()).updateData(realObjets);
+                                    }
                                 }
                             });
                         }

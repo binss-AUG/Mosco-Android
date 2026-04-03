@@ -79,7 +79,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_center_slot"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -113,12 +113,13 @@
                         android:textSize="32sp" />
                 </FrameLayout>
 
-                <ImageView
-                    android:id="@+id/iv_selected_objet"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layout_selected_front"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone" />
+                    android:visibility="gone">
+                    <include layout="@layout/layout_core_card" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!-- ⏳ Lottie Loading thay cho ProgressBar khi nạp ảnh 4x -->
                 <com.airbnb.lottie.LottieAnimationView
@@ -131,7 +132,7 @@
                     app:lottie_loop="true"
                     app:lottie_rawRes="@raw/loading" />
             </FrameLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_spin"

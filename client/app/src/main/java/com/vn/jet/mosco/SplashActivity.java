@@ -1,11 +1,14 @@
 package com.vn.jet.mosco;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,6 +36,8 @@ public class SplashActivity extends AppCompatActivity {
     private TextView tvDownloadStatus;
     private TextView tvDownloadCount;
     private com.airbnb.lottie.LottieAnimationView lottieSplash;
+    private ImageView ivBackground;
+    private ObjectAnimator driftX, driftY;
     private Handler mainHandler;
 
     @Override
@@ -53,7 +58,10 @@ public class SplashActivity extends AppCompatActivity {
         tvDownloadStatus = findViewById(R.id.tv_download_status);
         tvDownloadCount = findViewById(R.id.tv_download_count);
         lottieSplash = findViewById(R.id.iv_logo_lottie); // Now the main logo Lottie
+        ivBackground = findViewById(R.id.iv_background_parallax);
         mainHandler = new Handler(Looper.getMainLooper());
+
+        setupParallax();
 
         // Bắt đầu kiểm tra tài nguyên trên Thread riêng
         new Thread(this::checkAndLoadResources).start();
@@ -180,13 +188,17 @@ public class SplashActivity extends AppCompatActivity {
                         org.json.JSONObject meta = DatabaseLoader.findById(SplashActivity.this, userCard.getCollectionId());
                         if (meta != null) {
                             String frontImage = meta.optString("frontImage", "");
+                            String cardClass = meta.optString("class", "FirstWelcome");
+                            int ovr = DatabaseLoader.getOvrFromCardOvr(SplashActivity.this, cardClass, userCard.getLevel());
+
                             cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(
                                     userCard.getId(),
                                     userCard.getCollectionId(),
                                     frontImage,
                                     userCard.getLevel(),
                                     userCard.getExp(),
-                                    userCard.getUpgradeLevel()
+                                    userCard.getUpgradeLevel(),
+                                    ovr
                             ));
                         }
                     }
@@ -206,14 +218,44 @@ public class SplashActivity extends AppCompatActivity {
 
         mainHandler.postDelayed(() -> {
             Intent intent;
-            if (sessionManager.isLoggedIn()) {
+            boolean isLoggedIn = sessionManager.isLoggedIn();
+            if (isLoggedIn) {
                 intent = new Intent(SplashActivity.this, MainActivity.class);
             } else {
                 intent = new Intent(SplashActivity.this, OnboardingActivity.class);
             }
+            
+            // Truyền "Nhịp tim" Animation để tạo sự liền mạch tuyệt đối
+            if (driftX != null && driftY != null) {
+                intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
+                intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+            }
+            
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         }, waitTime);
+    }
+
+    private void setupParallax() {
+        if (ivBackground != null) {
+            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ivBackground.setScaleX(1.3f);
+            ivBackground.setScaleY(1.3f);
+
+            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
+            driftX.setDuration(15000); 
+            driftX.setRepeatMode(ValueAnimator.REVERSE);
+            driftX.setRepeatCount(ValueAnimator.INFINITE);
+
+            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
+            driftY.setDuration(20000); 
+            driftY.setRepeatMode(ValueAnimator.REVERSE);
+            driftY.setRepeatCount(ValueAnimator.INFINITE);
+
+            driftX.start();
+            driftY.start();
+        }
     }
 
     /**

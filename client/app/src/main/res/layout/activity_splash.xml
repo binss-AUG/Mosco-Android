@@ -5,37 +5,48 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#161622">
+    android:background="@color/mosco_screen_bg">
 
-    <!-- 🏆 Main Animated Logo: Thay logo tĩnh bằng hiệu ứng Lottie -->
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/iv_logo_lottie"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_mosco"
+    <!-- Bối cảnh vũ trụ trôi nổi (Quản lý tại layout_auth_background) -->
+    <include layout="@layout/layout_auth_background" />
+
+    <!-- Khung Logo Glassmorphism -->
+    <LinearLayout
+        android:id="@+id/logo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_card"
+        android:orientation="vertical"
+        android:padding="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        app:lottie_rawRes="@raw/loading" />
+        app:layout_constraintVertical_bias="0.5">
 
-    <TextView
-        android:id="@+id/tv_mosco"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
-        android:text="MOSCO"
-        android:textAllCaps="true"
-        android:textColor="@color/white"
-        android:textSize="32sp"
-        android:letterSpacing="0.2"
-        app:layout_constraintBottom_toTopOf="@+id/layout_download_progress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_logo_lottie" />
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/iv_logo_lottie"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loading" />
+
+        <TextView
+            android:id="@+id/tv_mosco"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/poppins_bold"
+            android:letterSpacing="0.3"
+            android:text="MOSCO"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <!-- 🚀 KHU VỰC TẢI DỮ LIỆU (Ẩn mặc định) -->
     <LinearLayout

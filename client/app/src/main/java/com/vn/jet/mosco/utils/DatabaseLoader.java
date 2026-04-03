@@ -32,6 +32,72 @@ public class DatabaseLoader {
     private static final String TAG = "DatabaseLoader";
     private static final String FILE_NAME = "database.json";
 
+    // Bảng tra cứu OVR từ cardOvr.json: typeKey -> level -> ovr
+    private static java.util.Map<String, java.util.Map<String, Integer>> cardOvrData = null;
+
+    /**
+     * Nạp bảng OVR từ assets/cardOvr.json (chỉ load 1 lần).
+     */
+    public static void loadCardOvrData(Context context) {
+        if (cardOvrData != null) return;
+        try {
+            InputStream is = context.getAssets().open("cardOvr.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            int totalRead = 0;
+            int bytesRead;
+            while (totalRead < size && (bytesRead = is.read(buffer, totalRead, size - totalRead)) != -1) {
+                totalRead += bytesRead;
+            }
+            is.close();
+            String json = new String(buffer, StandardCharsets.UTF_8);
+            JSONObject root = new JSONObject(json);
+            cardOvrData = new java.util.HashMap<>();
+            java.util.Iterator<String> typeKeys = root.keys();
+            while (typeKeys.hasNext()) {
+                String typeKey = typeKeys.next();
+                JSONObject levels = root.getJSONObject(typeKey);
+                java.util.Map<String, Integer> levelMap = new java.util.HashMap<>();
+                java.util.Iterator<String> lvlKeys = levels.keys();
+                while (lvlKeys.hasNext()) {
+                    String lvl = lvlKeys.next();
+                    levelMap.put(lvl, levels.getInt(lvl));
+                }
+                cardOvrData.put(typeKey, levelMap);
+            }
+            Log.d(TAG, "Loaded cardOvr.json: " + cardOvrData.size() + " types");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to load cardOvr.json", e);
+        }
+    }
+
+    /**
+     * Ánh xạ class từ database.json sang typeKey của cardOvr.json.
+     */
+    public static String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null) return "FirstWelcome";
+        String key = cardClass.replaceAll("\\s+", "");
+        if (key.equalsIgnoreCase("Double")) return "Double";
+        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
+        if (key.equalsIgnoreCase("Premier")) return "Premier";
+        return "FirstWelcome";
+    }
+
+    /**
+     * Tra cứu OVR từ bảng cardOvr.json.
+     * Đây là nguồn sự thật DUY NHẤT cho OVR trong toàn bộ app.
+     */
+    public static int getOvrFromCardOvr(Context context, String cardClass, int level) {
+        loadCardOvrData(context);
+        String typeKey = mapClassToTypeKey(cardClass);
+        if (cardOvrData != null && cardOvrData.containsKey(typeKey)) {
+            java.util.Map<String, Integer> levelMap = cardOvrData.get(typeKey);
+            Integer ovr = levelMap.get(String.valueOf(level));
+            if (ovr != null) return ovr;
+        }
+        return 80; // fallback
+    }
+
     // Cached list to avoid re-reading the 7MB file every time
     private static List<JSONObject> cachedCards = null;
 
@@ -50,20 +116,78 @@ public class DatabaseLoader {
         public int level;
         public int exp;
         public int upgradeLevel;
+        public int ovr;
 
-        public UserInventoryItem(Long id, String collectionId, String frontImage, int level, int exp, int upgradeLevel) {
+        public UserInventoryItem(Long id, String collectionId, String frontImage, int level, int exp, int upgradeLevel, int ovr) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
             this.level = level;
             this.exp = exp;
             this.upgradeLevel = upgradeLevel;
+            this.ovr = ovr;
         }
     }
     public static List<UserInventoryItem> cachedUserInventory = null;
 
+    public interface OnInventoryChangeListener {
+        void onInventoryChanged();
+    }
+    private static final List<OnInventoryChangeListener> inventoryChangeListeners = new ArrayList<>();
+
+    public static void registerInventoryChangeListener(OnInventoryChangeListener listener) {
+        if (!inventoryChangeListeners.contains(listener)) {
+            inventoryChangeListeners.add(listener);
+        }
+    }
+
+    public static void unregisterInventoryChangeListener(OnInventoryChangeListener listener) {
+        inventoryChangeListeners.remove(listener);
+    }
+
+    private static void notifyInventoryChanged() {
+        for (OnInventoryChangeListener listener : new ArrayList<>(inventoryChangeListeners)) {
+            listener.onInventoryChanged();
+        }
+    }
+
     public static void clearUserCache() {
         cachedUserInventory = null;
+        notifyInventoryChanged();
+    }
+
+    public static void reloadInventoryFromServer(Context context, Long userId, com.vn.jet.mosco.network.GameApiService apiService) {
+        if (userId == null || apiService == null) {
+            notifyInventoryChanged();
+            return;
+        }
+
+        apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
+                    List<UserInventoryItem> cachedList = new ArrayList<>();
+                    for (com.vn.jet.mosco.model.UserCard userCard : userCards) {
+                        org.json.JSONObject cardJson = findById(context, userCard.getCollectionId());
+                        if (cardJson != null) {
+                            String img = cardJson.optString("frontImage", "");
+                            String cardClass = cardJson.optString("class", "FirstWelcome");
+                            int ovr = getOvrFromCardOvr(context, cardClass, userCard.getLevel());
+
+                            cachedList.add(new UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel(), ovr));
+                        }
+                    }
+                    cachedUserInventory = cachedList;
+                }
+                notifyInventoryChanged();
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
+                notifyInventoryChanged();
+            }
+        });
     }
 
     /**
@@ -242,5 +366,6 @@ public class DatabaseLoader {
         cachedAllCardsRaw = null;
         cachedCardMap = null;
         cachedSlugMap = null;
+        cardOvrData = null;
     }
 }

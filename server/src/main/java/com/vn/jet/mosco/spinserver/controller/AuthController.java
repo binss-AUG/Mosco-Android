@@ -18,19 +18,29 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@RequestBody AuthRequest authRequest) {
-        if (authRequest == null) {
+    public ResponseEntity<AuthResponse> signup(@RequestBody com.vn.jet.mosco.spinserver.dto.SignUpRequest request) {
+        if (request == null) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(false, "Invalid request.", null, null));
+                    .body(new AuthResponse(false, "Vui lòng nhập liệu hợp lệ.", null, null));
         }
 
         AuthResponse response = authService.register(
-                authRequest.getUsername(),
-                authRequest.getEmail(),
-                authRequest.getPassword());
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getCode());
 
         if (response.isSuccess()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/send-code")
+    public ResponseEntity<AuthResponse> sendCode(@RequestParam String email) {
+        AuthResponse response = authService.sendVerificationCode(email);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().body(response);
     }
@@ -50,5 +60,31 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<AuthResponse> forgotPassword(@RequestParam String email) {
+        AuthResponse response = authService.forgotPassword(email);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<AuthResponse> resetPassword(@RequestBody com.vn.jet.mosco.spinserver.dto.ResetPasswordRequest request) {
+        if (request == null) {
+            return ResponseEntity.badRequest()
+                    .body(new AuthResponse(false, "Vui lòng nhập liệu.", null, null));
+        }
+        AuthResponse response = authService.resetPassword(
+                request.getEmail(),
+                request.getCode(),
+                request.getNewPassword());
+        
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
     }
 }

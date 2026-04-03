@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền kính mờ sáng hơn khi focus -->
+    <solid android:color="#26FFFFFF" />
+    <corners android:radius="14dp" />
+    <!-- Viền Neon xanh rực rỡ -->
+    <stroke
+        android:width="2dp"
+        android:color="#00E5FF" />
+</shape>

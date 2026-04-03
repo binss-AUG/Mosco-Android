@@ -59,7 +59,7 @@ public class ObjetDetailBinder {
         // Tìm Metadata từ Database ngầm dựa trên CollectionID (ví dụ: binary02_yeonji_333a)
         org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(context, objet.getCollectionId());
         if (cardJson != null) {
-            bind(dialog, context, cardJson, objet.getLevel(), objet.getExp(), objet.getUpgradeLevel());
+            bind(dialog, context, cardJson, objet);
         }
 
         dialog.findViewById(R.id.btn_close_detail).setOnClickListener(v -> dialog.dismiss());
@@ -69,7 +69,18 @@ public class ObjetDetailBinder {
     /**
      * Binds all dynamic data from a card JSON to the detail dialog.
      */
+    public static void bind(Dialog dialog, Context context, JSONObject cardJson, com.vn.jet.mosco.model.Objet objet) {
+        bind(dialog, context, cardJson, objet.getLevel(), objet.getExp(), objet.getUpgradeLevel(), objet);
+    }
+
+    /**
+     * Binds all dynamic data from a card JSON to the detail dialog. (Legacy support)
+     */
     public static void bind(Dialog dialog, Context context, JSONObject cardJson, int level, int exp, int upgradeLevel) {
+        bind(dialog, context, cardJson, level, exp, upgradeLevel, null);
+    }
+
+    private static void bind(Dialog dialog, Context context, JSONObject cardJson, int level, int exp, int upgradeLevel, com.vn.jet.mosco.model.Objet objet) {
         try {
             // ── 1. Parse colors ────────────────────────────────────────
             String bgColorHex = cardJson.optString("backgroundColor", "#6c29fd");
@@ -126,7 +137,12 @@ public class ObjetDetailBinder {
             int finalAtk = (int) (atk * multiplier);
             int finalDef = (int) (def * multiplier);
             int finalSpd = (int) (spd * multiplier);
-            int overall = finalHp + finalAtk + finalDef + finalSpd;
+            
+            // ĐỒNG BỘ OVR THEO cardOvr.json (Source of truth mới)
+            String ovrClass = cardJson.optString("class", "FirstWelcome");
+            int overall = (objet != null && objet.getOvr() > 0) 
+                    ? objet.getOvr() 
+                    : com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(context, ovrClass, upgradeLevel);
 
             // Hiển thị chỉ số cá nhân động lên giao diện
             TextView tvHp = dialog.findViewById(R.id.tv_stat_hp);
@@ -153,15 +169,28 @@ public class ObjetDetailBinder {
             // ── 4. Bind title, badge & Dual-tone Chip ──────────────────
             TextView tvTitle = dialog.findViewById(R.id.tv_objet_title);
             if (tvTitle != null) {
-                // Hiển thị tên thành viên, mã sưu tầm và Overall (e.g. "Yeonji 333A [152]")
-                tvTitle.setText(member + " " + collectionNo + " [" + overall + "]");
+                // Hiển thị tên thành viên và mã sưu tầm (e.g. "Yeonji 333A")
+                tvTitle.setText(member + " " + collectionNo);
                 tvTitle.setTextColor(Color.WHITE);
             }
 
-            TextView tvUpgrade = dialog.findViewById(R.id.tv_chip_upgrade);
-            if (tvUpgrade != null) {
-                // Hiển thị cấp độ cường hóa (e.g. "+10")
-                tvUpgrade.setText("+" + upgradeLevel);
+            TextView tvOvr = dialog.findViewById(R.id.card_tv_ovr);
+            if (tvOvr != null) {
+                tvOvr.setText(String.valueOf(overall));
+                tvOvr.setVisibility(View.VISIBLE);
+            }
+
+            ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
+            if (ivLevel != null) {
+                if (upgradeLevel > 0) {
+                    String assetPath = "file:///android_asset/grade/" + upgradeLevel + ".png";
+                    Glide.with(context).load(assetPath).into(ivLevel);
+                    ivLevel.setVisibility(View.VISIBLE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, upgradeLevel);
+                } else {
+                    ivLevel.setVisibility(View.GONE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
+                }
             }
 
             TextView tvBadge = dialog.findViewById(R.id.tv_badge_class);
@@ -275,7 +304,35 @@ public class ObjetDetailBinder {
                 floatingAnim.start();
             }
 
-            // ── 7. Level section — viền mờ ──────────────────
+            MaterialButton btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
+        if (btnUpgrade != null) {
+            btnUpgrade.setOnClickListener(v -> {
+                dialog.dismiss();
+                if (context instanceof androidx.appcompat.app.AppCompatActivity) {
+                    androidx.appcompat.app.AppCompatActivity activity = (androidx.appcompat.app.AppCompatActivity) context;
+                    com.vn.jet.mosco.fragment.UpgradeFragment upgradeFragment = com.vn.jet.mosco.fragment.UpgradeFragment.newInstance();
+                    
+                    if (objet != null) {
+                        // Truyền thẻ hiện tại vào làm thẻ chính
+                        upgradeFragment.setMainCard(objet);
+                        
+                        // Mở UpgradeFragment
+                        activity.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.frame_layout, upgradeFragment) // frame_layout là container chính trong MainActivity
+                                .addToBackStack(null)
+                                .commit();
+                                
+                        // Đồng bộ tab dưới bottom navigation (nếu có)
+                        com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = activity.findViewById(R.id.bottom_navigation);
+                        if (bottomNav != null) {
+                            bottomNav.setSelectedItemId(R.id.nav_stage); // ID của tab Upgrade
+                        }
+                    } else {
+                        android.widget.Toast.makeText(context, "Không thể nâng cấp từ màn hình này", android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
             View clLevelSection = dialog.findViewById(R.id.cl_level_section);
             if (clLevelSection != null) {
                 GradientDrawable levelBg = new GradientDrawable();

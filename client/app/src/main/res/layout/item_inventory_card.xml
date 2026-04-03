@@ -16,22 +16,7 @@
         <!-- Unified Card Content (Image + OVR + Badge) -->
         <include layout="@layout/layout_core_card" />
 
-        <!-- Upgrade Badge (giữ lại từ Mosco gốc để hiển thị +1, +2...) -->
-        <TextView
-            android:id="@+id/tv_item_upgrade"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="6dp"
-            android:background="@drawable/bg_badge_dark"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:text="+1"
-            android:textColor="@color/mosco_gold"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/poppins"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+
 
         <!-- Selected Overlay (cho UpgradeBottomSheet multi-select) -->
         <View

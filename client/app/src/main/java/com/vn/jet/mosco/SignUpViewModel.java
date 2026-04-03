@@ -26,6 +26,7 @@ public class SignUpViewModel extends AndroidViewModel {
 
     private final AuthRepository repository;
     private final MutableLiveData<Resource<AuthResponse>> signUpResult = new MutableLiveData<>();
+    private final MutableLiveData<Resource<AuthResponse>> sendCodeResult = new MutableLiveData<>();
 
     public SignUpViewModel(@NonNull Application application) {
         super(application);
@@ -46,6 +47,10 @@ public class SignUpViewModel extends AndroidViewModel {
 
     public LiveData<Resource<AuthResponse>> getSignUpResult() {
         return signUpResult;
+    }
+
+    public LiveData<Resource<AuthResponse>> getSendCodeResult() {
+        return sendCodeResult;
     }
 
     public void startCountdown() {
@@ -71,8 +76,12 @@ public class SignUpViewModel extends AndroidViewModel {
      * Calls the real API via AuthRepository.
      * Result is observed through getSignUpResult() LiveData.
      */
-    public void signUpUser(String username, String email, String password) {
-        repository.signUp(username, email, password, signUpResult);
+    public void signUpUser(String username, String email, String password, String code) {
+        repository.signUp(username, email, password, code, signUpResult);
+    }
+
+    public void sendVerificationCode(String email) {
+        repository.sendVerificationCode(email, sendCodeResult);
     }
 
     @Override

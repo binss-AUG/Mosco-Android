@@ -86,5 +86,17 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ Hoàn thiện Splash Screen với Lottie và thuật toán Fake Progress 2.0.
 *   ✅ Tối ưu hóa SpinFragment: Loại bỏ Jank khi nạp tài nguyên tĩnh, thêm các khoảng trễ "vàng" (0.1s - 1s) để tạo nhịp điệu kịch tính.
 
+## 📜 Nhật Ký Cập Nhật (V4.0 - Server-Side Upgrade Integration)
+*   ✅ **Kiến trúc Server-Side Update:** Di chuyển toàn bộ tính năng gacha upgrade từ Client về Server, kết nối qua `UpgradeService` và `UpgradeController` để đảm bảo Single Source of Truth chống hack/cheat.
+*   ✅ **Đồng bộ hóa UI vĩnh viễn (OVR/Level Badges):** Tính toán điểm số OVR và hệ thống cache `DatabaseLoader` đã được ánh xạ toàn bộ qua Client (Inventory, Collection, Spin, Upgrade) để đảm bảo thẻ luôn có chỉ số và badge đúng với Database.
+*   ✅ **Các dependency mới:** (Không phát sinh).
+*   ✅ **Cấu trúc Database Update:** Bổ sung các Custom Query `deleteByUser` và `findByIdAndUserId` vào `UserCardRepository`.
+
+*   **Tài liệu Hệ thống API Mới:**
+    *   **Gacha Upgrade Endpoint:**
+        *   **Method / URL:** `POST /api/gacha/upgrade`
+        *   **Request:** `UpgradeRequest` (JSON gồm `userId`, `baseCardId`, `materialCardIds` mảng các materials)
+        *   **Response:** `UpgradeResponse` chứa thông báo thành công `success`, tin nhắn trả về `message` và cấp độ mới `newLevel`.
+
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

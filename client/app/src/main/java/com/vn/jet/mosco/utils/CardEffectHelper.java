@@ -28,7 +28,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.model.UpgradeCard;
+import com.vn.jet.mosco.model.Objet;
 
 /**
  * Trình Xử Lý Hiệu Ứng Cao Cấp Cho Thẻ (Core Card).
@@ -95,12 +95,12 @@ public class CardEffectHelper {
         }
     }
 
-    public static void apply(MaterialCardView cardView, View shimmer, UpgradeCard card, boolean applyFloating) {
+    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating) {
         if (cardView == null || card == null) return;
         Context context = cardView.getContext();
 
         String currentCardId = (String) cardView.getTag(R.id.card_main);
-        if (card.getId().equals(currentCardId)) return;
+        if (card.getIdString().equals(currentCardId)) return;
 
         remove(cardView, shimmer);
 
@@ -121,7 +121,7 @@ public class CardEffectHelper {
         }
         // =========================================================================================
 
-        cardView.setTag(R.id.card_main, card.getId());
+        cardView.setTag(R.id.card_main, card.getIdString());
 
         cardView.post(() -> {
             int w = cardView.getWidth();

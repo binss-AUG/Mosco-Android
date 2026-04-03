@@ -21,7 +21,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.model.UpgradeCard;
+import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.utils.DatabaseLoader;
 import com.vn.jet.mosco.utils.UpgradeAlgorithm;
 
 import java.io.InputStream;
@@ -72,16 +73,22 @@ public class UpgradeFragment extends Fragment {
     private androidx.appcompat.widget.AppCompatButton btnUpgrade;
 
     // Data
-    private UpgradeCard mainCard = null;
-    private UpgradeCard[] materialCards = new UpgradeCard[5];
+    private Objet mainCard = null;
+    private Objet[] materialCards = new Objet[5];
     private int currentMaterialSlot = -1; // -1 = selecting main card
 
     private UpgradeAlgorithm upgradeAlgorithm;
     private Map<String, Map<String, Integer>> cardOvrData; // typeKey -> level -> ovr
-    private List<UpgradeCard> demoCardList;
 
     public UpgradeFragment() {
         // Required empty public constructor
+    }
+
+    public void setMainCard(Objet card) {
+        this.mainCard = card;
+        if (this.mainCard != null && this.mainCard.getOvr() == 0) {
+            this.mainCard.setOvr(getOvrFromData(this.mainCard.getTypeKey(), this.mainCard.getCardLevel()));
+        }
     }
 
     public static UpgradeFragment newInstance() {
@@ -92,7 +99,11 @@ public class UpgradeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadJsonData();
-        buildDemoCards();
+        
+        // Recalculate mainCard OVR if it was set before JSON loaded
+        if (mainCard != null) {
+            mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), mainCard.getCardLevel()));
+        }
     }
 
     @Nullable
@@ -104,6 +115,32 @@ public class UpgradeFragment extends Fragment {
         updateUI();
         return rootView;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
+        // Cập nhật lại UI khi quay lại màn hình
+        updateUI();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        DatabaseLoader.unregisterInventoryChangeListener(inventoryChangeListener);
+    }
+
+    private final DatabaseLoader.OnInventoryChangeListener inventoryChangeListener = new DatabaseLoader.OnInventoryChangeListener() {
+        @Override
+        public void onInventoryChanged() {
+            if (getActivity() != null && isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    // Cập nhật lại UI nếu cần thiết (ví dụ đếm số lượng slot)
+                    updateUI();
+                });
+            }
+        }
+    };
 
     /**
      * Load dữ liệu JSON từ assets
@@ -171,78 +208,37 @@ public class UpgradeFragment extends Fragment {
     }
 
     /**
-     * Tạo 36 thẻ demo: 4 loại x 9 cấp (+1 → +9)
-     */
-    private void buildDemoCards() {
-        demoCardList = new ArrayList<>();
-        String[] typeKeys = {"FirstWelcome", "Double", "SpecialUnit", "Premier"};
-        String[] sampleImages = new String[4];
-
-        try {
-            java.io.InputStream is = getContext().getAssets().open("database.json");
-            com.google.gson.JsonObject dbJson = new com.google.gson.JsonParser().parse(new java.io.InputStreamReader(is)).getAsJsonObject();
-            com.google.gson.JsonArray collections = dbJson.getAsJsonArray("collections");
-            
-            java.util.List<String> firstWelcomeList = new java.util.ArrayList<>();
-            java.util.List<String> doubleList = new java.util.ArrayList<>();
-            java.util.List<String> specialUnitList = new java.util.ArrayList<>();
-            java.util.List<String> premierList = new java.util.ArrayList<>();
-
-            for (com.google.gson.JsonElement element : collections) {
-                com.google.gson.JsonObject card = element.getAsJsonObject();
-                if (card.has("class") && !card.get("class").isJsonNull()) {
-                    String cardClass = card.get("class").getAsString().toLowerCase();
-                    String imgUrl = card.has("frontImage") && !card.get("frontImage").isJsonNull() 
-                            ? card.get("frontImage").getAsString() : null;
-                            
-                    if (imgUrl != null) {
-                        if (cardClass.contains("first") || cardClass.contains("welcome")) firstWelcomeList.add(imgUrl);
-                        else if (cardClass.contains("double")) doubleList.add(imgUrl);
-                        else if (cardClass.contains("special") || cardClass.contains("unit")) specialUnitList.add(imgUrl);
-                        else if (cardClass.contains("premier")) premierList.add(imgUrl);
-                    }
-                }
-            }
-
-            java.util.Random random = new java.util.Random();
-            sampleImages[0] = !firstWelcomeList.isEmpty() ? firstWelcomeList.get(random.nextInt(firstWelcomeList.size())) : "";
-            sampleImages[1] = !doubleList.isEmpty() ? doubleList.get(random.nextInt(doubleList.size())) : "";
-            sampleImages[2] = !specialUnitList.isEmpty() ? specialUnitList.get(random.nextInt(specialUnitList.size())) : "";
-            sampleImages[3] = !premierList.isEmpty() ? premierList.get(random.nextInt(premierList.size())) : "";
-            
-            is.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        int cardId = 0;
-        for (int t = 0; t < typeKeys.length; t++) {
-            String typeKey = typeKeys[t];
-            for (int level = 1; level <= 9; level++) {
-                int ovr = getOvrFromData(typeKey, level);
-                UpgradeCard card = new UpgradeCard(
-                        "demo_" + cardId,
-                        typeKey,
-                        level,
-                        ovr,
-                        sampleImages[t]
-                );
-                demoCardList.add(card);
-                cardId++;
-            }
-        }
-    }
-
-    /**
      * Lấy OVR từ cardOvr.json data
      */
     private int getOvrFromData(String typeKey, int level) {
-        if (cardOvrData != null && cardOvrData.containsKey(typeKey)) {
-            Map<String, Integer> levelMap = cardOvrData.get(typeKey);
+        // Nếu typeKey trông giống collectionId (chưa được map), hãy cố gắng map nó
+        String resolvedKey = typeKey;
+        if (typeKey != null && typeKey.contains("-")) {
+            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), typeKey);
+            if (meta != null) {
+                resolvedKey = mapClassToTypeKey(meta.optString("class", ""));
+            }
+        }
+
+        if (cardOvrData != null && cardOvrData.containsKey(resolvedKey)) {
+            Map<String, Integer> levelMap = cardOvrData.get(resolvedKey);
             Integer ovr = levelMap.get(String.valueOf(level));
             if (ovr != null) return ovr;
         }
         return 80; // fallback
+    }
+
+    /**
+     * Ánh xạ class từ database.json sang typeKey dùng cho upgrade
+     */
+    private String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null) return "FirstWelcome"; // Mặc định
+        String typeKey = cardClass.replaceAll("\\s+", ""); // Xóa khoảng trắng
+        if (typeKey.equalsIgnoreCase("FirstWelcome")) return "FirstWelcome";
+        if (typeKey.equalsIgnoreCase("Double")) return "Double";
+        if (typeKey.equalsIgnoreCase("SpecialUnit") || typeKey.equalsIgnoreCase("Special")) return "SpecialUnit";
+        if (typeKey.equalsIgnoreCase("Premier")) return "Premier";
+        return "FirstWelcome";
     }
 
     /**
@@ -326,10 +322,24 @@ public class UpgradeFragment extends Fragment {
         currentMaterialSlot = slotIndex;
 
         UpgradeBottomSheet bottomSheet = new UpgradeBottomSheet();
-        bottomSheet.setCardList(demoCardList);
+        bottomSheet.setOvrCalculator(new UpgradeBottomSheet.OvrCalculator() {
+            @Override
+            public int getOvr(String typeKey, int level) {
+                return getOvrFromData(typeKey, level);
+            }
+
+            @Override
+            public String getTypeKey(String collectionId) {
+                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), collectionId);
+                if (meta != null) {
+                    return mapClassToTypeKey(meta.optString("class", ""));
+                }
+                return "FirstWelcome";
+            }
+        });
         
         if (slotIndex != -1) {
-            List<UpgradeCard> currentSelected = new ArrayList<>();
+            List<Objet> currentSelected = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 if (materialCards[i] != null) {
                     currentSelected.add(materialCards[i]);
@@ -340,7 +350,7 @@ public class UpgradeFragment extends Fragment {
 
         bottomSheet.setOnUpgradeCardSelectedListener(new UpgradeBottomSheet.OnUpgradeCardSelectedListener() {
             @Override
-            public void onUpgradeCardSelected(UpgradeCard card) {
+            public void onUpgradeCardSelected(Objet card) {
                 if (currentMaterialSlot == -1) {
                     mainCard = card;
                     for (int i = 0; i < 5; i++) {
@@ -351,7 +361,7 @@ public class UpgradeFragment extends Fragment {
             }
 
             @Override
-            public void onMaterialsSelected(List<UpgradeCard> materials) {
+            public void onMaterialsSelected(List<Objet> materials) {
                 for (int i = 0; i < 5; i++) {
                     if (materials != null && i < materials.size()) {
                         materialCards[i] = materials.get(i);
@@ -370,60 +380,72 @@ public class UpgradeFragment extends Fragment {
      * Thực hiện nâng cấp
      */
     private void performUpgrade() {
-        if (mainCard == null || upgradeAlgorithm == null) return;
-
-        List<UpgradeAlgorithm.Card> materials = new ArrayList<>();
-        for (UpgradeCard mc : materialCards) {
+        if (mainCard == null) return;
+        
+        List<Long> materialIds = new ArrayList<>();
+        for (Objet mc : materialCards) {
             if (mc != null) {
-                UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-                c.id = mc.getId();
-                c.typeKey = mc.getTypeKey();
-                c.level = mc.getLevel();
-                c.ovr = mc.getOvr();
-                materials.add(c);
+                materialIds.add((long) mc.getId());
             }
         }
+        if (materialIds.isEmpty()) return;
 
-        if (materials.isEmpty()) return;
+        btnUpgrade.setEnabled(false);
+        Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
+        com.vn.jet.mosco.model.UpgradeRequest request = new com.vn.jet.mosco.model.UpgradeRequest(userId, (long) mainCard.getId(), materialIds);
 
-        try {
-            UpgradeAlgorithm.Card target = new UpgradeAlgorithm.Card();
-            target.id = mainCard.getId();
-            target.typeKey = mainCard.getTypeKey();
-            target.level = mainCard.getLevel();
-            target.ovr = mainCard.getOvr();
+        com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+        apiService.upgradeCard(request).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>> response) {
+                btnUpgrade.setEnabled(true);
+                if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 200) {
+                    com.vn.jet.mosco.model.UpgradeResponse result = response.body().getData();
+                    
+                    if (result.isSuccess()) {
+                        Toast.makeText(getContext(), "Nâng cấp thành công! +" + result.getNewLevel(), Toast.LENGTH_LONG).show();
+                        // Cập nhật lại level và ovr cho thẻ chính
+                        mainCard.setCardLevel(result.getNewLevel());
+                        mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.getNewLevel()));
+                    } else {
+                        Toast.makeText(getContext(), "Nâng cấp thất bại! Rớt xuống +" + result.getNewLevel(), Toast.LENGTH_LONG).show();
+                        // Cập nhật lại level và ovr cho thẻ chính (bị tụt hạng)
+                        mainCard.setCardLevel(result.getNewLevel());
+                        mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.getNewLevel()));
+                    }
 
-            UpgradeAlgorithm.UpgradeResult result = upgradeAlgorithm.executeUpgrade(target, materials);
+                    // Chỉ reset materials sau khi upgrade, giữ lại thẻ chính
+                    for (int i = 0; i < 5; i++) materialCards[i] = null;
 
-            if (result.isSuccess) {
-                Toast.makeText(getContext(),
-                        "Nâng cấp thành công! +" + result.newLevel +
-                                " (Tỷ lệ: " + String.format("%.1f", result.actualSuccessRate) + "%)",
-                        Toast.LENGTH_LONG).show();
-
-                // Cập nhật thẻ chính
-                mainCard.setLevel(result.newLevel);
-                mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.newLevel));
-            } else {
-                Toast.makeText(getContext(),
-                        "Nâng cấp thất bại! Rớt xuống +" + result.newLevel +
-                                " (Tỷ lệ: " + String.format("%.1f", result.actualSuccessRate) + "%)",
-                        Toast.LENGTH_LONG).show();
-
-                mainCard.setLevel(result.newLevel);
-                mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.newLevel));
+                    // Refresh global state ngầm
+                    DatabaseLoader.clearUserCache();
+                    DatabaseLoader.reloadInventoryFromServer(requireContext(), userId, apiService);
+                    
+                    // Force update UI ngay lập tức với dữ liệu mainCard đã được cập nhật thủ công
+                    updateUI();
+                } else {
+                    String errorMsg = "Lỗi hệ thống khi nâng cấp";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            com.google.gson.JsonObject obj = new com.google.gson.Gson().fromJson(errorJson, com.google.gson.JsonObject.class);
+                            if (obj.has("message")) errorMsg = obj.get("message").getAsString();
+                        }
+                    } catch (Exception ignored) {}
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                }
             }
 
-            // Reset materials sau khi upgrade
-            for (int i = 0; i < 5; i++) {
-                materialCards[i] = null;
+            @Override
+            public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>> call, Throwable t) {
+                btnUpgrade.setEnabled(true);
+                Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
+        });
+    }
 
-            updateUI();
-
-        } catch (Exception e) {
-            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+    private void updateInventoryCache() {
+        // Obsolete function string due to moving logic to the server.
     }
 
     /**
@@ -474,12 +496,12 @@ public class UpgradeFragment extends Fragment {
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
 
             // Show level badge (as image from assets)
-            if (getContext() != null && mainCard.getLevel() > 0) {
+            if (getContext() != null && mainCard.getCardLevel() > 0) {
                 ivCardLevelBadge.setVisibility(View.VISIBLE);
-                String assetPath = "file:///android_asset/grade/" + Math.min(mainCard.getLevel(), 10) + ".png";
+                String assetPath = "file:///android_asset/grade/" + Math.min(mainCard.getCardLevel(), 10) + ".png";
                 Glide.with(getContext()).load(assetPath).into(ivCardLevelBadge);
                 // Phủ ánh kim loại lên Level Badge
-                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getLevel());
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getCardLevel());
             } else {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivCardLevelBadge);
@@ -502,7 +524,7 @@ public class UpgradeFragment extends Fragment {
             layoutRightStats.setAlpha(1.0f);
 
             int currentOvr = mainCard.getOvr();
-            int nextLevel = Math.min(mainCard.getLevel() + 1, 10);
+            int nextLevel = Math.min(mainCard.getCardLevel() + 1, 10);
             int nextOvr = getOvrFromData(mainCard.getTypeKey(), nextLevel);
 
             tvOvrAfter.setText(String.valueOf(nextOvr));
@@ -526,7 +548,7 @@ public class UpgradeFragment extends Fragment {
         } else {
             layoutLevelIndicator.setAlpha(1.0f);
 
-            int currentLevel = mainCard.getLevel();
+            int currentLevel = mainCard.getCardLevel();
             int nextLevel = Math.min(currentLevel + 1, 10);
 
             // Hiển thị ảnh grade cho level hiện tại từ assets
@@ -571,12 +593,12 @@ public class UpgradeFragment extends Fragment {
         }
 
         List<UpgradeAlgorithm.Card> materials = new ArrayList<>();
-        for (UpgradeCard mc : materialCards) {
+        for (Objet mc : materialCards) {
             if (mc != null) {
                 UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-                c.id = mc.getId();
+                c.id = mc.getIdString();
                 c.typeKey = mc.getTypeKey();
-                c.level = mc.getLevel();
+                c.level = mc.getCardLevel();
                 c.ovr = mc.getOvr();
                 materials.add(c);
             }
@@ -637,11 +659,11 @@ public class UpgradeFragment extends Fragment {
                 tvMaterialOvr[i].setVisibility(View.VISIBLE);
                 tvMaterialOvr[i].setText(String.valueOf(materialCards[i].getOvr()));
                 
-                if (getContext() != null && materialCards[i].getLevel() > 0) {
+                if (getContext() != null && materialCards[i].getCardLevel() > 0) {
                     ivMaterialLevel[i].setVisibility(View.VISIBLE);
-                    String assetPath = "file:///android_asset/grade/" + Math.min(materialCards[i].getLevel(), 10) + ".png";
+                    String assetPath = "file:///android_asset/grade/" + Math.min(materialCards[i].getCardLevel(), 10) + ".png";
                     Glide.with(getContext()).load(assetPath).into(ivMaterialLevel[i]);
-                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getLevel());
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getCardLevel());
                 } else {
                     ivMaterialLevel[i].setVisibility(View.GONE);
                     com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivMaterialLevel[i]);
@@ -681,14 +703,14 @@ public class UpgradeFragment extends Fragment {
      */
     private void updateUpgradeButtonUI() {
         boolean hasMaterials = false;
-        for (UpgradeCard mc : materialCards) {
+        for (Objet mc : materialCards) {
             if (mc != null) {
                 hasMaterials = true;
                 break;
             }
         }
 
-        boolean canUpgrade = mainCard != null && hasMaterials && mainCard.getLevel() < 10;
+        boolean canUpgrade = mainCard != null && hasMaterials && mainCard.getCardLevel() < 10;
 
         if (canUpgrade) {
             btnUpgrade.setEnabled(true);
@@ -706,11 +728,11 @@ public class UpgradeFragment extends Fragment {
     /**
      * Tạo UpgradeAlgorithm.Card từ UpgradeCard model
      */
-    private UpgradeAlgorithm.Card createAlgoCard(UpgradeCard card) {
+    private UpgradeAlgorithm.Card createAlgoCard(Objet card) {
         UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-        c.id = card.getId();
+        c.id = card.getIdString();
         c.typeKey = card.getTypeKey();
-        c.level = card.getLevel();
+        c.level = card.getCardLevel();
         c.ovr = card.getOvr();
         return c;
     }

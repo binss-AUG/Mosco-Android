@@ -1,5 +1,7 @@
 package com.vn.jet.mosco;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -7,6 +9,8 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -28,6 +32,8 @@ public class SignUpActivity extends AppCompatActivity {
     private Button btnSendCode, btnSignUp;
     private ProgressBar loadingProgress;
     private TextView tvGoToSignIn;
+    private ImageView ivBackground;
+    private ObjectAnimator driftX, driftY;
 
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
@@ -47,9 +53,17 @@ public class SignUpActivity extends AppCompatActivity {
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
         loadingProgress = findViewById(R.id.loading_progress);
         ImageView btnBack = findViewById(R.id.btn_back);
+        ivBackground = findViewById(R.id.iv_background_parallax);
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
+
+        // Nhận thời gian chạy Animation từ màn trước
+        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
+        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
+
+        // --- 🚀 Kích hoạt cơ chế siêu cấp WOW 2026 ---
+        setupAmbientEffects(playTimeX, playTimeY);
 
         // --- Send Code button ---
         btnSendCode.setOnClickListener(v -> {
@@ -62,8 +76,8 @@ public class SignUpActivity extends AppCompatActivity {
                 edtEmail.setError(getString(R.string.error_invalid_email));
                 return;
             }
-            Toast.makeText(this, getString(R.string.msg_code_sent), Toast.LENGTH_SHORT).show();
-            viewModel.startCountdown();
+            // Gọi API gửi mã thực tế
+            viewModel.sendVerificationCode(email);
         });
 
         // --- Countdown timer observers ---
@@ -97,8 +111,36 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+        // --- Observe Send Code result ---
+        viewModel.getSendCodeResult().observe(this, resource -> {
+            switch (resource.getStatus()) {
+                case LOADING:
+                    btnSendCode.setEnabled(false);
+                    btnSendCode.setText("...");
+                    break;
+                case SUCCESS:
+                    Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    viewModel.startCountdown();
+                    break;
+                case ERROR:
+                    btnSendCode.setEnabled(true);
+                    btnSendCode.setText(getString(R.string.action_send_code));
+                    Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        });
+
         // --- Sign Up button ---
         btnSignUp.setOnClickListener(v -> validateAndSignUp());
+
+        // Tự động Sign Up khi ấn Done (UX cao cấp)
+        edtVerificationCode.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                validateAndSignUp();
+                return true;
+            }
+            return false;
+        });
 
         // --- Observe API result ---
         viewModel.getSignUpResult().observe(this, resource -> {
@@ -118,6 +160,13 @@ public class SignUpActivity extends AppCompatActivity {
                         Intent intent = new Intent(this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        
+                        // Truyền "Nhịp tim" vũ trụ sang tận Trang chủ
+                        if (driftX != null && driftY != null) {
+                            intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
+                            intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+                        }
+                        
                         startActivity(intent);
                         finish();
                     }
@@ -143,8 +192,47 @@ public class SignUpActivity extends AppCompatActivity {
         }
         tvGoToSignIn.setText(spannable);
 
-        tvGoToSignIn.setOnClickListener(v -> finish());
-        btnBack.setOnClickListener(v -> finish());
+        tvGoToSignIn.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
+        btnBack.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
+    }
+
+    private void setupAmbientEffects(long playTimeX, long playTimeY) {
+        // 1. Hiệu ứng Parallax trôi nền vũ trụ (Floating Nebula)
+        if (ivBackground != null) {
+            // Đảm bảo phủ đủ chiều rộng (Scale 1.3x)
+            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ivBackground.setScaleX(1.3f);
+            ivBackground.setScaleY(1.3f);
+
+            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
+            driftX.setDuration(15000); // Đồng bộ 15 giây
+            driftX.setRepeatMode(ValueAnimator.REVERSE);
+            driftX.setRepeatCount(ValueAnimator.INFINITE);
+
+            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
+            driftY.setDuration(20000); // Đồng bộ 20 giây
+            driftY.setRepeatMode(ValueAnimator.REVERSE);
+            driftY.setRepeatCount(ValueAnimator.INFINITE);
+
+            driftX.start();
+            driftX.setCurrentPlayTime(playTimeX);
+            
+            driftY.start();
+            driftY.setCurrentPlayTime(playTimeY);
+        }
+
+        // 2. Hiệu ứng nhịp thở cho Glass Card
+        View glassCard = findViewById(R.id.glass_container);
+        if (glassCard != null) {
+            Animation breathing = AnimationUtils.loadAnimation(this, R.anim.anim_neon_breathing);
+            glassCard.startAnimation(breathing);
+        }
     }
 
     private void validateAndSignUp() {
@@ -184,7 +272,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         // Call real API via ViewModel
-        viewModel.signUpUser(username, email, pass);
+        viewModel.signUpUser(username, email, pass, code);
     }
 
     private void setLoading(boolean isLoading) {

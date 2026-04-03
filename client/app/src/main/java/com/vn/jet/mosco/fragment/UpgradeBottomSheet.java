@@ -16,47 +16,161 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.model.UpgradeCard;
+import com.vn.jet.mosco.adapter.BaseInventoryAdapter;
+import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.utils.DatabaseLoader;
 import com.vn.jet.mosco.utils.UpgradeAlgorithm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UpgradeBottomSheet extends BottomSheetDialogFragment {
 
     private OnUpgradeCardSelectedListener listener;
-    private List<UpgradeCard> cardList;
+    private List<Objet> cardList;
 
     private boolean isMultiSelect = false;
-    private List<UpgradeCard> selectedMaterials = new ArrayList<>();
-    private UpgradeCard mainCard;
+    private List<Objet> selectedMaterials = new ArrayList<>();
+    private Objet mainCard;
     private UpgradeAlgorithm upgradeAlgorithm;
     private androidx.appcompat.widget.AppCompatButton btnConfirm;
 
+    private RecyclerView rvInventory;
+    private LinearLayout layoutEmptyState;
+    private TextView tvTitle;
+    private TextView tvCount;
+    private BaseInventoryAdapter adapter;
+
+    private final Set<String> objetFilter = new java.util.LinkedHashSet<>();
+    private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Lowest No.", "Highest No."};
+    private List<Objet> originalObjets = new ArrayList<>();
+
+    public interface OvrCalculator {
+        int getOvr(String typeKey, int level);
+        String getTypeKey(String collectionId);
+    }
+    
+    private OvrCalculator ovrCalculator;
+
     public interface OnUpgradeCardSelectedListener {
-        void onUpgradeCardSelected(UpgradeCard card);
-        void onMaterialsSelected(List<UpgradeCard> materials);
+        void onUpgradeCardSelected(Objet card);
+        void onMaterialsSelected(List<Objet> materials);
+    }
+
+    public void setOvrCalculator(OvrCalculator calc) {
+        this.ovrCalculator = calc;
     }
 
     public void setOnUpgradeCardSelectedListener(OnUpgradeCardSelectedListener listener) {
         this.listener = listener;
     }
 
-    public void setCardList(List<UpgradeCard> cardList) {
+    public void setCardList(List<Objet> cardList) {
         this.cardList = cardList != null ? new ArrayList<>(cardList) : new ArrayList<>();
     }
 
-    public void setupMultiSelectMode(UpgradeCard mainCard, UpgradeAlgorithm algorithm, List<UpgradeCard> preSelected) {
+    /**
+     * Chiến thuật "Cache First, Always Sync":
+     * Hiển thị cache ngay → gọi API ngầm để đồng bộ data mới nhất
+     */
+    public void loadDataFromCache() {
+        // BƯỚC 1: Hiển thị từ Cache ngay lập tức
+        List<Objet> inventoryList = new ArrayList<>();
+        if (DatabaseLoader.cachedUserInventory != null) {
+            for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
+                Objet obj = new Objet(item.id.intValue(), item.collectionId, item.frontImage, item.level, item.exp, item.upgradeLevel);
+                if (ovrCalculator != null) {
+                    String typeKey = ovrCalculator.getTypeKey(item.collectionId);
+                    obj.setTypeKey(typeKey);
+                    obj.setOvr(ovrCalculator.getOvr(typeKey, obj.getCardLevel()));
+                }
+                inventoryList.add(obj);
+            }
+        }
+        this.originalObjets = inventoryList;
+        applyFilters();
+
+        // BƯỚC 2: LUÔN gọi API ngầm để lấy data mới nhất
+        if (getContext() == null) return;
+        Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
+        if (userId == null) return;
+        
+        com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+        apiService.getUserCards(userId).enqueue(new retrofit2.Callback<java.util.List<com.vn.jet.mosco.model.UserCard>>() {
+            @Override
+            public void onResponse(retrofit2.Call<java.util.List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<java.util.List<com.vn.jet.mosco.model.UserCard>> response) {
+                if (!isAdded() || getContext() == null) return;
+                if (response.isSuccessful() && response.body() != null) {
+                    new Thread(() -> {
+                        List<DatabaseLoader.UserInventoryItem> cachedList = new ArrayList<>();
+                        List<Objet> freshList = new ArrayList<>();
+                        for (com.vn.jet.mosco.model.UserCard uc : response.body()) {
+                            org.json.JSONObject cardJson = DatabaseLoader.findById(requireContext(), uc.getCollectionId());
+                            if (cardJson != null) {
+                                String img = cardJson.optString("frontImage", "");
+                                String cardClass = cardJson.optString("class", "FirstWelcome");
+                                int ovr = DatabaseLoader.getOvrFromCardOvr(requireContext(), cardClass, uc.getLevel());
+                                cachedList.add(new DatabaseLoader.UserInventoryItem(uc.getId(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel(), ovr));
+
+                                Objet obj = new Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel());
+                                if (ovrCalculator != null) {
+                                    String typeKey = ovrCalculator.getTypeKey(uc.getCollectionId());
+                                    obj.setTypeKey(typeKey);
+                                    obj.setOvr(ovrCalculator.getOvr(typeKey, obj.getCardLevel()));
+                                } else {
+                                    obj.setOvr(ovr);
+                                }
+                                freshList.add(obj);
+                            }
+                        }
+                        DatabaseLoader.cachedUserInventory = cachedList;
+                        if (getActivity() != null && isAdded()) {
+                            getActivity().runOnUiThread(() -> {
+                                originalObjets = freshList;
+                                applyFilters();
+                            });
+                        }
+                    }).start();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<java.util.List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
+                // Nếu API lỗi thì giữ nguyên cache đã hiển thị
+            }
+        });
+    }
+
+    private final DatabaseLoader.OnInventoryChangeListener inventoryListener = () -> {
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(this::loadDataFromCache);
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        DatabaseLoader.registerInventoryChangeListener(inventoryListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        DatabaseLoader.unregisterInventoryChangeListener(inventoryListener);
+    }
+
+    public void setupMultiSelectMode(Objet mainCard, UpgradeAlgorithm algorithm, List<Objet> preSelected) {
         this.isMultiSelect = true;
         this.mainCard = mainCard;
         this.upgradeAlgorithm = algorithm;
         if (preSelected != null) {
-            for (UpgradeCard c : preSelected) {
+            for (Objet c : preSelected) {
                 if (c != null) this.selectedMaterials.add(c);
             }
         }
@@ -99,24 +213,65 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         ImageView ivBack = view.findViewById(R.id.iv_back);
-        RecyclerView rvInventory = view.findViewById(R.id.rv_inventory);
-        LinearLayout layoutEmptyState = view.findViewById(R.id.layout_empty_state);
-        TextView tvTitle = view.findViewById(R.id.tv_title);
+        rvInventory = view.findViewById(R.id.rv_inventory);
+        layoutEmptyState = view.findViewById(R.id.layout_empty_state);
+        tvTitle = view.findViewById(R.id.tv_title);
         btnConfirm = view.findViewById(R.id.btn_confirm);
+        tvCount = view.findViewById(R.id.tv_select_types_count);
 
         ivBack.setOnClickListener(v -> dismiss());
 
+        View filterBtn = view.findViewById(R.id.btn_filter_select);
+        if (filterBtn != null) {
+            filterBtn.setOnClickListener(v ->
+                CollectionFragment.showFilterBottomSheet(this, CollectionFragment.buildObjetCategories(requireContext()), 0, objetFilter, this::applyFilters));
+        }
+
+        View sortBtn = view.findViewById(R.id.btn_sort_select);
+        LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_select);
+        if (sortBtn != null && dropdown != null) {
+            CollectionFragment.setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+        }
+
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        if (cardList == null || cardList.isEmpty()) {
-            rvInventory.setVisibility(View.GONE);
-            layoutEmptyState.setVisibility(View.VISIBLE);
-        } else {
-            rvInventory.setVisibility(View.VISIBLE);
-            layoutEmptyState.setVisibility(View.GONE);
-            UpgradeCardAdapter adapter = new UpgradeCardAdapter(cardList);
-            rvInventory.setAdapter(adapter);
+        adapter = new BaseInventoryAdapter(new ArrayList<>(), rvInventory, item -> {
+            if (!isMultiSelect && listener != null) {
+                listener.onUpgradeCardSelected(item);
+                dismiss();
+            }
+        });
+
+        if (isMultiSelect) {
+            adapter.setMultiSelectMode(true, (item, selected) -> {
+                if (selected) {
+                    if (selectedMaterials.size() >= 5) {
+                        Toast.makeText(getContext(), "Vui lòng gỡ thẻ cũ trước khi thêm mới (Tối đa 5 thẻ)!", Toast.LENGTH_SHORT).show();
+                        adapter.setSelectedIds(getSelectedIds());
+                        return;
+                    }
+                    double currentProgress = calculateCurrentProgress();
+                    if (currentProgress >= 100.0) {
+                        Toast.makeText(getContext(), "Tỷ lệ đã đủ 100%, không cần thêm thẻ!", Toast.LENGTH_SHORT).show();
+                        adapter.setSelectedIds(getSelectedIds());
+                        return;
+                    }
+                    if (mainCard != null && mainCard.getId() == item.getId()) {
+                        Toast.makeText(getContext(), "Không thể rèn chính nó!", Toast.LENGTH_SHORT).show();
+                        adapter.setSelectedIds(getSelectedIds());
+                        return;
+                    }
+                    selectedMaterials.add(0, item);
+                } else {
+                    selectedMaterials.removeIf(sc -> sc.getId() == item.getId());
+                }
+                updateConfirmButtonText();
+            });
+            adapter.setSelectedIds(getSelectedIds());
         }
+
+        rvInventory.setAdapter(adapter);
+        applyFilters();
 
         if (isMultiSelect) {
             btnConfirm.setVisibility(View.VISIBLE);
@@ -132,24 +287,83 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
             btnConfirm.setVisibility(View.GONE);
             tvTitle.setText("Select a Card");
         }
+        
+        loadDataFromCache();
+    }
+
+    private Set<Integer> getSelectedIds() {
+        Set<Integer> ids = new HashSet<>();
+        for (Objet obj : selectedMaterials) {
+            ids.add(obj.getId());
+        }
+        return ids;
+    }
+
+    private void applyFilters() {
+        if (originalObjets == null || !isAdded()) return;
+        List<Objet> filtered = new ArrayList<>();
+        View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_select) : null;
+        String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+
+        for (Objet obj : originalObjets) {
+            if (objetFilter.isEmpty()) {
+                filtered.add(obj);
+                continue;
+            }
+            
+            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+            if (meta == null) continue;
+            String member = meta.optString("member", "");
+            String cardClass = meta.optString("class", "");
+            String season = meta.optString("season", "");
+            
+            boolean match = false;
+            for (String f : objetFilter) {
+                if (f.equalsIgnoreCase(member) || f.equalsIgnoreCase(cardClass) || f.equalsIgnoreCase(season)) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match) filtered.add(obj);
+        }
+
+        filtered.sort((a, b) -> {
+            if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
+            if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+            if ("Highest No.".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
+            return Integer.compare(b.getId(), a.getId());
+        });
+
+        if (adapter != null) {
+            adapter.updateData(filtered);
+            if (isMultiSelect) {
+                adapter.setSelectedIds(getSelectedIds());
+            }
+        }
+        if (tvCount != null) tvCount.setText(filtered.size() + " Items");
+        
+        if (layoutEmptyState != null) {
+            layoutEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+            rvInventory.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
+        }
     }
 
     private double calculateCurrentProgress() {
         if (!isMultiSelect || mainCard == null || upgradeAlgorithm == null) return 0.0;
         List<UpgradeAlgorithm.Card> algoMaterials = new ArrayList<>();
-        for (UpgradeCard mc : selectedMaterials) {
+        for (Objet mc : selectedMaterials) {
             UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-            c.id = mc.getId();
+            c.id = mc.getIdString();
             c.typeKey = mc.getTypeKey();
-            c.level = mc.getLevel();
+            c.level = mc.getCardLevel();
             c.ovr = mc.getOvr();
             algoMaterials.add(c);
         }
 
         UpgradeAlgorithm.Card target = new UpgradeAlgorithm.Card();
-        target.id = mainCard.getId();
+        target.id = mainCard.getIdString();
         target.typeKey = mainCard.getTypeKey();
-        target.level = mainCard.getLevel();
+        target.level = mainCard.getCardLevel();
         target.ovr = mainCard.getOvr();
 
         return upgradeAlgorithm.calculateFillPercent(target, algoMaterials);
@@ -162,119 +376,6 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
             btnConfirm.setText("Confirm");
         } else {
             btnConfirm.setText(String.format("Confirm (%.1f%%)", percent));
-        }
-    }
-
-    private class UpgradeCardAdapter extends RecyclerView.Adapter<UpgradeCardAdapter.ViewHolder> {
-        private final List<UpgradeCard> cards;
-
-        public UpgradeCardAdapter(List<UpgradeCard> cards) {
-            this.cards = cards;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inventory_card, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            UpgradeCard card = cards.get(position);
-
-            Glide.with(holder.itemView.getContext())
-                    .load(card.getImageUrl())
-                    .into(holder.ivObjet);
-
-            holder.tvOvr.setText(String.valueOf(card.getOvr()));
-            holder.tvOvr.setVisibility(View.VISIBLE);
-
-            if (card.getLevel() > 0) {
-                String assetPath = "file:///android_asset/grade/" + card.getLevel() + ".png";
-                Glide.with(holder.itemView.getContext()).load(assetPath).into(holder.ivLevel);
-                holder.ivLevel.setVisibility(View.VISIBLE);
-            } else {
-                holder.ivLevel.setVisibility(View.GONE);
-            }
-
-            if (isMultiSelect) {
-                boolean isSelected = false;
-                for (UpgradeCard sc : selectedMaterials) {
-                    if (sc.getId().equals(card.getId())) {
-                        isSelected = true;
-                        break;
-                    }
-                }
-                holder.viewOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-            } else {
-                holder.viewOverlay.setVisibility(View.GONE);
-            }
-
-            holder.itemView.setOnClickListener(v -> {
-                if (isMultiSelect) {
-                    boolean currentlySelected = false;
-                    for (UpgradeCard sc : selectedMaterials) {
-                        if (sc.getId().equals(card.getId())) {
-                            currentlySelected = true;
-                            break;
-                        }
-                    }
-
-                    if (currentlySelected) {
-                        selectedMaterials.removeIf(sc -> sc.getId().equals(card.getId()));
-                        notifyItemChanged(position);
-                        updateConfirmButtonText();
-                    } else {
-                        // "Muốn thay thế material: BẮT BUỘC phải gỡ object hiện tại trước..." 
-                        if (selectedMaterials.size() >= 5) {
-                            Toast.makeText(getContext(), "Vui lòng gỡ thẻ cũ trước khi thêm mới (Tối đa 5 thẻ)!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        
-                        double currentProgress = calculateCurrentProgress();
-                        if (currentProgress >= 100.0) {
-                            Toast.makeText(getContext(), "Tỷ lệ đã đủ 100%, không cần thêm thẻ!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        
-                        if (mainCard != null && mainCard.getId().equals(card.getId())) {
-                            Toast.makeText(getContext(), "Không thể rèn chính nó!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        // Hành vi giống stack (push lên đầu)
-                        selectedMaterials.add(0, card); 
-                        notifyItemChanged(position);
-                        updateConfirmButtonText();
-                    }
-                } else {
-                    if (listener != null) {
-                        listener.onUpgradeCardSelected(card);
-                    }
-                    dismiss();
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return cards.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivObjet;
-            TextView tvOvr;
-            ImageView ivLevel;
-            View viewOverlay;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivObjet = itemView.findViewById(R.id.card_iv_image);
-                tvOvr = itemView.findViewById(R.id.card_tv_ovr);
-                ivLevel = itemView.findViewById(R.id.card_iv_level);
-                viewOverlay = itemView.findViewById(R.id.view_selected_overlay);
-            }
         }
     }
 }
