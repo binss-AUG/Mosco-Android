@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Item cho mỗi dòng xếp hạng: Hạng | Avatar | Tên | Chỉ số -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_header_glass_v2"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="12dp"
+    android:layout_marginBottom="8dp">
+
+    <!-- Hạng (1-10) -->
+    <TextView
+        android:id="@+id/tv_rank_position"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/saira"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <!-- Avatar -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="8dp"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#3A3A55"
+        app:strokeColor="#30FFFFFF"
+        app:strokeWidth="0.8dp">
+
+        <ImageView
+            android:id="@+id/iv_rank_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_user" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Tên người chơi -->
+    <TextView
+        android:id="@+id/tv_rank_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/saira"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+    <!-- Chỉ số (Level / OVR / Card Count) -->
+    <TextView
+        android:id="@+id/tv_rank_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/saira"
+        android:textColor="@color/item_diamond"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

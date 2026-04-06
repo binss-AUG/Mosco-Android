@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:cardBackgroundColor="#1A1C29"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="@string/profile_edit_title"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Username (cho sửa) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_edit_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/stat_atk"
+            app:errorIconDrawable="@null">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_edit_username"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_glass_input"
+                android:drawableStart="@drawable/ic_user"
+                android:drawablePadding="12dp"
+                android:fontFamily="@font/poppins"
+                android:hint="@string/prompt_username"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:textColor="@color/white"
+                android:textColorHint="#80FFFFFF"
+                android:textCursorDrawable="@null"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Email (KHÔNG cho sửa — read only) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_edit_email"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_glass_input"
+                android:drawableStart="@drawable/ic_email"
+                android:drawablePadding="12dp"
+                android:enabled="false"
+                android:alpha="0.5"
+                android:fontFamily="@font/poppins"
+                android:hint="@string/prompt_email"
+                android:inputType="none"
+                android:maxLines="1"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:textColor="@color/white"
+                android:textColorHint="#80FFFFFF"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Display Name (cho sửa) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_edit_display_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:boxBackgroundMode="none"
+            app:hintEnabled="false"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/stat_atk"
+            app:errorIconDrawable="@null"
+            app:counterEnabled="true"
+            app:counterMaxLength="16"
+            app:counterTextColor="@color/mosco_text_disabled">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_edit_display_name"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_glass_input"
+                android:drawableStart="@drawable/ic_profile"
+                android:drawablePadding="12dp"
+                android:fontFamily="@font/poppins"
+                android:hint="@string/prompt_display_name"
+                android:inputType="text"
+                android:maxLength="16"
+                android:maxLines="1"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:textColor="@color/white"
+                android:textColorHint="#80FFFFFF"
+                android:textCursorDrawable="@null"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/poppins"
+                android:paddingHorizontal="16dp"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textColor="#A2A2A7"
+                android:textSize="14sp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_save"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/bg_button"
+                android:backgroundTint="#8A2BE2"
+                android:fontFamily="@font/poppins"
+                android:paddingHorizontal="20dp"
+                android:text="@string/profile_save"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

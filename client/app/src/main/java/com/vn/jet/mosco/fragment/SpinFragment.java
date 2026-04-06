@@ -16,11 +16,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -33,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -104,6 +108,16 @@ public class SpinFragment extends Fragment {
     private volatile boolean videoComplete = false;
     private volatile boolean preloadComplete = false;
 
+    // ── 3D Flip cho thẻ hi sinh (Sacrifice Card) ──
+    private static final int FLIP_HALF_DURATION = 250;
+    private static final int SWIPE_THRESHOLD = 100;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+    private ImageView ivSacrificeBack;
+    private boolean isSacrificeFlipped = false;
+    private boolean isSacrificeFlipAnimating = false;
+    private String sacrificeBackImageUrl = null;
+    private GestureDetectorCompat sacrificeGestureDetector;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -157,6 +171,7 @@ public class SpinFragment extends Fragment {
         btnAddObjet = view.findViewById(R.id.btn_add_objet);
         layoutSelectedFront = view.findViewById(R.id.layout_selected_front);
         ivSelectedObjet = view.findViewById(R.id.card_iv_image);
+        ivSacrificeBack = view.findViewById(R.id.iv_sacrifice_back);
         btnSpin = view.findViewById(R.id.btn_spin);
         ivBgCard1 = view.findViewById(R.id.iv_bg_card_1);
         ivBgCard2 = view.findViewById(R.id.iv_bg_card_2);
@@ -166,6 +181,9 @@ public class SpinFragment extends Fragment {
 
         view.setBackgroundColor(Color.BLACK);
         view.post(this::startBackgroundAnimation);
+
+        // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
+        initSacrificeFlipGesture();
 
         getParentFragmentManager().setFragmentResultListener("objet_selection", this, (requestKey, result) -> {
             String imageUrl = result.getString("selected_objet_url");
@@ -189,12 +207,7 @@ public class SpinFragment extends Fragment {
             }
         });
 
-        cardCenterSlot.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, new SelectObjetFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        // Không dùng setOnClickListener nữa — GestureDetector xử lý cả tap lẫn swipe
 
         btnSpin.setOnClickListener(v -> showConfirmDialog());
         btnConfirmSelect.setOnClickListener(v -> {
@@ -969,6 +982,8 @@ public class SpinFragment extends Fragment {
             View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
             com.vn.jet.mosco.utils.CardEffectHelper.remove(cardCenterSlot, shimmer);
         }
+        // Reset trạng thái Flip 3D thẻ hi sinh
+        resetSacrificeFlip();
         if (btnAddObjet != null) {
             btnAddObjet.setVisibility(View.VISIBLE);
         }
@@ -1311,6 +1326,168 @@ public class SpinFragment extends Fragment {
         }
     }
 
+    // ════════════════════════════════════════════════════════════════
+    //  3D FLIP CHO THẺ HI SINH — Cùng cơ chế với HomeFragment Showcase
+    // ════════════════════════════════════════════════════════════════
+
+    /**
+     * Khởi tạo GestureDetector phân biệt:
+     * - Single Tap → mở SelectObjetFragment (chọn thẻ mới)
+     * - Swipe ngang → Flip 3D 180° hiển thị mặt sau/trước
+     */
+    private void initSacrificeFlipGesture() {
+        GestureDetector.SimpleOnGestureListener gestureListener =
+                new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                // Tap → mở chọn thẻ hi sinh mới
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.frame_layout, new SelectObjetFragment())
+                        .addToBackStack(null)
+                        .commit();
+                return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null) return false;
+                float diffX = e2.getX() - e1.getX();
+                // Chỉ flip khi đã có thẻ hiển thị (layoutSelectedFront visible)
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (!isSacrificeFlipAnimating && layoutSelectedFront != null
+                            && layoutSelectedFront.getVisibility() == View.VISIBLE) {
+                        performSacrificeFlip();
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+        };
+
+        sacrificeGestureDetector = new GestureDetectorCompat(requireContext(), gestureListener);
+
+        if (cardCenterSlot != null) {
+            // Camera distance cho 3D rotation mượt
+            float scale = getResources().getDisplayMetrics().density;
+            cardCenterSlot.setCameraDistance(8000 * scale);
+            cardCenterSlot.setOnTouchListener((v, event) -> {
+                sacrificeGestureDetector.onTouchEvent(event);
+                return true;
+            });
+        }
+    }
+
+    /**
+     * Animation 3D Flip 180°: Phase 1 (0°→90°) + swap mặt + Phase 2 (90°→180°).
+     * Đồng bộ xoay Glow và thẻ, giống hệt HomeFragment.
+     */
+    private void performSacrificeFlip() {
+        if (cardCenterSlot == null) return;
+        isSacrificeFlipAnimating = true;
+
+        float startAngle = isSacrificeFlipped ? 180f : 0f;
+        float midAngle = isSacrificeFlipped ? 270f : 90f;
+        float endAngle = isSacrificeFlipped ? 360f : 180f;
+
+        ObjectAnimator phaseOne = ObjectAnimator.ofFloat(
+                cardCenterSlot, "rotationY", startAngle, midAngle);
+        phaseOne.setDuration(FLIP_HALF_DURATION);
+        phaseOne.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        ObjectAnimator phaseTwo = ObjectAnimator.ofFloat(
+                cardCenterSlot, "rotationY", midAngle, endAngle);
+        phaseTwo.setDuration(FLIP_HALF_DURATION);
+        phaseTwo.setInterpolator(new DecelerateInterpolator());
+
+        // Đồng bộ Glow xoay cùng thẻ
+        View pseudoGlow = (View) cardCenterSlot.getTag(R.id.view_progress_fill);
+        if (pseudoGlow != null) {
+            float scale = getResources().getDisplayMetrics().density;
+            pseudoGlow.setCameraDistance(8000 * scale);
+            phaseOne.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
+            phaseTwo.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
+        }
+
+        // Tại điểm giữa (90°) → hoán đổi mặt trước/sau
+        phaseOne.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                swapSacrificeFaces();
+            }
+        });
+
+        AnimatorSet flipSet = new AnimatorSet();
+        flipSet.playSequentially(phaseOne, phaseTwo);
+        flipSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isSacrificeFlipAnimating = false;
+                if (cardCenterSlot.getRotationY() >= 360f) {
+                    cardCenterSlot.setRotationY(0f);
+                }
+            }
+        });
+        flipSet.start();
+    }
+
+    /**
+     * Hoán đổi hiển thị giữa mặt trước (front: ảnh + OVR + badge + shimmer)
+     * và mặt sau (back: backImage từ database.json).
+     */
+    private void swapSacrificeFaces() {
+        if (ivSelectedObjet == null || ivSacrificeBack == null) return;
+
+        View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
+        android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
+        android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
+
+        if (isSacrificeFlipped) {
+            // Quay lại mặt trước
+            ivSelectedObjet.setVisibility(View.VISIBLE);
+            ivSacrificeBack.setVisibility(View.GONE);
+            if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
+            if (tvOvr != null) tvOvr.setVisibility(View.VISIBLE);
+            if (ivLevelBadge != null && ivLevelBadge.getTag() != null) {
+                ivLevelBadge.setVisibility(View.VISIBLE);
+            }
+        } else {
+            // Hiện mặt sau
+            ivSelectedObjet.setVisibility(View.GONE);
+            ivSacrificeBack.setVisibility(View.VISIBLE);
+            ivSacrificeBack.setScaleX(-1f); // Mirror fix cho rotation 180°
+            ivSacrificeBack.setAlpha(1f);
+            if (shimmer != null) shimmer.setVisibility(View.GONE);
+            if (tvOvr != null) tvOvr.setVisibility(View.GONE);
+            if (ivLevelBadge != null) ivLevelBadge.setVisibility(View.GONE);
+        }
+        isSacrificeFlipped = !isSacrificeFlipped;
+    }
+
+    /**
+     * Reset trạng thái flip về mặt trước (dùng khi đổi thẻ hoặc reset spin).
+     */
+    private void resetSacrificeFlip() {
+        isSacrificeFlipped = false;
+        isSacrificeFlipAnimating = false;
+        sacrificeBackImageUrl = null;
+        if (cardCenterSlot != null) cardCenterSlot.setRotationY(0f);
+        if (ivSacrificeBack != null) {
+            ivSacrificeBack.setVisibility(View.GONE);
+            ivSacrificeBack.setScaleX(1f);
+            ivSacrificeBack.setImageResource(R.drawable.objet_back_spin);
+        }
+        if (ivSelectedObjet != null) ivSelectedObjet.setVisibility(View.VISIBLE);
+
+        // Reset Glow rotation
+        View pseudoGlow = cardCenterSlot != null ? (View) cardCenterSlot.getTag(R.id.view_progress_fill) : null;
+        if (pseudoGlow != null) pseudoGlow.setRotationY(0f);
+    }
+
     private void startBackgroundAnimation() {
         if (getView() == null) return;
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -1338,7 +1515,10 @@ public class SpinFragment extends Fragment {
         String imageUrl = selectedObj.getImageUrl();
         if (btnAddObjet != null) btnAddObjet.setVisibility(View.GONE);
         com.airbnb.lottie.LottieAnimationView loader = getView() != null ? getView().findViewById(R.id.pb_card_loading) : null;
-        
+
+        // Reset trạng thái flip trước khi hiển thị thẻ mới
+        resetSacrificeFlip();
+
         if (ivSelectedObjet != null) {
             ivSelectedObjet.setVisibility(View.GONE);
             if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.GONE);
@@ -1379,9 +1559,11 @@ public class SpinFragment extends Fragment {
                         if (selectedObj.getUpgradeLevel() > 0) {
                             com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getUpgradeLevel() + ".png").into(ivLevelBadge);
                             ivLevelBadge.setVisibility(View.VISIBLE);
+                            ivLevelBadge.setTag("has_badge"); // Đánh dấu để swapSacrificeFaces biết nên hiện lại
                             com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getUpgradeLevel());
                         } else {
                             ivLevelBadge.setVisibility(View.GONE);
+                            ivLevelBadge.setTag(null);
                             com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevelBadge);
                         }
                     }
@@ -1389,6 +1571,30 @@ public class SpinFragment extends Fragment {
                     View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
                     if (shimmer != null) {
                         com.vn.jet.mosco.utils.CardEffectHelper.apply(cardCenterSlot, shimmer, selectedObj, true);
+                    }
+
+                    // 💎 Load ảnh mặt sau (backImage) từ database.json cho Flip 3D
+                    if (getContext() != null && selectedObj.getCollectionId() != null) {
+                        org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(
+                                getContext(), selectedObj.getCollectionId());
+                        if (cardJson != null) {
+                            sacrificeBackImageUrl = cardJson.optString("backImage", "");
+                            if (ivSacrificeBack != null && !sacrificeBackImageUrl.isEmpty()) {
+                                java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(
+                                        getContext(), sacrificeBackImageUrl);
+                                com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> backThumb = null;
+                                if (localBackThumb != null && localBackThumb.exists()) {
+                                    backThumb = Glide.with(this).load(localBackThumb);
+                                }
+                                Glide.with(this)
+                                        .load(sacrificeBackImageUrl)
+                                        .thumbnail(backThumb)
+                                        .placeholder(R.drawable.objet_back_spin)
+                                        .error(R.drawable.objet_back_spin)
+                                        .dontAnimate()
+                                        .into(ivSacrificeBack);
+                            }
+                        }
                     }
                 }
             }, 400); 

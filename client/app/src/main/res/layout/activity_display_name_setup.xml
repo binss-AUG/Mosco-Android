@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_screen_bg">
+
+    <!-- Bối cảnh vũ trụ trôi nổi -->
+    <include layout="@layout/layout_auth_background" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.06" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.94" />
+
+            <!-- Nhóm nội dung trung tâm -->
+            <LinearLayout
+                android:id="@+id/center_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/gl_end"
+                app:layout_constraintStart_toStartOf="@id/gl_start"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.40">
+
+                <!-- Icon thẻ bài nhỏ (tượng trưng danh tính) -->
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="20dp"
+                    android:src="@drawable/ic_user"
+                    app:tint="@color/mosco_primary"
+                    android:contentDescription="@null" />
+
+                <!-- Title -->
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/setup_title"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center" />
+
+                <!-- Subtitle -->
+                <TextView
+                    android:id="@+id/tv_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.7"
+                    android:fontFamily="@font/poppins"
+                    android:text="@string/setup_subtitle"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textAlignment="center" />
+
+                <!-- Glass Card Input -->
+                <LinearLayout
+                    android:id="@+id/glass_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_display_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="none"
+                        app:hintEnabled="false"
+                        app:errorEnabled="true"
+                        app:errorTextColor="@color/stat_atk"
+                        app:errorIconDrawable="@null"
+                        app:counterEnabled="true"
+                        app:counterMaxLength="16"
+                        app:counterTextColor="@color/mosco_text_disabled">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_display_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_glass_input"
+                            android:drawableStart="@drawable/ic_user"
+                            android:drawablePadding="15dp"
+                            android:fontFamily="@font/poppins"
+                            android:hint="@string/prompt_display_name"
+                            android:imeOptions="actionDone"
+                            android:inputType="text"
+                            android:maxLength="16"
+                            android:maxLines="1"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp"
+                            android:textColor="@color/white"
+                            android:textColorHint="#80FFFFFF"
+                            android:textCursorDrawable="@null"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Rainbow Button -->
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_enter_galaxy"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
+                        android:background="@drawable/bg_btn_rainbow"
+                        android:fontFamily="@font/poppins"
+                        android:text="@string/setup_btn_enter"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:elevation="4dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- Welcome overlay (ẩn mặc định, hiện khi thành công) -->
+    <FrameLayout
+        android:id="@+id/welcome_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_confetti"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false" />
+
+        <TextView
+            android:id="@+id/tv_welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:alpha="0" />
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/mosco_primary"
+        android:visibility="gone" />
+
+</FrameLayout>

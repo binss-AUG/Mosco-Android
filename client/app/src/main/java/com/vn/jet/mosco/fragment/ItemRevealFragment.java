@@ -34,6 +34,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
 import com.vn.jet.mosco.R;
+import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.utils.ObjetDetailBinder;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.network.GachaRepository;
@@ -166,7 +167,7 @@ public class ItemRevealFragment extends Fragment {
         // Set data
         tvItemName.setText(itemName);
         tvItemInfo.setText(itemDesc != null && !itemDesc.isEmpty() ? itemDesc : "Open to reveal a surprise!");
-        tvItemQty.setText("x" + itemQty);
+        tvItemQty.setText("x" + NumberUtils.format(getContext(), itemQty));
 
         // Load image
         if (itemImage != null && !itemImage.isEmpty()) {
@@ -551,11 +552,11 @@ public class ItemRevealFragment extends Fragment {
         TextView tvItemQty = getView().findViewById(R.id.tv_item_qty);
         MaterialButton btnOpenAll = getView().findViewById(R.id.btn_open_all);
         
-        if (tvItemQty != null) tvItemQty.setText("x" + itemQty);
+        if (tvItemQty != null) tvItemQty.setText("x" + NumberUtils.format(getContext(), itemQty));
         if (btnOpenAll != null) {
             if (itemQty > 1) {
                 btnOpenAll.setVisibility(View.VISIBLE);
-                btnOpenAll.setText("Open All (x" + itemQty + ")");
+                btnOpenAll.setText("Open All (x" + NumberUtils.format(getContext(), itemQty) + ")");
             } else {
                 btnOpenAll.setVisibility(View.GONE);
             }

@@ -30,6 +30,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Bottom Sheet chọn thẻ cho Upgrade / Home / Spin.
+ * OVR lấy trực tiếp từ cache (đã sync từ Server), KHÔNG tính local.
+ */
 public class UpgradeBottomSheet extends BottomSheetDialogFragment {
 
     private OnUpgradeCardSelectedListener listener;
@@ -51,20 +55,9 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
     private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Lowest No.", "Highest No."};
     private List<Objet> originalObjets = new ArrayList<>();
 
-    public interface OvrCalculator {
-        int getOvr(String typeKey, int level);
-        String getTypeKey(String collectionId);
-    }
-    
-    private OvrCalculator ovrCalculator;
-
     public interface OnUpgradeCardSelectedListener {
         void onUpgradeCardSelected(Objet card);
         void onMaterialsSelected(List<Objet> materials);
-    }
-
-    public void setOvrCalculator(OvrCalculator calc) {
-        this.ovrCalculator = calc;
     }
 
     public void setOnUpgradeCardSelectedListener(OnUpgradeCardSelectedListener listener) {
@@ -77,7 +70,8 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
 
     /**
      * Chiến thuật "Cache First, Always Sync":
-     * Hiển thị cache ngay → gọi API ngầm để đồng bộ data mới nhất
+     * Hiển thị cache ngay → gọi API ngầm để đồng bộ data mới nhất.
+     * OVR lấy trực tiếp từ Server response (Server Truth).
      */
     public void loadDataFromCache() {
         // BƯỚC 1: Hiển thị từ Cache ngay lập tức
@@ -85,10 +79,14 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
         if (DatabaseLoader.cachedUserInventory != null) {
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
                 Objet obj = new Objet(item.id.intValue(), item.collectionId, item.frontImage, item.level, item.exp, item.upgradeLevel);
-                if (ovrCalculator != null) {
-                    String typeKey = ovrCalculator.getTypeKey(item.collectionId);
-                    obj.setTypeKey(typeKey);
-                    obj.setOvr(ovrCalculator.getOvr(typeKey, obj.getCardLevel()));
+                // OVR trực tiếp từ cache (đã được Server tính sẵn)
+                obj.setOvr(item.ovr);
+                // TypeKey tra từ database.json metadata (chỉ dùng cho UpgradeAlgorithm fill %)
+                if (getContext() != null) {
+                    org.json.JSONObject meta = DatabaseLoader.findById(getContext(), item.collectionId);
+                    if (meta != null) {
+                        obj.setTypeKey(mapClassToTypeKey(meta.optString("class", "")));
+                    }
                 }
                 inventoryList.add(obj);
             }
@@ -114,18 +112,14 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
                             org.json.JSONObject cardJson = DatabaseLoader.findById(requireContext(), uc.getCollectionId());
                             if (cardJson != null) {
                                 String img = cardJson.optString("frontImage", "");
-                                String cardClass = cardJson.optString("class", "FirstWelcome");
-                                int ovr = DatabaseLoader.getOvrFromCardOvr(requireContext(), cardClass, uc.getLevel());
+                                // OVR trực tiếp từ Server — không tính local
+                                int ovr = uc.getOvr();
                                 cachedList.add(new DatabaseLoader.UserInventoryItem(uc.getId(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel(), ovr));
 
                                 Objet obj = new Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel());
-                                if (ovrCalculator != null) {
-                                    String typeKey = ovrCalculator.getTypeKey(uc.getCollectionId());
-                                    obj.setTypeKey(typeKey);
-                                    obj.setOvr(ovrCalculator.getOvr(typeKey, obj.getCardLevel()));
-                                } else {
-                                    obj.setOvr(ovr);
-                                }
+                                obj.setOvr(ovr);
+                                String cardClass = cardJson.optString("class", "");
+                                obj.setTypeKey(mapClassToTypeKey(cardClass));
                                 freshList.add(obj);
                             }
                         }
@@ -145,6 +139,18 @@ public class UpgradeBottomSheet extends BottomSheetDialogFragment {
                 // Nếu API lỗi thì giữ nguyên cache đã hiển thị
             }
         });
+    }
+
+    /**
+     * Ánh xạ class → typeKey (chỉ dùng cho UpgradeAlgorithm fill %)
+     */
+    private String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null) return "FirstWelcome";
+        String key = cardClass.replaceAll("\\s+", "");
+        if (key.equalsIgnoreCase("Double")) return "Double";
+        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
+        if (key.equalsIgnoreCase("Premier")) return "Premier";
+        return "FirstWelcome";
     }
 
     private final DatabaseLoader.OnInventoryChangeListener inventoryListener = () -> {

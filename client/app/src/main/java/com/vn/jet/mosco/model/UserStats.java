@@ -18,9 +18,17 @@ public class UserStats {
     @SerializedName("diamonds")
     private Long diamonds;
 
+    @SerializedName("level")
+    private int level;
+
+    @SerializedName("exp")
+    private long exp;
+
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public Long getCoins() { return coins; }
     public Long getDiamonds() { return diamonds; }
+    public int getLevel() { return level; }
+    public long getExp() { return exp; }
 }

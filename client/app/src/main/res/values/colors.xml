@@ -48,4 +48,24 @@
     <!-- Glass Effect -->
     <color name="mosco_glass_fill">#22FFFFFF</color>
     <color name="mosco_glass_stroke">@color/item_diamond</color>
+
+    <!-- Home Screen -->
+    <color name="home_hologram_neon">#00E5FF</color>
+    <color name="home_hologram_neon_40">#6600E5FF</color>
+    <color name="home_hud_overlay">#80161622</color>
+    <color name="home_showcase_border">#4000E5FF</color>
+    <color name="home_dot_inactive">#33FFFFFF</color>
+    <color name="home_dot_active">@color/item_diamond</color>
+
+    <!-- Quick Tool Colors -->
+    <color name="quick_tool_daily">#FFD700</color> <!-- Gold -->
+    <color name="quick_tool_event">#E91E63</color> <!-- Pink -->
+    <color name="quick_tool_upgrade">#00E5FF</color> <!-- Cyan -->
+    <color name="quick_tool_rank">#76FF03</color> <!-- Neon Green -->
+    <color name="quick_tool_shop">#FF9800</color> <!-- Orange -->
+    <color name="quick_tool_friends">#9C27B0</color> <!-- Purple -->
+
+    <!-- Matte Obsidian Gradient -->
+    <color name="obsidian_start">#161622</color>
+    <color name="obsidian_end">#080808</color>
 </resources>

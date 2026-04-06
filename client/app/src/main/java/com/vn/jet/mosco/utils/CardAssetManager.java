@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -112,6 +114,35 @@ public class CardAssetManager {
     public static boolean isDownloaded(Context context, String imageUrl) {
         File file = getLocalFile(context, imageUrl);
         return file != null && file.exists() && file.length() > 0;
+    }
+
+    public static boolean ensureAssetReady(Context context, String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty() || "null".equalsIgnoreCase(imageUrl)) return true;
+        if (isDownloaded(context, imageUrl)) return true;
+        return downloadSingleImage(context, imageUrl);
+    }
+
+    public static void preloadAssetsBlocking(Context context, List<String> imageUrls, int maxThreads) {
+        if (context == null || imageUrls == null || imageUrls.isEmpty()) return;
+
+        Set<String> deduplicated = new LinkedHashSet<>();
+        for (String url : imageUrls) {
+            if (url != null && !url.isEmpty() && !"null".equalsIgnoreCase(url)) {
+                deduplicated.add(url);
+            }
+        }
+        if (deduplicated.isEmpty()) return;
+
+        ExecutorService executor = Executors.newFixedThreadPool(Math.max(1, maxThreads));
+        for (String url : deduplicated) {
+            executor.submit(() -> ensureAssetReady(context, url));
+        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(180, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

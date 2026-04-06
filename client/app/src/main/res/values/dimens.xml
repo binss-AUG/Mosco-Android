@@ -14,4 +14,41 @@
     <dimen name="item_reveal_result_stroke_width">1dp</dimen>
     <dimen name="item_reveal_result_button_height">56dp</dimen>
     <dimen name="item_reveal_result_button_corner">12dp</dimen>
+
+    <!-- HomeFragment Dimensions -->
+    <dimen name="home_header_padding_horizontal">16dp</dimen>
+    <dimen name="home_header_padding_top">12dp</dimen>
+    <dimen name="home_avatar_size">48dp</dimen>
+    <dimen name="home_avatar_corner">24dp</dimen>
+    <dimen name="home_avatar_stroke">2dp</dimen>
+    <dimen name="home_level_badge_radius">10dp</dimen>
+    <dimen name="home_currency_icon_size">20dp</dimen>
+    <dimen name="home_banner_height">160dp</dimen>
+    <dimen name="home_banner_margin_horizontal">16dp</dimen>
+    <dimen name="home_banner_margin_top">12dp</dimen>
+    <dimen name="home_banner_corner">16dp</dimen>
+    <dimen name="home_showcase_margin_horizontal">40dp</dimen>
+    <dimen name="home_showcase_margin_top">16dp</dimen>
+    <dimen name="home_showcase_padding_bottom">24dp</dimen>
+    <dimen name="home_showcase_corner">16dp</dimen>
+    <dimen name="home_hologram_height">80dp</dimen>
+    <dimen name="home_hud_fab_size">52dp</dimen>
+    <dimen name="home_hud_mini_fab_size">44dp</dimen>
+    <dimen name="home_hud_margin_end">16dp</dimen>
+    <dimen name="home_hud_spacing">12dp</dimen>
+    <dimen name="home_dot_size">8dp</dimen>
+    <dimen name="home_dot_spacing">6dp</dimen>
+
+    <!-- Prominent Header & HUD Panel V5.3 -->
+    <dimen name="home_avatar_size_prominent">80dp</dimen>
+    <dimen name="home_avatar_glow_prominent">90dp</dimen>
+    <dimen name="home_hud_panel_margin">16dp</dimen>
+    <dimen name="home_hud_panel_offset">12dp</dimen>
+
+    <!-- Global Icon Standards — One variable to rule them all! -->
+    <!-- Hạ icon_size_sm xuống 18dp để cân đối giao diện -->
+    <dimen name="icon_size_sm">18dp</dimen>
+    <dimen name="icon_size_md">28dp</dimen>
+    <dimen name="icon_size_lg">38dp</dimen>
+    <dimen name="icon_size_xl">48dp</dimen>
 </resources>

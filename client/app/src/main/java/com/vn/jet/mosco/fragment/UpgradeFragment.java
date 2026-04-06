@@ -35,9 +35,7 @@ import java.util.Map;
 
 /**
  * Fragment quản lý toàn bộ flow nâng cấp thẻ.
- * - Màn hình 1: Chưa chọn thẻ (placeholder)
- * - Màn hình 2: Đã chọn thẻ chính
- * - Màn hình 3: Đã chọn nguyên liệu → sẵn sàng upgrade
+ * OVR lấy 100% từ Server (Server Truth), Client KHÔNG tính.
  */
 public class UpgradeFragment extends Fragment {
 
@@ -75,20 +73,15 @@ public class UpgradeFragment extends Fragment {
     // Data
     private Objet mainCard = null;
     private Objet[] materialCards = new Objet[5];
-    private int currentMaterialSlot = -1; // -1 = selecting main card
+    private int currentMaterialSlot = -1;
 
     private UpgradeAlgorithm upgradeAlgorithm;
-    private Map<String, Map<String, Integer>> cardOvrData; // typeKey -> level -> ovr
 
-    public UpgradeFragment() {
-        // Required empty public constructor
-    }
+    public UpgradeFragment() {}
 
     public void setMainCard(Objet card) {
         this.mainCard = card;
-        if (this.mainCard != null && this.mainCard.getOvr() == 0) {
-            this.mainCard.setOvr(getOvrFromData(this.mainCard.getTypeKey(), this.mainCard.getCardLevel()));
-        }
+        // OVR đã được set sẵn từ Server cache, không cần tính lại
     }
 
     public static UpgradeFragment newInstance() {
@@ -98,12 +91,7 @@ public class UpgradeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadJsonData();
-        
-        // Recalculate mainCard OVR if it was set before JSON loaded
-        if (mainCard != null) {
-            mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), mainCard.getCardLevel()));
-        }
+        loadUpgradeConfig();
     }
 
     @Nullable
@@ -120,7 +108,6 @@ public class UpgradeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
-        // Cập nhật lại UI khi quay lại màn hình
         updateUI();
     }
 
@@ -134,18 +121,16 @@ public class UpgradeFragment extends Fragment {
         @Override
         public void onInventoryChanged() {
             if (getActivity() != null && isAdded()) {
-                getActivity().runOnUiThread(() -> {
-                    // Cập nhật lại UI nếu cần thiết (ví dụ đếm số lượng slot)
-                    updateUI();
-                });
+                getActivity().runOnUiThread(() -> updateUI());
             }
         }
     };
 
     /**
-     * Load dữ liệu JSON từ assets
+     * Load chỉ upgradeRate.json + customUpgrade.json (cho UpgradeAlgorithm fill %).
+     * KHÔNG load cardOvr.json — OVR do Server tính.
      */
-    private void loadJsonData() {
+    private void loadUpgradeConfig() {
         Context ctx = getContext();
         if (ctx == null) return;
 
@@ -185,55 +170,17 @@ public class UpgradeFragment extends Fragment {
 
             upgradeAlgorithm = new UpgradeAlgorithm(upgradeRates, customUpgrades);
 
-            // Load cardOvr.json
-            InputStream isOvr = ctx.getAssets().open("cardOvr.json");
-            InputStreamReader readerOvr = new InputStreamReader(isOvr);
-            JsonObject ovrJson = gson.fromJson(readerOvr, JsonObject.class);
-            readerOvr.close();
-
-            cardOvrData = new HashMap<>();
-            for (Map.Entry<String, JsonElement> typeEntry : ovrJson.entrySet()) {
-                String typeKey = typeEntry.getKey();
-                JsonObject levels = typeEntry.getValue().getAsJsonObject();
-                Map<String, Integer> levelMap = new HashMap<>();
-                for (Map.Entry<String, JsonElement> lvlEntry : levels.entrySet()) {
-                    levelMap.put(lvlEntry.getKey(), lvlEntry.getValue().getAsInt());
-                }
-                cardOvrData.put(typeKey, levelMap);
-            }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Lấy OVR từ cardOvr.json data
-     */
-    private int getOvrFromData(String typeKey, int level) {
-        // Nếu typeKey trông giống collectionId (chưa được map), hãy cố gắng map nó
-        String resolvedKey = typeKey;
-        if (typeKey != null && typeKey.contains("-")) {
-            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), typeKey);
-            if (meta != null) {
-                resolvedKey = mapClassToTypeKey(meta.optString("class", ""));
-            }
-        }
-
-        if (cardOvrData != null && cardOvrData.containsKey(resolvedKey)) {
-            Map<String, Integer> levelMap = cardOvrData.get(resolvedKey);
-            Integer ovr = levelMap.get(String.valueOf(level));
-            if (ovr != null) return ovr;
-        }
-        return 80; // fallback
-    }
-
-    /**
-     * Ánh xạ class từ database.json sang typeKey dùng cho upgrade
+     * Ánh xạ class → typeKey (chỉ dùng cho UpgradeAlgorithm fill %)
      */
     private String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome"; // Mặc định
-        String typeKey = cardClass.replaceAll("\\s+", ""); // Xóa khoảng trắng
+        if (cardClass == null) return "FirstWelcome";
+        String typeKey = cardClass.replaceAll("\\s+", "");
         if (typeKey.equalsIgnoreCase("FirstWelcome")) return "FirstWelcome";
         if (typeKey.equalsIgnoreCase("Double")) return "Double";
         if (typeKey.equalsIgnoreCase("SpecialUnit") || typeKey.equalsIgnoreCase("Special")) return "SpecialUnit";
@@ -241,9 +188,6 @@ public class UpgradeFragment extends Fragment {
         return "FirstWelcome";
     }
 
-    /**
-     * Bind tất cả views từ layout
-     */
     private void bindViews(View view) {
         frameMainCard = view.findViewById(R.id.frame_main_card);
         btnAddMainCard = view.findViewById(R.id.btn_add_main_card);
@@ -284,34 +228,23 @@ public class UpgradeFragment extends Fragment {
             frameMaterials[i] = view.findViewById(materialFrameIds[i]);
             tvMaterialPlus[i] = view.findViewById(materialPlusIds[i]);
             viewMaterialBg[i] = view.findViewById(materialBgIds[i]);
-            
-            // Tìm kiếm views nằm bên trong mỗi slot
             ivMaterials[i] = frameMaterials[i].findViewById(R.id.card_iv_image);
             tvMaterialOvr[i] = frameMaterials[i].findViewById(R.id.card_tv_ovr);
             ivMaterialLevel[i] = frameMaterials[i].findViewById(R.id.card_iv_level);
         }
     }
 
-    /**
-     * Setup tất cả click listeners
-     */
     private void setupClickListeners() {
-        // Tap main card → mở chọn thẻ chính
         frameMainCard.setOnClickListener(v -> openCardSelector(-1));
-
-        // Tap material slots → mở chọn thẻ nguyên liệu
         for (int i = 0; i < 5; i++) {
             final int slotIndex = i;
             frameMaterials[i].setOnClickListener(v -> openCardSelector(slotIndex));
         }
-
-        // Upgrade button
         btnUpgrade.setOnClickListener(v -> performUpgrade());
     }
 
     /**
-     * Mở bottom sheet chọn thẻ
-     * @param slotIndex -1 = chọn thẻ chính, 0-4 = chọn nguyên liệu slot
+     * Mở bottom sheet chọn thẻ — không cần OvrCalculator, dùng Server OVR.
      */
     private void openCardSelector(int slotIndex) {
         if (slotIndex != -1 && mainCard == null) {
@@ -322,21 +255,6 @@ public class UpgradeFragment extends Fragment {
         currentMaterialSlot = slotIndex;
 
         UpgradeBottomSheet bottomSheet = new UpgradeBottomSheet();
-        bottomSheet.setOvrCalculator(new UpgradeBottomSheet.OvrCalculator() {
-            @Override
-            public int getOvr(String typeKey, int level) {
-                return getOvrFromData(typeKey, level);
-            }
-
-            @Override
-            public String getTypeKey(String collectionId) {
-                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), collectionId);
-                if (meta != null) {
-                    return mapClassToTypeKey(meta.optString("class", ""));
-                }
-                return "FirstWelcome";
-            }
-        });
         
         if (slotIndex != -1) {
             List<Objet> currentSelected = new ArrayList<>();
@@ -377,7 +295,7 @@ public class UpgradeFragment extends Fragment {
     }
 
     /**
-     * Thực hiện nâng cấp
+     * Thực hiện nâng cấp — OVR mới lấy từ Server response.
      */
     private void performUpgrade() {
         if (mainCard == null) return;
@@ -404,24 +322,21 @@ public class UpgradeFragment extends Fragment {
                     
                     if (result.isSuccess()) {
                         Toast.makeText(getContext(), "Nâng cấp thành công! +" + result.getNewLevel(), Toast.LENGTH_LONG).show();
-                        // Cập nhật lại level và ovr cho thẻ chính
-                        mainCard.setCardLevel(result.getNewLevel());
-                        mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.getNewLevel()));
                     } else {
                         Toast.makeText(getContext(), "Nâng cấp thất bại! Rớt xuống +" + result.getNewLevel(), Toast.LENGTH_LONG).show();
-                        // Cập nhật lại level và ovr cho thẻ chính (bị tụt hạng)
-                        mainCard.setCardLevel(result.getNewLevel());
-                        mainCard.setOvr(getOvrFromData(mainCard.getTypeKey(), result.getNewLevel()));
                     }
 
-                    // Chỉ reset materials sau khi upgrade, giữ lại thẻ chính
+                    // Cập nhật level + OVR từ Server response (Server Truth)
+                    mainCard.setCardLevel(result.getNewLevel());
+                    mainCard.setOvr(result.getNewOvr());
+
+                    // Reset materials sau khi upgrade, giữ lại thẻ chính
                     for (int i = 0; i < 5; i++) materialCards[i] = null;
 
-                    // Refresh global state ngầm
+                    // Refresh global cache từ Server
                     DatabaseLoader.clearUserCache();
                     DatabaseLoader.reloadInventoryFromServer(requireContext(), userId, apiService);
                     
-                    // Force update UI ngay lập tức với dữ liệu mainCard đã được cập nhật thủ công
                     updateUI();
                 } else {
                     String errorMsg = "Lỗi hệ thống khi nâng cấp";
@@ -444,16 +359,8 @@ public class UpgradeFragment extends Fragment {
         });
     }
 
-    private void updateInventoryCache() {
-        // Obsolete function string due to moving logic to the server.
-    }
-
-    /**
-     * Cập nhật toàn bộ UI dựa trên state hiện tại
-     */
     private void updateUI() {
         if (rootView == null) return;
-
         updateMainCardUI();
         updateStatsUI();
         updateLevelIndicatorUI();
@@ -462,16 +369,12 @@ public class UpgradeFragment extends Fragment {
         updateUpgradeButtonUI();
     }
 
-    /**
-     * Cập nhật UI thẻ chính
-     */
     private void updateMainCardUI() {
         if (rootView == null) return;
         com.google.android.material.card.MaterialCardView cardMain = rootView.findViewById(R.id.card_main);
         View shimmer = cardMain != null ? cardMain.findViewById(R.id.view_card_shimmer) : null;
 
         if (mainCard == null) {
-            // Placeholder state
             btnAddMainCard.setVisibility(View.VISIBLE);
             ivMainCardImage.setVisibility(View.GONE);
             tvCardOvr.setVisibility(View.GONE);
@@ -480,7 +383,6 @@ public class UpgradeFragment extends Fragment {
             com.vn.jet.mosco.utils.CardEffectHelper.remove(cardMain, shimmer);
             com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivCardLevelBadge);
         } else {
-            // Card selected state
             btnAddMainCard.setVisibility(View.GONE);
             ivMainCardImage.setVisibility(View.VISIBLE);
             viewCardBg.setBackgroundResource(R.drawable.bg_card_filled);
@@ -491,29 +393,26 @@ public class UpgradeFragment extends Fragment {
                         .into(ivMainCardImage);
             }
 
-            // Show OVR on card
+            // OVR từ Server
             tvCardOvr.setVisibility(View.VISIBLE);
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
 
-            // Show level badge (as image from assets)
             if (getContext() != null && mainCard.getCardLevel() > 0) {
                 ivCardLevelBadge.setVisibility(View.VISIBLE);
                 String assetPath = "file:///android_asset/grade/" + Math.min(mainCard.getCardLevel(), 10) + ".png";
                 Glide.with(getContext()).load(assetPath).into(ivCardLevelBadge);
-                // Phủ ánh kim loại lên Level Badge
                 com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getCardLevel());
             } else {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivCardLevelBadge);
             }
             
-            // True = Áp dụng hiệu ứng bay bổng cho Main Card
             com.vn.jet.mosco.utils.CardEffectHelper.apply(cardMain, shimmer, mainCard, true);
         }
     }
 
     /**
-     * Cập nhật stats bên phải (OVR hiện tại / OVR sau nâng cấp)
+     * Cập nhật stats bên phải — OVR hiện tại từ Server, hiển thị level thay vì dự đoán OVR.
      */
     private void updateStatsUI() {
         if (mainCard == null) {
@@ -524,18 +423,14 @@ public class UpgradeFragment extends Fragment {
             layoutRightStats.setAlpha(1.0f);
 
             int currentOvr = mainCard.getOvr();
+            // Hiển thị OVR hiện tại và level tiếp theo (không dự đoán OVR — Server Truth)
             int nextLevel = Math.min(mainCard.getCardLevel() + 1, 10);
-            int nextOvr = getOvrFromData(mainCard.getTypeKey(), nextLevel);
-
-            tvOvrAfter.setText(String.valueOf(nextOvr));
+            tvOvrAfter.setText("+" + nextLevel);
             tvOvrCurrentSmall.setVisibility(View.VISIBLE);
             tvOvrCurrentSmall.setText(String.valueOf(currentOvr));
         }
     }
 
-    /**
-     * Cập nhật level indicator (level hiện tại → level tiếp theo)
-     */
     private void updateLevelIndicatorUI() {
         if (mainCard == null) {
             layoutLevelIndicator.setAlpha(0.4f);
@@ -551,7 +446,6 @@ public class UpgradeFragment extends Fragment {
             int currentLevel = mainCard.getCardLevel();
             int nextLevel = Math.min(currentLevel + 1, 10);
 
-            // Hiển thị ảnh grade cho level hiện tại từ assets
             if (getContext() != null && currentLevel > 0) {
                 tvLevelCurrent.setVisibility(View.GONE);
                 ivLevelCurrent.setVisibility(View.VISIBLE);
@@ -563,7 +457,6 @@ public class UpgradeFragment extends Fragment {
                 ivLevelCurrent.setVisibility(View.GONE);
             }
 
-            // Hiển thị ảnh grade cho level tiếp theo từ assets
             if (getContext() != null && nextLevel > 0) {
                 tvLevelNext.setVisibility(View.GONE);
                 ivLevelNext.setVisibility(View.VISIBLE);
@@ -575,7 +468,6 @@ public class UpgradeFragment extends Fragment {
                 ivLevelNext.setVisibility(View.GONE);
             }
 
-            // Arrow green khi card selected
             TextView tvArrow = rootView.findViewById(R.id.tv_level_arrow);
             if (tvArrow != null) {
                 tvArrow.setTextColor(0xFF4ADE80);
@@ -584,7 +476,7 @@ public class UpgradeFragment extends Fragment {
     }
 
     /**
-     * Cập nhật progress bar dựa trên thuật toán
+     * Progress bar dùng OVR hiện tại từ Server cache (đã đúng).
      */
     private void updateProgressBarUI() {
         if (mainCard == null || upgradeAlgorithm == null) {
@@ -614,9 +506,6 @@ public class UpgradeFragment extends Fragment {
         setProgressWidth(fillPercent);
     }
 
-    /**
-     * Set width của thanh progress bar theo phần trăm
-     */
     private void setProgressWidth(double percent) {
         if (viewProgressFill == null) return;
 
@@ -631,9 +520,6 @@ public class UpgradeFragment extends Fragment {
         });
     }
 
-    /**
-     * Cập nhật UI các material slots
-     */
     private void updateMaterialsUI() {
         if (rootView == null) return;
         int selectedCount = 0;
@@ -645,7 +531,6 @@ public class UpgradeFragment extends Fragment {
 
             if (materialCards[i] != null) {
                 selectedCount++;
-                // Show card image
                 ivMaterials[i].setVisibility(View.VISIBLE);
                 tvMaterialPlus[i].setVisibility(View.GONE);
 
@@ -655,7 +540,6 @@ public class UpgradeFragment extends Fragment {
                             .into(ivMaterials[i]);
                 }
 
-                // Show material OVR and Level Image from assets
                 tvMaterialOvr[i].setVisibility(View.VISIBLE);
                 tvMaterialOvr[i].setText(String.valueOf(materialCards[i].getOvr()));
                 
@@ -669,13 +553,9 @@ public class UpgradeFragment extends Fragment {
                     com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivMaterialLevel[i]);
                 }
 
-                // Cập nhật background
                 viewMaterialBg[i].setBackgroundResource(R.drawable.bg_material_filled);
-                
-                // False = Bỏ hiệu ứng bay bổng (Idle Floating) cho Material Card
                 com.vn.jet.mosco.utils.CardEffectHelper.apply(cardView, shimmer, materialCards[i], false);
             } else {
-                // Empty slot
                 ivMaterials[i].setVisibility(View.GONE);
                 tvMaterialPlus[i].setVisibility(View.VISIBLE);
                 viewMaterialBg[i].setBackgroundResource(R.drawable.bg_material_slot);
@@ -687,20 +567,14 @@ public class UpgradeFragment extends Fragment {
             }
         }
 
-        // Update count text
         tvMaterialsCount.setText(selectedCount + " / 5 Selected");
         if (selectedCount > 0) {
-            tvMaterialsCount.setTextColor(0xFFa3c9ff); // primary color
+            tvMaterialsCount.setTextColor(0xFFa3c9ff);
         } else {
-            tvMaterialsCount.setTextColor(0xFFc2c6d1); // on-surface-variant
+            tvMaterialsCount.setTextColor(0xFFc2c6d1);
         }
     }
 
-
-
-    /**
-     * Cập nhật state nút Upgrade
-     */
     private void updateUpgradeButtonUI() {
         boolean hasMaterials = false;
         for (Objet mc : materialCards) {
@@ -725,9 +599,6 @@ public class UpgradeFragment extends Fragment {
         }
     }
 
-    /**
-     * Tạo UpgradeAlgorithm.Card từ UpgradeCard model
-     */
     private UpgradeAlgorithm.Card createAlgoCard(Objet card) {
         UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
         c.id = card.getIdString();

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Avatar ring: Gradient border glow cho avatar -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#1a1a2e" />
+    <stroke android:width="2dp" android:color="#6c29fd" />
+</shape>

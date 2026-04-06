@@ -35,7 +35,7 @@
         android:layout_marginBottom="32dp"
         android:background="@drawable/bg_btn_rainbow"
         android:fontFamily="@font/poppins"
-        android:text="Next"
+        android:text="Get Started"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="16sp"

@@ -2,6 +2,10 @@ package com.vn.jet.mosco.model;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Model thẻ bài của user — nhận từ Server API.
+ * Server tính sẵn OVR + cardClass, Client chỉ hiển thị.
+ */
 public class UserCard {
     @SerializedName("id")
     private Long id;
@@ -18,14 +22,22 @@ public class UserCard {
     @SerializedName("upgradeLevel")
     private int upgradeLevel; // Cấp cường hóa (+1 đến +10)
 
+    @SerializedName("ovr")
+    private int ovr;          // Overall Rating — Server tính sẵn (Server Truth)
+
+    @SerializedName("cardClass")
+    private String cardClass; // Class thẻ — Server trả sẵn ("Premier", "Double"...)
+
     public UserCard() {}
 
-    public UserCard(Long id, String collectionId, int level, int exp, int upgradeLevel) {
+    public UserCard(Long id, String collectionId, int level, int exp, int upgradeLevel, int ovr, String cardClass) {
         this.id = id;
         this.collectionId = collectionId;
         this.level = level;
         this.exp = exp;
         this.upgradeLevel = upgradeLevel;
+        this.ovr = ovr;
+        this.cardClass = cardClass;
     }
 
     public Long getId() { return id; }
@@ -42,4 +54,10 @@ public class UserCard {
 
     public int getUpgradeLevel() { return upgradeLevel; }
     public void setUpgradeLevel(int upgradeLevel) { this.upgradeLevel = upgradeLevel; }
+
+    public int getOvr() { return ovr; }
+    public void setOvr(int ovr) { this.ovr = ovr; }
+
+    public String getCardClass() { return cardClass; }
+    public void setCardClass(String cardClass) { this.cardClass = cardClass; }
 }

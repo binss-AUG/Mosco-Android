@@ -31,6 +31,12 @@ public class AuthResponse {
         @SerializedName("email")
         private String email;
 
+        @SerializedName("ingameName")
+        private String ingameName;
+
+        @SerializedName("avatarId")
+        private String avatarId;
+
         @SerializedName("token")
         private String token;
 
@@ -42,6 +48,12 @@ public class AuthResponse {
 
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
+
+        public String getIngameName() { return ingameName; }
+        public void setIngameName(String ingameName) { this.ingameName = ingameName; }
+
+        public String getAvatarId() { return avatarId; }
+        public void setAvatarId(String avatarId) { this.avatarId = avatarId; }
 
         public String getToken() { return token; }
         public void setToken(String token) { this.token = token; }

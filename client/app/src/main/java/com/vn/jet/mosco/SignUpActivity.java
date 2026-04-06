@@ -39,6 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
+    private boolean isSigningUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +156,9 @@ public class SignUpActivity extends AppCompatActivity {
         // Automatic Sign Up on Done action (Premium UX)
         edtVerificationCode.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
-                validateAndSignUp();
+                if (!isSigningUp) {
+                    validateAndSignUp();
+                }
                 return true;
             }
             return false;
@@ -163,6 +166,8 @@ public class SignUpActivity extends AppCompatActivity {
 
         // --- Observe API result ---
         viewModel.getSignUpResult().observe(this, resource -> {
+            if (resource == null) return;
+            
             switch (resource.getStatus()) {
                 case LOADING:
                     setLoading(true);
@@ -175,12 +180,20 @@ public class SignUpActivity extends AppCompatActivity {
                         Toast.makeText(this,
                                 getString(R.string.msg_create_account_success),
                                 Toast.LENGTH_SHORT).show();
-                        // Navigate directly to MainActivity (user is already authenticated)
-                        Intent intent = new Intent(this, MainActivity.class);
+
+                        // User mới luôn chưa có Display Name → sang Setup
+                        Intent intent;
+                        String ingame = resource.getData().getData() != null
+                                ? resource.getData().getData().getIngameName() : null;
+                        if (ingame == null || ingame.isEmpty()) {
+                            intent = new Intent(this, DisplayNameSetupActivity.class);
+                        } else {
+                            intent = new Intent(this, MainActivity.class);
+                        }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         
-                        // Transfer cosmic heartbeat to MainActivity
+                        // Transfer cosmic heartbeat
                         if (driftX != null && driftY != null) {
                             intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                             intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
@@ -188,13 +201,16 @@ public class SignUpActivity extends AppCompatActivity {
                         
                         startActivity(intent);
                         finish();
+                    } else {
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : "Error";
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    Toast.makeText(this, resource.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : "Unknown Error";
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
         });
@@ -255,6 +271,8 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void validateAndSignUp() {
+        if (isSigningUp) return;
+        
         String username = edtUsername.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
         String pass = edtPassword.getText().toString().trim();
@@ -302,6 +320,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void setLoading(boolean isLoading) {
+        this.isSigningUp = isLoading;
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnSignUp.setEnabled(!isLoading);
         btnSendCode.setEnabled(!isLoading

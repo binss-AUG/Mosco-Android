@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền Obsidian Matte sâu tích hợp Style 2026 -->
+    <gradient
+        android:startColor="#F2080808"
+        android:endColor="#CC141414"
+        android:angle="225" />
+    <corners android:radius="24dp" />
+    <stroke
+        android:width="0.8dp"
+        android:color="#26FFFFFF" /> 
+</shape>

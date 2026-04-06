@@ -13,7 +13,7 @@ public class AuthResponse {
         this.success = success;
         this.message = message;
         if (user != null) {
-            this.data = new UserData(user.getId(), user.getUsername(), user.getEmail(), token);
+            this.data = new UserData(user.getId(), user.getUsername(), user.getEmail(), user.getIngameName(), user.getAvatarId(), token);
         }
     }
 
@@ -30,14 +30,18 @@ public class AuthResponse {
         private Long id;
         private String username;
         private String email;
+        private String ingameName;
+        private String avatarId;
         private String token;
 
         public UserData() {}
 
-        public UserData(Long id, String username, String email, String token) {
+        public UserData(Long id, String username, String email, String ingameName, String avatarId, String token) {
             this.id = id;
             this.username = username;
             this.email = email;
+            this.ingameName = ingameName;
+            this.avatarId = avatarId;
             this.token = token;
         }
 
@@ -49,6 +53,12 @@ public class AuthResponse {
 
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
+
+        public String getIngameName() { return ingameName; }
+        public void setIngameName(String ingameName) { this.ingameName = ingameName; }
+
+        public String getAvatarId() { return avatarId; }
+        public void setAvatarId(String avatarId) { this.avatarId = avatarId; }
 
         public String getToken() { return token; }
         public void setToken(String token) { this.token = token; }

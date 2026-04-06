@@ -47,7 +47,7 @@
                         app:icon="@drawable/ic_objets"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
-                        app:iconSize="24dp" />
+                        app:iconSize="@dimen/icon_size_md" />
 
                     <TextView
                         android:layout_width="0dp"

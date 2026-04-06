@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.vn.jet.mosco.adapter.OnboardingAdapter;
 import com.vn.jet.mosco.model.OnboardingItem;
+import com.vn.jet.mosco.utils.ClickDebounce;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,26 +66,22 @@ public class OnboardingActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 setCurrentDot(position);
-                if (position == adapter.getItemCount() - 1) {
-                    btnNext.setText("Get Started");
-                } else {
-                    btnNext.setText("Next");
-                }
             }
         });
 
-        btnNext.setOnClickListener(v -> {
-            if (viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {
-                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-            } else {
-                Intent intent = new Intent(this, SignInActivity.class);
-                // Truyền "Nhịp tim" (Thời gian đang chạy) của Animation để màn sau chạy tiếp
+        btnNext.setOnClickListener(new ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                Intent intent = new Intent(OnboardingActivity.this, SignInActivity.class);
                 if (driftX != null && driftY != null) {
                     intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                     intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
                 }
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                
+                // Kết thúc Onboarding để không quay lại được khi bấm Back
+                finish();
             }
         });
     }

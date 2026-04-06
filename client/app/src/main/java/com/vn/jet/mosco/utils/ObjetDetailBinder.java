@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.animation.ObjectAnimator;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.os.Build;
@@ -138,11 +139,8 @@ public class ObjetDetailBinder {
             int finalDef = (int) (def * multiplier);
             int finalSpd = (int) (spd * multiplier);
             
-            // ĐỒNG BỘ OVR THEO cardOvr.json (Source of truth mới)
-            String ovrClass = cardJson.optString("class", "FirstWelcome");
-            int overall = (objet != null && objet.getOvr() > 0) 
-                    ? objet.getOvr() 
-                    : com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(context, ovrClass, upgradeLevel);
+            // OVR từ Server Truth — Client không tính
+            int overall = (objet != null && objet.getOvr() > 0) ? objet.getOvr() : 80;
 
             // Hiển thị chỉ số cá nhân động lên giao diện
             TextView tvHp = dialog.findViewById(R.id.tv_stat_hp);
@@ -245,6 +243,7 @@ public class ObjetDetailBinder {
 
             // ── 6. Image container ────────────────
             MaterialCardView cvImageContainer = dialog.findViewById(R.id.cv_objet_image_container);
+            ImageView ivDetailBack = dialog.findViewById(R.id.iv_objet_detail_back);
             if (cvImageContainer != null) {
                 // a) Glowing Border (Outer Bloom)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -302,6 +301,122 @@ public class ObjetDetailBinder {
                 floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
                 floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
                 floatingAnim.start();
+
+                // ══════════════════════════════════════════════════════════
+                //  e) 3D FLIP — Swipe ngang lật 180° (Giống HomeFragment)
+                // ══════════════════════════════════════════════════════════
+                
+                // Load ảnh mặt sau từ database.json
+                String backImageUrl = cardJson.optString("backImage", "");
+                if (ivDetailBack != null && !backImageUrl.isEmpty()) {
+                    java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, backImageUrl);
+                    com.bumptech.glide.RequestBuilder<Drawable> backThumb = null;
+                    if (localBackThumb != null && localBackThumb.exists()) {
+                        backThumb = Glide.with(context).load(localBackThumb);
+                    }
+                    Glide.with(context)
+                            .load(backImageUrl)
+                            .thumbnail(backThumb)
+                            .placeholder(android.R.color.transparent)
+                            .error(android.R.color.transparent)
+                            .dontAnimate()
+                            .into(ivDetailBack);
+                }
+
+                // Thiết lập camera distance & GestureDetector cho flip 3D
+                float density = context.getResources().getDisplayMetrics().density;
+                cvImageContainer.setCameraDistance(8000 * density);
+
+                final boolean[] isFlipped = {false};
+                final boolean[] isFlipAnimating = {false};
+                final int FLIP_HALF = 250;
+                final int SWIPE_T = 100;
+                final int VELOCITY_T = 100;
+
+                android.view.GestureDetector flipGesture = new android.view.GestureDetector(context,
+                        new android.view.GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onFling(android.view.MotionEvent e1, android.view.MotionEvent e2,
+                                           float velocityX, float velocityY) {
+                        if (e1 == null || e2 == null) return false;
+                        float diffX = e2.getX() - e1.getX();
+                        if (Math.abs(diffX) > SWIPE_T && Math.abs(velocityX) > VELOCITY_T && !isFlipAnimating[0]) {
+                            // Thực hiện flip animation
+                            isFlipAnimating[0] = true;
+                            float startA = isFlipped[0] ? 180f : 0f;
+                            float midA = isFlipped[0] ? 270f : 90f;
+                            float endA = isFlipped[0] ? 360f : 180f;
+
+                            ObjectAnimator p1 = ObjectAnimator.ofFloat(cvImageContainer, "rotationY", startA, midA);
+                            p1.setDuration(FLIP_HALF);
+                            p1.setInterpolator(new AccelerateDecelerateInterpolator());
+
+                            ObjectAnimator p2 = ObjectAnimator.ofFloat(cvImageContainer, "rotationY", midA, endA);
+                            p2.setDuration(FLIP_HALF);
+                            p2.setInterpolator(new android.view.animation.DecelerateInterpolator());
+
+                            // Tại 90° → hoán đổi mặt trước/sau
+                            p1.addListener(new android.animation.AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(android.animation.Animator animation) {
+                                    if (isFlipped[0]) {
+                                        // Quay lại mặt trước
+                                        if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                        if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
+                                        if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
+                                        if (metallicBg != null) metallicBg.setVisibility(View.VISIBLE);
+                                        // Hiện lại OVR + Level Badge khi quay về front
+                                        TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
+                                        if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.VISIBLE);
+                                        ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
+                                        if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
+                                    } else {
+                                        // Hiện mặt sau
+                                        if (ivObjet != null) ivObjet.setVisibility(View.GONE);
+                                        if (ivDetailBack != null) {
+                                            ivDetailBack.setVisibility(View.VISIBLE);
+                                            ivDetailBack.setScaleX(-1f); // Mirror fix
+                                            ivDetailBack.setAlpha(1f);
+                                        }
+                                        if (shimmer != null) shimmer.setVisibility(View.GONE);
+                                        if (metallicBg != null) metallicBg.setVisibility(View.GONE);
+                                        // Ẩn OVR + Level Badge khi hiện back
+                                        TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
+                                        if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.GONE);
+                                        ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
+                                        if (ivLevelFlip != null) ivLevelFlip.setVisibility(View.GONE);
+                                    }
+                                    isFlipped[0] = !isFlipped[0];
+                                }
+                            });
+
+                            AnimatorSet flipSet = new AnimatorSet();
+                            flipSet.playSequentially(p1, p2);
+                            flipSet.addListener(new android.animation.AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(android.animation.Animator animation) {
+                                    isFlipAnimating[0] = false;
+                                    if (cvImageContainer.getRotationY() >= 360f) {
+                                        cvImageContainer.setRotationY(0f);
+                                    }
+                                }
+                            });
+                            flipSet.start();
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onDown(android.view.MotionEvent e) {
+                        return true;
+                    }
+                });
+
+                cvImageContainer.setOnTouchListener((v, event) -> {
+                    flipGesture.onTouchEvent(event);
+                    return true;
+                });
             }
 
             MaterialButton btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);

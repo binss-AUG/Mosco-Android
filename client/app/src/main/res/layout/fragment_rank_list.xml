@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fragment hiển thị danh sách rank (dùng chung cho 3 tab) -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_rank_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:clipToPadding="false" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tv_rank_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="No ranking data yet"
+        android:fontFamily="@font/poppins"
+        android:textColor="#A2A2A7"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- Loading -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_rank_loading"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+</FrameLayout>

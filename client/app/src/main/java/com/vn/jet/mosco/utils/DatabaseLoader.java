@@ -12,91 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DatabaseLoader — Reads and parses the card collection from assets/database.json.
- *
- * The JSON structure is:
- * {
- *   "collections": [
- *     { "id": "...", "member": "...", "backgroundColor": "#ea88b4", ... },
- *     ...
- *   ]
- * }
- *
- * Usage:
- *   List<JSONObject> cards = DatabaseLoader.loadAllCards(context);
- *   JSONObject card = cards.get(position);
- *   String bgColor = card.optString("backgroundColor");
+ * DatabaseLoader — Đọc và parse bộ sưu tập thẻ từ assets/database.json.
+ * OVR do Server tính sẵn và trả về trong API, Client KHÔNG tính OVR.
  */
 public class DatabaseLoader {
 
     private static final String TAG = "DatabaseLoader";
     private static final String FILE_NAME = "database.json";
-
-    // Bảng tra cứu OVR từ cardOvr.json: typeKey -> level -> ovr
-    private static java.util.Map<String, java.util.Map<String, Integer>> cardOvrData = null;
-
-    /**
-     * Nạp bảng OVR từ assets/cardOvr.json (chỉ load 1 lần).
-     */
-    public static void loadCardOvrData(Context context) {
-        if (cardOvrData != null) return;
-        try {
-            InputStream is = context.getAssets().open("cardOvr.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            int totalRead = 0;
-            int bytesRead;
-            while (totalRead < size && (bytesRead = is.read(buffer, totalRead, size - totalRead)) != -1) {
-                totalRead += bytesRead;
-            }
-            is.close();
-            String json = new String(buffer, StandardCharsets.UTF_8);
-            JSONObject root = new JSONObject(json);
-            cardOvrData = new java.util.HashMap<>();
-            java.util.Iterator<String> typeKeys = root.keys();
-            while (typeKeys.hasNext()) {
-                String typeKey = typeKeys.next();
-                JSONObject levels = root.getJSONObject(typeKey);
-                java.util.Map<String, Integer> levelMap = new java.util.HashMap<>();
-                java.util.Iterator<String> lvlKeys = levels.keys();
-                while (lvlKeys.hasNext()) {
-                    String lvl = lvlKeys.next();
-                    levelMap.put(lvl, levels.getInt(lvl));
-                }
-                cardOvrData.put(typeKey, levelMap);
-            }
-            Log.d(TAG, "Loaded cardOvr.json: " + cardOvrData.size() + " types");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load cardOvr.json", e);
-        }
-    }
-
-    /**
-     * Ánh xạ class từ database.json sang typeKey của cardOvr.json.
-     */
-    public static String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome";
-        String key = cardClass.replaceAll("\\s+", "");
-        if (key.equalsIgnoreCase("Double")) return "Double";
-        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
-        if (key.equalsIgnoreCase("Premier")) return "Premier";
-        return "FirstWelcome";
-    }
-
-    /**
-     * Tra cứu OVR từ bảng cardOvr.json.
-     * Đây là nguồn sự thật DUY NHẤT cho OVR trong toàn bộ app.
-     */
-    public static int getOvrFromCardOvr(Context context, String cardClass, int level) {
-        loadCardOvrData(context);
-        String typeKey = mapClassToTypeKey(cardClass);
-        if (cardOvrData != null && cardOvrData.containsKey(typeKey)) {
-            java.util.Map<String, Integer> levelMap = cardOvrData.get(typeKey);
-            Integer ovr = levelMap.get(String.valueOf(level));
-            if (ovr != null) return ovr;
-        }
-        return 80; // fallback
-    }
 
     // Cached list to avoid re-reading the 7MB file every time
     private static List<JSONObject> cachedCards = null;
@@ -107,6 +29,7 @@ public class DatabaseLoader {
     // Fast O(1) lookup maps
     private static java.util.Map<String, JSONObject> cachedCardMap = null;
     private static java.util.Map<String, JSONObject> cachedSlugMap = null;
+    private static java.util.Map<String, JSONObject> cachedCollectionMap = null;
 
     // The Global Cache for User's actual cards (To perform Instant Load on views)
     public static class UserInventoryItem {
@@ -116,7 +39,7 @@ public class DatabaseLoader {
         public int level;
         public int exp;
         public int upgradeLevel;
-        public int ovr;
+        public int ovr; // OVR từ Server (Server Truth)
 
         public UserInventoryItem(Long id, String collectionId, String frontImage, int level, int exp, int upgradeLevel, int ovr) {
             this.id = id;
@@ -129,6 +52,7 @@ public class DatabaseLoader {
         }
     }
     public static List<UserInventoryItem> cachedUserInventory = null;
+    public static Long cachedInventoryUserId = null; // ID của người dùng sở hữu cache hiện tại
 
     public interface OnInventoryChangeListener {
         void onInventoryChanged();
@@ -151,16 +75,32 @@ public class DatabaseLoader {
         }
     }
 
+    /**
+     * Galactic Data Purge: Xóa sạch bộ nhớ tạm của User cũ để đón User mới.
+     * Đảm bảo không có dữ liệu rác "râu ông nọ cắm cằm bà kia".
+     */
     public static void clearUserCache() {
+        Log.d(TAG, "Executing Galactic Cache Purge for user: " + cachedInventoryUserId);
         cachedUserInventory = null;
+        cachedInventoryUserId = null;
         notifyInventoryChanged();
     }
 
+    /**
+     * Nạp lại inventory từ Server.
+     * OVR lấy trực tiếp từ API response (Server Truth), Client KHÔNG tính.
+     */
     public static void reloadInventoryFromServer(Context context, Long userId, com.vn.jet.mosco.network.GameApiService apiService) {
         if (userId == null || apiService == null) {
             notifyInventoryChanged();
             return;
         }
+
+        // Nếu tải cho user mới, xóa cache cũ ngay lập tức
+        if (cachedInventoryUserId != null && !cachedInventoryUserId.equals(userId)) {
+            cachedUserInventory = null;
+        }
+        cachedInventoryUserId = userId;
 
         apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
             @Override
@@ -172,9 +112,8 @@ public class DatabaseLoader {
                         org.json.JSONObject cardJson = findById(context, userCard.getCollectionId());
                         if (cardJson != null) {
                             String img = cardJson.optString("frontImage", "");
-                            String cardClass = cardJson.optString("class", "FirstWelcome");
-                            int ovr = getOvrFromCardOvr(context, cardClass, userCard.getLevel());
-
+                            // OVR trực tiếp từ Server — Single Source of Truth
+                            int ovr = userCard.getOvr();
                             cachedList.add(new UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel(), ovr));
                         }
                     }
@@ -193,9 +132,6 @@ public class DatabaseLoader {
     /**
      * Loads all card entries from assets/database.json.
      * Results are cached in memory after the first load.
-     *
-     * @param context Application or Activity context
-     * @return List of JSONObject, one per card. Empty list on failure.
      */
     public static List<JSONObject> loadAllCards(Context context) {
         if (cachedCards != null) {
@@ -205,7 +141,6 @@ public class DatabaseLoader {
         List<JSONObject> cards = new ArrayList<>();
         try {
             List<JSONObject> rawCards = loadEveryCard(context);
-
             java.util.Set<String> seen = new java.util.HashSet<>();
 
             for (JSONObject card : rawCards) {
@@ -213,7 +148,6 @@ public class DatabaseLoader {
                 String cardClass = card.optString("class", "");
                 String key = season + "_" + cardClass;
 
-                // Chỉ load 1 thẻ duy nhất cho mỗi tổ hợp (Mùa + Class) theo yêu cầu Optimize Data
                 if (!seen.contains(key)) {
                     seen.add(key);
                     cards.add(card);
@@ -231,7 +165,6 @@ public class DatabaseLoader {
 
     /**
      * Loads EVERY card from database.json without optimization/filtering.
-     * Uses a robust buffer-based reading method for large files.
      */
     public static List<JSONObject> loadEveryCard(Context context) {
         if (cachedAllCardsRaw != null && !cachedAllCardsRaw.isEmpty()) {
@@ -241,6 +174,7 @@ public class DatabaseLoader {
         List<JSONObject> cards = new ArrayList<>();
         java.util.Map<String, JSONObject> cardMap = new java.util.HashMap<>();
         java.util.Map<String, JSONObject> slugMap = new java.util.HashMap<>();
+        java.util.Map<String, JSONObject> collectionMap = new java.util.HashMap<>();
 
         try {
             InputStream is = context.getAssets().open(FILE_NAME);
@@ -266,6 +200,9 @@ public class DatabaseLoader {
                 
                 String slug = card.optString("slug");
                 if (slug != null && !slug.isEmpty()) slugMap.put(slug, card);
+
+                String collectionId = card.optString("collectionId");
+                if (collectionId != null && !collectionId.isEmpty()) collectionMap.put(collectionId, card);
             }
             Log.d(TAG, "Successfully loaded " + cards.size() + " total cards from " + FILE_NAME);
         } catch (Exception e) {
@@ -274,6 +211,7 @@ public class DatabaseLoader {
         cachedAllCardsRaw = cards;
         cachedCardMap = cardMap;
         cachedSlugMap = slugMap;
+        cachedCollectionMap = collectionMap;
         return cards;
     }
 
@@ -291,11 +229,7 @@ public class DatabaseLoader {
     }
 
     /**
-     * Finds a card by its slug (e.g. "binary02-yeonji-333a").
-     *
-     * @param context Context for asset access
-     * @param slug    The slug to search for
-     * @return The matching JSONObject, or null if not found
+     * Finds a card by its slug.
      */
     public static JSONObject findBySlug(Context context, String slug) {
         if (cachedSlugMap == null) {
@@ -308,10 +242,20 @@ public class DatabaseLoader {
     }
 
     /**
+     * Finds a card by its collectionId (e.g. "Binary02 JiYeon 503Z").
+     */
+    public static JSONObject findByCollectionId(Context context, String collectionId) {
+        if (cachedCollectionMap == null) {
+            loadEveryCard(context);
+        }
+        if (cachedCollectionMap != null) {
+            return cachedCollectionMap.get(collectionId);
+        }
+        return null;
+    }
+
+    /**
      * Loads artist names from assets/game_config.json.
-     *
-     * @param context Application or Activity context
-     * @return List of artist names. Empty list on failure.
      */
     public static List<String> loadArtistNames(Context context) {
         List<String> artistNames = new ArrayList<>();
@@ -341,10 +285,6 @@ public class DatabaseLoader {
 
     /**
      * Finds a card by its index in the collections array.
-     *
-     * @param context  Context for asset access
-     * @param position Index in the array
-     * @return The JSONObject at that position, or null if out of bounds
      */
     public static JSONObject getCardAt(Context context, int position) {
         List<JSONObject> cards = loadAllCards(context);
@@ -366,6 +306,5 @@ public class DatabaseLoader {
         cachedAllCardsRaw = null;
         cachedCardMap = null;
         cachedSlugMap = null;
-        cardOvrData = null;
     }
 }

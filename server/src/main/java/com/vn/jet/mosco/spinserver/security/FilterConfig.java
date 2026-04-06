@@ -32,7 +32,9 @@ public class FilterConfig {
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration() {
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new JwtAuthFilter(jwtUtil));
-        registration.addUrlPatterns("/api/gacha/*");
+        // Đóng sập cửa các API lấy thông tin người dùng và rương đồ nếu Token sai/hết hạn
+        // Rank API không cần auth vì là bảng xếp hạng công khai
+        registration.addUrlPatterns("/api/gacha/*", "/api/user/*", "/api/inventory/*", "/api/daily/*", "/api/friends/*");
         registration.setOrder(2); // Execute after rate limiter
         registration.setName("jwtAuthFilter");
         return registration;

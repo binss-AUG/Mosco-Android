@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_screen_bg"
     tools:context=".fragment.ProfileFragment">
 
 
@@ -31,10 +30,10 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/avatar_card"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    app:cardCornerRadius="60dp"
-                    app:cardElevation="8dp"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    app:cardCornerRadius="70dp"
+                    app:cardElevation="10dp"
                     app:strokeColor="@color/mosco_outline"
                     app:strokeWidth="3dp">
 
@@ -44,21 +43,47 @@
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_user"
-                        android:padding="20dp"
+                        android:padding="16dp"
                         android:background="@color/mosco_surface_container" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_edit_avatar"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_alignBottom="@id/avatar_card"
+                    android:layout_alignEnd="@id/avatar_card"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/mosco_primary"
+                    app:cardCornerRadius="21dp"
+                    app:cardElevation="12dp"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="2dp">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_edit_pen"
+                        app:tint="@color/white" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@id/avatar_card"
-                    android:layout_alignEnd="@id/avatar_card"
+                    android:layout_alignTop="@id/avatar_card"
+                    android:layout_alignStart="@id/avatar_card"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="4dp"
                     app:cardBackgroundColor="@color/mosco_primary"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="10dp"
                     app:strokeColor="@color/white"
                     app:strokeWidth="1dp">
                     <TextView
+                        android:id="@+id/tv_level"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="8dp"
@@ -95,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:background="@drawable/bg_glass_card"
+                android:background="@drawable/bg_matte_obsidian_card"
                 android:orientation="horizontal"
                 android:padding="20dp"
                 android:weightSum="2">
@@ -119,8 +144,8 @@
                         android:gravity="center_vertical"
                         android:layout_marginTop="4dp">
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="@dimen/icon_size_md"
+                            android:layout_height="@dimen/icon_size_md"
                             android:src="@drawable/ic_item_coin"/>
                         <TextView
                             android:id="@+id/tv_coins"
@@ -158,8 +183,8 @@
                         android:gravity="center_vertical"
                         android:layout_marginTop="4dp">
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="@dimen/icon_size_md"
+                            android:layout_height="@dimen/icon_size_md"
                             android:src="@drawable/ic_item_diamond"/>
                         <TextView
                             android:id="@+id/tv_diamonds"
@@ -180,9 +205,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/bg_glass_card"
+                android:background="@drawable/bg_matte_obsidian_card"
                 android:orientation="vertical"
                 android:padding="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_edit_profile"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="start|center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/profile_btn_edit"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppins_bold"
+                    app:icon="@drawable/ic_profile"
+                    app:iconPadding="16dp"
+                    app:iconSize="@dimen/icon_size_md"
+                    app:iconTint="@color/mosco_on_surface" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/mosco_outline_variant_20" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_inventory"
@@ -194,8 +240,9 @@
                     android:text="OBJETS"
                     android:textColor="@color/white"
                     android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_user"
+                    app:icon="@drawable/ic_objets"
                     app:iconPadding="16dp"
+                    app:iconSize="@dimen/icon_size_md"
                     app:iconTint="@color/mosco_on_surface" />
 
                 <View
@@ -216,6 +263,28 @@
                     android:fontFamily="@font/poppins_bold"
                     app:icon="@drawable/ic_lock"
                     app:iconPadding="16dp"
+                    app:iconSize="@dimen/icon_size_md"
+                    app:iconTint="@color/mosco_on_surface" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/mosco_outline_variant_20" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_settings"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="start|center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:text="SETTINGS"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/poppins_bold"
+                    app:icon="@drawable/ic_settings"
+                    app:iconPadding="16dp"
+                    app:iconSize="@dimen/icon_size_md"
                     app:iconTint="@color/mosco_on_surface" />
 
                 <View
@@ -236,6 +305,7 @@
                     android:fontFamily="@font/poppins_bold"
                     app:icon="@drawable/ic_user"
                     app:iconPadding="16dp"
+                    app:iconSize="@dimen/icon_size_md"
                     app:iconTint="@color/stat_atk" />
 
             </LinearLayout>

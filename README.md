@@ -27,7 +27,7 @@ Chào mừng bạn đến với dự án **Mosco**. Đây là một ứng dụng
 
 | Thành Phần | Công Nghệ Sử Dụng |
 | :--- | :--- |
-| **Android Client** | Java (Android Studio), Retrofit 2, OkHttp (32-Threads), Glide, Lottie Animation. |
+| **Android Client** | Java (Android Studio), Retrofit 2, OkHttp (32-Threads), Glide, Google ML Kit (AI Auto Face-Crop Avatar), Lottie Animation. |
 | **Backend Server** | Java 21, Spring Boot 3.4.2, Spring Data JPA, JWT Security, MySQL 8.x. |
 | **Asset Delivery** | Cloudflare Images (1x, 2x, 4x, Original), Internal Storage Caching. |
 | **Design System** | Galactic Dark Mode, Poppins Typography, Glassmorphism. |
@@ -104,6 +104,12 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ **Advanced UX (Click Debounce):** Triển khai lớp tiện ích `ClickDebounce` giúp ngăn chặn 100% tình trạng spam click/double-click tại các nút bấm quan trọng (Sign In, Send Code, Sign Up, Reset Password), đảm bảo an toàn tuyệt đối cho các yêu cầu gửi về Server.
 *   ✅ **Tối ưu luồng điều hướng (User Flow):** Fix lỗi điều hướng mặc định của `MainActivity`, đảm bảo người dùng được đưa vào tab **Home** sau khi Đăng nhập/Đăng ký thay vì Profile.
 *   ✅ **Hiệu ứng nhịp đập vũ trụ (Cosmic Heartbeat):** Đồng bộ hóa thời gian chạy (PlayTime) của các hiệu ứng Animation giữa các Activity, tạo cảm giác chuyển cảnh mượt mà không bị ngắt quãng.
+
+---
+## 📜 Nhật Ký Cập Nhật (V6.0 - Smart Global Synced Avatar)
+*   ✅ **Global Sync Avatar:** Hủy bỏ avatar Local Storage rác, thay thế bằng cơ chế định danh `avatarId` gửi về Backend, giúp tốc độ cập nhật siêu nhanh và nhẹ tải máy. Server và 100% Client đều nhìn thấy cùng 1 hình thông qua API profile.
+*   ✅ **Google ML Kit Integration:** Tích hợp bộ quét Deep Learning On-Device cực nhẹ của Google để dò tìm gương mặt Idol trong bức thẻ. Tự động đưa ra `SmartFaceCropTransformation` căn chỉnh Crop Avatar Face Focus tuyệt đối. Không tốn % API cloud nào.
+*   ✅ **Inventory-Based Selector:** Bộ chọn Avatar BottomSheet siêu đẹp ứng dụng quy chuẩn Galactic Glassmorphism. Chỉ hiển thị các Objet mà User ĐÃ SỞ HỮU thực tế trong rương đồ, tích hợp auto-fallback tự xài mặc định nếu cần.
 
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

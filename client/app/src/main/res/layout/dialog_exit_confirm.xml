@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="340dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/bg_glass_exit"
+    android:padding="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="28dp">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_close"
+            app:tint="#FF4B4B" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Exit Galactic World?"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:letterSpacing="0.05" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="Are you sure you want to leave the Mosco universe and return to Earth?"
+            android:textAlignment="center"
+            android:textColor="#BDBDBD"
+            android:textSize="15sp"
+            android:alpha="0.8"
+            android:lineSpacingExtra="5dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/poppins_bold"
+                android:text="STAY"
+                android:textAllCaps="true"
+                android:textColor="#A2A2A7"
+                android:textSize="14sp"
+                android:letterSpacing="0.15" />
+
+            <!-- Using the premium button background -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_exit"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/bg_button"
+                android:backgroundTint="#FF4B4B"
+                android:fontFamily="@font/poppins_bold"
+                android:text="EXIT"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.15" />
+
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

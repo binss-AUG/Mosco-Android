@@ -24,6 +24,7 @@ import com.vn.jet.mosco.model.UserStats;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.BuyRequest;
 import com.vn.jet.mosco.network.GameApiService;
+import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.utils.SessionManager;
 
 import java.util.ArrayList;
@@ -74,9 +75,7 @@ public class ShopFragment extends Fragment {
     private void setupHeader(@NonNull View root) {
         root.findViewById(R.id.btn_shop_back).setOnClickListener(v -> {
             if (getActivity() != null) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, new CollectionFragment())
-                        .commit();
+                getActivity().getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -94,8 +93,8 @@ public class ShopFragment extends Fragment {
             @Override
             public void onResponse(Call<UserStats> call, Response<UserStats> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    tvCoins.setText(String.valueOf(response.body().getCoins()));
-                    tvDiamonds.setText(String.valueOf(response.body().getDiamonds()));
+                    tvCoins.setText(NumberUtils.format(getContext(), response.body().getCoins()));
+                    tvDiamonds.setText(NumberUtils.format(getContext(), response.body().getDiamonds()));
                 }
             }
             @Override
@@ -317,7 +316,7 @@ public class ShopFragment extends Fragment {
 
         Runnable updatePrice = () -> {
             long total = (priceD > 0 ? priceD : priceC) * qty[0];
-            tvTotalPrice.setText(String.valueOf(total));
+            tvTotalPrice.setText(NumberUtils.format(getContext(), total));
         };
         updatePrice.run(); // Initial calculation
 
@@ -406,8 +405,8 @@ public class ShopFragment extends Fragment {
             }
             
             // Format price string based on what it costs
-            String priceStr = (item.getPriceCoins() != null && item.getPriceCoins() > 0) ? item.getPriceCoins() + "" : item.getPriceDiamonds() + "";
-            h.tvPrice.setText(priceStr);
+            long price = (item.getPriceCoins() != null && item.getPriceCoins() > 0) ? item.getPriceCoins() : (item.getPriceDiamonds() != null ? item.getPriceDiamonds() : 0);
+            h.tvPrice.setText(NumberUtils.format(h.itemView.getContext(), price));
             h.tvRarity.setText(item.getType());
             
             // Set currency icon

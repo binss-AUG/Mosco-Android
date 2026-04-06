@@ -1,7 +1,5 @@
 package com.vn.jet.mosco.spinserver.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vn.jet.mosco.spinserver.model.UpgradeRequest;
 import com.vn.jet.mosco.spinserver.model.UpgradeResponse;
 import com.vn.jet.mosco.spinserver.model.UserCard;
@@ -9,80 +7,31 @@ import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
 import com.vn.jet.mosco.spinserver.utils.UpgradeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.PostConstruct;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Service xử lý logic ép thẻ (Upgrade).
+ * Sử dụng CardDataService làm nguồn sự thật cho OVR + typeKey,
+ * thay vì mockup "FirstWelcome" như trước.
+ */
 @Service
 public class UpgradeService {
     private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
 
     private final UserCardRepository userCardRepository;
     private final UpgradeSystem upgradeSystem;
-    private Map<String, Map<String, Integer>> cardOvrData;
+    private final CardDataService cardDataService;
 
-    public UpgradeService(UserCardRepository userCardRepository, UpgradeSystem upgradeSystem) {
+    public UpgradeService(UserCardRepository userCardRepository,
+                          UpgradeSystem upgradeSystem,
+                          CardDataService cardDataService) {
         this.userCardRepository = userCardRepository;
         this.upgradeSystem = upgradeSystem;
-    }
-
-    @PostConstruct
-    public void init() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            InputStream isOvr = new ClassPathResource("cardOvr.json").getInputStream();
-            JsonNode ovrJson = mapper.readTree(isOvr);
-            cardOvrData = new HashMap<>();
-            
-            ovrJson.fields().forEachRemaining(typeEntry -> {
-                String typeKey = typeEntry.getKey();
-                JsonNode levels = typeEntry.getValue();
-                Map<String, Integer> levelMap = new HashMap<>();
-                levels.fields().forEachRemaining(lvlEntry -> {
-                    levelMap.put(lvlEntry.getKey(), lvlEntry.getValue().asInt());
-                });
-                cardOvrData.put(typeKey, levelMap);
-            });
-        } catch (Exception e) {
-            logger.error("Lỗi nạp cardOvr.json", e);
-        }
-    }
-
-    private int getOvrFromData(String typeKey, int level) {
-        if (cardOvrData != null && cardOvrData.containsKey(typeKey)) {
-            Map<String, Integer> levelMap = cardOvrData.get(typeKey);
-            Integer ovr = levelMap.get(String.valueOf(level));
-            if (ovr != null) return ovr;
-        }
-        return 80; // fallback
-    }
-
-    private String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome";
-        switch (cardClass) {
-            case "First":
-            case "FirstWelcome": return "FirstWelcome";
-            case "Double": return "Double";
-            case "SpecialUnit":
-            case "Special":
-            case "Motion": return "SpecialUnit";
-            case "Premier": return "Premier";
-            default: return "FirstWelcome";
-        }
-    }
-    
-    // Tạm thời để query Class. Thực tế cần load database.json để map collectionId ra Class. 
-    // Trong GachaService đã load db, ta có thể dùng chung nếu cần. (Để tối ưu, mockup ở đây)
-    private String getCardTypeByCollectionId(String collectionId) {
-        // TODO: Map từ database.json -> Class thực tế
-        return mapClassToTypeKey("FirstWelcome"); // Fallback
+        this.cardDataService = cardDataService;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -101,9 +50,9 @@ public class UpgradeService {
             UserCard matCard = userCardRepository.findByIdAndUserId(matId, userId)
                     .orElseThrow(() -> new RuntimeException("Thẻ phôi không hợp lệ: " + matId));
             
-            // Lấy OVR (Tạm mockup TypeKey)
-            String typeKey = getCardTypeByCollectionId(matCard.getCollectionId());
-            int matOvr = getOvrFromData(typeKey, matCard.getUpgradeLevel());
+            // Lấy OVR chính xác từ CardDataService (thay vì mockup cũ)
+            String typeKey = cardDataService.getTypeKey(matCard.getCollectionId());
+            int matOvr = cardDataService.getOvr(matCard.getCollectionId(), matCard.getUpgradeLevel());
             
             materialInfos.add(new UpgradeSystem.CardInfo(typeKey, matCard.getUpgradeLevel(), matOvr));
             materialsToDelete.add(matCard);
@@ -111,19 +60,17 @@ public class UpgradeService {
         
         // Tiêu huỷ nguyên liệu
         userCardRepository.deleteAll(materialsToDelete);
-        logger.info("Đã tiêu phôi: " + materialsToDelete.size() + " thẻ của user " + userId);
+        logger.info("Đã tiêu phôi: {} thẻ của user {}", materialsToDelete.size(), userId);
         
-        // 3. Thực thi thuật toán ép thẻ
-        String mainTypeKey = getCardTypeByCollectionId(mainCard.getCollectionId());
-        int mainOvr = getOvrFromData(mainTypeKey, mainCard.getUpgradeLevel());
+        // 3. Thực thi thuật toán ép thẻ — OVR giờ đã chính xác theo class thực tế
+        String mainTypeKey = cardDataService.getTypeKey(mainCard.getCollectionId());
+        int mainOvr = cardDataService.getOvr(mainCard.getCollectionId(), mainCard.getUpgradeLevel());
         UpgradeSystem.CardInfo mainCardInfo = new UpgradeSystem.CardInfo(mainTypeKey, mainCard.getUpgradeLevel(), mainOvr);
         
         UpgradeSystem.UpgradeResult result = upgradeSystem.executeUpgrade(mainCardInfo, materialInfos);
         
         // 4. Cập nhật thẻ chính
         mainCard.setUpgradeLevel(result.newLevel);
-        // Có thể reset kinh nghiệm (nếu muốn) nhưng không nên reset cấp độ chính (level)
-        // mainCard.setExp(0); 
         userCardRepository.save(mainCard);
         
         String message = result.isSuccess 
@@ -132,6 +79,8 @@ public class UpgradeService {
             
         logger.info("Upgrade Result - User: {}, Success: {}, New Level: {}", userId, result.isSuccess, result.newLevel);
 
-        return new UpgradeResponse(result.isSuccess, result.newLevel, result.actualSuccessRate, message);
+        return new UpgradeResponse(result.isSuccess, result.newLevel,
+                cardDataService.getOvr(mainCard.getCollectionId(), result.newLevel),
+                result.actualSuccessRate, message);
     }
 }

@@ -293,7 +293,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
                     
-                <!-- 2. Transparent Image -->
+                <!-- 2. Transparent Image (Front Face) -->
                 <ImageView
                     android:id="@+id/iv_objet_detail_image"
                     android:layout_width="match_parent"
@@ -301,6 +301,15 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/item_shop_demo"
                     tools:src="@drawable/item_shop_demo" />
+
+                <!-- 2b. Back Face (Hiện khi Flip 3D, mặc định ẩn) -->
+                <ImageView
+                    android:id="@+id/iv_objet_detail_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/objet_back_spin"
+                    android:visibility="gone" />
 
                 <!-- 3. Shimmer Overlay -->
                 <View

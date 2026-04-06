@@ -288,6 +288,75 @@ public class CardEffectHelper {
         }
     }
 
+    /**
+     * Tạo hiệu ứng Glow "Placeholder" nhạt màu dành cho trạng thái chưa có thẻ (No Objets Yet).
+     * Giúp UX rõ ràng hơn (nhận biết vị trí đặt thẻ).
+     */
+    public static void applyEmptyStateGlow(MaterialCardView cardView, boolean applyFloating) {
+        if (cardView == null) return;
+        Context context = cardView.getContext();
+
+        remove(cardView, null); // Clear old effects
+        
+        cardView.setTag(R.id.card_main, "empty_state_glow");
+
+        cardView.post(() -> {
+            int w = cardView.getWidth();
+            int h = cardView.getHeight();
+            if (w <= 0 || h <= 0) return;
+
+            cardView.setStrokeWidth(0);
+            float cornerRadius = cardView.getRadius();
+
+            // Màu glow tím nhạtặc định của hệ thống Mosco
+            int glowColor = Color.parseColor("#336c29fd"); 
+
+            ViewGroup parent = (ViewGroup) cardView.getParent();
+            if (parent != null) {
+                parent.setClipChildren(false);
+                parent.setClipToPadding(false);
+
+                float glowRadius = w * 0.15f; 
+                float extraPadding = glowRadius * 2.5f;
+
+                View pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
+                parent.addView(pseudoGlow, parent.indexOfChild(cardView));
+                cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+
+                ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
+                if (rawParams instanceof ConstraintLayout.LayoutParams) {
+                    ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(
+                            (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
+                    
+                    glowParams.topToTop = cardView.getId();
+                    glowParams.bottomToBottom = cardView.getId();
+                    glowParams.startToStart = cardView.getId();
+                    glowParams.endToEnd = cardView.getId();
+                    
+                    pseudoGlow.setLayoutParams(glowParams);
+                }
+            }
+        });
+
+        if (applyFloating) {
+            ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
+            floatingAnim.setDuration(3000);
+            floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+            floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
+            floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
+            
+            floatingAnim.addUpdateListener(animation -> {
+                View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
+                if (pseudoGlow != null) {
+                    pseudoGlow.setTranslationY((float) animation.getAnimatedValue());
+                }
+            });
+            
+            cardView.setTag(floatingAnim);
+            floatingAnim.start();
+        }
+    }
+
     public static void remove(MaterialCardView cardView, View shimmer) {
         if (cardView == null) return;
         cardView.setStrokeWidth(0);

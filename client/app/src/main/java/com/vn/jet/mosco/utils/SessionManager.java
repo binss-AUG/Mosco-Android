@@ -21,12 +21,34 @@ public class SessionManager {
     private static final String KEY_EMAIL = "user_email";
     private static final String KEY_USERNAME = "user_name";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
+    private static final String KEY_AVATAR = "user_avatar";
+    private static final String KEY_INGAME_NAME = "ingame_name";
+    private static final String KEY_AVATAR_ID = "avatar_id";
+    private static final String KEY_SELECTED_SHOWCASE_ID = "selected_showcase_id"; 
+    
+    // --- SETTINGS KEYS ---
+    private static final String KEY_DARK_MODE = "dark_mode";
+    private static final String KEY_MUSIC_ENABLED = "music_enabled";
+    private static final String KEY_SFX_ENABLED = "sfx_enabled";
 
     private final SharedPreferences prefs;
+    private final Context context;
 
     public SessionManager(Context context) {
-        prefs = context.getApplicationContext()
-                .getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.context = context.getApplicationContext();
+        this.prefs = this.context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    /**
+     * Lưu ID thẻ bài sếp chọn làm trung tâm màn hình Home.
+     * Giải pháp này giúp duy trì trạng thái Showcase ngay cả khi chuyển Tab.
+     */
+    public void setSelectedShowcaseId(long cardId) {
+        prefs.edit().putLong(KEY_SELECTED_SHOWCASE_ID, cardId).apply();
+    }
+
+    public long getSelectedShowcaseId() {
+        return prefs.getLong(KEY_SELECTED_SHOWCASE_ID, -1L);
     }
 
     /**
@@ -37,11 +59,25 @@ public class SessionManager {
      */
     public void saveSession(AuthResponse.UserData userData) {
         if (userData == null) return;
+        
+        long newUserId = userData.getId() != null ? userData.getId() : -1L;
+        long oldUserId = prefs.getLong(KEY_USER_ID, -1L);
+        
+        // --- 🔄 FORCE SYNC LOGIC ---
+        // Nếu phát hiện đăng nhập bằng tài khoản khác, thực hiện dọn dẹp Cache RAM ngay lập tức
+        if (oldUserId != -1L && oldUserId != newUserId) {
+            DatabaseLoader.clearUserCache();
+            // Xóa đường dẫn Avatar cũ để đảm bảo không load nhầm cache đĩa của Glide
+            prefs.edit().remove(KEY_AVATAR).apply();
+        }
+
         prefs.edit()
                 .putString(KEY_TOKEN, userData.getToken())
-                .putLong(KEY_USER_ID, userData.getId() != null ? userData.getId() : -1L)
+                .putLong(KEY_USER_ID, newUserId)
                 .putString(KEY_EMAIL, userData.getEmail())
                 .putString(KEY_USERNAME, userData.getUsername())
+                .putString(KEY_INGAME_NAME, userData.getIngameName())
+                .putString(KEY_AVATAR_ID, userData.getAvatarId())
                 .putBoolean(KEY_IS_LOGGED_IN, true)
                 .apply();
     }
@@ -67,10 +103,72 @@ public class SessionManager {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
     }
 
+    public String getAvatar() {
+        return prefs.getString(KEY_AVATAR, null);
+    }
+
+    public void setAvatar(String avatarUrl) {
+        prefs.edit().putString(KEY_AVATAR, avatarUrl).apply();
+    }
+
+    public String getIngameName() {
+        return prefs.getString(KEY_INGAME_NAME, null);
+    }
+
+    public void setIngameName(String name) {
+        prefs.edit().putString(KEY_INGAME_NAME, name).apply();
+    }
+
+    public String getAvatarId() {
+        return prefs.getString(KEY_AVATAR_ID, "1"); // Default to Objet #1
+    }
+
+    public void setAvatarId(String avatarId) {
+        prefs.edit().putString(KEY_AVATAR_ID, avatarId).apply();
+    }
+
+    /**
+     * Lấy đường dẫn file Avatar cố định cho User hiện tại trong Internal Storage.
+     * Giải pháp này giúp ảnh "bền vững" hơn so với lưu trong Cache.
+     */
+    public String getAvatarPathForUser() {
+        Long userId = getUserId();
+        if (userId == null) return null;
+        return context.getFilesDir().getAbsolutePath() + "/avatar_" + userId + ".jpg";
+    }
+
     /**
      * Clears all session data. Call on logout.
      */
     public void clearSession() {
         prefs.edit().clear().apply();
+        // Dọn dẹp Cache RAM khi logout để đảm bảo an toàn dữ liệu
+        DatabaseLoader.clearUserCache();
+    }
+
+    // --- SETTINGS PERSISTENCE ---
+
+    public void setDarkMode(boolean enabled) {
+        prefs.edit().putBoolean(KEY_DARK_MODE, enabled).apply();
+    }
+
+    public boolean isDarkMode() {
+        return prefs.getBoolean(KEY_DARK_MODE, true); // Mặc định Dark Mode
+    }
+
+    public void setMusicEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_MUSIC_ENABLED, enabled).apply();
+    }
+
+    public boolean isMusicEnabled() {
+        return prefs.getBoolean(KEY_MUSIC_ENABLED, true);
+    }
+
+    public void setSfxEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_SFX_ENABLED, enabled).apply();
+    }
+
+    public boolean isSfxEnabled() {
+        return prefs.getBoolean(KEY_SFX_ENABLED, true);
     }
 }

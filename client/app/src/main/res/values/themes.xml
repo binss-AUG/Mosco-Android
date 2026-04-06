@@ -1,8 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Mosco" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Matte Obsidian Background - Đồng bộ toàn hệ thống -->
+        <item name="android:windowBackground">@drawable/bg_global_gradient</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/mosco_surface_container</item>
     </style>
 
     <style name="Theme.Mosco" parent="Base.Theme.Mosco" />

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Subtle Inner Success Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <solid android:color="#0D00C853" />
+            <stroke
+                android:width="0.8dp"
+                android:color="#4D00C853" />
+        </shape>
+    </item>
+
+    <!-- Main Glass Body with Success Gradient -->
+    <item android:top="0.8dp" android:left="0.8dp" android:right="0.8dp" android:bottom="0.8dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="11.2dp" />
+            <gradient
+                android:startColor="#F2080808"
+                android:endColor="#CC141414"
+                android:angle="225" />
+            <stroke
+                android:width="0.8dp"
+                android:color="#8000C853" /> 
+        </shape>
+    </item>
+</layer-list>

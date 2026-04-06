@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Leaderboard/Rank icon with 3 podium bars -->
+    <path
+        android:fillColor="@color/mosco_on_surface"
+        android:pathData="M4,15h3v5H4zM10.5,9h3v11h-3zM17,12h3v8h-3z" />
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/mosco_on_surface"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M2,20h20" />
+    <!-- Crown on top bar -->
+    <path
+        android:fillColor="@color/mosco_on_surface"
+        android:pathData="M12,3l1.5,3L16,6.5l-2,2.5L15,12h-6l1,-3L8,6.5l2.5,-0.5z" />
+</vector>

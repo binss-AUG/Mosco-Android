@@ -43,7 +43,21 @@ public class ApiClient {
                                     builder.header("Authorization", "Bearer " + token);
                                 }
 
-                                return chain.proceed(builder.build());
+                                okhttp3.Response response = chain.proceed(builder.build());
+                                
+                                // Bắt tự động HTTP 401 (Token hết hạn / Ghost Session)
+                                // BỎ QUA các route /api/auth/ vì 401 ở đây có nghĩa là sai pass/sai mã (không phải token hết hạn)
+                                if (response.code() == 401 && !original.url().encodedPath().contains("/api/auth/")) {
+                                    sessionManager.clearSession();
+                                    
+                                    // Bắn intent đá thẳng màn hình về SignInActivity
+                                    android.content.Intent intent = new android.content.Intent(appContext, com.vn.jet.mosco.SignInActivity.class);
+                                    // Force new task vì gọi từ appContext
+                                    intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    appContext.startActivity(intent);
+                                }
+                                
+                                return response;
                             })
                             .build();
 

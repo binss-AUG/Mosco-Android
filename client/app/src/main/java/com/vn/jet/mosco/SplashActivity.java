@@ -19,9 +19,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.vn.jet.mosco.utils.CardAssetManager;
 import com.vn.jet.mosco.utils.DatabaseLoader;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.network.ApiClient;
+import com.vn.jet.mosco.network.GameApiService;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -32,6 +36,8 @@ public class SplashActivity extends AppCompatActivity {
     public static final int OBJET_HEIGHT = 462;
 
     private LinearLayout layoutDownloadProgress;
+    private View layoutRetryConnection;
+    private com.google.android.material.button.MaterialButton btnRetryConnection;
     private ProgressBar pbDownload;
     private TextView tvDownloadStatus;
     private TextView tvDownloadCount;
@@ -39,12 +45,28 @@ public class SplashActivity extends AppCompatActivity {
     private ImageView ivBackground;
     private ObjectAnimator driftX, driftY;
     private Handler mainHandler;
+    private volatile boolean isResourceLoadFinished = false;
+    private volatile boolean isNavigating = false; // Flag to prevent double launch
+    private volatile boolean isErrorShown = false;
+
+    // Performance Monitoring
+    private long splashStartTime;
+    private java.util.Map<String, Long> renderMetrics = new java.util.HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        splashStartTime = System.currentTimeMillis();
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
+
+        // --- 🌔 APPLY THEME SETTINGS ---
+        SessionManager sessionManager = new SessionManager(this);
+        if (sessionManager.isDarkMode()) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -54,27 +76,68 @@ public class SplashActivity extends AppCompatActivity {
 
         // Ánh xạ View
         layoutDownloadProgress = findViewById(R.id.layout_download_progress);
+        layoutRetryConnection = findViewById(R.id.layout_retry_connection);
+        btnRetryConnection = findViewById(R.id.btn_retry_connection);
         pbDownload = findViewById(R.id.pb_download);
         tvDownloadStatus = findViewById(R.id.tv_download_status);
         tvDownloadCount = findViewById(R.id.tv_download_count);
-        lottieSplash = findViewById(R.id.iv_logo_lottie); // Now the main logo Lottie
+        lottieSplash = findViewById(R.id.iv_logo_lottie); 
         ivBackground = findViewById(R.id.iv_background_parallax);
         mainHandler = new Handler(Looper.getMainLooper());
 
+        btnRetryConnection.setOnClickListener(v -> {
+            layoutRetryConnection.setVisibility(View.GONE);
+            lottieSplash.setVisibility(View.VISIBLE);
+            new Thread(this::checkAndLoadResources).start();
+        });
+
         setupParallax();
 
-        // Bắt đầu kiểm tra tài nguyên trên Thread riêng
-        new Thread(this::checkAndLoadResources).start();
+        // Bắt đầu kiểm tra tài nguyên và tối ưu hóa render
+        trackRenderTime("Init", () -> {
+            new Thread(this::checkAndLoadResources).start();
+        });
     }
 
     /**
-     * Luồng chính: Kiểm tra tài nguyên → Tải nếu thiếu → Nạp Inventory → Vào game.
+     * Monitoring: Track render time của từng component
+     */
+    private void trackRenderTime(String component, Runnable action) {
+        long start = System.currentTimeMillis();
+        action.run();
+        long end = System.currentTimeMillis();
+        renderMetrics.put(component, end - start);
+        Log.d(TAG, "Render Monitoring - " + component + ": " + (end - start) + "ms");
+    }
+
+    /**
+     * Luồng chính: Kiểm tra kết nối → Tài nguyên → Vào game.
      */
     private void checkAndLoadResources() {
-        long startTime = System.currentTimeMillis();
+        isResourceLoadFinished = false;
+        isErrorShown = false;
+        
+        // --- ⏲️ TIMEOUT MECHANISM (5 SECONDS) ---
+        mainHandler.postDelayed(() -> {
+            if (!isResourceLoadFinished && !isFinishing() && !isNavigating) {
+                showConnectionError();
+            }
+        }, 8000); // Tăng lên 8s cho chắc chắn vì load resources hơi nặng
 
-        mainHandler.post(() -> tvDownloadStatus.setText("Khởi động hệ thống..."));
-        DatabaseLoader.loadEveryCard(getApplicationContext());
+        if (!isNetworkAvailable()) {
+            showConnectionError();
+            return;
+        }
+
+        mainHandler.post(() -> {
+            tvDownloadStatus.setText("Khởi động hệ thống...");
+            layoutDownloadProgress.setVisibility(View.VISIBLE);
+        });
+        java.util.List<String> showcaseAssetUrls = new java.util.ArrayList<>();
+        
+        trackRenderTime("DatabaseLoad", () -> {
+            DatabaseLoader.loadEveryCard(getApplicationContext());
+        });
 
         boolean allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
 
@@ -87,7 +150,6 @@ public class SplashActivity extends AppCompatActivity {
                 tvDownloadCount.setText("0%");
             });
 
-            // Logic "Loading ảo" - Đã được smooth hóa
             final int[] displayedProgress = {0};
             final int[] realPercent = {0};
             final Object downloadLock = new Object();
@@ -96,16 +158,12 @@ public class SplashActivity extends AppCompatActivity {
                 while (displayedProgress[0] < 100) {
                     try {
                         Thread.sleep(60); 
-                        
                         int increment = 0;
                         if (displayedProgress[0] < 60) {
-                            // FAST PHASE (0 - 60%) — Chạy nhanh và mượt để kích thích người dùng
                             increment = (int) (Math.random() * 3) + 2; 
                         } else if (displayedProgress[0] < 92) {
-                            // DEEP LOAD PHASE (60 - 92%) — Chậm dần nhưng không được đứng yên
                             if (Math.random() > 0.8) increment = 1;
                         } else {
-                            // SYNC PHASE (> 92%) — Chờ tín hiệu thật từ mạng
                             if (realPercent[0] >= 100 || realPercent[0] > displayedProgress[0]) {
                                 increment = 1;
                             }
@@ -114,7 +172,6 @@ public class SplashActivity extends AppCompatActivity {
                         if (increment > 0) {
                             displayedProgress[0] += increment;
                             if (displayedProgress[0] > 100) displayedProgress[0] = 100;
-                            
                             final int val = displayedProgress[0];
                             mainHandler.post(() -> {
                                 pbDownload.setProgress(val);
@@ -125,35 +182,36 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }).start();
 
-            // Tải ảnh thật (32 luồng + OkHttp)
-            CardAssetManager.downloadAllAssets(getApplicationContext(), new CardAssetManager.DownloadProgressListener() {
-                @Override
-                public void onProgress(int downloaded, int total, String currentFile) {
-                    realPercent[0] = (int) ((downloaded / (float) total) * 100);
-                }
-
-                @Override
-                public void onComplete() {
-                    realPercent[0] = 100;
-                    synchronized (downloadLock) {
-                        downloadLock.notifyAll();
+            trackRenderTime("AssetDownload", () -> {
+                CardAssetManager.downloadAllAssets(getApplicationContext(), new CardAssetManager.DownloadProgressListener() {
+                    @Override
+                    public void onProgress(int downloaded, int total, String currentFile) {
+                        realPercent[0] = (int) ((downloaded / (float) total) * 100);
                     }
-                }
 
-                @Override
-                public void onError(String errorMessage) {
-                    realPercent[0] = 100;
-                    synchronized (downloadLock) {
-                        downloadLock.notifyAll();
+                    @Override
+                    public void onComplete() {
+                        realPercent[0] = 100;
+                        synchronized (downloadLock) {
+                            downloadLock.notifyAll();
+                        }
                     }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        realPercent[0] = 100;
+                        synchronized (downloadLock) {
+                            downloadLock.notifyAll();
+                        }
+                    }
+                });
+
+                synchronized (downloadLock) {
+                    try {
+                        downloadLock.wait(600000); 
+                    } catch (InterruptedException ignored) {}
                 }
             });
-
-            synchronized (downloadLock) {
-                try {
-                    downloadLock.wait(600000); 
-                } catch (InterruptedException ignored) {}
-            }
             
             displayedProgress[0] = 100;
             mainHandler.post(() -> {
@@ -162,70 +220,106 @@ public class SplashActivity extends AppCompatActivity {
                 tvDownloadStatus.setText("Sẵn sàng!");
             });
             try { Thread.sleep(300); } catch (InterruptedException ignored) {}
-        } else {
-            Log.d(TAG, "Tất cả ảnh đã sẵn sàng.");
         }
 
-        // Bật lại Loading chung nếu cần ẩn Progress
         mainHandler.post(() -> {
             tvDownloadStatus.setText("Đang nạp túi đồ...");
             layoutDownloadProgress.setVisibility(View.GONE);
         });
 
-        SessionManager sessionManager = new SessionManager(SplashActivity.this);
-        Long userId = sessionManager.getUserId();
-        if (userId != null && sessionManager.isLoggedIn()) {
-            try {
-                com.vn.jet.mosco.network.GameApiService apiService =
-                        com.vn.jet.mosco.network.ApiClient.getClient(SplashActivity.this)
-                                .create(com.vn.jet.mosco.network.GameApiService.class);
-                retrofit2.Response<java.util.List<com.vn.jet.mosco.model.UserCard>> response =
-                        apiService.getUserCards(userId).execute();
+        trackRenderTime("InventoryCache", () -> {
+            SessionManager sessionManager = new SessionManager(SplashActivity.this);
+            Long userId = sessionManager.getUserId();
+            if (userId != null && sessionManager.isLoggedIn()) {
+                try {
+                    com.vn.jet.mosco.network.GameApiService apiService =
+                            com.vn.jet.mosco.network.ApiClient.getClient(SplashActivity.this)
+                                    .create(com.vn.jet.mosco.network.GameApiService.class);
+                    retrofit2.Response<java.util.List<com.vn.jet.mosco.model.UserCard>> response =
+                            apiService.getUserCards(userId).execute();
 
-                if (response.isSuccessful() && response.body() != null) {
-                    java.util.List<DatabaseLoader.UserInventoryItem> cachedList = new java.util.ArrayList<>();
-                    for (com.vn.jet.mosco.model.UserCard userCard : response.body()) {
-                        org.json.JSONObject meta = DatabaseLoader.findById(SplashActivity.this, userCard.getCollectionId());
-                        if (meta != null) {
-                            String frontImage = meta.optString("frontImage", "");
-                            String cardClass = meta.optString("class", "FirstWelcome");
-                            int ovr = DatabaseLoader.getOvrFromCardOvr(SplashActivity.this, cardClass, userCard.getLevel());
+                    if (response.isSuccessful() && response.body() != null) {
+                        java.util.List<DatabaseLoader.UserInventoryItem> cachedList = new java.util.ArrayList<>();
+                        for (com.vn.jet.mosco.model.UserCard userCard : response.body()) {
+                            org.json.JSONObject meta = DatabaseLoader.findById(SplashActivity.this, userCard.getCollectionId());
+                            if (meta != null) {
+                                String frontImage = meta.optString("frontImage", "");
+                                String backImage = meta.optString("backImage", "");
+                                // OVR trực tiếp từ Server (Server Truth)
+                                int ovr = userCard.getOvr();
 
-                            cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(
-                                    userCard.getId(),
-                                    userCard.getCollectionId(),
-                                    frontImage,
-                                    userCard.getLevel(),
-                                    userCard.getExp(),
-                                    userCard.getUpgradeLevel(),
-                                    ovr
-                            ));
+                                if (!frontImage.isEmpty()) {
+                                    showcaseAssetUrls.add(frontImage);
+                                }
+                                if (!backImage.isEmpty()) {
+                                    showcaseAssetUrls.add(backImage);
+                                }
+
+                                cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(
+                                        userCard.getId(),
+                                        userCard.getCollectionId(),
+                                        frontImage,
+                                        userCard.getLevel(),
+                                        userCard.getExp(),
+                                        userCard.getUpgradeLevel(),
+                                        ovr
+                                ));
+                            }
                         }
+                        DatabaseLoader.cachedUserInventory = cachedList;
+                    } else {
+                        // Server phản hồi lỗi (VD: 500)
+                        showConnectionError();
+                        return;
                     }
-                    DatabaseLoader.cachedUserInventory = cachedList;
-                    Log.d(TAG, "Inventory cache loaded: " + cachedList.size() + " items.");
+                } catch (Exception e) {
+                    Log.w(TAG, "Lỗi kết nối Server: " + e.getMessage());
+                    showConnectionError();
+                    return;
                 }
-            } catch (Exception e) {
-                Log.w(TAG, "Lỗi nạp Inventory: " + e.getMessage());
             }
-        }
+        });
+        
+        isResourceLoadFinished = true;
 
-        // ═══════════════════════════════════════════════════════════
-        // BƯỚC 4: Đảm bảo Splash hiện ít nhất 2s rồi mới chuyển màn hình
-        // ═══════════════════════════════════════════════════════════
-        long elapsed = System.currentTimeMillis() - startTime;
-        long waitTime = Math.max(0, 2000 - elapsed);
+        trackRenderTime("ShowcaseAssetPreload", () -> {
+            if (!showcaseAssetUrls.isEmpty()) {
+                mainHandler.post(() -> tvDownloadStatus.setText("Đang tối ưu Showcase..."));
+                CardAssetManager.preloadAssetsBlocking(getApplicationContext(), showcaseAssetUrls, 24);
+            }
+        });
+
+        trackRenderTime("GPUTextureWarmup", () -> {
+            if (!showcaseAssetUrls.isEmpty()) {
+                mainHandler.post(() -> tvDownloadStatus.setText("Đang warm GPU textures..."));
+                preloadShowcaseToGPU(showcaseAssetUrls);
+            }
+        });
+
+        // Đảm bảo mọi component đã render (thông qua metrics) và splash hiện đủ lâu
+        long totalLoadingTime = System.currentTimeMillis() - splashStartTime;
+        Log.d(TAG, "Tổng thời gian render Splash: " + totalLoadingTime + "ms");
+        
+        long waitTime = Math.max(0, 2500 - totalLoadingTime); // Tăng lên 2.5s để đảm bảo mượt mà
 
         mainHandler.postDelayed(() -> {
+            // Kiểm tra trạng thái cuối cùng trước khi chuyển trang
+            if (isErrorShown || !isResourceLoadFinished || isNavigating || isFinishing()) return;
+            isNavigating = true;
+            
+            SessionManager sessionManager = new SessionManager(SplashActivity.this);
             Intent intent;
-            boolean isLoggedIn = sessionManager.isLoggedIn();
-            if (isLoggedIn) {
-                intent = new Intent(SplashActivity.this, MainActivity.class);
+            if (sessionManager.isLoggedIn()) {
+                // Nếu đã đăng nhập nhưng chưa đặt tên hiển thị → sang Setup
+                if (sessionManager.getIngameName() == null || sessionManager.getIngameName().isEmpty()) {
+                    intent = new Intent(SplashActivity.this, DisplayNameSetupActivity.class);
+                } else {
+                    intent = new Intent(SplashActivity.this, MainActivity.class);
+                }
             } else {
                 intent = new Intent(SplashActivity.this, OnboardingActivity.class);
             }
             
-            // Truyền "Nhịp tim" Animation để tạo sự liền mạch tuyệt đối
             if (driftX != null && driftY != null) {
                 intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                 intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
@@ -235,6 +329,25 @@ public class SplashActivity extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         }, waitTime);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) return false;
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void showConnectionError() {
+        if (isErrorShown) return;
+        isErrorShown = true;
+        
+        mainHandler.post(() -> {
+            isResourceLoadFinished = false;
+            layoutDownloadProgress.setVisibility(View.GONE);
+            lottieSplash.setVisibility(View.GONE);
+            layoutRetryConnection.setVisibility(View.VISIBLE);
+        });
     }
 
     private void setupParallax() {
@@ -263,5 +376,71 @@ public class SplashActivity extends AppCompatActivity {
      */
     private String formatNumber(int number) {
         return String.format("%,d", number);
+    }
+
+    /**
+     * Preload showcase images to GPU texture memory.
+     * This forces Glide to decode bitmaps and upload them to GPU during splash,
+     * so when HomeFragment opens, images are already in GPU memory and display instantly.
+     */
+    private void preloadShowcaseToGPU(java.util.List<String> assetUrls) {
+        if (assetUrls.isEmpty()) return;
+        
+        try {
+            int targetWidth = OBJET_WIDTH;
+            int targetHeight = OBJET_HEIGHT;
+            
+            for (String url : assetUrls) {
+                if (url == null || url.isEmpty()) continue;
+                
+                java.io.File localFile = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(getApplicationContext(), url);
+                
+                if (localFile != null && localFile.exists()) {
+                    android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                    options.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                    options.inPreferQualityOverSpeed = true;
+                    
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(localFile.getAbsolutePath(), options);
+                    
+                    if (bitmap != null) {
+                        android.graphics.Bitmap scaledBitmap = android.graphics.Bitmap.createScaledBitmap(
+                            bitmap, targetWidth, targetHeight, true
+                        );
+                        
+                        if (scaledBitmap != bitmap) {
+                            bitmap.recycle();
+                        }
+                        
+                        scaledBitmap.prepareToDraw();
+                        
+                        com.bumptech.glide.Glide.with(getApplicationContext())
+                            .asBitmap()
+                            .load(scaledBitmap)
+                            .override(targetWidth, targetHeight)
+                            .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                            .skipMemoryCache(false)
+                            .submit()
+                            .get();
+                    }
+                } else {
+                    com.bumptech.glide.Glide.with(getApplicationContext())
+                        .asBitmap()
+                        .load(url)
+                        .override(targetWidth, targetHeight)
+                        .priority(com.bumptech.glide.Priority.HIGH)
+                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.RESOURCE)
+                        .submit()
+                        .get();
+                }
+            }
+            
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error preloading showcase to GPU: " + e.getMessage());
+        }
     }
 }

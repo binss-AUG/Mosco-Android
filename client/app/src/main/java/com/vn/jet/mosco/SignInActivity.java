@@ -40,6 +40,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private SignInViewModel viewModel;
     private SessionManager sessionManager;
+    private boolean isSigningIn = false; // Cờ kiểm soát trạng thái đăng nhập
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,7 @@ public class SignInActivity extends AppCompatActivity {
         tvGoToSignUp.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
+                if (isSigningIn) return;
                 Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
                 // Transfer heartbeat to the next screen
                 if (driftX != null && driftY != null) {
@@ -105,6 +107,7 @@ public class SignInActivity extends AppCompatActivity {
         findViewById(R.id.tv_forgot_password).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
+                if (isSigningIn) return;
                 Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
                 // Continue the cosmic drift
                 if (driftX != null && driftY != null) {
@@ -127,7 +130,9 @@ public class SignInActivity extends AppCompatActivity {
         // Lắng nghe sự kiện "Done" từ bàn phím để tự động đăng nhập (UX tối ưu)
         edtPassword.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
-                validateAndSignIn();
+                if (!isSigningIn) {
+                    validateAndSignIn();
+                }
                 return true;
             }
             return false;
@@ -135,6 +140,8 @@ public class SignInActivity extends AppCompatActivity {
 
         // --- Observe API result ---
         viewModel.getSignInResult().observe(this, resource -> {
+            if (resource == null) return;
+            
             switch (resource.getStatus()) {
                 case LOADING:
                     setLoading(true);
@@ -147,12 +154,21 @@ public class SignInActivity extends AppCompatActivity {
                         sessionManager.saveSession(resource.getData().getData());
                         Toast.makeText(this, getString(R.string.msg_sign_in_success),
                                 Toast.LENGTH_SHORT).show();
-                        // Navigate to MainActivity
-                        Intent intent = new Intent(this, MainActivity.class);
+
+                        // Kiểm tra: đã có Display Name chưa?
+                        Intent intent;
+                        String ingame = resource.getData().getData() != null
+                                ? resource.getData().getData().getIngameName() : null;
+                        if (ingame == null || ingame.isEmpty()) {
+                            // Chưa có → sang màn hình đặt tên
+                            intent = new Intent(this, DisplayNameSetupActivity.class);
+                        } else {
+                            intent = new Intent(this, MainActivity.class);
+                        }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         
-                        // Transfer cosmic heartbeat to MainActivity
+                        // Transfer cosmic heartbeat
                         if (driftX != null && driftY != null) {
                             intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
                             intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
@@ -160,13 +176,17 @@ public class SignInActivity extends AppCompatActivity {
                         
                         startActivity(intent);
                         finish();
+                    } else {
+                        // Trường hợp thành công nhưng API báo lỗi logic (VD: sai pass)
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : "Error";
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    Toast.makeText(this, resource.getMessage(),
-                            Toast.LENGTH_LONG).show();
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : "Unknown Error";
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
         });
@@ -207,6 +227,8 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void validateAndSignIn() {
+        if (isSigningIn) return;
+        
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
@@ -230,6 +252,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void setLoading(boolean isLoading) {
+        this.isSigningIn = isLoading;
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnSignIn.setEnabled(!isLoading);
         tvGoToSignUp.setEnabled(!isLoading);

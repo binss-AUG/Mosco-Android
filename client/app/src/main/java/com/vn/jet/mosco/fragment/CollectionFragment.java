@@ -31,6 +31,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.vn.jet.mosco.R;
+import com.vn.jet.mosco.utils.NumberUtils;
+
 
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -775,18 +777,66 @@ public class CollectionFragment extends Fragment {
         }
 
         private void onMailClicked(com.vn.jet.mosco.model.UserMail mail) {
-            new AlertDialog.Builder(requireContext(), android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            String giftInfo = (mail.getItemCode() != null && mail.getQuantity() != null) 
+                    ? "\n\n🎁 Quà tặng: " + mail.getItemCode() + " x" + NumberUtils.format(getContext(), mail.getQuantity()) 
+                    : "";
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), 
+                    android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setTitle(mail.getTitle())
-                    .setMessage(mail.getContent() + (mail.getItemCode() != null ? "\n\nGift: " + mail.getItemCode() + " x" + mail.getQuantity() : ""))
-                    .setPositiveButton("Receive", (d, w) -> {
-                        if (mail.getItemCode() != null) {
-                            Toast.makeText(getContext(), "Received: " + mail.getItemCode(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Mail read", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton("Close", null)
+                    .setMessage(mail.getContent() + giftInfo);
+
+            if (!mail.isReceived()) {
+                builder.setPositiveButton("Nhận quà", (d, w) -> performClaim(mail));
+                builder.setNegativeButton("Để sau", null);
+            } else {
+                builder.setPositiveButton("Đã nhận", null);
+                builder.setNegativeButton("Đóng", null);
+            }
+            
+            builder.show();
+        }
+
+        /**
+         * Thực hiện gửi yêu cầu nhận quà lên Server.
+         */
+        private void performClaim(com.vn.jet.mosco.model.UserMail mail) {
+            // Hiển thị Loading Dialog phong cách Galactic
+            AlertDialog loading = new AlertDialog.Builder(requireContext())
+                    .setMessage("Đang kết nối tới trung tâm điều khiển để nhận quà...")
+                    .setCancelable(false)
                     .show();
+
+            com.vn.jet.mosco.network.GameApiService apiService = 
+                    com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+                    .create(com.vn.jet.mosco.network.GameApiService.class);
+            
+            apiService.claimMail(mail.getId()).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                @Override
+                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, 
+                                     retrofit2.Response<okhttp3.ResponseBody> response) {
+                    loading.dismiss();
+                    if (response.isSuccessful()) {
+                        // Cập nhật trạng thái local
+                        mail.setReceived(true);
+                        
+                        // Hiển thị thông báo thành công cao cấp
+                        new AlertDialog.Builder(requireContext())
+                                .setTitle("THÀNH CÔNG!")
+                                .setMessage("Chúc mừng sếp! Vật phẩm " + (mail.getItemCode() != null ? mail.getItemCode() : "") + " đã được chuyển vào kho đồ.")
+                                .setPositiveButton("Tuyệt vời", (d, w) -> loadMailbox())
+                                .show();
+                    } else {
+                        Toast.makeText(getContext(), "Lỗi hệ thống: Không thể nhận quà lúc này.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                    loading.dismiss();
+                    Toast.makeText(getContext(), "Mất kết nối tới vệ tinh: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         private void loadMailbox() {
@@ -816,13 +866,15 @@ public class CollectionFragment extends Fragment {
             String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
             
             List<com.vn.jet.mosco.model.UserMail> filtered = new ArrayList<>();
-            // Về cơ bản, do Mailbox Model chưa có Type rõ ràng, tạm thời nhét hết (chờ logic filter API sau)
             for (com.vn.jet.mosco.model.UserMail m : originalMails) {
-                if (mailboxFilter.isEmpty()) {
-                    filtered.add(m);
-                } else {
-                    // Tương lai: Lọc theo Reward/System/Event
-                    filtered.add(m);
+                // Chỉ hiển thị những thư CHƯA nhận quà để danh sách gọn gàng
+                if (!m.isReceived()) {
+                    if (mailboxFilter.isEmpty()) {
+                        filtered.add(m);
+                    } else {
+                        // Tương lai: Lọc theo Type nếu sếp muốn
+                        filtered.add(m);
+                    }
                 }
             }
 
@@ -865,7 +917,7 @@ public class CollectionFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             com.vn.jet.mosco.model.UserMail mail = list.get(position);
             holder.tvTitle.setText(mail.getTitle());
-            holder.tvQty.setText(mail.getQuantity() != null ? "x" + mail.getQuantity() : "");
+            holder.tvQty.setText(mail.getQuantity() != null ? "x" + NumberUtils.format(holder.itemView.getContext(), mail.getQuantity()) : "");
             holder.tvDesc.setText(mail.getContent());
             
             // Format time if possible, or use raw
@@ -994,8 +1046,8 @@ public class CollectionFragment extends Fragment {
                                 org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, uc.getCollectionId());
                                 if (cardJson != null) {
                                     String img = cardJson.optString("frontImage", "");
-                                    String cardClass = cardJson.optString("class", "FirstWelcome");
-                                    int ovr = com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(ctx, cardClass, uc.getLevel());
+                                    // OVR trực tiếp từ Server (Server Truth)
+                                    int ovr = uc.getOvr();
 
                                     com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel());
                                     objet.setOvr(ovr);
@@ -1157,7 +1209,7 @@ public class CollectionFragment extends Fragment {
 
             tvName.setText(item.getName());
             tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
-            tvAvailQty.setText("Available: " + (item.getQuantity() != null ? item.getQuantity() : 0));
+            tvAvailQty.setText("Available: " + (item.getQuantity() != null ? NumberUtils.format(getContext(), item.getQuantity()) : "0"));
 
             Glide.with(this)
                     .load(item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "")
@@ -1293,7 +1345,7 @@ public class CollectionFragment extends Fragment {
             com.vn.jet.mosco.model.UserItem item = list.get(position);
             holder.tvName.setText(item.getName());
             holder.tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
-            holder.tvQty.setText("x" + item.getQuantity());
+            holder.tvQty.setText("x" + NumberUtils.format(holder.itemView.getContext(), item.getQuantity() != null ? item.getQuantity() : 0));
             
             Glide.with(holder.itemView.getContext())
                     .load(item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "")

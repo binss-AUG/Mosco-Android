@@ -110,9 +110,11 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                             org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), userCard.getCollectionId());
                             if (cardJson != null) {
                                 String img = cardJson.optString("frontImage", "");
-                                realObjets.add(new Objet(userCard.getId().intValue(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel()));
-                                String cardClass = cardJson.optString("class", "FirstWelcome");
-                                int ovr = com.vn.jet.mosco.utils.DatabaseLoader.getOvrFromCardOvr(requireContext(), cardClass, userCard.getLevel());
+                                Objet obj = new Objet(userCard.getId().intValue(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel());
+                                // OVR trực tiếp từ Server (Server Truth)
+                                int ovr = userCard.getOvr();
+                                obj.setOvr(ovr);
+                                realObjets.add(obj);
 
                                 cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel(), ovr));
                             }

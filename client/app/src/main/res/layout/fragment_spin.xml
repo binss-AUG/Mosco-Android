@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_spin_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000000">
+    android:layout_height="match_parent">
 
     <!-- Giao diện Spin chính -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -119,6 +118,15 @@
                     android:layout_height="match_parent"
                     android:visibility="gone">
                     <include layout="@layout/layout_core_card" />
+
+                    <!-- Mặt sau thẻ hi sinh (Hiện khi Flip 3D, mặc định ẩn) -->
+                    <ImageView
+                        android:id="@+id/iv_sacrifice_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/objet_back_spin"
+                        android:visibility="gone" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!-- ⏳ Lottie Loading thay cho ProgressBar khi nạp ảnh 4x -->
@@ -159,7 +167,6 @@
         android:id="@+id/layout_reveal_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
         android:visibility="gone">
 
         <TextView
@@ -214,7 +221,6 @@
         android:id="@+id/layout_result_reveal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
         android:visibility="gone"
         android:elevation="10dp">
 
@@ -349,7 +355,6 @@
         android:id="@+id/layout_reveal_result_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
         android:visibility="gone"
         android:elevation="15dp">
 

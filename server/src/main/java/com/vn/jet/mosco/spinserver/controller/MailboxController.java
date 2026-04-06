@@ -12,14 +12,38 @@ import java.util.List;
 public class MailboxController {
 
     private final UserMailRepository userMailRepository;
+    private final com.vn.jet.mosco.spinserver.service.MailboxService mailboxService;
 
-    public MailboxController(UserMailRepository userMailRepository) {
+    public MailboxController(UserMailRepository userMailRepository, 
+                             com.vn.jet.mosco.spinserver.service.MailboxService mailboxService) {
         this.userMailRepository = userMailRepository;
+        this.mailboxService = mailboxService;
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<UserMail>> getUserMails(@PathVariable Long userId) {
+        // Chỉ lấy những thư chưa xử lý (unreceived) hoặc sếp muốn xem hết? 
+        // Hiện tại lấy hết để người dùng xem lịch sử.
         List<UserMail> mails = userMailRepository.findByUserId(userId);
         return ResponseEntity.ok(mails);
+    }
+
+    /**
+     * Nhận quà từ thư (Claim Gift).
+     */
+    @PostMapping("/claim/{mailId}")
+    public ResponseEntity<?> claimMail(@PathVariable Long mailId) {
+        try {
+            mailboxService.claimMail(mailId);
+            return ResponseEntity.ok().body(java.util.Map.of(
+                "status", 200,
+                "message", "Nhận quà thành công! Chúc mừng sếp nhé!"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of(
+                "status", 400,
+                "message", e.getMessage()
+            ));
+        }
     }
 }

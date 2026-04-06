@@ -173,8 +173,8 @@ public class SelectObjetFragment extends Fragment {
                             JSONObject metadata = DatabaseLoader.findById(requireContext(), card.getCollectionId());
                             if (metadata != null) {
                                 String frontImage = metadata.optString("frontImage", "");
-                                String cardClass = metadata.optString("class", "FirstWelcome");
-                                int ovr = DatabaseLoader.getOvrFromCardOvr(requireContext(), cardClass, card.getLevel());
+                                // OVR trực tiếp từ Server (Server Truth)
+                                int ovr = card.getOvr();
 
                                 Objet newObj = new Objet(card.getId().intValue(), card.getCollectionId(), frontImage, card.getLevel(), card.getExp(), card.getUpgradeLevel());
                                 newObj.setOvr(ovr);

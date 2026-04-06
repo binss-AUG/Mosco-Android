@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mini FAB for HUD sub-actions: smaller Glassmorphism circle with primary accent glow. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#CC0C0C0C" />
+    <stroke
+        android:width="1.5dp"
+        android:color="#33FFFFFF" />
+</shape>

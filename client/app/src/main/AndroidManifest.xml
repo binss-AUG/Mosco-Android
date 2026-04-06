@@ -28,6 +28,22 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
+            android:name=".DisplayNameSetupActivity"
+            android:exported="false" />
+        <!-- Quick Tool Activities -->
+        <activity
+            android:name=".DailyCheckinActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RankActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FriendActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MissionActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashActivity"
             android:exported="true" >
             <intent-filter>
@@ -40,6 +56,24 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
 </manifest>

@@ -84,6 +84,11 @@ public class AuthService {
                 username != null ? username.trim() : null,
                 email,
                 hashedPassword);
+        
+        // Tặng tài nguyên tân thủ
+        newUser.setCoins(50000L);
+        newUser.setDiamonds(10000L);
+        
         userRepository.save(newUser);
 
         String token = generateToken(newUser);

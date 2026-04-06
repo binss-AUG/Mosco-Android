@@ -15,7 +15,7 @@
         android:id="@+id/logo_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_glass_card"
+        android:background="@drawable/bg_matte_obsidian_card"
         android:orientation="vertical"
         android:padding="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -92,6 +92,55 @@
             android:textColor="@color/mosco_on_surface_variant"
             android:textSize="12sp"
             android:alpha="0.8"/>
+    </LinearLayout>
+
+    <!-- ❌ KHU VỰC BÁO LỖI KẾT NỐI (Ẩn mặc định) -->
+    <LinearLayout
+        android:id="@+id/layout_retry_connection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="48dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:text="KẾT NỐI THẤT BẠI"
+            android:textColor="@color/stat_atk"
+            android:textSize="18sp"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:text="Internet hoặc Server hiện không thể kết nối. Vui lòng thử lại sau."
+            android:textColor="@color/white"
+            android:alpha="0.8"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:layout_marginBottom="24dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_retry_connection"
+            android:layout_width="200dp"
+            android:layout_height="54dp"
+            android:text="THỬ LẠI"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_bold"
+            app:cornerRadius="27dp"
+            app:backgroundTint="@color/mosco_surface"
+            app:strokeColor="@color/mosco_primary"
+            app:strokeWidth="1.5dp"
+            app:elevation="8dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

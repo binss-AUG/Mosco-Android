@@ -34,4 +34,49 @@
     <string name="error_invalid_email">Invalid email format</string>
     <string name="error_short_password">Password must be at least 6 characters</string>
     <string name="format_resend_timer">%ds</string>
+
+    <!-- HomeFragment: Header -->
+    <string name="home_label_gold_coins">Gold Coins</string>
+    <string name="home_label_diamonds">Diamonds</string>
+    <string name="home_default_username">Commander</string>
+    <string name="home_default_ovr">0</string>
+    <string name="home_format_ovr">%d</string>
+    <string name="home_format_level">LV. %d</string>
+    <string name="home_format_currency_trillions">%.1fT</string>
+    <string name="home_format_currency_billions">%.1fB</string>
+    <string name="home_format_currency_millions">%.1fM</string>
+    <string name="home_format_currency_thousands">%.1fK</string>
+
+    <!-- HomeFragment: Showcase -->
+    <string name="home_showcase_empty_title">No Objets Yet</string>
+    <string name="home_showcase_empty_subtitle">Spin to collect your first card!</string>
+    <string name="home_cd_showcase_front">Showcase card front image</string>
+    <string name="home_cd_showcase_back">Showcase card back image</string>
+    <string name="home_cd_user_avatar">User profile avatar</string>
+
+    <!-- HomeFragment: HUD Floating Menu -->
+    <string name="home_hud_upgrade">UPGRADE</string>
+    <string name="home_hud_pk">PK</string>
+    <string name="home_hud_daily">DAILY</string>
+    <string name="home_hud_rank">RANK</string>
+    <string name="home_hud_event">EVENT</string>
+    <string name="home_hud_shop">SHOP</string>
+    <string name="home_hud_friends">FRIENDS</string>
+    <string name="home_cd_hud_menu">Open utility menu</string>
+
+    <!-- HomeFragment: Banner -->
+    <string name="home_cd_event_banner">Event banner</string>
+
+    <!-- Display Name Setup -->
+    <string name="setup_title">CHOOSE YOUR NAME</string>
+    <string name="setup_subtitle">This is how other players will know you</string>
+    <string name="setup_btn_enter">ENTER THE GALAXY</string>
+    <string name="setup_welcome">Welcome, %s!</string>
+    <string name="prompt_display_name">Display Name</string>
+    <string name="error_display_name_length">Display name must be 2–16 characters</string>
+
+    <!-- Profile Edit -->
+    <string name="profile_btn_edit">EDIT PROFILE</string>
+    <string name="profile_edit_title">Edit Profile</string>
+    <string name="profile_save">Save</string>
 </resources>

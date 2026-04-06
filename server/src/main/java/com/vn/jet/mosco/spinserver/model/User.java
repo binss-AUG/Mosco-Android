@@ -21,11 +21,26 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(nullable = true, unique = true)
+    private String ingameName;
+
     @Column(nullable = false)
     private Long coins = 0L;
 
     @Column(nullable = false)
     private Long diamonds = 0L;
+
+    // Cấp độ người chơi — dùng cho Ranking
+    @Column(nullable = false)
+    private int level = 1;
+
+    // Kinh nghiệm tích lũy — dùng cho hệ thống Level Up
+    @Column(nullable = false)
+    private long exp = 0L;
+
+    // Mã Objet đang chọn làm Avatar (collectionId)
+    @Column(nullable = false)
+    private String avatarId = "1";
 
     public User() {}
 
@@ -52,4 +67,19 @@ public class User {
 
     public Long getDiamonds() { return diamonds; }
     public void setDiamonds(Long diamonds) { this.diamonds = diamonds; }
+
+    public String getIngameName() { return ingameName; }
+    public void setIngameName(String ingameName) { this.ingameName = ingameName; }
+
+    // Công thức Level chuẩn: (EXP / 1000) + 1
+    public int getLevel() { 
+        return (int) (this.exp / 1000) + 1; 
+    }
+    public void setLevel(int level) { this.level = level; }
+
+    public long getExp() { return exp; }
+    public void setExp(long exp) { this.exp = exp; }
+
+    public String getAvatarId() { return avatarId; }
+    public void setAvatarId(String avatarId) { this.avatarId = avatarId; }
 }
