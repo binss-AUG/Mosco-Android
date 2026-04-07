@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -178,6 +180,13 @@ public class CardEffectHelper {
                                         glowParams.startToStart = cardView.getId();
                                         glowParams.endToEnd = cardView.getId();
                                         
+                                        pseudoGlow.setLayoutParams(glowParams);
+                                    } else if (rawParams instanceof FrameLayout.LayoutParams) {
+                                        FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
+                                                (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
+                                        glowParams.gravity = android.view.Gravity.CENTER;
+                                        // Offset translation if card is translated
+                                        pseudoGlow.setTranslationY(cardView.getTranslationY());
                                         pseudoGlow.setLayoutParams(glowParams);
                                     }
                                 }
