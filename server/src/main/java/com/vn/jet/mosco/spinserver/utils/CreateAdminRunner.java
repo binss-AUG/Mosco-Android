@@ -94,6 +94,7 @@ public class CreateAdminRunner implements CommandLineRunner {
         List<UserItem> items = new ArrayList<>();
         items.add(new UserItem(admin, "PACK_STARTER", 999));
         items.add(new UserItem(admin, "PACK_PREMIUM", 999));
+        items.add(new UserItem(admin, "PACK_EX", 999));
         items.add(new UserItem(admin, "BUFF_EXP_01", 999));
         items.add(new UserItem(admin, "BUFF_LUCKY_01", 999));
         userItemRepository.saveAll(items);
@@ -101,43 +102,38 @@ public class CreateAdminRunner implements CommandLineRunner {
         // Populate Mailbox
         userMailRepository.deleteByUser(admin);
         List<com.vn.jet.mosco.spinserver.model.UserMail> mails = new java.util.ArrayList<>();
-        mails.add(new com.vn.jet.mosco.spinserver.model.UserMail(admin, "Welcome Gift", "Welcome to Mosco! Enjoy these items.", "PACK_STARTER", 1));
-        mails.add(new com.vn.jet.mosco.spinserver.model.UserMail(admin, "Server Update", "Maintenance completed. Compensation sent.", "RES_COIN_500", 1));
-        mails.add(new com.vn.jet.mosco.spinserver.model.UserMail(admin, "Season Rewards", "Top 1% rank achievement.", null, 1));
+        mails.add(new com.vn.jet.mosco.spinserver.model.UserMail(admin, "Admin Sync", "Server has been restarted. Your resources and collection have been reset to maximum.", "PACK_PREMIUM", 10));
         userMailRepository.saveAll(mails);
 
-        // 🚀 REFACTOR: Admin chỉ sở hữu DUY NHẤT 1 thẻ Yeonji Premier +10
+        // 🚀 FULL OBJET: Thêm TOÀN BỘ thẻ trong database.json vào kho admin (Level 10, +10)
         try {
-            System.out.println("Refactoring admin card collection (Yeonji Premier +10)...");
+            System.out.println("Syncing FULL card collection for admin from database.json...");
             userCardRepository.deleteByUser(admin);
 
             ClassPathResource dbResource = new ClassPathResource("database.json");
             JsonObject dbJson = new JsonParser().parse(new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
             JsonArray collections = dbJson.getAsJsonArray("collections");
 
-            String targetId = null;
+            List<UserCard> allCards = new ArrayList<>();
             for (JsonElement element : collections) {
-                JsonObject card = element.getAsJsonObject();
-                if (card.has("slug") && card.get("slug").getAsString().equalsIgnoreCase("binary02-yeonji-333a")) {
-                    targetId = card.has("id") ? card.get("id").getAsString() : null;
-                    break;
+                JsonObject cardObj = element.getAsJsonObject();
+                if (cardObj.has("id")) {
+                    String cardId = cardObj.get("id").getAsString();
+                    // Mỗi cardId thêm 1 thẻ: Level 1, EXP 0, upgradeLevel 1
+                    allCards.add(new UserCard(admin, cardId, 1, 0, 1));
                 }
             }
 
-            if (targetId != null) {
-                // Tạo 10 thẻ Yeonji Premier với upgradeLevel từ 1 đến 10
-                List<UserCard> adminTenCards = new ArrayList<>();
-                for (int i = 1; i <= 10; i++) {
-                    // Constructor 5 tham số: (user, collectionId, level, exp, upgradeLevel)
-                    adminTenCards.add(new UserCard(admin, targetId, i, 0, i)); 
-                }
-                userCardRepository.saveAll(adminTenCards);
-                System.out.println("Admin account refactor success: Added 10 Yeonji Premier cards (Upgrade +1 to +10)");
-            } else {
-                System.err.println("CRITICAL: Could not find Yeonji Premier in database.json!");
+            // Chia nhỏ để save nếu collections quá lớn (batching thủ công để tránh quá tải transaction)
+            int batchSize = 500;
+            for (int i = 0; i < allCards.size(); i += batchSize) {
+                List<UserCard> batch = allCards.subList(i, Math.min(i + batchSize, allCards.size()));
+                userCardRepository.saveAll(batch);
             }
+            
+            System.out.println("Admin account sync success: Added " + allCards.size() + " unique cards at Level 1 / +1");
         } catch (Exception e) {
-            System.err.println("Failed to refactor admin cards: " + e.getMessage());
+            System.err.println("CRITICAL: Failed to seed ALL cards for admin: " + e.getMessage());
             e.printStackTrace();
         }
 

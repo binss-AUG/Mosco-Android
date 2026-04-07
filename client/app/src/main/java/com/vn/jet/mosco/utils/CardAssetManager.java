@@ -151,11 +151,42 @@ public class CardAssetManager {
      */
     public static boolean isAllAssetsReady(Context context) {
         List<JSONObject> allCards = DatabaseLoader.loadEveryCard(context);
-        int totalExpected = allCards.size();
-        int totalDownloaded = countDownloadedFiles(context);
+        
+        // Nạp toàn bộ danh sách file hiện có trong máy vào một HashSet để truy vấn siêu tốc (O(1))
+        java.util.Set<String> localFiles = new java.util.HashSet<>();
+        File dir = getCardsDirectory(context);
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.length() > 0) {
+                    localFiles.add(f.getName());
+                }
+            }
+        }
 
-        Log.d(TAG, "Kiểm tra Assets: " + totalDownloaded + "/" + totalExpected + " ảnh sẵn sàng.");
-        return totalDownloaded >= totalExpected;
+        // Quét từng thẻ trong Database xem có thiếu file nào không
+        for (JSONObject card : allCards) {
+            String f = card.optString("frontImage", "");
+            if (!f.isEmpty() && !"null".equalsIgnoreCase(f)) {
+                String id = extractImageId(f);
+                if (id != null && !localFiles.contains(id + ".img")) {
+                    Log.d(TAG, "Thiếu Assets: " + id + ".img");
+                    return false; // Chỉ cần thiếu 1 file là lập tức kích hoạt tải!
+                }
+            }
+            
+            String b = card.optString("backImage", "");
+            if (!b.isEmpty() && !"null".equalsIgnoreCase(b)) {
+                String id = extractImageId(b);
+                if (id != null && !localFiles.contains(id + ".img")) {
+                    Log.d(TAG, "Thiếu Assets: " + id + ".img");
+                    return false; // Chỉ cần thiếu 1 file là lập tức kích hoạt tải!
+                }
+            }
+        }
+
+        Log.d(TAG, "Tất cả file đã sẵn sàng trong máy!");
+        return true;
     }
 
     /**
@@ -181,16 +212,44 @@ public class CardAssetManager {
                     return;
                 }
 
-                // Bước 2: Lọc ra những ảnh chưa tải
-                List<String> urlsToDownload = new ArrayList<>();
-                for (JSONObject card : allCards) {
-                    String frontImage = card.optString("frontImage", "");
-                    if (!frontImage.isEmpty() && !isDownloaded(context, frontImage)) {
-                        urlsToDownload.add(frontImage);
+                // Bước 2: Nạp toàn bộ danh sách file hiện có 1 lần duy nhất vào RAM để truy vấn siêu tốc
+                java.util.Set<String> localFiles = new java.util.HashSet<>();
+                File dir = getCardsDirectory(context);
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        if (f.length() > 0) {
+                            localFiles.add(f.getName());
+                        }
                     }
                 }
 
-                int totalExpected = allCards.size();
+                // Lọc ra những ảnh chưa tải (cả front + back) - Loại bỏ trùng lặp
+                java.util.Set<String> uniquePendingUrls = new java.util.LinkedHashSet<>();
+                java.util.Set<String> allUniqueIds = new java.util.HashSet<>();
+                
+                for (JSONObject card : allCards) {
+                    String f = card.optString("frontImage", "");
+                    String b = card.optString("backImage", "");
+                    
+                    if (!f.isEmpty() && !"null".equalsIgnoreCase(f)) {
+                        String id = extractImageId(f);
+                        if (id != null) {
+                            allUniqueIds.add(id);
+                            if (!localFiles.contains(id + ".img")) uniquePendingUrls.add(f);
+                        }
+                    }
+                    if (!b.isEmpty() && !"null".equalsIgnoreCase(b)) {
+                        String id = extractImageId(b);
+                        if (id != null) {
+                            allUniqueIds.add(id);
+                            if (!localFiles.contains(id + ".img")) uniquePendingUrls.add(b);
+                        }
+                    }
+                }
+
+                List<String> urlsToDownload = new ArrayList<>(uniquePendingUrls);
+                final int totalExpected = allUniqueIds.size();
                 int alreadyDownloaded = totalExpected - urlsToDownload.size();
 
                 Log.d(TAG, "Cần tải thêm: " + urlsToDownload.size() + "/" + totalExpected
@@ -212,24 +271,31 @@ public class CardAssetManager {
 
                 for (String originalUrl : urlsToDownload) {
                     executor.submit(() -> {
-                        boolean success = downloadSingleImage(context, originalUrl);
-                        int current = downloadedCount.incrementAndGet();
+                        boolean success = false;
+                        try {
+                            success = downloadSingleImage(context, originalUrl);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Lỗi nghiêm trọng khi tải file: " + originalUrl, e);
+                            success = false;
+                        } finally {
+                            int current = downloadedCount.incrementAndGet();
 
-                        if (!success) {
-                            errorCount.incrementAndGet();
-                        }
+                            if (!success) {
+                                errorCount.incrementAndGet();
+                            }
 
-                        if (listener != null) {
-                            String imageId = extractImageId(originalUrl);
-                            listener.onProgress(current, totalExpected,
-                                    imageId != null ? imageId.substring(0, Math.min(8, imageId.length())) + "..." : "");
-                        }
-
-                        // Kiểm tra hoàn tất
-                        if (current >= totalExpected) {
-                            executor.shutdown();
                             if (listener != null) {
-                                listener.onComplete();
+                                String imageId = extractImageId(originalUrl);
+                                listener.onProgress(current, totalExpected,
+                                        imageId != null ? imageId.substring(0, Math.min(8, imageId.length())) + "..." : "");
+                            }
+
+                            // Kiểm tra hoàn tất
+                            if (current >= totalExpected) {
+                                executor.shutdown();
+                                if (listener != null) {
+                                    listener.onComplete();
+                                }
                             }
                         }
                     });
@@ -270,28 +336,30 @@ public class CardAssetManager {
         // Nếu đã tồn tại → bỏ qua
         if (outputFile.exists() && outputFile.length() > 0) return true;
 
-        Request request = new Request.Builder()
-                .url(downloadUrl)
-                .build();
+        try {
+            Request request = new Request.Builder()
+                    .url(downloadUrl)
+                    .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                Log.w(TAG, "Lỗi HTTP " + response.code() + " cho: " + imageId);
-                return false;
-            }
-
-            if (response.body() == null) return false;
-
-            try (InputStream inputStream = response.body().byteStream();
-                 FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-                
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    Log.w(TAG, "Lỗi HTTP " + response.code() + " cho: " + imageId);
+                    return false;
                 }
-                outputStream.flush();
-                return true;
+
+                if (response.body() == null) return false;
+
+                try (InputStream inputStream = response.body().byteStream();
+                     FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                    
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                    outputStream.flush();
+                    return true;
+                }
             }
         } catch (Exception e) {
             if (outputFile.exists()) outputFile.delete();

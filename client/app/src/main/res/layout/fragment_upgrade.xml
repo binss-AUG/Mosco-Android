@@ -4,7 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingHorizontal="24dp">
+    android:background="#000000">
+
+    <VideoView
+        android:id="@+id/bg_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="9:16"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_content_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingHorizontal="24dp">
 
     <!-- ═══════════════════════════════════ -->
     <!-- Guidelines for vertical distribution -->
@@ -601,5 +616,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintHeight_percent="0.07"
         app:layout_constraintTop_toBottomOf="@id/guide_materials_bottom" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -117,23 +117,22 @@ public class SplashActivity extends AppCompatActivity {
         isResourceLoadFinished = false;
         isErrorShown = false;
         
-        // --- ⏲️ TIMEOUT MECHANISM (5 SECONDS) ---
-        mainHandler.postDelayed(() -> {
+        // --- ⏲️ TIMEOUT MECHANISM ---
+        Runnable timeoutRunnable = () -> {
             if (!isResourceLoadFinished && !isFinishing() && !isNavigating) {
                 showConnectionError();
             }
-        }, 8000); // Tăng lên 8s cho chắc chắn vì load resources hơi nặng
+        };
+
+        // Bắt đầu với 8s - dành cho trường hợp server off hoặc API không phản hồi.
+        mainHandler.postDelayed(timeoutRunnable, 8000);
 
         if (!isNetworkAvailable()) {
             showConnectionError();
             return;
         }
 
-        mainHandler.post(() -> {
-            tvDownloadStatus.setText("Khởi động hệ thống...");
-            layoutDownloadProgress.setVisibility(View.VISIBLE);
-        });
-        java.util.List<String> showcaseAssetUrls = new java.util.ArrayList<>();
+        // Không hiện Progress Bar ở đây — chỉ hiện khi thật sự cần tải ảnh
         
         trackRenderTime("DatabaseLoad", () -> {
             DatabaseLoader.loadEveryCard(getApplicationContext());
@@ -142,6 +141,10 @@ public class SplashActivity extends AppCompatActivity {
         boolean allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
 
         if (!allReady) {
+            // Có update data (phải tải lượng lớn hình ảnh), hủy 8s và gia hạn thành 10 phút.
+            mainHandler.removeCallbacks(timeoutRunnable);
+            mainHandler.postDelayed(timeoutRunnable, 600000);
+
             // Hiện thanh tiến trình tải
             mainHandler.post(() -> {
                 layoutDownloadProgress.setVisibility(View.VISIBLE);
@@ -222,11 +225,10 @@ public class SplashActivity extends AppCompatActivity {
             try { Thread.sleep(300); } catch (InterruptedException ignored) {}
         }
 
-        mainHandler.post(() -> {
-            tvDownloadStatus.setText("Đang nạp túi đồ...");
-            layoutDownloadProgress.setVisibility(View.GONE);
-        });
+        // Ẩn thanh tải (nếu đang hiện)
+        mainHandler.post(() -> layoutDownloadProgress.setVisibility(View.GONE));
 
+        // Nạp Inventory từ Server (chỉ cần gọi API nhẹ — không decode ảnh)
         trackRenderTime("InventoryCache", () -> {
             SessionManager sessionManager = new SessionManager(SplashActivity.this);
             Long userId = sessionManager.getUserId();
@@ -244,16 +246,8 @@ public class SplashActivity extends AppCompatActivity {
                             org.json.JSONObject meta = DatabaseLoader.findById(SplashActivity.this, userCard.getCollectionId());
                             if (meta != null) {
                                 String frontImage = meta.optString("frontImage", "");
-                                String backImage = meta.optString("backImage", "");
                                 // OVR trực tiếp từ Server (Server Truth)
                                 int ovr = userCard.getOvr();
-
-                                if (!frontImage.isEmpty()) {
-                                    showcaseAssetUrls.add(frontImage);
-                                }
-                                if (!backImage.isEmpty()) {
-                                    showcaseAssetUrls.add(backImage);
-                                }
 
                                 cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(
                                         userCard.getId(),
@@ -268,7 +262,6 @@ public class SplashActivity extends AppCompatActivity {
                         }
                         DatabaseLoader.cachedUserInventory = cachedList;
                     } else {
-                        // Server phản hồi lỗi (VD: 500)
                         showConnectionError();
                         return;
                     }
@@ -282,35 +275,23 @@ public class SplashActivity extends AppCompatActivity {
         
         isResourceLoadFinished = true;
 
-        trackRenderTime("ShowcaseAssetPreload", () -> {
-            if (!showcaseAssetUrls.isEmpty()) {
-                mainHandler.post(() -> tvDownloadStatus.setText("Đang tối ưu Showcase..."));
-                CardAssetManager.preloadAssetsBlocking(getApplicationContext(), showcaseAssetUrls, 24);
-            }
-        });
+        // ShowcaseAssetPreload & GPUTextureWarmup đã bị loại bỏ.
+        // Glide tự quản lý Disk Cache + Memory Cache, HomeFragment sẽ tự load khi cần.
+        // Việc decode hàng trăm bitmap tại Splash gây lag 10-30 giây mỗi lần mở app là không chấp nhận được.
 
-        trackRenderTime("GPUTextureWarmup", () -> {
-            if (!showcaseAssetUrls.isEmpty()) {
-                mainHandler.post(() -> tvDownloadStatus.setText("Đang warm GPU textures..."));
-                preloadShowcaseToGPU(showcaseAssetUrls);
-            }
-        });
-
-        // Đảm bảo mọi component đã render (thông qua metrics) và splash hiện đủ lâu
+        // Đảm bảo splash hiện đủ lâu để Lottie animation trông mượt
         long totalLoadingTime = System.currentTimeMillis() - splashStartTime;
         Log.d(TAG, "Tổng thời gian render Splash: " + totalLoadingTime + "ms");
         
-        long waitTime = Math.max(0, 2500 - totalLoadingTime); // Tăng lên 2.5s để đảm bảo mượt mà
+        long waitTime = Math.max(0, 2000 - totalLoadingTime);
 
         mainHandler.postDelayed(() -> {
-            // Kiểm tra trạng thái cuối cùng trước khi chuyển trang
             if (isErrorShown || !isResourceLoadFinished || isNavigating || isFinishing()) return;
             isNavigating = true;
             
             SessionManager sessionManager = new SessionManager(SplashActivity.this);
             Intent intent;
             if (sessionManager.isLoggedIn()) {
-                // Nếu đã đăng nhập nhưng chưa đặt tên hiển thị → sang Setup
                 if (sessionManager.getIngameName() == null || sessionManager.getIngameName().isEmpty()) {
                     intent = new Intent(SplashActivity.this, DisplayNameSetupActivity.class);
                 } else {

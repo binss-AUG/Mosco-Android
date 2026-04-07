@@ -41,22 +41,22 @@
 
     </FrameLayout>
 
-    <!-- OVR Text on card: Nâng tầm uy lực bằng font Saira chuẩn Gaming -->
+    <!-- OVR Text on card -->
     <com.vn.jet.mosco.utils.StrokedTextView
         android:id="@+id/card_tv_ovr"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="start|top"
-        android:fontFamily="@font/saira"
+        android:fontFamily="@font/poppins"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
         android:includeFontPadding="false"
         app:autoSizeTextType="uniform"
         app:autoSizeMinTextSize="2sp"
-        app:autoSizeMaxTextSize="44sp"
+        app:autoSizeMaxTextSize="40sp"
         app:autoSizeStepGranularity="1sp"
-        app:layout_constraintWidth_percent="0.30"
-        app:layout_constraintHeight_percent="0.18"
+        app:layout_constraintWidth_percent="0.25"
+        app:layout_constraintHeight_percent="0.14"
         app:layout_constraintTop_toTopOf="@id/card_iv_image"
         app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
         app:layout_constraintStart_toStartOf="@id/card_iv_image"
