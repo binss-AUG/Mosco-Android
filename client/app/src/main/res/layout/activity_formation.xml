@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_bg_dark"
+    tools:context=".FormationActivity">
+
+    <!-- ── PART 1: HEADER (TOP) ──────────────────────────────────────── -->
+    <RelativeLayout
+        android:id="@+id/header_container"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_total_ovr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/poppins_bold"
+            android:text="OVR: 0"
+            android:textColor="@color/white"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/btn_global_buffs"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_toEndOf="@id/tv_total_ovr"
+            android:layout_marginStart="12dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_button_outline"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="BUFF"
+            android:textColor="#80FFB4"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            app:tint="@color/mosco_neon_blue" />
+    </RelativeLayout>
+
+    <!-- ── PART 2: STAGE (BODY) ──────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/stage_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
+        android:layout_marginBottom="56dp"
+        android:clipChildren="false">
+
+        <!-- Custom Canvas for Neon Lines -->
+        <com.vn.jet.mosco.view.NeonLineView
+            android:id="@+id/neon_line_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Static 1-2-1-2 Grid Layout -->
+        <LinearLayout
+            android:id="@+id/ll_stage_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:clipChildren="false"
+            android:orientation="vertical"
+            android:weightSum="4">
+
+            <!-- Row 0: 1 Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.5" />
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+                <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.5" />
+            </LinearLayout>
+
+            <!-- Row 1: 2 Cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+            </LinearLayout>
+
+            <!-- Row 2: 1 Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.5" />
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot3" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+                <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.5" />
+            </LinearLayout>
+
+            <!-- Row 3: 2 Cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipChildren="false"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot4" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+                <include layout="@layout/item_formation_slot" android:id="@+id/slot5" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Dim overlay for highlighting -->
+    <View
+        android:id="@+id/dim_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:visibility="gone" />
+
+    <!-- ── PART 3: SYNERGY BOTTOMSHEET ────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/synergy_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_glass_footer"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        app:behavior_peekHeight="56dp"
+        app:behavior_hideable="false"
+        app:behavior_fitToContents="false"
+        app:behavior_halfExpandedRatio="0.30"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Header: Drag Handle + Title + Toggle Button -->
+        <LinearLayout
+            android:id="@+id/synergy_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_synergy_header"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp">
+
+            <!-- Drag Handle -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="5dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_bottomsheet_handle" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_synergy_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/orbitron"
+                android:text="@string/formation_active_synergies_label"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <!-- Toggle Button (+/-) -->
+            <ImageButton
+                android:id="@+id/btn_synergy_toggle"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_up"
+                android:contentDescription="Toggle synergy panel"
+                app:tint="@color/white" />
+        </LinearLayout>
+
+        <!-- Synergy List (hiện khi mở) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_active_synergies"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_synergy_badge" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -134,11 +134,16 @@ public class SplashActivity extends AppCompatActivity {
 
         // Không hiện Progress Bar ở đây — chỉ hiện khi thật sự cần tải ảnh
         
-        trackRenderTime("DatabaseLoad", () -> {
-            DatabaseLoader.loadEveryCard(getApplicationContext());
-        });
+        // --- ⚡ FAST ASSET CHECK ---
+        boolean allReady = CardAssetManager.isAllAssetsReadyQuick(getApplicationContext());
 
-        boolean allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
+        if (!allReady) {
+            // Nếu Quick Check thất bại, mới thực hiện load Database JSON 7MB để kiểm tra sâu
+            trackRenderTime("DeepDatabaseLoad", () -> {
+                DatabaseLoader.loadEveryCard(getApplicationContext());
+            });
+            allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
+        }
 
         if (!allReady) {
             // Có update data (phải tải lượng lớn hình ảnh), hủy 8s và gia hạn thành 10 phút.
@@ -160,16 +165,14 @@ public class SplashActivity extends AppCompatActivity {
             new Thread(() -> {
                 while (displayedProgress[0] < 100) {
                     try {
-                        Thread.sleep(60); 
+                        Thread.sleep(30); // Tăng tốc độ phản hồi thanh tiến trình
                         int increment = 0;
-                        if (displayedProgress[0] < 60) {
-                            increment = (int) (Math.random() * 3) + 2; 
-                        } else if (displayedProgress[0] < 92) {
-                            if (Math.random() > 0.8) increment = 1;
+                        if (displayedProgress[0] < 80) {
+                            increment = (int) (Math.random() * 5) + 3; // Nhanh hơn ở đoạn đầu
+                        } else if (displayedProgress[0] < 98) {
+                            if (Math.random() > 0.5) increment = 1;
                         } else {
-                            if (realPercent[0] >= 100 || realPercent[0] > displayedProgress[0]) {
-                                increment = 1;
-                            }
+                            if (realPercent[0] >= 100) increment = 1;
                         }
 
                         if (increment > 0) {
@@ -178,7 +181,7 @@ public class SplashActivity extends AppCompatActivity {
                             final int val = displayedProgress[0];
                             mainHandler.post(() -> {
                                 pbDownload.setProgress(val);
-                                tvDownloadCount.setText(val + "%");
+                                // Giữ nguyên thanh Progress nhưng sẽ ưu tiên hiển thị Count ở text dưới
                             });
                         }
                     } catch (InterruptedException e) { break; }
@@ -190,6 +193,9 @@ public class SplashActivity extends AppCompatActivity {
                     @Override
                     public void onProgress(int downloaded, int total, String currentFile) {
                         realPercent[0] = (int) ((downloaded / (float) total) * 100);
+                        mainHandler.post(() -> {
+                            tvDownloadCount.setText(formatNumber(downloaded) + " / " + formatNumber(total));
+                        });
                     }
 
                     @Override
@@ -219,7 +225,6 @@ public class SplashActivity extends AppCompatActivity {
             displayedProgress[0] = 100;
             mainHandler.post(() -> {
                 pbDownload.setProgress(100);
-                tvDownloadCount.setText("100%");
                 tvDownloadStatus.setText("Sẵn sàng!");
             });
             try { Thread.sleep(300); } catch (InterruptedException ignored) {}
@@ -233,42 +238,30 @@ public class SplashActivity extends AppCompatActivity {
             SessionManager sessionManager = new SessionManager(SplashActivity.this);
             Long userId = sessionManager.getUserId();
             if (userId != null && sessionManager.isLoggedIn()) {
+                // 1. Ưu tiên nạp từ cache cục bộ trước để có data ngay lập tức
+                DatabaseLoader.loadInventoryFromLocal(SplashActivity.this, userId);
+                
                 try {
                     com.vn.jet.mosco.network.GameApiService apiService =
                             com.vn.jet.mosco.network.ApiClient.getClient(SplashActivity.this)
                                     .create(com.vn.jet.mosco.network.GameApiService.class);
+                    
+                    // Gọi API đồng bộ để đảm bảo có data mới nhất trước khi vào game
                     retrofit2.Response<java.util.List<com.vn.jet.mosco.model.UserCard>> response =
                             apiService.getUserCards(userId).execute();
 
                     if (response.isSuccessful() && response.body() != null) {
-                        java.util.List<DatabaseLoader.UserInventoryItem> cachedList = new java.util.ArrayList<>();
+                        // Nếu API thành công, cập nhật lại memory cache và file cache
+                        java.util.List<DatabaseLoader.UserInventoryItem> newList = new java.util.ArrayList<>();
                         for (com.vn.jet.mosco.model.UserCard userCard : response.body()) {
-                            org.json.JSONObject meta = DatabaseLoader.findById(SplashActivity.this, userCard.getCollectionId());
-                            if (meta != null) {
-                                String frontImage = meta.optString("frontImage", "");
-                                // OVR trực tiếp từ Server (Server Truth)
-                                int ovr = userCard.getOvr();
-
-                                cachedList.add(new com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem(
-                                        userCard.getId(),
-                                        userCard.getCollectionId(),
-                                        frontImage,
-                                        userCard.getLevel(),
-                                        userCard.getExp(),
-                                        userCard.getUpgradeLevel(),
-                                        ovr
-                                ));
-                            }
+                            newList.add(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem.fromUserCard(userCard));
                         }
-                        DatabaseLoader.cachedUserInventory = cachedList;
-                    } else {
-                        showConnectionError();
-                        return;
+                        DatabaseLoader.cachedUserInventory = newList;
+                        DatabaseLoader.saveInventoryToLocal(SplashActivity.this, userId, newList);
                     }
                 } catch (Exception e) {
-                    Log.w(TAG, "Lỗi kết nối Server: " + e.getMessage());
-                    showConnectionError();
-                    return;
+                    Log.w(TAG, "Lỗi kết nối Server: " + e.getMessage() + ". Sử dụng dữ liệu cache.");
+                    // Nếu lỗi mạng, ta vẫn dùng data đã nạp từ Local Cache ở bước 1
                 }
             }
         });

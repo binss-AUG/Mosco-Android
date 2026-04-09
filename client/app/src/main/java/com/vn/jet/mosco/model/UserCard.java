@@ -28,7 +28,67 @@ public class UserCard {
     @SerializedName("cardClass")
     private String cardClass; // Class thẻ — Server trả sẵn ("Premier", "Double"...)
 
+    @SerializedName("availableTags")
+    private java.util.List<String> availableTags; // Tags có sẵn để chọn
+
+    @SerializedName("dimension")
+    private String dimension; // Hệ gốc
+
+    @SerializedName("frontImage")
+    private String frontImage;
+
+    @SerializedName("backImage")
+    private String backImage;
+
+    @SerializedName("member")
+    private String member;
+
+    @SerializedName("season")
+    private String season;
+
+    @SerializedName("collectionNo")
+    private String collectionNo;
+
+    @SerializedName("slug")
+    private String slug;
+
+    @SerializedName("backgroundColor")
+    private String backgroundColor;
+
+    @SerializedName("textColor")
+    private String textColor;
+
     public UserCard() {}
+
+    public String getFrontImage() { return frontImage; }
+    public void setFrontImage(String frontImage) { this.frontImage = frontImage; }
+
+    public String getBackImage() { return backImage; }
+    public void setBackImage(String backImage) { this.backImage = backImage; }
+
+    public String getMember() { return member; }
+    public void setMember(String member) { this.member = member; }
+
+    public String getSeason() { return season; }
+    public void setSeason(String season) { this.season = season; }
+
+    public String getCollectionNo() { return collectionNo; }
+    public void setCollectionNo(String collectionNo) { this.collectionNo = collectionNo; }
+
+    public String getSlug() { return slug; }
+    public void setSlug(String slug) { this.slug = slug; }
+
+    public String getBackgroundColor() { return backgroundColor; }
+    public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
+
+    public String getTextColor() { return textColor; }
+    public void setTextColor(String textColor) { this.textColor = textColor; }
+
+    public java.util.List<String> getAvailableTags() { return availableTags; }
+    public void setAvailableTags(java.util.List<String> availableTags) { this.availableTags = availableTags; }
+
+    public String getDimension() { return dimension; }
+    public void setDimension(String dimension) { this.dimension = dimension; }
 
     public UserCard(Long id, String collectionId, int level, int exp, int upgradeLevel, int ovr, String cardClass) {
         this.id = id;

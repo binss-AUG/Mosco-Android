@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,25 +26,30 @@ public class CardDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(CardDataService.class);
 
-    // collectionId → class (VD: "Premier", "Double", "Special Unit", "First Welcome")
-    private Map<String, String> cardClassMap;
+    private static final int DEFAULT_OVR = 80;
+    private static final String DEFAULT_CLASS = "First Welcome";
 
-    // typeKey → level → ovr
-    private Map<String, Map<String, Integer>> cardOvrData;
+    private Map<String, JsonNode> cardMetadataCache;
+    private JsonNode gameConfig;
 
     @PostConstruct
     public void init() {
         loadDatabaseJson();
-        loadCardOvrJson();
+        loadGameConfigJson();
     }
 
-    /**
-     * Nạp database.json để xây dựng bảng tra cứu collectionId → class.
-     * Tại sao: Server cần biết class của thẻ để tính OVR chính xác,
-     * thay vì fallback về "FirstWelcome" như trước.
-     */
+    private void loadGameConfigJson() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            gameConfig = mapper.readTree(new ClassPathResource("game_config.json").getInputStream());
+            logger.info("CardDataService: Loaded game_config.json");
+        } catch (Exception e) {
+            logger.error("CardDataService: Failed to load game_config.json", e);
+        }
+    }
+
     private void loadDatabaseJson() {
-        cardClassMap = new HashMap<>();
+        cardMetadataCache = new HashMap<>();
         try {
             ObjectMapper mapper = new ObjectMapper();
             InputStream is = new ClassPathResource("database.json").getInputStream();
@@ -52,107 +59,165 @@ public class CardDataService {
             if (collections != null && collections.isArray()) {
                 for (JsonNode card : collections) {
                     String id = card.has("id") ? card.get("id").asText() : null;
-                    String cardClass = card.has("class") ? card.get("class").asText() : null;
-                    if (id != null && cardClass != null) {
-                        cardClassMap.put(id, cardClass);
+                    if (id != null) {
+                        cardMetadataCache.put(id, card);
                     }
                 }
             }
-            logger.info("CardDataService: Đã nạp {} thẻ từ database.json", cardClassMap.size());
+            logger.info("CardDataService: Loaded {} cards from database.json", cardMetadataCache.size());
         } catch (Exception e) {
-            logger.error("CardDataService: Lỗi nạp database.json", e);
+            logger.error("CardDataService: Failed to load database.json", e);
         }
     }
 
-    /**
-     * Nạp cardOvr.json để tra cứu OVR theo typeKey + level.
-     */
-    private void loadCardOvrJson() {
-        cardOvrData = new HashMap<>();
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            InputStream is = new ClassPathResource("cardOvr.json").getInputStream();
-            JsonNode root = mapper.readTree(is);
-
-            root.fields().forEachRemaining(typeEntry -> {
-                String typeKey = typeEntry.getKey();
-                JsonNode levels = typeEntry.getValue();
-                Map<String, Integer> levelMap = new HashMap<>();
-                levels.fields().forEachRemaining(lvlEntry ->
-                        levelMap.put(lvlEntry.getKey(), lvlEntry.getValue().asInt())
-                );
-                cardOvrData.put(typeKey, levelMap);
-            });
-            logger.info("CardDataService: Đã nạp {} typeKey từ cardOvr.json", cardOvrData.size());
-        } catch (Exception e) {
-            logger.error("CardDataService: Lỗi nạp cardOvr.json", e);
-        }
+    public JsonNode getCardMetadata(String collectionId) {
+        return cardMetadataCache.get(collectionId);
     }
 
     /**
      * Lấy class gốc từ database.json theo collectionId.
-     * VD: "Premier", "Double", "Special Unit", "First Welcome"
      */
     public String getCardClass(String collectionId) {
-        if (collectionId == null) return "First Welcome";
-        return cardClassMap.getOrDefault(collectionId, "First Welcome");
+        JsonNode meta = getCardMetadata(collectionId);
+        if (meta == null) return DEFAULT_CLASS;
+        return meta.get("class").asText();
     }
 
     /**
-     * Ánh xạ class từ database.json sang typeKey chuẩn của cardOvr.json.
-     * Tại sao: database.json dùng tên có dấu cách ("First Welcome"),
-     * nhưng cardOvr.json dùng key liền ("FirstWelcome").
-     */
-    public String getTypeKey(String collectionId) {
-        String cardClass = getCardClass(collectionId);
-        return mapClassToTypeKey(cardClass);
-    }
-
-    /**
-     * Tra cứu OVR chính xác theo collectionId + upgradeLevel.
-     * Đây là nguồn sự thật DUY NHẤT — thay thế hoàn toàn logic Client cũ.
+     * Tra cứu OVR dựa trên công thức cân bằng mới:
+     * Final_OVR = base_ovr(Class) + bonus(Season) + progression(Badge)
      */
     public int getOvr(String collectionId, int upgradeLevel) {
+        JsonNode meta = getCardMetadata(collectionId);
+        if (meta == null || gameConfig == null) return DEFAULT_OVR;
+
+        String season = meta.has("season") ? meta.get("season").asText() : "";
+
+        // 1. Lấy Base OVR từ Class
+        int base = DEFAULT_OVR;
         String typeKey = getTypeKey(collectionId);
-        if (cardOvrData.containsKey(typeKey)) {
-            Map<String, Integer> levelMap = cardOvrData.get(typeKey);
-            Integer ovr = levelMap.get(String.valueOf(upgradeLevel));
-            if (ovr != null) return ovr;
+        JsonNode classesInfo = gameConfig.get("classes");
+        if (classesInfo != null && classesInfo.has(typeKey)) {
+            base = classesInfo.get(typeKey).get("base_ovr").asInt();
         }
-        return 80; // fallback an toàn
+
+        // 2. Lấy Season Bonus
+        int seasonBonus = 0;
+        JsonNode seasons = gameConfig.get("seasons");
+        if (seasons != null && seasons.isArray()) {
+            for (JsonNode s : seasons) {
+                if (s.get("id").asText().equalsIgnoreCase(season)) {
+                    seasonBonus = s.get("bonus").asInt();
+                    break;
+                }
+            }
+        }
+
+        // 3. Lấy Badge Progression Bonus
+        int badgeBonus = 0;
+        JsonNode progression = gameConfig.get("badge_progression");
+        if (progression != null && progression.has(String.valueOf(upgradeLevel))) {
+            badgeBonus = progression.get(String.valueOf(upgradeLevel)).asInt();
+        }
+
+        return base + seasonBonus + badgeBonus;
+    }
+
+    public List<String> getAvailableTags(String collectionId) {
+        JsonNode meta = getCardMetadata(collectionId);
+        if (meta == null || gameConfig == null) return new ArrayList<>();
+        String memberName = meta.has("member") ? meta.get("member").asText() : "";
+        
+        List<String> tags = new ArrayList<>();
+        JsonNode artists = gameConfig.get("artists");
+        if (artists != null && artists.isArray()) {
+            for (JsonNode a : artists) {
+                if (a.has("name") && a.get("name").asText().equalsIgnoreCase(memberName)) {
+                    JsonNode tagsNode = a.get("tags");
+                    if (tagsNode != null && tagsNode.isArray()) {
+                        for (JsonNode t : tagsNode) tags.add(t.asText());
+                    }
+                    break;
+                }
+            }
+        }
+        return tags;
+    }
+
+    public String getDimension(String collectionId) {
+        JsonNode meta = getCardMetadata(collectionId);
+        if (meta == null || gameConfig == null) return null;
+        String memberName = meta.has("member") ? meta.get("member").asText() : "";
+        
+        JsonNode artists = gameConfig.get("artists");
+        if (artists != null && artists.isArray()) {
+            for (JsonNode a : artists) {
+                if (a.has("name") && a.get("name").asText().equalsIgnoreCase(memberName)) {
+                    return a.has("dimension") ? a.get("dimension").asText() : null;
+                }
+            }
+        }
+        return null;
     }
 
     /**
-     * Chuyển đổi UserCard Entity → UserCardDTO có OVR + class.
-     * Dùng tại InventoryController để trả về Client.
+     * Chuyển đổi UserCard Entity → UserCardDTO có OVR + class + tags + full metadata.
      */
     public UserCardDTO toDTO(UserCard card) {
-        String cardClass = getCardClass(card.getCollectionId());
-        int ovr = getOvr(card.getCollectionId(), card.getUpgradeLevel());
+        String collectionId = card.getCollectionId();
+        JsonNode meta = getCardMetadata(collectionId);
+        
+        String cardClass = getCardClass(collectionId);
+        int ovr = getOvr(collectionId, card.getUpgradeLevel());
+        List<String> availableTags = getAvailableTags(collectionId);
+        String dimension = getDimension(collectionId);
 
-        return new UserCardDTO(
+        UserCardDTO dto = new UserCardDTO(
                 card.getId(),
-                card.getCollectionId(),
+                collectionId,
                 card.getLevel(),
                 card.getExp(),
                 card.getUpgradeLevel(),
                 ovr,
                 cardClass
         );
+        
+        if (meta != null) {
+            dto.setFrontImage(meta.has("frontImage") ? meta.get("frontImage").asText() : "");
+            dto.setBackImage(meta.has("backImage") ? meta.get("backImage").asText() : "");
+            dto.setMember(meta.has("member") ? meta.get("member").asText() : "");
+            dto.setSeason(meta.has("season") ? meta.get("season").asText() : "");
+            dto.setCollectionNo(meta.has("collectionNo") ? meta.get("collectionNo").asText() : "");
+            dto.setSlug(meta.has("slug") ? meta.get("slug").asText() : "");
+            dto.setBackgroundColor(meta.has("backgroundColor") ? meta.get("backgroundColor").asText() : "#FFFFFF");
+            dto.setTextColor(meta.has("textColor") ? meta.get("textColor").asText() : "#000000");
+        }
+        
+        dto.setAvailableTags(availableTags);
+        dto.setDimension(dimension);
+        return dto;
     }
 
-    /**
-     * Ánh xạ nội bộ: class text → typeKey cho cardOvr.json
-     */
-    private String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome";
+    public String getTypeKey(String collectionId) {
+        String cardClass = getCardClass(collectionId);
+        if (cardClass == null || gameConfig == null) return "FirstWelcome";
         String normalized = cardClass.replaceAll("\\s+", "").toLowerCase();
 
-        if (normalized.contains("first") || normalized.contains("welcome")) return "FirstWelcome";
-        if (normalized.equals("double")) return "Double";
-        if (normalized.contains("special") || normalized.contains("unit") || normalized.contains("motion")) return "SpecialUnit";
-        if (normalized.equals("premier")) return "Premier";
-
+        JsonNode classes = gameConfig.get("classes");
+        if (classes != null && classes.isObject()) {
+            java.util.Iterator<Map.Entry<String, JsonNode>> fields = classes.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                JsonNode aliases = entry.getValue().get("aliases");
+                if (aliases != null && aliases.isArray()) {
+                    for (JsonNode alias : aliases) {
+                        if (normalized.contains(alias.asText().toLowerCase())) {
+                            return entry.getKey(); // e.g., "FirstWelcome", "SpecialUnit"
+                        }
+                    }
+                }
+            }
+        }
         return "FirstWelcome";
     }
 }

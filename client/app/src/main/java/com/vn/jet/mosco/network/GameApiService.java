@@ -39,9 +39,6 @@ public interface GameApiService {
 
     /**
      * Gacha roll endpoint (JWT-protected, rate-limited).
-     * Bearer token is auto-attached by ApiClient's OkHttp interceptor.
-     * @param request { packCode: "PACK_METAL", quantity: 1 }
-     * @return GachaRollResponse with itemId, rarity, quantity, cardData
      */
     @POST("/api/gacha/roll")
     Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.GachaRollResponse>> rollGacha(
@@ -49,7 +46,6 @@ public interface GameApiService {
 
     /**
      * Spin (Recycle/Sacrifice) endpoint.
-     * Trade one card for a chance to get a new one.
      */
     @POST("/api/gacha/spin")
     Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.GachaSpinResponse>> spinCard(
@@ -64,15 +60,10 @@ public interface GameApiService {
 
     /**
      * Đặt tên hiển thị trong game (Display Name).
-     * Endpoint được bảo vệ bởi JWT + Galactic Name Shield validation.
      */
     @POST("/api/user/set-display-name")
     Call<ResponseBody> setDisplayName(@Body java.util.Map<String, String> body);
 
-    /**
-     * Cập nhật thông tin cá nhân (username + ingameName).
-     * Email KHÔNG cho sửa — Server sẽ bỏ qua.
-     */
     /**
      * Nhận quà từ thư (Claim Gift).
      */
@@ -92,11 +83,23 @@ public interface GameApiService {
     @GET("/api/daily/status")
     Call<ResponseBody> getDailyStatus();
 
-    /**
-     * Claim phần thưởng cho slot hiện tại.
-     */
     @POST("/api/daily/claim")
     Call<ResponseBody> claimDaily();
+
+    /**
+     * Preview OVR và Synergy cho đội hình (Passive Synergy Logic).
+     */
+    @POST("/api/battle/preview")
+    Call<com.vn.jet.mosco.dto.BattleResponse> postBattlePreview(@Body com.vn.jet.mosco.dto.BattleRequest request);
+
+    @POST("/api/battle")
+    Call<com.vn.jet.mosco.dto.BattleResponse> postBattle(@Body com.vn.jet.mosco.dto.BattleRequest request);
+
+    @GET("/api/battle/formation/{userId}")
+    Call<List<com.vn.jet.mosco.model.Objet>> getUserFormation(@Path("userId") Long userId);
+
+    @POST("/api/battle/formation/{userId}/save")
+    Call<ResponseBody> saveUserFormation(@Path("userId") Long userId, @Body java.util.List<Long> slotIds);
 
     // ══════════════════════════════════════════════════════════════
     //  RANKING — Bảng xếp hạng (Public, không cần auth)

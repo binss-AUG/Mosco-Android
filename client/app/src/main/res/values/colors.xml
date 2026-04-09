@@ -68,4 +68,9 @@
     <!-- Matte Obsidian Gradient -->
     <color name="obsidian_start">#161622</color>
     <color name="obsidian_end">#080808</color>
+    <color name="mosco_bg_dark">#0A0A0E</color>
+    <color name="mosco_neon_blue">#00F2FF</color>
+    <color name="mosco_text_dim">#888888</color>
+    <color name="mosco_neon_pink">#FF00D4</color>
+    <color name="mosco_dim_overlay_70">#B3000000</color>
 </resources>

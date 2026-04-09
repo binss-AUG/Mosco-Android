@@ -17,9 +17,11 @@ public class JwtAuthFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final JwtUtil jwtUtil;
+    private final com.vn.jet.mosco.spinserver.repository.UserRepository userRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    public JwtAuthFilter(JwtUtil jwtUtil, com.vn.jet.mosco.spinserver.repository.UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -56,6 +58,14 @@ public class JwtAuthFilter implements Filter {
         try {
             Long userId = jwtUtil.extractUserId(token);
             String username = jwtUtil.extractUsername(token);
+
+            com.vn.jet.mosco.spinserver.model.User user = userRepository.findById(userId).orElse(null);
+            if (user == null || user.getActiveToken() == null || !user.getActiveToken().equals(token)) {
+                logger.warn("Token mismatch for User ID {}. Account logged in on another device.", userId);
+                sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Tài khoản của bạn đã đăng nhập ở nơi khác. Vui lòng đăng nhập lại.");
+                return;
+            }
+
             httpRequest.setAttribute("userId", userId);
             httpRequest.setAttribute("username", username);
             logger.debug("JWT authenticated: userId={}, username={}", userId, username);

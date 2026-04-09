@@ -47,6 +47,7 @@ public class CardEffectHelper {
         private RectF rect;
         private float cornerRadius, glowRadius, extraPadding;
         private int color;
+        private Bitmap cachedBitmap;
 
         public OuterGlowView(Context context, int color, float cornerRadius, float glowRadius, float extraPadding) {
             super(context);
@@ -55,45 +56,48 @@ public class CardEffectHelper {
             this.extraPadding = extraPadding;
             this.color = color;
             paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            setLayerType(LAYER_TYPE_SOFTWARE, null); // Bắt buộc dùng trên Android để hiển thị bóng Gaussian cực mảnh
             rect = new RectF();
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.save();
-            
-            // Ép viền khoét rỗng LẤN VÀO BÊN TRONG thẻ 1.5dp -> Khóa chết không có kẽ hở đen lọt ra
-            float inset = dpToPx(getContext(), 1.5f);
-            
-            Path path = new Path();
-            float leftStrut = extraPadding + inset;
-            float topStrut = extraPadding + inset;
-            float rightStrut = getWidth() - extraPadding - inset;
-            float bottomStrut = getHeight() - extraPadding - inset;
-            rect.set(leftStrut, topStrut, rightStrut, bottomStrut);
-            path.addRoundRect(rect, cornerRadius, cornerRadius, Path.Direction.CW);
-            
-            // Khoét lõi tàng hình
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                canvas.clipOutPath(path);
-            } else {
-                canvas.clipPath(path, android.graphics.Region.Op.DIFFERENCE);
+            if (cachedBitmap == null && getWidth() > 0 && getHeight() > 0) {
+                cachedBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas cacheCanvas = new Canvas(cachedBitmap);
+                
+                cacheCanvas.save();
+                float inset = dpToPx(getContext(), 1.5f);
+                
+                Path path = new Path();
+                float leftStrut = extraPadding + inset;
+                float topStrut = extraPadding + inset;
+                float rightStrut = getWidth() - extraPadding - inset;
+                float bottomStrut = getHeight() - extraPadding - inset;
+                rect.set(leftStrut, topStrut, rightStrut, bottomStrut);
+                path.addRoundRect(rect, cornerRadius, cornerRadius, Path.Direction.CW);
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    cacheCanvas.clipOutPath(path);
+                } else {
+                    cacheCanvas.clipPath(path, android.graphics.Region.Op.DIFFERENCE);
+                }
+
+                paint.setColor(color);
+                
+                paint.setShadowLayer(glowRadius * 0.45f, 0, 0, color);
+                cacheCanvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
+                
+                int mAlpha = Color.alpha(color);
+                int fadedColor = Color.argb((int)(mAlpha * 0.35f), Color.red(color), Color.green(color), Color.blue(color));
+                paint.setShadowLayer(glowRadius, 0, 0, fadedColor);
+                cacheCanvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
+
+                cacheCanvas.restore();
             }
-
-            paint.setColor(color);
             
-            // Lớp 1 (Lõi chói 100% -> 30%): Rất gắt nên dùng nửa bán kính glowRadius
-            paint.setShadowLayer(glowRadius * 0.45f, 0, 0, color);
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
-            
-            // Lớp 2 (Sương mờ 30% -> 0%): Tỏa dài ra toàn bộ ranh giới
-            int mAlpha = Color.alpha(color);
-            int fadedColor = Color.argb((int)(mAlpha * 0.35f), Color.red(color), Color.green(color), Color.blue(color));
-            paint.setShadowLayer(glowRadius, 0, 0, fadedColor);
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
-
-            canvas.restore();
+            if (cachedBitmap != null) {
+                canvas.drawBitmap(cachedBitmap, 0, 0, null);
+            }
         }
     }
 
@@ -269,32 +273,32 @@ public class CardEffectHelper {
             shimmer.setTag(R.id.tv_materials_label, delayRunnable);
         }
 
-        if (applyFloating) {
-            ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
-            
-            floatingAnim.setEvaluator(new TypeEvaluator<Float>() {
-                @Override
-                public Float evaluate(float fraction, Float startValue, Float endValue) {
-                    float val = startValue + fraction * (endValue - startValue);
-                    return (float) Math.round(val); 
-                }
-            });
+        // MẶC ĐỊNH LÀ LUÔN NỔI LÊN XUỐNG DẬP DỀNH (KHÔNG PHỤ THUỘC VÀO BOOLEAN)
+        ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
+        
+        floatingAnim.setEvaluator(new TypeEvaluator<Float>() {
+            @Override
+            public Float evaluate(float fraction, Float startValue, Float endValue) {
+                float val = startValue + fraction * (endValue - startValue);
+                return (float) Math.round(val); 
+            }
+        });
 
-            floatingAnim.addUpdateListener(animation -> {
-                View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
-                if (pseudoGlow != null) {
-                    pseudoGlow.setTranslationY((float) Math.round((float) animation.getAnimatedValue()));
-                }
-            });
+        floatingAnim.addUpdateListener(animation -> {
+            View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
+            if (pseudoGlow != null) {
+                pseudoGlow.setTranslationY((float) Math.round((float) animation.getAnimatedValue()));
+            }
+        });
 
-            floatingAnim.setDuration(2800 + (long)(Math.random() * 500));
-            floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-            floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
-            floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
-            
-            cardView.setTag(floatingAnim);
-            floatingAnim.start();
-        }
+        floatingAnim.setDuration(2400); // 2.4s base
+        floatingAnim.setStartDelay((long)(Math.random() * 1000)); // Gợn sóng bất đồng bộ
+        floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
+        floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
+        
+        cardView.setTag(floatingAnim);
+        floatingAnim.start();
     }
 
     /**

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="synergy_tier_gold_min_level">8</integer>
+    <integer name="synergy_tier_silver_min_level">5</integer>
+</resources>

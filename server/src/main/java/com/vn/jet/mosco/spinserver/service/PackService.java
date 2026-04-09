@@ -188,8 +188,10 @@ public class PackService {
     private String rollClass(double[] rates) {
         double r = new Random().nextDouble();
         double cumulative = 0;
-        // Map to classes in database.json: FirstWelcome, Double, SpecialUnit, Premier
-        String[] classes = {"FirstWelcome", "Double", "SpecialUnit", "Premier"}; 
+        
+        List<Map.Entry<String, JsonElement>> classEntries = new ArrayList<>(gameConfig.getAsJsonObject("classes").entrySet());
+        classEntries.sort(Comparator.comparingInt(e -> e.getValue().getAsJsonObject().get("rank").getAsInt()));
+        String[] classes = classEntries.stream().map(Map.Entry::getKey).toArray(String[]::new);
         
         for (int i = 0; i < rates.length; i++) {
             cumulative += rates[i];
@@ -197,7 +199,7 @@ public class PackService {
                 return classes[Math.min(i, classes.length - 1)];
             }
         }
-        return classes[0];
+        return classes.length > 0 ? classes[0] : "FirstWelcome";
     }
 
     private List<JsonObject> filterPool(String packCode, String cardClass) {
@@ -271,14 +273,16 @@ public class PackService {
         String db = dbClass.trim().toLowerCase();
         String target = targetClass.trim().toLowerCase();
         
-        // Custom mapping:
-        // FirstWelcome -> matches "First" or "Welcome"
-        if (target.equals("firstwelcome")) {
-            return db.contains("first") || db.contains("welcome");
-        }
-        // SpecialUnit -> matches "Special", "Unit", or "Motion"
-        if (target.equals("specialunit")) {
-            return db.contains("special") || db.contains("unit") || db.contains("motion");
+        JsonObject classesObj = gameConfig.getAsJsonObject("classes");
+        if (classesObj != null && classesObj.has(targetClass)) {
+            JsonArray aliases = classesObj.getAsJsonObject(targetClass).getAsJsonArray("aliases");
+            if (aliases != null) {
+                for (JsonElement aliasObj : aliases) {
+                    if (db.contains(aliasObj.getAsString().toLowerCase())) {
+                        return true;
+                    }
+                }
+            }
         }
         
         // Default check (exact match or contains)

@@ -40,6 +40,7 @@ public class CardAssetManager {
     private static final String PREFS_NAME = "card_asset_prefs";
     private static final String KEY_TOTAL_DOWNLOADED = "total_downloaded";
     private static final String KEY_TOTAL_EXPECTED = "total_expected";
+    private static final String KEY_LAST_DB_CHECK_SIZE = "last_db_check_size";
 
     // Số luồng tải đồng thời — tối ưu hóa tối đa cho 10k ảnh
     private static final int DOWNLOAD_THREADS = 32;
@@ -142,6 +143,32 @@ public class CardAssetManager {
             executor.awaitTermination(180, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * SIÊU TỐC: Kiểm tra dựa trên số lượng file thay vì duyệt từng card.
+     * O(1) - Phù hợp để chạy mỗi lần mở app ở Splash.
+     */
+    public static boolean isAllAssetsReadyQuick(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int expected = prefs.getInt(KEY_TOTAL_EXPECTED, -1);
+        
+        if (expected <= 0) {
+            Log.d(TAG, "QuickCheck: Chưa có thông tin Expected Count, cần Scan sâu.");
+            return false;
+        }
+
+        File dir = getCardsDirectory(context);
+        File[] files = dir.listFiles();
+        int actual = (files != null) ? files.length : 0;
+
+        if (actual >= expected) {
+            Log.d(TAG, "QuickCheck: OK (Actual: " + actual + " >= Expected: " + expected + ")");
+            return true;
+        } else {
+            Log.d(TAG, "QuickCheck: FAIL (Actual: " + actual + " < Expected: " + expected + ")");
+            return false;
         }
     }
 
@@ -257,6 +284,11 @@ public class CardAssetManager {
 
                 // Nếu đã đủ → hoàn tất ngay
                 if (urlsToDownload.isEmpty()) {
+                    // Update SharedPreferences để QuickCheck lần sau nhanh hơn
+                    SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+                    editor.putInt(KEY_TOTAL_EXPECTED, totalExpected);
+                    editor.apply();
+
                     if (listener != null) {
                         listener.onProgress(totalExpected, totalExpected, "");
                         listener.onComplete();
@@ -292,6 +324,11 @@ public class CardAssetManager {
 
                             // Kiểm tra hoàn tất
                             if (current >= totalExpected) {
+                                // Tải xong toàn bộ -> Lưu lại mốc này
+                                SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+                                editor.putInt(KEY_TOTAL_EXPECTED, totalExpected);
+                                editor.apply();
+
                                 executor.shutdown();
                                 if (listener != null) {
                                     listener.onComplete();

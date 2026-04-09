@@ -1,0 +1,117 @@
+{
+  "grand_gravity": {
+    "counter_multiplier": 1.36,
+    "counters": {
+      "SUN": "MOON",
+      "MOON": "NEPTUNE",
+      "NEPTUNE": "ZENITH",
+      "ZENITH": "SUN"
+    }
+  },
+  "synergy_layers": {
+    "dimensions": {
+      "thresholds": {
+        "2": { "ovr_bonus_pct": 0.05 },
+        "4": { "ovr_bonus_pct": 0.15 },
+        "6": { "ovr_bonus_pct": 0.25, "visual_effect": true }
+      }
+    },
+    "major_units": {
+      "AAA": {
+        "thresholds": {
+          "2": { "enemy_ovr_debuff_pct": 0.10 },
+          "4": { "enemy_ovr_debuff_pct": 0.25 }
+        }
+      },
+      "KRE": {
+        "thresholds": {
+          "2": { "team_visual_bonus_pct": 0.15 },
+          "4": { "team_visual_bonus_pct": 0.30 }
+        }
+      },
+      "LOVElution": {
+        "thresholds": {
+          "3": { "team_ovr_bonus_pct": 0.10 },
+          "5": { "team_ovr_bonus_pct": 0.20 },
+          "7": { "team_ovr_bonus_pct": 0.35 }
+        }
+      },
+      "EVOLution": {
+        "thresholds": {
+          "3": { "vocal_charm_bonus_pct": 0.15 },
+          "5": { "vocal_charm_bonus_pct": 0.30 },
+          "7": { "vocal_charm_bonus_pct": 0.45 }
+        }
+      },
+      "ACID_EYES": {
+        "thresholds": {
+          "3": { "all_enemy_ovr_debuff_pct": 0.10 },
+          "5": { "all_enemy_ovr_debuff_pct": 0.20 },
+          "7": { "all_enemy_ovr_debuff_pct": 0.35 }
+        }
+      }
+    },
+    "minor_units": {
+      "Aria": {
+        "thresholds": {
+          "2": { "self_ovr_bonus_pct": 0.10 },
+          "4": { "self_ovr_bonus_pct": 0.25 }
+        }
+      },
+      "NXT": {
+        "thresholds": {
+          "2": { "team_dance_bonus_pct": 0.15 },
+          "4": { "team_dance_bonus_pct": 0.30 }
+        }
+      },
+      "Glow": {
+        "thresholds": {
+          "2": { "team_stamina_bonus_pct": 0.15 },
+          "4": { "team_stamina_bonus_pct": 0.30 }
+        }
+      },
+      "VV": {
+        "thresholds": {
+          "4": { "self_ovr_multiplier": 1.2, "debuff_resistance": true },
+          "8": { "self_ovr_multiplier": 1.2, "debuff_resistance": true }
+        }
+      },
+      "Alpha_Infinity": {
+        "tags": ["Alpha", "∞!"],
+        "thresholds": {
+          "2": { "double_minor_synergy": true }
+        }
+      }
+    }
+  },
+  "flat_synergies": {
+    "class_resonance": {
+      "description": "Cộng thẳng OVR cho mỗi thẻ thỏa mãn điều kiện cùng Class",
+      "rules": {
+        "2": { "bonus_ovr": 1 },
+        "3": { "bonus_ovr": 2 },
+        "6": { "bonus_ovr": 3 }
+      }
+    },
+    "badge_harmony": {
+      "description": "Cộng thẳng OVR dựa trên Tier của Badge",
+      "tiers": {
+        "BRONZE": { "min_level": 1, "max_level": 4 },
+        "SILVER": { "min_level": 5, "max_level": 7 },
+        "GOLD": { "min_level": 8, "max_level": 10 }
+      },
+      "rules": {
+        "3": {
+          "BRONZE": { "bonus_ovr": 1 },
+          "SILVER": { "bonus_ovr": 2 },
+          "GOLD": { "bonus_ovr": 3 }
+        },
+        "6": {
+          "BRONZE": { "bonus_ovr": 2 },
+          "SILVER": { "bonus_ovr": 3 },
+          "GOLD": { "bonus_ovr": 4 }
+        }
+      }
+    }
+  }
+}

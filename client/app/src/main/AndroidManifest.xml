@@ -44,6 +44,9 @@
             android:name=".MissionActivity"
             android:exported="false" />
         <activity
+            android:name=".FormationActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashActivity"
             android:exported="true" >
             <intent-filter>

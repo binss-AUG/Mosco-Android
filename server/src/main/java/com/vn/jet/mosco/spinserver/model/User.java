@@ -42,6 +42,12 @@ public class User {
     @Column(nullable = false)
     private String avatarId = "1";
 
+    @Column(length = 255)
+    private String activeFormation = "null,null,null,null,null,null";
+
+    @Column(length = 800)
+    private String activeToken;
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
@@ -82,4 +88,10 @@ public class User {
 
     public String getAvatarId() { return avatarId; }
     public void setAvatarId(String avatarId) { this.avatarId = avatarId; }
+
+    public String getActiveFormation() { return activeFormation; }
+    public void setActiveFormation(String activeFormation) { this.activeFormation = activeFormation; }
+
+    public String getActiveToken() { return activeToken; }
+    public void setActiveToken(String activeToken) { this.activeToken = activeToken; }
 }

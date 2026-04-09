@@ -267,13 +267,13 @@ public class CollectionFragment extends Fragment {
         int relativeY = loc[1] - parentLoc[1];
         int relativeX = loc[0] - parentLoc[0];
 
-        androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams lp = 
-                new androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams(
-                        (int)(160 * anchor.getContext().getResources().getDisplayMetrics().density),
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = relativeY + anchor.getHeight() + dpToPx(anchor.getContext(), 8); // small 8dp gap
-        lp.leftMargin = relativeX;
-        dropdown.setLayoutParams(lp);
+        ViewGroup.LayoutParams genericLp = dropdown.getLayoutParams();
+        if (genericLp instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) genericLp;
+            lp.topMargin = relativeY + anchor.getHeight() + dpToPx(anchor.getContext(), 8); // small 8dp gap
+            lp.leftMargin = relativeX;
+            dropdown.setLayoutParams(lp);
+        }
     }
 
     // ==========================================
@@ -675,23 +675,21 @@ public class CollectionFragment extends Fragment {
     // DEMO DATA
     // ==========================================
     public static List<FilterCategory> buildObjetCategories(Context context) {
-        List<org.json.JSONObject> cards = com.vn.jet.mosco.utils.DatabaseLoader.loadAllCards(context);
-        List<String> artists = com.vn.jet.mosco.utils.DatabaseLoader.loadArtistNames(context);
-        
-        // Use LinkedHashSet to maintain order and ensure uniqueness
-        java.util.Set<String> seasonsSet = new java.util.LinkedHashSet<>();
-        java.util.Set<String> classesSet = new java.util.LinkedHashSet<>();
+        List<String> artists = java.util.Arrays.asList(
+            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", 
+            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", 
+            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
+        );
 
+        List<org.json.JSONObject> cards = com.vn.jet.mosco.utils.DatabaseLoader.loadAllCards(context);
+        java.util.Set<String> seasonsSet = new java.util.LinkedHashSet<>();
         for (org.json.JSONObject card : cards) {
             String season = card.optString("season", "");
-            String cardClass = card.optString("class", "");
-
             if (!season.isEmpty()) seasonsSet.add(season);
-            if (!cardClass.isEmpty()) classesSet.add(cardClass);
         }
 
         List<String> seasons = new ArrayList<>(seasonsSet);
-        List<String> classes = new ArrayList<>(classesSet);
+        List<String> classes = java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special");
 
         List<FilterCategory> cats = new ArrayList<>();
         cats.add(new FilterCategory("Artist", artists, true));
@@ -1043,16 +1041,38 @@ public class CollectionFragment extends Fragment {
                             if (ctx == null) return;
 
                             for (com.vn.jet.mosco.model.UserCard uc : userCards) {
-                                org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, uc.getCollectionId());
-                                if (cardJson != null) {
-                                    String img = cardJson.optString("frontImage", "");
-                                    // OVR trực tiếp từ Server (Server Truth)
-                                    int ovr = uc.getOvr();
-
-                                    com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(uc.getId().intValue(), uc.getCollectionId(), img, uc.getLevel(), uc.getExp(), uc.getUpgradeLevel());
-                                    objet.setOvr(ovr);
-                                    realObjets.add(objet);
+                                com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(
+                                        uc.getId().intValue(), 
+                                        uc.getCollectionId(), 
+                                        uc.getFrontImage(), 
+                                        uc.getLevel(), 
+                                        uc.getExp(), 
+                                        uc.getUpgradeLevel()
+                                );
+                                objet.setOvr(uc.getOvr());
+                                objet.setMember(uc.getMember());
+                                objet.setSeason(uc.getSeason());
+                                
+                                // Ánh xạ cardClass sang typeKey chuẩn cho UpgradeAlgorithm
+                                String cardClass = uc.getCardClass();
+                                String typeKey = "FirstWelcome";
+                                if (cardClass != null) {
+                                    String key = cardClass.replaceAll("\\s+", "");
+                                    if (key.equalsIgnoreCase("Double")) typeKey = "Double";
+                                    else if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) typeKey = "SpecialUnit";
+                                    else if (key.equalsIgnoreCase("Premier")) typeKey = "Premier";
                                 }
+                                objet.setTypeKey(typeKey);
+
+                                objet.setBackImageUrl(uc.getBackImage());
+                                objet.setCollectionNo(uc.getCollectionNo());
+                                objet.setSlug(uc.getSlug());
+                                objet.setBackgroundColor(uc.getBackgroundColor());
+                                objet.setTextColor(uc.getTextColor());
+                                objet.setAvailableTags(uc.getAvailableTags());
+                                objet.setDimension(uc.getDimension());
+                                
+                                realObjets.add(objet);
                             }
 
                             // Update UI on main thread
@@ -1090,11 +1110,9 @@ public class CollectionFragment extends Fragment {
                     continue;
                 }
                 
-                org.json.JSONObject meta = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-                if (meta == null) continue;
-                String member = meta.optString("member", "");
-                String cardClass = meta.optString("class", "");
-                String season = meta.optString("season", "");
+                String member = obj.getMember();
+                String cardClass = obj.getTypeKey();
+                String season = obj.getSeason();
                 
                 boolean match = false;
                 for (String f : objetFilter) {
@@ -1107,10 +1125,10 @@ public class CollectionFragment extends Fragment {
             }
 
             filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
+                if ("Oldest".equals(currentSort)) return Integer.compare(b.getId(), a.getId());
                 if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
                 if ("Highest No.".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                return Integer.compare(b.getId(), a.getId());
+                return Integer.compare(a.getId(), b.getId());
             });
 
             if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
@@ -1305,10 +1323,10 @@ public class CollectionFragment extends Fragment {
             }
 
             filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort)) return a.getId().compareTo(b.getId());
+                if ("Oldest".equals(currentSort)) return b.getId().compareTo(a.getId());
                 if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0, b.getQuantity() != null ? b.getQuantity() : 0);
                 if ("Highest No.".equals(currentSort)) return Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0, a.getQuantity() != null ? a.getQuantity() : 0);
-                return b.getId().compareTo(a.getId());
+                return a.getId().compareTo(b.getId());
             });
 
             if (adapter != null) adapter.updateData(filtered);
