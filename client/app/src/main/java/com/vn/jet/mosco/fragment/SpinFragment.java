@@ -185,29 +185,8 @@ public class SpinFragment extends Fragment {
         // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
         initSacrificeFlipGesture();
 
-        getParentFragmentManager().setFragmentResultListener("objet_selection", this, (requestKey, result) -> {
-            String imageUrl = result.getString("selected_objet_url");
-            selectedSacrificeId = result.getString("selected_objet_id"); // Lưu ID thẻ hi sinh
-            if (imageUrl != null) {
-                String collectionId = result.getString("selected_collection_id", "");
-                int level = result.getInt("selected_level", 1);
-                int exp = result.getInt("selected_exp", 0);
-                int upgrade = result.getInt("selected_upgrade", 1);
-                int ovr = result.getInt("selected_ovr", 0);
-
-                int objId = -1;
-                try {
-                    if (selectedSacrificeId != null) objId = Integer.parseInt(selectedSacrificeId);
-                } catch (NumberFormatException ignored) {}
-                
-                com.vn.jet.mosco.model.Objet selectedObj = new com.vn.jet.mosco.model.Objet(objId, collectionId, imageUrl, level, exp, upgrade);
-                selectedObj.setOvr(ovr);
-
-                updateSelectedObjetUI(selectedObj);
-            }
-        });
-
-        // Không dùng setOnClickListener nữa — GestureDetector xử lý cả tap lẫn swipe
+        // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
+        initSacrificeFlipGesture();
 
         btnSpin.setOnClickListener(v -> showConfirmDialog());
         btnConfirmSelect.setOnClickListener(v -> {
@@ -1340,11 +1319,13 @@ public class SpinFragment extends Fragment {
                 new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                // Tap → mở chọn thẻ hi sinh mới
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, new SelectObjetFragment())
-                        .addToBackStack(null)
-                        .commit();
+                // Tap → mở chọn thẻ hi sinh mới bằng InventoryBottomSheet chung
+                InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
+                bottomSheet.setOnObjetSelectedListener(selectedObj -> {
+                    selectedSacrificeId = selectedObj.getIdString();
+                    updateSelectedObjetUI(selectedObj);
+                });
+                bottomSheet.show(getParentFragmentManager(), "SelectObjet");
                 return true;
             }
 

@@ -23,30 +23,15 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.vn.jet.mosco.R;
+import com.vn.jet.mosco.model.Objet;
 
 import org.json.JSONObject;
 
 /**
  * ObjetDetailBinder — Data-driven dynamic theming for the Objet Detail dialog.
- *
- * Each card in database.json has unique `backgroundColor` and `textColor`.
- * This binder applies those colors across the entire dialog to create
- * a visually distinct identity per card:
- *
- * - Progress bar tint → backgroundColor
- * - Stats card stroke → backgroundColor @40%
- * - Outer dialog card stroke → backgroundColor @60%
- * - Level badge background stroke → backgroundColor
- * - Title text → textColor
- * - Level EXP text → textColor
- * - Front image → loaded via Glide from frontImage URL
  */
 public class ObjetDetailBinder {
     
-    /**
-     * Hiển thị Dialog chi tiết thẻ bài từ một đối tượng Objet.
-     * Senior Logic: Tự động tìm kiếm Metadata từ DatabaseLoader dựa trên ID của thẻ.
-     */
     public static void showObjetDetail(android.content.Context context, com.vn.jet.mosco.model.Objet objet) {
         if (objet == null || context == null) return;
         
@@ -57,56 +42,53 @@ public class ObjetDetailBinder {
             dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        // Tìm Metadata từ Database ngầm dựa trên CollectionID (ví dụ: binary02_yeonji_333a)
-        org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(context, objet.getCollectionId());
-        if (cardJson != null) {
-            bind(dialog, context, cardJson, objet);
-        }
+        bind(dialog, context, objet);
 
         dialog.findViewById(R.id.btn_close_detail).setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
-    /**
-     * Binds all dynamic data from a card JSON to the detail dialog.
-     */
-    public static void bind(Dialog dialog, Context context, JSONObject cardJson, com.vn.jet.mosco.model.Objet objet) {
-        bind(dialog, context, cardJson, objet.getLevel(), objet.getExp(), objet.getUpgradeLevel(), objet);
+    public static void bind(Dialog dialog, Context context, org.json.JSONObject cardJson, int level, int exp, int upgradeLevel) {
+        try {
+            com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(0, cardJson.optString("id"), cardJson.optString("frontImage"), level, exp, upgradeLevel);
+            objet.setMember(cardJson.optString("member"));
+            objet.setCollectionNo(cardJson.optString("collectionNo"));
+            objet.setTypeKey(cardJson.optString("class"));
+            objet.setSeason(cardJson.optString("season"));
+            objet.setBackgroundColor(cardJson.optString("backgroundColor"));
+            objet.setTextColor(cardJson.optString("textColor"));
+            objet.setOvr(cardJson.optInt("ovr", 80));
+            bind(dialog, context, objet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    /**
-     * Binds all dynamic data from a card JSON to the detail dialog. (Legacy support)
-     */
-    public static void bind(Dialog dialog, Context context, JSONObject cardJson, int level, int exp, int upgradeLevel) {
-        bind(dialog, context, cardJson, level, exp, upgradeLevel, null);
-    }
-
-    private static void bind(Dialog dialog, Context context, JSONObject cardJson, int level, int exp, int upgradeLevel, com.vn.jet.mosco.model.Objet objet) {
+    public static void bind(Dialog dialog, Context context, com.vn.jet.mosco.model.Objet objet) {
         try {
             // ── 1. Parse colors ────────────────────────────────────────
-            String bgColorHex = cardJson.optString("backgroundColor", "#6c29fd");
-            String txtColorHex = cardJson.optString("textColor", "#ffffff");
-            String classColorStr = cardJson.optString("classColor", "");
+            String bgColorHex = objet.getBackgroundColor() != null ? objet.getBackgroundColor() : "#6c29fd";
+            String txtColorHex = objet.getTextColor() != null ? objet.getTextColor() : "#ffffff";
 
             int bgColor = Color.parseColor(bgColorHex);
             int txtColor = Color.parseColor(txtColorHex);
-            int classColor = classColorStr.isEmpty() 
-                    ? androidx.core.content.ContextCompat.getColor(context, R.color.mosco_btn_disabled) 
-                    : Color.parseColor(classColorStr);
+            
+            // Derive class color from bgColor (logic previously in cardJson)
+            int classColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_btn_disabled);
 
             // ── 2. Parse metadata ──────────────────────────────────────
-            String frontImageUrl = cardJson.optString("frontImage", "");
-            String member = cardJson.optString("member", "Unknown");
-            String collectionNo = cardJson.optString("collectionNo", "");
-            String cardClass = cardJson.optString("class", "");
-            String season = cardJson.optString("season", "");
+            String frontImageUrl = objet.getImageUrl();
+            String member = objet.getMember() != null ? objet.getMember() : "Unknown";
+            String collectionNo = objet.getCollectionNo() != null ? objet.getCollectionNo() : "";
+            String cardClass = objet.getTypeKey() != null ? objet.getTypeKey() : "";
+            String season = objet.getSeason() != null ? objet.getSeason() : "";
+            int level = objet.getLevel();
+            int exp = objet.getExp();
+            int upgradeLevel = objet.getUpgradeLevel();
 
-            // ── 3. Load front image via Glide (Optimal 4x Loading Strategy) ──────────
+            // ── 3. Load front image via Glide ──────────────────────────
             ImageView ivObjet = dialog.findViewById(R.id.iv_objet_detail_image);
-            if (ivObjet != null && !frontImageUrl.isEmpty()) {
-                // 💎 LOCAL FIRST THUMBNAIL TRICK:
-                // Load ngay bản 2x từ bộ nhớ máy (siêu nhanh) để lấp đầy khoảng trống 
-                // trong lúc đợi bản 4x (original) từ server Cloudflare nạp xong.
+            if (ivObjet != null && frontImageUrl != null && !frontImageUrl.isEmpty()) {
                 java.io.File localThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, frontImageUrl);
                 
                 com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> thumbRequest = null;
@@ -115,23 +97,22 @@ public class ObjetDetailBinder {
                 }
 
                 Glide.with(context)
-                        .load(frontImageUrl) // Bản 4x (Network)
-                        .thumbnail(thumbRequest) // Bản 2x (Local) - hiện tức thì
+                        .load(frontImageUrl)
+                        .thumbnail(thumbRequest)
                         .placeholder(R.drawable.item_shop_demo)
                         .error(R.drawable.item_shop_demo)
                         .transition(DrawableTransitionOptions.withCrossFade(500))
                         .into(ivObjet);
             }
 
-            // ── 3. Calculate Overall (Power Rating) & Bind Stats ───────────
-            int hp = cardJson.optInt("hp", 100);
-            int atk = cardJson.optInt("atk", 10);
-            int def = cardJson.optInt("def", 10);
-            int spd = cardJson.optInt("speed", 10);
+            // ── 3. Calculate Stats ───────────
+            int hp = 100;
+            int atk = 10;
+            int def = 10;
+            int spd = 10;
             
-            // Công thức nhân chỉ số: (1 + Bonus Level + Bonus Upgrade)
-            double levelBonus = (level - 1) * 0.05; // 5% mỗi level
-            double upgradeBonus = (upgradeLevel - 1) * 0.10; // 10% mỗi bậc +
+            double levelBonus = (level - 1) * 0.05;
+            double upgradeBonus = (upgradeLevel - 1) * 0.10;
             double multiplier = 1.0 + levelBonus + upgradeBonus;
 
             int finalHp = (int) (hp * multiplier);
@@ -139,10 +120,8 @@ public class ObjetDetailBinder {
             int finalDef = (int) (def * multiplier);
             int finalSpd = (int) (spd * multiplier);
             
-            // OVR từ Server Truth — Client không tính
-            int overall = (objet != null && objet.getOvr() > 0) ? objet.getOvr() : 80;
+            int overall = objet.getOvr() > 0 ? objet.getOvr() : 80;
 
-            // Hiển thị chỉ số cá nhân động lên giao diện
             TextView tvHp = dialog.findViewById(R.id.tv_stat_hp);
             if (tvHp != null) tvHp.setText(String.valueOf(finalHp));
             
@@ -155,19 +134,15 @@ public class ObjetDetailBinder {
             TextView tvSpd = dialog.findViewById(R.id.tv_stat_spd);
             if (tvSpd != null) tvSpd.setText(String.valueOf(finalSpd));
 
-            // CRIT Rate & DMG: Giữ base hoặc tăng nhẹ tùy thiết kế balance (hiện tại lấy base)
-            int baseCritRate = cardJson.optInt("critRate", 10);
-            int baseCritDmg = cardJson.optInt("critDmg", 150);
             TextView tvCritRate = dialog.findViewById(R.id.tv_stat_crit_rate);
-            if (tvCritRate != null) tvCritRate.setText(baseCritRate + "%");
+            if (tvCritRate != null) tvCritRate.setText("10%");
             
             TextView tvCritDmg = dialog.findViewById(R.id.tv_stat_crit_dmg);
-            if (tvCritDmg != null) tvCritDmg.setText(baseCritDmg + "%");
+            if (tvCritDmg != null) tvCritDmg.setText("150%");
 
             // ── 4. Bind title, badge & Dual-tone Chip ──────────────────
             TextView tvTitle = dialog.findViewById(R.id.tv_objet_title);
             if (tvTitle != null) {
-                // Hiển thị tên thành viên và mã sưu tầm (e.g. "Yeonji 333A")
                 tvTitle.setText(member + " " + collectionNo);
                 tvTitle.setTextColor(Color.WHITE);
             }
@@ -201,7 +176,6 @@ public class ObjetDetailBinder {
             if (llDualToneChip != null) {
                 int[] leftColors;
                 if ("Special".equalsIgnoreCase(cardClass)) {
-                    // Class Special: Dải Holographic (Hồng phấn, Xanh Lạnh, Tím Pastel, Trắng)
                     leftColors = new int[]{
                             Color.parseColor("#FFC0CB"),
                             Color.parseColor("#B0E0E6"),
@@ -211,18 +185,14 @@ public class ObjetDetailBinder {
                 } else {
                     leftColors = new int[]{bgColor};
                 }
-                
-                // Swap the colors: Base color/Gradient on the left (30%), Class color on the right (70%)
                 llDualToneChip.setBackground(new HardStopGradientDrawable(leftColors, classColor, 0.3f));
             }
 
             // ── 5. Setup layout tints & backgrounds ──────────
             MaterialCardView cvRoot = dialog.findViewById(R.id.cv_dialog_root);
-            
             int strokeWidth = dpToPx(context, 1);
             int blurredBorderColor = androidx.core.graphics.ColorUtils.setAlphaComponent(bgColor, 128);
 
-            // Nền của dialog gradient surface (trên) với màu bgColor (dưới)
             int topColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_surface);
             int bottomColor = androidx.core.graphics.ColorUtils.blendARGB(topColor, bgColor, 0.5f);
             GradientDrawable rootBg = new GradientDrawable(
@@ -245,7 +215,6 @@ public class ObjetDetailBinder {
             MaterialCardView cvImageContainer = dialog.findViewById(R.id.cv_objet_image_container);
             ImageView ivDetailBack = dialog.findViewById(R.id.iv_objet_detail_back);
             if (cvImageContainer != null) {
-                // a) Glowing Border (Outer Bloom)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     cvImageContainer.setCardElevation(dpToPx(context, 16));
                     cvImageContainer.setOutlineAmbientShadowColor(classColor);
@@ -254,34 +223,29 @@ public class ObjetDetailBinder {
                 cvImageContainer.setStrokeWidth(strokeWidth);
                 cvImageContainer.setStrokeColor(blurredBorderColor);
 
-                // b) Metallic Surface Background
                 View metallicBg = dialog.findViewById(R.id.view_card_metallic_bg);
                 if (metallicBg != null) {
                     int[] colors;
                     if ("Special".equalsIgnoreCase(cardClass)) {
-                        // Class Special: Holographic gradient
                         colors = new int[]{Color.parseColor("#FFC0CB"), Color.parseColor("#B0E0E6"), Color.parseColor("#E6E6FA"), Color.parseColor("#FFFFFF")};
                     } else {
-                        // Class thường: Trắng Ánh kim
                         colors = new int[]{Color.parseColor("#F5F5F5"), Color.parseColor("#FFFFFF"), Color.parseColor("#DBDBDB")};
                     }
                     GradientDrawable mBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
                     metallicBg.setBackground(mBg);
                 }
 
-                // c) Shimmer Overlay (Reflective animation)
                 View shimmer = dialog.findViewById(R.id.view_card_shimmer);
                 if (shimmer != null) {
                     GradientDrawable shimmerBg = new GradientDrawable(
                             GradientDrawable.Orientation.LEFT_RIGHT,
-                            new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF} // Tạo vệt sáng sắc nét ở giữa
+                            new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF}
                     );
                     shimmer.setBackground(shimmerBg);
-                    shimmer.setRotation(10f); // Xéo 80 độ so với trục X = nghiêng 10 độ so với trục Y
+                    shimmer.setRotation(10f);
                     shimmer.setScaleX(1.0f);
                     shimmer.setScaleY(1.5f);
 
-                    // Chạy thẳng từ trái sang phải, tạo delay vòng lặp mượt mà
                     ValueAnimator shimmerAnim = ValueAnimator.ofFloat(-1.5f, 2.5f); 
                     shimmerAnim.setDuration(3500); 
                     shimmerAnim.setInterpolator(new android.view.animation.LinearInterpolator());
@@ -294,7 +258,6 @@ public class ObjetDetailBinder {
                     shimmerAnim.start();
                 }
 
-                // d) Idle Floating Animation
                 ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cvImageContainer, "translationY", 0f, -12f, 0f);
                 floatingAnim.setDuration(3000);
                 floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -303,12 +266,10 @@ public class ObjetDetailBinder {
                 floatingAnim.start();
 
                 // ══════════════════════════════════════════════════════════
-                //  e) 3D FLIP — Swipe ngang lật 180° (Giống HomeFragment)
+                //  e) 3D FLIP
                 // ══════════════════════════════════════════════════════════
-                
-                // Load ảnh mặt sau từ database.json
-                String backImageUrl = cardJson.optString("backImage", "");
-                if (ivDetailBack != null && !backImageUrl.isEmpty()) {
+                String backImageUrl = objet.getBackImageUrl();
+                if (ivDetailBack != null && backImageUrl != null && !backImageUrl.isEmpty()) {
                     java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, backImageUrl);
                     com.bumptech.glide.RequestBuilder<Drawable> backThumb = null;
                     if (localBackThumb != null && localBackThumb.exists()) {
@@ -323,7 +284,6 @@ public class ObjetDetailBinder {
                             .into(ivDetailBack);
                 }
 
-                // Thiết lập camera distance & GestureDetector cho flip 3D
                 float density = context.getResources().getDisplayMetrics().density;
                 cvImageContainer.setCameraDistance(8000 * density);
 
@@ -341,7 +301,6 @@ public class ObjetDetailBinder {
                         if (e1 == null || e2 == null) return false;
                         float diffX = e2.getX() - e1.getX();
                         if (Math.abs(diffX) > SWIPE_T && Math.abs(velocityX) > VELOCITY_T && !isFlipAnimating[0]) {
-                            // Thực hiện flip animation
                             isFlipAnimating[0] = true;
                             float startA = isFlipped[0] ? 180f : 0f;
                             float midA = isFlipped[0] ? 270f : 90f;
@@ -355,32 +314,27 @@ public class ObjetDetailBinder {
                             p2.setDuration(FLIP_HALF);
                             p2.setInterpolator(new android.view.animation.DecelerateInterpolator());
 
-                            // Tại 90° → hoán đổi mặt trước/sau
                             p1.addListener(new android.animation.AnimatorListenerAdapter() {
                                 @Override
                                 public void onAnimationEnd(android.animation.Animator animation) {
                                     if (isFlipped[0]) {
-                                        // Quay lại mặt trước
                                         if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
                                         if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
                                         if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
                                         if (metallicBg != null) metallicBg.setVisibility(View.VISIBLE);
-                                        // Hiện lại OVR + Level Badge khi quay về front
                                         TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
                                         if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.VISIBLE);
                                         ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
                                         if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
                                     } else {
-                                        // Hiện mặt sau
                                         if (ivObjet != null) ivObjet.setVisibility(View.GONE);
                                         if (ivDetailBack != null) {
                                             ivDetailBack.setVisibility(View.VISIBLE);
-                                            ivDetailBack.setScaleX(-1f); // Mirror fix
+                                            ivDetailBack.setScaleX(-1f);
                                             ivDetailBack.setAlpha(1f);
                                         }
                                         if (shimmer != null) shimmer.setVisibility(View.GONE);
                                         if (metallicBg != null) metallicBg.setVisibility(View.GONE);
-                                        // Ẩn OVR + Level Badge khi hiện back
                                         TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
                                         if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.GONE);
                                         ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
@@ -420,34 +374,27 @@ public class ObjetDetailBinder {
             }
 
             MaterialButton btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
-        if (btnUpgrade != null) {
-            btnUpgrade.setOnClickListener(v -> {
-                dialog.dismiss();
-                if (context instanceof androidx.appcompat.app.AppCompatActivity) {
-                    androidx.appcompat.app.AppCompatActivity activity = (androidx.appcompat.app.AppCompatActivity) context;
-                    com.vn.jet.mosco.fragment.UpgradeFragment upgradeFragment = com.vn.jet.mosco.fragment.UpgradeFragment.newInstance();
-                    
-                    if (objet != null) {
-                        // Truyền thẻ hiện tại vào làm thẻ chính
-                        upgradeFragment.setMainCard(objet);
-                        
-                        // Mở UpgradeFragment
-                        activity.getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.frame_layout, upgradeFragment) // frame_layout là container chính trong MainActivity
-                                .addToBackStack(null)
-                                .commit();
-                                
-                        // Đồng bộ tab dưới bottom navigation (nếu có)
-                        com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = activity.findViewById(R.id.bottom_navigation);
-                        if (bottomNav != null) {
-                            bottomNav.setSelectedItemId(R.id.nav_stage); // ID của tab Upgrade
+            if (btnUpgrade != null) {
+                btnUpgrade.setOnClickListener(v -> {
+                    dialog.dismiss();
+                    if (context instanceof androidx.appcompat.app.AppCompatActivity) {
+                        androidx.appcompat.app.AppCompatActivity activity = (androidx.appcompat.app.AppCompatActivity) context;
+                        com.vn.jet.mosco.fragment.UpgradeFragment upgradeFragment = com.vn.jet.mosco.fragment.UpgradeFragment.newInstance();
+                        if (objet != null) {
+                            upgradeFragment.setMainCard(objet);
+                            activity.getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.frame_layout, upgradeFragment)
+                                    .addToBackStack(null)
+                                    .commit();
+                            com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = activity.findViewById(R.id.bottom_navigation);
+                            if (bottomNav != null) {
+                                bottomNav.setSelectedItemId(R.id.nav_stage);
+                            }
                         }
-                    } else {
-                        android.widget.Toast.makeText(context, "Không thể nâng cấp từ màn hình này", android.widget.Toast.LENGTH_SHORT).show();
                     }
-                }
-            });
-        }
+                });
+            }
+            
             View clLevelSection = dialog.findViewById(R.id.cl_level_section);
             if (clLevelSection != null) {
                 GradientDrawable levelBg = new GradientDrawable();
@@ -457,22 +404,19 @@ public class ObjetDetailBinder {
                 clLevelSection.setBackground(levelBg);
             }
 
-            // Level label (e.g. "Level 10") — dynamic
             TextView tvLevelLabel = dialog.findViewById(R.id.tv_level_label);
             if (tvLevelLabel != null) {
                 tvLevelLabel.setText("Level " + level);
                 tvLevelLabel.setTextColor(txtColor);
             }
  
-            // EXP text (e.g. "9 / 1000") — dynamic
-            int maxExp = level * 100; // Giả định Max EXP tăng theo Level
+            int maxExp = level * 100;
             TextView tvLevelValue = dialog.findViewById(R.id.tv_level_value);
             if (tvLevelValue != null) {
                 tvLevelValue.setText(exp + " / " + maxExp);
                 tvLevelValue.setTextColor(txtColor);
             }
 
-            // ProgressBar Level
             ProgressBar pbLevel = dialog.findViewById(R.id.pb_level);
             if (pbLevel != null) {
                 pbLevel.setMax(maxExp);
@@ -483,21 +427,13 @@ public class ObjetDetailBinder {
                 }
             }
 
-            // ── 8. Progress bar tint ───────────────────────────────────
-            // [Removed dynamic tint, using static progressDrawable]
-
-            // ── 9. Stats card — viền mờ ─────────────────────────────────
             MaterialCardView cvInfoBox = dialog.findViewById(R.id.cv_info_box);
             if (cvInfoBox != null) {
                 cvInfoBox.setStrokeWidth(strokeWidth);
                 cvInfoBox.setStrokeColor(blurredBorderColor);
-                cvInfoBox.setAlpha(0.8f); // 80% opacity
+                cvInfoBox.setAlpha(0.8f);
             }
 
-            // ── 10. Level Up button ─────────────
-            // [Reverted to keep original background]
-
-            // ── 11. Recycle button ─────────────────────────
             ImageView btnRecycle = dialog.findViewById(R.id.btn_recycle_detail);
             if (btnRecycle != null) {
                 int disabledColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_text_disabled);
@@ -509,86 +445,59 @@ public class ObjetDetailBinder {
         }
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────
-
-    /**
-     * Creates a color with modified alpha.
-     */
-    private static int withAlpha(int color, int alpha) {
-        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
-    }
-
     private static int dpToPx(Context ctx, int dp) {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
     }
 
-    /**
-     * Custom drawable to draw a linear gradient with a strict hard stop at a defined percentage.
-     */
     private static class HardStopGradientDrawable extends Drawable {
         private final android.graphics.Paint paint;
-        private final int[] colorsLeft;
-        private final int colorRight;
-        private final float stop;
+        private final int[] leftColors;
+        private final int rightColor;
+        private final float stopPoint;
 
-        public HardStopGradientDrawable(int[] colorsLeft, int colorRight, float stop) {
-            if (colorsLeft.length == 1) {
-                this.colorsLeft = new int[]{colorsLeft[0], colorsLeft[0]};
-            } else {
-                this.colorsLeft = colorsLeft;
-            }
-            this.colorRight = colorRight;
-            this.stop = stop;
+        public HardStopGradientDrawable(int[] leftColors, int rightColor, float stopPoint) {
             this.paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        }
-
-        @Override
-        public void setBounds(int left, int top, int right, int bottom) {
-            super.setBounds(left, top, right, bottom);
-            float width = right - left;
-
-            int leftLen = colorsLeft.length;
-            int totalColors = leftLen + 2; 
-            int[] shaderColors = new int[totalColors];
-            float[] shaderPositions = new float[totalColors];
-
-            for (int i = 0; i < leftLen; i++) {
-                shaderColors[i] = colorsLeft[i];
-                shaderPositions[i] = i * (stop / Math.max(1, leftLen - 1));
-            }
-            shaderPositions[leftLen - 1] = stop; 
-
-            shaderColors[leftLen] = colorRight;
-            shaderPositions[leftLen] = stop;
-
-            shaderColors[leftLen + 1] = colorRight;
-            shaderPositions[leftLen + 1] = 1f;
-
-            android.graphics.Shader shader = new android.graphics.LinearGradient(
-                    0, 0, width, 0,
-                    shaderColors,
-                    shaderPositions,
-                    android.graphics.Shader.TileMode.CLAMP
-            );
-            paint.setShader(shader);
+            this.leftColors = leftColors;
+            this.rightColor = rightColor;
+            this.stopPoint = stopPoint;
         }
 
         @Override
         public void draw(android.graphics.Canvas canvas) {
-            android.graphics.RectF rect = new android.graphics.RectF(getBounds());
-            float cornerRadius = rect.height() / 2f;
-            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
+            android.graphics.Rect bounds = getBounds();
+            float width = bounds.width();
+            float height = bounds.height();
+            float splitX = width * stopPoint;
+            float cornerRadius = height / 2.0f; // pill shape
+
+            android.graphics.Path clipPath = new android.graphics.Path();
+            clipPath.addRoundRect(new android.graphics.RectF(0, 0, width, height), cornerRadius, cornerRadius, android.graphics.Path.Direction.CW);
+
+            canvas.save();
+            canvas.clipPath(clipPath);
+
+            if (leftColors.length > 1) {
+                android.graphics.LinearGradient gradient = new android.graphics.LinearGradient(
+                        0, 0, splitX, 0, leftColors, null, android.graphics.Shader.TileMode.CLAMP);
+                paint.setShader(gradient);
+            } else {
+                paint.setColor(leftColors[0]);
+                paint.setShader(null);
+            }
+            canvas.drawRect(0, 0, splitX, height, paint);
+
+            paint.setShader(null);
+            paint.setColor(rightColor);
+            canvas.drawRect(splitX, 0, width, height, paint);
+            
+            canvas.restore();
         }
 
         @Override
-        public void setAlpha(int alpha) {}
-
+        public void setAlpha(int alpha) { paint.setAlpha(alpha); }
         @Override
-        public void setColorFilter(android.graphics.ColorFilter colorFilter) {}
-
+        public void setColorFilter(android.graphics.ColorFilter colorFilter) { paint.setColorFilter(colorFilter); }
         @Override
-        public int getOpacity() {
-            return android.graphics.PixelFormat.TRANSLUCENT;
-        }
+        public int getOpacity() { return android.graphics.PixelFormat.TRANSLUCENT; }
     }
 }

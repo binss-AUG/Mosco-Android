@@ -36,19 +36,68 @@ public class DatabaseLoader {
         public Long id;
         public String collectionId;
         public String frontImage;
+        public String backImage;
         public int level;
         public int exp;
         public int upgradeLevel;
         public int ovr; // OVR từ Server (Server Truth)
+        public String cardClass;
+        public String member;
+        public String season;
+        public String collectionNo;
+        public String slug;
+        public String backgroundColor;
+        public String textColor;
+        public List<String> availableTags;
+        public String dimension;
 
-        public UserInventoryItem(Long id, String collectionId, String frontImage, int level, int exp, int upgradeLevel, int ovr) {
+        public UserInventoryItem() {}
+
+        public UserInventoryItem(Long id, String collectionId, String frontImage, String backImage, int level, int exp, int upgradeLevel, int ovr, 
+                                 String cardClass, String member, String season, String collectionNo, String slug, String backgroundColor, String textColor, 
+                                 List<String> availableTags, String dimension) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
+            this.backImage = backImage;
             this.level = level;
             this.exp = exp;
             this.upgradeLevel = upgradeLevel;
             this.ovr = ovr;
+            this.cardClass = cardClass;
+            this.member = member;
+            this.season = season;
+            this.collectionNo = collectionNo;
+            this.slug = slug;
+            this.backgroundColor = backgroundColor;
+            this.textColor = textColor;
+            this.availableTags = availableTags;
+            this.dimension = dimension;
+        }
+
+        /**
+         * Chuyển đổi từ UserCard DTO sang Cache Item
+         */
+        public static UserInventoryItem fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
+            return new UserInventoryItem(
+                userCard.getId(),
+                userCard.getCollectionId(),
+                userCard.getFrontImage(),
+                userCard.getBackImage(),
+                userCard.getLevel(),
+                userCard.getExp(),
+                userCard.getUpgradeLevel(),
+                userCard.getOvr(),
+                userCard.getCardClass(),
+                userCard.getMember(),
+                userCard.getSeason(),
+                userCard.getCollectionNo(),
+                userCard.getSlug(),
+                userCard.getBackgroundColor(),
+                userCard.getTextColor(),
+                userCard.getAvailableTags(),
+                userCard.getDimension()
+            );
         }
     }
     public static List<UserInventoryItem> cachedUserInventory = null;
@@ -106,124 +155,191 @@ public class DatabaseLoader {
             @Override
             public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
-                    List<UserInventoryItem> cachedList = new ArrayList<>();
-                    for (com.vn.jet.mosco.model.UserCard userCard : userCards) {
-                        org.json.JSONObject cardJson = findById(context, userCard.getCollectionId());
-                        if (cardJson != null) {
-                            String img = cardJson.optString("frontImage", "");
-                            // OVR trực tiếp từ Server — Single Source of Truth
-                            int ovr = userCard.getOvr();
-                            cachedList.add(new UserInventoryItem(userCard.getId(), userCard.getCollectionId(), img, userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel(), ovr));
+                    // Dùng background thread để không block main thread khi map danh sách lớn
+                    new Thread(() -> {
+                        List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
+                        List<UserInventoryItem> cachedList = new ArrayList<>(userCards.size());
+                        for (com.vn.jet.mosco.model.UserCard uc : userCards) {
+                            cachedList.add(new UserInventoryItem(
+                                    uc.getId(),
+                                    uc.getCollectionId(),
+                                    uc.getFrontImage(),
+                                    uc.getBackImage(),
+                                    uc.getLevel(),
+                                    uc.getExp(),
+                                    uc.getUpgradeLevel(),
+                                    uc.getOvr(),
+                                    uc.getCardClass(),
+                                    uc.getMember(),
+                                    uc.getSeason(),
+                                    uc.getCollectionNo(),
+                                    uc.getSlug(),
+                                    uc.getBackgroundColor(),
+                                    uc.getTextColor(),
+                                    uc.getAvailableTags(),
+                                    uc.getDimension()
+                            ));
                         }
-                    }
-                    cachedUserInventory = cachedList;
+                        
+                        // Optimize hash map for O(1) lookup
+                        java.util.Map<String, JSONObject> tempMap = new java.util.HashMap<>(cachedList.size());
+                        for (UserInventoryItem item : cachedList) {
+                            tempMap.put(item.collectionId, convertToJSONObject(item));
+                        }
+                        
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            cachedUserInventory = cachedList;
+                            cachedCollectionMap = tempMap;
+                            saveInventoryToLocal(context, userId, cachedList);
+                            notifyInventoryChanged();
+                        });
+                    }).start();
+                } else {
+                    notifyInventoryChanged();
                 }
-                notifyInventoryChanged();
             }
 
             @Override
             public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
+                // Thử nạp từ cache cục bộ nếu server tèo
+                if (cachedUserInventory == null) {
+                    loadInventoryFromLocal(context, userId);
+                }
                 notifyInventoryChanged();
             }
         });
     }
 
     /**
-     * Loads all card entries from assets/database.json.
-     * Results are cached in memory after the first load.
+     * Lưu Inventory vào file cục bộ để chống mất dữ liệu khi xóa memory.
      */
-    public static List<JSONObject> loadAllCards(Context context) {
-        if (cachedCards != null) {
-            return cachedCards;
-        }
-
-        List<JSONObject> cards = new ArrayList<>();
-        try {
-            List<JSONObject> rawCards = loadEveryCard(context);
-            java.util.Set<String> seen = new java.util.HashSet<>();
-
-            for (JSONObject card : rawCards) {
-                String season = card.optString("season", "");
-                String cardClass = card.optString("class", "");
-                String key = season + "_" + cardClass;
-
-                if (!seen.contains(key)) {
-                    seen.add(key);
-                    cards.add(card);
+    public static void saveInventoryToLocal(Context context, Long userId, List<UserInventoryItem> items) {
+        if (userId == null || items == null) return;
+        new Thread(() -> {
+            try {
+                org.json.JSONArray array = new org.json.JSONArray();
+                for (UserInventoryItem item : items) {
+                    org.json.JSONObject obj = new org.json.JSONObject();
+                    obj.put("id", item.id);
+                    obj.put("collectionId", item.collectionId);
+                    obj.put("frontImage", item.frontImage);
+                    obj.put("backImage", item.backImage);
+                    obj.put("level", item.level);
+                    obj.put("exp", item.exp);
+                    obj.put("upgradeLevel", item.upgradeLevel);
+                    obj.put("ovr", item.ovr);
+                    obj.put("cardClass", item.cardClass);
+                    obj.put("member", item.member);
+                    obj.put("season", item.season);
+                    obj.put("collectionNo", item.collectionNo);
+                    obj.put("slug", item.slug);
+                    obj.put("backgroundColor", item.backgroundColor);
+                    obj.put("textColor", item.textColor);
+                    if (item.availableTags != null) {
+                        obj.put("availableTags", new org.json.JSONArray(item.availableTags));
+                    }
+                    obj.put("dimension", item.dimension);
+                    array.put(obj);
                 }
+                java.io.File file = new java.io.File(context.getFilesDir(), "inventory_cache_" + userId + ".json");
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(file);
+                fos.write(array.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                fos.close();
+                Log.d(TAG, "Đã lưu Inventory vào bộ nhớ máy cho user: " + userId);
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi lưu Inventory local: " + e.getMessage());
             }
-
-            Log.d(TAG, "Loaded " + cards.size() + " unique class/season cards from " + FILE_NAME);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load " + FILE_NAME, e);
-        }
-
-        cachedCards = cards;
-        return cards;
+        }).start();
     }
 
     /**
-     * Loads EVERY card from database.json without optimization/filtering.
+     * Nạp Inventory từ file cục bộ (Dùng khi vào app hoặc mất mạng).
      */
-    public static List<JSONObject> loadEveryCard(Context context) {
-        if (cachedAllCardsRaw != null && !cachedAllCardsRaw.isEmpty()) {
-            return cachedAllCardsRaw;
-        }
-
-        List<JSONObject> cards = new ArrayList<>();
-        java.util.Map<String, JSONObject> cardMap = new java.util.HashMap<>();
-        java.util.Map<String, JSONObject> slugMap = new java.util.HashMap<>();
-        java.util.Map<String, JSONObject> collectionMap = new java.util.HashMap<>();
-
+    public static void loadInventoryFromLocal(Context context, Long userId) {
+        if (userId == null) return;
         try {
-            InputStream is = context.getAssets().open(FILE_NAME);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            int bytesRead = 0;
-            int totalRead = 0;
-            while (totalRead < size && (bytesRead = is.read(buffer, totalRead, size - totalRead)) != -1) {
-                totalRead += bytesRead;
+            java.io.File file = new java.io.File(context.getFilesDir(), "inventory_cache_" + userId + ".json");
+            if (!file.exists()) return;
+
+            java.io.FileInputStream fis = new java.io.FileInputStream(file);
+            byte[] data = new byte[(int) file.length()];
+            fis.read(data);
+            fis.close();
+
+            String json = new String(data, java.nio.charset.StandardCharsets.UTF_8);
+            org.json.JSONArray array = new org.json.JSONArray(json);
+            List<UserInventoryItem> items = new ArrayList<>();
+            for (int i = 0; i < array.length(); i++) {
+                org.json.JSONObject obj = array.getJSONObject(i);
+                
+                List<String> tags = new ArrayList<>();
+                if (obj.has("availableTags")) {
+                    org.json.JSONArray tagArray = obj.getJSONArray("availableTags");
+                    for (int j = 0; j < tagArray.length(); j++) tags.add(tagArray.getString(j));
+                }
+
+                items.add(new UserInventoryItem(
+                        obj.getLong("id"),
+                        obj.getString("collectionId"),
+                        obj.getString("frontImage"),
+                        obj.optString("backImage", ""),
+                        obj.getInt("level"),
+                        obj.getInt("exp"),
+                        obj.getInt("upgradeLevel"),
+                        obj.getInt("ovr"),
+                        obj.optString("cardClass", ""),
+                        obj.optString("member", ""),
+                        obj.optString("season", ""),
+                        obj.optString("collectionNo", ""),
+                        obj.optString("slug", ""),
+                        obj.optString("backgroundColor", "#FFFFFF"),
+                        obj.optString("textColor", "#000000"),
+                        tags,
+                        obj.optString("dimension", "")
+                ));
             }
-            is.close();
+            cachedUserInventory = items;
+            cachedInventoryUserId = userId;
             
-            String jsonString = new String(buffer, StandardCharsets.UTF_8);
-            JSONObject root = new JSONObject(jsonString);
-            JSONArray collections = root.getJSONArray("collections");
-
-            for (int i = 0; i < collections.length(); i++) {
-                JSONObject card = collections.getJSONObject(i);
-                cards.add(card);
-                
-                String id = card.optString("id");
-                if (id != null && !id.isEmpty()) cardMap.put(id, card);
-                
-                String slug = card.optString("slug");
-                if (slug != null && !slug.isEmpty()) slugMap.put(slug, card);
-
-                String collectionId = card.optString("collectionId");
-                if (collectionId != null && !collectionId.isEmpty()) collectionMap.put(collectionId, card);
+            // Build map for O(1) lookups
+            cachedCollectionMap = new java.util.HashMap<>(items.size());
+            for (UserInventoryItem item : items) {
+                cachedCollectionMap.put(item.collectionId, convertToJSONObject(item));
             }
-            Log.d(TAG, "Successfully loaded " + cards.size() + " total cards from " + FILE_NAME);
+            
+            Log.d(TAG, "Đã khôi phục " + items.size() + " thẻ từ bộ nhớ máy.");
         } catch (Exception e) {
-            Log.e(TAG, "Failed to load all cards from " + FILE_NAME, e);
+            Log.e(TAG, "Lỗi nạp Inventory local: " + e.getMessage());
         }
-        cachedAllCardsRaw = cards;
-        cachedCardMap = cardMap;
-        cachedSlugMap = slugMap;
-        cachedCollectionMap = collectionMap;
-        return cards;
+    }
+
+    public static List<JSONObject> loadAllCards(Context context) {
+        if (cachedUserInventory == null) return new ArrayList<>();
+        List<JSONObject> list = new ArrayList<>();
+        for (UserInventoryItem item : cachedUserInventory) {
+            list.add(convertToJSONObject(item));
+        }
+        return list;
+    }
+
+    public static List<JSONObject> loadEveryCard(Context context) {
+        return loadAllCards(context);
     }
 
     /**
-     * Finds a card by its unique ID from database.json.
+     * Finds a card by its unique ID from cachedUserInventory.
+     * (Replaces local database.json lookup)
      */
     public static JSONObject findById(Context context, String id) {
-        if (cachedCardMap == null) {
-            loadEveryCard(context);
+        if (cachedCollectionMap != null && cachedCollectionMap.containsKey(id)) {
+            return cachedCollectionMap.get(id);
         }
-        if (cachedCardMap != null) {
-            return cachedCardMap.get(id);
+        
+        if (cachedUserInventory == null) return null;
+        for (UserInventoryItem item : cachedUserInventory) {
+            if (item.collectionId != null && item.collectionId.equalsIgnoreCase(id)) {
+                return convertToJSONObject(item);
+            }
         }
         return null;
     }
@@ -232,53 +348,57 @@ public class DatabaseLoader {
      * Finds a card by its slug.
      */
     public static JSONObject findBySlug(Context context, String slug) {
-        if (cachedSlugMap == null) {
-            loadEveryCard(context);
-        }
-        if (cachedSlugMap != null) {
-            return cachedSlugMap.get(slug);
+        if (cachedUserInventory == null) return null;
+        for (UserInventoryItem item : cachedUserInventory) {
+            if (item.slug != null && item.slug.equalsIgnoreCase(slug)) {
+                return convertToJSONObject(item);
+            }
         }
         return null;
     }
 
     /**
-     * Finds a card by its collectionId (e.g. "Binary02 JiYeon 503Z").
+     * Finds a card by its collectionId.
      */
     public static JSONObject findByCollectionId(Context context, String collectionId) {
-        if (cachedCollectionMap == null) {
-            loadEveryCard(context);
+        return findById(context, collectionId);
+    }
+
+    private static JSONObject convertToJSONObject(UserInventoryItem item) {
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("id", item.collectionId);
+            obj.put("collectionId", item.collectionId);
+            obj.put("frontImage", item.frontImage);
+            obj.put("backImage", item.backImage);
+            obj.put("class", item.cardClass);
+            obj.put("member", item.member);
+            obj.put("season", item.season);
+            obj.put("collectionNo", item.collectionNo);
+            obj.put("slug", item.slug);
+            obj.put("backgroundColor", item.backgroundColor);
+            obj.put("textColor", item.textColor);
+            obj.put("dimension", item.dimension);
+            if (item.availableTags != null) {
+                obj.put("availableTags", new JSONArray(item.availableTags));
+            }
+            return obj;
+        } catch (Exception e) {
+            return null;
         }
-        if (cachedCollectionMap != null) {
-            return cachedCollectionMap.get(collectionId);
-        }
-        return null;
     }
 
     /**
-     * Loads artist names from assets/game_config.json.
+     * Loads artist names from cached inventory.
      */
     public static List<String> loadArtistNames(Context context) {
         List<String> artistNames = new ArrayList<>();
-        try {
-            InputStream is = context.getAssets().open("game_config.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String jsonString = new String(buffer, StandardCharsets.UTF_8);
-
-            JSONObject root = new JSONObject(jsonString);
-            JSONArray artists = root.getJSONArray("artists");
-
-            for (int i = 0; i < artists.length(); i++) {
-                JSONObject artist = artists.getJSONObject(i);
-                String name = artist.optString("name", "");
-                if (!name.isEmpty()) {
-                    artistNames.add(name);
-                }
+        if (cachedUserInventory != null) {
+            java.util.Set<String> set = new java.util.HashSet<>();
+            for (UserInventoryItem item : cachedUserInventory) {
+                if (item.member != null) set.add(item.member);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to load artist names from game_config.json", e);
+            artistNames.addAll(set);
         }
         return artistNames;
     }

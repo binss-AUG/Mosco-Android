@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mỗi hàng buff trong bảng Synergy BottomSheet -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="10dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Cột 1: Tên Buff -->
+    <TextView
+        android:id="@+id/tv_synergy_badge_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/chakra_petch"
+        android:text="EVOLution"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <!-- Cột 2: Chỉ số buff (VD: +15% OVR) -->
+    <TextView
+        android:id="@+id/tv_synergy_buff_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:text="+15%"
+        android:textColor="#80FFB4"
+        android:textSize="13sp"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Cột 3: Container sao đánh giá -->
+    <LinearLayout
+        android:id="@+id/ll_star_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <!-- Sao được tạo động từ Adapter -->
+    </LinearLayout>
+
+</LinearLayout>

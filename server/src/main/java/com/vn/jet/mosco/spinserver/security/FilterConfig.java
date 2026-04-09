@@ -13,9 +13,11 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfig {
 
     private final JwtUtil jwtUtil;
+    private final com.vn.jet.mosco.spinserver.repository.UserRepository userRepository;
 
-    public FilterConfig(JwtUtil jwtUtil) {
+    public FilterConfig(JwtUtil jwtUtil, com.vn.jet.mosco.spinserver.repository.UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -31,7 +33,7 @@ public class FilterConfig {
     @Bean
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistration() {
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new JwtAuthFilter(jwtUtil));
+        registration.setFilter(new JwtAuthFilter(jwtUtil, userRepository));
         // Đóng sập cửa các API lấy thông tin người dùng và rương đồ nếu Token sai/hết hạn
         // Rank API không cần auth vì là bảng xếp hạng công khai
         registration.addUrlPatterns("/api/gacha/*", "/api/user/*", "/api/inventory/*", "/api/daily/*", "/api/friends/*");

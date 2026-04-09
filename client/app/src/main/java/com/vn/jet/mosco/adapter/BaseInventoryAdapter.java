@@ -65,10 +65,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.displayObjets.clear();
         this.isLoadingMore = false;
         
-        int instantEnd = Math.min(INSTANT_LOAD_COUNT, allObjets.size());
-        if (instantEnd > 0) {
-            this.displayObjets.addAll(allObjets.subList(0, instantEnd));
-        }
+        this.displayObjets.addAll(allObjets);
         
         notifyDataSetChanged();
     }
@@ -102,74 +99,24 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         // Tối ưu RecyclerView
         rv.setHasFixedSize(true);
-        rv.setItemViewCacheSize(20);
+        // Tăng Cache Size để tránh GC giật lag khi cuộn nhanh với list 9000 item
+        rv.setItemViewCacheSize(50);
+        rv.setDrawingCacheEnabled(true);
+        rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
+        // Khởi tạo layout manager và nạp dữ liệu tức thì (Không dùng OnScrollListener phức tạp gây kẹt thread)
         GridLayoutManager layoutManager = (GridLayoutManager) rv.getLayoutManager();
-        if (layoutManager != null) {
-            layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    return getItemViewType(position) == VIEW_TYPE_LOADING ? 3 : 1;
-                }
-            });
-        }
-
+        
         // ═══════════════════════════════════════════════════════════
-        // CHIẾN THUẬT "LOCAL FIRST" — Ảnh đã nằm ở máy, nạp tức thì
+        // TỐI ƯU HIỆU NĂNG - Tải toàn bộ Data ngay từ đầu thay vì Chunking
+        // (RecyclerView tự xử lý recycle view, chia nhỏ data gây chậm vòng lặp)
         // ═══════════════════════════════════════════════════════════
-
-        // Bước 1: Nạp thẳng 100 item đầu (ảnh local → 0ms)
-        int instantEnd = Math.min(INSTANT_LOAD_COUNT, allObjets.size());
-        if (instantEnd > 0) {
-            displayObjets.addAll(allObjets.subList(0, instantEnd));
-            notifyItemRangeInserted(0, instantEnd);
-        }
-
-        // Bước 2: Theo dõi cuộn để nạp thêm dữ liệu
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (layoutManager == null) return;
-                if (!isLoadingMore && dy > 0 && displayObjets.size() < allObjets.size()) {
-                    int totalVisible = layoutManager.getItemCount();
-                    int lastVisible = layoutManager.findLastVisibleItemPosition();
-
-                    if (lastVisible >= totalVisible - LOAD_THRESHOLD) {
-                        isLoadingMore = true;
-
-                        // Hiện loading footer
-                        displayObjets.add(null);
-                        notifyItemInserted(displayObjets.size() - 1);
-
-                        // Nạp chunk mới ngay lập tức (ảnh local nên không cần delay)
-                        mainHandler.post(() -> {
-                            // Xóa loading footer
-                            if (!displayObjets.isEmpty() && displayObjets.get(displayObjets.size() - 1) == null) {
-                                displayObjets.remove(displayObjets.size() - 1);
-                                notifyItemRemoved(displayObjets.size());
-                            }
-
-                            // Nạp chunk tiếp theo
-                            int start = displayObjets.size();
-                            int end = Math.min(start + BUFFER_SIZE, allObjets.size());
-                            if (start < end) {
-                                List<Objet> chunk = allObjets.subList(start, end);
-                                displayObjets.addAll(chunk);
-                                notifyItemRangeInserted(start, chunk.size());
-                            }
-
-                            isLoadingMore = false;
-                        });
-                    }
-                }
-            }
-        });
+        displayObjets.addAll(allObjets);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position >= displayObjets.size()) return VIEW_TYPE_ITEM;
-        return displayObjets.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+        return VIEW_TYPE_ITEM;
     }
 
     @NonNull

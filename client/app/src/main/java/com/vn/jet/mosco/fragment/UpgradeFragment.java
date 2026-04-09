@@ -270,33 +270,28 @@ public class UpgradeFragment extends Fragment {
             return;
         }
         currentMaterialSlot = slotIndex;
-        UpgradeBottomSheet bottomSheet = new UpgradeBottomSheet();
+        InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
         if (slotIndex != -1) {
             List<Objet> currentSelected = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 if (materialCards[i] != null) currentSelected.add(materialCards[i]);
             }
-            bottomSheet.setupMultiSelectMode(mainCard, upgradeAlgorithm, currentSelected);
-        }
-        bottomSheet.setOnUpgradeCardSelectedListener(new UpgradeBottomSheet.OnUpgradeCardSelectedListener() {
-            @Override
-            public void onUpgradeCardSelected(Objet card) {
-                if (currentMaterialSlot == -1) {
-                    mainCard = card;
-                    for (int i = 0; i < 5; i++) materialCards[i] = null;
-                }
-                updateUI();
-            }
-
-            @Override
-            public void onMaterialsSelected(List<Objet> materials) {
+            bottomSheet.setMultiSelectMode(mainCard, upgradeAlgorithm, currentSelected, materials -> {
                 for (int i = 0; i < 5; i++) {
                     if (materials != null && i < materials.size()) materialCards[i] = materials.get(i);
                     else materialCards[i] = null;
                 }
                 updateUI();
-            }
-        });
+            });
+        } else {
+            bottomSheet.setOnObjetSelectedListener(card -> {
+                if (currentMaterialSlot == -1) {
+                    mainCard = card;
+                    for (int i = 0; i < 5; i++) materialCards[i] = null;
+                }
+                updateUI();
+            });
+        }
         bottomSheet.show(getParentFragmentManager(), "upgrade_card_selector");
     }
 
@@ -387,11 +382,13 @@ public class UpgradeFragment extends Fragment {
         // Video sấm chớp (thành công)
         VideoView successVideoView = new VideoView(getContext());
         successVideoView.setVisibility(View.GONE);
-        successVideoView.setAlpha(0f);
+        successVideoView.setAlpha(1f);
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int videoHeight = (int) (screenWidth * (16f / 9f));
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+        // Chiều cao video sẽ chiếm khoảng 80% màn hình để đảm bảo phủ từ đỉnh xuống qua thẻ bài
+        int videoHeight = (int) (screenHeight * 0.85f); 
         FrameLayout.LayoutParams successParams = new FrameLayout.LayoutParams(screenWidth, videoHeight);
-        successParams.gravity = android.view.Gravity.TOP;
+        successParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
         overlay.addView(successVideoView, successParams);
         String successVideoPath = "android.resource://" + getContext().getPackageName() + "/" + R.raw.successupgrade;
         successVideoView.setVideoURI(Uri.parse(successVideoPath));
@@ -578,8 +575,7 @@ public class UpgradeFragment extends Fragment {
 
                                 if (result.isSuccess()) {
                                     successVideoView.setVisibility(View.VISIBLE);
-                                    successVideoView.setAlpha(0f);
-                                    successVideoView.animate().alpha(1f).setDuration(VIDEO_FADE_DURATION).start();
+                                    successVideoView.setAlpha(1f);
                                     
                                     // Đồng bộ tuyệt đối: Chờ VideoView báo cáo đã render frame đầu tiên
                                     successVideoView.setOnInfoListener((mp, what, extra) -> {

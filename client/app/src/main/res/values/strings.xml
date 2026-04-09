@@ -62,6 +62,11 @@
     <string name="home_hud_event">EVENT</string>
     <string name="home_hud_shop">SHOP</string>
     <string name="home_hud_friends">FRIENDS</string>
+    <string name="home_hud_formation">TEAM</string>
+    <string name="formation_preview_failed">Preview failed</string>
+    <string name="formation_inventory_placeholder">Opening Inventory BottomSheet...</string>
+    <string name="formation_total_ovr_label">TOTAL FORMATION OVR</string>
+    <string name="formation_active_synergies_label">ACTIVE SYNERGIES</string>
     <string name="home_cd_hud_menu">Open utility menu</string>
 
     <!-- HomeFragment: Banner -->
@@ -79,4 +84,8 @@
     <string name="profile_btn_edit">EDIT PROFILE</string>
     <string name="profile_edit_title">Edit Profile</string>
     <string name="profile_save">Save</string>
+
+    <string name="synergy_tier_bronze">BRONZE</string>
+    <string name="synergy_tier_silver">SILVER</string>
+    <string name="synergy_tier_gold">GOLD</string>
 </resources>

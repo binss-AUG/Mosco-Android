@@ -368,7 +368,7 @@
     <FrameLayout
         android:id="@+id/fl_hud_menu_container"
         android:layout_width="260dp"
-        android:layout_height="200dp"
+        android:layout_height="280dp"
         android:visibility="invisible"
         android:clipChildren="false"
         android:clipToPadding="false"
@@ -497,7 +497,7 @@
                 app:layout_constraintTop_toBottomOf="@id/btn_quick_daily"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btn_quick_shop"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintBottom_toTopOf="@id/btn_quick_formation">
                 <FrameLayout
                     android:layout_width="52dp"
                     android:layout_height="52dp"
@@ -579,6 +579,40 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_friends"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Tool: Formation (Team) -->
+            <LinearLayout
+                android:id="@+id/btn_quick_formation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintTop_toBottomOf="@id/btn_quick_rank"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <FrameLayout
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_hud_mini_fab">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_stage"
+                        app:tint="@color/mosco_neon_blue" />
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_hud_formation"
                     android:textColor="@color/white"
                     android:textSize="9sp"
                     android:fontFamily="@font/poppins_bold"

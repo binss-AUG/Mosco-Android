@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private MaterialCardView cvShowcaseCard;
     private View flShowcaseContainer, viewCardShimmer;
     private LinearLayout llEmptyState, llBannerDots;
-    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop;
+    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFormation;
     private View layoutShowcaseLoading;
     private TextView tvShowcaseLoading, tvCardCount;
     private ViewPager2 vpBanners;
@@ -217,6 +217,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             btnQuickUpgrade = v.findViewById(R.id.btn_quick_upgrade);
             btnQuickRank = v.findViewById(R.id.btn_quick_rank);
             btnQuickShop = v.findViewById(R.id.btn_quick_shop);
+            btnQuickFormation = v.findViewById(R.id.btn_quick_formation);
             layoutShowcaseLoading = v.findViewById(R.id.layout_showcase_loading);
             tvShowcaseLoading = v.findViewById(R.id.tv_showcase_loading);
             tvCardCount = v.findViewById(R.id.tv_home_card_count);
@@ -313,39 +314,33 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void openCardSelector() {
         if (getContext() == null) return;
         
-        UpgradeBottomSheet bottomSheet = new UpgradeBottomSheet();
+        InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
 
-        bottomSheet.setOnUpgradeCardSelectedListener(new UpgradeBottomSheet.OnUpgradeCardSelectedListener() {
-            @Override
-            public void onUpgradeCardSelected(Objet card) {
-                // Cập nhật thẻ bài Showcase mới
-                if (card != null) {
-                    heroObjet = card;
-                    
-                    // QUAN TRỌNG: Lưu ID thẻ vừa chọn vào Session để không bị Reset khi chuyển Tab
-                    if (sessionManager != null) {
-                        sessionManager.setSelectedShowcaseId(card.getId());
-                    }
+        bottomSheet.setOnObjetSelectedListener(card -> {
+            // Cập nhật thẻ bài Showcase mới
+            if (card != null) {
+                heroObjet = card;
+                
+                // QUAN TRỌNG: Lưu ID thẻ vừa chọn vào Session để không bị Reset khi chuyển Tab
+                if (sessionManager != null) {
+                    sessionManager.setSelectedShowcaseId(card.getId());
+                }
 
-                    // Tìm kiếm trong kho đồ để lấy đầy đủ thông tin (Back image, OVR...)
-                    if (DatabaseLoader.cachedUserInventory != null) {
-                        for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
-                            if (item.id != null && item.id.intValue() == card.getId()) {
-                                if (getContext() != null) {
-                                    heroCardJson = DatabaseLoader.findById(getContext(), item.collectionId);
-                                    heroBackImageUrl = heroCardJson != null ? heroCardJson.optString("backImage", "") : "";
-                                }
-                                bindHeroCard(item);
-                                bindHeaderBadges(item);
-                                break;
+                // Tìm kiếm trong kho đồ để lấy đầy đủ thông tin (Back image, OVR...)
+                if (DatabaseLoader.cachedUserInventory != null) {
+                    for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
+                        if (item.id != null && item.id.intValue() == card.getId()) {
+                            if (getContext() != null) {
+                                heroCardJson = DatabaseLoader.findById(getContext(), item.collectionId);
+                                heroBackImageUrl = heroCardJson != null ? heroCardJson.optString("backImage", "") : "";
                             }
+                            bindHeroCard(item);
+                            bindHeaderBadges(item);
+                            break;
                         }
                     }
                 }
             }
-
-            @Override
-            public void onMaterialsSelected(List<Objet> materials) {}
         });
 
         bottomSheet.show(getParentFragmentManager(), "hero_card_selector");
@@ -472,6 +467,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             toggleHudMenu();
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FriendActivity.class));
         });
+
+        if (btnQuickFormation != null) {
+            btnQuickFormation.setOnClickListener(v -> {
+                toggleHudMenu();
+                startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FormationActivity.class));
+            });
+        }
         
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
@@ -682,7 +684,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
      * Hiệu ứng Staggered Animation cho các nút con trong bảng HUD.
      */
     private void animateSubTools(boolean expand) {
-        View[] tools = {btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank, btnQuickShop, btnQuickFriends};
+        View[] tools = {btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank, btnQuickShop, btnQuickFriends, btnQuickFormation};
         
         for (int i = 0; i < tools.length; i++) {
             View tool = tools[i];
@@ -1061,13 +1063,18 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                     bestCard.upgradeLevel
             );
             heroObjet.setOvr(bestCard.ovr);
+            heroObjet.setMember(bestCard.member);
+            heroObjet.setSeason(bestCard.season);
+            heroObjet.setTypeKey(bestCard.cardClass);
+            heroObjet.setBackImageUrl(bestCard.backImage);
+            heroObjet.setCollectionNo(bestCard.collectionNo);
+            heroObjet.setSlug(bestCard.slug);
+            heroObjet.setBackgroundColor(bestCard.backgroundColor);
+            heroObjet.setTextColor(bestCard.textColor);
+            heroObjet.setAvailableTags(bestCard.availableTags);
+            heroObjet.setDimension(bestCard.dimension);
 
-            // Lookup full card metadata from database.json
-            heroCardJson = DatabaseLoader.findById(getContext(), bestCard.collectionId);
-            if (heroCardJson != null) {
-                String cardClass = heroCardJson.optString("class", "FirstWelcome");
-                heroObjet.setTypeKey(cardClass != null ? cardClass.replaceAll("\\s+", "") : "FirstWelcome");
-            }
+            heroBackImageUrl = bestCard.backImage;
 
             bindHeroCard(bestCard);
             bindHeaderBadges(bestCard);
@@ -1122,8 +1129,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 cvShowcaseCard.setEnabled(false);
             }
 
-            heroCardJson = DatabaseLoader.findById(getContext(), card.collectionId);
-            heroBackImageUrl = heroCardJson != null ? heroCardJson.optString("backImage", "") : "";
+            heroBackImageUrl = card.backImage;
 
             pendingShowcaseAssetLoads = 1;
 

@@ -92,7 +92,20 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ **Các dependency mới:** (Không phát sinh).
 *   ✅ **Cấu trúc Database Update:** Bổ sung các Custom Query `deleteByUser` và `findByIdAndUserId` vào `UserCardRepository`.
 
+## 📜 Nhật Ký Cập Nhật (V5.0 - Formation Passive Synergy)
+*   ✅ **Kiến trúc Formation Mới:** Hệ thống Đội hình (Team Formation) chuyển đổi hoàn toàn sang Passive Synergy 100%. 6 slot trên sân tự động cộng dồn vô hạn Buff mà không cần người chơi phải kích hoạt thẻ thủ công.
+*   ✅ **Staggered Grid Layout:** Sân khấu 6 thẻ được bố trí theo dạng dích dắc (1-2-1-2) mô phỏng chính xác giao diện chuẩn. Hỗ trợ đầy đủ Drag & Drop hoán đổi vị trí thẻ mượt mà thông qua `ItemTouchHelper`.
+*   ✅ **Realtime OVR Animator:** Tự động Count-Up/Count-Down điểm số OVR khi thay đổi đội hình.
+*   ✅ **Interactive Synergy Dashboard:** Bảng báo cáo Buff động ở Footer. Giữ đè (Long Press) vào bất kỳ tên Buff nào để tự động:
+    * Làm tối (Dim) các thẻ không liên quan.
+    * Làm sáng viền (Glow) các thẻ đang mang Buff.
+    * Kích hoạt mạng lưới năng lượng (Neon Lines) nối các thẻ với nhau nhờ Canvas Custom View (`NeonLineView`).
+
 *   **Tài liệu Hệ thống API Mới:**
+    *   **Battle Preview Endpoint:**
+        *   **Method / URL:** `POST /api/battle/preview`
+        *   **Request:** `BattleRequest` (JSON gồm mảng `formation` chứa `userCardId` của 6 slot)
+        *   **Response:** `BattleResponse` trả về `totalOvr` và danh sách `activeSynergies` để UI tự động render mà không cần tính toán nội bộ.
     *   **Gacha Upgrade Endpoint:**
         *   **Method / URL:** `POST /api/gacha/upgrade`
         *   **Request:** `UpgradeRequest` (JSON gồm `userId`, `baseCardId`, `materialCardIds` mảng các materials)
@@ -110,6 +123,18 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ **Global Sync Avatar:** Hủy bỏ avatar Local Storage rác, thay thế bằng cơ chế định danh `avatarId` gửi về Backend, giúp tốc độ cập nhật siêu nhanh và nhẹ tải máy. Server và 100% Client đều nhìn thấy cùng 1 hình thông qua API profile.
 *   ✅ **Google ML Kit Integration:** Tích hợp bộ quét Deep Learning On-Device cực nhẹ của Google để dò tìm gương mặt Idol trong bức thẻ. Tự động đưa ra `SmartFaceCropTransformation` căn chỉnh Crop Avatar Face Focus tuyệt đối. Không tốn % API cloud nào.
 *   ✅ **Inventory-Based Selector:** Bộ chọn Avatar BottomSheet siêu đẹp ứng dụng quy chuẩn Galactic Glassmorphism. Chỉ hiển thị các Objet mà User ĐÃ SỞ HỮU thực tế trong rương đồ, tích hợp auto-fallback tự xài mặc định nếu cần.
+
+---
+## 🎯 Nhật Ký Cập Nhật (V6.1 - Unified Inventory System)
+*   ✅ **Gộp chung BottomSheet:** Thay thế hoàn toàn `SelectObjetFragment`, `UpgradeBottomSheet` bằng duy nhất một `InventoryBottomSheet` nhằm tối ưu bộ nhớ.
+*   ✅ **Hỗ trợ Đa chức năng:** `InventoryBottomSheet` hiện giờ hỗ trợ cả Single-Select (dùng cho Spin, Home Showcase) và Multi-Select (xem trước tỷ lệ % thành công cho Upgrade, tối đa 5 materials).
+*   ✅ **Cải thiện UI:** Fix vấn đề dropdown dính lề màn hình do sử dụng `MarginLayoutParams` thay vì LayoutParams hệ thống cũ trong môi trường ConstraintLayout.
+*   ✅ **Clean Code (Don't Repeat Yourself):** Loại bỏ logic rườm rà lặp lại ở CollectionFragment và UpgradeFragment, cung cấp giao tiếp trực tiếp qua Listener mà không cần Fragment Result truyền thống.
+
+## 🎯 Nhật Ký Cập Nhật (V6.2 - Strict Formation Layout & Validator & Cloud Sync)
+*   🛡️ **Triển khai Auto-Scale Layout (1-2-1-2):** Đã xóa `RecyclerView` (với cấu trúc Span) trong màn hình `FormationActivity`, được thay thế hoàn toàn bởi cấu trúc ConstraintLayout lồng ghép (`LinearLayout` chia weight tuyệt đối). Đảm bảo thẻ ở trên sân *tự động co giãn theo tỷ lệ 1:1.54* để full-view và không bao giờ bị méo hình. (Kèm theo chức năng Native Drag & Drop mượt mà hơn).
+*   ✅ **Chống Trùng Lặp Nghệ Sĩ (Artist Duplicate Lock):** Cải tiến thuật toán ở `InventoryBottomSheet`, chặn hoàn toàn hành vi của người chơi khi đưa 2 thẻ có chung Artist (`member`) vào cùng 1 đội hình. Hiển thị cảnh báo trực quan bằng `Toast` thay vì cho phép tráo đổi vô nghĩa.
+*   ☁️ **Đồng bộ Đội Hình (Cloud Formation Sync):** Mỗi khi người chơi điều chỉnh thẻ bài (Kéo thả, đổi, đặt vào sàn), đội hình sẽ được âm thầm tự động lưu ngầm (`id` thẻ phân tách bằng dấu `,`) vào thẳng Field `activeFormation` của bảng `User` tại Database. Khi Game mở lại, cấu hình cuối sẽ được tự gọi về!
 
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

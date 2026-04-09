@@ -1,0 +1,31 @@
+{ 
+   "project": "Mosco", 
+   "version": "1.0", 
+   "description": "Mapping matrix for tripleS members and their available tags", 
+   "members": [ 
+     { "name": "YooYeon", "tags": ["AAA", "ACID EYES", "EVOLution", "VV", "∞!", "Alpha"], "dimension": "SUN" }, 
+     { "name": "Mayu", "tags": ["EVOLution", "∞!"], "dimension": "SUN" }, 
+     { "name": "Xinyu", "tags": ["LOVElution", "VV"], "dimension": "SUN" }, 
+     { "name": "NaKyoung", "tags": ["AAA", "ACID EYES", "EVOLution", "VV"], "dimension": "NEPTUNE" }, 
+     { "name": "SoHyun", "tags": ["LOVElution", "VV"], "dimension": "MOON" }, 
+     { "name": "DaHyun", "tags": ["LOVElution", "Aria"], "dimension": "NEPTUNE" }, 
+     { "name": "Nien", "tags": ["LOVElution", "Aria", "VV", "Alpha"], "dimension": "NEPTUNE" }, 
+     { "name": "SeoYeon", "tags": ["KRE", "ACID EYES", "LOVElution"], "dimension": "NEPTUNE" }, 
+     { "name": "JiYeon", "tags": ["Glow", "VV", "Alpha"], "dimension": "MOON" }, 
+     { "name": "Kotone", "tags": ["EVOLution", "VV", "∞!", "Alpha"], "dimension": "NEPTUNE" }, 
+     { "name": "ChaeYeon", "tags": ["KRE", "ACID EYES", "EVOLution", "Aria", "∞!"], "dimension": "SUN" }, 
+     { "name": "YuBin", "tags": ["AAA", "ACID EYES", "LOVElution", "VV"], "dimension": "ZENITH" }, 
+     { "name": "JiWoo", "tags": ["KRE", "EVOLution", "Aria", "∞!"], "dimension": "ZENITH" }, 
+     { "name": "Kaede", "tags": ["LOVElution", "Aria", "VV"], "dimension": "MOON" }, 
+     { "name": "ShiOn", "tags": ["NXT", "∞!", "Alpha"], "dimension": "MOON" }, 
+     { "name": "Lynn", "tags": ["NXT", "VV", "Alpha"], "dimension": "MOON" }, 
+     { "name": "Sullin", "tags": ["Glow"], "dimension": "MOON" }, 
+     { "name": "HyeRin", "tags": ["AAA", "ACID EYES", "LOVElution", "VV"], "dimension": "SUN" }, 
+     { "name": "ChaeWon", "tags": ["Glow", "∞!", "Alpha"], "dimension": "SUN" }, 
+     { "name": "HaYeon", "tags": ["NXT", "Alpha"], "dimension": "ZENITH" }, 
+     { "name": "SooMin", "tags": ["KRE", "ACID EYES", "EVOLution", "∞!"], "dimension": "ZENITH" }, 
+     { "name": "YeonJi", "tags": ["EVOLution", "VV"], "dimension": "ZENITH" }, 
+     { "name": "JooBin", "tags": ["NXT"], "dimension": "ZENITH" }, 
+     { "name": "SeoAh", "tags": ["Glow"], "dimension": "NEPTUNE" } 
+   ] 
+ } 

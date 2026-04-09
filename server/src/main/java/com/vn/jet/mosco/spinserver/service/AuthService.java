@@ -92,6 +92,9 @@ public class AuthService {
         userRepository.save(newUser);
 
         String token = generateToken(newUser);
+        newUser.setActiveToken(token);
+        userRepository.save(newUser);
+        
         return new AuthResponse(true, "Đăng ký tài khoản thành công!", newUser, token);
     }
 
@@ -206,6 +209,9 @@ public class AuthService {
         }
 
         String token = generateToken(user);
+        user.setActiveToken(token);
+        userRepository.save(user);
+        
         return new AuthResponse(true, "Login successful", user, token);
     }
 
