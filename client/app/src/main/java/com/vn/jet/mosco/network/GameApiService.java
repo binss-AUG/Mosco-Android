@@ -144,4 +144,32 @@ public interface GameApiService {
     /** Tìm kiếm user theo tên hoặc ID. */
     @GET("/api/friends/search")
     Call<ResponseBody> searchUsers(@Query("query") String query);
+
+    // ══════════════════════════════════════════════════════════════
+    //  GIFT — Tặng Objet giữa các user
+    // ══════════════════════════════════════════════════════════════
+
+    /** Gửi tặng thẻ. Body: { "cardId": 1, "receiverId": 2 } */
+    @POST("/api/gift/send")
+    Call<ResponseBody> sendGift(@Body java.util.Map<String, Long> body);
+
+    /** Danh sách quà đã nhận (Inbox). */
+    @GET("/api/gift/received")
+    Call<ResponseBody> getReceivedGifts();
+
+    /** Danh sách quà đã gửi. */
+    @GET("/api/gift/sent")
+    Call<ResponseBody> getSentGifts();
+
+    /** Đánh dấu tất cả quà nhận là đã đọc. */
+    @POST("/api/gift/mark-read")
+    Call<ResponseBody> markGiftsAsRead();
+
+    /** Số lượt tặng còn lại trong ngày. */
+    @GET("/api/gift/daily-remaining")
+    Call<ResponseBody> getDailyGiftRemaining();
+
+    /** Số quà chưa đọc (cho badge thông báo). */
+    @GET("/api/gift/unread-count")
+    Call<ResponseBody> getGiftUnreadCount();
 }

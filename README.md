@@ -136,5 +136,10 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ **Chống Trùng Lặp Nghệ Sĩ (Artist Duplicate Lock):** Cải tiến thuật toán ở `InventoryBottomSheet`, chặn hoàn toàn hành vi của người chơi khi đưa 2 thẻ có chung Artist (`member`) vào cùng 1 đội hình. Hiển thị cảnh báo trực quan bằng `Toast` thay vì cho phép tráo đổi vô nghĩa.
 *   ☁️ **Đồng bộ Đội Hình (Cloud Formation Sync):** Mỗi khi người chơi điều chỉnh thẻ bài (Kéo thả, đổi, đặt vào sàn), đội hình sẽ được âm thầm tự động lưu ngầm (`id` thẻ phân tách bằng dấu `,`) vào thẳng Field `activeFormation` của bảng `User` tại Database. Khi Game mở lại, cấu hình cuối sẽ được tự gọi về!
 
+## 🎯 Nhật Ký Cập Nhật (V7.0 - Premium Gift System Redesign)
+*   🎁 **Kiến trúc Quà Tặng Độc Lập:** Tách biệt module quà tặng thành một Wizard 3-Step chuẩn quốc tế. Cấm tặng thẻ đang trong Formation và có phí chống lạm phát (36k Coin + 36 Diamond).
+*   UI/UX UI chuẩn: Đồng nhất ngôn ngữ (Full Tiếng Anh) và áp dụng Layout Constraint (1:1.54) cho view thẻ 3-D. Bổ sung `Search` cho việc chọn bạn và nút `Previous` ở các Step 2, Step 3 để hỗ trợ hoàn tác.
+*   Hiệu ứng 3D Premium: Objet khi được đem đi tặng sẽ bay lơ lửng ở chính giữa và liên tục lật xoay quanh trục Y (Animation ObjectAnimator) tạo điểm nhấn mạnh mẽ.
+
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

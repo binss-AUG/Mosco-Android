@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private MaterialCardView cvShowcaseCard;
     private View flShowcaseContainer, viewCardShimmer;
     private LinearLayout llEmptyState, llBannerDots;
-    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFormation;
+    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFormation, btnQuickGift;
     private View layoutShowcaseLoading;
     private TextView tvShowcaseLoading, tvCardCount;
     private ViewPager2 vpBanners;
@@ -218,6 +218,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             btnQuickRank = v.findViewById(R.id.btn_quick_rank);
             btnQuickShop = v.findViewById(R.id.btn_quick_shop);
             btnQuickFormation = v.findViewById(R.id.btn_quick_formation);
+            btnQuickGift = v.findViewById(R.id.btn_quick_gift);
             layoutShowcaseLoading = v.findViewById(R.id.layout_showcase_loading);
             tvShowcaseLoading = v.findViewById(R.id.tv_showcase_loading);
             tvCardCount = v.findViewById(R.id.tv_home_card_count);
@@ -474,6 +475,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FormationActivity.class));
             });
         }
+
+        if (btnQuickGift != null) {
+            btnQuickGift.setOnClickListener(v -> {
+                toggleHudMenu();
+                startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.GiftActivity.class));
+            });
+        }
         
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
@@ -684,7 +692,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
      * Hiệu ứng Staggered Animation cho các nút con trong bảng HUD.
      */
     private void animateSubTools(boolean expand) {
-        View[] tools = {btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank, btnQuickShop, btnQuickFriends, btnQuickFormation};
+        View[] tools = {btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift};
         
         for (int i = 0; i < tools.length; i++) {
             View tool = tools[i];

@@ -63,6 +63,25 @@
     <string name="home_hud_shop">SHOP</string>
     <string name="home_hud_friends">FRIENDS</string>
     <string name="home_hud_formation">TEAM</string>
+    <string name="home_hud_gift">GIFT</string>
+
+    <!-- Gift Activity -->
+    <string name="gift_title">GIFT</string>
+    <string name="gift_step1_tap">Tap to select\nObjet to gift</string>
+    <string name="gift_next">CONTINUE →</string>
+    <string name="gift_cancel">CANCEL</string>
+    <string name="gift_previous">← PREVIOUS</string>
+    <string name="gift_done">DONE</string>
+    <string name="gift_send">🎁 SEND GIFT</string>
+    <string name="gift_cost_label">GIFT COST</string>
+    <string name="gift_search_hint">Search friends...</string>
+    <string name="gift_tab_send">SEND</string>
+    <string name="gift_tab_received">INBOX</string>
+    <string name="gift_step_1">① SELECT CARD</string>
+    <string name="gift_step_2">② SELECT FRIEND</string>
+    <string name="gift_step_3">③ CONFIRM</string>
+    <string name="gift_no_friends">You have no friends yet.\nAdd some to send gifts!</string>
+    <string name="gift_no_received">Inbox is empty.\nWait for a gift from friends!</string>
     <string name="formation_preview_failed">Preview failed</string>
     <string name="formation_inventory_placeholder">Opening Inventory BottomSheet...</string>
     <string name="formation_total_ovr_label">TOTAL FORMATION OVR</string>

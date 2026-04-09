@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Item cho RecyclerView lịch sử gift (tab Gửi / Nhận) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_header_glass_v2"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="10dp"
+    android:layout_marginBottom="8dp">
+
+    <!-- Card Thumbnail -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="48dp"
+        android:layout_height="74dp"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#2A2A3A">
+
+        <ImageView
+            android:id="@+id/iv_gift_card_thumb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Gift Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <!-- Tên người gửi/nhận -->
+        <TextView
+            android:id="@+id/tv_gift_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/saira"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <!-- Label direction (Gửi cho / Nhận từ) -->
+        <TextView
+            android:id="@+id/tv_gift_direction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:textColor="#A2A2A7"
+            android:textSize="10sp" />
+
+        <!-- Thời gian -->
+        <TextView
+            android:id="@+id/tv_gift_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins"
+            android:textColor="#666666"
+            android:textSize="9sp"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- Badge "NEW" cho quà chưa đọc -->
+    <TextView
+        android:id="@+id/tv_gift_badge_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEW"
+        android:fontFamily="@font/poppins_bold"
+        android:textColor="#FF6B9D"
+        android:textSize="9sp"
+        android:visibility="gone"
+        android:background="@drawable/bg_header_token"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp" />
+</LinearLayout>
