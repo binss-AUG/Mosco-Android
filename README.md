@@ -110,6 +110,9 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
         *   **Method / URL:** `POST /api/gacha/upgrade`
         *   **Request:** `UpgradeRequest` (JSON gồm `userId`, `baseCardId`, `materialCardIds` mảng các materials)
         *   **Response:** `UpgradeResponse` chứa thông báo thành công `success`, tin nhắn trả về `message` và cấp độ mới `newLevel`.
+113:     *   **Collection Book Endpoint:**
+114:         *   **Method / URL:** `GET /api/collection/book/{userId}`
+115:         *   **Response:** `CollectionBookResponse` chứa `totalCards`, `ownedCount` và danh sách `entries` (metadata + trạng thái sở hữu `owned`).
 
 ---
 ## 📜 Nhật Ký Cập Nhật (V5.0 - Professional Auth & UX Standardization)
@@ -140,6 +143,21 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   🎁 **Kiến trúc Quà Tặng Độc Lập:** Tách biệt module quà tặng thành một Wizard 3-Step chuẩn quốc tế. Cấm tặng thẻ đang trong Formation và có phí chống lạm phát (36k Coin + 36 Diamond).
 *   UI/UX UI chuẩn: Đồng nhất ngôn ngữ (Full Tiếng Anh) và áp dụng Layout Constraint (1:1.54) cho view thẻ 3-D. Bổ sung `Search` cho việc chọn bạn và nút `Previous` ở các Step 2, Step 3 để hỗ trợ hoàn tác.
 *   Hiệu ứng 3D Premium: Objet khi được đem đi tặng sẽ bay lơ lửng ở chính giữa và liên tục lật xoay quanh trục Y (Animation ObjectAnimator) tạo điểm nhấn mạnh mẽ.
+
+---
+## 🏆 Nhật Ký Cập Nhật (V7.1 - Collection Book & Album Feature)
+*   🏆 **Album Feature (Pokédex-style):** Triển khai tab "Album" mới trong `CollectionFragment`, hiển thị 100% danh sách thẻ có trong `database.json` thay vì chỉ hiển thị thẻ đang sở hữu.
+*   🌑 **Phân loại Visual (Silhouette):** Thẻ chưa sở hữu hiển thị dưới dạng bóng đen (Grayscale + Silhouette) kèm icon khóa. Thẻ đã sở hữu hiển thị rõ nét kèm huy hiệu OVR và viền tím Metallic.
+*   📊 **Collection Progress:** Tích hợp thanh Progress bar Galactic cập nhật thời gian thực tiến độ thu thập (Ví dụ: "45/350 - 12.8%").
+*   ⚙️ **Backend Cross-Reference:** Xây dựng `CollectionBookService` tối ưu, tự động so khớp toàn bộ Metadata hệ thống với kho đồ cá nhân của User để trả về trạng thái Collection chính xác nhất.
+*   🔄 **Fix Navigation Shift:** Tự động điều chỉnh Index các tab sau khi chèn thêm Album vào vị trí đầu tiên, đảm bảo các link điều hướng từ Shop và Home vẫn hoạt động chính xác.
+
+---
+## ✨ Nhật Ký Cập Nhật (V7.2 - Premium Collection Modernization)
+*   🎁 **Hệ thống Milestone Rewards:** Giới thiệu cơ chế thu thập quà tặng tại các mốc tiến trình (30%, 60%, 100%). Hiệu ứng Pulse nhịp đập mời gọi và hệ thống lưu trạng thái quà (Shared Preferences) chống spam.
+*   🌟 **Visual Effect Sync (1:1):** Nâng cấp thẻ trong Album ngang tầm với Objets. Tích hợp tự động Color-Match Glow (hào quang theo màu thẻ), Shiny Shimmer (vệt sáng bóng) và Floating ObjectAnimator. Tất cả được tái chế an toàn qua ViewHolder recycle!
+*   🎆 **Premium Reward Reveal:** Hiệu ứng đập hộp (Lottie + Scale-up Animator) khi nhận quà. Xuất hiện trên nền Dialog Galactic Gradient mới `bg_dialog_galactic.xml` mang lại trải nghiệm mãn nhãn.
+*   🛡️ **Advanced Collection Multi-Filter:** Bộ lọc lưới AND nâng cao. Tự động chuyển đổi Category mapping giữa Raw DB Class và Display UI. Sắp xếp tùy chỉnh OVR, Cấp độ và Ngày tháng với logic thông minh.
 
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

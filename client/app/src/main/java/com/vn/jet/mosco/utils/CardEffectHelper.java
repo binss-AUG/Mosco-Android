@@ -101,47 +101,60 @@ public class CardEffectHelper {
         }
     }
 
+    /**
+     * Áp dụng hiệu ứng cho thẻ trong Album (CollectionEntry).
+     */
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CollectionEntry entry, boolean applyFloating) {
+        if (cardView == null || entry == null) return;
+        applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true);
+    }
+
     public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating) {
+        apply(cardView, shimmer, card, applyFloating, true);
+    }
+
+    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating, boolean applyGlow) {
         if (cardView == null || card == null) return;
+        applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow);
+    }
+
+    /**
+     * Logic chung để xử lý hiệu ứng Hào quang, Shimmer và Lơ lửng.
+     */
+    private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl, boolean applyFloating, boolean applyGlow) {
         Context context = cardView.getContext();
 
         String currentCardId = (String) cardView.getTag(R.id.card_main);
-        if (card.getIdString().equals(currentCardId)) return;
+        if (id != null && id.equals(currentCardId)) return;
 
         remove(cardView, shimmer);
 
         // THIẾT LẬP MẶT NẠ CHỐNG XUYÊN THẤU CHO SHIMMER ==========================================
-        // Dùng PorterDuff.Mode.DST_OUT để tạo hiệu ứng "Lỗ Hổng Khôn Ngoan"
         View shimmerContainer = cardView.findViewById(R.id.layout_shimmer_container);
         android.widget.ImageView triplesBorder = cardView.findViewById(R.id.card_iv_triplesborder);
         if (shimmerContainer != null && triplesBorder != null) {
-            // Bật bộ đệm phần cứng (Tạo ranh giới vô hình bao gọn cả Shimmer và Mask)
             shimmerContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            
             Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            // Lệnh đục lỗ (DST_OUT): Dùng chính cái màu Alpha đặc 100% của triplesborder để khoét sạch Shimmer
             maskPaint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT));
-            
             triplesBorder.setLayerType(View.LAYER_TYPE_HARDWARE, maskPaint);
-            triplesBorder.setVisibility(View.VISIBLE); // Bật lên khi Card xài hiệu ứng
+            triplesBorder.setVisibility(View.VISIBLE); 
         }
         // =========================================================================================
 
-        cardView.setTag(R.id.card_main, card.getIdString());
+        cardView.setTag(R.id.card_main, id);
 
         cardView.post(() -> {
             int w = cardView.getWidth();
             int h = cardView.getHeight();
             if (w <= 0 || h <= 0) return;
 
-            // BẠN CÓ THỂ ĐỔI ĐỘ DÀY VIỀN TRỰC TIẾP TRỞ LẠI NHỎ HƠN Ở ĐÂY (VD: 0.035f = 3.5%)
             int dynamicStrokeWidth = (int) (w * 0.00f); 
             cardView.setStrokeWidth(dynamicStrokeWidth);
             float cornerRadius = cardView.getRadius();
 
             Glide.with(context)
                     .asBitmap()
-                    .load(card.getImageUrl())
+                    .load(imageUrl)
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -164,15 +177,15 @@ public class CardEffectHelper {
                                     parent.setClipChildren(false);
                                     parent.setClipToPadding(false);
 
-                                    // ĐỘ DÀI CỦA TIA BÓNG (Tạo fade mượt)
                                     float glowRadius = w * 0.20f; 
-                                    
-                                    // Bổ sung Canvas Padding (Cực rộng để bóng không bao giờ đập hộp vuông gắt)
                                     float extraPadding = glowRadius * 2.5f;
 
-                                    View pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
-                                    parent.addView(pseudoGlow, parent.indexOfChild(cardView));
-                                    cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+                                    View pseudoGlow = null;
+                                    if (applyGlow) {
+                                        pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
+                                        parent.addView(pseudoGlow, parent.indexOfChild(cardView));
+                                        cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+                                    }
 
                                     ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
                                     if (rawParams instanceof ConstraintLayout.LayoutParams) {
@@ -184,14 +197,15 @@ public class CardEffectHelper {
                                         glowParams.startToStart = cardView.getId();
                                         glowParams.endToEnd = cardView.getId();
                                         
-                                        pseudoGlow.setLayoutParams(glowParams);
+                                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
                                     } else if (rawParams instanceof FrameLayout.LayoutParams) {
                                         FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
                                                 (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
                                         glowParams.gravity = android.view.Gravity.CENTER;
-                                        // Offset translation if card is translated
-                                        pseudoGlow.setTranslationY(cardView.getTranslationY());
-                                        pseudoGlow.setLayoutParams(glowParams);
+                                        if (pseudoGlow != null) {
+                                            pseudoGlow.setTranslationY(cardView.getTranslationY());
+                                            pseudoGlow.setLayoutParams(glowParams);
+                                        }
                                     }
                                 }
                             }

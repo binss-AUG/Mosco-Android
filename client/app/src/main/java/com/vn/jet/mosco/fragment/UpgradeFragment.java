@@ -252,6 +252,10 @@ public class UpgradeFragment extends Fragment {
             ivMaterials[i] = frameMaterials[i].findViewById(R.id.card_iv_image);
             tvMaterialOvr[i] = frameMaterials[i].findViewById(R.id.card_tv_ovr);
             ivMaterialLevel[i] = frameMaterials[i].findViewById(R.id.card_iv_level);
+            
+            // Đảm bảo ẩn OVR và Level mặc định trên card material
+            if (tvMaterialOvr[i] != null) tvMaterialOvr[i].setVisibility(View.GONE);
+            if (ivMaterialLevel[i] != null) ivMaterialLevel[i].setVisibility(View.GONE);
         }
     }
 
@@ -323,7 +327,8 @@ public class UpgradeFragment extends Fragment {
         btnUpgrade.setEnabled(false);
         btnUpgrade.setText("UPGRADING...");
         btnUpgrade.setBackgroundResource(R.drawable.bg_upgrade_button_disabled);
-        btnUpgrade.setTextColor(0xFFc2c6d1);
+        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        btnUpgrade.setTextColor(disabledColor);
 
         Long userId = new SessionManager(requireContext()).getUserId();
         UpgradeRequest request = new UpgradeRequest(userId, (long) mainCard.getId(), materialIds);
@@ -453,7 +458,7 @@ public class UpgradeFragment extends Fragment {
 
         // Load ảnh thẻ CŨ lên card (sẽ swap sang data mới sau)
         Glide.with(getContext()).load(mainCard.getImageUrl()).into(ivResultImage);
-        tvResultOvr.setVisibility(View.VISIBLE);
+        tvResultOvr.setVisibility(View.GONE);
         tvResultOvr.setText(String.valueOf(mainCard.getOvr()));
         if (mainCard.getCardLevel() > 0) {
             ivResultLevel.setVisibility(View.VISIBLE);
@@ -546,7 +551,8 @@ public class UpgradeFragment extends Fragment {
                                 }
                                 Objet t = new Objet(mainCard.getId(), mainCard.getCollectionId(), mainCard.getImageUrl(), result.getNewLevel(), 0, result.getNewLevel());
                                 t.setOvr(result.getNewOvr());
-                                CardEffectHelper.apply(resultCard, shimmer, t, true);
+                                // Tắt Outer Glow nếu nâng cấp thất bại (result.isSuccess() == false)
+                                CardEffectHelper.apply(resultCard, shimmer, t, true, result.isSuccess());
 
                                 if (!result.isSuccess()) {
                                     android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
@@ -584,10 +590,13 @@ public class UpgradeFragment extends Fragment {
                                                 // Object, FX, và Flash lập tức bung ra không cần delay
                                                 cardWrapper.animate().alpha(1f).setDuration(300).setStartDelay(0).start();
                                                 playSfx("lightning_strike");
+                                                // Vô hiệu hóa Flash trắng theo yêu cầu
+                                                /*
                                                 flashWhite.setVisibility(View.VISIBLE);
                                                 flashWhite.animate().alpha(1f).setDuration(75).withEndAction(() ->
                                                         flashWhite.animate().alpha(0f).setDuration(75).start()
                                                 ).start();
+                                                */
                                             });
                                             successVideoView.setOnInfoListener(null); // Giải phóng listener
                                             return true;
@@ -719,7 +728,7 @@ public class UpgradeFragment extends Fragment {
             ivMainCardImage.setVisibility(View.VISIBLE);
             viewCardBg.setBackgroundResource(R.drawable.bg_card_filled);
             Glide.with(this).load(mainCard.getImageUrl()).into(ivMainCardImage);
-            tvCardOvr.setVisibility(View.VISIBLE);
+            tvCardOvr.setVisibility(View.GONE);
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
             if (mainCard.getCardLevel() > 0) {
                 ivCardLevelBadge.setVisibility(View.VISIBLE);
@@ -732,6 +741,9 @@ public class UpgradeFragment extends Fragment {
             }
             CardEffectHelper.apply(cardMain, shimmer, mainCard, true);
         }
+        
+        // Luôn ẩn OVR trên card chính (đã có info ở panel bên phải)
+        if (tvCardOvr != null) tvCardOvr.setVisibility(View.GONE);
     }
 
     private void updateStatsUI() {
@@ -817,8 +829,7 @@ public class UpgradeFragment extends Fragment {
                 ivMaterials[i].setVisibility(View.VISIBLE);
                 tvMaterialPlus[i].setVisibility(View.GONE);
                 Glide.with(this).load(materialCards[i].getImageUrl()).into(ivMaterials[i]);
-                tvMaterialOvr[i].setVisibility(View.VISIBLE);
-                tvMaterialOvr[i].setText(String.valueOf(materialCards[i].getOvr()));
+                tvMaterialOvr[i].setVisibility(View.GONE); // Luôn ẩn OVR trên card trong màn hình này
                 if (materialCards[i].getCardLevel() > 0) {
                     ivMaterialLevel[i].setVisibility(View.VISIBLE);
                     Glide.with(this).load("file:///android_asset/grade/" + Math.min(materialCards[i].getCardLevel(), 10) + ".png").into(ivMaterialLevel[i]);
@@ -828,7 +839,8 @@ public class UpgradeFragment extends Fragment {
                     LevelBadgeEffectHelper.remove(ivMaterialLevel[i]);
                 }
                 viewMaterialBg[i].setBackgroundResource(R.drawable.bg_material_filled);
-                CardEffectHelper.apply(cardView, shimmer, materialCards[i], false);
+                // Loại bỏ hiệu ứng Shimmer/Glow ở đây theo yêu cầu người dùng
+                CardEffectHelper.remove(cardView, shimmer);
             } else {
                 ivMaterials[i].setVisibility(View.GONE);
                 tvMaterialPlus[i].setVisibility(View.VISIBLE);
@@ -839,7 +851,9 @@ public class UpgradeFragment extends Fragment {
             }
         }
         tvMaterialsCount.setText(selectedCount + " / 5 Selected");
-        tvMaterialsCount.setTextColor(selectedCount > 0 ? 0xFFa3c9ff : 0xFFc2c6d1);
+        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
+        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        tvMaterialsCount.setTextColor(selectedCount > 0 ? primaryColor : disabledColor);
     }
 
     private void updateUpgradeButtonUI() {
@@ -849,7 +863,8 @@ public class UpgradeFragment extends Fragment {
         btnUpgrade.setEnabled(canUpgrade);
         btnUpgrade.setAlpha(canUpgrade ? 1.0f : 0.6f);
         btnUpgrade.setBackgroundResource(canUpgrade ? R.drawable.bg_upgrade_button_active : R.drawable.bg_upgrade_button_disabled);
-        btnUpgrade.setTextColor(canUpgrade ? Color.WHITE : 0xFFc2c6d1);
+        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        btnUpgrade.setTextColor(canUpgrade ? Color.WHITE : disabledColor);
     }
 
     private UpgradeAlgorithm.Card createAlgoCard(Objet card) {

@@ -42,6 +42,11 @@
     <string name="home_default_ovr">0</string>
     <string name="home_format_ovr">%d</string>
     <string name="home_format_level">LV. %d</string>
+    <string name="home_default_level">LV. 1</string>
+    <string name="home_label_id_format">ID: %s</string>
+    <string name="home_toast_copy_success">Đã sao chép ID: %s</string>
+    <string name="home_msg_copy_clipboard_label">UserID</string>
+    <string name="home_showcase_loading_msg">Đang tải Showcase...</string>
     <string name="home_format_currency_trillions">%.1fT</string>
     <string name="home_format_currency_billions">%.1fB</string>
     <string name="home_format_currency_millions">%.1fM</string>
@@ -107,4 +112,22 @@
     <string name="synergy_tier_bronze">BRONZE</string>
     <string name="synergy_tier_silver">SILVER</string>
     <string name="synergy_tier_gold">GOLD</string>
+
+    <!-- Album Detail Buttons (Standardized English) -->
+    <string name="album_sad_wav_notice">POOR WAV… YOU HAVEN\'T COLLECTED THIS YET </string>
+    
+    <string name="btn_spin_title">GACHA SPIN</string>
+    <string name="btn_spin_desc">Recycle cards or use tickets to get new ones</string>
+    
+    <string name="btn_shop_title">OPEN SHOP</string>
+    <string name="btn_shop_desc">Browse exclusive deals and card packs</string>
+    
+    <string name="btn_photo_title">CAPTURE SCREEN</string>
+    <string name="btn_photo_desc">Capture a high-quality snap of your card</string>
+    
+    <string name="btn_send_title">SEND GIFT</string>
+    <string name="btn_send_desc">Share this collectible with your friends</string>
+    
+    <string name="btn_upgrade_title">UPGRADE</string>
+    <string name="btn_upgrade_desc">Enhance card stats to dominate the galaxy</string>
 </resources>

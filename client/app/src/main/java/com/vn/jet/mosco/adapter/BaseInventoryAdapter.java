@@ -166,7 +166,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             // BIND OVR TEXT
             if (itemHolder.tvOvr != null) {
                 itemHolder.tvOvr.setText(String.valueOf(item.getOvr()));
-                itemHolder.tvOvr.setVisibility(View.VISIBLE);
+                itemHolder.tvOvr.setVisibility(View.GONE);
             }
 
             // 🔥 BIND LEVEL BADGE

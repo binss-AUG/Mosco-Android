@@ -99,6 +99,22 @@ public class GiftActivity extends AppCompatActivity {
         setupStep2();
         setupStep3();
         loadDailyRemaining();
+        handleIntent();
+    }
+
+    private void handleIntent() {
+        String cardId = getIntent().getStringExtra("target_collection_id");
+        if (cardId != null && !cardId.isEmpty() && DatabaseLoader.cachedUserInventory != null) {
+            for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
+                if (item.collectionId.equals(cardId)) {
+                    selectedObjet = Objet.fromCacheItem(item);
+                    bindSelectedCard();
+                    goToStep(2);
+                    loadFriendList();
+                    break;
+                }
+            }
+        }
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -236,7 +252,7 @@ public class GiftActivity extends AppCompatActivity {
 
         if (tvCardOvr != null) {
             tvCardOvr.setText(String.valueOf(selectedObjet.getOvr()));
-            tvCardOvr.setVisibility(View.VISIBLE);
+            tvCardOvr.setVisibility(View.GONE);
         }
     }
 
@@ -375,7 +391,7 @@ public class GiftActivity extends AppCompatActivity {
 
         if (tvCardOvr != null) {
             tvCardOvr.setText(String.valueOf(selectedObjet.getOvr()));
-            tvCardOvr.setVisibility(View.VISIBLE);
+            tvCardOvr.setVisibility(View.GONE);
         }
 
         // Apply flip animation to floating card

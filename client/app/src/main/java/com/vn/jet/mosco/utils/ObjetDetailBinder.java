@@ -4,10 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.animation.ObjectAnimator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
@@ -23,15 +21,15 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.model.Objet;
-
-import org.json.JSONObject;
 
 /**
- * ObjetDetailBinder — Data-driven dynamic theming for the Objet Detail dialog.
+ * ObjetDetailBinder — Xử lý giao diện động cho hộp thoại chi tiết Thẻ bài (Objet).
  */
 public class ObjetDetailBinder {
     
+    /**
+     * Hiển thị hộp thoại chi tiết Thẻ bài.
+     */
     public static void showObjetDetail(android.content.Context context, com.vn.jet.mosco.model.Objet objet) {
         if (objet == null || context == null) return;
         
@@ -48,6 +46,9 @@ public class ObjetDetailBinder {
         dialog.show();
     }
 
+    /**
+     * Liên kết dữ liệu từ JSON vào giao diện (thường dùng cho Collection/Inventory).
+     */
     public static void bind(Dialog dialog, Context context, org.json.JSONObject cardJson, int level, int exp, int upgradeLevel) {
         try {
             com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(0, cardJson.optString("id"), cardJson.optString("frontImage"), level, exp, upgradeLevel);
@@ -64,30 +65,32 @@ public class ObjetDetailBinder {
         }
     }
 
+    /**
+     * Hàm bind chính — Xử lý logic hiển thị, màu sắc và hiệu ứng 3D.
+     */
     public static void bind(Dialog dialog, Context context, com.vn.jet.mosco.model.Objet objet) {
         try {
-            // ── 1. Parse colors ────────────────────────────────────────
+            // ── 1. Xử lý màu sắc chủ đạo ──────────────────────────────
             String bgColorHex = objet.getBackgroundColor() != null ? objet.getBackgroundColor() : "#6c29fd";
             String txtColorHex = objet.getTextColor() != null ? objet.getTextColor() : "#ffffff";
 
             int bgColor = Color.parseColor(bgColorHex);
             int txtColor = Color.parseColor(txtColorHex);
             
-            // Derive class color from bgColor (logic previously in cardJson)
+            // Màu sắc đại diện cho Class của thẻ
             int classColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_btn_disabled);
 
-            // ── 2. Parse metadata ──────────────────────────────────────
+            // ── 2. Trích xuất thông tin ────────────────────────────────
             String frontImageUrl = objet.getImageUrl();
             String member = objet.getMember() != null ? objet.getMember() : "Unknown";
             String collectionNo = objet.getCollectionNo() != null ? objet.getCollectionNo() : "";
             String cardClass = objet.getTypeKey() != null ? objet.getTypeKey() : "";
-            String season = objet.getSeason() != null ? objet.getSeason() : "";
             int level = objet.getLevel();
             int exp = objet.getExp();
             int upgradeLevel = objet.getUpgradeLevel();
 
-            // ── 3. Load front image via Glide ──────────────────────────
-            ImageView ivObjet = dialog.findViewById(R.id.iv_objet_detail_image);
+            // ── 3. Tải hình ảnh mặt trước ──────────────────────────────
+            ImageView ivObjet = dialog.findViewById(R.id.card_iv_image);
             if (ivObjet != null && frontImageUrl != null && !frontImageUrl.isEmpty()) {
                 java.io.File localThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, frontImageUrl);
                 
@@ -105,11 +108,8 @@ public class ObjetDetailBinder {
                         .into(ivObjet);
             }
 
-            // ── 3. Calculate Stats ───────────
-            int hp = 100;
-            int atk = 10;
-            int def = 10;
-            int spd = 10;
+            // ── 3. Tính toán chỉ số (Stats) ──────────────────────────
+            int hp = 100, atk = 10, def = 10, spd = 10;
             
             double levelBonus = (level - 1) * 0.05;
             double upgradeBonus = (upgradeLevel - 1) * 0.10;
@@ -140,7 +140,7 @@ public class ObjetDetailBinder {
             TextView tvCritDmg = dialog.findViewById(R.id.tv_stat_crit_dmg);
             if (tvCritDmg != null) tvCritDmg.setText("150%");
 
-            // ── 4. Bind title, badge & Dual-tone Chip ──────────────────
+            // ── 4. Hiển thị Tiêu đề, Badge & Dual-tone Chip ─────────────
             TextView tvTitle = dialog.findViewById(R.id.tv_objet_title);
             if (tvTitle != null) {
                 tvTitle.setText(member + " " + collectionNo);
@@ -150,7 +150,7 @@ public class ObjetDetailBinder {
             TextView tvOvr = dialog.findViewById(R.id.card_tv_ovr);
             if (tvOvr != null) {
                 tvOvr.setText(String.valueOf(overall));
-                tvOvr.setVisibility(View.VISIBLE);
+                tvOvr.setVisibility(View.GONE);
             }
 
             ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
@@ -172,6 +172,7 @@ public class ObjetDetailBinder {
                 tvBadge.setTextColor(txtColor);
             }
 
+            // Hiệu ứng dải màu kép cho Chip thông tin
             View llDualToneChip = dialog.findViewById(R.id.ll_dual_tone_chip);
             if (llDualToneChip != null) {
                 int[] leftColors;
@@ -188,7 +189,7 @@ public class ObjetDetailBinder {
                 llDualToneChip.setBackground(new HardStopGradientDrawable(leftColors, classColor, 0.3f));
             }
 
-            // ── 5. Setup layout tints & backgrounds ──────────
+            // ── 5. Thiết lập màu nền & bo góc cho Dialog ─────────────────
             MaterialCardView cvRoot = dialog.findViewById(R.id.cv_dialog_root);
             int strokeWidth = dpToPx(context, 1);
             int blurredBorderColor = androidx.core.graphics.ColorUtils.setAlphaComponent(bgColor, 128);
@@ -211,9 +212,11 @@ public class ObjetDetailBinder {
                 }
             }
 
-            // ── 6. Image container ────────────────
+            // ── 6. Xử lý Container hình ảnh & Hiệu ứng ──────────────────
             MaterialCardView cvImageContainer = dialog.findViewById(R.id.cv_objet_image_container);
             ImageView ivDetailBack = dialog.findViewById(R.id.iv_objet_detail_back);
+            View shimmer = dialog.findViewById(R.id.view_card_shimmer);
+
             if (cvImageContainer != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     cvImageContainer.setCardElevation(dpToPx(context, 16));
@@ -223,51 +226,10 @@ public class ObjetDetailBinder {
                 cvImageContainer.setStrokeWidth(strokeWidth);
                 cvImageContainer.setStrokeColor(blurredBorderColor);
 
-                View metallicBg = dialog.findViewById(R.id.view_card_metallic_bg);
-                if (metallicBg != null) {
-                    int[] colors;
-                    if ("Special".equalsIgnoreCase(cardClass)) {
-                        colors = new int[]{Color.parseColor("#FFC0CB"), Color.parseColor("#B0E0E6"), Color.parseColor("#E6E6FA"), Color.parseColor("#FFFFFF")};
-                    } else {
-                        colors = new int[]{Color.parseColor("#F5F5F5"), Color.parseColor("#FFFFFF"), Color.parseColor("#DBDBDB")};
-                    }
-                    GradientDrawable mBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
-                    metallicBg.setBackground(mBg);
-                }
+                // Áp dụng hiệu ứng Showcase (Glow + Shimmer + Floating)
+                CardEffectHelper.apply(cvImageContainer, shimmer, objet, true);
 
-                View shimmer = dialog.findViewById(R.id.view_card_shimmer);
-                if (shimmer != null) {
-                    GradientDrawable shimmerBg = new GradientDrawable(
-                            GradientDrawable.Orientation.LEFT_RIGHT,
-                            new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF}
-                    );
-                    shimmer.setBackground(shimmerBg);
-                    shimmer.setRotation(10f);
-                    shimmer.setScaleX(1.0f);
-                    shimmer.setScaleY(1.5f);
-
-                    ValueAnimator shimmerAnim = ValueAnimator.ofFloat(-1.5f, 2.5f); 
-                    shimmerAnim.setDuration(3500); 
-                    shimmerAnim.setInterpolator(new android.view.animation.LinearInterpolator());
-                    shimmerAnim.setRepeatCount(ValueAnimator.INFINITE);
-                    shimmerAnim.setRepeatMode(ValueAnimator.RESTART);
-                    shimmerAnim.addUpdateListener(animation -> {
-                        float fraction = (float) animation.getAnimatedValue();
-                        shimmer.setTranslationX(shimmer.getWidth() * fraction);
-                    });
-                    shimmerAnim.start();
-                }
-
-                ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cvImageContainer, "translationY", 0f, -12f, 0f);
-                floatingAnim.setDuration(3000);
-                floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-                floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
-                floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
-                floatingAnim.start();
-
-                // ══════════════════════════════════════════════════════════
-                //  e) 3D FLIP
-                // ══════════════════════════════════════════════════════════
+                // ── 7. Lật thẻ 3D (3D FLIP) ──────────────────────────────
                 String backImageUrl = objet.getBackImageUrl();
                 if (ivDetailBack != null && backImageUrl != null && !backImageUrl.isEmpty()) {
                     java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, backImageUrl);
@@ -287,92 +249,111 @@ public class ObjetDetailBinder {
                 float density = context.getResources().getDisplayMetrics().density;
                 cvImageContainer.setCameraDistance(8000 * density);
 
+                // Đọc cấu hình độ nhạy xoay từ resource (không hardcode)
+                final int flipSensitivity = context.getResources().getInteger(R.integer.card_flip_sensitivity);
                 final boolean[] isFlipped = {false};
-                final boolean[] isFlipAnimating = {false};
-                final int FLIP_HALF = 250;
-                final int SWIPE_T = 100;
-                final int VELOCITY_T = 100;
-
-                android.view.GestureDetector flipGesture = new android.view.GestureDetector(context,
-                        new android.view.GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onFling(android.view.MotionEvent e1, android.view.MotionEvent e2,
-                                           float velocityX, float velocityY) {
-                        if (e1 == null || e2 == null) return false;
-                        float diffX = e2.getX() - e1.getX();
-                        if (Math.abs(diffX) > SWIPE_T && Math.abs(velocityX) > VELOCITY_T && !isFlipAnimating[0]) {
-                            isFlipAnimating[0] = true;
-                            float startA = isFlipped[0] ? 180f : 0f;
-                            float midA = isFlipped[0] ? 270f : 90f;
-                            float endA = isFlipped[0] ? 360f : 180f;
-
-                            ObjectAnimator p1 = ObjectAnimator.ofFloat(cvImageContainer, "rotationY", startA, midA);
-                            p1.setDuration(FLIP_HALF);
-                            p1.setInterpolator(new AccelerateDecelerateInterpolator());
-
-                            ObjectAnimator p2 = ObjectAnimator.ofFloat(cvImageContainer, "rotationY", midA, endA);
-                            p2.setDuration(FLIP_HALF);
-                            p2.setInterpolator(new android.view.animation.DecelerateInterpolator());
-
-                            p1.addListener(new android.animation.AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(android.animation.Animator animation) {
-                                    if (isFlipped[0]) {
-                                        if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
-                                        if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
-                                        if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
-                                        if (metallicBg != null) metallicBg.setVisibility(View.VISIBLE);
-                                        TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
-                                        if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.VISIBLE);
-                                        ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
-                                        if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
-                                    } else {
-                                        if (ivObjet != null) ivObjet.setVisibility(View.GONE);
-                                        if (ivDetailBack != null) {
-                                            ivDetailBack.setVisibility(View.VISIBLE);
-                                            ivDetailBack.setScaleX(-1f);
-                                            ivDetailBack.setAlpha(1f);
-                                        }
-                                        if (shimmer != null) shimmer.setVisibility(View.GONE);
-                                        if (metallicBg != null) metallicBg.setVisibility(View.GONE);
-                                        TextView tvOvrFlip = dialog.findViewById(R.id.card_tv_ovr);
-                                        if (tvOvrFlip != null) tvOvrFlip.setVisibility(View.GONE);
-                                        ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
-                                        if (ivLevelFlip != null) ivLevelFlip.setVisibility(View.GONE);
-                                    }
-                                    isFlipped[0] = !isFlipped[0];
-                                }
-                            });
-
-                            AnimatorSet flipSet = new AnimatorSet();
-                            flipSet.playSequentially(p1, p2);
-                            flipSet.addListener(new android.animation.AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(android.animation.Animator animation) {
-                                    isFlipAnimating[0] = false;
-                                    if (cvImageContainer.getRotationY() >= 360f) {
-                                        cvImageContainer.setRotationY(0f);
-                                    }
-                                }
-                            });
-                            flipSet.start();
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onDown(android.view.MotionEvent e) {
-                        return true;
-                    }
-                });
+                final float[] initialTouchX = {0f};
+                final float[] startRotation = {0f};
+                final ObjectAnimator[] snapAnim = {null};
 
                 cvImageContainer.setOnTouchListener((v, event) -> {
-                    flipGesture.onTouchEvent(event);
-                    return true;
+                    switch (event.getActionMasked()) {
+                        case android.view.MotionEvent.ACTION_DOWN:
+                            // Hủy animation snap đang chạy nếu có
+                            if (snapAnim[0] != null && snapAnim[0].isRunning()) {
+                                snapAnim[0].cancel();
+                            }
+                            initialTouchX[0] = event.getRawX();
+                            startRotation[0] = cvImageContainer.getRotationY();
+                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                            return true;
+
+                        case android.view.MotionEvent.ACTION_MOVE:
+                            float diffX = event.getRawX() - initialTouchX[0];
+                            float newRotation = startRotation[0] + (diffX / flipSensitivity);
+                            cvImageContainer.setRotationY(newRotation);
+
+                            // Tính toán mặt hiện tại dựa trên góc xoay
+                            float normalized = newRotation % 360;
+                            if (normalized < 0) normalized += 360;
+                            boolean shouldShowBack = (normalized > 90 && normalized < 270);
+
+                            if (shouldShowBack != isFlipped[0]) {
+                                isFlipped[0] = shouldShowBack;
+                                if (!shouldShowBack) {
+                                    if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                    if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
+                                    View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
+                                    if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
+                                    ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
+                                    if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (ivObjet != null) ivObjet.setVisibility(View.GONE);
+                                    if (ivDetailBack != null) {
+                                        ivDetailBack.setVisibility(View.VISIBLE);
+                                        ivDetailBack.setScaleX(-1f);
+                                        ivDetailBack.setAlpha(1f);
+                                    }
+                                    View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
+                                    if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
+                                    ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
+                                    if (ivLevelFlip != null) ivLevelFlip.setVisibility(View.GONE);
+                                }
+                            }
+                            return true;
+
+                        case android.view.MotionEvent.ACTION_UP:
+                        case android.view.MotionEvent.ACTION_CANCEL:
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                            // Snap về góc gần nhất (0° hoặc 180°)
+                            float curRot = cvImageContainer.getRotationY();
+                            float norm = curRot % 360;
+                            if (norm < 0) norm += 360;
+
+                            float nearestAngle;
+                            if (norm <= 90 || norm >= 270) {
+                                nearestAngle = Math.round(curRot / 360f) * 360f;
+                            } else {
+                                nearestAngle = Math.round((curRot - 180f) / 360f) * 360f + 180f;
+                            }
+
+                            snapAnim[0] = ObjectAnimator.ofFloat(cvImageContainer, "rotationY", curRot, nearestAngle);
+                            snapAnim[0].setDuration(250);
+                            snapAnim[0].setInterpolator(new android.view.animation.OvershootInterpolator(1.2f));
+                            snapAnim[0].addListener(new android.animation.AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(android.animation.Animator animation) {
+                                    // Kiểm tra lại mặt sau khi snap xong
+                                    float finalNorm = cvImageContainer.getRotationY() % 360;
+                                    if (finalNorm < 0) finalNorm += 360;
+                                    boolean finalBack = (finalNorm > 90 && finalNorm < 270);
+                                    if (finalBack != isFlipped[0]) {
+                                        isFlipped[0] = finalBack;
+                                        if (!finalBack) {
+                                            if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                            if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
+                                            View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
+                                            if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (ivObjet != null) ivObjet.setVisibility(View.GONE);
+                                            if (ivDetailBack != null) {
+                                                ivDetailBack.setVisibility(View.VISIBLE);
+                                                ivDetailBack.setScaleX(-1f);
+                                            }
+                                            View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
+                                            if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
+                                        }
+                                    }
+                                }
+                            });
+                            snapAnim[0].start();
+                            return true;
+                    }
+                    return false;
                 });
             }
 
+            // ── 8. Chức năng Nâng cấp (Upgrade) ──────────────────────────
             MaterialButton btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
             if (btnUpgrade != null) {
                 btnUpgrade.setOnClickListener(v -> {
@@ -395,6 +376,7 @@ public class ObjetDetailBinder {
                 });
             }
             
+            // ── 9. Phần hiển thị Level & EXP ────────────────────────────
             View clLevelSection = dialog.findViewById(R.id.cl_level_section);
             if (clLevelSection != null) {
                 GradientDrawable levelBg = new GradientDrawable();
@@ -434,6 +416,7 @@ public class ObjetDetailBinder {
                 cvInfoBox.setAlpha(0.8f);
             }
 
+            // ── 10. Chức năng Rã thẻ (Recycle) ───────────────────────────
             ImageView btnRecycle = dialog.findViewById(R.id.btn_recycle_detail);
             if (btnRecycle != null) {
                 int disabledColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_text_disabled);
@@ -449,6 +432,9 @@ public class ObjetDetailBinder {
         return Math.round(dp * ctx.getResources().getDisplayMetrics().density);
     }
 
+    /**
+     * Lớp vẽ Drawable hỗ trợ dải màu gradient dừng cứng (Hard Stop).
+     */
     private static class HardStopGradientDrawable extends Drawable {
         private final android.graphics.Paint paint;
         private final int[] leftColors;
@@ -468,7 +454,7 @@ public class ObjetDetailBinder {
             float width = bounds.width();
             float height = bounds.height();
             float splitX = width * stopPoint;
-            float cornerRadius = height / 2.0f; // pill shape
+            float cornerRadius = height / 2.0f; // Pill shape
 
             android.graphics.Path clipPath = new android.graphics.Path();
             clipPath.addRoundRect(new android.graphics.RectF(0, 0, width, height), cornerRadius, cornerRadius, android.graphics.Path.Direction.CW);

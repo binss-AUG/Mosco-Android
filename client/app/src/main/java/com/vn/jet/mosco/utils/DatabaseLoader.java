@@ -27,9 +27,10 @@ public class DatabaseLoader {
     private static List<JSONObject> cachedAllCardsRaw = null;
 
     // Fast O(1) lookup maps
-    private static java.util.Map<String, JSONObject> cachedCardMap = null;
-    private static java.util.Map<String, JSONObject> cachedSlugMap = null;
-    private static java.util.Map<String, JSONObject> cachedCollectionMap = null;
+    private static java.util.Map<String, JSONObject> cachedMasterMap = null; // Map chứa TẤT CẢ thẻ từ database.json
+    private static java.util.Map<String, JSONObject> cachedCollectionMap = null; // Map chứa thẻ người dùng đang có
+    private static boolean isMasterDataLoading = false;
+    private static boolean isMasterDataLoaded = false;
 
     // The Global Cache for User's actual cards (To perform Instant Load on views)
     public static class UserInventoryItem {
@@ -132,7 +133,59 @@ public class DatabaseLoader {
         Log.d(TAG, "Executing Galactic Cache Purge for user: " + cachedInventoryUserId);
         cachedUserInventory = null;
         cachedInventoryUserId = null;
+        cachedCollectionMap = null; // Clear map lookup của inventory
         notifyInventoryChanged();
+    }
+
+    /**
+     * Nạp Master Data (database.json) từ Assets ở Background Thread.
+     * Giải quyết triệt để vấn đề đơ app 3-5s khi vào Album.
+     */
+    public static void initMasterData(Context context) {
+        if (isMasterDataLoaded || isMasterDataLoading) return;
+        isMasterDataLoading = true;
+        
+        new Thread(() -> {
+            long startTime = System.currentTimeMillis();
+            try {
+                String json = loadJSONFromAsset(context, FILE_NAME);
+                if (json != null) {
+                    JSONObject root = new JSONObject(json);
+                    JSONArray cardsArray = root.optJSONArray("cards");
+                    if (cardsArray != null) {
+                        java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(cardsArray.length());
+                        for (int i = 0; i < cardsArray.length(); i++) {
+                            JSONObject card = cardsArray.getJSONObject(i);
+                            String id = card.optString("id");
+                            if (!id.isEmpty()) {
+                                tempMasterMap.put(id, card);
+                            }
+                        }
+                        cachedMasterMap = tempMasterMap;
+                        isMasterDataLoaded = true;
+                        Log.d(TAG, "Master Data Loaded: " + tempMasterMap.size() + " cards in " + (System.currentTimeMillis() - startTime) + "ms");
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi nạp Master Data: " + e.getMessage());
+            } finally {
+                isMasterDataLoading = false;
+            }
+        }).start();
+    }
+
+    private static String loadJSONFromAsset(Context context, String fileName) {
+        try {
+            InputStream is = context.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            return new String(buffer, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading asset: " + fileName, e);
+            return null;
+        }
     }
 
     /**
@@ -327,21 +380,43 @@ public class DatabaseLoader {
     }
 
     /**
-     * Finds a card by its unique ID from cachedUserInventory.
-     * (Replaces local database.json lookup)
+     * Finds a card by its unique ID.
+     * Cơ chế Hybrid: Tìm trong Master Data trước để lấy Metadata đầy đủ (backImage, artist...),
+     * sau đó nếu thẻ có trong Inventory thì ghi đè các thông số level/ovr động.
      */
     public static JSONObject findById(Context context, String id) {
-        if (cachedCollectionMap != null && cachedCollectionMap.containsKey(id)) {
-            return cachedCollectionMap.get(id);
+        if (id == null) return null;
+
+        // 1. Lấy dữ liệu gốc từ Master Data (Để luôn có backImage, info gốc)
+        JSONObject masterCard = null;
+        if (cachedMasterMap != null && cachedMasterMap.containsKey(id)) {
+            masterCard = cachedMasterMap.get(id);
         }
+
+        // 2. Kiểm tra dữ liệu thực tế trong Inventory (Level, OVR hiện tại)
+        JSONObject inventoryCard = null;
+        if (cachedCollectionMap != null && cachedCollectionMap.containsKey(id)) {
+            inventoryCard = cachedCollectionMap.get(id);
+        }
+
+        // Nếu không có Master, trả về Inventory (fallback)
+        if (masterCard == null) return inventoryCard;
         
-        if (cachedUserInventory == null) return null;
-        for (UserInventoryItem item : cachedUserInventory) {
-            if (item.collectionId != null && item.collectionId.equalsIgnoreCase(id)) {
-                return convertToJSONObject(item);
+        // Nếu có cả hai, ta clone Master và merge thông tin Inventory vào
+        if (inventoryCard != null) {
+            try {
+                // Ta dùng master làm gốc để hưởng backImage
+                JSONObject merged = new JSONObject(masterCard.toString());
+                merged.put("level", inventoryCard.optInt("level", 1));
+                merged.put("ovr", inventoryCard.optInt("ovr", 0));
+                merged.put("upgradeLevel", inventoryCard.optInt("upgradeLevel", 0));
+                return merged;
+            } catch (Exception e) {
+                return inventoryCard;
             }
         }
-        return null;
+
+        return masterCard;
     }
 
     /**
@@ -424,7 +499,9 @@ public class DatabaseLoader {
     public static void clearCache() {
         cachedCards = null;
         cachedAllCardsRaw = null;
-        cachedCardMap = null;
-        cachedSlugMap = null;
+        cachedMasterMap = null;
+        cachedCollectionMap = null;
+        isMasterDataLoaded = false;
+        isMasterDataLoading = false;
     }
 }

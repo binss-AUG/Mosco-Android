@@ -20,322 +20,188 @@
     <!--  Row 1: Avatar + Name + Currencies (compact)              -->
     <!--  Row 2: Level badge + OVR badge (clear visual hierarchy)  -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <LinearLayout
-        android:id="@+id/ll_header"
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  HEADER — Optimized 3x3 Grid User HUD (2026 Edition)      -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="@dimen/home_header_padding_top"
-        android:paddingBottom="10dp"
+        android:layout_marginHorizontal="@dimen/spacing_16dp"
+        android:layout_marginTop="@dimen/spacing_8dp"
+        android:background="@drawable/bg_header_glass_v2"
+        android:padding="@dimen/spacing_8dp"
+        android:elevation="@dimen/spacing_8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Premium Glass HUD V2 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_header_glass_v2"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="12dp"
-            android:elevation="8dp">
+        <!-- Column 1: Avatar (Spans rows) -->
+        <FrameLayout
+            android:id="@+id/fl_avatar_group"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintWidth_percent="0.20"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- ROW 1: Avatar + Name + Currencies -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <!-- Avatar Section: Clicking navigates to Profile -->
-                <FrameLayout
-                    android:id="@+id/fl_avatar_group"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
-                    <!-- Neon Pulse Ring: Bo tròn tuyệt đối và mờ ảo (Glow) -->
-                    <View
-                        android:id="@+id/view_avatar_glow"
-                        android:layout_width="@dimen/home_avatar_glow_prominent"
-                        android:layout_height="@dimen/home_avatar_glow_prominent"
-                        android:layout_gravity="center"
-                        android:background="@drawable/bg_avatar_glow" />
-
-                    <!-- Avatar Container: Cắt sát cạnh (Pure Circle) -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cv_avatar"
-                        android:layout_width="@dimen/home_avatar_size_prominent"
-                        android:layout_height="@dimen/home_avatar_size_prominent"
-                        android:layout_gravity="center"
-                        app:cardCornerRadius="100dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/transparent"
-                        app:cardPreventCornerOverlap="false"
-                        app:cardUseCompatPadding="false"
-                        app:strokeColor="#30FFFFFF"
-                        app:strokeWidth="0.8dp">
-
-                        <ImageView
-                            android:id="@+id/iv_home_avatar"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:clipToOutline="true"
-                            android:src="@drawable/ic_user"
-                            android:contentDescription="Avatar" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                </FrameLayout>
-
-                <!-- User Info Profile: Căn giữa dọc tuyệt đối với Avatar -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/tv_home_username"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/saira"
-                        android:textColor="@color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textAllCaps="true"
-                        android:singleLine="true"
-                        android:ellipsize="marquee"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollHorizontally="true"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:letterSpacing="0.05"
-                        tools:text="Commander Extreme Long Name" />
-
-                    <!-- Level Badge: Xếp dưới tên -->
-                    <LinearLayout
-                        android:id="@+id/badge_level"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_header_token"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="3dp">
-                        <TextView
-                            android:id="@+id/tv_home_level"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/saira"
-                            android:textColor="#BDBDBD"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.03"
-                            tools:text="LV. 5" />
-                    </LinearLayout>
-
-                    <!-- OVR Badge: Xếp dưới level -->
-                    <LinearLayout
-                        android:id="@+id/badge_ovr"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_header_token"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="3dp">
-                        <TextView
-                            android:id="@+id/tv_home_ovr_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="OVR"
-                            android:fontFamily="@font/saira"
-                            android:textColor="#8000E5FF"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.03" />
-                        <TextView
-                            android:id="@+id/tv_home_ovr"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="@font/saira"
-                            android:textColor="@color/item_diamond"
-                            android:textSize="11sp"
-                            android:textStyle="bold"
-                            tools:text="111" />
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <!-- Currency Cluster (Stacked pills) -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="end">
-
-                    <!-- Coins -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_header_token"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp">
-                        <ImageView
-                            android:layout_width="27dp"
-                            android:layout_height="27dp"
-                            android:src="@drawable/ic_item_coin" />
-                        <TextView
-                            android:id="@+id/tv_home_coins"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/saira"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.02"
-                            tools:text="1,260,000" />
-                    </LinearLayout>
-
-                    <!-- Diamonds: Hiển thị số dư kim cương -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_header_token"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp">
-                        <ImageView
-                            android:layout_width="27dp"
-                            android:layout_height="27dp"
-                            android:src="@drawable/ic_item_diamond" />
-                        <TextView
-                            android:id="@+id/tv_home_diamonds"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:fontFamily="@font/saira"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.02"
-                            tools:text="850" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Divider — subtle neon line -->
             <View
+                android:id="@+id/view_avatar_glow"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp"
-                android:background="#15FFFFFF" />
+                android:layout_height="match_parent"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_avatar_glow" />
 
-            <!-- ROW 2: Optimized utilities section -->
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_avatar"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="6dp"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/transparent"
+                app:strokeColor="#30FFFFFF"
+                app:strokeWidth="0.8dp">
+
+                <ImageView
+                    android:id="@+id/iv_home_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user" />
+            </com.google.android.material.card.MaterialCardView>
+        </FrameLayout>
+
+        <!-- Column 2: User Info (Center 60%) -->
+        <TextView
+            android:id="@+id/tv_home_username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_8dp"
+            android:fontFamily="@font/saira"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_14sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:letterSpacing="0.05"
+            app:layout_constraintWidth_percent="0.55"
+            app:layout_constraintStart_toEndOf="@id/fl_avatar_group"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/layout_user_id"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Commander Long Name" />
+
+        <LinearLayout
+            android:id="@+id/layout_user_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_8dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_header_token"
+            android:paddingHorizontal="@dimen/home_token_padding_horizontal"
+            android:paddingVertical="@dimen/home_token_padding_vertical"
+            app:layout_constraintStart_toStartOf="@id/tv_home_username"
+            app:layout_constraintTop_toBottomOf="@id/tv_home_username"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <TextView
+                android:id="@+id/tv_home_user_id"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <!-- USER ID Section -->
-                <LinearLayout
-                    android:id="@+id/layout_user_id"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_header_token"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:clickable="true"
-                    android:focusable="true">
-                    <TextView
-                        android:id="@+id/tv_home_user_id"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ID: 10000000"
-                        android:fontFamily="@font/saira"
-                        android:textColor="#BDBDBD"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.03" />
-                    <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginStart="8dp"
-                        android:src="@drawable/ic_copy"
-                        android:contentDescription="Copy ID"
-                        app:tint="#9E9E9E" />
-                </LinearLayout>
-
-                <!-- Spacer -->
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <!-- Card Count Badge (Folder style) -->
-                <LinearLayout
-                    android:id="@+id/btn_home_inventory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:background="@drawable/bg_header_token"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp">
-                        <ImageView
-                            android:layout_width="@dimen/icon_size_sm"
-                            android:layout_height="@dimen/icon_size_sm"
-                            android:src="@drawable/ic_objets"
-                            app:tint="#9E9E9E" />
-                        <TextView
-                            android:id="@+id/tv_home_card_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:fontFamily="@font/poppins_bold"
-                            android:textColor="#BDBDBD"
-                            android:textSize="9sp"
-                            tools:text="12" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
+                android:text="@tools:sample/full_names"
+                android:fontFamily="@font/saira"
+                android:textColor="#BDBDBD"
+                android:textSize="@dimen/text_14sp"
+                android:textStyle="bold" />
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/ic_copy"
+                app:tint="#80BDBDBD"/>
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Event Banner -->
+        <!-- Column 3: Currencies (Right) -->
+        <!-- Coin (Row 1/2) -->
+        <LinearLayout
+            android:id="@+id/ll_coins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|end"
+            android:background="@drawable/bg_header_token"
+            android:paddingHorizontal="@dimen/home_token_padding_horizontal"
+            android:paddingVertical="@dimen/home_token_padding_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ll_diamonds"
+            app:layout_constraintVertical_chainStyle="packed">
+            <ImageView
+                android:layout_width="@dimen/home_currency_icon_size"
+                android:layout_height="@dimen/home_currency_icon_size"
+                android:src="@drawable/ic_item_coin" />
+            <TextView
+                android:id="@+id/tv_home_coins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_4dp"
+                android:fontFamily="@font/saira"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_16sp"
+                android:textStyle="bold"
+                tools:text="1.2M" />
+        </LinearLayout>
+
+        <!-- Diamond (Row 2/2) -->
+        <LinearLayout
+            android:id="@+id/ll_diamonds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_4dp"
+            android:gravity="center_vertical|end"
+            android:background="@drawable/bg_header_token"
+            android:paddingHorizontal="@dimen/home_token_padding_horizontal"
+            android:paddingVertical="@dimen/home_token_padding_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_coins"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <ImageView
+                android:layout_width="@dimen/home_currency_icon_size"
+                android:layout_height="@dimen/home_currency_icon_size"
+                android:src="@drawable/ic_item_diamond" />
+            <TextView
+                android:id="@+id/tv_home_diamonds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_4dp"
+                android:fontFamily="@font/saira"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_16sp"
+                android:textStyle="bold"
+                tools:text="850" />
+        </LinearLayout>
+
+        <!-- Hidden legacy views to avoid NullPointerException in Java logic if needed -->
+        <TextView android:id="@+id/tv_home_level" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+        <TextView android:id="@+id/tv_home_ovr" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Event Banner (Moved Up) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_banner_container"
         android:layout_width="0dp"
         android:layout_height="@dimen/home_banner_height"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="16dp"
+        android:layout_marginHorizontal="@dimen/home_banner_margin_horizontal"
+        android:layout_marginTop="@dimen/home_banner_margin_top"
+        app:cardCornerRadius="@dimen/home_banner_corner"
         app:cardElevation="0dp"
         app:cardBackgroundColor="@color/transparent"
-        app:layout_constraintTop_toBottomOf="@id/ll_header"
+        app:layout_constraintTop_toBottomOf="@id/cl_header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_banner_glass">
@@ -347,42 +213,34 @@
         android:id="@+id/ll_banner_dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_4dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/cv_banner_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Guideline to limit card height (fixing "Ảnh to") -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_showcase_bottom"
-        android:layout_width="wrap_content"
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  QUICK TOOL HUD — Horizontal Scroll System (V3)            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <HorizontalScrollView
+        android:id="@+id/hsv_quick_tools"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.94" />
+        android:layout_marginTop="@dimen/spacing_8dp"
+        android:layout_marginHorizontal="@dimen/spacing_16dp"
+        android:background="@drawable/bg_header_glass_v2"
+        android:scrollbars="none"
+        android:clipToPadding="true"
+        android:paddingHorizontal="@dimen/spacing_12dp"
+        android:paddingVertical="@dimen/spacing_4dp"
+        app:layout_constraintTop_toBottomOf="@id/ll_banner_dots">
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!--  MOVABLE FAB HUD — Expandable Quick Tool System           -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
-
-    <FrameLayout
-        android:id="@+id/fl_hud_menu_container"
-        android:layout_width="260dp"
-        android:layout_height="280dp"
-        android:visibility="invisible"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:background="@drawable/bg_hud_menu_glass"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="@id/fl_hud_main_fab"
-        app:layout_constraintEnd_toEndOf="@id/fl_hud_main_fab"
-        app:layout_constraintStart_toStartOf="@id/fl_hud_main_fab"
-        app:layout_constraintTop_toTopOf="@id/fl_hud_main_fab">
-
-        <!-- Solid Constraint Layout replacing buggy Grid for precise tool alignment -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/ll_quick_tools_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <!-- Tool: Daily -->
             <LinearLayout
@@ -391,20 +249,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_quick_event"
-                app:layout_constraintBottom_toTopOf="@id/btn_quick_rank"
-                app:layout_constraintHorizontal_chainStyle="spread">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_daily_calendar"
                         app:tint="@color/quick_tool_daily" />
@@ -414,9 +268,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_daily"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Event -->
@@ -426,18 +280,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="@id/btn_quick_daily"
-                app:layout_constraintStart_toEndOf="@id/btn_quick_daily"
-                app:layout_constraintEnd_toStartOf="@id/btn_quick_upgrade">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="@dimen/home_hud_mini_fab_size"
+                    android:layout_height="@dimen/home_hud_mini_fab_size"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_event_confetti"
                         app:tint="@color/quick_tool_event" />
@@ -447,9 +299,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_event"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Upgrade -->
@@ -459,18 +311,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="@id/btn_quick_daily"
-                app:layout_constraintStart_toEndOf="@id/btn_quick_event"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_level_up"
                         app:tint="@color/quick_tool_upgrade" />
@@ -480,9 +330,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_upgrade"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Rank -->
@@ -492,19 +342,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/btn_quick_daily"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_quick_shop"
-                app:layout_constraintBottom_toTopOf="@id/btn_quick_formation">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_rank_leaderboard"
                         app:tint="@color/quick_tool_rank" />
@@ -514,9 +361,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_rank"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Shop -->
@@ -526,14 +373,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="@id/btn_quick_rank"
-                app:layout_constraintStart_toEndOf="@id/btn_quick_rank"
-                app:layout_constraintEnd_toStartOf="@id/btn_quick_friends">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="@dimen/home_hud_mini_fab_size"
+                    android:layout_height="@dimen/home_hud_mini_fab_size"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
                         android:layout_width="22dp"
@@ -547,9 +392,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_shop"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Friends -->
@@ -559,18 +404,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="@id/btn_quick_rank"
-                app:layout_constraintStart_toEndOf="@id/btn_quick_shop"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="@dimen/home_hud_mini_fab_size"
+                    android:layout_height="@dimen/home_hud_mini_fab_size"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_friends"
                         app:tint="@color/quick_tool_friends" />
@@ -580,32 +423,28 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_friends"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
-            <!-- Tool: Formation (Team) -->
+            <!-- Tool: Formation -->
             <LinearLayout
                 android:id="@+id/btn_quick_formation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/btn_quick_rank"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_quick_gift"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_chainStyle="spread">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="@dimen/home_hud_mini_fab_size"
+                    android:layout_height="@dimen/home_hud_mini_fab_size"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_stage"
                         app:tint="@color/mosco_neon_blue" />
@@ -615,9 +454,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_formation"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
             <!-- Tool: Gift -->
@@ -627,19 +466,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:padding="@dimen/spacing_8dp"
                 android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toTopOf="@id/btn_quick_formation"
-                app:layout_constraintStart_toEndOf="@id/btn_quick_formation"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                android:focusable="true">
                 <FrameLayout
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bg_hud_mini_fab">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_gift"
                         app:tint="@color/quick_tool_gift" />
@@ -649,63 +485,21 @@
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_gift"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/text_9sp"
                     android:fontFamily="@font/poppins_bold"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
 
-    <!-- Main Movable FAB with Red Dot -->
-    <FrameLayout
-        android:id="@+id/fl_hud_main_fab"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="30dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    <!-- Guideline to limit card height (fixing "Ảnh to") -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_showcase_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.98" />
 
-        <!-- Outer Glow Ring (Pulse) -->
-        <View
-            android:id="@+id/view_hud_fab_glow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_hud_fab"
-            android:alpha="0.4" />
-
-        <!-- FAB Icon -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/mosco_surface_container"
-            app:strokeWidth="1.5dp"
-            app:strokeColor="@color/mosco_outline_variant">
-            <ImageView
-                android:id="@+id/iv_hud_main_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_quick_action"
-                app:tint="@color/item_diamond" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Red Notification Dot -->
-        <View
-            android:id="@+id/view_hud_dot"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="2dp"
-            android:background="@drawable/bg_circle_dark"
-            android:backgroundTint="@color/stat_atk"
-            android:elevation="10dp" />
-    </FrameLayout>
 
     <!-- Luồng sáng máy chiếu -->
     <View
@@ -724,11 +518,11 @@
         android:id="@+id/fl_showcase_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="16dp"
+        android:layout_marginTop="@dimen/spacing_8dp"
+        android:paddingBottom="@dimen/spacing_16dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/ll_banner_dots"
+        app:layout_constraintTop_toBottomOf="@id/hsv_quick_tools"
         app:layout_constraintBottom_toTopOf="@id/guideline_showcase_bottom"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -779,7 +573,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No Objets Yet" android:fontFamily="@font/poppins_bold" android:textColor="@color/mosco_on_surface_variant" android:textSize="18sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/home_showcase_empty_title" android:fontFamily="@font/poppins_bold" android:textColor="@color/mosco_on_surface_variant" android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -805,11 +599,11 @@
                 android:id="@+id/tv_showcase_loading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Đang tải Showcase..."
+                android:layout_marginTop="@dimen/spacing_8dp"
+                android:text="@string/home_showcase_loading_msg"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/white"
-                android:textSize="10sp" />
+                android:textSize="@dimen/text_10sp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

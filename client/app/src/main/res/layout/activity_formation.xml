@@ -23,7 +23,8 @@
             android:fontFamily="@font/poppins_bold"
             android:text="OVR: 0"
             android:textColor="@color/white"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/btn_global_buffs"

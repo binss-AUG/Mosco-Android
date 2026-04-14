@@ -94,22 +94,22 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private MaterialCardView cvShowcaseCard;
     private View flShowcaseContainer, viewCardShimmer;
     private LinearLayout llEmptyState, llBannerDots;
-    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFormation, btnQuickGift;
     private View layoutShowcaseLoading;
     private TextView tvShowcaseLoading, tvCardCount;
     private ViewPager2 vpBanners;
     private View viewProjectorBeam, viewAvatarGlow, flAvatarGroup;
 
-    // ── Movable FAB HUD References ──
-    private FrameLayout flHudMainFab, flHudMenuContainer;
-    private View viewHudFabGlow, viewHudDot, ivHudMainIcon;
-    private View btnQuickFriends;
-    private boolean isHudMenuExpanded = false;
-    private float lastFabX, lastFabY;
+    // ── Quick Tool References (New HUD V3) ──
+    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
+    private android.widget.HorizontalScrollView hsvQuickTools;
+    private LinearLayout llQuickToolsContainer;
 
     // ── State ──
     private boolean isCardFlipped = false;
     private boolean isFlipAnimating = false;
+    private float initialTouchX = 0f;
+    private float startCardRotation = 0f;
+    private ObjectAnimator snapAnimator;
     private String heroBackImageUrl = null;
 
     // ── Services ──
@@ -148,12 +148,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         initGestureDetector();
         setupBannerCarousel();
         setupQuickToolActions();
+        setupQuickToolDimensions();
         loadUserData();
         loadHeroShowcase();
-        
-        // Ensure FAB is on top of everything
-        if (flHudMainFab != null) flHudMainFab.bringToFront();
-        if (flHudMenuContainer != null) flHudMenuContainer.bringToFront();
         
         return view;
     }
@@ -215,13 +212,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             btnQuickDaily = v.findViewById(R.id.btn_quick_daily);
             btnQuickEvent = v.findViewById(R.id.btn_quick_event);
             btnQuickUpgrade = v.findViewById(R.id.btn_quick_upgrade);
-            btnQuickRank = v.findViewById(R.id.btn_quick_rank);
             btnQuickShop = v.findViewById(R.id.btn_quick_shop);
+            btnQuickFriends = v.findViewById(R.id.btn_quick_friends);
             btnQuickFormation = v.findViewById(R.id.btn_quick_formation);
             btnQuickGift = v.findViewById(R.id.btn_quick_gift);
+            
+            hsvQuickTools = v.findViewById(R.id.hsv_quick_tools);
             layoutShowcaseLoading = v.findViewById(R.id.layout_showcase_loading);
             tvShowcaseLoading = v.findViewById(R.id.tv_showcase_loading);
-            tvCardCount = v.findViewById(R.id.tv_home_card_count);
             
             flShowcaseContainer = v.findViewById(R.id.fl_showcase_container);
             vpBanners = v.findViewById(R.id.vp_banners);
@@ -229,15 +227,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             viewAvatarGlow = v.findViewById(R.id.view_avatar_glow);
             flAvatarGroup = v.findViewById(R.id.fl_avatar_group);
 
-            // FAB HUD
-            flHudMainFab = v.findViewById(R.id.fl_hud_main_fab);
-            flHudMenuContainer = v.findViewById(R.id.fl_hud_menu_container);
-            viewHudFabGlow = v.findViewById(R.id.view_hud_fab_glow);
-            viewHudDot = v.findViewById(R.id.view_hud_dot);
-            ivHudMainIcon = v.findViewById(R.id.iv_hud_main_icon);
-            btnQuickFriends = v.findViewById(R.id.btn_quick_friends);
             tvUserId = v.findViewById(R.id.tv_home_user_id);
             layoutUserId = v.findViewById(R.id.layout_user_id);
+            llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
         } catch (Exception e) {
             Log.e(TAG, "Error initializing views", e);
         }
@@ -277,19 +269,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 return true;
             }
 
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null || e2 == null) return false;
-                float diffX = e2.getX() - e1.getX();
-                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    // Horizontal swipe detected (either direction)
-                    if (!isFlipAnimating && heroObjet != null) {
-                        performCardFlip();
-                    }
-                    return true;
-                }
-                return false;
-            }
+            // onFling removed because custom OnTouchListener implements real-time dragging
 
             @Override
             public boolean onDown(MotionEvent e) {
@@ -303,8 +283,41 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             float scale = getResources().getDisplayMetrics().density;
             cvShowcaseCard.setCameraDistance(8000 * scale);
             cvShowcaseCard.setOnTouchListener((v, event) -> {
-                gestureDetector.onTouchEvent(event);
-                return true;
+                boolean handled = gestureDetector.onTouchEvent(event);
+                if (heroObjet == null) return handled;
+
+                View pseudoGlow = (View) cvShowcaseCard.getTag(R.id.view_progress_fill);
+                if (pseudoGlow != null) pseudoGlow.setCameraDistance(8000 * scale);
+
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (snapAnimator != null && snapAnimator.isRunning()) {
+                            snapAnimator.cancel();
+                        }
+                        initialTouchX = event.getRawX();
+                        startCardRotation = cvShowcaseCard.getRotationY();
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float diffX = event.getRawX() - initialTouchX;
+                        // Đọc cấu hình độ nhạy xoay từ resource (không hardcode)
+                        int sensitivity = getResources().getInteger(R.integer.card_flip_sensitivity);
+                        float newRotation = startCardRotation + (diffX / sensitivity);
+                        cvShowcaseCard.setRotationY(newRotation);
+                        
+                        if (pseudoGlow != null) pseudoGlow.setRotationY(newRotation);
+                        
+                        checkFaceSwap(newRotation);
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        snapCardPosition();
+                        return true;
+                }
+                return handled;
             });
         }
     }
@@ -348,8 +361,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     /**
-     * Opens the full-stat ObjetDetail dialog for the hero card.
-     * Reuses the project's ObjetDetailBinder for consistent card theming.
+     * Mở hộp thoại chi tiết (Full Stats) cho thẻ Showcase.
+     * Sử dụng ObjetDetailBinder để đảm bảo tính nhất quán trong giao diện thẻ.
      */
     private void openDetailDialog() {
         if (getContext() == null || heroObjet == null) return;
@@ -361,75 +374,69 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  3D CARD FLIP ANIMATION — 180° Rotation (Corrected for Swipe)
+    //  HIỆU ỨNG LẬT THẺ 3D — Xoay 180° (Đã tối ưu cho vuốt)
     // ════════════════════════════════════════════════════════════════
 
-    private void performCardFlip() {
-        if (cvShowcaseCard == null) return;
-        isFlipAnimating = true;
-
-        float startAngle = isCardFlipped ? 180f : 0f;
-        float midAngle = isCardFlipped ? 270f : 90f;
-        float endAngle = isCardFlipped ? 360f : 180f;
-
-        ObjectAnimator phaseOne = ObjectAnimator.ofFloat(
-                cvShowcaseCard, "rotationY", startAngle, midAngle);
-        phaseOne.setDuration(FLIP_HALF_DURATION);
-        phaseOne.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        ObjectAnimator phaseTwo = ObjectAnimator.ofFloat(
-                cvShowcaseCard, "rotationY", midAngle, endAngle);
-        phaseTwo.setDuration(FLIP_HALF_DURATION);
-        phaseTwo.setInterpolator(new DecelerateInterpolator());
-
-        // Sync glow rotation with card flip
-        View pseudoGlow = (View) cvShowcaseCard.getTag(R.id.view_progress_fill);
-        if (pseudoGlow != null) {
-            float scale = getResources().getDisplayMetrics().density;
-            pseudoGlow.setCameraDistance(8000 * scale);
-            
-            phaseOne.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
-            phaseTwo.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
-        }
-
-        phaseOne.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                swapCardFaces();
-            }
-        });
-
-        AnimatorSet flipSet = new AnimatorSet();
-        flipSet.playSequentially(phaseOne, phaseTwo);
-        flipSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isFlipAnimating = false;
-                if (cvShowcaseCard.getRotationY() >= 360f) {
-                    cvShowcaseCard.setRotationY(0f);
-                }
-            }
-        });
-        flipSet.start();
+    private void checkFaceSwap(float currentRotation) {
+        float normalized = currentRotation % 360;
+        if (normalized < 0) normalized += 360;
+        // Face swap threshold boundary (90 to 270 is Back Face)
+        boolean shouldBeFlipped = (normalized > 90 && normalized < 270);
+        setCardFace(shouldBeFlipped);
     }
 
-    /**
-     * Swaps front image with the back image (handled by Glide in bindHeroCard).
-     */
-    private void swapCardFaces() {
+    private void snapCardPosition() {
+        if (cvShowcaseCard == null) return;
+        
+        float currentRotation = cvShowcaseCard.getRotationY();
+        float normalized = currentRotation % 360;
+        if (normalized < 0) normalized += 360;
+
+        float nearestAngle;
+        if (normalized <= 90 || normalized >= 270) {
+            // Nearest is Front (0, 360, etc)
+            nearestAngle = Math.round(currentRotation / 360f) * 360f;
+        } else {
+            // Nearest is Back (180, 540, etc)
+            nearestAngle = Math.round((currentRotation - 180f) / 360f) * 360f + 180f;
+        }
+
+        snapAnimator = ObjectAnimator.ofFloat(cvShowcaseCard, "rotationY", currentRotation, nearestAngle);
+        // Snappy spring effect
+        snapAnimator.setDuration(250); 
+        snapAnimator.setInterpolator(new OvershootInterpolator(1.2f));
+        
+        View pseudoGlow = (View) cvShowcaseCard.getTag(R.id.view_progress_fill);
+        if (pseudoGlow != null) {
+            snapAnimator.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
+        }
+        
+        snapAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                checkFaceSwap(cvShowcaseCard.getRotationY());
+            }
+        });
+        snapAnimator.start();
+    }
+
+    private void setCardFace(boolean showBack) {
+        if (isCardFlipped == showBack) return;
         if (ivShowcaseFront == null || ivShowcaseBack == null) return;
 
-        if (isCardFlipped) {
+        isCardFlipped = showBack;
+
+        if (!showBack) {
             // Reveal Front
             ivShowcaseFront.setVisibility(View.VISIBLE);
             ivShowcaseBack.setVisibility(View.GONE);
-            if (tvShowcaseOvr != null) tvShowcaseOvr.setVisibility(View.VISIBLE);
+            if (tvShowcaseOvr != null) tvShowcaseOvr.setVisibility(View.GONE);
             if (ivLevelBadge != null && heroObjet != null && heroObjet.getUpgradeLevel() > 0) {
                 ivLevelBadge.setVisibility(View.VISIBLE);
             }
             if (viewCardShimmer != null) viewCardShimmer.setVisibility(View.VISIBLE);
         } else {
-            // Reveal Back (Image already loaded by Glide with placeholder)
+            // Reveal Back
             ivShowcaseFront.setVisibility(View.GONE);
             ivShowcaseBack.setVisibility(View.VISIBLE);
             ivShowcaseBack.setScaleX(-1f); // Mirror fix
@@ -439,7 +446,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             if (ivLevelBadge != null) ivLevelBadge.setVisibility(View.GONE);
             if (viewCardShimmer != null) viewCardShimmer.setVisibility(View.GONE);
         }
-        isCardFlipped = !isCardFlipped;
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -447,46 +453,32 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     // ════════════════════════════════════════════════════════════════
 
     private void setupQuickToolActions() {
-        // Main FAB: Drag + Toggle
-        setupMovableFab();
-
-        // Sub Tools — Mỗi nút mở Activity tương ứng
         if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> {
-            toggleHudMenu();
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.DailyCheckinActivity.class));
         });
         if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> {
-            toggleHudMenu();
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.MissionActivity.class));
         });
         if (btnQuickUpgrade != null) btnQuickUpgrade.setOnClickListener(v -> navigateToTab(R.id.nav_stage));
         if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> {
-            toggleHudMenu();
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.RankActivity.class));
         });
         if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> {
-            toggleHudMenu();
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FriendActivity.class));
         });
-
         if (btnQuickFormation != null) {
             btnQuickFormation.setOnClickListener(v -> {
-                toggleHudMenu();
                 startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FormationActivity.class));
             });
         }
-
         if (btnQuickGift != null) {
             btnQuickGift.setOnClickListener(v -> {
-                toggleHudMenu();
                 startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.GiftActivity.class));
             });
         }
-        
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
                 if (getActivity() != null) {
-                    toggleHudMenu(); // Close menu before navigating
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
                             .add(R.id.frame_layout, new ShopFragment())
@@ -495,247 +487,35 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         }
-
-        if (flAvatarGroup != null) {
-            flAvatarGroup.setOnClickListener(v -> {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).selectTab(R.id.nav_profile);
-                }
-            });
-        }
     }
 
     /**
-     * Implements Drag-to-Move and Tap-to-Expand for the main HUD FAB.
-     * Use simple touch logic with a small slop to distinguish drag from tap.
+     * Tự động tính toán chiều rộng cho các Quick Tool item để hiển thị đúng 5 item trên màn hình.
+     * Đảm bảo trải nghiệm cuộn ngang mượt mà và cân đối.
      */
-    private void setupMovableFab() {
-        if (flHudMainFab == null) return;
+    private void setupQuickToolDimensions() {
+        if (hsvQuickTools == null || llQuickToolsContainer == null) return;
 
-        flHudMainFab.setOnTouchListener(new View.OnTouchListener() {
-            private float dX, dY;
-            private long touchStartTime;
-            private static final int CLICK_DRAG_THRESHOLD = 10;
+        hsvQuickTools.post(() -> {
+            if (!isAdded() || getContext() == null) return;
 
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                // RULE: If menu is expanded, disable drag to prevent UI glitching
-                if (isHudMenuExpanded) {
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        toggleHudMenu(); // Close if tapped while expanded
-                    }
-                    return true;
+            int hsvWidth = hsvQuickTools.getMeasuredWidth();
+            // Trừ đi padding của HorizontalScrollView (Glass container)
+            int horizontalPadding = hsvQuickTools.getPaddingLeft() + hsvQuickTools.getPaddingRight();
+            int availableWidth = hsvWidth - horizontalPadding;
+
+            // Chia cho 5 để lúc nào cũng thấy đúng 5 nút
+            int itemWidth = availableWidth / 5;
+
+            for (int i = 0; i < llQuickToolsContainer.getChildCount(); i++) {
+                View child = llQuickToolsContainer.getChildAt(i);
+                if (child != null) {
+                    ViewGroup.LayoutParams params = child.getLayoutParams();
+                    params.width = itemWidth;
+                    child.setLayoutParams(params);
                 }
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        dX = view.getX() - event.getRawX();
-                        dY = view.getY() - event.getRawY();
-                        touchStartTime = System.currentTimeMillis();
-                        lastFabX = view.getX();
-                        lastFabY = view.getY();
-                        return true;
-
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX() + dX;
-                        float newY = event.getRawY() + dY;
-                        
-                        // SCREEN BOUNDARY CHECK: Prevent FAB from flying off screen
-                        View parent = (View) view.getParent();
-                        if (parent != null) {
-                            float minX = 0;
-                            float maxX = parent.getWidth() - view.getWidth();
-                            float minY = 0;
-                            float maxY = parent.getHeight() - view.getHeight();
-                            
-                            newX = Math.max(minX, Math.min(newX, maxX));
-                            newY = Math.max(minY, Math.min(newY, maxY));
-                        }
-
-                        view.animate()
-                                .x(newX)
-                                .y(newY)
-                                .setDuration(0)
-                                .start();
-                                
-                        // ĐỒNG BỘ VỊ TRÍ PANEL: Đảm bảo bảng công cụ đi theo FAB nhưng không bị văng khỏi màn hình
-                        syncPanelPosition(newX, newY, view.getWidth(), view.getHeight());
-                        return true;
-
-                    case MotionEvent.ACTION_UP:
-                        long duration = System.currentTimeMillis() - touchStartTime;
-                        float distance = (float) Math.hypot(view.getX() - lastFabX, view.getY() - lastFabY);
-                        
-                        if (duration < 200 && distance < CLICK_DRAG_THRESHOLD) {
-                            // Xử lý sự kiện Tap để mở menu
-                            toggleHudMenu();
-                        } else {
-                            // TỰ ĐỘNG HÚT CẠNH (Snap to Edges): FAB tự tìm về cạnh trái hoặc phải gần nhất
-                            View parentView = (View) view.getParent();
-                            if (parentView != null) {
-                                float parentWidth = parentView.getWidth();
-                                float viewWidth = view.getWidth();
-                                float hudMargin = getResources().getDimension(R.dimen.home_hud_panel_margin);
-                                
-                                float destX = (view.getX() + viewWidth / 2f > parentWidth / 2f) 
-                                        ? (parentWidth - viewWidth - hudMargin) // Cạnh phải (có trừ lề)
-                                        : (hudMargin); // Cạnh trái (có cộng lề)
-                                
-                                view.animate()
-                                        .x(destX)
-                                        .setDuration(300)
-                                        .setInterpolator(new OvershootInterpolator())
-                                        .setUpdateListener(animation -> {
-                                            // Giữ cho bảng menu luôn đồng bộ vị trí trong quá trình FAB "hút" về cạnh
-                                            if (flHudMenuContainer != null) {
-                                                syncPanelPosition(view.getX(), view.getY(), view.getWidth(), view.getHeight());
-                                            }
-                                        })
-                                        .start();
-                            }
-                        }
-                        return true;
-                }
-                return false;
             }
         });
-
-        // Initial Pulse for FAB Dot/Glow
-        startFabDotPulse();
-    }
-
-    private void toggleHudMenu() {
-        if (flHudMenuContainer == null) return;
-
-        isHudMenuExpanded = !isHudMenuExpanded;
-        
-        if (isHudMenuExpanded) {
-            // ĐỒNG BỘ VỊ TRÍ LẦN CUỐI: Đảm bảo bảng luôn hiện đúng phía (trái/phải) trước khi bắt đầu animation
-            syncPanelPosition(flHudMainFab.getX(), flHudMainFab.getY(), flHudMainFab.getWidth(), flHudMainFab.getHeight());
-            
-            flHudMenuContainer.setVisibility(View.VISIBLE);
-            flHudMenuContainer.setScaleX(0.5f);
-            flHudMenuContainer.setScaleY(0.5f);
-            flHudMenuContainer.setAlpha(0f);
-            
-            flHudMenuContainer.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .alpha(1f)
-                    .setDuration(400)
-                    .setInterpolator(new OvershootInterpolator(1.0f))
-                    .start();
-
-            // Hiệu ứng hiện dần dần (staggered) cho 6 nút công cụ bên trong bảng
-            animateSubTools(true);
-            
-            if (ivHudMainIcon != null) {
-                ivHudMainIcon.animate().rotation(45f).setDuration(300).start();
-            }
-            if (viewHudDot != null) viewHudDot.setVisibility(View.GONE);
-        } else {
-            flHudMenuContainer.animate()
-                    .scaleX(0f)
-                    .scaleY(0f)
-                    .alpha(0f)
-                    .setDuration(250)
-                    .setInterpolator(new AccelerateDecelerateInterpolator())
-                    .withEndAction(() -> flHudMenuContainer.setVisibility(View.INVISIBLE))
-                    .start();
-            
-            if (ivHudMainIcon != null) {
-                ivHudMainIcon.animate().rotation(0f).setDuration(250).start();
-            }
-        }
-    }
-
-    /**
-     * Tự động tính toán vị trí bảng HUD dựa trên vị trí FAB: 
-     * FAB BÊN PHẢI -> BẢNG BÊN TRÁI | FAB BÊN TRÁI -> BẢNG BÊN PHẢI
-     * Giải pháp này giúp tránh việc bảng bị tràn khỏi màn hình và đảm bảo tính thẩm mỹ.
-     */
-    private void syncPanelPosition(float fabX, float fabY, int fabWidth, int fabHeight) {
-        if (flHudMenuContainer == null) return;
-        
-        View parent = (View) flHudMenuContainer.getParent();
-        if (parent == null) return;
-
-        float margin = getResources().getDimension(R.dimen.home_hud_panel_margin);
-        float offset = getResources().getDimension(R.dimen.home_hud_panel_offset); // Khoảng cách giữa FAB và Bảng
-        
-        float targetX;
-        float targetY = fabY + fabHeight / 2f - flHudMenuContainer.getHeight() / 2f;
-
-        // Logic "Đối đầu": Bảng luôn ưu tiên nằm phía trong của màn hình so với FAB
-        if (fabX + fabWidth / 2f > parent.getWidth() / 2f) {
-            // FAB ĐANG Ở NỬA PHẢI -> Đặt bảng nằm bên trái FAB
-            targetX = fabX - flHudMenuContainer.getWidth() - offset;
-        } else {
-            // FAB ĐANG Ở NỬA TRÁI -> Đặt bảng nằm bên phải FAB
-            targetX = fabX + fabWidth + offset;
-        }
-
-        // KIỂM SOÁT BIÊN (CLAMP): Đảm bảo các cạnh Top/Bottom không bao giờ văng khỏi màn hình
-        float minX = margin;
-        float maxX = parent.getWidth() - flHudMenuContainer.getWidth() - margin;
-        float minY = margin;
-        float maxY = parent.getHeight() - flHudMenuContainer.getHeight() - margin;
-
-        targetX = Math.max(minX, Math.min(targetX, maxX));
-        targetY = Math.max(minY, Math.min(targetY, maxY));
-
-        flHudMenuContainer.setX(targetX);
-        flHudMenuContainer.setY(targetY);
-    }
-
-    /**
-     * Hiệu ứng Staggered Animation cho các nút con trong bảng HUD.
-     */
-    private void animateSubTools(boolean expand) {
-        View[] tools = {btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift};
-        
-        for (int i = 0; i < tools.length; i++) {
-            View tool = tools[i];
-            if (tool == null) continue;
-
-            if (expand) {
-                tool.setAlpha(0f);
-                tool.setTranslationY(20f);
-                tool.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setDuration(300)
-                        .setStartDelay(100 + i * 40)
-                        .setInterpolator(new DecelerateInterpolator())
-                        .start();
-            } else {
-                tool.animate()
-                        .alpha(0f)
-                        .translationY(20f)
-                        .setDuration(200)
-                        .start();
-            }
-        }
-    }
-
-    private void startFabDotPulse() {
-        if (viewHudDot == null) return;
-        
-        ObjectAnimator pulse = ObjectAnimator.ofFloat(viewHudDot, "alpha", 1f, 0.4f, 1f);
-        pulse.setDuration(1200);
-        pulse.setRepeatCount(ValueAnimator.INFINITE);
-        pulse.start();
-        
-        if (viewHudFabGlow != null) {
-            ObjectAnimator glowScale = ObjectAnimator.ofFloat(viewHudFabGlow, "scaleX", 1f, 1.15f, 1f);
-            ObjectAnimator glowScaleY = ObjectAnimator.ofFloat(viewHudFabGlow, "scaleY", 1f, 1.15f, 1f);
-            glowScale.setDuration(2000);
-            glowScale.setRepeatCount(ValueAnimator.INFINITE);
-            glowScaleY.setDuration(2000);
-            glowScaleY.setRepeatCount(ValueAnimator.INFINITE);
-            glowScale.start();
-            glowScaleY.start();
-        }
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -756,11 +536,15 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             // Build dot indicators
             buildDotIndicators(bannerCount);
 
+            // Khởi tạo ở vị trí giữa dải Integer.MAX_VALUE để sếp có thể vuốt trái/phải vô tận ngay từ đầu
+            int middlePos = (Integer.MAX_VALUE / 2) - ((Integer.MAX_VALUE / 2) % bannerCount);
+            vpBanners.setCurrentItem(middlePos, false);
+
             // Listen for page changes to update dots
             vpBanners.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                 @Override
                 public void onPageSelected(int position) {
-                    updateDotIndicators(position);
+                    updateDotIndicators(position % bannerCount);
                 }
             });
         } catch (Exception e) {
@@ -804,7 +588,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             @Override
             public void run() {
                 if (vpBanners != null && isAdded()) {
-                    int nextItem = (vpBanners.getCurrentItem() + 1) % bannerCount;
+                    int nextItem = vpBanners.getCurrentItem() + 1;
                     vpBanners.setCurrentItem(nextItem, true);
                     bannerHandler.postDelayed(this, BANNER_AUTO_SCROLL_DELAY);
                 }
@@ -868,12 +652,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
-            ((ImageView) holder.itemView).setImageResource(resIds[position]);
+            int actualPos = position % resIds.length;
+            ((ImageView) holder.itemView).setImageResource(resIds[actualPos]);
         }
 
         @Override
         public int getItemCount() {
-            return resIds.length;
+            return Integer.MAX_VALUE; // Circular Infinite Loop
         }
 
         static class VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
@@ -1233,7 +1018,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             // Bind OVR text overlay
             if (tvShowcaseOvr != null) {
                 tvShowcaseOvr.setText(String.valueOf(card.ovr));
-                tvShowcaseOvr.setVisibility(View.VISIBLE);
+                tvShowcaseOvr.setVisibility(View.GONE);
             }
 
             // Bind Level/Grade badge
@@ -1327,16 +1112,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
      */
     private void bindHeaderBadges(DatabaseLoader.UserInventoryItem card) {
         try {
-            // Hiển thị số lượng card hiện có trong rương
-            if (tvCardCount != null) {
-                int count = DatabaseLoader.cachedUserInventory != null ? DatabaseLoader.cachedUserInventory.size() : 0;
-                tvCardCount.setText(String.valueOf(count));
-            }
-            
             if (card == null) {
                 // Tân thủ hoặc rương trống
-                if (tvLevel != null) tvLevel.setText("LV. 1");
-                if (tvOvr != null) tvOvr.setText("0");
+                if (tvLevel != null) tvLevel.setText(getString(R.string.home_default_level));
+                if (tvOvr != null) tvOvr.setText(getString(R.string.home_default_ovr));
                 return;
             }
             
@@ -1356,10 +1135,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         try {
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
                     getContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
-            android.content.ClipData clip = android.content.ClipData.newPlainText("UserID", text);
+            android.content.ClipData clip = android.content.ClipData.newPlainText(getString(R.string.home_msg_copy_clipboard_label), text);
             if (clipboard != null) {
                 clipboard.setPrimaryClip(clip);
-                android.widget.Toast.makeText(getContext(), "Đã sao chép ID: " + text, android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(getContext(), getString(R.string.home_toast_copy_success, text), android.widget.Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Log.e(TAG, "Failed to copy to clipboard", e);

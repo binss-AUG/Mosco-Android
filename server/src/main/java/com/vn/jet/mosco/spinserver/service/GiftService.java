@@ -129,6 +129,10 @@ public class GiftService {
         card.setUser(receiver);
         userCardRepository.save(card);
 
+        // Cập nhật thẻ vào danh sách đã từng sở hữu (Ever Owned) cho người nhận
+        receiver.getUnlockedCollections().add(collectionId);
+        userRepository.save(receiver);
+
         // 11. Ghi log lịch sử giao dịch (đóng vai trò inbox cho người nhận luôn)
         GiftHistory history = new GiftHistory(senderId, receiverId, cardId, collectionId);
         giftHistoryRepository.save(history);

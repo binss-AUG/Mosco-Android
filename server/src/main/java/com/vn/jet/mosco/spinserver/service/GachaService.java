@@ -200,6 +200,11 @@ public class GachaService {
             // Chỉ lưu vào DB nếu trúng thẻ thực thụ. Mặc định: Level 1, Exp 0, Upgrade +1
             UserCard newUserCard = new UserCard(user, newItemId, 1, 0, 1);
             userCardRepository.save(newUserCard);
+            
+            // Cập nhật thẻ vào danh sách đã từng sở hữu (Ever Owned)
+            user.getUnlockedCollections().add(newItemId);
+            userRepository.save(user);
+            
             logger.info("Spin WIN: userId={} received newItemId={}", userId, newItemId);
         } else {
             logger.info("Spin LOSS: userId={} lost cardId={}", userId, sacrificedCardId);

@@ -3,14 +3,22 @@ package com.vn.jet.mosco.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Color;
+import android.graphics.ComposeShader;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.RadialGradient;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * SpriteSheetView for Mosco
- * Used for rendering complex spritesheet animations like upgrade failure explosions.
+ * SpriteSheetView for Mosco - Premium Cinematic Edition (V4 - Alpha Feathering)
+ * High-end rendering with Radial Alpha Mask to ensure ultra-soft edges.
  */
 public class SpriteSheetView extends View {
     private Bitmap spriteSheet;
@@ -20,12 +28,14 @@ public class SpriteSheetView extends View {
     private int rowCount = 3;
     private int totalFrames = 18;
     private int currentFrame = 0;
-    private long frameDuration = 55; // default
+    private long frameDuration = 55;
     private boolean isPlaying = false;
     private Runnable onAnimationEnd;
 
-    private Rect srcRect = new Rect();
-    private Rect dstRect = new Rect();
+    private final RectF dstRectF = new RectF();
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private final Matrix matrix = new Matrix();
+    private BitmapShader spriteShader;
     
     private float drawScale = 1.0f;
     private float drawOffsetX = 0f;
@@ -46,7 +56,12 @@ public class SpriteSheetView extends View {
     }
 
     public void init(int drawableResId, int cols, int rows, int frames, long durationMs) {
+        if (spriteSheet != null && !spriteSheet.isRecycled()) {
+            spriteSheet.recycle();
+        }
         spriteSheet = BitmapFactory.decodeResource(getResources(), drawableResId);
+        spriteShader = new BitmapShader(spriteSheet, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        
         colCount = cols;
         rowCount = rows;
         totalFrames = frames;
@@ -63,10 +78,11 @@ public class SpriteSheetView extends View {
         isPlaying = true;
         setVisibility(VISIBLE);
         postInvalidate();
+        removeCallbacks(frameRunnable);
         postDelayed(frameRunnable, frameDuration);
     }
 
-    private Runnable frameRunnable = new Runnable() {
+    private final Runnable frameRunnable = new Runnable() {
         @Override
         public void run() {
             if (!isPlaying) return;
@@ -85,25 +101,18 @@ public class SpriteSheetView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (!isPlaying || spriteSheet == null) return;
+        if (!isPlaying || spriteSheet == null || spriteSheet.isRecycled() || spriteShader == null) return;
         
         int row = currentFrame / colCount;
         int col = currentFrame % colCount;
         
-        srcRect.left = col * frameWidth;
-        srcRect.top = row * frameHeight;
-        srcRect.right = srcRect.left + frameWidth;
-        srcRect.bottom = srcRect.top + frameHeight;
+        float viewWidth = getWidth();
+        float viewHeight = getHeight();
         
-        int viewWidth = getWidth();
-        int viewHeight = getHeight();
-        
-        // Calculate the aspect ratio of the frame to fit within the view
         float frameAspect = (float) frameWidth / frameHeight;
-        float viewAspect = (float) viewWidth / viewHeight;
+        float viewAspect = viewWidth / viewHeight;
         
         float finalWidth, finalHeight;
-        
         if (frameAspect > viewAspect) {
             finalWidth = viewWidth;
             finalHeight = viewWidth / frameAspect;
@@ -112,19 +121,41 @@ public class SpriteSheetView extends View {
             finalWidth = viewHeight * frameAspect;
         }
         
-        // Apply custom scale
         finalWidth *= drawScale;
         finalHeight *= drawScale;
         
-        // Center the frame + apply custom offsets
         float left = (viewWidth - finalWidth) / 2f + drawOffsetX;
         float top = (viewHeight - finalHeight) / 2f + drawOffsetY;
+        dstRectF.set(left, top, left + finalWidth, top + finalHeight);
+
+        // 1. Cấu hình Matrix cho Sprite
+        matrix.reset();
+        matrix.postTranslate(-col * frameWidth, -row * frameHeight);
+        float scaleX = finalWidth / frameWidth;
+        float scaleY = finalHeight / frameHeight;
+        matrix.postScale(scaleX, scaleY);
+        matrix.postTranslate(left, top);
+        spriteShader.setLocalMatrix(matrix);
         
-        dstRect.left = (int) left;
-        dstRect.top = (int) top;
-        dstRect.right = (int) (left + finalWidth);
-        dstRect.bottom = (int) (top + finalHeight);
+        // 2. Tạo Mask Gradient để làm mờ viền (Feathering)
+        // Tâm tỏa ra đến 75% là đặc (100%), từ 75% ra rìa (100%) là mờ dần về 0
+        float centerX = left + finalWidth / 2f;
+        float centerY = top + finalHeight / 2f;
+        float radius = Math.max(finalWidth, finalHeight) / 2f;
         
-        canvas.drawBitmap(spriteSheet, srcRect, dstRect, null);
+        RadialGradient alphaMask = new RadialGradient(
+            centerX, centerY, radius,
+            new int[]{Color.WHITE, Color.WHITE, Color.TRANSPARENT},
+            new float[]{0.0f, 0.75f, 1.0f}, // Điểm dừng ở 75% để mờ dần 25% còn lại
+            Shader.TileMode.CLAMP
+        );
+        
+        // 3. Kết hợp Shader: Ảnh sprite x Mặt nạ Alpha
+        ComposeShader combinedShader = new ComposeShader(spriteShader, alphaMask, PorterDuff.Mode.DST_IN);
+        paint.setShader(combinedShader);
+        
+        // 4. Vẽ với hiệu ứng bo góc nhẹ bổ sung
+        float cornerRadius = 4 * getResources().getDisplayMetrics().density;
+        canvas.drawRoundRect(dstRectF, cornerRadius, cornerRadius, paint);
     }
 }

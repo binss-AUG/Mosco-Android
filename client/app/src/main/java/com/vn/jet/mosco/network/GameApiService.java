@@ -102,6 +102,14 @@ public interface GameApiService {
     Call<ResponseBody> saveUserFormation(@Path("userId") Long userId, @Body java.util.List<Long> slotIds);
 
     // ══════════════════════════════════════════════════════════════
+    //  COLLECTION BOOK — Bộ Sưu Tập (Pokédex-style)
+    // ══════════════════════════════════════════════════════════════
+
+    /** Lấy toàn bộ Bộ Sưu Tập với trạng thái sở hữu. */
+    @GET("/api/collection/book/{userId}")
+    Call<com.vn.jet.mosco.model.CollectionBookResponse> getCollectionBook(@Path("userId") Long userId);
+
+    // ══════════════════════════════════════════════════════════════
     //  RANKING — Bảng xếp hạng (Public, không cần auth)
     // ══════════════════════════════════════════════════════════════
 

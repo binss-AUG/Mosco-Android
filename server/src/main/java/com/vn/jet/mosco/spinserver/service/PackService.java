@@ -151,6 +151,10 @@ public class PackService {
         UserCard newUserCard = new UserCard(user, cardId, 1, 0, 1);
         userCardRepository.save(newUserCard);
         
+        // Cập nhật thẻ vào danh sách đã từng sở hữu (Ever Owned)
+        user.getUnlockedCollections().add(cardId);
+        userRepository.save(user);
+
         logger.info("User {} successfully opened pack {} and received card: {}", userId, packCode, cardId);
 
         // 7. Return result (Convert Gson JsonObject to Jackson-friendly Map)
