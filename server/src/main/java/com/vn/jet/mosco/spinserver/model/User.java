@@ -2,6 +2,8 @@ package com.vn.jet.mosco.spinserver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -47,6 +49,13 @@ public class User {
 
     @Column(length = 800)
     private String activeToken;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_unlocked_collections", 
+                     joinColumns = @JoinColumn(name = "user_id"),
+                     indexes = {@Index(name = "idx_unlocked_coll_user", columnList = "user_id")})
+    @Column(name = "collection_id", nullable = false)
+    private Set<String> unlockedCollections = new HashSet<>();
 
     public User() {}
 
@@ -94,4 +103,7 @@ public class User {
 
     public String getActiveToken() { return activeToken; }
     public void setActiveToken(String activeToken) { this.activeToken = activeToken; }
+
+    public Set<String> getUnlockedCollections() { return unlockedCollections; }
+    public void setUnlockedCollections(Set<String> unlockedCollections) { this.unlockedCollections = unlockedCollections; }
 }

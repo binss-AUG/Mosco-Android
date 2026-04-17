@@ -64,6 +64,7 @@
     <color name="quick_tool_rank">#76FF03</color> <!-- Neon Green -->
     <color name="quick_tool_shop">#FF9800</color> <!-- Orange -->
     <color name="quick_tool_friends">#9C27B0</color> <!-- Purple -->
+    <color name="quick_tool_gift">#FF6B9D</color> <!-- Rose Pink -->
 
     <!-- Matte Obsidian Gradient -->
     <color name="obsidian_start">#161622</color>

@@ -110,6 +110,9 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
         *   **Method / URL:** `POST /api/gacha/upgrade`
         *   **Request:** `UpgradeRequest` (JSON gồm `userId`, `baseCardId`, `materialCardIds` mảng các materials)
         *   **Response:** `UpgradeResponse` chứa thông báo thành công `success`, tin nhắn trả về `message` và cấp độ mới `newLevel`.
+113:     *   **Collection Book Endpoint:**
+114:         *   **Method / URL:** `GET /api/collection/book/{userId}`
+115:         *   **Response:** `CollectionBookResponse` chứa `totalCards`, `ownedCount` và danh sách `entries` (metadata + trạng thái sở hữu `owned`).
 
 ---
 ## 📜 Nhật Ký Cập Nhật (V5.0 - Professional Auth & UX Standardization)
@@ -135,6 +138,51 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   🛡️ **Triển khai Auto-Scale Layout (1-2-1-2):** Đã xóa `RecyclerView` (với cấu trúc Span) trong màn hình `FormationActivity`, được thay thế hoàn toàn bởi cấu trúc ConstraintLayout lồng ghép (`LinearLayout` chia weight tuyệt đối). Đảm bảo thẻ ở trên sân *tự động co giãn theo tỷ lệ 1:1.54* để full-view và không bao giờ bị méo hình. (Kèm theo chức năng Native Drag & Drop mượt mà hơn).
 *   ✅ **Chống Trùng Lặp Nghệ Sĩ (Artist Duplicate Lock):** Cải tiến thuật toán ở `InventoryBottomSheet`, chặn hoàn toàn hành vi của người chơi khi đưa 2 thẻ có chung Artist (`member`) vào cùng 1 đội hình. Hiển thị cảnh báo trực quan bằng `Toast` thay vì cho phép tráo đổi vô nghĩa.
 *   ☁️ **Đồng bộ Đội Hình (Cloud Formation Sync):** Mỗi khi người chơi điều chỉnh thẻ bài (Kéo thả, đổi, đặt vào sàn), đội hình sẽ được âm thầm tự động lưu ngầm (`id` thẻ phân tách bằng dấu `,`) vào thẳng Field `activeFormation` của bảng `User` tại Database. Khi Game mở lại, cấu hình cuối sẽ được tự gọi về!
+
+## 🎯 Nhật Ký Cập Nhật (V7.0 - Premium Gift System Redesign)
+*   🎁 **Kiến trúc Quà Tặng Độc Lập:** Tách biệt module quà tặng thành một Wizard 3-Step chuẩn quốc tế. Cấm tặng thẻ đang trong Formation và có phí chống lạm phát (36k Coin + 36 Diamond).
+*   UI/UX UI chuẩn: Đồng nhất ngôn ngữ (Full Tiếng Anh) và áp dụng Layout Constraint (1:1.54) cho view thẻ 3-D. Bổ sung `Search` cho việc chọn bạn và nút `Previous` ở các Step 2, Step 3 để hỗ trợ hoàn tác.
+*   Hiệu ứng 3D Premium: Objet khi được đem đi tặng sẽ bay lơ lửng ở chính giữa và liên tục lật xoay quanh trục Y (Animation ObjectAnimator) tạo điểm nhấn mạnh mẽ.
+
+---
+## 🏆 Nhật Ký Cập Nhật (V7.1 - Collection Book & Album Feature)
+*   🏆 **Album Feature (Pokédex-style):** Triển khai tab "Album" mới trong `CollectionFragment`, hiển thị 100% danh sách thẻ có trong `database.json` thay vì chỉ hiển thị thẻ đang sở hữu.
+*   🌑 **Phân loại Visual (Silhouette):** Thẻ chưa sở hữu hiển thị dưới dạng bóng đen (Grayscale + Silhouette) kèm icon khóa. Thẻ đã sở hữu hiển thị rõ nét kèm huy hiệu OVR và viền tím Metallic.
+*   📊 **Collection Progress:** Tích hợp thanh Progress bar Galactic cập nhật thời gian thực tiến độ thu thập (Ví dụ: "45/350 - 12.8%").
+*   ⚙️ **Backend Cross-Reference:** Xây dựng `CollectionBookService` tối ưu, tự động so khớp toàn bộ Metadata hệ thống với kho đồ cá nhân của User để trả về trạng thái Collection chính xác nhất.
+*   🔄 **Fix Navigation Shift:** Tự động điều chỉnh Index các tab sau khi chèn thêm Album vào vị trí đầu tiên, đảm bảo các link điều hướng từ Shop và Home vẫn hoạt động chính xác.
+
+---
+## ✨ Nhật Ký Cập Nhật (V7.2 - Premium Collection Modernization)
+*   🎁 **Hệ thống Milestone Rewards:** Giới thiệu cơ chế thu thập quà tặng tại các mốc tiến trình (30%, 60%, 100%). Hiệu ứng Pulse nhịp đập mời gọi và hệ thống lưu trạng thái quà (Shared Preferences) chống spam.
+*   🌟 **Visual Effect Sync (1:1):** Nâng cấp thẻ trong Album ngang tầm với Objets. Tích hợp tự động Color-Match Glow (hào quang theo màu thẻ), Shiny Shimmer (vệt sáng bóng) và Floating ObjectAnimator. Tất cả được tái chế an toàn qua ViewHolder recycle!
+*   🎆 **Premium Reward Reveal:** Hiệu ứng đập hộp (Lottie + Scale-up Animator) khi nhận quà. Xuất hiện trên nền Dialog Galactic Gradient mới `bg_dialog_galactic.xml` mang lại trải nghiệm mãn nhãn.
+*   🛡️ **Advanced Collection Multi-Filter:** Bộ lọc lưới AND nâng cao. Tự động chuyển đổi Category mapping giữa Raw DB Class và Display UI. Sắp xếp tùy chỉnh OVR, Cấp độ và Ngày tháng với logic thông minh.
+
+---
+## 📦 Nhật Ký Cập Nhật (V7.0 - Bulk Pack Opening System)
+*   ✅ **High-Performance Bulk Opening:** Nâng cấp `PackService` để hỗ trợ mở đồng thời lên đến 36 packs chỉ trong 1 Request. Hệ thống tự động xử lý khấu trừ túi đồ và sinh thẻ hàng loạt trong một Transaction duy nhất.
+*   ✅ **Dynamic Response Payload:** Cấu trúc dữ liệu API mới trả về danh sách toàn bộ thẻ đã mở, giúp Client hiển thị kết quả tổng hợp một cách nhanh chóng.
+*   ✅ **Non-Blocking UI (ItemRevealFragment):** Tối ưu hóa giao diện hiển thị kết quả. Khi mở hàng loạt (>1 pack), hệ thống tự động bỏ qua các cutscene dài và hiển thị lưới kết quả premium, giúp người chơi tiết kiệm thời gian mà vẫn giữ được cảm giác "Galactic".
+*   ✅ **API Endpoint Mới:**
+    *   **Method / URL:** `POST /api/pack/open`
+    *   **Params:** `userId` (Long), `packCode` (String), `quantity` (int - mặc định là 1).
+    *   **Response:** Trả về JSON chứa danh sách `cards` (cardId và cardData) kèm trạng thái thành công.
+
+---
+## 🎬 Nhật Ký Cập Nhật (V7.2 - Dynamic Cinematic Overlay & Fullscreen Result)
+*   ✅ **Dynamic Overlay Architecture (V2):** Tái cấu trúc toàn bộ hệ thống Cutscene sang cơ chế tạo View động (Dynamic View Creation). Xóa bỏ sự phụ thuộc vào XML tĩnh để triệt tiêu 100% lỗi treo màn hình do thiếu linh kiện.
+*   ✅ **Interactive VIP Text Sequence:** Nâng cấp Tier 3 Cutscene giúp tự động đồng bộ và hiển thị thông tin Artist (Class, Season, S-ID) theo nhịp video, mang lại cảm giác sống động và chuyên nghiệp.
+*   ✅ **Fullscreen Premium Result:** Kết quả mở thẻ được hiển thị trên lớp phủ Glossy Black (`#0e0e0e`) với hiệu ứng **Overshoot & Float Animation**, tạo sự khác biệt đẳng cấp giữa thẻ Common và thẻ VIP.
+*   ✅ **Cleanup Auto-Logic:** Tự động dọn dẹp tài nguyên và Overlay ngay khi người dùng nhấn "AWESOME", đảm bảo bộ nhớ luôn sạch sẽ và sẵn sàng cho lần mở tiếp theo.
+
+---
+## 🛠 Nhật Ký Cập Nhật (V7.3 - Stability & Collection Sync Fix)
+*   ✅ **Fix Compilation Error:** Khắc phục lỗi "cannot find symbol cardId" tại `PackService` do biến bị giới hạn phạm vi trong vòng lặp roll thẻ.
+*   ✅ **Bulk Sync Collection:** Đảm bảo khi mở nhiều pack cùng lúc (Bulk Open), TẤT CẢ các thẻ mới nhận được đều được tự động cập nhật vào danh sách "Đã sở hữu" (Ever Owned) để đồng bộ chính xác với Album/Collection Book.
+*   ✅ **Optimized Database Writes:** Gom nhóm yêu cầu save User sau khi hoàn tất vòng lặp xử lý thẻ, giảm thiểu số lượng Transaction không cần thiết.
+
+---
 
 ---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

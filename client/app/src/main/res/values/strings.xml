@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Mosco</string>
-    <string name="base_url">http://192.168.1.9:8080/</string>
+    <string name="base_url">http://192.168.1.11:8080/</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_sign_in">Sign In</string>
@@ -42,6 +42,11 @@
     <string name="home_default_ovr">0</string>
     <string name="home_format_ovr">%d</string>
     <string name="home_format_level">LV. %d</string>
+    <string name="home_default_level">LV. 1</string>
+    <string name="home_label_id_format">ID: %s</string>
+    <string name="home_toast_copy_success">Đã sao chép ID: %s</string>
+    <string name="home_msg_copy_clipboard_label">UserID</string>
+    <string name="home_showcase_loading_msg">Đang tải Showcase...</string>
     <string name="home_format_currency_trillions">%.1fT</string>
     <string name="home_format_currency_billions">%.1fB</string>
     <string name="home_format_currency_millions">%.1fM</string>
@@ -63,6 +68,25 @@
     <string name="home_hud_shop">SHOP</string>
     <string name="home_hud_friends">FRIENDS</string>
     <string name="home_hud_formation">TEAM</string>
+    <string name="home_hud_gift">GIFT</string>
+
+    <!-- Gift Activity -->
+    <string name="gift_title">GIFT</string>
+    <string name="gift_step1_tap">Tap to select\nObjet to gift</string>
+    <string name="gift_next">CONTINUE →</string>
+    <string name="gift_cancel">CANCEL</string>
+    <string name="gift_previous">← PREVIOUS</string>
+    <string name="gift_done">DONE</string>
+    <string name="gift_send">🎁 SEND GIFT</string>
+    <string name="gift_cost_label">GIFT COST</string>
+    <string name="gift_search_hint">Search friends...</string>
+    <string name="gift_tab_send">SEND</string>
+    <string name="gift_tab_received">INBOX</string>
+    <string name="gift_step_1">① SELECT CARD</string>
+    <string name="gift_step_2">② SELECT FRIEND</string>
+    <string name="gift_step_3">③ CONFIRM</string>
+    <string name="gift_no_friends">You have no friends yet.\nAdd some to send gifts!</string>
+    <string name="gift_no_received">Inbox is empty.\nWait for a gift from friends!</string>
     <string name="formation_preview_failed">Preview failed</string>
     <string name="formation_inventory_placeholder">Opening Inventory BottomSheet...</string>
     <string name="formation_total_ovr_label">TOTAL FORMATION OVR</string>
@@ -88,4 +112,22 @@
     <string name="synergy_tier_bronze">BRONZE</string>
     <string name="synergy_tier_silver">SILVER</string>
     <string name="synergy_tier_gold">GOLD</string>
+
+    <!-- Album Detail Buttons (Standardized English) -->
+    <string name="album_sad_wav_notice">POOR WAV… YOU HAVEN\'T COLLECTED THIS YET </string>
+    
+    <string name="btn_spin_title">GACHA SPIN</string>
+    <string name="btn_spin_desc">Recycle cards or use tickets to get new ones</string>
+    
+    <string name="btn_shop_title">OPEN SHOP</string>
+    <string name="btn_shop_desc">Browse exclusive deals and card packs</string>
+    
+    <string name="btn_photo_title">CAPTURE SCREEN</string>
+    <string name="btn_photo_desc">Capture a high-quality snap of your card</string>
+    
+    <string name="btn_send_title">SEND GIFT</string>
+    <string name="btn_send_desc">Share this collectible with your friends</string>
+    
+    <string name="btn_upgrade_title">UPGRADE</string>
+    <string name="btn_upgrade_desc">Enhance card stats to dominate the galaxy</string>
 </resources>

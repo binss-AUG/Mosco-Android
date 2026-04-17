@@ -57,6 +57,9 @@ public class CollectionFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Nạp Master Data (database.json) ở background sớm để Album/Objets mượt mà
+        com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(requireContext());
+
         tabLayout = view.findViewById(R.id.tab_layout_collection);
         viewPager = view.findViewById(R.id.view_pager_collection);
 
@@ -78,9 +81,10 @@ public class CollectionFragment extends Fragment {
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0: tab.setText("Mailbox"); break;
-                case 1: tab.setText("Objets"); break;
-                case 2: tab.setText("Items"); break;
+                case 0: tab.setText("Album"); break;
+                case 1: tab.setText("Mailbox"); break;
+                case 2: tab.setText("Objets"); break;
+                case 3: tab.setText("Items"); break;
             }
         }).attach();
 
@@ -104,7 +108,7 @@ public class CollectionFragment extends Fragment {
     }
 
     /**
-     * Shows the Objet Detail Dialog with optional data-driven JSON binding.
+     * Hiển thị hộp thoại chi tiết Thẻ bài với tùy chọn liên kết dữ liệu JSON.
      */
     public static void showObjetDetailDialog(Context context, String imageUrl, org.json.JSONObject cardJson, int level, int exp, int upgrade) {
         android.app.Dialog dialog = new android.app.Dialog(context);
@@ -135,7 +139,7 @@ public class CollectionFragment extends Fragment {
             }
         }
 
-        // ── Button: Close ──────────────────────────────────────────────
+        // ── Nút: Đóng ──────────────────────────────────────────────
         View btnClose = dialog.findViewById(R.id.btn_close_detail);
         if (btnClose != null) {
             btnClose.setOnClickListener(v -> dialog.dismiss());
@@ -168,7 +172,7 @@ public class CollectionFragment extends Fragment {
             });
         }
 
-        // ── Button: Level Up (Outlined / Secondary) ────────────────────
+        // ── Nút: Nâng cấp Level (Outlined / Secondary) ────────────────────
         View btnLevelUp = dialog.findViewById(R.id.btn_level_up_detail);
         if (btnLevelUp != null) {
             btnLevelUp.setOnClickListener(v -> {
@@ -176,7 +180,7 @@ public class CollectionFragment extends Fragment {
             });
         }
 
-        // ── Button: UPGRADE (Primary — unchanged behavior) ─────────────
+        // ── Nút: NÂNG CẤP (Primary — giữ nguyên logic cũ) ─────────────
         View btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
         if (btnUpgrade != null) {
             btnUpgrade.setOnClickListener(v -> {
@@ -698,6 +702,13 @@ public class CollectionFragment extends Fragment {
         return cats;
     }
 
+    public static List<FilterCategory> buildAlbumCategories(Context context) {
+        List<FilterCategory> cats = buildObjetCategories(context);
+        List<String> statuses = java.util.Arrays.asList("All", "Owned", "Missing");
+        cats.add(0, new FilterCategory("Status", statuses, false));
+        return cats;
+    }
+
     private static List<FilterCategory> buildMailboxCategories() {
         List<String> types = new ArrayList<>();
         for (String s : new String[]{"Pack", "Objet", "Item"}) types.add(s);
@@ -724,15 +735,16 @@ public class CollectionFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
-                case 0: return new MailboxFragment();
-                case 1: return new ObjetsFragment();
-                case 2: return new ItemsFragment();
-                default: return new MailboxFragment();
+                case 0: return new AlbumFragment();
+                case 1: return new MailboxFragment();
+                case 2: return new ObjetsFragment();
+                case 3: return new ItemsFragment();
+                default: return new AlbumFragment();
             }
         }
 
         @Override
-        public int getItemCount() { return 3; }
+        public int getItemCount() { return 4; }
     }
 
     // ==========================================
@@ -951,7 +963,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ObjetsFragment extends Fragment {
         private final Set<String> objetFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Lowest No.", "Highest No."};
+        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Highest OVR", "Lowest OVR", "Highest Level", "Lowest Level", "Highest Badge", "Lowest Badge"};
         private RecyclerView rvObjets;
         private TextView tvCount;
         private List<com.vn.jet.mosco.model.Objet> originalObjets = new ArrayList<>();
@@ -1010,7 +1022,20 @@ public class CollectionFragment extends Fragment {
                 
                 org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, item.getCollectionId());
                 if (cardJson != null) {
-                    com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(ctx, item);
+                    // Áp dụng chung logic hiển thị Detail của Album (sử dụng CollectionDetailBinder) cho phần Tab Objets
+                    com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
+                    entry.setCollectionId(item.getCollectionId());
+                    entry.setFrontImage(item.getImageUrl());
+                    entry.setOvr(item.getOvr());
+                    entry.setLevel(item.getCardLevel());
+                    entry.setMember(cardJson.optString("member"));
+                    entry.setSeason(cardJson.optString("season"));
+                    entry.setCardClass(cardJson.optString("class"));
+                    entry.setCollectionNo(cardJson.optString("collectionNo"));
+                    entry.setUserCardId(item.getIdString());
+                    entry.setOwned(true);
+                    
+                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, entry);
                 } else {
                     showObjetDetailDialog(ctx, item.getImageUrl());
                 }
@@ -1104,6 +1129,17 @@ public class CollectionFragment extends Fragment {
             View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_objets) : null;
             String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
 
+            java.util.Set<String> selArtists = new java.util.HashSet<>();
+            java.util.Set<String> selClasses = new java.util.HashSet<>();
+            java.util.Set<String> selSeasons = new java.util.HashSet<>();
+
+            // Phân loại bộ lọc
+            for (String f : objetFilter) {
+                if (isArtist(f)) selArtists.add(f.toLowerCase());
+                else if (isClass(f)) selClasses.add(f.toLowerCase());
+                else selSeasons.add(f.toLowerCase());
+            }
+
             for (com.vn.jet.mosco.model.Objet obj : originalObjets) {
                 if (objetFilter.isEmpty()) {
                     filtered.add(obj);
@@ -1111,24 +1147,29 @@ public class CollectionFragment extends Fragment {
                 }
                 
                 String member = obj.getMember();
-                String cardClass = obj.getTypeKey();
                 String season = obj.getSeason();
+                String rawClass = obj.getTypeKey();
+                String mappedClass = mapClassToTypeKey(rawClass);
                 
-                boolean match = false;
-                for (String f : objetFilter) {
-                    if (f.equalsIgnoreCase(member) || f.equalsIgnoreCase(cardClass) || f.equalsIgnoreCase(season)) {
-                        match = true;
-                        break;
-                    }
+                boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+                boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+                boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+
+                if (matchArtist && matchClass && matchSeason) {
+                    filtered.add(obj);
                 }
-                if (match) filtered.add(obj);
             }
 
+            // Sắp xếp
             filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort)) return Integer.compare(b.getId(), a.getId());
-                if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                if ("Highest No.".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                return Integer.compare(a.getId(), b.getId());
+                if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
+                if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
+                if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
+                if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
+                if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
+                if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
+                if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                return Integer.compare(b.getId(), a.getId()); // Default: Newest
             });
 
             if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
@@ -1389,5 +1430,334 @@ public class CollectionFragment extends Fragment {
                 tvQty = itemView.findViewById(R.id.tv_item_qty);
             }
         }
+    }
+
+    // ==========================================
+    // TAB 0: ALBUM — Bộ Sưu Tập (Pokédex-style Collection Book)
+    // ==========================================
+    public static class AlbumFragment extends Fragment {
+        private final Set<String> albumFilter = new LinkedHashSet<>();
+        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Highest OVR", "Lowest OVR", "Highest Level", "Lowest Level", "Highest Badge", "Lowest Badge"};
+        private RecyclerView rvAlbum;
+        private com.vn.jet.mosco.adapter.CollectionBookAdapter adapter;
+        private TextView tvProgress, tvCount;
+        private android.widget.ProgressBar progressBar;
+        private List<com.vn.jet.mosco.model.CollectionEntry> originalEntries = new ArrayList<>();
+        private int totalCards = 0;
+        private int ownedCount = 0;
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_collection_album, container, false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+            tvProgress = view.findViewById(R.id.tv_album_progress);
+            tvCount = view.findViewById(R.id.tv_album_count);
+            progressBar = view.findViewById(R.id.progress_album);
+
+            // Sort
+            View sortBtn = view.findViewById(R.id.btn_sort_album);
+            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_album);
+            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+
+            // Filter
+            view.findViewById(R.id.btn_filter_album).setOnClickListener(v ->
+                showFilterBottomSheet(this, buildAlbumCategories(requireContext()), 0, albumFilter, this::applyFilters));
+
+            // RecyclerView
+            rvAlbum = view.findViewById(R.id.rv_album);
+            rvAlbum.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+            adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
+            rvAlbum.setAdapter(adapter);
+
+            loadCollectionBook();
+        }
+
+        /**
+         * Xử lý click thẻ trong Album.
+         * Luôn mở Dialog chi tiết thẻ (hỗ trợ cả thẻ chưa sở hữu với icon ổ khóa).
+         */
+        private void onBookCardClicked(com.vn.jet.mosco.model.CollectionEntry entry) {
+            if (getContext() != null && entry != null) {
+                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(getContext(), entry);
+            }
+        }
+
+        /**
+         * Gọi API lấy dữ liệu Collection Book từ Server.
+         */
+        private void loadCollectionBook() {
+            Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
+            if (userId == null) return;
+
+            android.util.Log.d("AlbumFragment", "Loading collection book for user: " + userId);
+
+            com.vn.jet.mosco.network.GameApiService apiService = 
+                    com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+                    .create(com.vn.jet.mosco.network.GameApiService.class);
+
+            apiService.getCollectionBook(userId).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.CollectionBookResponse>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call,
+                                      retrofit2.Response<com.vn.jet.mosco.model.CollectionBookResponse> response) {
+                    if (!isAdded()) return;
+                    if (response.isSuccessful() && response.body() != null) {
+                        com.vn.jet.mosco.model.CollectionBookResponse book = response.body();
+                        totalCards = book.getTotalCards();
+                        ownedCount = book.getOwnedCount();
+                        originalEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
+
+                        // Cập nhật tiến trình
+                        if (tvProgress != null) {
+                            tvProgress.setText(ownedCount + "/" + totalCards);
+                        }
+                        if (progressBar != null && totalCards > 0) {
+                            int percent = (int) ((ownedCount * 100.0f) / totalCards);
+                            progressBar.setProgress(percent);
+                        }
+                        
+                        // Cập nhật Milestones
+                        updateMilestones(ownedCount);
+
+                        applyFilters();
+                        android.util.Log.d("AlbumFragment", "Loaded " + totalCards + " cards, owned: " + ownedCount);
+                    } else {
+                        android.util.Log.e("AlbumFragment", "Server error: " + response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call, Throwable t) {
+                    if (!isAdded()) return;
+                    android.util.Log.e("AlbumFragment", "API Failure", t);
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Không thể tải Bộ Sưu Tập", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        /**
+         * Xử lý UI hiển thị mốc quà (sáng lên nếu đủ thẻ).
+         */
+        /**
+         * Cập nhật trạng thái các cột mốc phần thưởng (30%, 60%, 100%).
+         */
+        private void updateMilestones(int owned) {
+            if (getView() == null || totalCards <= 0) return;
+            Context ctx = getContext();
+            if (ctx == null) return;
+
+            // Tính toán ngưỡng theo %
+            int m1 = (int) (totalCards * 30 / 100);
+            int m2 = (int) (totalCards * 60 / 100);
+            int m3 = totalCards;
+
+            // Xử lý từng mốc
+            handleMilestoneState(1, owned >= m1, owned, m1);
+            handleMilestoneState(2, owned >= m2, owned, m2);
+            handleMilestoneState(3, owned >= m3, owned, m3);
+        }
+
+        private void handleMilestoneState(int index, boolean achieved, int owned, int req) {
+            View view = getView();
+            if (view == null) return;
+
+            int iconId = (index == 1) ? R.id.iv_ms_1_icon : (index == 2) ? R.id.iv_ms_2_icon : R.id.iv_ms_3_icon;
+            int containerId = (index == 1) ? R.id.ms_1_container : (index == 2) ? R.id.ms_2_container : R.id.ms_3_container;
+            int textId = (index == 1) ? R.id.tv_ms_1_req : (index == 2) ? R.id.tv_ms_2_req : R.id.tv_ms_3_req;
+
+            ImageView iv = view.findViewById(iconId);
+            View container = view.findViewById(containerId);
+            TextView tv = view.findViewById(textId);
+
+            if (iv == null || container == null || tv == null) return;
+
+            // Kiểm tra trạng thái đã nhận quà
+            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(getContext());
+            Long userIdLong = session.getUserId();
+            String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
+            
+            android.content.SharedPreferences prefs = getContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE);
+            boolean isClaimed = prefs.getBoolean("claimed_" + userId + "_ms_" + index, false);
+
+            if (isClaimed) {
+                // ĐÃ NHẬN: Mờ đi để báo hiệu đã lấy quà
+                iv.setColorFilter(null);
+                iv.setAlpha(0.3f);
+                tv.setTextColor(android.graphics.Color.GRAY);
+                tv.setText("COMPLETED");
+                container.clearAnimation();
+                container.setOnClickListener(v -> 
+                    android.widget.Toast.makeText(getContext(), "Bạn đã nhận phần thưởng này!", android.widget.Toast.LENGTH_SHORT).show());
+            } else if (achieved) {
+                // ĐÃ ĐẠT (CHƯA NHẬN): Hiệu ứng Pulse (Nhịp đập) mời gọi click
+                iv.setAlpha(1.0f);
+                iv.setColorFilter(null); 
+                tv.setTextColor(android.graphics.Color.WHITE);
+                tv.setText("REWARD");
+                
+                if (container.getAnimation() == null) {
+                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils.loadAnimation(getContext(), R.anim.pulse_milestone);
+                    container.startAnimation(pulse);
+                }
+
+                container.setOnClickListener(v -> claimMilestone(index, req));
+            } else {
+                // CHƯA ĐẠT: Bộ lọc Grayscale
+                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                matrix.setSaturation(0f);
+                iv.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                iv.setAlpha(0.2f);
+                tv.setTextColor(android.graphics.Color.parseColor("#66FFFFFF"));
+                tv.setText(owned + "/" + req);
+                container.clearAnimation();
+                container.setOnClickListener(v -> 
+                    android.widget.Toast.makeText(getContext(), "Cố gắng đạt " + req + " thẻ để nhận quà!", android.widget.Toast.LENGTH_SHORT).show());
+            }
+        }
+
+        private void claimMilestone(int index, int req) {
+            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(getContext());
+            Long userIdLong = session.getUserId();
+            String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
+            
+            String rewardName = (index == 1) ? "1,000 Coin" : (index == 2) ? "5,000 Coin & 1 Voucher" : "10,000 Coin & 1 Special Card";
+
+            // Gọi Binder cao cấp để hiện hiệu ứng "Nổ quà"
+            com.vn.jet.mosco.utils.CollectionRewardBinder.showReward(requireContext(), 
+                    "Bạn đã đạt cột mốc " + req + " thẻ.\nPhần thưởng: " + rewardName, 
+                    () -> {
+                        // Logic sau khi nhấn THU THẬP
+                        getContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE)
+                                .edit().putBoolean("claimed_" + userId + "_ms_" + index, true).apply();
+                        
+                        updateMilestones(ownedCount);
+                    }
+            );
+        }
+
+        /**
+         * Áp dụng bộ lọc + sắp xếp cho danh sách entries.
+         */
+        private void applyFilters() {
+            if (originalEntries == null || !isAdded()) return;
+
+            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_album) : null;
+            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+
+            java.util.Set<String> selArtists = new java.util.HashSet<>();
+            java.util.Set<String> selClasses = new java.util.HashSet<>();
+            java.util.Set<String> selSeasons = new java.util.HashSet<>();
+            java.util.Set<String> selStatus = new java.util.HashSet<>();
+
+            for (String f : albumFilter) {
+                if (isStatus(f)) selStatus.add(f.toLowerCase());
+                else if (isArtist(f)) selArtists.add(f.toLowerCase());
+                else if (isClass(f)) selClasses.add(f.toLowerCase());
+                else selSeasons.add(f.toLowerCase());
+            }
+
+            List<com.vn.jet.mosco.model.CollectionEntry> filtered = new ArrayList<>();
+
+            for (com.vn.jet.mosco.model.CollectionEntry entry : originalEntries) {
+                // Nhóm Trạng thái (AND)
+                boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all") || selStatus.contains("tất cả")
+                        || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && entry.isOwned())
+                        || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu")) && !entry.isOwned());
+
+                // Nhóm Artist (AND)
+                String member = entry.getMember();
+                boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+
+                // Nhóm Class (AND) - Áp dụng mapping tương tự Inventory
+                String rawClass = entry.getCardClass();
+                String mappedClass = mapClassToTypeKey(rawClass);
+                boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+
+                // Nhóm Season (AND)
+                String season = entry.getSeason();
+                boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+
+                if (matchStatus && matchArtist && matchClass && matchSeason) {
+                    filtered.add(entry);
+                }
+            }
+
+            // Sắp xếp
+            filtered.sort((a, b) -> {
+                // Newest = số thứ tự lớn nhất lên trước (giảm dần)
+                if ("Newest".equals(currentSort)) {
+                    return compareNatural(b.getCollectionNo(), a.getCollectionNo());
+                }
+                // Oldest = số thứ tự nhỏ nhất lên trước (tăng dần)
+                if ("Oldest".equals(currentSort)) {
+                    return compareNatural(a.getCollectionNo(), b.getCollectionNo());
+                }
+                if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
+                if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
+                if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
+                if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
+                if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
+                if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                
+                // Mặc định: Owned lên trước, sau đó theo Newest
+                if (a.isOwned() != b.isOwned()) return a.isOwned() ? -1 : 1;
+                return compareNatural(b.getCollectionNo(), a.getCollectionNo());
+            });
+
+            if (adapter != null) adapter.updateData(filtered);
+            if (tvCount != null) tvCount.setText(filtered.size() + " Cards");
+        }
+    }
+
+    private static boolean isStatus(String f) {
+        if (f == null) return false;
+        String lower = f.toLowerCase();
+        return java.util.Arrays.asList("tất cả", "đã sở hữu", "chưa sở hữu", "all", "owned", "missing").contains(lower);
+    }
+
+    private static boolean isArtist(String f) {
+        if (f == null) return false;
+        return java.util.Arrays.asList("SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon").contains(f);
+    }
+
+    private static boolean isClass(String f) {
+        if (f == null) return false;
+        return java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit").contains(f);
+    }
+
+    private static int compareNatural(String s1, String s2) {
+        if (s1 == null && s2 == null) return 0;
+        if (s1 == null) return -1;
+        if (s2 == null) return 1;
+
+        // Extract numbers if present
+        try {
+            // Regex to extract digits. Supports simple IDs like "101" or "101S" (takes 101)
+            String n1 = s1.replaceAll("\\D+", "");
+            String n2 = s2.replaceAll("\\D+", "");
+            if (!n1.isEmpty() && !n2.isEmpty()) {
+                return Integer.compare(Integer.parseInt(n1), Integer.parseInt(n2));
+            }
+        } catch (Exception ignored) {}
+
+        return s1.compareTo(s2);
+    }
+
+    /** Mapping class từ UI sang database key (1:1 với InventoryBottomSheet) */
+    private static String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null) return "FirstWelcome";
+        String key = cardClass.replaceAll("\\s+", "");
+        if (key.equalsIgnoreCase("Double")) return "Double";
+        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
+        if (key.equalsIgnoreCase("Premier")) return "Premier";
+        return "FirstWelcome";
     }
 }

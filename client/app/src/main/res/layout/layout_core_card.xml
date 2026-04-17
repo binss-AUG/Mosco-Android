@@ -74,7 +74,7 @@
         android:layout_height="wrap_content"
         android:scaleType="fitStart"
         android:adjustViewBounds="true"
-        app:layout_constraintWidth_percent="0.30"
+        app:layout_constraintWidth_percent="0.225"
         app:layout_constraintTop_toTopOf="@id/card_iv_image"
         app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
         app:layout_constraintStart_toStartOf="@id/card_iv_image"

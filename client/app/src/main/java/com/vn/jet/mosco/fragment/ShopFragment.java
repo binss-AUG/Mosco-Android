@@ -232,7 +232,7 @@ public class ShopFragment extends Fragment {
                 if (getActivity() != null) {
                     CollectionFragment collectionFragment = new CollectionFragment();
                     android.os.Bundle args = new android.os.Bundle();
-                    args.putInt("default_tab", 2);
+                    args.putInt("default_tab", 3);
                     collectionFragment.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame_layout, collectionFragment)

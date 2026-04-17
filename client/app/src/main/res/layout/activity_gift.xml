@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GiftActivity — Giao diện gửi/nhận Objet giữa các user -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_global_gradient">
+
+    <!-- ═══ HEADER ═══ -->
+    <LinearLayout
+        android:id="@+id/layout_gift_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btn_back_gift"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/white" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            app:cardBackgroundColor="#1A1C29"
+            app:cardCornerRadius="8dp"
+            app:strokeColor="#FF6B9D"
+            app:strokeWidth="1dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gift_title"
+                android:fontFamily="@font/saira"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="4dp"
+                android:letterSpacing="0.05" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Daily Remaining Badge -->
+        <LinearLayout
+            android:id="@+id/layout_daily_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_header_token"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_gift"
+                app:tint="#FF6B9D" />
+
+            <TextView
+                android:id="@+id/tv_daily_remaining"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="#FF6B9D"
+                android:textSize="11sp"
+                tools:text="5/5" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ═══ TAB LAYOUT: GỬI | NHẬN ═══ -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout_gift"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_gift_header"
+        app:tabIndicatorColor="#FF6B9D"
+        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorFullWidth="false"
+        app:tabSelectedTextColor="#FF6B9D"
+        app:tabTextColor="#A2A2A7"
+        app:tabRippleColor="@null"
+        app:tabMaxWidth="0dp"
+        app:tabMode="fixed"
+        app:tabGravity="fill" />
+
+    <!-- ═══ CONTENT AREA ═══ -->
+    <FrameLayout
+        android:id="@+id/fl_gift_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/tab_layout_gift"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- ═══ TAB 1: GỬI TẶNG (Send Wizard) ═══ -->
+        <LinearLayout
+            android:id="@+id/layout_tab_send"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Step Indicator -->
+            <LinearLayout
+                android:id="@+id/layout_step_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:id="@+id/tv_step_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gift_step_1"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="#FF6B9D"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="#33FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tv_step_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gift_step_2"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="#555555"
+                    android:textSize="11sp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="#33FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tv_step_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gift_step_3"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="#555555"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Step Content Container -->
+            <FrameLayout
+                android:id="@+id/fl_step_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <!-- STEP 1: Chọn Objet từ Inventory -->
+                <LinearLayout
+                    android:id="@+id/layout_step1_select_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingHorizontal="20dp"
+                    android:visibility="visible">
+
+                    <!-- Card Preview (sau khi chọn) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_selected_card"
+                        android:layout_width="140dp"
+                        android:layout_height="216dp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="8dp"
+                        app:cardBackgroundColor="#2A2A3A"
+                        app:strokeColor="#33FFFFFF"
+                        app:strokeWidth="1dp"
+                        android:visibility="gone">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                            <include layout="@layout/layout_core_card" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Placeholder button khi chưa chọn -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cv_select_card_btn"
+                        android:layout_width="140dp"
+                        android:layout_height="216dp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="#1E1E2E"
+                        app:strokeColor="#FF6B9D"
+                        app:strokeWidth="1.5dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_gift"
+                                app:tint="#FF6B9D"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="@string/gift_step1_tap"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="#FF6B9D"
+                                android:textSize="11sp"
+                                android:textAlignment="center" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Card Info -->
+                    <TextView
+                        android:id="@+id/tv_selected_card_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="@font/saira"
+                        android:textColor="#BDBDBD"
+                        android:textSize="12sp"
+                        android:textAlignment="center"
+                        android:visibility="gone" />
+
+                    <!-- Next Button -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_step1_next"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="#FF6B9D"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gift_next"
+                            android:fontFamily="@font/saira"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textAlignment="center"
+                            android:paddingVertical="14dp" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- STEP 2: Chọn Bạn bè -->
+                <LinearLayout
+                    android:id="@+id/layout_step2_select_friend"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:visibility="gone">
+
+                    <!-- Search Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_header_glass_v2"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_search"
+                            app:tint="#A2A2A7" />
+
+                        <EditText
+                            android:id="@+id/et_search_friend"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:background="@null"
+                            android:hint="@string/gift_search_hint"
+                            android:textColorHint="#A2A2A7"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/poppins"
+                            android:inputType="text"
+                            android:maxLines="1" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_friend_select"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginTop="8dp"
+                        android:clipToPadding="false"
+                        android:paddingBottom="80dp" />
+
+                    <!-- Empty state -->
+                    <TextView
+                        android:id="@+id/tv_no_friends"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="@string/gift_no_friends"
+                        android:fontFamily="@font/poppins"
+                        android:textColor="#A2A2A7"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <!-- Action Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <!-- Previous -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_step2_prev"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="#2A2A3A"
+                            app:strokeColor="#484847"
+                            app:strokeWidth="1dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gift_previous"
+                                android:fontFamily="@font/saira"
+                                android:textColor="#A2A2A7"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textAlignment="center"
+                                android:paddingVertical="14dp" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Next Button -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_step2_next"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="#FF6B9D"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:alpha="0.5">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gift_next"
+                                android:fontFamily="@font/saira"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textAlignment="center"
+                                android:paddingVertical="14dp" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- STEP 3: Xác nhận & Gửi -->
+                <LinearLayout
+                    android:id="@+id/layout_step3_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingHorizontal="32dp"
+                    android:visibility="gone">
+
+                    <!-- Card + Friend Preview Constraint Layout -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false">
+
+                        <!-- Sender Avatar (Left) -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cv_confirm_sender_avatar"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            app:cardCornerRadius="36dp"
+                            app:cardElevation="4dp"
+                            app:strokeWidth="2dp"
+                            app:strokeColor="#2E7D32"
+                            app:cardBackgroundColor="#555555"
+                            android:layout_marginTop="150dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintHorizontal_bias="0.2"
+                            app:layout_constraintEnd_toStartOf="@+id/tv_confirm_arrows"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iv_sender_avatar_img"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/ic_user"
+                                android:scaleType="centerCrop" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/tv_sender_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="You"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="#BDBDBD"
+                            android:textSize="12sp"
+                            app:layout_constraintTop_toBottomOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintStart_toStartOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintEnd_toEndOf="@id/cv_confirm_sender_avatar"/>
+
+                        <!-- Arrows -->
+                        <TextView
+                            android:id="@+id/tv_confirm_arrows"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=">>>"
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.2"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintBottom_toBottomOf="@id/cv_confirm_sender_avatar"/>
+
+                        <!-- Receiver Avatar (Right) -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cv_confirm_friend_avatar"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            app:cardCornerRadius="36dp"
+                            app:cardElevation="4dp"
+                            app:strokeWidth="2dp"
+                            app:strokeColor="#D32F2F"
+                            app:cardBackgroundColor="#555555"
+                            app:layout_constraintStart_toEndOf="@id/tv_confirm_arrows"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.8"
+                            app:layout_constraintTop_toTopOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintBottom_toBottomOf="@id/cv_confirm_sender_avatar">
+
+                            <ImageView
+                                android:id="@+id/iv_confirm_friend_avatar"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_user" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/tv_confirm_friend_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            app:layout_constraintTop_toBottomOf="@id/cv_confirm_friend_avatar"
+                            app:layout_constraintStart_toStartOf="@id/cv_confirm_friend_avatar"
+                            app:layout_constraintEnd_toEndOf="@id/cv_confirm_friend_avatar"/>
+
+                        <!-- Floating Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cv_step3_card"
+                            android:layout_width="100dp"
+                            android:layout_height="154dp"
+                            app:cardCornerRadius="8dp"
+                            app:cardElevation="12dp"
+                            app:cardBackgroundColor="#2A2A3A"
+                            android:layout_marginBottom="16dp"
+                            app:layout_constraintBottom_toTopOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintStart_toStartOf="@id/cv_confirm_sender_avatar"
+                            app:layout_constraintEnd_toEndOf="@id/cv_confirm_sender_avatar">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+                                <include layout="@layout/layout_core_card" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Phí gửi -->
+                    <LinearLayout
+                        android:id="@+id/layout_gift_cost"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_header_glass_v2"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gift_cost_label"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="#A2A2A7"
+                            android:textSize="10sp"
+                            android:letterSpacing="0.1" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_item_coin" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="36,000"
+                                android:fontFamily="@font/saira"
+                                android:textColor="@color/item_coin"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="12dp"
+                                android:text="+"
+                                android:textColor="#666"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_item_diamond" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="36"
+                                android:fontFamily="@font/saira"
+                                android:textColor="@color/item_diamond"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Action Buttons -->
+                    <LinearLayout
+                        android:id="@+id/layout_confirm_actions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <!-- Hủy / Previous -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_confirm_cancel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="#2A2A3A"
+                            app:strokeColor="#484847"
+                            app:strokeWidth="1dp"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gift_previous"
+                                android:fontFamily="@font/saira"
+                                android:textColor="#A2A2A7"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textAlignment="center"
+                                android:paddingVertical="14dp" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Gửi tặng -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_confirm_send"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="#FF6B9D"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gift_send"
+                                android:fontFamily="@font/saira"
+                                android:textColor="@color/white"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textAlignment="center"
+                                android:paddingVertical="14dp" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+
+                    <!-- DONE Button (Hidden until success) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btn_confirm_done"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="#4CAF50"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gift_done"
+                            android:fontFamily="@font/saira"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textAlignment="center"
+                            android:paddingVertical="14dp" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- ═══ TAB 2: NHẬN (Received Inbox) ═══ -->
+        <LinearLayout
+            android:id="@+id/layout_tab_received"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_gift_received"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+
+            <!-- Empty state -->
+            <TextView
+                android:id="@+id/tv_no_gifts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/gift_no_received"
+                android:fontFamily="@font/poppins"
+                android:textColor="#A2A2A7"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="+"
-                    android:textColor="#a3c9ff"
+                    android:textColor="@color/mosco_primary"
                     android:textSize="28sp" />
             </FrameLayout>
 
@@ -143,6 +143,7 @@
         android:alpha="0.2"
         android:gravity="center"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/guide_card_bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guide_card_end"
@@ -291,7 +292,7 @@
             android:paddingVertical="3dp"
             android:text="TĂNG TỈ LỆ NÂNG CẤP"
             android:textAllCaps="true"
-            android:textColor="#a3c9ff"
+            android:textColor="@color/mosco_primary"
             android:textSize="8sp" />
 
         <!-- Progress Bar Container -->

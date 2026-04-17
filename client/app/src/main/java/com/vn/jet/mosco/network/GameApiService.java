@@ -35,7 +35,10 @@ public interface GameApiService {
     Call<List<com.vn.jet.mosco.model.UserMail>> getUserMails(@Path("userId") Long userId);
 
     @POST("/api/pack/open")
-    Call<Map<String, Object>> openPack(@Query("userId") Long userId, @Query("packCode") String packCode);
+    Call<Map<String, Object>> openPack(
+            @Query("userId") Long userId, 
+            @Query("packCode") String packCode,
+            @Query("quantity") int quantity);
 
     /**
      * Gacha roll endpoint (JWT-protected, rate-limited).
@@ -102,6 +105,14 @@ public interface GameApiService {
     Call<ResponseBody> saveUserFormation(@Path("userId") Long userId, @Body java.util.List<Long> slotIds);
 
     // ══════════════════════════════════════════════════════════════
+    //  COLLECTION BOOK — Bộ Sưu Tập (Pokédex-style)
+    // ══════════════════════════════════════════════════════════════
+
+    /** Lấy toàn bộ Bộ Sưu Tập với trạng thái sở hữu. */
+    @GET("/api/collection/book/{userId}")
+    Call<com.vn.jet.mosco.model.CollectionBookResponse> getCollectionBook(@Path("userId") Long userId);
+
+    // ══════════════════════════════════════════════════════════════
     //  RANKING — Bảng xếp hạng (Public, không cần auth)
     // ══════════════════════════════════════════════════════════════
 
@@ -144,4 +155,32 @@ public interface GameApiService {
     /** Tìm kiếm user theo tên hoặc ID. */
     @GET("/api/friends/search")
     Call<ResponseBody> searchUsers(@Query("query") String query);
+
+    // ══════════════════════════════════════════════════════════════
+    //  GIFT — Tặng Objet giữa các user
+    // ══════════════════════════════════════════════════════════════
+
+    /** Gửi tặng thẻ. Body: { "cardId": 1, "receiverId": 2 } */
+    @POST("/api/gift/send")
+    Call<ResponseBody> sendGift(@Body java.util.Map<String, Long> body);
+
+    /** Danh sách quà đã nhận (Inbox). */
+    @GET("/api/gift/received")
+    Call<ResponseBody> getReceivedGifts();
+
+    /** Danh sách quà đã gửi. */
+    @GET("/api/gift/sent")
+    Call<ResponseBody> getSentGifts();
+
+    /** Đánh dấu tất cả quà nhận là đã đọc. */
+    @POST("/api/gift/mark-read")
+    Call<ResponseBody> markGiftsAsRead();
+
+    /** Số lượt tặng còn lại trong ngày. */
+    @GET("/api/gift/daily-remaining")
+    Call<ResponseBody> getDailyGiftRemaining();
+
+    /** Số quà chưa đọc (cho badge thông báo). */
+    @GET("/api/gift/unread-count")
+    Call<ResponseBody> getGiftUnreadCount();
 }

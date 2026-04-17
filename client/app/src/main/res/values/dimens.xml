@@ -14,6 +14,20 @@
     <dimen name="item_reveal_result_stroke_width">1dp</dimen>
     <dimen name="item_reveal_result_button_height">56dp</dimen>
     <dimen name="item_reveal_result_button_corner">12dp</dimen>
+    
+    <!-- Generic Spacing System -->
+    <dimen name="spacing_4dp">4dp</dimen>
+    <dimen name="spacing_8dp">8dp</dimen>
+    <dimen name="spacing_12dp">12dp</dimen>
+    <dimen name="spacing_16dp">16dp</dimen>
+    <dimen name="spacing_24dp">24dp</dimen>
+    
+    <!-- Standard Text Sizes -->
+    <dimen name="text_9sp">9sp</dimen>
+    <dimen name="text_10sp">10sp</dimen>
+    <dimen name="text_12sp">12sp</dimen>
+    <dimen name="text_14sp">14sp</dimen>
+    <dimen name="text_16sp">16sp</dimen>
 
     <!-- HomeFragment Dimensions -->
     <dimen name="home_header_padding_horizontal">16dp</dimen>
@@ -22,10 +36,12 @@
     <dimen name="home_avatar_corner">24dp</dimen>
     <dimen name="home_avatar_stroke">2dp</dimen>
     <dimen name="home_level_badge_radius">10dp</dimen>
-    <dimen name="home_currency_icon_size">20dp</dimen>
-    <dimen name="home_banner_height">160dp</dimen>
+    <dimen name="home_currency_icon_size">28dp</dimen>
+    <dimen name="home_token_padding_horizontal">12dp</dimen>
+    <dimen name="home_token_padding_vertical">4dp</dimen>
+    <dimen name="home_banner_height">192dp</dimen>
     <dimen name="home_banner_margin_horizontal">16dp</dimen>
-    <dimen name="home_banner_margin_top">12dp</dimen>
+    <dimen name="home_banner_margin_top">8dp</dimen>
     <dimen name="home_banner_corner">16dp</dimen>
     <dimen name="home_showcase_margin_horizontal">40dp</dimen>
     <dimen name="home_showcase_margin_top">16dp</dimen>

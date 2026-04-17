@@ -1306,15 +1306,17 @@ public class SpinFragment extends Fragment {
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  3D FLIP CHO THẺ HI SINH — Cùng cơ chế với HomeFragment Showcase
+    //  3D FLIP CHO THẺ HI SINH — Interactive Drag-to-Flip (giống Showcase)
     // ════════════════════════════════════════════════════════════════
 
     /**
-     * Khởi tạo GestureDetector phân biệt:
-     * - Single Tap → mở SelectObjetFragment (chọn thẻ mới)
-     * - Swipe ngang → Flip 3D 180° hiển thị mặt sau/trước
+     * Khởi tạo cơ chế lật thẻ vật lý:
+     * - Single Tap → mở InventoryBottomSheet (chọn thẻ mới)
+     * - Kéo ngang → xoay thẻ real-time theo ngón tay
+     * - Thả tay → snap về góc gần nhất (0° hoặc 180°) với Elastic Spring
      */
     private void initSacrificeFlipGesture() {
+        // GestureDetector chỉ dùng cho Single Tap (chọn thẻ)
         GestureDetector.SimpleOnGestureListener gestureListener =
                 new GestureDetector.SimpleOnGestureListener() {
             @Override
@@ -1330,21 +1332,6 @@ public class SpinFragment extends Fragment {
             }
 
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null || e2 == null) return false;
-                float diffX = e2.getX() - e1.getX();
-                // Chỉ flip khi đã có thẻ hiển thị (layoutSelectedFront visible)
-                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (!isSacrificeFlipAnimating && layoutSelectedFront != null
-                            && layoutSelectedFront.getVisibility() == View.VISIBLE) {
-                        performSacrificeFlip();
-                    }
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
             public boolean onDown(MotionEvent e) {
                 return true;
             }
@@ -1356,83 +1343,112 @@ public class SpinFragment extends Fragment {
             // Camera distance cho 3D rotation mượt
             float scale = getResources().getDisplayMetrics().density;
             cardCenterSlot.setCameraDistance(8000 * scale);
+
+            // Đọc cấu hình độ nhạy xoay từ resource (không hardcode)
+            final int flipSensitivity = getResources().getInteger(R.integer.card_flip_sensitivity);
+            final float[] initialTouchX = {0f};
+            final float[] startRotation = {0f};
+            final ObjectAnimator[] snapAnim = {null};
+
             cardCenterSlot.setOnTouchListener((v, event) -> {
+                // Relay sự kiện cho GestureDetector (Single Tap)
                 sacrificeGestureDetector.onTouchEvent(event);
+
+                // Chỉ xử lý flip khi đã có thẻ hiển thị
+                if (layoutSelectedFront == null || layoutSelectedFront.getVisibility() != View.VISIBLE) {
+                    return true;
+                }
+
+                View pseudoGlow = (View) cardCenterSlot.getTag(R.id.view_progress_fill);
+                if (pseudoGlow != null) pseudoGlow.setCameraDistance(8000 * scale);
+
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (snapAnim[0] != null && snapAnim[0].isRunning()) {
+                            snapAnim[0].cancel();
+                        }
+                        initialTouchX[0] = event.getRawX();
+                        startRotation[0] = cardCenterSlot.getRotationY();
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float diffX = event.getRawX() - initialTouchX[0];
+                        float newRotation = startRotation[0] + (diffX / flipSensitivity);
+                        cardCenterSlot.setRotationY(newRotation);
+                        if (pseudoGlow != null) pseudoGlow.setRotationY(newRotation);
+
+                        // Tính toán mặt hiện tại dựa trên góc xoay
+                        float normalized = newRotation % 360;
+                        if (normalized < 0) normalized += 360;
+                        boolean shouldShowBack = (normalized > 90 && normalized < 270);
+
+                        if (shouldShowBack != isSacrificeFlipped) {
+                            setSacrificeFace(shouldShowBack);
+                        }
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        // Snap về góc gần nhất (0° hoặc 180°)
+                        float curRot = cardCenterSlot.getRotationY();
+                        float norm = curRot % 360;
+                        if (norm < 0) norm += 360;
+
+                        float nearestAngle;
+                        if (norm <= 90 || norm >= 270) {
+                            nearestAngle = Math.round(curRot / 360f) * 360f;
+                        } else {
+                            nearestAngle = Math.round((curRot - 180f) / 360f) * 360f + 180f;
+                        }
+
+                        snapAnim[0] = ObjectAnimator.ofFloat(cardCenterSlot, "rotationY", curRot, nearestAngle);
+                        snapAnim[0].setDuration(250);
+                        snapAnim[0].setInterpolator(new android.view.animation.OvershootInterpolator(1.2f));
+                        if (pseudoGlow != null) {
+                            snapAnim[0].addUpdateListener(animation ->
+                                pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
+                        }
+                        snapAnim[0].addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                float finalNorm = cardCenterSlot.getRotationY() % 360;
+                                if (finalNorm < 0) finalNorm += 360;
+                                boolean finalBack = (finalNorm > 90 && finalNorm < 270);
+                                if (finalBack != isSacrificeFlipped) {
+                                    setSacrificeFace(finalBack);
+                                }
+                            }
+                        });
+                        snapAnim[0].start();
+                        return true;
+                }
                 return true;
             });
         }
     }
 
     /**
-     * Animation 3D Flip 180°: Phase 1 (0°→90°) + swap mặt + Phase 2 (90°→180°).
-     * Đồng bộ xoay Glow và thẻ, giống hệt HomeFragment.
+     * Thiết lập mặt hiển thị (trước/sau) dựa trên trạng thái.
+     * Không toggle — gán trực tiếp trạng thái mới.
      */
-    private void performSacrificeFlip() {
-        if (cardCenterSlot == null) return;
-        isSacrificeFlipAnimating = true;
-
-        float startAngle = isSacrificeFlipped ? 180f : 0f;
-        float midAngle = isSacrificeFlipped ? 270f : 90f;
-        float endAngle = isSacrificeFlipped ? 360f : 180f;
-
-        ObjectAnimator phaseOne = ObjectAnimator.ofFloat(
-                cardCenterSlot, "rotationY", startAngle, midAngle);
-        phaseOne.setDuration(FLIP_HALF_DURATION);
-        phaseOne.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        ObjectAnimator phaseTwo = ObjectAnimator.ofFloat(
-                cardCenterSlot, "rotationY", midAngle, endAngle);
-        phaseTwo.setDuration(FLIP_HALF_DURATION);
-        phaseTwo.setInterpolator(new DecelerateInterpolator());
-
-        // Đồng bộ Glow xoay cùng thẻ
-        View pseudoGlow = (View) cardCenterSlot.getTag(R.id.view_progress_fill);
-        if (pseudoGlow != null) {
-            float scale = getResources().getDisplayMetrics().density;
-            pseudoGlow.setCameraDistance(8000 * scale);
-            phaseOne.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
-            phaseTwo.addUpdateListener(animation -> pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
-        }
-
-        // Tại điểm giữa (90°) → hoán đổi mặt trước/sau
-        phaseOne.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                swapSacrificeFaces();
-            }
-        });
-
-        AnimatorSet flipSet = new AnimatorSet();
-        flipSet.playSequentially(phaseOne, phaseTwo);
-        flipSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isSacrificeFlipAnimating = false;
-                if (cardCenterSlot.getRotationY() >= 360f) {
-                    cardCenterSlot.setRotationY(0f);
-                }
-            }
-        });
-        flipSet.start();
-    }
-
-    /**
-     * Hoán đổi hiển thị giữa mặt trước (front: ảnh + OVR + badge + shimmer)
-     * và mặt sau (back: backImage từ database.json).
-     */
-    private void swapSacrificeFaces() {
+    private void setSacrificeFace(boolean showBack) {
+        if (isSacrificeFlipped == showBack) return;
         if (ivSelectedObjet == null || ivSacrificeBack == null) return;
+
+        isSacrificeFlipped = showBack;
 
         View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
         android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
         android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
 
-        if (isSacrificeFlipped) {
-            // Quay lại mặt trước
+        if (!showBack) {
+            // Hiện mặt trước
             ivSelectedObjet.setVisibility(View.VISIBLE);
             ivSacrificeBack.setVisibility(View.GONE);
             if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
-            if (tvOvr != null) tvOvr.setVisibility(View.VISIBLE);
+            if (tvOvr != null) tvOvr.setVisibility(View.GONE);
             if (ivLevelBadge != null && ivLevelBadge.getTag() != null) {
                 ivLevelBadge.setVisibility(View.VISIBLE);
             }
@@ -1446,7 +1462,6 @@ public class SpinFragment extends Fragment {
             if (tvOvr != null) tvOvr.setVisibility(View.GONE);
             if (ivLevelBadge != null) ivLevelBadge.setVisibility(View.GONE);
         }
-        isSacrificeFlipped = !isSacrificeFlipped;
     }
 
     /**
@@ -1532,7 +1547,7 @@ public class SpinFragment extends Fragment {
                     android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
                     if (tvOvr != null) {
                         tvOvr.setText(String.valueOf(selectedObj.getOvr()));
-                        tvOvr.setVisibility(View.VISIBLE);
+                        tvOvr.setVisibility(View.GONE);
                     }
                     
                     android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);

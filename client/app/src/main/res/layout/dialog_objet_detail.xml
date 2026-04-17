@@ -273,7 +273,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="12dp"
-            app:cardElevation="0dp"
+            app:cardElevation="12dp"
             app:strokeWidth="0dp"
             app:cardBackgroundColor="@color/transparent"
             app:layout_constraintDimensionRatio="1:1.54"
@@ -287,20 +287,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- 1. Metallic Background -->
-                <View
-                    android:id="@+id/view_card_metallic_bg"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-                    
-                <!-- 2. Transparent Image (Front Face) -->
-                <ImageView
-                    android:id="@+id/iv_objet_detail_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/item_shop_demo"
-                    tools:src="@drawable/item_shop_demo" />
+                <!-- Unified Card Content (Same proportions as Upgrade Fragment) -->
+                <include layout="@layout/layout_core_card" />
 
                 <!-- 2b. Back Face (Hiện khi Flip 3D, mặc định ẩn) -->
                 <ImageView
@@ -310,47 +298,6 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/objet_back_spin"
                     android:visibility="gone" />
-
-                <!-- 3. Shimmer Overlay -->
-                <View
-                    android:id="@+id/view_card_shimmer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <!-- OVR Text on card -->
-                <com.vn.jet.mosco.utils.StrokedTextView
-                    android:id="@+id/card_tv_ovr"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:gravity="start|top"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="2sp"
-                    app:autoSizeMaxTextSize="40sp"
-                    app:autoSizeStepGranularity="1sp"
-                    app:layout_constraintWidth_percent="0.25"
-                    app:layout_constraintHeight_percent="0.14"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintHorizontal_bias="0.04"
-                    app:layout_constraintVertical_bias="0.02"
-                    tools:text="102" />
-
-                <!-- Level Badge on card -->
-                <ImageView
-                    android:id="@+id/card_iv_level"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:scaleType="fitStart"
-                    android:adjustViewBounds="true"
-                    app:layout_constraintWidth_percent="0.30"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintHorizontal_bias="0"
-                    app:layout_constraintVertical_bias="1" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

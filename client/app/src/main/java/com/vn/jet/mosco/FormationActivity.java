@@ -306,7 +306,7 @@ public class FormationActivity extends AppCompatActivity {
             }
             
             if (tvOvr != null) {
-                tvOvr.setVisibility(View.VISIBLE);
+                tvOvr.setVisibility(View.GONE);
                 tvOvr.setText(String.valueOf(objet.getOvr()));
             }
 

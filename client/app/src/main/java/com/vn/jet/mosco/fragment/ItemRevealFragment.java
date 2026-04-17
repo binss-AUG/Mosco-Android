@@ -12,15 +12,21 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.net.Uri;
+import android.view.Gravity;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-import android.net.Uri;
+import android.content.Context;
+import android.util.AttributeSet;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,19 +72,23 @@ public class ItemRevealFragment extends Fragment {
     private String itemCode;
 
     // UI Elements
-    private VideoView videoSpinEffect;
-    private FrameLayout videoContainer;
-    private View rootLayout;
+    private View packRevealRoot;
+    private View packFlashOverlay;
     private GachaRepository gachaRepository;
 
+    // Dynamic Overlay (UpgradeFragment Style)
+    private FrameLayout cinematicOverlay;
+    
     // Animators
     private ObjectAnimator floatingAnim;
     private ValueAnimator shimmerAnim;
     
-    // Sync Flags for Background Loading
-    private volatile boolean packVideoComplete = false;
-    private volatile boolean packDataReady = false;
-    private org.json.JSONObject pendingCardData = null;
+    // Data Loading
+    private org.json.JSONObject pendingCardResult = null;
+
+    // Timing Constants
+    private static final int VIDEO_FAILURE_FAILSAFE_MS = 8000;
+    private static final int OVERLAY_FADE_DURATION = 300;
 
     public static ItemRevealFragment newInstance(String name, String desc,
                                                   String imageUri, int qty, String code) {
@@ -120,8 +130,8 @@ public class ItemRevealFragment extends Fragment {
         // Khởi tạo Repository để quản lý gọi API Gacha
         gachaRepository = new GachaRepository(requireContext());
         
-        rootLayout = view.findViewById(R.id.root_item_reveal);
-        if (rootLayout != null) rootLayout.setBackgroundColor(Color.parseColor("#0e0e0e"));
+        packRevealRoot = view.findViewById(R.id.root_item_reveal);
+        if (packRevealRoot != null) packRevealRoot.setBackgroundColor(Color.parseColor("#0e0e0e"));
 
         // Hide bottom navigation
         if (getActivity() != null) {
@@ -137,32 +147,8 @@ public class ItemRevealFragment extends Fragment {
         MaterialCardView cardItem = view.findViewById(R.id.card_item);
         MaterialButton btnOpenOne = view.findViewById(R.id.btn_open_one);
         MaterialButton btnOpenAll = view.findViewById(R.id.btn_open_all);
-
-        videoContainer = new FrameLayout(requireContext());
-        videoContainer.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        videoContainer.setVisibility(View.GONE);
-        videoContainer.setBackgroundColor(Color.parseColor("#0e0e0e")); // Level 0: The Void
-        
-        // Cực kỳ quan trọng: Thêm videoContainer vào Activity Root thay vì Fragment View
-        // để đảm bảo nó đè lên tất cả mọi thứ (bao gồm cả Bottom Navigation)
-        if (getActivity() != null) {
-            ViewGroup root = getActivity().findViewById(android.R.id.content);
-            if (root != null) {
-                // Đặt Z-index cực cao
-                videoContainer.setElevation(1000f);
-                root.addView(videoContainer);
-            } else {
-                ((ViewGroup) view).addView(videoContainer);
-            }
-        } else {
-            ((ViewGroup) view).addView(videoContainer);
-        }
-
-        videoSpinEffect = new VideoView(requireContext());
-        videoSpinEffect.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        videoContainer.addView(videoSpinEffect);
+        MaterialButton btnDone = view.findViewById(R.id.btn_done);
+        packFlashOverlay = view.findViewById(R.id.view_pack_flash_overlay);
 
         // Set data
         tvItemName.setText(itemName);
@@ -188,427 +174,502 @@ public class ItemRevealFragment extends Fragment {
         view.findViewById(R.id.btn_back).setOnClickListener(v -> goBack());
 
         // Open x1 button
-        btnOpenOne.setOnClickListener(v -> openPack(false));
+        btnOpenOne.setOnClickListener(v -> startPackOpening(false));
 
         // Open All button
-        btnOpenAll.setOnClickListener(v -> openPack(true));
+        btnOpenAll.setOnClickListener(v -> startPackOpening(true));
+ 
+        // Done button
+        btnDone.setOnClickListener(v -> goBack());
 
         // Apply effects
         applyVisualEffects(cardItem, view);
     }
 
-    private void openPack(boolean openAll) {
+    private void startPackOpening(boolean openAll) {
         if (itemQty <= 0) {
             Toast.makeText(getContext(), "Không còn Pack để mở", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        packVideoComplete = false;
-        packDataReady = false;
-        pendingCardData = null;
+        final int quantity = openAll ? Math.min(itemQty, 36) : 1;
+        
+        pendingCardResult = null;
 
-        // 1. CHẠY CUTSCENE NGAY LẬP TỨC
-        playCutsceneAndReveal();
+        // 1. CHẠY HIỆU ỨNG CHUẨN BỊ: Pack to lên và đứng im + Fade out UI
+        final View cardItem = getView().findViewById(R.id.card_item);
+        if (cardItem != null) {
+            if (floatingAnim != null) floatingAnim.cancel();
+            
+            cardItem.animate()
+                    .scaleX(1.15f)
+                    .scaleY(1.15f)
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(400)
+                    .setInterpolator(new AccelerateInterpolator())
+                    .start();
+        }
+        
+        // Mờ dần các thành phần UI
+        getView().findViewById(R.id.tv_item_name).animate().alpha(0f).setDuration(400).start();
+        getView().findViewById(R.id.tv_item_info).animate().alpha(0f).setDuration(400).start();
+        getView().findViewById(R.id.tv_item_qty).animate().alpha(0f).setDuration(400).start();
+        getView().findViewById(R.id.ll_buttons).animate().alpha(0f).setDuration(400).start();
+        getView().findViewById(R.id.btn_back).animate().alpha(0f).setDuration(400).start();
 
-        // 2. GỌI API NGẦM TRONG KHI VIDEO ĐANG CHẠY
-        GachaRollRequest request = new GachaRollRequest(itemCode, 1);
-        gachaRepository.rollGacha(request, new GachaRepository.GachaCallback<GachaRollResponse>() {
+        // 2. GỌI API MỞ PACK
+        Long userId = new SessionManager(requireContext()).getUserId();
+        gachaRepository.openPack(userId, itemCode, quantity, new GachaRepository.GachaCallback<Map<String, Object>>() {
             @Override
-            public void onSuccess(GachaRollResponse response) {
+            public void onSuccess(Map<String, Object> response) {
                 try {
-                    // Cực kỳ quan trọng: Xóa Cache cũ để khi quay sang thẻ Túi Đồ, App tự update lấy thẻ mới bù vào!
                     com.vn.jet.mosco.utils.DatabaseLoader.clearUserCache();
+                    itemQty -= quantity;
                     
-                    String jsonStr = new com.google.gson.Gson().toJson(response.getCardData());
-                    pendingCardData = new org.json.JSONObject(jsonStr);
-                    itemQty--; // Giảm số lượng
-                    
-                    // Preload ảnh kết quả ngay
-                    String imgUrl = pendingCardData.optString("frontImage");
-                    if (!imgUrl.isEmpty()) {
-                        Glide.with(requireContext().getApplicationContext()).asBitmap().load(imgUrl).submit();
+                    if (quantity == 1) {
+                        java.util.List<Map<String, Object>> cards = (java.util.List<Map<String, Object>>) response.get("cards");
+                        if (cards != null && !cards.isEmpty()) {
+                            Map<String, Object> firstRollResult = cards.get(0);
+                            Map<String, Object> cardData = (Map<String, Object>) firstRollResult.get("cardData");
+                            
+                            String jsonStr = new com.google.gson.Gson().toJson(cardData);
+                            pendingCardResult = new org.json.JSONObject(jsonStr);
+                            
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> performTieredCinematic(pendingCardResult));
+                            }
+                        } else {
+                            throw new RuntimeException("Phản hồi thành công nhưng không có dữ liệu thẻ");
+                        }
+                    } else {
+                        java.util.List<Map<String, Object>> cardList = (java.util.List<Map<String, Object>>) response.get("cards");
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> showBulkResults(cardList));
+                        }
                     }
-                    
-                    packDataReady = true;
-                    checkReadyToShowPackResult();
                 } catch (Exception e) {
                     android.util.Log.e("ItemReveal", "Lỗi dữ liệu", e);
-                    packDataReady = true; // Vẫn cho phép hiện để thoát kẹt
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> refreshUI());
                 }
             }
 
             @Override
             public void onError(int httpCode, String errorMessage) {
-                android.util.Log.e("ItemReveal", "Lỗi Server: " + errorMessage);
-                Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_LONG).show();
-                packDataReady = true;
-                checkReadyToShowPackResult();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(getContext(), "Lỗi: " + errorMessage, Toast.LENGTH_LONG).show();
+                        refreshUI();
+                    });
+                }
             }
         });
     }
 
-    private void checkReadyToShowPackResult() {
-        if (packVideoComplete && packDataReady) {
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (pendingCardData != null) {
-                        showFullscreenResult(pendingCardData);
-                    } else {
-                        refreshUI();
-                    }
-                });
+    private void showBulkResults(java.util.List<Map<String, Object>> cards) {
+        if (cards == null || cards.isEmpty()) {
+            refreshUI();
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder("Bạn đã nhận được:\n");
+        for (Map<String, Object> roll : cards) {
+            Map<String, Object> data = (Map<String, Object>) roll.get("cardData");
+            if (data != null) {
+                sb.append("- ").append(data.get("collectionId")).append("\n");
             }
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Mở Hàng Loạt (" + cards.size() + " Packs)")
+                .setMessage(sb.toString())
+                .setPositiveButton("TUYỆT VỜI", (d, w) -> {
+                    if (itemQty > 0) refreshUI();
+                    else goBack();
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void performTieredCinematic(org.json.JSONObject cardJson) {
+        if (!isAdded() || getContext() == null) return;
+        
+        String cardClass = cardJson.optString("class", "Welcome");
+        final FrameLayout overlay = createCinematicOverlay();
+        if (overlay == null) {
+            showFullscreenResult(cardJson);
+            return;
+        }
+
+        // Logic check class linh hoạt hơn để mapping đúng Tier
+        boolean isTier1 = cardClass.equalsIgnoreCase("Welcome") 
+                || cardClass.equalsIgnoreCase("First") 
+                || cardClass.equalsIgnoreCase("FirstWelcome");
+        
+        boolean isTier2 = cardClass.equalsIgnoreCase("Double");
+
+        if (isTier1) {
+            runTier1Cinematic(overlay, cardJson);
+        } else if (isTier2) {
+            runTier2Cinematic(overlay, cardJson);
+        } else {
+            runTier3Cinematic(overlay, cardJson);
         }
     }
 
-    private void playCutsceneAndReveal() {
-        // Fade out current UI completely
-        rootLayout.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-            rootLayout.setVisibility(View.GONE);
-            
-            // Bring video container to front and make it visible
-            videoContainer.bringToFront();
-            videoContainer.setVisibility(View.VISIBLE);
-            videoContainer.setAlpha(0f);
-            
-            // Use R.raw.spin_reward_animation as requested
-            playVideo(R.raw.spin_reward_animation, () -> {
-                packVideoComplete = true;
-                checkReadyToShowPackResult();
-            });
+    /**
+     * Custom VideoView to handle Center Crop aspect ratio scaling.
+     * Fixing the "black bars" and "laggy" feel of default VideoView.
+     */
+    public static class FullSizeVideoView extends VideoView {
+        public FullSizeVideoView(Context context) { super(context); }
+        public FullSizeVideoView(Context context, AttributeSet attrs) { super(context, attrs); }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            int width = getDefaultSize(0, widthMeasureSpec);
+            int height = getDefaultSize(0, heightMeasureSpec);
+            setMeasuredDimension(width, height);
+        }
+    }
+
+    private FrameLayout createCinematicOverlay() {
+        if (getActivity() == null) return null;
+        ViewGroup root = getActivity().findViewById(android.R.id.content);
+        if (root == null) return null;
+
+        View old = root.findViewById(R.id.vip_overlay_container);
+        if (old != null) root.removeView(old);
+
+        FrameLayout overlay = new FrameLayout(requireContext());
+        overlay.setId(R.id.vip_overlay_container);
+        overlay.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+        overlay.setBackgroundColor(Color.BLACK); // Nền đen sâu để chuyển cảnh mượt
+        overlay.setElevation(2000f);
+        overlay.setAlpha(0f);
+
+        // --- FOOTER AREA ---
+        LinearLayout footer = new LinearLayout(getContext());
+        footer.setOrientation(LinearLayout.VERTICAL);
+        footer.setGravity(Gravity.CENTER);
+        footer.setPadding(0, 0, 0, dpToPx(48));
+        FrameLayout.LayoutParams footerParams = new FrameLayout.LayoutParams(-1, dpToPx(150));
+        footerParams.gravity = Gravity.BOTTOM;
+        
+        // Ambient Label
+        TextView tvFooter = new TextView(getContext());
+        tvFooter.setText("MOSCO CINEMATIC EXPERIENCE");
+        tvFooter.setTextColor(Color.parseColor("#44FFFFFF"));
+        tvFooter.setTextSize(10);
+        tvFooter.setLetterSpacing(0.5f);
+        tvFooter.setAllCaps(true);
+        footer.addView(tvFooter);
+
+        overlay.addView(footer, footerParams);
+
+        // --- SKIP BUTTON ---
+        TextView btnSkip = new TextView(getContext());
+        btnSkip.setText("SKIP ›");
+        btnSkip.setTextColor(Color.WHITE);
+        btnSkip.setTextSize(14);
+        btnSkip.setPadding(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8));
+        btnSkip.setBackgroundResource(R.drawable.bg_glass_qty); // Reuse glass effect
+        btnSkip.setAlpha(0.6f);
+        
+        FrameLayout.LayoutParams skipParams = new FrameLayout.LayoutParams(-2, -2);
+        skipParams.gravity = Gravity.TOP | Gravity.END;
+        skipParams.topMargin = dpToPx(60);
+        skipParams.setMarginEnd(dpToPx(20));
+        overlay.addView(btnSkip, skipParams);
+
+        root.addView(overlay);
+        cinematicOverlay = overlay;
+        return overlay;
+    }
+
+    private void runTier1Cinematic(FrameLayout overlay, org.json.JSONObject cardJson) {
+        View flash = new View(getContext());
+        flash.setBackgroundColor(Color.WHITE);
+        flash.setAlpha(0f);
+        overlay.addView(flash, new FrameLayout.LayoutParams(-1, -1));
+
+        overlay.animate().alpha(1f).setDuration(150).start();
+        flash.animate().alpha(1f).setDuration(400).withEndAction(() -> {
+            if (packRevealRoot != null) packRevealRoot.setVisibility(View.GONE);
+            flash.animate().alpha(0f).setDuration(600).setStartDelay(100).withEndAction(() -> {
+                showFullscreenResult(cardJson);
+            }).start();
         }).start();
     }
 
-    private void playVideo(int resId, Runnable onComplete) {
-        if (videoSpinEffect == null || videoContainer == null || getContext() == null) return;
-        
-        videoContainer.bringToFront();
-        videoContainer.setVisibility(View.VISIBLE);
-        videoContainer.setAlpha(1f);
-        videoContainer.setBackgroundColor(Color.BLACK);
-
-        // Disable elevation which causes shadow/white frame artifacts
-        if (videoSpinEffect != null) {
-            videoSpinEffect.animate().cancel();
-            videoSpinEffect.setZ(0f);
-            videoSpinEffect.setAlpha(0f); 
+    private void runTier2Cinematic(FrameLayout overlay, org.json.JSONObject cardJson) {
+        FullSizeVideoView videoView = new FullSizeVideoView(getContext());
+        videoView.setAlpha(0f);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            videoView.setZOrderMediaOverlay(true);
         }
+        overlay.addView(videoView, 0, new FrameLayout.LayoutParams(-1, -1));
 
-        FrameLayout.LayoutParams resetLp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT);
-        resetLp.gravity = android.view.Gravity.CENTER;
-        videoSpinEffect.setLayoutParams(resetLp);
-        
-        Uri videoUri = Uri.parse("android.resource://" + requireActivity().getPackageName() + "/" + resId);
-        videoSpinEffect.setVideoURI(videoUri);
-        
-        final boolean[] completeCalled = {false};
-        
-        Runnable safeComplete = () -> {
-            if (!completeCalled[0]) {
-                completeCalled[0] = true;
-                if (videoContainer != null) {
-                    videoContainer.animate().cancel();
-                    videoContainer.setAlpha(1f);
-                    videoContainer.setVisibility(View.GONE);
-                }
-                onComplete.run();
-            }
+        final Handler failsafeHandler = new Handler(Looper.getMainLooper());
+        final Runnable failsafe = () -> {
+            overlay.animate().alpha(0f).setDuration(OVERLAY_FADE_DURATION).withEndAction(() -> {
+                if (overlay.getParent() != null) ((ViewGroup)overlay.getParent()).removeView(overlay);
+                showFullscreenResult(cardJson);
+            }).start();
         };
 
-        // Fail-safe TỐI THƯỢNG: Đảm bảo DÙ CÓ CHUYỆN GÌ XẢY RA, video cũng chỉ chạy tối đa 6 giây
-        // Bộ đếm này bắt đầu ngay khi gọi playVideo, không chờ onPrepared
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(() -> {
-            if (!completeCalled[0]) {
-                android.util.Log.w("ItemReveal", "Absolute fail-safe triggered after 6s");
-                safeComplete.run();
-            }
-        }, 6000);
+        // Skip logic
+        View skip = overlay.getChildAt(overlay.getChildCount() - 1);
+        if (skip != null) skip.setOnClickListener(v -> failsafe.run());
 
-        videoSpinEffect.setOnPreparedListener(mp -> {
-            float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
-            int targetWidth = videoContainer.getWidth();
-            if (targetWidth == 0) targetWidth = getResources().getDisplayMetrics().widthPixels;
-            
-            int targetHeight = (int) (targetWidth / videoRatio);
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(targetWidth, targetHeight);
-            lp.gravity = android.view.Gravity.CENTER;
-            videoSpinEffect.setLayoutParams(lp);
-            videoSpinEffect.setScaleX(1.0f);
-            videoSpinEffect.setScaleY(1.0f);
-            mp.setLooping(false);
-            
-            // Bỏ qua 0.2s đầu (phần chờ/đen)
-            mp.seekTo(200);
+        overlay.animate().alpha(1f).setDuration(250).start();
+        Uri videoUri = Uri.parse("android.resource://" + requireActivity().getPackageName() + "/" + R.raw.cut_scense_tier_2);
+        videoView.setVideoURI(videoUri);
 
-            // Show video instantly once hardware decodes first frame
-            videoSpinEffect.animate()
-                    .alpha(1f)
-                    .setDuration(150)
-                    .start();
-
-            videoSpinEffect.start();
+        videoView.setOnPreparedListener(mp -> {
+            if (packRevealRoot != null) packRevealRoot.setVisibility(View.GONE);
+            videoView.animate().alpha(1f).setDuration(400).start();
+            videoView.start();
         });
-
-        videoSpinEffect.setOnCompletionListener(mp -> {
-            if (isAdded()) {
-                safeComplete.run();
-            }
+        videoView.setOnCompletionListener(mp -> failsafe.run());
+        videoView.setOnErrorListener((mp, what, extra) -> { 
+            android.util.Log.e("ItemReveal", "Video Tier 2 Error: " + what + "," + extra);
+            failsafe.run(); 
+            return true; 
         });
+        failsafeHandler.postDelayed(failsafe, VIDEO_FAILURE_FAILSAFE_MS);
+    }
 
-        videoSpinEffect.setOnErrorListener((mp, what, extra) -> {
-            android.util.Log.e("ItemReveal", "Video Error: what=" + what + ", extra=" + extra);
-            safeComplete.run();
-            return true;
+    private void runTier3Cinematic(FrameLayout overlay, org.json.JSONObject cardJson) {
+        FullSizeVideoView videoView = new FullSizeVideoView(getContext());
+        videoView.setAlpha(0f);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            videoView.setZOrderMediaOverlay(true);
+        }
+        overlay.addView(videoView, 0, new FrameLayout.LayoutParams(-1, -1));
+
+        TextView tvInfo = new TextView(getContext());
+        tvInfo.setAlpha(0f);
+        tvInfo.setTextColor(Color.WHITE);
+        tvInfo.setTextSize(44);
+        tvInfo.setGravity(Gravity.CENTER);
+        tvInfo.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD));
+        tvInfo.setShadowLayer(30, 0, 0, androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary));
+        
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(-1, -2);
+        lp.gravity = Gravity.CENTER;
+        overlay.addView(tvInfo, lp);
+
+        final Handler failsafeHandler = new Handler(Looper.getMainLooper());
+        final Runnable failsafe = () -> {
+            overlay.animate().alpha(0f).setDuration(OVERLAY_FADE_DURATION).withEndAction(() -> {
+                if (overlay.getParent() != null) ((ViewGroup)overlay.getParent()).removeView(overlay);
+                showFullscreenResult(cardJson);
+            }).start();
+        };
+
+        // Skip logic (Skip is the 3rd child now: 0-Video, 1-Footer, 2-Skip)
+        View skip = overlay.getChildAt(overlay.getChildCount() - 1);
+        if (skip != null) skip.setOnClickListener(v -> failsafe.run());
+
+        overlay.animate().alpha(1f).setDuration(250).start();
+        Uri videoUri = Uri.parse("android.resource://" + requireActivity().getPackageName() + "/" + R.raw.cut_scense_tier_3);
+        videoView.setVideoURI(videoUri);
+
+        videoView.setOnPreparedListener(mp -> {
+            if (packRevealRoot != null) packRevealRoot.setVisibility(View.GONE);
+            videoView.animate().alpha(1f).setDuration(400).start();
+            videoView.start();
+            startVipOverlaySequenceV2(tvInfo, cardJson);
         });
+        videoView.setOnCompletionListener(mp -> failsafe.run());
+        videoView.setOnErrorListener((mp, what, extra) -> { 
+            android.util.Log.e("ItemReveal", "Video Tier 3 Error: " + what + "," + extra);
+            failsafe.run(); 
+            return true; 
+        });
+        failsafeHandler.postDelayed(failsafe, VIDEO_FAILURE_FAILSAFE_MS);
+    }
+
+    private void startVipOverlaySequenceV2(TextView tvInfo, org.json.JSONObject cardJson) {
+        String cardClass = cardJson.optString("class", "Special");
+        String season = cardJson.optString("season", "");
+        String memberName = cardJson.optString("member", "");
+        String sId = getMemberSId(memberName);
+
+        Handler h = new Handler(Looper.getMainLooper());
+        h.postDelayed(() -> showOverlayTextV2(tvInfo, cardClass.toUpperCase()), 1000);
+        h.postDelayed(() -> hideOverlayTextV2(tvInfo), 2500);
+        h.postDelayed(() -> showOverlayTextV2(tvInfo, season), 3000);
+        h.postDelayed(() -> hideOverlayTextV2(tvInfo), 4500);
+        h.postDelayed(() -> showOverlayTextV2(tvInfo, sId), 5000);
+        h.postDelayed(() -> hideOverlayTextV2(tvInfo), 6500);
+    }
+
+    private void showOverlayTextV2(TextView tv, String text) {
+        tv.setText(text);
+        tv.animate().alpha(1f).scaleX(1.1f).scaleY(1.1f).setDuration(400).start();
+    }
+
+    private void hideOverlayTextV2(TextView tv) {
+        tv.animate().alpha(0f).scaleX(0.9f).scaleY(0.9f).setDuration(400).start();
+    }
+
+    private String getMemberSId(String member) {
+        switch (member) {
+            case "SeoYeon": return "S1";
+            case "HyeRin": return "S2";
+            case "JiWoo": return "S3";
+            case "ChaeYeon": return "S4";
+            case "YooYeon": return "S5";
+            case "SooMin": return "S6";
+            case "NaKyoung": return "S7";
+            case "YuBin": return "S8";
+            case "Kaede": return "S9";
+            case "DaHyun": return "S10";
+            case "Kotone": return "S11";
+            case "YeonJi": return "S12";
+            case "Nien": return "S13";
+            case "SoHyun": return "S14";
+            case "Xinyu": return "S15";
+            case "Mayu": return "S16";
+            case "Lynn": return "S17";
+            case "JooBin": return "S18";
+            case "HaYeon": return "S19";
+            case "ShiOn": return "S20";
+            case "ChaeWon": return "S21";
+            case "Sullin": return "S22";
+            case "SeoAh": return "S23";
+            case "JiYeon": return "S24";
+            default: return "S0";
+        }
     }
 
     private void showFullscreenResult(org.json.JSONObject cardJson) {
         String collectionId = cardJson.optString("collectionId", "Unknown Objet");
         String imageUrl = cardJson.optString("frontImage", "");
 
-        // Cực kỳ quan trọng: Gắn resultContainer vào Root Activity để đè lên mọi thứ
+        if (getActivity() == null) return;
+        ViewGroup root = getActivity().findViewById(android.R.id.content);
+        if (root == null) return;
+
         FrameLayout resultContainer = new FrameLayout(requireContext());
-        resultContainer.setLayoutParams(new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        resultContainer.setBackgroundColor(Color.parseColor("#0e0e0e")); // Level 0: The Void
-        resultContainer.setElevation(1000f); // Đặt Z-index rất cao
+        resultContainer.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+        resultContainer.setBackgroundColor(Color.parseColor("#0e0e0e"));
+        resultContainer.setElevation(3000f);
         
-        // Add content view
         View resultView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_item_detail, resultContainer, false);
+        ((CardView)resultView).setCardBackgroundColor(Color.TRANSPARENT);
+        ((CardView)resultView).setCardElevation(0f);
         
-        // Make the card background transparent since we are full screen now
-        CardView rootCard = (CardView) resultView;
-        rootCard.setCardBackgroundColor(Color.TRANSPARENT);
-        rootCard.setCardElevation(0f);
-        
-        // Center the content in the fullscreen container
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = android.view.Gravity.CENTER;
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-2, -2);
+        params.gravity = Gravity.CENTER;
         resultView.setLayoutParams(params);
-        
         resultContainer.addView(resultView);
-        
-        // Cực kỳ quan trọng: Tắt clipping để thẻ không bị khuyết khi di chuyển lên xuống
-        if (resultView instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) resultView;
-            vg.setClipChildren(false);
-            vg.setClipToPadding(false);
-            // LinearLayout bên trong
-            if (vg.getChildCount() > 0 && vg.getChildAt(0) instanceof ViewGroup) {
-                ViewGroup innerVg = (ViewGroup) vg.getChildAt(0);
-                innerVg.setClipChildren(false);
-                innerVg.setClipToPadding(false);
-                // Thiết lập Padding đều nhau cho khung kết quả
-                int p = dpToPx(32);
-                innerVg.setPadding(p, p, p, p);
-            }
-        }
-        
-        // Gắn vào Activity Root thay vì Fragment View
-        if (getActivity() != null) {
-            ViewGroup root = getActivity().findViewById(android.R.id.content);
-            if (root != null) {
-                // Đảm bảo không bị clipping khi thực hiện hiệu ứng floating/scale lớn
-                root.setClipChildren(false);
-                root.setClipToPadding(false);
-                root.addView(resultContainer);
-            } else {
-                ((ViewGroup) getView()).setClipChildren(false);
-                ((ViewGroup) getView()).addView(resultContainer);
-            }
-        } else {
-            ((ViewGroup) getView()).setClipChildren(false);
-            ((ViewGroup) getView()).addView(resultContainer);
-        }
+        root.addView(resultContainer);
 
-        resultContainer.setClipChildren(false);
-        resultContainer.setClipToPadding(false);
-
-        // Apply Color.md Design System to elements
         TextView tvTitle = resultView.findViewById(R.id.dialogItemName);
         TextView tvDesc = resultView.findViewById(R.id.dialogItemDesc);
-        TextView tvQty = resultView.findViewById(R.id.dialogItemQuantity);
         ImageView ivImage = resultView.findViewById(R.id.dialogItemImage);
         MaterialButton btnOk = resultView.findViewById(R.id.btnUseItem);
-        View btnClose = resultView.findViewById(R.id.btnCloseDialog);
-
+        
         tvTitle.setText("Pack Opened!");
-        tvTitle.setTextColor(Color.WHITE); // Secondary: Starlight Neutral
-        tvTitle.setTextSize(24f);
-        // Tăng khoảng cách để không bị thẻ bài đè khi floating
-        LinearLayout.LayoutParams titleLp = (LinearLayout.LayoutParams) tvTitle.getLayoutParams();
-        titleLp.topMargin = dpToPx(32);
-        tvTitle.setLayoutParams(titleLp);
-        
+        tvTitle.setTextColor(Color.WHITE);
         tvDesc.setText("You received: " + collectionId);
-        tvDesc.setTextColor(Color.parseColor("#adaaaa")); // Body: on_surface_variant
+        tvDesc.setTextColor(Color.parseColor("#adaaaa"));
+        btnOk.setText("AWESOME");
         
-        if (tvQty != null) tvQty.setVisibility(View.GONE);
-        if (btnClose != null) btnClose.setVisibility(View.GONE);
-        
-        // Increase image size for fullscreen feel
         ViewGroup.LayoutParams imgParams = ivImage.getLayoutParams();
         imgParams.width = dpToPx(280);
         imgParams.height = dpToPx(400);
-        ivImage.setLayoutParams(imgParams);
-        
-        // Primary Button: Linear Gradient (The Pulse to metallic sheen)
-        btnOk.setText("AWESOME");
-        btnOk.setLetterSpacing(0.1f);
-        btnOk.setTextColor(Color.WHITE);
-        btnOk.setBackgroundTintList(null); // Remove default tint
-        
-        GradientDrawable gradient = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[] {Color.parseColor("#6c29fd"), Color.parseColor("#9547f7")}
-        );
-        gradient.setCornerRadius(dpToPx(8));
-        btnOk.setBackground(gradient);
         
         if (!imageUrl.isEmpty()) {
-            java.io.File localThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(requireContext(), imageUrl);
-            com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> thumbRequest = null;
-            if (localThumb != null && localThumb.exists()) {
-                thumbRequest = Glide.with(this).load(localThumb);
-            }
-
-            Glide.with(this)
-                    .load(imageUrl)
-                    .thumbnail(thumbRequest)
-                    .placeholder(R.drawable.item_shop_demo)
-                    .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(500))
-                    .into(ivImage);
+            Glide.with(this).load(imageUrl).placeholder(R.drawable.item_shop_demo).into(ivImage);
         }
 
-        // Ẩn Text và Button để hiện sau
-        tvTitle.setAlpha(0f);
-        tvDesc.setAlpha(0f);
-        btnOk.setAlpha(0f);
-
-        // --- HIỆU ỨNG BẤT NGỜ (Overshoot + Burst) dành riêng cho Thẻ bài ---
-        ivImage.setScaleX(0.2f);
-        ivImage.setScaleY(0.2f);
-        ivImage.setAlpha(0f);
+        tvTitle.setAlpha(0f); tvDesc.setAlpha(0f); btnOk.setAlpha(0f);
+        ivImage.setScaleX(0.2f); ivImage.setScaleY(0.2f); ivImage.setAlpha(0f);
         
-        ivImage.animate()
-                .alpha(1f)
-                .scaleX(1.3f)
-                .scaleY(1.3f)
-                .setDuration(450)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
-                .withEndAction(() -> {
-                    // Nảy về kích thước chuẩn
-                    ivImage.animate()
-                            .scaleX(1.0f)
-                            .scaleY(1.0f)
-                            .setDuration(250)
-                            .setInterpolator(new android.view.animation.OvershootInterpolator())
-                            .withEndAction(() -> {
-                                // SAU KHI THẺ XONG -> Hiện Text và Button (Fade dần)
-                                tvTitle.animate().alpha(1f).setDuration(400).start();
-                                tvDesc.animate().alpha(1f).setDuration(400).start();
-                                btnOk.animate().alpha(1f).setDuration(400).start();
-                            })
-                            .start();
-                })
-                .start();
+        ivImage.animate().alpha(1f).scaleX(1.0f).scaleY(1.0f).setDuration(600).setInterpolator(new OvershootInterpolator()).withEndAction(() -> {
+            tvTitle.animate().alpha(1f).setDuration(400).start();
+            tvDesc.animate().alpha(1f).setDuration(400).start();
+            btnOk.animate().alpha(1f).setDuration(400).start();
+        }).start();
 
-        // Floating animation for the card
         ObjectAnimator floatAnim = ObjectAnimator.ofFloat(ivImage, "translationY", 0f, -30f, 0f);
-        floatAnim.setDuration(4000);
-        floatAnim.setRepeatCount(ObjectAnimator.INFINITE);
-        floatAnim.setRepeatMode(ObjectAnimator.REVERSE);
-        floatAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-        floatAnim.start();
+        floatAnim.setDuration(4000); floatAnim.setRepeatCount(-1); floatAnim.setRepeatMode(ValueAnimator.REVERSE); floatAnim.start();
 
         btnOk.setOnClickListener(v -> {
             floatAnim.cancel();
+            if (cinematicOverlay != null && cinematicOverlay.getParent() != null) ((ViewGroup)cinematicOverlay.getParent()).removeView(cinematicOverlay);
             resultContainer.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                if (resultContainer.getParent() != null) {
-                    ((ViewGroup) resultContainer.getParent()).removeView(resultContainer);
-                }
-                if (itemQty > 0) {
-                    refreshUI();
-                } else {
-                    goBack();
-                }
+                root.removeView(resultContainer);
+                if (itemQty > 0) refreshUI();
+                else goBack();
             }).start();
         });
     }
 
-    private void showResultDialog(org.json.JSONObject cardJson) {
-        // Obsolete: Replaced by showFullscreenResult
-    }
-
     private void refreshUI() {
-        rootLayout.setVisibility(View.VISIBLE);
-        rootLayout.setAlpha(0f);
-        rootLayout.animate().alpha(1f).setDuration(300).start();
-
+        if (getView() == null) return;
+        packRevealRoot.setVisibility(View.VISIBLE);
+        packRevealRoot.setAlpha(0f);
+        packRevealRoot.animate().alpha(1f).setDuration(300).start();
+        
+        View cardItem = getView().findViewById(R.id.card_item);
+        if (cardItem != null) {
+            cardItem.setAlpha(1f); cardItem.setScaleX(1.0f); cardItem.setScaleY(1.0f); cardItem.setVisibility(View.VISIBLE);
+        }
+ 
+        getView().findViewById(R.id.tv_item_name).animate().alpha(1f).setDuration(300).start();
+        getView().findViewById(R.id.tv_item_info).animate().alpha(1f).setDuration(300).start();
+        getView().findViewById(R.id.tv_item_qty).animate().alpha(1f).setDuration(300).start();
+        getView().findViewById(R.id.ll_buttons).animate().alpha(1f).setDuration(300).start();
+        getView().findViewById(R.id.btn_back).animate().alpha(1f).setDuration(300).start();
+ 
         TextView tvItemQty = getView().findViewById(R.id.tv_item_qty);
+        MaterialButton btnOpenOne = getView().findViewById(R.id.btn_open_one);
         MaterialButton btnOpenAll = getView().findViewById(R.id.btn_open_all);
+        MaterialButton btnDone = getView().findViewById(R.id.btn_done);
         
         if (tvItemQty != null) tvItemQty.setText("x" + NumberUtils.format(getContext(), itemQty));
-        if (btnOpenAll != null) {
-            if (itemQty > 1) {
-                btnOpenAll.setVisibility(View.VISIBLE);
-                btnOpenAll.setText("Open All (x" + NumberUtils.format(getContext(), itemQty) + ")");
-            } else {
-                btnOpenAll.setVisibility(View.GONE);
+        
+        if (itemQty > 0) {
+            btnOpenOne.setVisibility(View.VISIBLE); btnDone.setVisibility(View.GONE);
+            if (btnOpenAll != null) {
+                if (itemQty > 1) {
+                    btnOpenAll.setVisibility(View.VISIBLE);
+                    btnOpenAll.setText("Open All (x" + NumberUtils.format(getContext(), itemQty) + ")");
+                } else btnOpenAll.setVisibility(View.GONE);
             }
+        } else {
+            btnOpenOne.setVisibility(View.GONE);
+            if (btnOpenAll != null) btnOpenAll.setVisibility(View.GONE);
+            btnDone.setVisibility(View.VISIBLE);
         }
     }
 
     private void applyVisualEffects(MaterialCardView cardItem, View view) {
         int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
-        int blurredBorder = androidx.core.graphics.ColorUtils.setAlphaComponent(primaryColor, 128);
-
         cardItem.setStrokeWidth(dpToPx(1));
-        cardItem.setStrokeColor(blurredBorder);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            cardItem.setCardElevation(dpToPx(16));
-            cardItem.setOutlineAmbientShadowColor(primaryColor);
-            cardItem.setOutlineSpotShadowColor(primaryColor);
-        }
+        cardItem.setStrokeColor(androidx.core.graphics.ColorUtils.setAlphaComponent(primaryColor, 128));
 
         View metallicBg = view.findViewById(R.id.view_card_metallic_bg);
         if (metallicBg != null) {
-            int[] colors = {Color.parseColor("#F5F5F5"), Color.parseColor("#FFFFFF"), Color.parseColor("#DBDBDB")};
-            GradientDrawable mBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, colors);
-            metallicBg.setBackground(mBg);
+            metallicBg.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFFF5F5F5, 0xFFFFFFFF, 0xFFDBDBDB}));
         }
 
         View shimmer = view.findViewById(R.id.view_card_shimmer);
         if (shimmer != null) {
-            GradientDrawable shimmerBg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                    new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF});
-            shimmer.setBackground(shimmerBg);
-            shimmer.setRotation(10f);
-            shimmer.setScaleX(1.0f);
-            shimmer.setScaleY(1.5f);
-
+            shimmer.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF}));
             shimmerAnim = ValueAnimator.ofFloat(-1.5f, 2.5f);
-            shimmerAnim.setDuration(3500);
-            shimmerAnim.setInterpolator(new LinearInterpolator());
-            shimmerAnim.setRepeatCount(ValueAnimator.INFINITE);
-            shimmerAnim.setRepeatMode(ValueAnimator.RESTART);
-            shimmerAnim.addUpdateListener(animation -> {
-                float fraction = (float) animation.getAnimatedValue();
-                shimmer.setTranslationX(shimmer.getWidth() * fraction);
-            });
+            shimmerAnim.setDuration(3500); shimmerAnim.setRepeatCount(-1);
+            shimmerAnim.addUpdateListener(animation -> shimmer.setTranslationX(shimmer.getWidth() * (float)animation.getAnimatedValue()));
             shimmerAnim.start();
         }
 
         floatingAnim = ObjectAnimator.ofFloat(cardItem, "translationY", 0f, -12f, 0f);
-        floatingAnim.setDuration(3000);
-        floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-        floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
-        floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
-        floatingAnim.start();
+        floatingAnim.setDuration(3000); floatingAnim.setRepeatCount(-1); floatingAnim.setRepeatMode(ValueAnimator.REVERSE); floatingAnim.start();
     }
 
     private void goBack() {
@@ -622,8 +683,8 @@ public class ItemRevealFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (floatingAnim != null) { floatingAnim.cancel(); floatingAnim = null; }
-        if (shimmerAnim != null) { shimmerAnim.cancel(); shimmerAnim = null; }
+        if (floatingAnim != null) floatingAnim.cancel();
+        if (shimmerAnim != null) shimmerAnim.cancel();
     }
 
     private int dpToPx(int dp) {

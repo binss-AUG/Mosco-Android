@@ -75,6 +75,13 @@ public class CardDataService {
     }
 
     /**
+     * Trả về toàn bộ card metadata cache — dùng cho Bộ Sưu Tập (Collection Book).
+     */
+    public Map<String, JsonNode> getAllCardMetadata() {
+        return cardMetadataCache;
+    }
+
+    /**
      * Lấy class gốc từ database.json theo collectionId.
      */
     public String getCardClass(String collectionId) {

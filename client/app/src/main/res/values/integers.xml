@@ -2,4 +2,8 @@
 <resources>
     <integer name="synergy_tier_gold_min_level">8</integer>
     <integer name="synergy_tier_silver_min_level">5</integer>
+    <!-- Độ nhạy xoay thẻ: N pixel kéo = 1 độ xoay (càng cao càng chậm) -->
+    <integer name="card_flip_sensitivity">4</integer>
+    <!-- Tỉ lệ phần khuyết tròn của Collection Detail Ticket (75% = 0.75) -->
+    <integer name="collection_detail_notch_percent">75</integer>
 </resources>
