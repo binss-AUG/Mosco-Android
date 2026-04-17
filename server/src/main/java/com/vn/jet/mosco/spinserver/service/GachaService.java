@@ -93,17 +93,26 @@ public class GachaService {
         // 3. Delegate to PackService (handles deduction, random roll, card save)
         Map<String, Object> result;
         try {
-            result = packService.openPack(userId, packCode);
+            // Truyền tham số quantity = 1 vì đây là hàm roll đơn lẻ
+            result = packService.openPack(userId, packCode, 1);
         } catch (RuntimeException e) {
             logger.error("PackService.openPack failed for userId={}, packCode={}: {}",
                     userId, packCode, e.getMessage(), e);
             return GachaRollResponse.error(e.getMessage());
         }
 
-        // 4. Extract card info from result
-        String cardId = (String) result.get("cardId");
+        // 4. Extract card info from result (PackService now returns a list of cards)
         @SuppressWarnings("unchecked")
-        Map<String, Object> cardData = (Map<String, Object>) result.get("cardData");
+        List<Map<String, Object>> cards = (List<Map<String, Object>>) result.get("cards");
+        if (cards == null || cards.isEmpty()) {
+            return GachaRollResponse.error("No cards received from pack.");
+        }
+
+        Map<String, Object> firstCard = cards.get(0);
+        String cardId = (String) firstCard.get("cardId");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> cardData = (Map<String, Object>) firstCard.get("cardData");
+        
         String rarity = "Unknown";
         if (cardData != null && cardData.containsKey("class")) {
             rarity = String.valueOf(cardData.get("class"));

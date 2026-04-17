@@ -160,4 +160,29 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   🛡️ **Advanced Collection Multi-Filter:** Bộ lọc lưới AND nâng cao. Tự động chuyển đổi Category mapping giữa Raw DB Class và Display UI. Sắp xếp tùy chỉnh OVR, Cấp độ và Ngày tháng với logic thông minh.
 
 ---
+## 📦 Nhật Ký Cập Nhật (V7.0 - Bulk Pack Opening System)
+*   ✅ **High-Performance Bulk Opening:** Nâng cấp `PackService` để hỗ trợ mở đồng thời lên đến 36 packs chỉ trong 1 Request. Hệ thống tự động xử lý khấu trừ túi đồ và sinh thẻ hàng loạt trong một Transaction duy nhất.
+*   ✅ **Dynamic Response Payload:** Cấu trúc dữ liệu API mới trả về danh sách toàn bộ thẻ đã mở, giúp Client hiển thị kết quả tổng hợp một cách nhanh chóng.
+*   ✅ **Non-Blocking UI (ItemRevealFragment):** Tối ưu hóa giao diện hiển thị kết quả. Khi mở hàng loạt (>1 pack), hệ thống tự động bỏ qua các cutscene dài và hiển thị lưới kết quả premium, giúp người chơi tiết kiệm thời gian mà vẫn giữ được cảm giác "Galactic".
+*   ✅ **API Endpoint Mới:**
+    *   **Method / URL:** `POST /api/pack/open`
+    *   **Params:** `userId` (Long), `packCode` (String), `quantity` (int - mặc định là 1).
+    *   **Response:** Trả về JSON chứa danh sách `cards` (cardId và cardData) kèm trạng thái thành công.
+
+---
+## 🎬 Nhật Ký Cập Nhật (V7.2 - Dynamic Cinematic Overlay & Fullscreen Result)
+*   ✅ **Dynamic Overlay Architecture (V2):** Tái cấu trúc toàn bộ hệ thống Cutscene sang cơ chế tạo View động (Dynamic View Creation). Xóa bỏ sự phụ thuộc vào XML tĩnh để triệt tiêu 100% lỗi treo màn hình do thiếu linh kiện.
+*   ✅ **Interactive VIP Text Sequence:** Nâng cấp Tier 3 Cutscene giúp tự động đồng bộ và hiển thị thông tin Artist (Class, Season, S-ID) theo nhịp video, mang lại cảm giác sống động và chuyên nghiệp.
+*   ✅ **Fullscreen Premium Result:** Kết quả mở thẻ được hiển thị trên lớp phủ Glossy Black (`#0e0e0e`) với hiệu ứng **Overshoot & Float Animation**, tạo sự khác biệt đẳng cấp giữa thẻ Common và thẻ VIP.
+*   ✅ **Cleanup Auto-Logic:** Tự động dọn dẹp tài nguyên và Overlay ngay khi người dùng nhấn "AWESOME", đảm bảo bộ nhớ luôn sạch sẽ và sẵn sàng cho lần mở tiếp theo.
+
+---
+## 🛠 Nhật Ký Cập Nhật (V7.3 - Stability & Collection Sync Fix)
+*   ✅ **Fix Compilation Error:** Khắc phục lỗi "cannot find symbol cardId" tại `PackService` do biến bị giới hạn phạm vi trong vòng lặp roll thẻ.
+*   ✅ **Bulk Sync Collection:** Đảm bảo khi mở nhiều pack cùng lúc (Bulk Open), TẤT CẢ các thẻ mới nhận được đều được tự động cập nhật vào danh sách "Đã sở hữu" (Ever Owned) để đồng bộ chính xác với Album/Collection Book.
+*   ✅ **Optimized Database Writes:** Gom nhóm yêu cầu save User sau khi hoàn tất vòng lặp xử lý thẻ, giảm thiểu số lượng Transaction không cần thiết.
+
+---
+
+---
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

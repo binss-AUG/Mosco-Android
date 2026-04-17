@@ -80,6 +80,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <!-- 4. Glow/Flash Overlay -->
+        <View
+            android:id="@+id/view_pack_flash_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:alpha="0" />
+
     </com.google.android.material.card.MaterialCardView>
 
     <!-- ====== QUANTITY: Glass Effect ====== -->
@@ -161,6 +169,44 @@
             app:strokeColor="@color/mosco_primary"
             android:textColor="@color/mosco_primary" />
 
+        <!-- Done Button (visible when qty == 0) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_done"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="DONE"
+            android:fontFamily="@font/poppins"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/mosco_primary" />
+
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/vip_overlay_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:elevation="2000dp">
+
+        <TextView
+            android:id="@+id/tv_overlay_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/white"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"
+            android:alpha="0"
+            android:shadowColor="@color/mosco_primary"
+            android:shadowRadius="30"
+            tools:text="2005" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

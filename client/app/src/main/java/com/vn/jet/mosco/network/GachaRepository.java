@@ -50,6 +50,27 @@ public class GachaRepository {
         executeRollWithRetry(request, callback, 0);
     }
 
+    /**
+     * Mở Pack (Đơn hoặc Hàng loạt). Tối đa 36 pack.
+     */
+    public void openPack(Long userId, String packCode, int quantity, GachaCallback<java.util.Map<String, Object>> callback) {
+        apiService.openPack(userId, packCode, quantity).enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, retrofit2.Response<java.util.Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError(response.code(), "Lỗi mở pack: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                callback.onError(-1, "Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
     private void executeRollWithRetry(GachaRollRequest request, GachaCallback<GachaRollResponse> callback, int attempt) {
         apiService.rollGacha(request).enqueue(new Callback<ApiResponse<GachaRollResponse>>() {
             @Override

@@ -35,7 +35,10 @@ public interface GameApiService {
     Call<List<com.vn.jet.mosco.model.UserMail>> getUserMails(@Path("userId") Long userId);
 
     @POST("/api/pack/open")
-    Call<Map<String, Object>> openPack(@Query("userId") Long userId, @Query("packCode") String packCode);
+    Call<Map<String, Object>> openPack(
+            @Query("userId") Long userId, 
+            @Query("packCode") String packCode,
+            @Query("quantity") int quantity);
 
     /**
      * Gacha roll endpoint (JWT-protected, rate-limited).

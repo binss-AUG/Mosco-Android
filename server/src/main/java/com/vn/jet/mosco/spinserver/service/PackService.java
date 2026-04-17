@@ -79,8 +79,8 @@ public class PackService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> openPack(Long userId, String packCode) {
-        logger.info("User {} is attempting to open pack: {}", userId, packCode);
+    public Map<String, Object> openPack(Long userId, String packCode, int quantity) {
+        logger.info("User {} is attempting to open {}x pack: {}", userId, quantity, packCode);
         
         if (gameConfig == null || allCards == null || allCards.isEmpty()) {
             logger.error("System configuration or card pool is missing. Attempting emergency reload.");
@@ -100,11 +100,13 @@ public class PackService {
                     return new RuntimeException("You don't have this pack: " + packCode);
                 });
 
-        if (packItem.getQuantity() <= 0) {
-            logger.warn("User {} tried to open pack {}, but quantity is zero.", userId, packCode);
-            throw new RuntimeException("Pack quantity is zero for: " + packCode);
+        if (packItem.getQuantity() < quantity) {
+            logger.warn("User {} tried to open {}x pack {}, but only has {}.", userId, quantity, packCode, packItem.getQuantity());
+            throw new RuntimeException("Not enough packs to open. You have: " + packItem.getQuantity());
         }
 
+        List<Map<String, Object>> cardsCalculated = new ArrayList<>();
+        
         // 2. Determine pack type and rates
         String packType = determinePackType(packCode);
         logger.debug("Determined pack type for {}: {}", packCode, packType);
@@ -121,50 +123,58 @@ public class PackService {
             rates[i] = ratesArray.get(i).getAsDouble();
         }
 
-        // 3. Roll for Class
-        String selectedClass = rollClass(rates);
-        logger.debug("Rolled class: {} for user {} with pack {}", selectedClass, userId, packCode);
-        
-        // 4. Filter cards based on pack code
-        List<JsonObject> pool = filterPool(packCode, selectedClass);
-        if (pool == null || pool.isEmpty()) {
-            logger.error("No cards available in pool for pack {} and class {}", packCode, selectedClass);
-            throw new RuntimeException("No cards found for this pack and class: " + selectedClass);
+        // 3. Roll loop
+        for (int q = 0; q < quantity; q++) {
+            // Roll for Class
+            String selectedClass = rollClass(rates);
+            
+            // Filter cards based on pack code
+            List<JsonObject> pool = filterPool(packCode, selectedClass);
+            if (pool == null || pool.isEmpty()) {
+                logger.error("No cards available in pool for pack {} and class {}", packCode, selectedClass);
+                continue; // Skip this roll
+            }
+
+            // Select random card
+            JsonObject selectedCard = pool.get(new Random().nextInt(pool.size()));
+            String cardId = selectedCard.has("id") ? selectedCard.get("id").getAsString() : "unknown";
+
+            // Add the card to DB. Default: Level 1, Exp 0, Upgrade +1
+            UserCard newUserCard = new UserCard(user, cardId, 1, 0, 1);
+            userCardRepository.save(newUserCard);
+
+            // Cập nhật thẻ vào danh sách đã từng sở hữu (Ever Owned)
+            user.getUnlockedCollections().add(cardId);
+
+            // Convert to Map for response
+            Type type = new TypeToken<Map<String, Object>>(){}.getType();
+            Map<String, Object> cardDataMap = gson.fromJson(selectedCard, type);
+            
+            Map<String, Object> rollResult = new HashMap<>();
+            rollResult.put("cardId", cardId);
+            rollResult.put("cardData", cardDataMap);
+            cardsCalculated.add(rollResult);
         }
 
-        // 5. Select random card
-        JsonObject selectedCard = pool.get(new Random().nextInt(pool.size()));
-        String cardId = selectedCard.has("id") ? selectedCard.get("id").getAsString() : "unknown";
-
-        // 6. Update database
-        // Important: Decrease quantity first. If this fails, the whole transaction rolls back.
-        packItem.setQuantity(packItem.getQuantity() - 1);
+        // 4. Update Database: Decrease quantity
+        packItem.setQuantity(packItem.getQuantity() - quantity);
         if (packItem.getQuantity() == 0) {
             userItemRepository.delete(packItem);
-            logger.debug("Removed last pack {} from user {}", packCode, userId);
+            logger.debug("Removed pack {} from user {}", packCode, userId);
         } else {
             userItemRepository.save(packItem);
             logger.debug("Decremented quantity for pack {} for user {}. Remaining: {}", packCode, userId, packItem.getQuantity());
         }
-
-        // Then add the card. Default: Level 1, Exp 0, Upgrade +1
-        UserCard newUserCard = new UserCard(user, cardId, 1, 0, 1);
-        userCardRepository.save(newUserCard);
         
-        // Cập nhật thẻ vào danh sách đã từng sở hữu (Ever Owned)
-        user.getUnlockedCollections().add(cardId);
         userRepository.save(user);
 
-        logger.info("User {} successfully opened pack {} and received card: {}", userId, packCode, cardId);
+        logger.info("User {} successfully opened {}x pack {} and received {} cards.", userId, quantity, packCode, cardsCalculated.size());
 
-        // 7. Return result (Convert Gson JsonObject to Jackson-friendly Map)
+        // 5. Return results
         Map<String, Object> result = new HashMap<>();
-        result.put("cardId", cardId);
-        
-        // Crucial: Convert JsonObject to Map to avoid Jackson serialization errors
-        Type type = new TypeToken<Map<String, Object>>(){}.getType();
-        Map<String, Object> cardDataMap = gson.fromJson(selectedCard, type);
-        result.put("cardData", cardDataMap);
+        result.put("success", true);
+        result.put("packCode", packCode);
+        result.put("cards", cardsCalculated);
         
         return result;
     }

@@ -24,10 +24,13 @@ public class PackController {
      * POST /api/pack/open?userId=1&packCode=PACK_STARTER
      */
     @PostMapping("/open")
-    public ResponseEntity<Map<String, Object>> openPack(@RequestParam Long userId, @RequestParam String packCode) {
+    public ResponseEntity<Map<String, Object>> openPack(
+            @RequestParam Long userId, 
+            @RequestParam String packCode,
+            @RequestParam(defaultValue = "1") int quantity) {
         try {
-            logger.info("Received request to open pack. UserID: {}, PackCode: {}", userId, packCode);
-            Map<String, Object> result = packService.openPack(userId, packCode);
+            logger.info("Received request to open {}x pack. UserID: {}, PackCode: {}", quantity, userId, packCode);
+            Map<String, Object> result = packService.openPack(userId, packCode, quantity);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             logger.error("Failed to open pack for UserID: {}, PackCode: {}. Error: {}", userId, packCode, e.getMessage(), e);
