@@ -110,9 +110,9 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
         *   **Method / URL:** `POST /api/gacha/upgrade`
         *   **Request:** `UpgradeRequest` (JSON gồm `userId`, `baseCardId`, `materialCardIds` mảng các materials)
         *   **Response:** `UpgradeResponse` chứa thông báo thành công `success`, tin nhắn trả về `message` và cấp độ mới `newLevel`.
-113:     *   **Collection Book Endpoint:**
-114:         *   **Method / URL:** `GET /api/collection/book/{userId}`
-115:         *   **Response:** `CollectionBookResponse` chứa `totalCards`, `ownedCount` và danh sách `entries` (metadata + trạng thái sở hữu `owned`).
+    *   **Collection Book Endpoint:**
+        *   **Method / URL:** `GET /api/collection/book/{userId}`
+        *   **Response:** `CollectionBookResponse` chứa `totalCards`, `ownedCount` và danh sách `entries` (metadata + trạng thái sở hữu `owned`). Card Class đã được tách bạch thành: `Welcome`, `First`, `Double`, `Premier`, `Special`, `Unit`.
 
 ---
 ## 📜 Nhật Ký Cập Nhật (V5.0 - Professional Auth & UX Standardization)
@@ -183,6 +183,28 @@ Dự án Mosco tuân thủ bộ quy tắc **"3 Nhất"**:
 *   ✅ **Optimized Database Writes:** Gom nhóm yêu cầu save User sau khi hoàn tất vòng lặp xử lý thẻ, giảm thiểu số lượng Transaction không cần thiết.
 
 ---
+## 🎬 Nhật Ký Cập Nhật (V7.4 - Cinematic Bulk Opening & 3D Interactive Reveal)
+*   ✅ **Cinematic Bulk Opening:** Nâng cấp trải nghiệm mở pack hàng loạt (lên đến 36 thẻ). Khi mở nhiều pack, hệ thống tự động tính toán thẻ "Best Pull" để làm đại diện cho hiệu ứng reveal chính, giúp tiết kiệm thời gian mà vẫn giữ được sự kịch tính.
+*   ✅ **Tiered Aura System:** Hệ thống hào quang (Glow) đa tầng. Màu sắc của hào quang reveal được ép chuẩn theo Tier của thẻ:
+    *   **Unit (Tier 4):** Neon Cyan (#00FFFF).
+    *   **Premier/Legendary (Tier 3):** Plum/Metallic Violet (#DDA0DD).
+    *   **Double/Special (Tier 2):** Royal Blue (#4169E1).
+    *   **Common (Tier 1):** Light Green (#90EE90).
+*   ✅ **Interactive 3D Flip Gesture:** Toàn bộ thẻ trong màn hình Reveal hỗ trợ tương tác thực tế ảo. Người dùng có thể vuốt (Swipe) để xoay thẻ xung quanh trục Y, xem được cả mặt sau (Back Image) với hiệu ứng Snap-back và đồng bộ hào quang 3D cực kỳ mượt mà.
+*   ✅ **Bulk Summary Glassmorphism Cache:** Hiển thị kết quả tổng hợp trong một Container kính mờ (Glassmorphism) siêu cao cấp. Tích hợp thanh cuộn ẩn và chỉ số màu sắc theo rarity, đặt tại vị trí 1/3 màn hình để tối ưu tầm nhìn.
+*   ✅ **Cosmic Chaos Particles:** Hiệu ứng nổ hạt bụi vũ trụ (Chaotic Particles) khi thẻ được reveal. Các luồng năng lượng và hạt sáng được vẽ trực tiếp bằng Canvas Custom View, đảm bảo hiệu năng 60fps trên mọi thiết bị.
 
 ---
+## 🛠 Nhật Ký Cập Nhật (V8.0 - Project Refactoring & Performance Optimization)
+*   ✅ **Tách bạch Class Thẻ bài:** Loại bỏ hoàn toàn sự nhập nhằng "FirstWelcome" và "SpecialUnit". Hệ thống hiện tại nhận diện rõ rệt 6 hạng thẻ: `Welcome`, `First`, `Double`, `Premier`, `Special`, và `Unit`.
+*   ✅ **Vá lỗi "Treo 30 Giây" (Album Fix):** 
+    * Triệt tiêu hiện tượng ANR khi vào Album bằng cách di chuyển toàn bộ logic Sắp xếp/Lọc nặng sang luồng nền (Background Thread). 
+    * Thay thế Regex `\D+` bằng thuật toán tương tự kiểm tra ký tự tay, giúp xử lý hàng chục nghìn thẻ bài chỉ trong miligiây.
+*   ✅ **Kiến trúc Local-First 2.0:** Chuẩn hóa logic nạp dữ liệu từ `DatabaseLoader`, đảm bảo dữ liệu Master và Inventory được nạp bất đồng bộ, không gây nghẽn luồng Main Thread.
+*   ✅ **Hệ thống Màu sắc Aesthetic (colors.xml):** 
+    * Xóa bỏ toàn bộ Hex Colors hardcode trong Java. 
+    * Chuẩn hóa bộ nhận diện: **Unit** (Gold), **Premier** (Deep Purple), **Special** (White-Sakura-Blue Gradient).
+
+---
+
 *© 2026 Mosco Project - Advanced Agentic Coding Team.*

@@ -251,7 +251,7 @@ public class SpinFragment extends Fragment {
             AppCompatButton btnC = (AppCompatButton) v;
             btnC.setEnabled(false);
             btnC.setText("Charging energy...");
-            
+
             // BẮT ĐẦU LOAD DATA NGẦM NGAY KHI ẤN
             gachaRepository.spinCard(new GachaSpinRequest(selectedSacrificeId), new GachaRepository.GachaCallback<GachaSpinResponse>() {
                 @Override
@@ -315,14 +315,14 @@ public class SpinFragment extends Fragment {
         if (selectedPosition == -1) return;
         if (backPressedCallback != null) backPressedCallback.setEnabled(false);
         playVideo(R.raw.spin_reward_animation, 100, 100, this::showFinalResultWithNeonEffect);
-        
+
         // 🚀 WARMUP PERFORMANCE: Nạp và vẽ nháp màn hình kết quả ngầm trong khi Video đang chạy
         warmupResultUI();
     }
 
     private void warmupResultUI() {
         if (currentSpinResult == null || selectedPosition == -1 || layoutResultReveal == null) return;
-        
+
         // Hiện layout ở mức tàng hình (elevation 10dp vẫn dưới Video 100dp) để Android render sẵn
         layoutResultReveal.setAlpha(0.01f);
         layoutResultReveal.setVisibility(View.VISIBLE);
@@ -476,12 +476,12 @@ public class SpinFragment extends Fragment {
         if (position >= 0 && position < gridSessionCards.size()) {
             Map<String, Object> obj = gridSessionCards.get(position);
             if (obj == null) return "";
-            
+
             String key = isFront ? "frontImage" : "backImage";
             Object urlObj = obj.get(key);
             if (urlObj == null || String.valueOf(urlObj).equalsIgnoreCase("null") || String.valueOf(urlObj).isEmpty()) {
                 // Trả về một URL đặc biệt hoặc để trống để load Card Back mặc định
-                return isFront ? "dummy://trash_object" : ""; 
+                return isFront ? "dummy://trash_object" : "";
             }
 
             String url = String.valueOf(urlObj);
@@ -538,11 +538,11 @@ public class SpinFragment extends Fragment {
             // --- BƯỚC 1: TẢI ẢNH ƯU TIÊN (HÀNG KHỦNG 4X) ---
             for (String u : priorityUrls) {
                 Glide.with(requireContext().getApplicationContext())
-                    .asBitmap()
-                    .load(u)
-                    .priority(Priority.IMMEDIATE) // Đẩy lên đầu hàng đợi nạp CPU/Network
-                    .timeout(10000)
-                    .submit();
+                        .asBitmap()
+                        .load(u)
+                        .priority(Priority.IMMEDIATE) // Đẩy lên đầu hàng đợi nạp CPU/Network
+                        .timeout(10000)
+                        .submit();
                 if (finishedCount.incrementAndGet() >= totalToLoad) {
                     preloadComplete = true;
                     checkReadyToReveal();
@@ -552,10 +552,10 @@ public class SpinFragment extends Fragment {
             // --- BƯỚC 2: TẢI ẢNH THẺ RÁC (1X) ---
             for (String u : normalUrls) {
                 Glide.with(requireContext().getApplicationContext())
-                    .asBitmap()
-                    .load(u)
-                    .priority(Priority.LOW)
-                    .submit();
+                        .asBitmap()
+                        .load(u)
+                        .priority(Priority.LOW)
+                        .submit();
                 if (finishedCount.incrementAndGet() >= totalToLoad) {
                     preloadComplete = true;
                     checkReadyToReveal();
@@ -571,7 +571,7 @@ public class SpinFragment extends Fragment {
             if (url.equals("dummy://trash_object")) {
                 // 🚀 TỐI ƯU CỰC ĐẠI: Dùng trực tiếp Resource để tránh Glide delay cho rác
                 imageView.setImageResource(R.drawable.trash_objet);
-                imageView.setAlpha(0.6f); 
+                imageView.setAlpha(0.6f);
             } else {
                 // 💎 LOCAL FIRST THUMBNAIL TRICK:
                 // Dùng bản 2x từ máy làm ảnh chờ cho các loại hiển thị 4x/1x từ mạng tại màn Spin
@@ -786,7 +786,7 @@ public class SpinFragment extends Fragment {
 
     private void showResultInfoText() {
         boolean isWin = currentSpinResult != null && currentSpinResult.isWin();
-        
+
         // Lấy tên thẻ bài từ dữ liệu thẻ (collectionId)
         String cardName = "Nothing";
         if (currentSpinResult != null && currentSpinResult.getCardData() != null) {
@@ -805,7 +805,7 @@ public class SpinFragment extends Fragment {
         }
         // Fade-in subtitle: Tên thẻ bài (Phần thưởng)
         if (tvResultSubtitle != null) {
-            String subMsg = isWin 
+            String subMsg = isWin
                     ? "You received: " + cardName
                     : "Unfortunately, you received: " + cardName + " (Trash)";
             tvResultSubtitle.setText(subMsg);
@@ -1056,7 +1056,7 @@ public class SpinFragment extends Fragment {
             if (isAdded()) {
                 // 🚀 TỐI ƯU CỰC ĐẠI: Card Back là ảnh tĩnh, không được dùng Glide để tránh Jank khi hiện 16 thẻ cùng lúc
                 holder.ivCardBack.setImageResource(R.drawable.objet_back_spin);
-                
+
                 // Set the shimmer background for metallic shine
                 // Smoother gradient for a "blurred/dreamy" effect
                 GradientDrawable shimmerBg = new GradientDrawable(
@@ -1319,23 +1319,23 @@ public class SpinFragment extends Fragment {
         // GestureDetector chỉ dùng cho Single Tap (chọn thẻ)
         GestureDetector.SimpleOnGestureListener gestureListener =
                 new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                // Tap → mở chọn thẻ hi sinh mới bằng InventoryBottomSheet chung
-                InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
-                bottomSheet.setOnObjetSelectedListener(selectedObj -> {
-                    selectedSacrificeId = selectedObj.getIdString();
-                    updateSelectedObjetUI(selectedObj);
-                });
-                bottomSheet.show(getParentFragmentManager(), "SelectObjet");
-                return true;
-            }
+                    @Override
+                    public boolean onSingleTapConfirmed(MotionEvent e) {
+                        // Tap → mở chọn thẻ hi sinh mới bằng InventoryBottomSheet chung
+                        InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
+                        bottomSheet.setOnObjetSelectedListener(selectedObj -> {
+                            selectedSacrificeId = selectedObj.getIdString();
+                            updateSelectedObjetUI(selectedObj);
+                        });
+                        bottomSheet.show(getParentFragmentManager(), "SelectObjet");
+                        return true;
+                    }
 
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
-            }
-        };
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+                };
 
         sacrificeGestureDetector = new GestureDetectorCompat(requireContext(), gestureListener);
 
@@ -1408,7 +1408,7 @@ public class SpinFragment extends Fragment {
                         snapAnim[0].setInterpolator(new android.view.animation.OvershootInterpolator(1.2f));
                         if (pseudoGlow != null) {
                             snapAnim[0].addUpdateListener(animation ->
-                                pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
+                                    pseudoGlow.setRotationY((float) animation.getAnimatedValue()));
                         }
                         snapAnim[0].addListener(new AnimatorListenerAdapter() {
                             @Override
@@ -1518,7 +1518,7 @@ public class SpinFragment extends Fragment {
         if (ivSelectedObjet != null) {
             ivSelectedObjet.setVisibility(View.GONE);
             if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.GONE);
-            
+
             if (loader != null) {
                 loader.setVisibility(View.VISIBLE);
                 loader.playAnimation();
@@ -1534,22 +1534,22 @@ public class SpinFragment extends Fragment {
                     if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.VISIBLE);
                     ivSelectedObjet.setVisibility(View.VISIBLE);
                     ivSelectedObjet.setAlpha(0f);
-                    
+
                     Glide.with(this)
                             .load(imageUrl) // 4x nạp từ mạng
                             .placeholder(R.drawable.objet_back_spin)
                             .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300))
                             .into(ivSelectedObjet);
-                            
+
                     ivSelectedObjet.animate().alpha(1f).setDuration(300).start();
-                    
+
                     // Áp dụng Full Hiệu Ứng (OVR, Level Badge, Shimmer)
                     android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
                     if (tvOvr != null) {
                         tvOvr.setText(String.valueOf(selectedObj.getOvr()));
                         tvOvr.setVisibility(View.GONE);
                     }
-                    
+
                     android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
                     if (ivLevelBadge != null) {
                         if (selectedObj.getUpgradeLevel() > 0) {
@@ -1593,9 +1593,9 @@ public class SpinFragment extends Fragment {
                         }
                     }
                 }
-            }, 400); 
+            }, 400);
         }
-        
+
         if (btnSpin != null) {
             btnSpin.setEnabled(true);
             ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(Color.parseColor("#8A2BE2")));

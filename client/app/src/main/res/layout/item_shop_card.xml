@@ -99,7 +99,7 @@
             android:fontFamily="@font/poppins"
             android:maxLines="1"
             android:minLines="1"
-            android:textColor="#FFB74D"
+            android:textColor="@color/shop_timer_warning"
             android:textSize="10sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"

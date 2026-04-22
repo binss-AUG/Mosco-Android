@@ -242,8 +242,8 @@ public class ShopFragment extends Fragment {
 
             btnUse.setOnClickListener(v -> {
                 dialog.dismiss();
-                if (itemType.equals("PACK") || itemType.equals("OBJET")) {
-                    // Navigate to premium item reveal fragment
+                if (itemType.equals("PACK")) {
+                    // Chỉ PACK mới đi vào luồng open pack.
                     if (getActivity() != null) {
                         ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
                                 item.getName(), item.getDescription(),
@@ -253,6 +253,8 @@ public class ShopFragment extends Fragment {
                                 .addToBackStack(null)
                                 .commit();
                     }
+                } else if (itemType.equals("OBJET")) {
+                    Toast.makeText(requireContext(), getString(R.string.reveal_only_pack_supported), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), "Used " + quantity + "x " + item.getName(), Toast.LENGTH_SHORT).show();
                 }

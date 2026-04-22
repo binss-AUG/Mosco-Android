@@ -130,4 +130,29 @@
     
     <string name="btn_upgrade_title">UPGRADE</string>
     <string name="btn_upgrade_desc">Enhance card stats to dominate the galaxy</string>
+
+    <!-- Pack Reveal Strings -->
+    <string name="reveal_summary_title">Summary</string>
+    <string name="reveal_summary_headline">Rewards Unlocked</string>
+    <string name="reveal_summary_congrats">Congratulations! You opened %d cards!</string>
+    <string name="reveal_summary_subtitle">Your rewards are listed below</string>
+    <string name="reveal_btn_awesome">Awesome!</string>
+    <string name="reveal_btn_done">DONE</string>
+    <string name="reveal_btn_collect_all">COLLECT ALL (%d)</string>
+    <string name="reveal_amazing_reveal_format">⭐ AMAZING REVEAL ⭐\n%s</string>
+    <string name="reveal_open_x1">Open x1</string>
+    <string name="reveal_open_all">Open All</string>
+    <string name="reveal_open_all_short_format">Open x%d</string>
+    <string name="reveal_open_all_cap_hint">Open All limit: max %d packs per roll</string>
+    <string name="reveal_summary_title_expand">Summary</string>
+    <string name="reveal_summary_title_collapse">Summary</string>
+    <string name="reveal_summary_footer_marker">──────── End of rewards ────────</string>
+    <string name="reveal_loading_lottie_raw">loading</string>
+    <string name="reveal_default_info">Open to reveal a surprise!</string>
+    <string name="reveal_qty_format">x%s</string>
+    <string name="reveal_qty_int_format">x%d</string>
+    <string name="reveal_open_all_format">Open All (%d packs)</string>
+    <string name="reveal_error_format">Error: %s</string>
+    <string name="reveal_only_pack_supported">Only PACK items can be opened here.</string>
+    <string name="reveal_default_item_name">Item</string>
 </resources>

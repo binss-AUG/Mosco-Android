@@ -52,7 +52,7 @@
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:layout_constraintDimensionRatio="1:1.54"
-        app:layout_constraintWidth_percent="0.55"
+        app:layout_constraintWidth_percent="0.525"
         app:layout_constraintTop_toBottomOf="@id/tv_item_name"
         app:layout_constraintBottom_toTopOf="@id/tv_item_qty"
         app:layout_constraintStart_toStartOf="parent"
@@ -123,7 +123,7 @@
         android:paddingHorizontal="40dp"
         tools:text="Rates: 80% FirstWelcome, 15% Double"
         app:layout_constraintTop_toBottomOf="@id/tv_item_qty"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ll_buttons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -141,46 +141,34 @@
         <!-- Open x1 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_open_one"
+            style="@style/MoscoButton.RevealPrimary"
             android:layout_width="0dp"
-            android:layout_height="56dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Open x1"
-            android:fontFamily="@font/poppins"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp"
-            app:backgroundTint="@color/mosco_primary" />
+            android:text="@string/reveal_open_x1"
+            android:textSize="16sp" />
 
         <!-- Open All (only visible when qty > 1) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_open_all"
+            style="@style/MoscoButton.RevealOutlined"
             android:layout_width="0dp"
-            android:layout_height="56dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Open All"
-            android:fontFamily="@font/poppins"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:cornerRadius="12dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            app:strokeColor="@color/mosco_primary"
-            android:textColor="@color/mosco_primary" />
+            android:text="@string/reveal_open_all"
+            android:textSize="15sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:visibility="gone" />
 
         <!-- Done Button (visible when qty == 0) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_done"
+            style="@style/MoscoButton.RevealPrimary"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="DONE"
-            android:fontFamily="@font/poppins"
+            android:text="@string/gift_done"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:cornerRadius="12dp"
-            app:backgroundTint="@color/mosco_primary" />
+            android:visibility="gone" />
 
     </LinearLayout>
 

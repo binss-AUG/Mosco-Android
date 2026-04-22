@@ -42,8 +42,7 @@
     <color name="item_diamond">#00E5FF</color>
     <color name="item_pack">#FF5722</color>
     <color name="item_buff">#76FF03</color>
-    <color name="shop_card_bg">#252836</color>
-    <color name="shop_price_bg">#1F1D2B</color>
+    <color name="shop_timer_warning">#FFB74D</color>
 
     <!-- Glass Effect -->
     <color name="mosco_glass_fill">#22FFFFFF</color>
@@ -74,4 +73,29 @@
     <color name="mosco_text_dim">#888888</color>
     <color name="mosco_neon_pink">#FF00D4</color>
     <color name="mosco_dim_overlay_70">#B3000000</color>
+
+    <!-- Rarity/Tier Colors -->
+    <color name="rarity_unit">#FFD700</color>
+    <color name="rarity_premier">#8A2BE2</color>
+    <color name="rarity_double">#4169E1</color>
+    <color name="rarity_common">#90EE90</color>
+    <color name="rarity_metallic_violet">#8A2BE2</color>
+    
+    <!-- Special Gradient Components -->
+    <color name="rarity_special_white">#FFFFFF</color>
+    <color name="rarity_special_sakura">#FFB7C5</color>
+    <color name="rarity_special_sky">#ADD8E6</color>
+    
+    <color name="galactic_dark_card">#1A1C29</color>
+    <color name="galactic_deep_blue">#3A3A55</color>
+    <color name="reveal_tier_4_primary">#8A2BE2</color>
+    <color name="reveal_tier_4_secondary">#00FFFF</color>
+    <color name="reveal_tier_3_secondary">#9370DB</color>
+    <color name="reveal_tier_2">#4169E1</color>
+    <color name="reveal_tier_1">#90EE90</color>
+    <color name="reveal_summary_qty_text">#88FFFFFF</color>
+    <color name="reveal_metallic_1">#E0E0E0</color>
+    <color name="reveal_metallic_2">#FFFFFF</color>
+    <color name="reveal_metallic_3">#9E9E9E</color>
+    <color name="reveal_metallic_4">#F5F5F5</color>
 </resources>

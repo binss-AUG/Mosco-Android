@@ -54,18 +54,14 @@ public class GachaRepository {
      * Mở Pack (Đơn hoặc Hàng loạt). Tối đa 36 pack.
      */
     public void openPack(Long userId, String packCode, int quantity, GachaCallback<java.util.Map<String, Object>> callback) {
-        apiService.openPack(userId, packCode, quantity).enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+        apiService.openPack(userId, packCode, quantity).enqueue(new retrofit2.Callback<ApiResponse<java.util.Map<String, Object>>>() {
             @Override
-            public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, retrofit2.Response<java.util.Map<String, Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError(response.code(), "Lỗi mở pack: " + response.code());
-                }
+            public void onResponse(retrofit2.Call<ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<ApiResponse<java.util.Map<String, Object>>> response) {
+                handleResponse(response, callback);
             }
 
             @Override
-            public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+            public void onFailure(retrofit2.Call<ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                 callback.onError(-1, "Lỗi kết nối: " + t.getMessage());
             }
         });
