@@ -106,7 +106,7 @@ public class CardEffectHelper {
      */
     public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CollectionEntry entry, boolean applyFloating) {
         if (cardView == null || entry == null) return;
-        applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true);
+        applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true, null);
     }
 
     public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating) {
@@ -114,14 +114,18 @@ public class CardEffectHelper {
     }
 
     public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating, boolean applyGlow) {
+        apply(cardView, shimmer, card, applyFloating, applyGlow, null);
+    }
+
+    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
         if (cardView == null || card == null) return;
-        applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow);
+        applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow, forcedGlowColor);
     }
 
     /**
      * Logic chung để xử lý hiệu ứng Hào quang, Shimmer và Lơ lửng.
      */
-    private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl, boolean applyFloating, boolean applyGlow) {
+    private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
         Context context = cardView.getContext();
 
         String currentCardId = (String) cardView.getTag(R.id.card_main);
@@ -168,7 +172,7 @@ public class CardEffectHelper {
                                 float[] hsv = new float[3];
                                 Color.colorToHSV(extractedColor, hsv);
                                 hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
-                                int glowColor = Color.HSVToColor(hsv);
+                                int glowColor = (forcedGlowColor != null) ? forcedGlowColor : Color.HSVToColor(hsv);
 
                                 cardView.setStrokeColor(extractedColor);
 

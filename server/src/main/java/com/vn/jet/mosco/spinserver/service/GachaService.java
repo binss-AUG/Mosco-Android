@@ -2,6 +2,7 @@ package com.vn.jet.mosco.spinserver.service;
 
 import com.vn.jet.mosco.spinserver.dto.GachaRollResponse;
 import com.vn.jet.mosco.spinserver.dto.GachaSpinResponse;
+import com.vn.jet.mosco.spinserver.dto.PackOpenResponse;
 import com.vn.jet.mosco.spinserver.model.GachaHistory;
 import com.vn.jet.mosco.spinserver.model.User;
 import com.vn.jet.mosco.spinserver.model.UserCard;
@@ -91,7 +92,7 @@ public class GachaService {
         }
 
         // 3. Delegate to PackService (handles deduction, random roll, card save)
-        Map<String, Object> result;
+        PackOpenResponse result;
         try {
             // Truyền tham số quantity = 1 vì đây là hàm roll đơn lẻ
             result = packService.openPack(userId, packCode, 1);
@@ -102,16 +103,14 @@ public class GachaService {
         }
 
         // 4. Extract card info from result (PackService now returns a list of cards)
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cards = (List<Map<String, Object>>) result.get("cards");
+        List<PackOpenResponse.CardResult> cards = result.getCards();
         if (cards == null || cards.isEmpty()) {
             return GachaRollResponse.error("No cards received from pack.");
         }
 
-        Map<String, Object> firstCard = cards.get(0);
-        String cardId = (String) firstCard.get("cardId");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> cardData = (Map<String, Object>) firstCard.get("cardData");
+        PackOpenResponse.CardResult firstCard = cards.get(0);
+        String cardId = firstCard.getCardId();
+        Map<String, Object> cardData = firstCard.getCardData();
         
         String rarity = "Unknown";
         if (cardData != null && cardData.containsKey("class")) {

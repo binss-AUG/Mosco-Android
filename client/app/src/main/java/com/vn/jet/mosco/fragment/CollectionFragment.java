@@ -693,7 +693,8 @@ public class CollectionFragment extends Fragment {
         }
 
         List<String> seasons = new ArrayList<>(seasonsSet);
-        List<String> classes = java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special");
+        // Tách biệt các class thẻ bài theo yêu cầu mới
+        List<String> classes = java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "Unit");
 
         List<FilterCategory> cats = new ArrayList<>();
         cats.add(new FilterCategory("Artist", artists, true));
@@ -991,7 +992,7 @@ public class CollectionFragment extends Fragment {
             public void onInventoryChanged() {
                 if (getActivity() != null && isAdded()) {
                     getActivity().runOnUiThread(() -> {
-                        loadObjets();
+                        loadObjets(false);
                     });
                 }
             }
@@ -1041,145 +1042,142 @@ public class CollectionFragment extends Fragment {
                 }
             }));
 
-            loadObjets();
+            loadObjets(false);
         }
-
-        private void loadObjets() {
+        
+        /**
+         * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
+         * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
+         */
+        private void loadObjets(boolean forceFromServer) {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
             if (userId == null) return;
 
-            // Show a simple loading toast or log
-            android.util.Log.d("ObjetsFragment", "Loading objets for user: " + userId);
+            // ── 1. KIỂM TRA CACHE (INSTANT LOAD) ─────────────────────────
+            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
+            if (!forceFromServer && cache != null && !cache.isEmpty()) {
+                android.util.Log.d("ObjetsFragment", "Instant Load from Galactic Cache: " + cache.size() + " items");
+                processAndDisplayInventory(cache);
+                // Vẫn gọi ngầm để update nếu có gì mới (Silent Update)
+            }
 
+            // ── 2. NẠP TỪ SERVER (BACKGROUND) ────────────────────────────
             com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
             apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
                 @Override
                 public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
-                        android.util.Log.d("ObjetsFragment", "Received " + userCards.size() + " cards from server");
-
-                        // Process card matching in a background thread to avoid UI lag
+                        // Chuyển đổi list UserCard sang list Objet (Model cũ của UI)
                         new Thread(() -> {
-                            List<com.vn.jet.mosco.model.Objet> realObjets = new ArrayList<>();
-                            Context ctx = getContext();
-                            if (ctx == null) return;
-
+                            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items = new ArrayList<>(userCards.size());
                             for (com.vn.jet.mosco.model.UserCard uc : userCards) {
-                                com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(
-                                        uc.getId().intValue(), 
-                                        uc.getCollectionId(), 
-                                        uc.getFrontImage(), 
-                                        uc.getLevel(), 
-                                        uc.getExp(), 
-                                        uc.getUpgradeLevel()
-                                );
-                                objet.setOvr(uc.getOvr());
-                                objet.setMember(uc.getMember());
-                                objet.setSeason(uc.getSeason());
-                                
-                                // Ánh xạ cardClass sang typeKey chuẩn cho UpgradeAlgorithm
-                                String cardClass = uc.getCardClass();
-                                String typeKey = "FirstWelcome";
-                                if (cardClass != null) {
-                                    String key = cardClass.replaceAll("\\s+", "");
-                                    if (key.equalsIgnoreCase("Double")) typeKey = "Double";
-                                    else if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) typeKey = "SpecialUnit";
-                                    else if (key.equalsIgnoreCase("Premier")) typeKey = "Premier";
-                                }
-                                objet.setTypeKey(typeKey);
-
-                                objet.setBackImageUrl(uc.getBackImage());
-                                objet.setCollectionNo(uc.getCollectionNo());
-                                objet.setSlug(uc.getSlug());
-                                objet.setBackgroundColor(uc.getBackgroundColor());
-                                objet.setTextColor(uc.getTextColor());
-                                objet.setAvailableTags(uc.getAvailableTags());
-                                objet.setDimension(uc.getDimension());
-                                
-                                realObjets.add(objet);
+                                items.add(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem.fromUserCard(uc));
                             }
-
-                            // Update UI on main thread
                             if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    originalObjets = realObjets;
-                                    applyFilters();
-                                });
+                                getActivity().runOnUiThread(() -> processAndDisplayInventory(items));
                             }
                         }).start();
-                    } else {
-                        android.util.Log.e("ObjetsFragment", "Server error: " + response.code());
                     }
+                }
+                @Override
+                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {}
+            });
+        }
+
+        /**
+         * Xử lý mapping và hiển thị dữ liệu lên RecyclerView.
+         */
+        private void processAndDisplayInventory(List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items) {
+            if (items == null) return;
+            new Thread(() -> {
+                List<com.vn.jet.mosco.model.Objet> realObjets = new ArrayList<>();
+                for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
+                    com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(
+                            uc.id.intValue(), uc.collectionId, uc.frontImage, uc.level, uc.exp, uc.upgradeLevel
+                    );
+                    objet.setOvr(uc.ovr);
+                    objet.setMember(uc.member);
+                    objet.setSeason(uc.season);
+                    
+                    objet.setTypeKey(mapClassToTypeKey(uc.cardClass));
+                    objet.setBackImageUrl(uc.backImage);
+                    objet.setCollectionNo(uc.collectionNo);
+                    objet.setSlug(uc.slug);
+                    objet.setBackgroundColor(uc.backgroundColor);
+                    objet.setTextColor(uc.textColor);
+                    objet.setAvailableTags(uc.availableTags);
+                    objet.setDimension(uc.dimension);
+                    realObjets.add(objet);
                 }
 
-                @Override
-                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
-                    android.util.Log.e("ObjetsFragment", "API Failure", t);
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Failed to load objets from server", Toast.LENGTH_SHORT).show();
-                    }
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        originalObjets = realObjets;
+                        applyFilters();
+                    });
                 }
-            });
+            }).start();
         }
 
         private void applyFilters() {
-            if (originalObjets == null || !isAdded()) return;
-            List<com.vn.jet.mosco.model.Objet> filtered = new ArrayList<>();
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_objets) : null;
-            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+            new Thread(() -> {
+                List<com.vn.jet.mosco.model.Objet> filtered = new ArrayList<>();
+                View sortBtnView = getView() != null ? getView().findViewById(R.id.btn_sort_objets) : null;
+                String currentSort = (sortBtnView instanceof TextView) ? ((TextView) sortBtnView).getText().toString() : "Newest";
 
-            java.util.Set<String> selArtists = new java.util.HashSet<>();
-            java.util.Set<String> selClasses = new java.util.HashSet<>();
-            java.util.Set<String> selSeasons = new java.util.HashSet<>();
+                java.util.Set<String> selArtists = new java.util.HashSet<>();
+                java.util.Set<String> selClasses = new java.util.HashSet<>();
+                java.util.Set<String> selSeasons = new java.util.HashSet<>();
 
-            // Phân loại bộ lọc
-            for (String f : objetFilter) {
-                if (isArtist(f)) selArtists.add(f.toLowerCase());
-                else if (isClass(f)) selClasses.add(f.toLowerCase());
-                else selSeasons.add(f.toLowerCase());
-            }
-
-            for (com.vn.jet.mosco.model.Objet obj : originalObjets) {
-                if (objetFilter.isEmpty()) {
-                    filtered.add(obj);
-                    continue;
+                for (String f : objetFilter) {
+                    if (isArtist(f)) selArtists.add(f.toLowerCase());
+                    else if (isClass(f)) selClasses.add(f.toLowerCase());
+                    else selSeasons.add(f.toLowerCase());
                 }
-                
-                String member = obj.getMember();
-                String season = obj.getSeason();
-                String rawClass = obj.getTypeKey();
-                String mappedClass = mapClassToTypeKey(rawClass);
-                
-                boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
-                boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
-                boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
 
-                if (matchArtist && matchClass && matchSeason) {
-                    filtered.add(obj);
+                for (com.vn.jet.mosco.model.Objet obj : originalObjets) {
+                    if (objetFilter.isEmpty()) {
+                        filtered.add(obj);
+                        continue;
+                    }
+                    
+                    String member = obj.getMember();
+                    String season = obj.getSeason();
+                    String rawClass = obj.getTypeKey();
+                    String mappedClass = mapClassToTypeKey(rawClass);
+                    
+                    boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+                    boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+                    boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+
+                    if (matchArtist && matchClass && matchSeason) {
+                        filtered.add(obj);
+                    }
                 }
-            }
 
-            // Sắp xếp
-            filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
-                if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
-                if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
-                if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
-                if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
-                if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                return Integer.compare(b.getId(), a.getId()); // Default: Newest
-            });
+                filtered.sort((a, b) -> {
+                    if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
+                    if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
+                    if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
+                    if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
+                    if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
+                    if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
+                    if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                    return Integer.compare(b.getId(), a.getId());
+                });
 
-            if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).updateData(filtered);
-            }
-            if (tvCount != null) tvCount.setText(filtered.size() + " Items");
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                            ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).updateData(filtered);
+                        }
+                        if (tvCount != null) tvCount.setText(filtered.size() + " Items");
+                    });
+                }
+            }).start();
         }
     }
-
-
 
     // ==========================================
     // TAB 3: ITEMS
@@ -1224,8 +1222,8 @@ public class CollectionFragment extends Fragment {
             String type = item.getType() != null ? item.getType().toUpperCase() : "";
             int qty = item.getQuantity() != null ? item.getQuantity() : 1;
 
-            if (type.equals("PACK") || type.equals("OBJET")) {
-                // Navigate to premium item reveal fragment
+            if (type.equals("PACK")) {
+                // Chỉ PACK mới gọi API mở pack.
                 if (getActivity() != null) {
                     ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
                             item.getName(), item.getDescription(),
@@ -1235,6 +1233,8 @@ public class CollectionFragment extends Fragment {
                             .addToBackStack(null)
                             .commit();
                 }
+            } else if (type.equals("OBJET")) {
+                Toast.makeText(requireContext(), getString(R.string.reveal_only_pack_supported), Toast.LENGTH_SHORT).show();
             } else {
                 // Buff / other items: show use dialog with quantity picker
                 showUseBuffDialog(item);
@@ -1649,71 +1649,64 @@ public class CollectionFragment extends Fragment {
         private void applyFilters() {
             if (originalEntries == null || !isAdded()) return;
 
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_album) : null;
-            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+            new Thread(() -> {
+                View sortBtnView = getView() != null ? getView().findViewById(R.id.btn_sort_album) : null;
+                String currentSortLabel = (sortBtnView instanceof TextView) ? ((TextView) sortBtnView).getText().toString() : "Newest";
 
-            java.util.Set<String> selArtists = new java.util.HashSet<>();
-            java.util.Set<String> selClasses = new java.util.HashSet<>();
-            java.util.Set<String> selSeasons = new java.util.HashSet<>();
-            java.util.Set<String> selStatus = new java.util.HashSet<>();
+                java.util.Set<String> selArtists = new java.util.HashSet<>();
+                java.util.Set<String> selClasses = new java.util.HashSet<>();
+                java.util.Set<String> selSeasons = new java.util.HashSet<>();
+                java.util.Set<String> selStatus = new java.util.HashSet<>();
 
-            for (String f : albumFilter) {
-                if (isStatus(f)) selStatus.add(f.toLowerCase());
-                else if (isArtist(f)) selArtists.add(f.toLowerCase());
-                else if (isClass(f)) selClasses.add(f.toLowerCase());
-                else selSeasons.add(f.toLowerCase());
-            }
-
-            List<com.vn.jet.mosco.model.CollectionEntry> filtered = new ArrayList<>();
-
-            for (com.vn.jet.mosco.model.CollectionEntry entry : originalEntries) {
-                // Nhóm Trạng thái (AND)
-                boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all") || selStatus.contains("tất cả")
-                        || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && entry.isOwned())
-                        || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu")) && !entry.isOwned());
-
-                // Nhóm Artist (AND)
-                String member = entry.getMember();
-                boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
-
-                // Nhóm Class (AND) - Áp dụng mapping tương tự Inventory
-                String rawClass = entry.getCardClass();
-                String mappedClass = mapClassToTypeKey(rawClass);
-                boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
-
-                // Nhóm Season (AND)
-                String season = entry.getSeason();
-                boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
-
-                if (matchStatus && matchArtist && matchClass && matchSeason) {
-                    filtered.add(entry);
+                for (String f : albumFilter) {
+                    if (isStatus(f)) selStatus.add(f.toLowerCase());
+                    else if (isArtist(f)) selArtists.add(f.toLowerCase());
+                    else if (isClass(f)) selClasses.add(f.toLowerCase());
+                    else selSeasons.add(f.toLowerCase());
                 }
-            }
 
-            // Sắp xếp
-            filtered.sort((a, b) -> {
-                // Newest = số thứ tự lớn nhất lên trước (giảm dần)
-                if ("Newest".equals(currentSort)) {
+                List<com.vn.jet.mosco.model.CollectionEntry> filtered = new ArrayList<>();
+
+                for (com.vn.jet.mosco.model.CollectionEntry entry : originalEntries) {
+                    boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all") || selStatus.contains("tất cả")
+                            || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && entry.isOwned())
+                            || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu")) && !entry.isOwned());
+
+                    String member = entry.getMember();
+                    boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+
+                    String rawClass = entry.getCardClass();
+                    String mappedClass = mapClassToTypeKey(rawClass);
+                    boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+
+                    String season = entry.getSeason();
+                    boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+
+                    if (matchStatus && matchArtist && matchClass && matchSeason) {
+                        filtered.add(entry);
+                    }
+                }
+
+                filtered.sort((a, b) -> {
+                    if ("Newest".equals(currentSortLabel)) return compareNatural(b.getCollectionNo(), a.getCollectionNo());
+                    if ("Oldest".equals(currentSortLabel)) return compareNatural(a.getCollectionNo(), b.getCollectionNo());
+                    if ("Highest OVR".equals(currentSortLabel)) return Integer.compare(b.getOvr(), a.getOvr());
+                    if ("Lowest OVR".equals(currentSortLabel)) return Integer.compare(a.getOvr(), b.getOvr());
+                    if ("Highest Level".equals(currentSortLabel)) return Integer.compare(b.getLevel(), a.getLevel());
+                    if ("Lowest Level".equals(currentSortLabel)) return Integer.compare(a.getLevel(), b.getLevel());
+                    if ("Highest Badge".equals(currentSortLabel)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
+                    if ("Lowest Badge".equals(currentSortLabel)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                    if (a.isOwned() != b.isOwned()) return a.isOwned() ? -1 : 1;
                     return compareNatural(b.getCollectionNo(), a.getCollectionNo());
-                }
-                // Oldest = số thứ tự nhỏ nhất lên trước (tăng dần)
-                if ("Oldest".equals(currentSort)) {
-                    return compareNatural(a.getCollectionNo(), b.getCollectionNo());
-                }
-                if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
-                if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
-                if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
-                if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
-                if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                
-                // Mặc định: Owned lên trước, sau đó theo Newest
-                if (a.isOwned() != b.isOwned()) return a.isOwned() ? -1 : 1;
-                return compareNatural(b.getCollectionNo(), a.getCollectionNo());
-            });
+                });
 
-            if (adapter != null) adapter.updateData(filtered);
-            if (tvCount != null) tvCount.setText(filtered.size() + " Cards");
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        if (adapter != null) adapter.updateData(filtered);
+                        if (tvCount != null) tvCount.setText(filtered.size() + " Cards");
+                    });
+                }
+            }).start();
         }
     }
 
@@ -1738,26 +1731,49 @@ public class CollectionFragment extends Fragment {
         if (s1 == null) return -1;
         if (s2 == null) return 1;
 
-        // Extract numbers if present
-        try {
-            // Regex to extract digits. Supports simple IDs like "101" or "101S" (takes 101)
-            String n1 = s1.replaceAll("\\D+", "");
-            String n2 = s2.replaceAll("\\D+", "");
-            if (!n1.isEmpty() && !n2.isEmpty()) {
-                return Integer.compare(Integer.parseInt(n1), Integer.parseInt(n2));
-            }
-        } catch (Exception ignored) {}
+        // Tối ưu hóa: Trích xuất số bằng tay thay vì dùng Regex replaceAll
+        long n1 = extractDigits(s1);
+        long n2 = extractDigits(s2);
+        
+        if (n1 != -1 && n2 != -1) {
+            return Long.compare(n1, n2);
+        }
 
         return s1.compareTo(s2);
     }
 
-    /** Mapping class từ UI sang database key (1:1 với InventoryBottomSheet) */
+    private static long extractDigits(String s) {
+        if (s == null || s.isEmpty()) return -1;
+        long res = 0;
+        boolean found = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c >= '0' && c <= '9') {
+                res = res * 10 + (c - '0');
+                found = true;
+            } else if (found) break; // Chỉ lấy cụm số đầu tiên gặp được
+        }
+        return found ? res : -1;
+    }
+
+    /** Mapping class từ UI sang database key (Đã tách bạch Welcome/First, Special/Unit) */
     private static String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome";
-        String key = cardClass.replaceAll("\\s+", "");
+        if (cardClass == null) return "First";
+        String key = cardClass.trim();
+        
+        if (key.equalsIgnoreCase("Welcome")) return "Welcome";
+        if (key.equalsIgnoreCase("First")) return "First";
         if (key.equalsIgnoreCase("Double")) return "Double";
-        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
         if (key.equalsIgnoreCase("Premier")) return "Premier";
-        return "FirstWelcome";
+        if (key.equalsIgnoreCase("Special")) return "Special";
+        if (key.equalsIgnoreCase("Unit")) return "Unit";
+        
+        // Hỗ trợ hạ cấp các kiểu cũ (Legacy support)
+        if (key.contains("Welcome")) return "Welcome";
+        if (key.contains("Unit")) return "Unit";
+        if (key.equalsIgnoreCase("SpecialUnit")) return "Special";
+        if (key.equalsIgnoreCase("FirstWelcome")) return "First";
+        
+        return "First";
     }
 }

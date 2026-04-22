@@ -8,7 +8,7 @@
     app:cardBackgroundColor="@color/mosco_surface_container"
     app:cardCornerRadius="16dp"
     app:cardElevation="12dp"
-    app:strokeColor="@color/mosco_primary"
+    app:strokeColor="@color/mosco_outline_variant"
     app:strokeWidth="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -77,8 +77,8 @@
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:strokeColor="@color/mosco_outline"
-                android:textColor="@color/mosco_on_surface" />
+                app:strokeColor="@color/selector_btn_stroke_outlined"
+                android:textColor="@color/selector_btn_text_outlined" />
 
             <!-- Use Now Button -->
             <com.google.android.material.button.MaterialButton
@@ -88,6 +88,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:text="Use Now"
+                android:textColor="@color/selector_btn_text_primary"
                 android:fontFamily="@font/poppins"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -100,6 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="OK"
+                android:textColor="@color/selector_btn_text_primary"
                 android:fontFamily="@font/poppins"
                 android:textSize="14sp"
                 android:textStyle="bold"

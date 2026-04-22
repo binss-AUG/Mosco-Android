@@ -146,6 +146,7 @@ public class DatabaseLoader {
         isMasterDataLoading = true;
         
         new Thread(() -> {
+            Log.d(TAG, "Starting Galactic Master Data Loading...");
             long startTime = System.currentTimeMillis();
             try {
                 String json = loadJSONFromAsset(context, FILE_NAME);
@@ -153,17 +154,18 @@ public class DatabaseLoader {
                     JSONObject root = new JSONObject(json);
                     JSONArray cardsArray = root.optJSONArray("cards");
                     if (cardsArray != null) {
-                        java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(cardsArray.length());
-                        for (int i = 0; i < cardsArray.length(); i++) {
-                            JSONObject card = cardsArray.getJSONObject(i);
-                            String id = card.optString("id");
-                            if (!id.isEmpty()) {
-                                tempMasterMap.put(id, card);
+                        int len = cardsArray.length();
+                        java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(len);
+                        for (int i = 0; i < len; i++) {
+                            JSONObject card = cardsArray.optJSONObject(i);
+                            if (card != null) {
+                                String id = card.optString("id");
+                                if (!id.isEmpty()) tempMasterMap.put(id, card);
                             }
                         }
                         cachedMasterMap = tempMasterMap;
                         isMasterDataLoaded = true;
-                        Log.d(TAG, "Master Data Loaded: " + tempMasterMap.size() + " cards in " + (System.currentTimeMillis() - startTime) + "ms");
+                        Log.d(TAG, "Master Data Loaded: " + len + " cards in " + (System.currentTimeMillis() - startTime) + "ms");
                     }
                 }
             } catch (Exception e) {
@@ -190,7 +192,6 @@ public class DatabaseLoader {
 
     /**
      * Nạp lại inventory từ Server.
-     * OVR lấy trực tiếp từ API response (Server Truth), Client KHÔNG tính.
      */
     public static void reloadInventoryFromServer(Context context, Long userId, com.vn.jet.mosco.network.GameApiService apiService) {
         if (userId == null || apiService == null) {
@@ -198,53 +199,30 @@ public class DatabaseLoader {
             return;
         }
 
-        // Nếu tải cho user mới, xóa cache cũ ngay lập tức
-        if (cachedInventoryUserId != null && !cachedInventoryUserId.equals(userId)) {
-            cachedUserInventory = null;
-        }
         cachedInventoryUserId = userId;
+        Log.d(TAG, "Refreshing inventory from server for user: " + userId);
 
         apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
             @Override
             public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Dùng background thread để không block main thread khi map danh sách lớn
                     new Thread(() -> {
                         List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
-                        List<UserInventoryItem> cachedList = new ArrayList<>(userCards.size());
+                        List<UserInventoryItem> newList = new ArrayList<>(userCards.size());
+                        java.util.Map<String, JSONObject> newMap = new java.util.HashMap<>(userCards.size());
+
                         for (com.vn.jet.mosco.model.UserCard uc : userCards) {
-                            cachedList.add(new UserInventoryItem(
-                                    uc.getId(),
-                                    uc.getCollectionId(),
-                                    uc.getFrontImage(),
-                                    uc.getBackImage(),
-                                    uc.getLevel(),
-                                    uc.getExp(),
-                                    uc.getUpgradeLevel(),
-                                    uc.getOvr(),
-                                    uc.getCardClass(),
-                                    uc.getMember(),
-                                    uc.getSeason(),
-                                    uc.getCollectionNo(),
-                                    uc.getSlug(),
-                                    uc.getBackgroundColor(),
-                                    uc.getTextColor(),
-                                    uc.getAvailableTags(),
-                                    uc.getDimension()
-                            ));
-                        }
-                        
-                        // Optimize hash map for O(1) lookup
-                        java.util.Map<String, JSONObject> tempMap = new java.util.HashMap<>(cachedList.size());
-                        for (UserInventoryItem item : cachedList) {
-                            tempMap.put(item.collectionId, convertToJSONObject(item));
+                            UserInventoryItem item = UserInventoryItem.fromUserCard(uc);
+                            newList.add(item);
+                            newMap.put(item.collectionId, convertToJSONObject(item));
                         }
                         
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                            cachedUserInventory = cachedList;
-                            cachedCollectionMap = tempMap;
-                            saveInventoryToLocal(context, userId, cachedList);
+                            cachedUserInventory = newList;
+                            cachedCollectionMap = newMap;
+                            saveInventoryToLocal(context, userId, newList);
                             notifyInventoryChanged();
+                            Log.d(TAG, "Inventory refreshed and cache updated: " + newList.size() + " items");
                         });
                     }).start();
                 } else {
@@ -254,10 +232,7 @@ public class DatabaseLoader {
 
             @Override
             public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
-                // Thử nạp từ cache cục bộ nếu server tèo
-                if (cachedUserInventory == null) {
-                    loadInventoryFromLocal(context, userId);
-                }
+                if (cachedUserInventory == null) loadInventoryFromLocal(context, userId);
                 notifyInventoryChanged();
             }
         });

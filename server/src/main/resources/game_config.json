@@ -28,10 +28,12 @@
     { "id": "S24", "name": "JiYeon", "dimension": "MOON", "tags": ["Glow", "VV", "Alpha"] }
   ],
   "classes": {
-    "FirstWelcome": { "base_ovr": 117, "rank": 1, "aliases": ["First", "Welcome"] },
-    "Double": { "base_ovr": 126, "rank": 2, "aliases": ["Double"] },
-    "SpecialUnit": { "base_ovr": 132, "rank": 3, "aliases": ["Special", "Unit", "Motion"] },
-    "Premier": { "base_ovr": 135, "rank": 4, "aliases": ["Premier"] }
+    "First": { "base_ovr": 117, "rank": 1, "color": "#FFFFFF" },
+    "Welcome": { "base_ovr": 117, "rank": 1, "color": "#FFFFFF" },
+    "Double": { "base_ovr": 126, "rank": 2, "color": "#22568a" },
+    "Special": { "base_ovr": 132, "rank": 3, "colors": ["#F7F7F7", "#FFB7C5", "#ADD8E6"] },
+    "Unit": { "base_ovr": 132, "rank": 3, "color": "#FFD700" },
+    "Premier": { "base_ovr": 135, "rank": 4, "color": "#2E3192" }
   },
   "seasons": [
     { "id": "Atom01", "bonus": 0 },
