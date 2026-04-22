@@ -476,6 +476,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.GiftActivity.class));
             });
         }
+        
+        // Avatar click -> Profile
+        if (flAvatarGroup != null) {
+            flAvatarGroup.setOnClickListener(new ClickDebounce() {
+                @Override
+                public void onDebouncedClick(View v) {
+                    navigateToTab(R.id.nav_profile);
+                }
+            });
+        }
+
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
                 if (getActivity() != null) {
