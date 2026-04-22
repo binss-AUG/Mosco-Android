@@ -389,14 +389,24 @@ public class UpgradeFragment extends Fragment {
         successVideoView.setVisibility(View.GONE);
         successVideoView.setAlpha(1f);
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = getResources().getDisplayMetrics().heightPixels;
-        // Chiều cao video sẽ chiếm khoảng 80% màn hình để đảm bảo phủ từ đỉnh xuống qua thẻ bài
-        int videoHeight = (int) (screenHeight * 0.85f); 
-        FrameLayout.LayoutParams successParams = new FrameLayout.LayoutParams(screenWidth, videoHeight);
+        
+        // Cấu hình ban đầu trước khi video kịp load
+        FrameLayout.LayoutParams successParams = new FrameLayout.LayoutParams(screenWidth, screenWidth);
         successParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
         overlay.addView(successVideoView, successParams);
         String successVideoPath = "android.resource://" + getContext().getPackageName() + "/" + R.raw.successupgrade;
         successVideoView.setVideoURI(Uri.parse(successVideoPath));
+
+        successVideoView.setOnPreparedListener(mp -> {
+            // Tính toán chiều cao chính xác theo tỷ lệ video, ép video full width (trái phải)
+            float videoRatio = mp.getVideoWidth() / (float) mp.getVideoHeight();
+            int exactHeight = (int) (screenWidth / videoRatio);
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) successVideoView.getLayoutParams();
+            lp.width = screenWidth;
+            lp.height = exactHeight;
+            lp.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
+            successVideoView.setLayoutParams(lp);
+        });
 
         // UpgradeSceneView (Hiệu ứng glitch/streaks)
         UpgradeSceneView sceneView = new UpgradeSceneView(getContext());
@@ -473,9 +483,12 @@ public class UpgradeFragment extends Fragment {
         btnDone.setBackgroundResource(R.drawable.bg_upgrade_button_active);
         btnDone.setVisibility(View.GONE);
         btnDone.setAlpha(0f);
-        FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(
-                (int)(120 * getResources().getDisplayMetrics().density),
-                (int)(48 * getResources().getDisplayMetrics().density));
+        btnDone.setTextSize(16f);
+        btnDone.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        
+        int btnWidth = screenWidth - (int) (48 * getResources().getDisplayMetrics().density);
+        int btnHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.07f);
+        FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(btnWidth, btnHeight);
         btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
         btnParams.bottomMargin = (int)(64 * getResources().getDisplayMetrics().density);
         overlay.addView(btnDone, btnParams);
