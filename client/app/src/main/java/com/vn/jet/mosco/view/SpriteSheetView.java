@@ -137,22 +137,8 @@ public class SpriteSheetView extends View {
         matrix.postTranslate(left, top);
         spriteShader.setLocalMatrix(matrix);
         
-        // 2. Tạo Mask Gradient để làm mờ viền (Feathering)
-        // Tâm tỏa ra đến 75% là đặc (100%), từ 75% ra rìa (100%) là mờ dần về 0
-        float centerX = left + finalWidth / 2f;
-        float centerY = top + finalHeight / 2f;
-        float radius = Math.max(finalWidth, finalHeight) / 2f;
-        
-        RadialGradient alphaMask = new RadialGradient(
-            centerX, centerY, radius,
-            new int[]{Color.WHITE, Color.WHITE, Color.TRANSPARENT},
-            new float[]{0.0f, 0.75f, 1.0f}, // Điểm dừng ở 75% để mờ dần 25% còn lại
-            Shader.TileMode.CLAMP
-        );
-        
-        // 3. Kết hợp Shader: Ảnh sprite x Mặt nạ Alpha
-        ComposeShader combinedShader = new ComposeShader(spriteShader, alphaMask, PorterDuff.Mode.DST_IN);
-        paint.setShader(combinedShader);
+        // Bỏ Fade Viền (No Feathering) theo yêu cầu của user
+        paint.setShader(spriteShader);
         
         // 4. Vẽ với hiệu ứng bo góc nhẹ bổ sung
         float cornerRadius = 4 * getResources().getDisplayMetrics().density;
