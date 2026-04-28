@@ -16,10 +16,10 @@
         android:id="@+id/tv_rank_position"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/saira"
-        android:textColor="@color/white"
-        android:textSize="18sp"
+        style="@style/MoscoText.Luxury.Nav"
+        android:textSize="@dimen/text_size_body_lg"
         android:textStyle="bold"
+        android:fontWeight="700"
         android:gravity="center" />
 
     <!-- Avatar -->
@@ -48,10 +48,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="12dp"
-        android:fontFamily="@font/saira"
-        android:textColor="@color/white"
-        android:textSize="14sp"
+        style="@style/MoscoText.Luxury.Body"
+        android:textSize="@dimen/text_size_hud_small"
         android:textStyle="bold"
+        android:fontWeight="700"
         android:singleLine="true"
         android:ellipsize="end" />
 
@@ -60,8 +60,9 @@
         android:id="@+id/tv_rank_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/saira"
+        style="@style/MoscoText.Luxury.Price"
         android:textColor="@color/item_diamond"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textSize="@dimen/text_size_hud_large"
+        android:textStyle="bold"
+        android:fontWeight="700" />
 </LinearLayout>

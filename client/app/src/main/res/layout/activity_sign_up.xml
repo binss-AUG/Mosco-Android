@@ -60,20 +60,18 @@
 
                 <TextView
                     android:id="@+id/tv_title_signup"
+                    style="@style/MoscoText.Luxury.Header"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_bold"
                     android:text="@string/title_sign_up"
-                    android:textColor="@color/white"
-                    android:textSize="32sp"
-                    android:textStyle="bold" />
+                    android:textSize="32sp" />
 
                 <LinearLayout
                     android:id="@+id/glass_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:background="@drawable/bg_glass_card"
+                    android:background="@color/mosco_surface"
                     android:orientation="vertical"
                     android:padding="20dp">
 
@@ -83,7 +81,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxBackgroundMode="none"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
+                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/mosco_outline_variant"
+                        app:boxBackgroundColor="@color/mosco_input_bg"
                         app:hintEnabled="false"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
@@ -91,22 +96,19 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_username"
+                            style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@color/transparent"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="15dp"
-                            android:fontFamily="@font/poppins"
                             android:hint="@string/prompt_username"
                             android:imeOptions="actionNext"
                             android:inputType="textPersonName"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_email"
                             android:paddingStart="15dp"
-                            android:textColor="@color/white"
-                            android:textColorHint="#80FFFFFF"
-                            android:textCursorDrawable="@null"
-                            android:textSize="14sp" />
+                            android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email -->
@@ -115,7 +117,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxBackgroundMode="none"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
+                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/mosco_outline_variant"
+                        app:boxBackgroundColor="@color/mosco_input_bg"
                         app:hintEnabled="false"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
@@ -123,22 +132,19 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_email"
+                            style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@color/transparent"
                             android:drawableStart="@drawable/ic_email"
                             android:drawablePadding="15dp"
-                            android:fontFamily="@font/poppins"
                             android:hint="@string/prompt_email"
                             android:imeOptions="actionNext"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_password"
                             android:paddingStart="15dp"
-                            android:textColor="@color/white"
-                            android:textColorHint="#80FFFFFF"
-                            android:textCursorDrawable="@null"
-                            android:textSize="14sp" />
+                            android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password -->
@@ -147,7 +153,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxBackgroundMode="none"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
+                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/mosco_outline_variant"
+                        app:boxBackgroundColor="@color/mosco_input_bg"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
                         app:hintEnabled="false"
@@ -157,12 +170,12 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_password"
+                            style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@color/transparent"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="12dp"
-                            android:fontFamily="@font/poppins"
                             android:hint="@string/prompt_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
@@ -170,10 +183,7 @@
                             android:nextFocusForward="@id/edt_confirm_password"
                             android:paddingEnd="15dp"
                             android:paddingStart="15dp"
-                            android:textColor="@color/white"
-                            android:textColorHint="#80FFFFFF"
-                            android:textCursorDrawable="@null"
-                            android:textSize="14sp" />
+                            android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Confirm Password -->
@@ -182,7 +192,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        app:boxBackgroundMode="none"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
+                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/mosco_outline_variant"
+                        app:boxBackgroundColor="@color/mosco_input_bg"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
                         app:hintEnabled="false"
@@ -192,12 +209,12 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_confirm_password"
+                            style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@color/transparent"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="12dp"
-                            android:fontFamily="@font/poppins"
                             android:hint="@string/prompt_confirm_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
@@ -205,10 +222,7 @@
                             android:nextFocusForward="@id/btn_send_code"
                             android:paddingEnd="15dp"
                             android:paddingStart="15dp"
-                            android:textColor="@color/white"
-                            android:textColorHint="#80FFFFFF"
-                            android:textCursorDrawable="@null"
-                            android:textSize="14sp" />
+                            android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Verification Code -->
@@ -222,7 +236,14 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="12dp"
-                            app:boxBackgroundMode="none"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
+                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
+                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/mosco_outline_variant"
+                        app:boxBackgroundColor="@color/mosco_input_bg"
                             app:hintEnabled="false"
                             app:errorEnabled="true"
                             app:errorTextColor="@color/stat_atk"
@@ -233,67 +254,61 @@
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edt_verification_code"
+                                style="@style/MoscoText.Luxury.Input"
                                 android:layout_width="match_parent"
                                 android:layout_height="52dp"
-                                android:background="@drawable/bg_glass_input"
-                                android:fontFamily="@font/poppins"
-                                android:hint="@string/prompt_verification_code"
+                                android:background="@color/transparent"
                                 android:imeOptions="actionDone"
                                 android:inputType="number"
                                 android:maxLength="6"
                                 android:maxLines="1"
                                 android:nextFocusForward="@id/btn_signup"
                                 android:paddingStart="15dp"
-                                android:textColor="@color/white"
-                                android:textColorHint="#80FFFFFF"
-                                android:textCursorDrawable="@null"
-                                android:textSize="14sp" />
+                                android:textCursorDrawable="@null" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <androidx.appcompat.widget.AppCompatButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_send_code"
+                            style="@style/MoscoText.Luxury.Label"
                             android:layout_width="100dp"
                             android:layout_height="52dp"
-                            android:background="@drawable/bg_shop_buy_btn"
-                            android:fontFamily="@font/poppins"
+                            app:cornerRadius="@dimen/radius_sm"
+                            app:backgroundTint="@color/mosco_surface_container"
                             android:text="@string/action_send_code"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
                             android:textSize="12sp"
-                            android:textStyle="bold"
+                            app:elevation="0dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->
-                    <androidx.appcompat.widget.AppCompatButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_signup"
+                        style="@style/MoscoText.Luxury.Button"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginTop="32dp"
-                        android:background="@drawable/bg_btn_rainbow"
-                        android:fontFamily="@font/poppins"
+                        app:cornerRadius="@dimen/radius_pill"
+                        app:backgroundTint="@color/mosco_primary"
                         android:nextFocusForward="@id/tv_go_to_signin"
                         android:text="@string/action_sign_up"
                         android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:elevation="4dp" />
+                        app:elevation="0dp" />
 
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_go_to_signin"
+                    style="@style/MoscoText.Luxury.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="32dp"
                     android:focusable="true"
-                    android:fontFamily="@font/poppins"
                     android:nextFocusForward="@id/btn_back"
                     android:text="@string/msg_already_have_account"
-                    android:textColor="@color/white"
                     android:textSize="14sp" />
 
             </LinearLayout>

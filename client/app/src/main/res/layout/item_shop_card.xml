@@ -37,17 +37,13 @@
         <!-- Rarity / Category Badge (top-right overlay) -->
         <TextView
             android:id="@+id/tv_shop_item_rarity"
+            style="@style/MoscoText.Luxury.Badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
             android:background="@drawable/bg_price_tag"
-            android:fontFamily="@font/poppins"
             android:paddingHorizontal="6dp"
             android:paddingVertical="2dp"
-            android:layout_marginHorizontal="5dp"
-            android:textColor="@color/mosco_on_surface"
-            android:textSize="8sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="RARE" />
@@ -55,16 +51,13 @@
         <!-- Item Name -->
         <TextView
             android:id="@+id/tv_shop_item_name"
+            style="@style/MoscoText.Luxury.Card.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="8dp"
             android:ellipsize="end"
-            android:fontFamily="@font/poppins"
             android:maxLines="1"
-            android:textColor="@color/mosco_on_surface"
-            android:textSize="13sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_shop_item_image"
@@ -73,16 +66,14 @@
         <!-- Item Description -->
         <TextView
             android:id="@+id/tv_shop_item_desc"
+            style="@style/MoscoText.Luxury.Card.Desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:fontFamily="@font/poppins"
             android:maxLines="1"
             android:minLines="1"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="10sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_shop_item_name"
@@ -91,16 +82,16 @@
         <!-- Timer FOMO -->
         <TextView
             android:id="@+id/tv_shop_item_timer"
+            style="@style/MoscoText.Luxury.Label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:fontFamily="@font/poppins"
             android:maxLines="1"
             android:minLines="1"
             android:textColor="@color/shop_timer_warning"
-            android:textSize="10sp"
+            android:textSize="@dimen/text_size_badge"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -145,29 +136,24 @@
             <!-- Price Text -->
             <TextView
                 android:id="@+id/tv_shop_item_price"
+                style="@style/MoscoText.Luxury.Card.Price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:fontFamily="@font/poppins"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="16sp"
-                android:textStyle="bold"
                 tools:text="250" />
 
             <!-- Buy Button -->
             <TextView
                 android:id="@+id/btn_buy"
+                style="@style/MoscoText.Luxury.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_shop_buy_btn"
-                android:fontFamily="@font/poppins"
                 android:paddingHorizontal="30dp"
                 android:paddingVertical="6dp"
-                android:text="Buy"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                android:text="@string/shop_btn_buy"
+                android:textColor="@color/mosco_on_surface" />
 
         </LinearLayout>
 

@@ -17,20 +17,20 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="Spin Confirmation"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:text="@string/dialog_spin_confirm_title"
+            android:textSize="@dimen/text_size_h3"
+            android:textStyle="bold"
+            android:fontWeight="700" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:fontFamily="@font/poppins"
-            android:text="Are you sure you want to use 1 Spin Ticket to spin for this Objekt?"
+            style="@style/MoscoText.Luxury.Body"
+            android:text="@string/dialog_spin_confirm_msg"
             android:textColor="#A2A2A7"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,12 +44,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:background="@android:color/transparent"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Button"
                 android:paddingHorizontal="16dp"
-                android:text="Cancel"
+                android:text="@string/dialog_spin_confirm_cancel"
                 android:textAllCaps="false"
                 android:textColor="#A2A2A7"
-                android:textSize="14sp" />
+                android:textSize="@dimen/text_size_body_sm" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_confirm"
@@ -58,13 +58,14 @@
                 android:layout_marginStart="12dp"
                 android:background="@drawable/bg_button"
                 android:backgroundTint="#8A2BE2"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Button"
                 android:paddingHorizontal="20dp"
-                android:text="Spin Now"
+                android:text="@string/dialog_spin_confirm_ok"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_body_sm"
+                android:textStyle="bold"
+                android:fontWeight="700" />
 
         </LinearLayout>
     </LinearLayout>

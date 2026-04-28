@@ -31,21 +31,18 @@
 
             <TextView
                 android:id="@+id/tv_ghost_title"
+                style="@style/MoscoText.Luxury.Card.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:fontFamily="@font/poppins"
+                android:textSize="@dimen/text_size_body_sm"
+                android:fontWeight="700"
                 tools:text="GACHA SPIN" />
 
             <TextView
                 android:id="@+id/tv_ghost_desc"
+                style="@style/MoscoText.Luxury.Card.Desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#B3FFFFFF"
-                android:textSize="10sp"
-                android:fontFamily="@font/poppins"
                 tools:text="Recycle cards or use tickets to get new ones" />
 
         </LinearLayout>

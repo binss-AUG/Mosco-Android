@@ -39,10 +39,11 @@
             android:id="@+id/tv_gift_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/saira"
+            style="@style/MoscoText.Luxury.SubHeader"
             android:textColor="@color/white"
-            android:textSize="13sp"
+            android:textSize="@dimen/text_size_body_sm"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:singleLine="true"
             android:ellipsize="end" />
 
@@ -51,18 +52,18 @@
             android:id="@+id/tv_gift_direction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="10sp" />
+            android:textSize="@dimen/text_size_mini" />
 
         <!-- Thời gian -->
         <TextView
             android:id="@+id/tv_gift_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#666666"
-            android:textSize="9sp"
+            android:textSize="@dimen/text_size_mini"
             android:layout_marginTop="2dp" />
     </LinearLayout>
 
@@ -72,9 +73,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="NEW"
-        android:fontFamily="@font/poppins_bold"
+        style="@style/MoscoText.Luxury.Badge"
         android:textColor="#FF6B9D"
-        android:textSize="9sp"
+        android:textSize="@dimen/text_size_mini"
+        android:textStyle="bold"
+        android:fontWeight="700"
         android:visibility="gone"
         android:background="@drawable/bg_header_token"
         android:paddingHorizontal="8dp"

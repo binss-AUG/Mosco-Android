@@ -42,6 +42,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_network_banner"
             android:layout_width="wrap_content"
@@ -74,11 +75,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="CONNECTION LOST"
+                    android:text="Connection lost"
                     android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:fontFamily="@font/saira"
+                    android:textSize="@dimen/text_size_mini"
+                    style="@style/MoscoText.Luxury.Badge"
                     android:textStyle="bold"
+                    android:fontWeight="700"
                     android:letterSpacing="0.1" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

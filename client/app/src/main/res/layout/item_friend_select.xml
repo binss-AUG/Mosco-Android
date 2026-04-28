@@ -44,9 +44,9 @@
             android:id="@+id/tv_friend_select_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/saira"
+            style="@style/MoscoText.Luxury.SubHeader"
             android:textColor="@color/white"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_body_sm"
             android:textStyle="bold"
             android:singleLine="true"
             android:ellipsize="end" />
@@ -55,9 +55,9 @@
             android:id="@+id/tv_friend_select_level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="11sp" />
+            android:textSize="@dimen/text_size_mini" />
     </LinearLayout>
 
     <!-- Radio-style selection indicator -->

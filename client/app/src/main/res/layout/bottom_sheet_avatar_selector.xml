@@ -17,11 +17,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CHOOSE YOUR AVATAR"
-        android:fontFamily="@font/saira"
+        android:text="Choose your avatar"
+        style="@style/MoscoText.Luxury.SubHeader"
         android:textColor="@color/white"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_body_md"
         android:textStyle="bold"
+        android:fontWeight="700"
         android:layout_marginBottom="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView

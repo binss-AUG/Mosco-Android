@@ -56,10 +56,11 @@
                         android:layout_weight="1"
                         android:text="Mailbox"
                         android:layout_marginStart="10dp"
-                        android:fontFamily="@font/poppins"
+                        style="@style/MoscoText.Luxury.SubHeader"
                         android:textColor="@color/mosco_on_surface"
-                        android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textSize="@dimen/text_size_body_md"
+                        android:textStyle="bold"
+                        android:fontWeight="700"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -105,9 +106,9 @@
                     android:layout_centerVertical="true"
                     android:layout_marginHorizontal="6dp"
                     android:text="7 Items"
-                    android:fontFamily="@font/poppins"
+                    style="@style/MoscoText.Luxury.Body"
                     android:textColor="@color/mosco_on_surface_variant"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/text_size_body_xs" />
 
             </RelativeLayout>
 
@@ -133,12 +134,13 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/bg_btn_rainbow"
-        android:fontFamily="@font/poppins"
-        android:text="Receive All"
+        style="@style/MoscoText.Luxury.Button"
+        android:text="Receive all"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textSize="@dimen/text_size_body_md"
+        android:textStyle="bold"
+        android:fontWeight="700" />
 
     <!-- Sort Dropdown overlay (elevation keeps it on top) -->
     <LinearLayout

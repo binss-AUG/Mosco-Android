@@ -82,10 +82,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_8dp"
-            android:fontFamily="@font/saira"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_14sp"
+            style="@style/MoscoText.Luxury.Nav"
+            android:textSize="@dimen/text_size_hud_small"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:textAllCaps="true"
             android:singleLine="true"
             android:ellipsize="marquee"
@@ -114,10 +114,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@tools:sample/full_names"
-                android:fontFamily="@font/saira"
-                android:textColor="#BDBDBD"
-                android:textSize="@dimen/text_14sp"
-                android:textStyle="bold" />
+                style="@style/MoscoText.Luxury.Label"
+                android:textSize="@dimen/text_size_hud_small"
+                android:textStyle="bold"
+                android:fontWeight="700"
+                android:textColor="#BDBDBD" />
             <ImageView
                 android:layout_width="12dp"
                 android:layout_height="12dp"
@@ -149,10 +150,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_4dp"
-                android:fontFamily="@font/saira"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_16sp"
-                android:textStyle="bold"
+                style="@style/MoscoText.Luxury.Price"
+                android:textSize="@dimen/text_size_hud_large"
                 tools:text="1.2M" />
         </LinearLayout>
 
@@ -178,10 +177,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_4dp"
-                android:fontFamily="@font/saira"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_16sp"
-                android:textStyle="bold"
+                style="@style/MoscoText.Luxury.Price"
+                android:textSize="@dimen/text_size_hud_large"
                 tools:text="850" />
         </LinearLayout>
 
@@ -267,9 +264,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_daily"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -298,9 +296,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_event"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -329,9 +328,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_upgrade"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -360,9 +360,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_rank"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -391,9 +392,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_shop"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -422,9 +424,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_friends"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -453,9 +456,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_formation"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
 
@@ -484,9 +488,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/home_hud_gift"
+                    style="@style/MoscoText.Luxury.Label"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_9sp"
-                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/text_size_mini"
+                    android:fontWeight="700"
                     android:layout_marginTop="@dimen/spacing_4dp"/>
             </LinearLayout>
         </LinearLayout>
@@ -574,7 +579,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/home_showcase_empty_title" android:fontFamily="@font/poppins_bold" android:textColor="@color/mosco_on_surface_variant" android:textSize="18sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/home_showcase_empty_title" style="@style/MoscoText.Luxury.SubHeader" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_h3" android:fontWeight="700" />
         </LinearLayout>
 
         <LinearLayout
@@ -596,15 +601,16 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true" />
 
-            <TextView
-                android:id="@+id/tv_showcase_loading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_8dp"
-                android:text="@string/home_showcase_loading_msg"
-                android:fontFamily="@font/poppins_bold"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_10sp" />
+                <TextView
+                    android:id="@+id/tv_showcase_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_8dp"
+                    android:text="@string/home_showcase_loading_msg"
+                    style="@style/MoscoText.Luxury.Label"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_badge"
+                    android:fontWeight="700" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

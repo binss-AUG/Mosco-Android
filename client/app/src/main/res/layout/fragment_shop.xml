@@ -42,15 +42,12 @@
         <!-- Title -->
         <TextView
             android:id="@+id/tv_shop_title"
+            style="@style/MoscoText.Luxury.SubHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
-            android:fontFamily="@font/poppins"
-            android:text="Shop"
-            android:textColor="@color/mosco_on_surface"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:text="@string/shop_title" />
 
         <!-- Coins Display -->
         <LinearLayout
@@ -68,14 +65,12 @@
 
             <TextView
                 android:id="@+id/tv_coins"
+                style="@style/MoscoText.Luxury.Price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:fontFamily="@font/poppins"
                 android:text="1,250"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_body_md" />
         </LinearLayout>
 
         <!-- Diamonds Display -->
@@ -93,14 +88,12 @@
 
             <TextView
                 android:id="@+id/tv_diamonds"
+                style="@style/MoscoText.Luxury.Price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:fontFamily="@font/poppins"
                 android:text="80"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_body_md" />
         </LinearLayout>
 
     </LinearLayout>
@@ -131,30 +124,40 @@
                 style="@style/FilterChipStyle"
                 android:layout_marginEnd="8dp"
                 android:state_selected="true"
-                android:text="All" />
+                android:text="@string/shop_category_all"
+                android:fontFamily="@font/pretendard"
+                android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_objet"
                 style="@style/FilterChipStyle"
                 android:layout_marginEnd="8dp"
-                android:text="Objet" />
+                android:text="@string/shop_category_objet"
+                android:fontFamily="@font/pretendard"
+                android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_pack"
                 style="@style/FilterChipStyle"
                 android:layout_marginEnd="8dp"
-                android:text="Pack" />
+                android:text="@string/shop_category_pack"
+                android:fontFamily="@font/pretendard"
+                android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_buff"
                 style="@style/FilterChipStyle"
                 android:layout_marginEnd="8dp"
-                android:text="Buff" />
+                android:text="@string/shop_category_buff"
+                android:fontFamily="@font/pretendard"
+                android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_resource"
                 style="@style/FilterChipStyle"
-                android:text="Resource" />
+                android:text="@string/shop_category_resource"
+                android:fontFamily="@font/pretendard"
+                android:fontWeight="400" />
 
         </LinearLayout>
     </HorizontalScrollView>

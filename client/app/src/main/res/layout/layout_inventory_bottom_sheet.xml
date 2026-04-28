@@ -23,11 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/poppins"
-        android:text="Select an Objet"
-        android:textColor="@color/white"
-        android:textSize="18sp"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:text="@string/inventory_title"
+        android:textSize="@dimen/text_size_body_lg"
         android:textStyle="bold"
+        android:fontWeight="700"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -64,7 +64,6 @@
             android:drawablePadding="6dp"
             app:drawableTint="@color/selector_filter_chip_text" />
 
-        <!-- Item Count -->
         <TextView
             android:id="@+id/tv_select_types_count"
             android:layout_width="wrap_content"
@@ -72,9 +71,9 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:text="0 Items"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_body_sm" />
     </RelativeLayout>
 
     <!-- Empty State -->
@@ -100,20 +99,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="No Objets found in your inventory"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:text="@string/inventory_empty_title"
             android:textColor="#88FFFFFF"
-            android:textSize="15sp"
+            android:textSize="@dimen/text_size_body_md"
             android:textStyle="normal" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins"
-            android:text="Go to Shop to buy some packs first."
+            style="@style/MoscoText.Luxury.Body"
+            android:text="@string/inventory_empty_desc"
             android:textColor="#55FFFFFF"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_body_sm" />
     </LinearLayout>
 
     <!-- Lottie Loading State -->
@@ -155,20 +154,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Confirm Button (Floating cho Multi-Select trong UpgradeBottomSheet) -->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn_confirm"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="24dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/bg_upgrade_button_active"
-        android:fontFamily="@font/poppins"
-        android:text="Confirm"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_confirm"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/bg_upgrade_button_active"
+            style="@style/MoscoText.Luxury.Button"
+            android:text="@string/inventory_btn_confirm"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/text_size_body_lg"
+            android:textStyle="bold"
+            android:fontWeight="700"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

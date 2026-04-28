@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ========================================== -->
+    <!-- MOSCO LUXURY TYPOGRAPHY SYSTEM (2026)      -->
+    <!-- Base Font: Pretendard (Quiet Luxury)       -->
+    <!-- ========================================== -->
+
+    <!-- Root Mosco Text Style -->
+    <style name="MoscoText" />
+
+    <!-- Base Luxury Style -->
+    <style name="MoscoText.Luxury">
+        <item name="android:fontFamily">@font/pretendard</item>
+    </style>
+
+    <!-- Luxury Header: Airy, Light, Sophisticated -->
+    <style name="MoscoText.Luxury.Header">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight">200</item>
+        <item name="android:textSize">@dimen/text_size_h2</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <!-- Luxury SubHeader: Refined and Precise -->
+    <style name="MoscoText.Luxury.SubHeader">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textSize">@dimen/text_size_body_lg</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <!-- Luxury Nav: For list items in settings/profile -->
+    <style name="MoscoText.Luxury.Nav">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textSize">@dimen/text_size_h3</item> <!-- Standardized for Nav -->
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Luxury Section: For headers like "Account", "Etc" -->
+    <style name="MoscoText.Luxury.Section">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:textSize">@dimen/text_size_body_md</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <!-- Luxury Body: Clean and Readable -->
+    <style name="MoscoText.Luxury.Body">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight">200</item>
+        <item name="android:textSize">@dimen/text_size_body_md</item>
+        <item name="android:textColor">#CCFFFFFF</item>
+        <item name="android:lineSpacingExtra">6dp</item>
+    </style>
+
+    <!-- Luxury Label: Small but high contrast -->
+    <style name="MoscoText.Luxury.Label">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textSize">@dimen/text_size_body_sm</item>
+        <item name="android:textColor">@color/mosco_text_disabled</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- Luxury Price: Bold and Authority -->
+    <style name="MoscoText.Luxury.Price">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:textSize">@dimen/text_size_h3</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Luxury Input: Clean and precise for forms -->
+    <style name="MoscoText.Luxury.Input">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">200</item>
+        <item name="android:textSize">@dimen/text_size_body_md</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">#80FFFFFF</item>
+    </style>
+
+    <!-- Luxury Link: Subtle but interactive -->
+    <style name="MoscoText.Luxury.Link">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">300</item>
+        <item name="android:textSize">@dimen/text_size_body_sm</item>
+        <item name="android:textColor">@color/mosco_link</item>
+    </style>
+
+    <!-- Card Specific Styles -->
+    <style name="MoscoText.Luxury.Card" parent="MoscoText.Luxury" />
+
+    <style name="MoscoText.Luxury.Card.Title">
+        <item name="android:fontWeight">400</item>
+        <item name="android:textSize">@dimen/text_size_card_title</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="MoscoText.Luxury.Card.Price">
+        <item name="android:fontWeight">700</item>
+        <item name="android:textSize">@dimen/text_size_card_price</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MoscoText.Luxury.Card.Desc">
+        <item name="android:fontWeight">200</item>
+        <item name="android:textSize">@dimen/text_size_caption</item>
+        <item name="android:textColor">#99FFFFFF</item>
+    </style>
+
+    <!-- Badge Style -->
+    <style name="MoscoText.Luxury.Badge">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:textSize">@dimen/text_size_badge</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <!-- Luxury Button: Bold and centered -->
+    <style name="MoscoText.Luxury.Button">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textSize">@dimen/text_size_body_lg</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+</resources>

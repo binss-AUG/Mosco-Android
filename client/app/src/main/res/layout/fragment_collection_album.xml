@@ -55,20 +55,16 @@
                         android:layout_weight="1"
                         android:text="Album"
                         android:layout_marginStart="10dp"
-                        android:fontFamily="@font/poppins"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        style="@style/MoscoText.Luxury.SubHeader" />
 
                     <!-- Tiến trình thu thập -->
                     <TextView
                         android:id="@+id/tv_album_progress"
+                        style="@style/MoscoText.Luxury.Price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins"
                         android:textColor="#FFD700"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
+                        android:textSize="@dimen/text_size_body_md"
                         tools:text="24/350" />
 
                 </LinearLayout>
@@ -112,12 +108,11 @@
                             app:tint="#CD7F32" />
                         <TextView
                             android:id="@+id/tv_ms_1_req"
+                            style="@style/MoscoText.Luxury.Label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="30%"
-                            android:textSize="10sp"
-                            android:textColor="#A2A2A7"
-                            android:fontFamily="@font/poppins" />
+                            android:textSize="@dimen/text_size_badge" />
                     </LinearLayout>
 
                     <!-- Milestone 2 (60%) -->
@@ -139,12 +134,11 @@
                             app:tint="#C0C0C0" />
                         <TextView
                             android:id="@+id/tv_ms_2_req"
+                            style="@style/MoscoText.Luxury.Label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="60%"
-                            android:textSize="10sp"
-                            android:textColor="#A2A2A7"
-                            android:fontFamily="@font/poppins" />
+                            android:textSize="@dimen/text_size_badge" />
                     </LinearLayout>
 
                     <!-- Milestone 3 (100%) -->
@@ -166,12 +160,11 @@
                             app:tint="#FFD700" />
                         <TextView
                             android:id="@+id/tv_ms_3_req"
+                            style="@style/MoscoText.Luxury.Label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="100%"
-                            android:textSize="10sp"
-                            android:textColor="#A2A2A7"
-                            android:fontFamily="@font/poppins" />
+                            android:textSize="@dimen/text_size_badge" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -196,7 +189,9 @@
                     android:maxLines="1"
                     app:drawableEndCompat="@drawable/ic_arrow_down"
                     android:drawablePadding="4dp"
-                    app:drawableTint="@color/selector_filter_chip_text" />
+                    app:drawableTint="@color/selector_filter_chip_text"
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="400" />
 
                 <!-- Filter Button -->
                 <TextView
@@ -207,19 +202,20 @@
                     android:text="Filter"
                     app:drawableStartCompat="@drawable/ic_filter"
                     android:drawablePadding="6dp"
-                    app:drawableTint="@color/selector_filter_chip_text" />
+                    app:drawableTint="@color/selector_filter_chip_text"
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="400" />
 
                 <!-- Item Count -->
                 <TextView
                     android:id="@+id/tv_album_count"
+                    style="@style/MoscoText.Luxury.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginHorizontal="6dp"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="#A2A2A7"
-                    android:textSize="13sp"
+                    android:textSize="@dimen/text_size_body_sm"
                     tools:text="350 Cards" />
 
             </RelativeLayout>
