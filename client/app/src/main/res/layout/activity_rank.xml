@@ -40,11 +40,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="RANKING"
-                android:fontFamily="@font/saira"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                android:text="@string/rank_header_title"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_body_lg"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="4dp"
                 android:letterSpacing="0.05" />

@@ -25,29 +25,24 @@
 
             <TextView
                 android:id="@+id/tv_collection_header"
+                style="@style/MoscoText.Luxury.SubHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:text="TripleS"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="4dp" />
         </com.google.android.material.card.MaterialCardView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_shop"
+            style="@style/MoscoText.Luxury.Label"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="@drawable/bg_btn_rainbow"
             android:backgroundTint="#8A2BE2"
-            android:fontFamily="@font/poppins"
-            android:text="Shop"
+            android:text="@string/shop_title"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
             android:paddingHorizontal="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

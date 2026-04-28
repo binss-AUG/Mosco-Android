@@ -13,7 +13,8 @@
         <!-- Đã gỡ hardcode #FFFFFF, dùng màu của hệ thống -->
         <item name="android:textColor">@color/selector_filter_chip_text</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">300</item>
     </style>
 
     <!-- ========================================== -->
@@ -85,7 +86,7 @@
         <item name="cornerRadius">12dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/pretendard</item>
         <item name="backgroundTint">@color/mosco_primary</item>
         <item name="android:textColor">@color/white</item>
     </style>
@@ -95,7 +96,7 @@
         <item name="cornerRadius">12dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:fontFamily">@font/pretendard</item>
         <item name="strokeColor">@color/mosco_primary</item>
         <item name="android:textColor">@color/mosco_primary</item>
     </style>

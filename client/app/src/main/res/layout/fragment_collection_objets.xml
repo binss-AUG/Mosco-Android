@@ -55,10 +55,7 @@
                         android:layout_weight="1"
                         android:text="Objets"
                         android:layout_marginStart="10dp"
-                        android:fontFamily="@font/poppins"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        style="@style/MoscoText.Luxury.SubHeader" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -98,14 +95,13 @@
                 <!-- Item Count -->
                 <TextView
                     android:id="@+id/tv_objet_types_count"
+                    style="@style/MoscoText.Luxury.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginHorizontal="6dp"
                     android:text="51 Items"
-                    android:fontFamily="@font/poppins"
-                    android:textColor="#A2A2A7"
                     android:textSize="13sp" />
 
             </RelativeLayout>

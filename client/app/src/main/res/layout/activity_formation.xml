@@ -20,10 +20,12 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:fontFamily="@font/poppins_bold"
+            style="@style/MoscoText.Luxury.Header"
             android:text="OVR: 0"
             android:textColor="@color/white"
             android:textSize="24sp"
+            android:textStyle="bold"
+            android:fontWeight="700"
             android:visibility="gone" />
 
         <TextView
@@ -34,12 +36,14 @@
             android:layout_marginStart="12dp"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_button_outline"
-            android:fontFamily="@font/poppins_bold"
+            style="@style/MoscoText.Luxury.Badge"
             android:gravity="center"
             android:paddingHorizontal="16dp"
             android:text="BUFF"
             android:textColor="#80FFB4"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_size_badge"
+            android:textStyle="bold"
+            android:fontWeight="700"
             android:visibility="gone" />
 
         <ImageButton
@@ -176,10 +180,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:fontFamily="@font/orbitron"
+                style="@style/MoscoText.Luxury.SubHeader"
                 android:text="@string/formation_active_synergies_label"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="@dimen/text_size_body_sm"
+                android:textStyle="bold"
+                android:fontWeight="700" />
 
             <!-- Toggle Button (+/-) -->
             <ImageButton

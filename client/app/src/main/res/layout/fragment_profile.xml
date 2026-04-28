@@ -84,35 +84,29 @@
                     app:strokeWidth="1dp">
                     <TextView
                         android:id="@+id/tv_level"
+                        style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="2dp"
-                        android:text="LV. 99"
-                        android:textColor="@color/white"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:text="LV. 99" />
                 </com.google.android.material.card.MaterialCardView>
             </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_username"
+                style="@style/MoscoText.Luxury.Header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Username"
-                android:textColor="@color/white"
-                android:textSize="24sp" />
+                android:text="Username" />
 
             <TextView
                 android:id="@+id/tv_email"
+                style="@style/MoscoText.Luxury.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
-                android:fontFamily="@font/poppins"
-                android:text="user@email.com"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:text="user@email.com" />
 
             <!-- 2. Wallet Card (Glassmorphism) -->
             <LinearLayout
@@ -132,12 +126,10 @@
                     android:gravity="center"
                     android:orientation="vertical">
                     <TextView
+                        style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Gold Coins"
-                        android:textColor="@color/mosco_text_disabled"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:text="Gold Coins" />
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -149,13 +141,11 @@
                             android:src="@drawable/ic_item_coin"/>
                         <TextView
                             android:id="@+id/tv_coins"
+                            style="@style/MoscoText.Luxury.Price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="12,500"
-                            android:textColor="@color/white"
-                            android:textSize="18sp" />
+                            android:text="12,500" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -171,12 +161,10 @@
                     android:gravity="center"
                     android:orientation="vertical">
                     <TextView
+                        style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Diamonds"
-                        android:textColor="@color/mosco_text_disabled"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:text="Diamonds" />
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -188,125 +176,168 @@
                             android:src="@drawable/ic_item_diamond"/>
                         <TextView
                             android:id="@+id/tv_diamonds"
+                            style="@style/MoscoText.Luxury.Price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
-                            android:fontFamily="@font/poppins_bold"
-                            android:text="850"
-                            android:textColor="@color/white"
-                            android:textSize="18sp" />
+                            android:text="850" />
                     </LinearLayout>
                 </LinearLayout>
 
             </LinearLayout>
 
-            <!-- 3. Actions Card -->
+            <!-- 3. Borderless Actions List -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_matte_obsidian_card"
+                android:layout_marginTop="@dimen/profile_section_spacing"
                 android:orientation="vertical"
-                android:padding="8dp">
+                android:paddingVertical="0dp">
+
+                <!-- SECTION: ACCOUNT -->
+                <TextView
+                    style="@style/MoscoText.Luxury.Section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_8dp"
+                    android:layout_marginBottom="@dimen/spacing_12dp"
+                    android:layout_marginStart="@dimen/spacing_16dp"
+                    android:text="@string/profile_label_account"
+                    android:alpha="0.4"
+                    android:textSize="@dimen/text_size_profile_section"
+                    android:letterSpacing="0.1" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_edit_profile"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="@dimen/profile_nav_height"
                     android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="@dimen/spacing_16dp"
                     android:text="@string/profile_btn_edit"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_profile"
-                    app:iconPadding="16dp"
-                    app:iconSize="@dimen/icon_size_md"
-                    app:iconTint="@color/mosco_on_surface" />
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_nav"
+                    android:letterSpacing="0.02" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="@color/mosco_outline_variant_20" />
+                    android:layout_height="@dimen/divider_thin"
+                    android:layout_marginHorizontal="@dimen/spacing_16dp"
+                    android:background="@color/white_10" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_inventory"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="@dimen/profile_nav_height"
                     android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:text="OBJETS"
+                    android:paddingHorizontal="@dimen/spacing_16dp"
+                    android:text="@string/profile_btn_inventory"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_objets"
-                    app:iconPadding="16dp"
-                    app:iconSize="@dimen/icon_size_md"
-                    app:iconTint="@color/mosco_on_surface" />
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_nav"
+                    android:letterSpacing="0.02" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="@color/mosco_outline_variant_20" />
+                    android:layout_height="@dimen/divider_thin"
+                    android:layout_marginHorizontal="@dimen/spacing_16dp"
+                    android:background="@color/white_10" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_change_password"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="@dimen/profile_nav_height"
                     android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:text="CHANGE PASSWORD"
+                    android:paddingHorizontal="@dimen/spacing_16dp"
+                    android:text="@string/profile_btn_change_password"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_lock"
-                    app:iconPadding="16dp"
-                    app:iconSize="@dimen/icon_size_md"
-                    app:iconTint="@color/mosco_on_surface" />
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_nav"
+                    android:letterSpacing="0.02" />
 
+                <!-- SECTION SPACING -->
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="@color/mosco_outline_variant_20" />
+                    android:layout_height="@dimen/profile_section_spacing" />
+
+                <!-- SECTION: SYSTEM -->
+                <TextView
+                    style="@style/MoscoText.Luxury.Section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_12dp"
+                    android:layout_marginStart="@dimen/spacing_16dp"
+                    android:text="@string/profile_label_system"
+                    android:alpha="0.4"
+                    android:textSize="@dimen/text_size_profile_section"
+                    android:letterSpacing="0.1" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_settings"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="@dimen/profile_nav_height"
                     android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:text="SETTINGS"
+                    android:paddingHorizontal="@dimen/spacing_16dp"
+                    android:text="@string/profile_btn_settings"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_settings"
-                    app:iconPadding="16dp"
-                    app:iconSize="@dimen/icon_size_md"
-                    app:iconTint="@color/mosco_on_surface" />
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_nav"
+                    android:letterSpacing="0.02" />
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:background="@color/mosco_outline_variant_20" />
+                    android:layout_height="@dimen/divider_thin"
+                    android:layout_marginHorizontal="@dimen/spacing_16dp"
+                    android:background="@color/white_10" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_logout"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="@dimen/profile_nav_height"
                     android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:text="LOGOUT"
+                    android:paddingHorizontal="@dimen/spacing_16dp"
+                    android:text="@string/profile_btn_logout"
+                    android:textAllCaps="false"
                     android:textColor="@color/stat_atk"
-                    android:fontFamily="@font/poppins_bold"
-                    app:icon="@drawable/ic_user"
-                    app:iconPadding="16dp"
-                    app:iconSize="@dimen/icon_size_md"
-                    app:iconTint="@color/stat_atk" />
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_nav"
+                    android:letterSpacing="0.02" />
+
+                <!-- 4. Footer Section -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_thin"
+                    android:layout_marginTop="@dimen/profile_section_spacing"
+                    android:layout_marginHorizontal="@dimen/spacing_16dp"
+                    android:background="@color/white_10" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_16dp"
+                    android:layout_marginBottom="@dimen/spacing_24dp"
+                    android:layout_marginStart="@dimen/spacing_16dp"
+                    android:text="@string/profile_footer_version"
+                    android:fontFamily="@font/pretendard"
+                    android:fontWeight="200"
+                    android:textSize="@dimen/text_size_profile_footer"
+                    android:textColor="@color/white"
+                    android:alpha="0.3"
+                    android:letterSpacing="0.05" />
 
             </LinearLayout>
 

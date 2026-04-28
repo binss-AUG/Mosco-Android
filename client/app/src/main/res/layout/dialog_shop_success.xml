@@ -27,31 +27,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Title -->
         <TextView
             android:id="@+id/tv_success_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/poppins"
-            android:text="Purchase Successful!"
-            android:textColor="@color/mosco_on_surface"
-            android:textSize="20sp"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:text="@string/dialog_shop_success_title"
+            android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
+            android:fontWeight="700"
             app:layout_constraintTop_toBottomOf="@id/iv_success_icon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Message -->
         <TextView
             android:id="@+id/tv_success_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:fontFamily="@font/poppins"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="14sp"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_sm"
             app:layout_constraintTop_toBottomOf="@id/tv_success_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,34 +61,33 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/tv_success_message">
 
-            <!-- Check Inventory Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_go_inventory"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:text="Inventory"
-                android:fontFamily="@font/poppins"
-                android:textSize="14sp"
+                android:text="@string/dialog_shop_success_inventory"
+                style="@style/MoscoText.Luxury.Button"
+                android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 app:cornerRadius="12dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:strokeColor="@color/selector_btn_stroke_outlined"
                 android:textColor="@color/selector_btn_text_outlined" />
 
-            <!-- Use Now Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_use_now"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Use Now"
+                android:text="@string/dialog_shop_success_use_now"
                 android:textColor="@color/selector_btn_text_primary"
-                android:fontFamily="@font/poppins"
-                android:textSize="14sp"
+                style="@style/MoscoText.Luxury.Button"
+                android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 app:cornerRadius="12dp"
                 app:backgroundTint="@color/mosco_primary" />
                 
@@ -102,9 +98,10 @@
                 android:layout_height="56dp"
                 android:text="OK"
                 android:textColor="@color/selector_btn_text_primary"
-                android:fontFamily="@font/poppins"
-                android:textSize="14sp"
+                style="@style/MoscoText.Luxury.Button"
+                android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 android:visibility="gone"
                 app:cornerRadius="12dp"
                 app:backgroundTint="@color/mosco_primary" />

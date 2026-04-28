@@ -98,4 +98,8 @@
     <color name="reveal_metallic_2">#FFFFFF</color>
     <color name="reveal_metallic_3">#9E9E9E</color>
     <color name="reveal_metallic_4">#F5F5F5</color>
+
+    <!-- Profile Luxury Colors -->
+    <color name="white_10">#1AFFFFFF</color>
+    <color name="white_40">#66FFFFFF</color>
 </resources>

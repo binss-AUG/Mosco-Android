@@ -20,6 +20,6 @@
         android:layout_marginStart="12dp"
         android:text="Loading more items..."
         android:textColor="#A2A2A7"
-        android:fontFamily="@font/poppins"
-        android:textSize="13sp" />
+        style="@style/MoscoText.Luxury.Body"
+        android:textSize="@dimen/text_size_body_sm" />
 </LinearLayout>

@@ -42,10 +42,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gift_title"
-                android:fontFamily="@font/saira"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_body_lg"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="4dp"
                 android:letterSpacing="0.05" />
@@ -78,9 +78,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="@font/poppins_bold"
+                style="@style/MoscoText.Luxury.Badge"
                 android:textColor="#FF6B9D"
-                android:textSize="11sp"
+                android:textSize="@dimen/text_size_mini"
+                android:textStyle="bold"
+                android:fontWeight="700"
                 tools:text="5/5" />
         </LinearLayout>
     </LinearLayout>
@@ -137,9 +139,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_1"
-                    android:fontFamily="@font/poppins_bold"
+                    style="@style/MoscoText.Luxury.Badge"
                     android:textColor="#FF6B9D"
-                    android:textSize="11sp" />
+                    android:textSize="@dimen/text_size_mini"
+                    android:textStyle="bold"
+                    android:fontWeight="700" />
 
                 <View
                     android:layout_width="24dp"
@@ -152,9 +156,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_2"
-                    android:fontFamily="@font/poppins_bold"
+                    style="@style/MoscoText.Luxury.Badge"
                     android:textColor="#555555"
-                    android:textSize="11sp" />
+                    android:textSize="@dimen/text_size_mini"
+                    android:textStyle="bold"
+                    android:fontWeight="700" />
 
                 <View
                     android:layout_width="24dp"
@@ -167,9 +173,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_3"
-                    android:fontFamily="@font/poppins_bold"
+                    style="@style/MoscoText.Luxury.Badge"
                     android:textColor="#555555"
-                    android:textSize="11sp" />
+                    android:textSize="@dimen/text_size_mini"
+                    android:textStyle="bold"
+                    android:fontWeight="700" />
             </LinearLayout>
 
             <!-- Step Content Container -->
@@ -239,22 +247,23 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="@string/gift_step1_tap"
-                                android:fontFamily="@font/poppins_bold"
+                                style="@style/MoscoText.Luxury.Badge"
                                 android:textColor="#FF6B9D"
-                                android:textSize="11sp"
+                                android:textSize="@dimen/text_size_mini"
+                                android:textStyle="bold"
+                                android:fontWeight="700"
                                 android:textAlignment="center" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Card Info -->
                     <TextView
                         android:id="@+id/tv_selected_card_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:fontFamily="@font/saira"
+                        style="@style/MoscoText.Luxury.Body"
                         android:textColor="#BDBDBD"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_size_badge"
                         android:textAlignment="center"
                         android:visibility="gone" />
 
@@ -275,10 +284,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/gift_next"
-                            android:fontFamily="@font/saira"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
+                            style="@style/MoscoText.Luxury.Button"
+                            android:textSize="@dimen/text_size_body_md"
                             android:textStyle="bold"
+                            android:fontWeight="700"
                             android:textAlignment="center"
                             android:paddingVertical="14dp" />
                     </com.google.android.material.card.MaterialCardView>
@@ -318,8 +327,8 @@
                             android:hint="@string/gift_search_hint"
                             android:textColorHint="#A2A2A7"
                             android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:fontFamily="@font/poppins"
+                            style="@style/MoscoText.Luxury.Body"
+                            android:textSize="@dimen/text_size_body_sm"
                             android:inputType="text"
                             android:maxLines="1" />
                     </LinearLayout>
@@ -333,16 +342,15 @@
                         android:clipToPadding="false"
                         android:paddingBottom="80dp" />
 
-                    <!-- Empty state -->
                     <TextView
                         android:id="@+id/tv_no_friends"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:text="@string/gift_no_friends"
-                        android:fontFamily="@font/poppins"
+                        style="@style/MoscoText.Luxury.Body"
                         android:textColor="#A2A2A7"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/text_size_body_md"
                         android:visibility="gone" />
 
                     <!-- Action Buttons -->
@@ -372,10 +380,11 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gift_previous"
-                                android:fontFamily="@font/saira"
+                                style="@style/MoscoText.Luxury.Button"
                                 android:textColor="#A2A2A7"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/text_size_body_sm"
                                 android:textStyle="bold"
+                                android:fontWeight="700"
                                 android:textAlignment="center"
                                 android:paddingVertical="14dp" />
                         </com.google.android.material.card.MaterialCardView>
@@ -398,10 +407,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gift_next"
-                                android:fontFamily="@font/saira"
-                                android:textColor="@color/white"
-                                android:textSize="14sp"
+                                style="@style/MoscoText.Luxury.Button"
+                                android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold"
+                                android:fontWeight="700"
                                 android:textAlignment="center"
                                 android:paddingVertical="14dp" />
                         </com.google.android.material.card.MaterialCardView>
@@ -457,9 +466,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="You"
-                            android:fontFamily="@font/poppins_bold"
+                            style="@style/MoscoText.Luxury.Badge"
                             android:textColor="#BDBDBD"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/text_size_mini"
+                            android:textStyle="bold"
+                            android:fontWeight="700"
                             app:layout_constraintTop_toBottomOf="@id/cv_confirm_sender_avatar"
                             app:layout_constraintStart_toStartOf="@id/cv_confirm_sender_avatar"
                             app:layout_constraintEnd_toEndOf="@id/cv_confirm_sender_avatar"/>
@@ -508,9 +519,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:fontFamily="@font/poppins_bold"
+                            style="@style/MoscoText.Luxury.Badge"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/text_size_mini"
+                            android:textStyle="bold"
+                            android:fontWeight="700"
                             app:layout_constraintTop_toBottomOf="@id/cv_confirm_friend_avatar"
                             app:layout_constraintStart_toStartOf="@id/cv_confirm_friend_avatar"
                             app:layout_constraintEnd_toEndOf="@id/cv_confirm_friend_avatar"/>
@@ -553,9 +566,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/gift_cost_label"
-                            android:fontFamily="@font/poppins_bold"
+                            style="@style/MoscoText.Luxury.Badge"
                             android:textColor="#A2A2A7"
-                            android:textSize="10sp"
+                            android:textSize="@dimen/text_size_mini"
+                            android:textStyle="bold"
+                            android:fontWeight="700"
                             android:letterSpacing="0.1" />
 
                         <LinearLayout
@@ -574,10 +589,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:text="36,000"
-                                android:fontFamily="@font/saira"
+                                style="@style/MoscoText.Luxury.Price"
                                 android:textColor="@color/item_coin"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textSize="@dimen/text_size_body_md"
+                                android:textStyle="bold"
+                                android:fontWeight="700" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -597,10 +613,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:text="36"
-                                android:fontFamily="@font/saira"
+                                style="@style/MoscoText.Luxury.Price"
                                 android:textColor="@color/item_diamond"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
+                                android:textSize="@dimen/text_size_body_md"
+                                android:textStyle="bold"
+                                android:fontWeight="700" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -632,10 +649,11 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gift_previous"
-                                android:fontFamily="@font/saira"
+                                style="@style/MoscoText.Luxury.Button"
                                 android:textColor="#A2A2A7"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/text_size_body_sm"
                                 android:textStyle="bold"
+                                android:fontWeight="700"
                                 android:textAlignment="center"
                                 android:paddingVertical="14dp" />
                         </com.google.android.material.card.MaterialCardView>
@@ -657,10 +675,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gift_send"
-                                android:fontFamily="@font/saira"
-                                android:textColor="@color/white"
-                                android:textSize="14sp"
+                                style="@style/MoscoText.Luxury.Button"
+                                android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold"
+                                android:fontWeight="700"
                                 android:textAlignment="center"
                                 android:paddingVertical="14dp" />
                         </com.google.android.material.card.MaterialCardView>
@@ -683,10 +701,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/gift_done"
-                            android:fontFamily="@font/saira"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
+                            style="@style/MoscoText.Luxury.Button"
+                            android:textSize="@dimen/text_size_body_md"
                             android:textStyle="bold"
+                            android:fontWeight="700"
                             android:textAlignment="center"
                             android:paddingVertical="14dp" />
                     </com.google.android.material.card.MaterialCardView>
@@ -711,16 +729,15 @@
                 android:clipToPadding="false"
                 android:paddingBottom="16dp" />
 
-            <!-- Empty state -->
             <TextView
                 android:id="@+id/tv_no_gifts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="@string/gift_no_received"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Body"
                 android:textColor="#A2A2A7"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_body_md"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>

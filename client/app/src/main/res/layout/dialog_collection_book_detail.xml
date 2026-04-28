@@ -56,8 +56,8 @@
                 android:layout_height="44dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="LEVEL UP"
-                android:textSize="13sp"
+                android:text="Level up"
+                android:textSize="@dimen/text_size_body_xs"
                 app:backgroundTint="@color/mosco_success"
                 app:icon="@drawable/ic_level_up"
                 app:iconGravity="textStart"
@@ -86,8 +86,8 @@
                 style="@style/MoscoButton.Primary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="UPGRADE"
-                android:textSize="14sp"
+                android:text="Upgrade"
+                android:textSize="@dimen/text_size_body_sm"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -123,8 +123,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_hp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="HP:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_hp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_hp" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="HP:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_hp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_hp" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- ATK -->
@@ -136,8 +136,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_atk" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="ATK:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_atk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_atk" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="ATK:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_atk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_atk" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- DEF -->
@@ -149,8 +149,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_def" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="DEF:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_def" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_def" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="DEF:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_def" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/stat_def" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- Crit Rate -->
@@ -162,8 +162,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_crit_rate" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit Rate:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_crit_rate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="100%" android:textColor="@color/stat_crit_rate" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit Rate:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_crit_rate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="100%" android:textColor="@color/stat_crit_rate" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- SPEED -->
@@ -174,8 +174,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_speed"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="SPD:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/mosco_on_surface" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="SPD:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="999" android:textColor="@color/mosco_on_surface" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- Crit DMG -->
@@ -186,8 +186,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_crit_dame" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit DMG:" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" />
-                    <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="200%" android:textColor="@color/mosco_primary" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Crit DMG:" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="200%" android:textColor="@color/mosco_primary" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
             </GridLayout>
@@ -212,8 +212,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-                <TextView android:id="@+id/tv_level_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Level 1" android:textColor="@color/mosco_on_surface" android:textSize="18sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
-                <TextView android:id="@+id/tv_level_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9 / 100" android:textColor="@color/mosco_on_surface_variant" android:textSize="16sp" android:fontFamily="@font/poppins" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_level_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Level 1" android:textColor="@color/mosco_on_surface" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
+                <TextView android:id="@+id/tv_level_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9 / 100" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_xs" style="@style/MoscoText.Luxury.Body" android:textStyle="bold" android:fontWeight="700" />
             </LinearLayout>
 
             <ProgressBar android:id="@+id/pb_level" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="24dp" android:layout_marginTop="10dp" android:progress="9" android:max="100" android:progressDrawable="@drawable/bg_progress_glow" />
@@ -241,9 +241,10 @@
                 android:text="First"
                 android:gravity="center"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_body_sm"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textStyle="bold"
+                android:fontWeight="700" />
 
             <!-- Vùng 70% -->
             <LinearLayout
@@ -259,9 +260,10 @@
                     android:layout_height="wrap_content"
                     android:text="JiWoo 120A"
                     android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/poppins"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/text_size_body_sm"
+                    style="@style/MoscoText.Luxury.SubHeader"
+                    android:textStyle="bold"
+                    android:fontWeight="700" />
             </LinearLayout>
         </LinearLayout>
 
@@ -287,13 +289,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- 1. Metallic Background -->
+                <!-- Metallic Background -->
                 <View
                     android:id="@+id/view_card_metallic_bg"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
                     
-                <!-- 2. Transparent Image (Front Face) -->
+                <!-- Transparent Image (Front Face) -->
                 <ImageView
                     android:id="@+id/iv_objet_detail_image"
                     android:layout_width="match_parent"
@@ -302,7 +304,7 @@
                     android:src="@drawable/item_shop_demo"
                     tools:src="@drawable/item_shop_demo" />
 
-                <!-- 2b. Back Face (Hiện khi Flip 3D, mặc định ẩn) -->
+                <!-- Back Face -->
                 <ImageView
                     android:id="@+id/iv_objet_detail_back"
                     android:layout_width="match_parent"
@@ -311,7 +313,7 @@
                     android:src="@drawable/objet_back_spin"
                     android:visibility="gone" />
 
-                <!-- 3. Shimmer Overlay -->
+                <!-- Shimmer Overlay -->
                 <View
                     android:id="@+id/view_card_shimmer"
                     android:layout_width="match_parent"
@@ -323,9 +325,10 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:gravity="start|top"
-                    android:fontFamily="@font/poppins"
+                    style="@style/MoscoText.Luxury.Card.Title"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
+                    android:fontWeight="700"
                     android:includeFontPadding="false"
                     app:autoSizeTextType="uniform"
                     app:autoSizeMinTextSize="2sp"

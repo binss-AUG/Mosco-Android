@@ -39,11 +39,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EVENTS"
-                android:fontFamily="@font/saira"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                android:text="@string/mission_header_title"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_body_lg"
                 android:textStyle="bold"
+                android:fontWeight="700"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="4dp"
                 android:letterSpacing="0.05" />
@@ -69,20 +69,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="COMING SOON"
-            android:fontFamily="@font/saira"
-            android:textColor="@color/white"
+            android:text="@string/mission_coming_soon"
+            style="@style/MoscoText.Luxury.SubHeader"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:letterSpacing="0.1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Events are being prepared. Stay tuned!"
-            android:fontFamily="@font/poppins"
+            android:text="@string/mission_coming_soon_desc"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="13sp"
+            android:textSize="@dimen/text_size_body_sm"
             android:gravity="center"
             android:layout_marginTop="8dp" />
 

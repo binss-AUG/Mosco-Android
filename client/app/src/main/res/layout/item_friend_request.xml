@@ -41,10 +41,10 @@
             android:id="@+id/tv_friend_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/saira"
-            android:textColor="@color/white"
-            android:textSize="14sp"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_hud_small"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:singleLine="true"
             android:ellipsize="end" />
 
@@ -52,21 +52,21 @@
             android:id="@+id/tv_friend_level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="11sp" />
+            android:textSize="@dimen/text_size_mini" />
     </LinearLayout>
 
-    <!-- Accept button -->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_accept"
         android:layout_width="70dp"
         android:layout_height="32dp"
-        android:text="Accept"
-        android:fontFamily="@font/saira"
+        android:text="@string/friend_btn_accept"
+        style="@style/MoscoText.Luxury.Button"
         android:textColor="@color/white"
-        android:textSize="11sp"
+        android:textSize="@dimen/text_size_mini"
         android:textStyle="bold"
+        android:fontWeight="700"
         android:background="@drawable/bg_btn_rainbow"
         android:textAllCaps="false"
         android:layout_marginEnd="6dp" />

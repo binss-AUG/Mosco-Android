@@ -15,10 +15,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SETTINGS"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins_bold"
-            android:textSize="20sp"
+            android:text="@string/settings_title"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:textSize="@dimen/text_size_h3"
+            android:textStyle="bold"
+            android:fontWeight="700"
             android:letterSpacing="0.1" />
         <ImageView
             android:id="@+id/btn_close_settings"
@@ -45,10 +46,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="Dark Mode"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins_bold"
-            android:textSize="14sp" />
+            android:text="@string/settings_dark_mode"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_md"
+            android:textStyle="bold"
+            android:fontWeight="700" />
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_dark_mode"
             android:layout_width="wrap_content"
@@ -78,10 +80,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="Background Music"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins_bold"
-            android:textSize="14sp" />
+            android:text="@string/settings_music"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_md"
+            android:textStyle="bold"
+            android:fontWeight="700" />
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_music"
             android:layout_width="wrap_content"
@@ -111,10 +114,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="Sound Effects"
-            android:textColor="@color/white"
-            android:fontFamily="@font/poppins_bold"
-            android:textSize="14sp" />
+            android:text="@string/settings_sfx"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_md"
+            android:textStyle="bold"
+            android:fontWeight="700" />
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_sfx"
             android:layout_width="wrap_content"
@@ -143,40 +147,44 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="App Storage"
-                android:textColor="@color/white"
-                android:fontFamily="@font/poppins_bold"
-                android:textSize="14sp" />
+                android:text="@string/settings_storage"
+                style="@style/MoscoText.Luxury.Body"
+                android:textSize="@dimen/text_size_body_md"
+                android:textStyle="bold"
+                android:fontWeight="700" />
             <TextView
                 android:id="@+id/tv_cache_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Calculating..."
+                style="@style/MoscoText.Luxury.Body"
                 android:textColor="@color/mosco_on_surface_variant"
-                android:fontFamily="@font/poppins"
-                android:textSize="11sp" />
+                android:textSize="@dimen/text_size_mini" />
         </LinearLayout>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear_cache"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/MoscoText.Luxury.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CLEAR CACHE"
+            android:text="@string/settings_clear_cache"
             android:textColor="@color/stat_atk"
-            android:fontFamily="@font/poppins_bold"
-            android:textSize="12sp" />
+            android:textSize="@dimen/text_size_badge"
+            android:textStyle="bold"
+            android:fontWeight="700"
+            app:backgroundTint="@android:color/transparent" />
     </LinearLayout>
 
     <!-- Version Info -->
     <TextView
+        android:id="@+id/tv_version_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="Mosco Galactic Edition v1.0.0"
+        style="@style/MoscoText.Luxury.Body"
         android:textColor="@color/mosco_outline_variant"
-        android:fontFamily="@font/poppins"
-        android:textSize="10sp"
+        android:textSize="@dimen/text_size_mini"
         android:alpha="0.5" />
 
 </LinearLayout>

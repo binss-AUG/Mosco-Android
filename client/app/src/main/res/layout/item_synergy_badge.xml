@@ -15,10 +15,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:fontFamily="@font/chakra_petch"
+        style="@style/MoscoText.Luxury.SubHeader"
         android:text="EVOLution"
         android:textColor="@color/white"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_body_sm"
+        android:textStyle="bold"
+        android:fontWeight="700"
         android:maxLines="1"
         android:ellipsize="end" />
 
@@ -27,10 +29,12 @@
         android:id="@+id/tv_synergy_buff_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
+        style="@style/MoscoText.Luxury.Price"
         android:text="+15%"
         android:textColor="#80FFB4"
-        android:textSize="13sp"
+        android:textSize="@dimen/text_size_body_sm"
+        android:textStyle="bold"
+        android:fontWeight="700"
         android:layout_marginEnd="12dp" />
 
     <!-- Cột 3: Container sao đánh giá -->

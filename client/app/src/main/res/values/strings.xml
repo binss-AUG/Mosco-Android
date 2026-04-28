@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Mosco</string>
-    <string name="base_url">http://192.168.1.11:8080/</string>
+    <string name="base_url">http://192.168.1.86:8080/</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_sign_in">Sign In</string>
@@ -77,7 +77,7 @@
     <string name="gift_cancel">CANCEL</string>
     <string name="gift_previous">← PREVIOUS</string>
     <string name="gift_done">DONE</string>
-    <string name="gift_send">🎁 SEND GIFT</string>
+    <string name="gift_send">SEND GIFT</string>
     <string name="gift_cost_label">GIFT COST</string>
     <string name="gift_search_hint">Search friends...</string>
     <string name="gift_tab_send">SEND</string>
@@ -105,9 +105,18 @@
     <string name="error_display_name_length">Display name must be 2–16 characters</string>
 
     <!-- Profile Edit -->
-    <string name="profile_btn_edit">EDIT PROFILE</string>
     <string name="profile_edit_title">Edit Profile</string>
     <string name="profile_save">Save</string>
+
+    <!-- Profile Strings -->
+    <string name="profile_label_account">Account</string>
+    <string name="profile_label_system">System</string>
+    <string name="profile_btn_edit">Edit Profile</string>
+    <string name="profile_btn_inventory">Inventory</string>
+    <string name="profile_btn_change_password">Change Password</string>
+    <string name="profile_btn_settings">Settings</string>
+    <string name="profile_btn_logout">Logout</string>
+    <string name="profile_footer_version">App version 1.0.0</string>
 
     <string name="synergy_tier_bronze">BRONZE</string>
     <string name="synergy_tier_silver">SILVER</string>
@@ -139,7 +148,7 @@
     <string name="reveal_btn_awesome">Awesome!</string>
     <string name="reveal_btn_done">DONE</string>
     <string name="reveal_btn_collect_all">COLLECT ALL (%d)</string>
-    <string name="reveal_amazing_reveal_format">⭐ AMAZING REVEAL ⭐\n%s</string>
+    <string name="reveal_amazing_reveal_format">AMAZING REVEAL\n%s</string>
     <string name="reveal_open_x1">Open x1</string>
     <string name="reveal_open_all">Open All</string>
     <string name="reveal_open_all_short_format">Open x%d</string>
@@ -155,4 +164,102 @@
     <string name="reveal_error_format">Error: %s</string>
     <string name="reveal_only_pack_supported">Only PACK items can be opened here.</string>
     <string name="reveal_default_item_name">Item</string>
+
+    <!-- Shop Strings -->
+    <string name="shop_title">Shop</string>
+    <string name="shop_category_all">All</string>
+    <string name="shop_category_objet">Objet</string>
+    <string name="shop_category_pack">Pack</string>
+    <string name="shop_category_buff">Buff</string>
+    <string name="shop_category_resource">Resource</string>
+    <string name="shop_btn_buy">Buy</string>
+
+    <!-- Inventory Strings -->
+    <string name="inventory_title">Select an Objet</string>
+    <string name="inventory_empty_title">No Objets found in your inventory</string>
+    <string name="inventory_empty_desc">Go to Shop to buy some packs first.</string>
+    <string name="inventory_btn_confirm">Confirm</string>
+
+    <!-- Upgrade Strings -->
+    <string name="upgrade_probability_badge">TĂNG TỈ LỆ NÂNG CẤP</string>
+    <string name="upgrade_materials_label">MATERIALS</string>
+    <string name="upgrade_materials_count_format">%1$d / %2$d Selected</string>
+    <string name="upgrade_btn_text">UPGRADE</string>
+
+    <!-- Shop Dialog Strings -->
+    <string name="dialog_shop_buy_title">BUY NOW</string>
+    <string name="dialog_shop_buy_total">Total: </string>
+    <string name="dialog_shop_success_title">Purchase Successful!</string>
+    <string name="dialog_shop_success_inventory">Inventory</string>
+    <string name="dialog_shop_success_use_now">Use Now</string>
+
+    <!-- Spin Dialog Strings -->
+    <string name="dialog_spin_confirm_title">Spin Confirmation</string>
+    <string name="dialog_spin_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this Objekt?</string>
+    <string name="dialog_spin_confirm_cancel">Cancel</string>
+    <string name="dialog_spin_confirm_ok">Spin Now</string>
+
+    <!-- Rank Strings -->
+    <string name="rank_header_title">RANKING</string>
+    <string name="rank_empty_msg">No ranking data yet</string>
+
+    <!-- Settings Strings -->
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_music">Background Music</string>
+    <string name="settings_sfx">Sound Effects</string>
+    <string name="settings_storage">App Storage</string>
+    <string name="settings_clear_cache">CLEAR CACHE</string>
+    <string name="settings_version_format">Mosco Galactic Edition v%1$s</string>
+
+    <!-- Friend Strings -->
+    <string name="friend_header_title">FRIENDS</string>
+    <string name="friend_search_hint">Search by name or ID…</string>
+    <string name="friend_btn_accept">Accept</string>
+
+    <!-- Mission Strings -->
+    <string name="mission_header_title">EVENTS</string>
+    <string name="mission_coming_soon">COMING SOON</string>
+    <string name="mission_coming_soon_desc">Events are being prepared. Stay tuned!</string>
+
+    <!-- Spin Strings -->
+    <string name="spin_ticket">Spin Ticket</string>
+    <string name="spin_grid_title">Select a card to reveal</string>
+    <string name="spin_btn_confirm">Confirm Selection</string>
+    <string name="spin_result_title">Spin was successful!</string>
+    <string name="spin_reveal_unchosen">Reveal unchosen Objekts  ></string>
+    <string name="spin_result_grid_title">Spin Result</string>
+    <string name="spin_btn_try_again">Try again</string>
+    <string name="spin_btn_spin">Spin</string>
+    <string name="spin_btn_collect">Collect</string>
+
+    <!-- Dialog Strings -->
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_logout_title">Logout Confirmation</string>
+    <string name="dialog_logout_msg">Are you sure you want to disconnect from the Mosco world?</string>
+    <string name="dialog_logout_confirm">Log Out</string>
+    <string name="dialog_exit_title">Exit Galactic World?</string>
+    <string name="dialog_exit_msg">Are you sure you want to leave the Mosco universe and return to Earth?</string>
+    <string name="dialog_exit_confirm">EXIT</string>
+    <string name="dialog_exit_stay">STAY</string>
+
+    <!-- Daily Check-in Strings -->
+    <string name="daily_header">DAILY CHECK-IN</string>
+    <string name="daily_morning">Morning</string>
+    <string name="daily_afternoon">Afternoon</string>
+    <string name="daily_evening">Evening</string>
+    <string name="daily_claim">CLAIM</string>
+
+    <!-- Các chuỗi cho Dialog Chi tiết và Phần thưởng -->
+    <string name="reward_milestone_title">Milestone achieved!</string>
+    <string name="reward_received_desc">You received 1,000 Coin!</string>
+    <string name="btn_claim_vn">Thu thập</string>
+    <string name="stat_label_hp">HP:</string>
+    <string name="stat_label_atk">ATK:</string>
+    <string name="stat_label_def">DEF:</string>
+    <string name="stat_label_crit_rate">Crit Rate:</string>
+    <string name="stat_label_spd">SPD:</string>
+    <string name="stat_label_crit_dmg">Crit DMG:</string>
+    <string name="label_level_up">Level up</string>
+    <string name="label_upgrade">Upgrade</string>
 </resources>

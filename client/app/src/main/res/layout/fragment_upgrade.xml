@@ -165,24 +165,24 @@
 
             <TextView
                 android:id="@+id/tv_ovr_after"
+                style="@style/MoscoText.Luxury.Price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
                 android:text="--"
-                android:textColor="#FFFFFF"
                 android:textSize="36sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontWeight="700" />
         </LinearLayout>
 
         <!-- Current OVR (shown when card selected) -->
         <TextView
             android:id="@+id/tv_ovr_current_small"
+            style="@style/MoscoText.Luxury.Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_bold"
-            android:textColor="#64748B"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_hud_small"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -222,12 +222,12 @@
                 android:id="@+id/tv_level_current"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Price"
                 android:gravity="center"
                 android:text="--"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_hud_small"
+                android:textStyle="bold"
+                android:fontWeight="700" />
         </FrameLayout>
 
         <!-- Arrow -->
@@ -258,12 +258,12 @@
                 android:id="@+id/tv_level_next"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Price"
                 android:gravity="center"
                 android:text="--"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_hud_small"
+                android:textStyle="bold"
+                android:fontWeight="700" />
         </FrameLayout>
     </LinearLayout>
 
@@ -286,14 +286,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_probability_badge"
-            android:fontFamily="@font/poppins_bold"
-            android:letterSpacing="0.15"
+            style="@style/MoscoText.Luxury.Badge"
             android:paddingHorizontal="12dp"
             android:paddingVertical="3dp"
-            android:text="TĂNG TỈ LỆ NÂNG CẤP"
+            android:text="@string/upgrade_probability_badge"
             android:textAllCaps="true"
             android:textColor="@color/mosco_primary"
-            android:textSize="8sp" />
+            android:textSize="@dimen/text_size_badge" />
 
         <!-- Progress Bar Container -->
         <FrameLayout
@@ -320,12 +319,11 @@
         android:id="@+id/tv_materials_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
-        android:letterSpacing="0.15"
-        android:text="MATERIALS"
+        style="@style/MoscoText.Luxury.Badge"
+        android:text="@string/upgrade_materials_label"
         android:textAllCaps="true"
         android:textColor="#94A3B8"
-        android:textSize="9sp"
+        android:textSize="@dimen/text_size_badge"
         app:layout_constraintBottom_toTopOf="@id/layout_materials_grid"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guide_progress_bottom" />
@@ -334,10 +332,10 @@
         android:id="@+id/tv_materials_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_bold"
+        style="@style/MoscoText.Luxury.Badge"
         android:text="0 / 5 Selected"
         android:textColor="#c2c6d1"
-        android:textSize="9sp"
+        android:textSize="@dimen/text_size_badge"
         app:layout_constraintBaseline_toBaselineOf="@id/tv_materials_label"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -605,13 +603,13 @@
         android:alpha="0.6"
         android:background="@drawable/bg_upgrade_button_disabled"
         android:enabled="false"
-        android:fontFamily="@font/poppins_bold"
-        android:letterSpacing="0.15"
-        android:text="UPGRADE"
+        style="@style/MoscoText.Luxury.Button"
+        android:text="@string/upgrade_btn_text"
         android:textAllCaps="true"
         android:textColor="#c2c6d1"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_body_lg"
         android:textStyle="bold"
+        android:fontWeight="700"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

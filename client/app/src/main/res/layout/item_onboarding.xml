@@ -65,24 +65,21 @@
             <!-- Responsive Title Text -->
             <TextView
                 android:id="@+id/tv_title"
+                style="@style/MoscoText.Luxury.Header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
                 android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textSize="24sp" />
 
             <!-- Responsive Description Text -->
             <TextView
                 android:id="@+id/tv_description"
+                style="@style/MoscoText.Luxury.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:alpha="0.8"
-                android:fontFamily="@font/poppins"
                 android:textAlignment="center"
-                android:textColor="#E0E0E0"
                 android:textSize="14sp" />
         </LinearLayout>
 

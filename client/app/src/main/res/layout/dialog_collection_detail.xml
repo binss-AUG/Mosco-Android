@@ -130,11 +130,12 @@
                         android:layout_height="wrap_content"
                         android:text="@string/album_sad_wav_notice"
                         android:textColor="#66FFFFFF"
-                        android:textSize="13sp"
+                        android:textSize="@dimen/text_size_body_xs"
                         android:textStyle="bold"
+                        android:fontWeight="700"
                         android:gravity="center"
                         android:paddingHorizontal="24dp"
-                        android:fontFamily="@font/poppins"
+                        style="@style/MoscoText.Luxury.Body"
                         app:layout_constraintTop_toBottomOf="@id/tv_locked_emoji"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -239,9 +240,10 @@
                                     android:layout_height="wrap_content"
                                     android:text="Get more"
                                     android:textColor="#99FFFFFF"
-                                    android:textSize="12sp"
+                                    android:textSize="@dimen/text_size_body_xs"
                                     android:textStyle="bold"
-                                    android:fontFamily="@font/poppins" />
+                                    android:fontWeight="700"
+                                    style="@style/MoscoText.Luxury.Body" />
 
                                 <ImageView
                                     android:id="@+id/iv_get_more_arrow"

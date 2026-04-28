@@ -46,11 +46,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="2dp"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.SubHeader"
             tools:text="Rewards Box 1"
             android:textColor="@color/mosco_on_surface"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:fontWeight="700"
             app:layout_constraintEnd_toStartOf="@+id/tv_mail_qty"
             app:layout_constraintStart_toEndOf="@id/cv_mail_image"
             app:layout_constraintTop_toTopOf="@id/cv_mail_image" />
@@ -61,10 +62,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             tools:text="Season Event Compensation"
             android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_body_sm"
             android:maxLines="1"
             android:ellipsize="end"
             app:layout_constraintEnd_toEndOf="parent"
@@ -93,11 +94,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:fontFamily="@font/poppins"
+                style="@style/MoscoText.Luxury.Body"
                 tools:text="2H AGO"
                 android:textColor="@color/mosco_on_surface_variant"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_mini"
+                android:textStyle="bold"
+                android:fontWeight="700" />
         </LinearLayout>
 
         <TextView
@@ -107,11 +109,12 @@
             android:background="@drawable/bg_badge_qty"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.SubHeader"
             tools:text="x2"
             android:textColor="@color/mosco_primary_dim"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_body_sm"
             android:textStyle="bold"
+            android:fontWeight="700"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_mail_title"
             app:layout_constraintBottom_toBottomOf="@id/tv_mail_title" />

@@ -18,20 +18,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:fontFamily="@font/poppins"
-            android:text="Logout Confirmation"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:text="@string/dialog_logout_title"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:textSize="@dimen/text_size_body_lg"
+            android:textStyle="bold"
+            android:fontWeight="700" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:fontFamily="@font/poppins"
-            android:text="Are you sure you want to disconnect from the Mosco world?"
+            android:text="@string/dialog_logout_msg"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,12 +45,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:background="@android:color/transparent"
-                android:fontFamily="@font/poppins"
+                android:text="@string/dialog_cancel"
+                style="@style/MoscoText.Luxury.Button"
                 android:paddingHorizontal="16dp"
-                android:text="Cancel"
                 android:textAllCaps="false"
                 android:textColor="#A2A2A7"
-                android:textSize="14sp" />
+                android:textSize="@dimen/text_size_body_sm" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_logout"
@@ -59,13 +59,14 @@
                 android:layout_marginStart="12dp"
                 android:background="@drawable/bg_button"
                 android:backgroundTint="#8A2BE2"
-                android:fontFamily="@font/poppins"
+                android:text="@string/dialog_logout_confirm"
+                style="@style/MoscoText.Luxury.Button"
                 android:paddingHorizontal="24dp"
-                android:text="Log Out"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="@dimen/text_size_body_sm"
+                android:textStyle="bold"
+                android:fontWeight="700" />
 
         </LinearLayout>
     </LinearLayout>

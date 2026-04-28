@@ -41,10 +41,10 @@
             android:id="@+id/tv_friend_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/saira"
-            android:textColor="@color/white"
-            android:textSize="14sp"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_hud_small"
             android:textStyle="bold"
+            android:fontWeight="700"
             android:singleLine="true"
             android:ellipsize="end" />
 
@@ -52,9 +52,9 @@
             android:id="@+id/tv_friend_level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
+            style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="11sp" />
+            android:textSize="@dimen/text_size_mini" />
     </LinearLayout>
 
 </LinearLayout>
