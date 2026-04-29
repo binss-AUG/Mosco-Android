@@ -27,6 +27,16 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.browser.customtabs.CustomTabsIntent;
+import android.net.Uri;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -40,6 +50,9 @@ public class SignUpActivity extends AppCompatActivity {
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
     private boolean isSigningUp = false;
+
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +79,9 @@ public class SignUpActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
+
+        initGoogleSignIn();
+        handleIntent(getIntent());
 
         // Nhận thời gian chạy Animation từ màn trước
         
@@ -126,6 +142,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         // --- Observe Send Code result ---
+        // --- Observe Send Code result ---
         viewModel.getSendCodeResult().observe(this, resource -> {
             switch (resource.getStatus()) {
                 case LOADING:
@@ -151,6 +168,21 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onDebouncedClick(View v) {
                 validateAndSignUp();
+            }
+        });
+
+        // --- Social Login buttons ---
+        findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithGoogle();
+            }
+        });
+
+        findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithDiscord();
             }
         });
 
@@ -182,7 +214,6 @@ public class SignUpActivity extends AppCompatActivity {
                                 getString(R.string.msg_create_account_success),
                                 Toast.LENGTH_SHORT).show();
 
-                        // User mới luôn chưa có Display Name → sang Setup
                         Intent intent;
                         String ingame = resource.getData().getData() != null
                                 ? resource.getData().getData().getIngameName() : null;
@@ -193,10 +224,6 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        
-                        // Transfer cosmic heartbeat
-                        
-                        
                         startActivity(intent);
                         finish();
                     } else {
@@ -322,5 +349,76 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        Uri data = intent.getData();
+        if (data != null && data.getScheme().equals("mosco")) {
+            String fragment = data.getFragment();
+            if (fragment != null && fragment.contains("access_token=")) {
+                String accessToken = fragment.split("access_token=")[1].split("&")[0];
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, null));
+            }
+        }
+    }
+
+    private void initGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        handleGoogleSignInResult(task);
+                    }
+                }
+        );
+    }
+
+    private void signInWithGoogle() {
+        if (isSigningUp) return;
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            String email = account.getEmail();
+            
+            if (idToken != null) {
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, email));
+            }
+        } catch (ApiException e) {
+            Toast.makeText(this, "Google sign in failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void signInWithDiscord() {
+        if (isSigningUp) return;
+        
+        String clientId = getString(R.string.discord_client_id);
+        String redirectUri = getString(R.string.discord_redirect_uri);
+        String authUrl = "https://discord.com/api/oauth2/authorize" +
+                "?client_id=" + clientId +
+                "&redirect_uri=" + Uri.encode(redirectUri) +
+                "&response_type=token" +
+                "&scope=identify%20email";
+
+        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
+        customTabsIntent.launchUrl(this, Uri.parse(authUrl));
     }
 }

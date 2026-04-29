@@ -26,4 +26,8 @@ public class SignInViewModel extends AndroidViewModel {
     public void signIn(String username, String password) {
         repository.signIn(username, password, signInResult);
     }
+
+    public void socialLogin(com.vn.jet.mosco.model.SocialAuthRequest request) {
+        repository.socialLogin(request, signInResult);
+    }
 }

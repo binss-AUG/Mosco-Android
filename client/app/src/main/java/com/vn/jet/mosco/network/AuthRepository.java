@@ -50,6 +50,12 @@ public class AuthRepository {
         apiService.sendCode(email).enqueue(createCallback(result));
     }
 
+    public void socialLogin(com.vn.jet.mosco.model.SocialAuthRequest request,
+                           MutableLiveData<Resource<AuthResponse>> result) {
+        result.setValue(Resource.loading());
+        apiService.socialLogin(request).enqueue(createCallback(result));
+    }
+
     private Callback<AuthResponse> createCallback(MutableLiveData<Resource<AuthResponse>> result) {
         return new Callback<AuthResponse>() {
             @Override
