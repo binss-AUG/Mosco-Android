@@ -17,6 +17,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.vn.jet.mosco.adapter.OnboardingAdapter;
 import com.vn.jet.mosco.model.OnboardingItem;
 import com.vn.jet.mosco.utils.ClickDebounce;
+import com.vn.jet.mosco.utils.AuthUIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,24 +28,25 @@ public class OnboardingActivity extends AppCompatActivity {
     private LinearLayout layoutDots;
     private Button btnNext;
     private ViewPager2 viewPager;
-    private ImageView ivBackground;
-    private ObjectAnimator driftX, driftY;
+    
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onboarding);
+        
+        com.vn.jet.mosco.utils.GalacticBackgroundView galacticBg = findViewById(R.id.galactic_bg);
+        if (galacticBg != null) {
+            galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.ONBOARDING);
+        }
 
         layoutDots = findViewById(R.id.layout_dots);
         btnNext = findViewById(R.id.btn_next);
         viewPager = findViewById(R.id.viewPager);
-        ivBackground = findViewById(R.id.iv_background_parallax);
+        
 
-        // Nhận thời gian chạy từ Splash (nếu có)
-        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
-        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
-
-        setupParallax(playTimeX, playTimeY);
+        AuthUIHelper.animateAurora(this);
         setupOnboardingItems();
         setupDots();
         setCurrentDot(0);
@@ -72,44 +74,24 @@ public class OnboardingActivity extends AppCompatActivity {
         btnNext.setOnClickListener(new ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
-                Intent intent = new Intent(OnboardingActivity.this, SignInActivity.class);
-                if (driftX != null && driftY != null) {
-                    intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                    intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
+                if (viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+                } else {
+                    Intent intent = new Intent(OnboardingActivity.this, SignInActivity.class);
+                    startActivity(intent);
                 }
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                
-                // Kết thúc Onboarding để không quay lại được khi bấm Back
-                finish();
             }
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AuthUIHelper.saveAnimationState();
+    }
+
     private void setupParallax(long playTimeX, long playTimeY) {
-        if (ivBackground != null) {
-            // Đảm bảo ảnh phủ chiều rộng tối ưu cho hiệu ứng trôi
-            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ivBackground.setScaleX(1.3f); // Tăng scale lên 1.3 để đủ 'đất' trôi ngang
-            ivBackground.setScaleY(1.3f);
-
-            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
-            driftX.setDuration(15000);
-            driftX.setRepeatMode(ValueAnimator.REVERSE);
-            driftX.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
-            driftY.setDuration(20000);
-            driftY.setRepeatMode(ValueAnimator.REVERSE);
-            driftY.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftX.start();
-            driftY.start();
-            
-            // Nhảy đến đúng nhịp thời gian kế thừa
-            driftX.setCurrentPlayTime(playTimeX);
-            driftY.setCurrentPlayTime(playTimeY);
-        }
+        // Disabled to use AuthUIHelper instead
     }
 
     private void setupOnboardingItems() {

@@ -100,4 +100,13 @@
         <item name="strokeColor">@color/mosco_primary</item>
         <item name="android:textColor">@color/mosco_primary</item>
     </style>
+
+    <!-- ========================================== -->
+    <!-- 3. INPUT FIELD ENHANCEMENTS                -->
+    <!-- ========================================== -->
+    <style name="MoscoTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">none</item>
+        <item name="hintEnabled">false</item>
+        <item name="android:stateListAnimator">@animator/luxury_input_state_animator</item>
+    </style>
 </resources>

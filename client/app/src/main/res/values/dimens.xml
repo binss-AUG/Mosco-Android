@@ -127,6 +127,7 @@
 
     <!-- Global Typography Tokens -->
     <dimen name="text_size_h1">28sp</dimen>
+    <dimen name="text_size_h1_xl">32sp</dimen>
     <dimen name="text_size_h2">24sp</dimen>
     <dimen name="text_size_h3">20sp</dimen>
     <dimen name="text_size_body_lg">17sp</dimen>
@@ -158,4 +159,8 @@
     <dimen name="radius_md">11dp</dimen>
     <dimen name="radius_lg">18dp</dimen>
     <dimen name="radius_pill">999dp</dimen>
+
+    <!-- Social Login Dimensions -->
+    <dimen name="social_button_size">56dp</dimen>
+    <dimen name="social_icon_padding">14dp</dimen>
 </resources>

@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:background="@color/mosco_screen_bg">
 
-    <!-- Bối cảnh vũ trụ trôi nổi (Quản lý tập trung tại layout_auth_background) -->
     <include layout="@layout/layout_auth_background" />
+
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="24dp">
+            android:padding="@dimen/spacing_lg">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/gl_start"
@@ -33,18 +33,7 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.94" />
 
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/bg_circle_dark"
-                android:focusable="true"
-                android:nextFocusForward="@id/edt_username"
-                android:padding="12dp"
-                android:src="@drawable/ic_back_arrow"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+
 
             <!-- Nhóm nội dung trung tâm - Căn giữa dọc -->
             <LinearLayout
@@ -55,7 +44,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/gl_end"
                 app:layout_constraintStart_toStartOf="@id/gl_start"
-                app:layout_constraintTop_toBottomOf="@+id/btn_back"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.45">
 
                 <TextView
@@ -63,32 +52,43 @@
                     style="@style/MoscoText.Luxury.Header"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:text="@string/title_sign_up"
-                    android:textSize="32sp" />
+                    android:textSize="@dimen/text_size_h1_xl" />
+
+                <TextView
+                    android:id="@+id/tv_subtitle_signup"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:alpha="0.7"
+                    android:text="@string/subtitle_sign_up"
+                    android:textSize="@dimen/text_size_hud_small" />
 
                 <LinearLayout
                     android:id="@+id/glass_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
-                    android:background="@color/mosco_surface"
+                    android:layout_marginTop="@dimen/spacing_xl"
+                    android:background="@drawable/bg_glass_card"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="@dimen/spacing_lg">
 
                     <!-- Username -->
+                    <TextView
+                        android:id="@+id/tv_label_username"
+                        style="@style/MoscoText.Luxury.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_username" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
-                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeColor="@color/mosco_outline_variant"
-                        app:boxBackgroundColor="@color/mosco_input_bg"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        app:boxBackgroundMode="none"
                         app:hintEnabled="false"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
@@ -99,7 +99,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@color/transparent"
+                            android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="15dp"
                             android:hint="@string/prompt_username"
@@ -112,20 +112,19 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email -->
+                    <TextView
+                        android:id="@+id/tv_label_email"
+                        style="@style/MoscoText.Luxury.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/label_email" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_email"
+                        style="@style/MoscoTextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
-                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeColor="@color/mosco_outline_variant"
-                        app:boxBackgroundColor="@color/mosco_input_bg"
-                        app:hintEnabled="false"
+                        android:layout_marginTop="@dimen/spacing_xs"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
                         app:errorIconDrawable="@null">
@@ -135,7 +134,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@color/transparent"
+                            android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_email"
                             android:drawablePadding="15dp"
                             android:hint="@string/prompt_email"
@@ -148,19 +147,19 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Password -->
+                    <TextView
+                        android:id="@+id/tv_label_password"
+                        style="@style/MoscoText.Luxury.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/label_password" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
-                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeColor="@color/mosco_outline_variant"
-                        app:boxBackgroundColor="@color/mosco_input_bg"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
                         app:hintEnabled="false"
@@ -173,9 +172,9 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@color/transparent"
+                            android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_lock"
-                            android:drawablePadding="12dp"
+                            android:drawablePadding="@dimen/spacing_sm"
                             android:hint="@string/prompt_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
@@ -187,19 +186,19 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Confirm Password -->
+                    <TextView
+                        android:id="@+id/tv_label_confirm_password"
+                        style="@style/MoscoText.Luxury.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/label_confirm_password" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_confirm_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
-                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeColor="@color/mosco_outline_variant"
-                        app:boxBackgroundColor="@color/mosco_input_bg"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
                         app:endIconTint="@color/mosco_text_disabled"
                         app:hintEnabled="false"
@@ -212,9 +211,9 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
-                            android:background="@color/transparent"
+                            android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_lock"
-                            android:drawablePadding="12dp"
+                            android:drawablePadding="@dimen/spacing_sm"
                             android:hint="@string/prompt_confirm_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
@@ -226,24 +225,25 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Verification Code -->
+                    <TextView
+                        android:id="@+id/tv_label_verification_code"
+                        style="@style/MoscoText.Luxury.Label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:text="@string/label_verification_code" />
+
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
+                        android:layout_marginTop="@dimen/spacing_xs">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/til_verification_code"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="12dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxCornerRadiusTopStart="@dimen/radius_pill"
-                        app:boxCornerRadiusTopEnd="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomStart="@dimen/radius_pill"
-                        app:boxCornerRadiusBottomEnd="@dimen/radius_pill"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeColor="@color/mosco_outline_variant"
-                        app:boxBackgroundColor="@color/mosco_input_bg"
+                            android:layout_marginEnd="@dimen/spacing_sm"
+                            app:boxBackgroundMode="none"
                             app:hintEnabled="false"
                             app:errorEnabled="true"
                             app:errorTextColor="@color/stat_atk"
@@ -257,7 +257,10 @@
                                 style="@style/MoscoText.Luxury.Input"
                                 android:layout_width="match_parent"
                                 android:layout_height="52dp"
-                                android:background="@color/transparent"
+                                android:background="@drawable/bg_glass_input"
+                                android:drawableStart="@drawable/ic_shield_check"
+                                android:drawablePadding="15dp"
+                                android:hint="@string/prompt_verification_code"
                                 android:imeOptions="actionDone"
                                 android:inputType="number"
                                 android:maxLength="6"
@@ -267,13 +270,13 @@
                                 android:textCursorDrawable="@null" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.button.MaterialButton
+                        <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btn_send_code"
                             style="@style/MoscoText.Luxury.Label"
                             android:layout_width="100dp"
                             android:layout_height="52dp"
-                            app:cornerRadius="@dimen/radius_sm"
-                            app:backgroundTint="@color/mosco_surface_container"
+                            android:background="@drawable/bg_shop_buy_btn"
+                            android:stateListAnimator="@animator/btn_scale_anim"
                             android:text="@string/action_send_code"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
@@ -284,18 +287,77 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btn_signup"
-                        style="@style/MoscoText.Luxury.Button"
+                        style="@style/MoscoText.Luxury.Button.Primary"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:layout_marginTop="32dp"
-                        app:cornerRadius="@dimen/radius_pill"
-                        app:backgroundTint="@color/mosco_primary"
+                        android:layout_marginTop="@dimen/spacing_xl"
+                        android:background="@drawable/bg_btn_luxury_action"
+                        android:elevation="@dimen/spacing_xxs"
                         android:nextFocusForward="@id/tv_go_to_signin"
-                        android:text="@string/action_sign_up"
-                        android:textAllCaps="false"
-                        app:elevation="0dp" />
+                        android:stateListAnimator="@animator/luxury_button_state_animator"
+                        android:text="@string/action_sign_up" />
+
+                    <!-- OR Divider -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_lg"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/white_10" />
+
+                        <TextView
+                            style="@style/MoscoText.Luxury.Label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:text="@string/label_or_continue_with"
+                            android:textSize="@dimen/text_size_body_xs" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="@color/white_10" />
+                    </LinearLayout>
+
+                    <!-- Social Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageButton
+                            android:id="@+id/btn_google"
+                            android:layout_width="@dimen/social_button_size"
+                            android:layout_height="@dimen/social_button_size"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:background="@drawable/bg_btn_social_glass"
+                            android:padding="@dimen/social_icon_padding"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_google"
+                            android:stateListAnimator="@animator/luxury_button_state_animator" />
+
+                        <ImageButton
+                            android:id="@+id/btn_discord"
+                            android:layout_width="@dimen/social_button_size"
+                            android:layout_height="@dimen/social_button_size"
+                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:background="@drawable/bg_btn_social_glass"
+                            android:padding="@dimen/social_icon_padding"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_discord"
+                            android:stateListAnimator="@animator/luxury_button_state_animator" />
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -305,7 +367,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="@dimen/spacing_xl"
                     android:focusable="true"
                     android:nextFocusForward="@id/btn_back"
                     android:text="@string/msg_already_have_account"

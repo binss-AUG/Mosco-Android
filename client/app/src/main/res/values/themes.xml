@@ -4,10 +4,22 @@
         <!-- Matte Obsidian Background - Đồng bộ toàn hệ thống -->
         <item name="android:windowBackground">@drawable/bg_global_gradient</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/mosco_surface_container</item>
     </style>
 
-    <style name="Theme.Mosco" parent="Base.Theme.Mosco" />
+    <style name="Theme.Mosco" parent="Base.Theme.Mosco" >
+        <item name="android:windowAnimationStyle">@style/LuxuryAnimation</item>
+    </style>
+
+    <style name="LuxuryAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/luxury_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/luxury_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/luxury_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/luxury_exit</item>
+        <item name="android:taskOpenEnterAnimation">@anim/luxury_enter</item>
+        <item name="android:taskOpenExitAnimation">@anim/luxury_exit</item>
+    </style>
 
     <!-- Theme cho BottomSheet để có nền trong suốt và bo góc đúng cách -->
     <style name="CustomBottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
