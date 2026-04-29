@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "241886304917",
+    "project_id": "mosco-collect",
+    "storage_bucket": "mosco-collect.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241886304917:android:fe1bf1910b096d21cd599c",
+        "android_client_info": {
+          "package_name": "com.vn.jet.mosco"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "241886304917-rmodvhduv1qbj72tae9uovsq5rqg03dp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vn.jet.mosco",
+            "certificate_hash": "db008edb731ac76f686e612abe81a78261eed3b8"
+          }
+        },
+        {
+          "client_id": "241886304917-7ngj2t444l4avu4h3cv5oka4u6h67nc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb8vgv3HeD8k9bZOnpwyU37GeqsWw4YfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "241886304917-7ngj2t444l4avu4h3cv5oka4u6h67nc4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -222,4 +222,45 @@ public class AuthService {
     private String generateToken(User user) {
         return jwtUtil.generateToken(user.getId(), user.getUsername());
     }
+
+    /**
+     * Đăng nhập thông qua Social Provider (Google/Discord)
+     * - Nếu email đã tồn tại: Cấp lại token (Merge Account)
+     * - Nếu email chưa tồn tại: Tạo mới User với mật khẩu ngẫu nhiên
+     */
+    public AuthResponse socialLogin(String provider, String token, String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return new AuthResponse(false, "Không lấy được email từ " + provider, null, null);
+        }
+        
+        email = email.trim().toLowerCase(Locale.ROOT);
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        User user;
+        
+        if (userOpt.isPresent()) {
+            // Đã tồn tại: Merge account
+            user = userOpt.get();
+        } else {
+            // Chưa tồn tại: Tạo acc mới
+            String randomPassword = java.util.UUID.randomUUID().toString();
+            String hashedPassword = passwordEncoder.encode(randomPassword);
+            String tempUsername = "user_" + email.split("@")[0] + "_" + java.util.UUID.randomUUID().toString().substring(0, 4);
+            
+            user = new User(tempUsername, email, hashedPassword);
+            // Quà tân thủ
+            user.setCoins(50000L);
+            user.setDiamonds(10000L);
+            // Cố tình KHÔNG set IngameName để Android tự động bật màn hình Đặt Tên (DisplayNameSetupActivity)
+            // user.setIngameName(tempUsername); 
+            
+            userRepository.save(user);
+        }
+        
+        // Cấp token cho User
+        String jwtToken = generateToken(user);
+        user.setActiveToken(jwtToken);
+        userRepository.save(user);
+        
+        return new AuthResponse(true, "Đăng nhập thành công qua " + provider, user, jwtToken);
+    }
 }

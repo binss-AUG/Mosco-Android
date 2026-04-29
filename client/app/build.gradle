@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -48,8 +49,7 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
 
     // --- Firebase (Dùng cho Auth và lưu trữ kho đồ Online) ---
-    // Import cái BOM này để không cần quản lý version từng cái lẻ
-    implementation platform('com.google.firebase:firebase-bom:32.2.0')
+    implementation platform('com.google.firebase:firebase-bom:34.12.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.android.gms:play-services-auth:20.6.0'

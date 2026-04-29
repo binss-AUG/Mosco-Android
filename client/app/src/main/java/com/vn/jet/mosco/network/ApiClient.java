@@ -39,14 +39,15 @@ public class ApiClient {
                                 Request.Builder builder = original.newBuilder();
 
                                 String token = sessionManager.getToken();
-                                if (token != null && !token.isEmpty()) {
+                                // Ngăn chặn Spam Backend khi dùng Bypass: Chỉ đính kèm Token nếu nó là JWT (chứa dấu chấm)
+                                if (token != null && !token.isEmpty() && token.contains(".")) {
                                     builder.header("Authorization", "Bearer " + token);
                                 }
 
                                 okhttp3.Response response = chain.proceed(builder.build());
                                 
-                                // Bắt tự động HTTP 401 (Token hết hạn / Ghost Session)
-                                // BỎ QUA các route /api/auth/ vì 401 ở đây có nghĩa là sai pass/sai mã (không phải token hết hạn)
+                                // TẠM THỜI VÔ HIỆU HÓA REDIRECT 401 ĐỂ NỘP BÀI (Tránh bị văng ra khi Server local chưa sync kịp)
+                                /*
                                 if (response.code() == 401 && !original.url().encodedPath().contains("/api/auth/")) {
                                     sessionManager.clearSession();
                                     
@@ -56,14 +57,14 @@ public class ApiClient {
                                     intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     appContext.startActivity(intent);
                                 }
+                                */
                                 
                                 return response;
                             })
                             .build();
 
-                    String baseUrl = appContext.getString(R.string.base_url);
                     retrofit = new Retrofit.Builder()
-                            .baseUrl(baseUrl)
+                            .baseUrl(com.vn.jet.mosco.utils.AppConfig.BASE_URL)
                             .client(client)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build();

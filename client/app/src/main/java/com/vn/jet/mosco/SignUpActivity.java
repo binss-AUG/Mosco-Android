@@ -358,20 +358,31 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
+        if (intent == null) return;
         Uri data = intent.getData();
-        if (data != null && data.getScheme().equals("mosco")) {
-            String fragment = data.getFragment();
-            if (fragment != null && fragment.contains("access_token=")) {
-                setLoading(true);
-                String accessToken = fragment.split("access_token=")[1].split("&")[0];
+        if (data == null) return;
+
+        if (!"mosco".equals(data.getScheme())) return;
+
+        setLoading(true);
+        com.vn.jet.mosco.utils.DiscordAuthManager.handleCallback(this, data, new com.vn.jet.mosco.utils.DiscordAuthManager.DiscordAuthCallback() {
+            @Override
+            public void onSuccess(String id, String username, String email, String accessToken, String avatarUrl) {
+                // Đẩy Access Token vào Backend xử lý tiếp (hoặc bypass tùy backend)
                 viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, null));
             }
-        }
+
+            @Override
+            public void onError(String error) {
+                setLoading(false);
+                Toast.makeText(SignUpActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void initGoogleSignIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken(com.vn.jet.mosco.utils.AppConfig.GOOGLE_WEB_CLIENT_ID)
                 .requestEmail()
                 .build();
 
@@ -416,16 +427,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void signInWithDiscord() {
         if (isSigningUp) return;
-        
-        String clientId = getString(R.string.discord_client_id);
-        String redirectUri = getString(R.string.discord_redirect_uri);
-        String authUrl = "https://discord.com/api/oauth2/authorize" +
-                "?client_id=" + clientId +
-                "&redirect_uri=" + Uri.encode(redirectUri) +
-                "&response_type=token" +
-                "&scope=identify%20email";
-
-        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
-        customTabsIntent.launchUrl(this, Uri.parse(authUrl));
+        com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 }
