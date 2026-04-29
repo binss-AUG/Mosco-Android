@@ -362,6 +362,7 @@ public class SignUpActivity extends AppCompatActivity {
         if (data != null && data.getScheme().equals("mosco")) {
             String fragment = data.getFragment();
             if (fragment != null && fragment.contains("access_token=")) {
+                setLoading(true);
                 String accessToken = fragment.split("access_token=")[1].split("&")[0];
                 viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, null));
             }
@@ -389,6 +390,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
         if (isSigningUp) return;
+        setLoading(true);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         googleSignInLauncher.launch(signInIntent);
     }
@@ -401,9 +403,14 @@ public class SignUpActivity extends AppCompatActivity {
             
             if (idToken != null) {
                 viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, email));
+            } else {
+                setLoading(false);
+                Toast.makeText(this, "Google Token is null. Check Web Client ID.", Toast.LENGTH_LONG).show();
             }
         } catch (ApiException e) {
-            Toast.makeText(this, "Google sign in failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            setLoading(false);
+            android.util.Log.e("MoscoAuth", "Google sign in failed", e);
+            Toast.makeText(this, "Google Error: " + e.getStatusCode() + " (Check Client ID/SHA1)", Toast.LENGTH_LONG).show();
         }
     }
 
