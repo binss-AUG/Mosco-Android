@@ -158,4 +158,22 @@
     <dimen name="radius_md">11dp</dimen>
     <dimen name="radius_lg">18dp</dimen>
     <dimen name="radius_pill">999dp</dimen>
+
+    <!-- Home Header Refined (Scaled +25%) -->
+    <dimen name="home_header_avatar_outer">60dp</dimen>
+    <dimen name="home_header_avatar_inner">52dp</dimen>
+    <dimen name="home_header_username_text">19sp</dimen>
+    <dimen name="home_header_id_text">12sp</dimen>
+    <dimen name="home_header_currency_text">16sp</dimen>
+    <dimen name="home_header_pill_padding_h">14dp</dimen>
+    <dimen name="home_header_pill_padding_v">8dp</dimen>
+    <dimen name="home_header_pill_divider_h">1.5dp</dimen>
+    <dimen name="home_header_pill_divider_v">16dp</dimen>
+
+    <!-- Home Quick Tools (Scaled +25%) -->
+    <dimen name="home_quick_tool_fab_size">60dp</dimen>
+    <dimen name="home_quick_tool_icon_size">28dp</dimen>
+    <dimen name="home_quick_tool_text_size">11sp</dimen>
+    <dimen name="home_quick_tool_spacing">10dp</dimen>
+    <dimen name="planet_base_size">400dp</dimen>
 </resources>

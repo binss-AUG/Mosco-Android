@@ -19,7 +19,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -97,12 +99,26 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private View layoutShowcaseLoading;
     private TextView tvShowcaseLoading, tvCardCount;
     private ViewPager2 vpBanners;
-    private View viewProjectorBeam, viewAvatarGlow, flAvatarGroup;
+    private View viewProjectorBeam, viewAvatarGlow, flAvatarGroup, viewEmptyCardBg;
+    private FrameLayout flParticleContainer;
+    private ImageView ivHomePlanet, ivHomeAsteroid1, ivHomeAsteroid2;
+    private View clHeader, cvBannerContainer;
 
     // ── Quick Tool References (New HUD V3) ──
     private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
     private android.widget.HorizontalScrollView hsvQuickTools;
     private LinearLayout llQuickToolsContainer;
+
+    private static final int PLANET_MIN_DURATION = 40000;
+    private static final int PLANET_MAX_DURATION = 60000;
+    private static final int PLANET_ALPHA_DURATION = 5000;
+    private static final float PLANET_MAX_SCALE = 5.0f;
+    
+    private final int[] surfaceResIds = {
+        R.drawable.ic_planet_surface_a,
+        R.drawable.ic_planet_surface_b,
+        R.drawable.ic_planet_surface_c
+    };
 
     // ── State ──
     private boolean isCardFlipped = false;
@@ -111,6 +127,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private float startCardRotation = 0f;
     private ObjectAnimator snapAnimator;
     private String heroBackImageUrl = null;
+    private boolean isPlanetActive = false; // Flag để đảm bảo chỉ có 1 hành tinh 1 lúc
+    private java.util.List<android.animation.Animator> activeAnimators = new java.util.ArrayList<>();
 
     // ── Services ──
     private SessionManager sessionManager;
@@ -145,6 +163,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
         initServices();
+        
+        // Setup Long Click Copy cho Username và ID
+        setupLongClickCopy(tvUsername, "Tên chỉ huy");
+        setupLongClickCopy(tvUserId, "Mã ID");
         initGestureDetector();
         setupBannerCarousel();
         setupQuickToolActions();
@@ -160,6 +182,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         super.onResume();
         startBannerAutoScroll();
         startAvatarPulse();
+        startSpaceDustEffect();
+        startBackgroundEntitiesAnimation();
+        setupZenMode();
         loadUserData();
         loadHeroShowcase();
     }
@@ -172,12 +197,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        // Dọn dẹp animation để tránh Memory Leak và tối ưu cho máy yếu
+        for (android.animation.Animator animator : activeAnimators) {
+            if (animator != null) animator.cancel();
+        }
+        activeAnimators.clear();
         DatabaseLoader.unregisterInventoryChangeListener(this);
         stopBannerAutoScroll();
         if (showcaseLoadingTimeoutRunnable != null) {
             showcaseLoadingHandler.removeCallbacks(showcaseLoadingTimeoutRunnable);
         }
+        super.onDestroyView();
     }
 
     @Override
@@ -206,6 +236,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             cvShowcaseCard = v.findViewById(R.id.cv_showcase_card);
             viewCardShimmer = v.findViewById(R.id.view_card_shimmer);
             llEmptyState = v.findViewById(R.id.ll_empty_state);
+            viewEmptyCardBg = v.findViewById(R.id.view_empty_card_bg);
             llBannerDots = v.findViewById(R.id.ll_banner_dots);
             
             btnQuickRank = v.findViewById(R.id.btn_quick_rank);
@@ -230,6 +261,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             tvUserId = v.findViewById(R.id.tv_home_user_id);
             layoutUserId = v.findViewById(R.id.layout_user_id);
             llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
+            flParticleContainer = v.findViewById(R.id.fl_particle_container);
+            ivHomePlanet = v.findViewById(R.id.iv_home_planet);
+            ivHomeAsteroid1 = v.findViewById(R.id.iv_home_asteroid_1);
+            ivHomeAsteroid2 = v.findViewById(R.id.iv_home_asteroid_2);
+            clHeader = v.findViewById(R.id.cl_header);
+            cvBannerContainer = v.findViewById(R.id.cv_banner_container);
+            
+            if (flParticleContainer != null) {
+                flParticleContainer.setClipChildren(false);
+                flParticleContainer.setClipToPadding(false);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error initializing views", e);
         }
@@ -616,6 +658,27 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     /**
      * Heartbeat pulse animation for the avatar glow ring.
+        if (viewAvatarGlow == null) return;
+        
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(viewAvatarGlow, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(viewAvatarGlow, "scaleY", 1f, 1.2f, 1f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(viewAvatarGlow, "alpha", 0.1f, 0.4f, 0.1f);
+        
+        AnimatorSet pulse = new AnimatorSet();
+        pulse.playTogether(scaleX, scaleY, alpha);
+        pulse.setDuration(2000);
+        pulse.setStartDelay(500);
+        pulse.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (isAdded()) pulse.start();
+            }
+        });
+        pulse.start();
+    }
+
+    /**
+     * Heartbeat pulse animation for the avatar glow ring.
      */
     private void startAvatarPulse() {
         if (viewAvatarGlow == null) return;
@@ -635,6 +698,264 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
         });
         pulse.start();
+    }
+
+    /**
+     * Hiệu ứng Space Dust - Tạo các hạt bụi sao phóng từ tâm ra rìa màn hình.
+     */
+    private void startSpaceDustEffect() {
+        if (flParticleContainer == null) return;
+        
+        flParticleContainer.post(() -> {
+            final Handler handler = new Handler(Looper.getMainLooper());
+            Runnable starCreator = new Runnable() {
+                @Override
+                public void run() {
+                    if (isAdded() && flParticleContainer != null && flParticleContainer.getWidth() > 0) {
+                        createStar();
+                        handler.postDelayed(this, 40); // Cực nhanh (40ms)
+                    } else if (isAdded()) {
+                        handler.postDelayed(this, 100);
+                    }
+                }
+            };
+            handler.post(starCreator);
+        });
+    }
+
+    /**
+     * Animation cho Hành tinh và Thiên thạch trôi chậm rãi.
+     */
+    /**
+     * Animation cho Hành tinh và Thiên thạch lao về phía người dùng (Perspective).
+     */
+    private void startBackgroundEntitiesAnimation() {
+        // Xóa bỏ hành tinh tĩnh, chuyển sang hệ thống spawn động
+        if (ivHomePlanet != null) ivHomePlanet.setVisibility(View.GONE);
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        
+        // Spawn hành tinh định kỳ (mỗi 15-20s, nhưng chỉ khi cái cũ đã biến mất)
+        Runnable planetSpawner = new Runnable() {
+            @Override
+            public void run() {
+                if (isAdded() && flParticleContainer != null && !isPlanetActive) {
+                    spawnApproachingPlanet();
+                }
+                handler.postDelayed(this, 5000); // Check mỗi 5s
+            }
+        };
+        handler.post(planetSpawner);
+
+        // Tạo thiên thạch lao tới định kỳ
+        Runnable asteroidSpawner = new Runnable() {
+            @Override
+            public void run() {
+                if (isAdded() && flParticleContainer != null) {
+                    spawnApproachingAsteroid();
+                    handler.postDelayed(this, (long) (Math.random() * 4000 + 3000));
+                }
+            }
+        };
+        handler.postDelayed(asteroidSpawner, 2000);
+    }
+
+    private void spawnApproachingPlanet() {
+        if (getContext() == null || flParticleContainer == null || isPlanetActive) return;
+
+        isPlanetActive = true;
+        
+        // 1. Chọn ngẫu nhiên mẫu bề mặt
+        int randomSurface = surfaceResIds[(int) (Math.random() * surfaceResIds.length)];
+        
+        // 2. Chọn ngẫu nhiên trục nghiêng
+        final float randomTilt = (float) (Math.random() * 60 - 30);
+        
+        // Container
+        final FrameLayout planetContainer = new FrameLayout(getContext());
+        // Tối ưu cho máy yếu: Sử dụng Hardware Layer trong khi animation
+        planetContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        
+        final int baseSize = getResources().getDimensionPixelSize(R.dimen.planet_base_size);
+        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(baseSize, baseSize);
+        planetContainer.setLayoutParams(containerParams);
+        planetContainer.setAlpha(0f);
+        
+        // Lớp Surface (Địa hình)
+        final ImageView ivSurface = new ImageView(getContext());
+        ivSurface.setImageResource(randomSurface);
+        ivSurface.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        ivSurface.setRotation(randomTilt); 
+        planetContainer.addView(ivSurface, new FrameLayout.LayoutParams(baseSize, baseSize));
+        
+        // Lớp Overlay (Bóng đổ cố định)
+        final ImageView ivOverlay = new ImageView(getContext());
+        ivOverlay.setImageResource(R.drawable.ic_planet_overlay);
+        ivOverlay.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        planetContainer.addView(ivOverlay, new FrameLayout.LayoutParams(baseSize, baseSize));
+        
+        planetContainer.setScaleX(0.01f); 
+        planetContainer.setScaleY(0.01f);
+        
+        int centerX = flParticleContainer.getWidth() / 2;
+        int centerY = flParticleContainer.getHeight() / 2;
+        planetContainer.setX(centerX - baseSize/2f);
+        planetContainer.setY(centerY - baseSize/2f);
+        
+        flParticleContainer.addView(planetContainer, 0); 
+
+        final long duration = (long) (Math.random() * (PLANET_MAX_DURATION - PLANET_MIN_DURATION) + PLANET_MIN_DURATION);
+        
+        // Quỹ đạo lao ra các góc
+        float angle = (float) (Math.random() * 2 * Math.PI);
+        float distance = Math.max(flParticleContainer.getWidth(), flParticleContainer.getHeight()) * 1.5f;
+        final float destX = centerX + (float) Math.cos(angle) * distance - baseSize/2f;
+        final float destY = centerY + (float) Math.sin(angle) * distance - baseSize/2f;
+
+        // ANIMATION
+        android.animation.ObjectAnimator scaleX = android.animation.ObjectAnimator.ofFloat(planetContainer, "scaleX", 0.01f, PLANET_MAX_SCALE);
+        android.animation.ObjectAnimator scaleY = android.animation.ObjectAnimator.ofFloat(planetContainer, "scaleY", 0.01f, PLANET_MAX_SCALE);
+        android.animation.ObjectAnimator alpha = android.animation.ObjectAnimator.ofFloat(planetContainer, "alpha", 0f, 1.0f);
+        android.animation.ObjectAnimator rotate = android.animation.ObjectAnimator.ofFloat(ivSurface, "rotation", randomTilt, randomTilt + 360f);
+
+        scaleX.setDuration(duration);
+        scaleY.setDuration(duration);
+        alpha.setDuration(PLANET_ALPHA_DURATION);
+        rotate.setDuration(duration);
+
+        // Quản lý animator để dọn dẹp khi cần
+        activeAnimators.add(scaleX);
+        activeAnimators.add(scaleY);
+        activeAnimators.add(alpha);
+        activeAnimators.add(rotate);
+
+        scaleX.start();
+        scaleY.start();
+        alpha.start();
+        rotate.start();
+
+        planetContainer.animate()
+            .x(destX)
+            .y(destY)
+            .setDuration(duration)
+            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+            .withEndAction(() -> {
+                if (flParticleContainer != null) {
+                    flParticleContainer.removeView(planetContainer);
+                    // Tắt hardware layer khi xong để tiết kiệm tài nguyên
+                    planetContainer.setLayerType(View.LAYER_TYPE_NONE, null);
+                }
+                isPlanetActive = false; 
+            })
+            .start();
+    }
+
+    private void setupZenMode() {
+        if (getView() == null) return;
+        
+        GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(MotionEvent e) {
+                toggleZenMode(true);
+            }
+        });
+
+        getView().setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                toggleZenMode(false);
+            }
+            return true;
+        });
+    }
+
+    private void toggleZenMode(boolean zen) {
+        float alpha = zen ? 0f : 1f;
+        long duration = 500;
+        
+        View[] elements = {clHeader, cvBannerContainer, llBannerDots, hsvQuickTools, flShowcaseContainer, viewProjectorBeam};
+        for (View v : elements) {
+            if (v != null) {
+                v.animate().alpha(alpha).setDuration(duration).start();
+            }
+        }
+    }
+
+    private void spawnApproachingAsteroid() {
+        if (getContext() == null || flParticleContainer == null) return;
+
+        final ImageView asteroid = new ImageView(getContext());
+        asteroid.setImageResource(R.drawable.ic_asteroid);
+        int size = (int) (Math.random() * 40 + 40); // Size ban đầu nhỏ
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(size, size);
+        asteroid.setLayoutParams(params);
+        asteroid.setAlpha(0f);
+        asteroid.setScaleX(0.1f);
+        asteroid.setScaleY(0.1f);
+        
+        int centerX = flParticleContainer.getWidth() / 2;
+        int centerY = flParticleContainer.getHeight() / 2;
+        asteroid.setX(centerX);
+        asteroid.setY(centerY);
+        
+        flParticleContainer.addView(asteroid, 0); // Thêm vào dưới cùng
+
+        float angle = (float) (Math.random() * 2 * Math.PI);
+        float distance = Math.max(flParticleContainer.getWidth(), flParticleContainer.getHeight()) * 1.2f;
+        float destX = centerX + (float) Math.cos(angle) * distance;
+        float destY = centerY + (float) Math.sin(angle) * distance;
+
+        asteroid.animate()
+            .translationX(destX)
+            .translationY(destY)
+            .scaleX(4f) // Phóng to cực đại khi đến gần
+            .scaleY(4f)
+            .rotation((float) (Math.random() * 360))
+            .alpha(0.8f)
+            .setDuration((long) (Math.random() * 5000 + 5000)) // Bay trong 5-10s
+            .setInterpolator(new AccelerateInterpolator())
+            .withEndAction(() -> flParticleContainer.removeView(asteroid))
+            .start();
+    }
+
+    private void createStar() {
+        if (getContext() == null || flParticleContainer == null || flParticleContainer.getWidth() <= 0) return;
+
+        final View star = new View(getContext());
+        // Vệt sáng siêu to khổng lồ
+        int width = (int) (Math.random() * 6 + 10); // Rộng 10-16dp
+        int height = (int) (Math.random() * 60 + 40); // Dài 40-100dp
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
+        star.setLayoutParams(params);
+        
+        star.setBackgroundResource(R.drawable.streak_particle);
+        star.setAlpha(0f);
+        
+        int centerX = flParticleContainer.getWidth() / 2;
+        int centerY = flParticleContainer.getHeight() / 2;
+        
+        // Xuất phát xa tâm một chút để không bị card che
+        float angle = (float) (Math.random() * 2 * Math.PI);
+        float startOffset = 200f; 
+        star.setX(centerX + (float) Math.cos(angle) * startOffset);
+        star.setY(centerY + (float) Math.sin(angle) * startOffset);
+        
+        flParticleContainer.addView(star);
+        star.setRotation((float) Math.toDegrees(angle) + 90);
+
+        float distance = Math.max(flParticleContainer.getWidth(), flParticleContainer.getHeight());
+        float destX = centerX + (float) Math.cos(angle) * distance;
+        float destY = centerY + (float) Math.sin(angle) * distance;
+
+        star.animate()
+            .translationX(destX)
+            .translationY(destY)
+            .scaleY(2.5f) 
+            .alpha(1f)
+            .setDuration((long) (Math.random() * 400 + 300)) // Phóng vút đi trong 0.3-0.7s
+            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+            .withEndAction(() -> flParticleContainer.removeView(star))
+            .start();
     }
 
     /**
@@ -890,28 +1211,67 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void showEmptyState(boolean show) {
-        if (llEmptyState != null) {
-            llEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
         if (cvShowcaseCard != null) {
+            cvShowcaseCard.setVisibility(View.VISIBLE); // Luôn hiện để giữ tỉ lệ 1:1.54
+            
             if (show) {
-                // Xóa bỏ ảnh cũ nếu có
-                if (ivShowcaseFront != null) Glide.with(this).clear(ivShowcaseFront);
-                if (ivShowcaseBack != null) Glide.with(this).clear(ivShowcaseBack);
+                // Trạng thái Trống: Hiện Placeholder xám và Text u buồn
+                if (viewEmptyCardBg != null) viewEmptyCardBg.setVisibility(View.VISIBLE);
+                if (llEmptyState != null) llEmptyState.setVisibility(View.VISIBLE);
+                
+                // Ẩn các thành phần thẻ thật
+                if (ivShowcaseFront != null) {
+                    ivShowcaseFront.setVisibility(View.GONE);
+                    Glide.with(this).clear(ivShowcaseFront);
+                }
+                if (ivShowcaseBack != null) {
+                    ivShowcaseBack.setVisibility(View.GONE);
+                    Glide.with(this).clear(ivShowcaseBack);
+                }
                 if (tvShowcaseOvr != null) tvShowcaseOvr.setVisibility(View.GONE);
                 if (ivLevelBadge != null) ivLevelBadge.setVisibility(View.GONE);
                 if (viewCardShimmer != null) viewCardShimmer.setVisibility(View.GONE);
                 
-                // Hiển thị khung với hiệu ứng Glow tím nhạt Placeholder + Floating
-                cvShowcaseCard.setVisibility(View.VISIBLE);
-                com.vn.jet.mosco.utils.CardEffectHelper.applyEmptyStateGlow(cvShowcaseCard, true);
+                cvShowcaseCard.setCardElevation(0);
+                com.vn.jet.mosco.utils.CardEffectHelper.remove(cvShowcaseCard, viewCardShimmer);
                 
-                // Tắt beam sáng (Projector) trong khi empty
-                if (viewProjectorBeam != null) viewProjectorBeam.setAlpha(0f);
+                if (viewProjectorBeam != null) {
+                    viewProjectorBeam.animate().cancel();
+                    viewProjectorBeam.setAlpha(0f);
+                    viewProjectorBeam.setVisibility(View.GONE);
+                }
             } else {
-                cvShowcaseCard.setVisibility(View.VISIBLE);
+                // Trạng thái Có Thẻ: Ẩn Placeholder
+                if (viewEmptyCardBg != null) viewEmptyCardBg.setVisibility(View.GONE);
+                if (llEmptyState != null) llEmptyState.setVisibility(View.GONE);
+                
+                if (ivShowcaseFront != null) ivShowcaseFront.setVisibility(View.VISIBLE);
+                if (viewProjectorBeam != null) viewProjectorBeam.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    /**
+     * Hỗ trợ copy thông tin khi ấn giữ.
+     */
+    private void setupLongClickCopy(TextView textView, String label) {
+        if (textView == null) return;
+        textView.setOnLongClickListener(v -> {
+            String text = textView.getText().toString();
+            if (text.isEmpty()) return true;
+            
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) 
+                    requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText(label, text);
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(clip);
+                android.widget.Toast.makeText(getContext(), "Đã sao chép " + label, android.widget.Toast.LENGTH_SHORT).show();
+                
+                // Haptic feedback cho cảm giác "Senior"
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+            }
+            return true;
+        });
     }
 
     /**

@@ -53,8 +53,8 @@
     <string name="home_format_currency_thousands">%.1fK</string>
 
     <!-- HomeFragment: Showcase -->
-    <string name="home_showcase_empty_title">No Objets Yet</string>
-    <string name="home_showcase_empty_subtitle">Spin to collect your first card!</string>
+    <string name="home_showcase_empty_title">The archive is silent… no objets found yet.</string>
+    <string name="home_showcase_empty_subtitle">Venture into the unknown to find your first relic.</string>
     <string name="home_cd_showcase_front">Showcase card front image</string>
     <string name="home_cd_showcase_back">Showcase card back image</string>
     <string name="home_cd_user_avatar">User profile avatar</string>
@@ -176,8 +176,8 @@
 
     <!-- Inventory Strings -->
     <string name="inventory_title">Select an Objet</string>
-    <string name="inventory_empty_title">No Objets found in your inventory</string>
-    <string name="inventory_empty_desc">Go to Shop to buy some packs first.</string>
+    <string name="inventory_empty_title">Your collection is hauntingly empty...</string>
+    <string name="inventory_empty_desc">Venture to the shop and summon your first artifact.</string>
     <string name="inventory_btn_confirm">Confirm</string>
 
     <!-- Upgrade Strings -->

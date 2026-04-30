@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="600dp"
+    android:height="600dp"
+    android:viewportWidth="600"
+    android:viewportHeight="600">
+    <path android:pathData="M300,300m-280,0a280,280 0,1 1,560 0a280,280 0,1 1,-560 0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:centerX="250" android:centerY="250" android:gradientRadius="350" android:type="radial">
+                <item android:color="@color/planet_purple_deep" android:offset="0.0" />
+                <item android:color="#FF1A0B2E" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M300,300m-280,0a280,280 0,1 1,560 0a280,280 0,1 1,-560 0">
+        <aapt:attr name="android:fillColor">
+            <gradient android:centerX="350" android:centerY="200" android:gradientRadius="400" android:type="radial">
+                <item android:color="#4DE1BEE7" android:offset="0.0" />
+                <item android:color="#26CE93D8" android:offset="0.4" />
+                <item android:color="#00000000" android:offset="0.8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M150,150m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" android:alpha="0.2">
+        <aapt:attr name="android:fillColor">
+            <gradient android:centerX="150" android:centerY="150" android:gradientRadius="30" android:type="radial">
+                <item android:color="@color/planet_glow_cyan" android:offset="0.0" />
+                <item android:color="#0000FFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

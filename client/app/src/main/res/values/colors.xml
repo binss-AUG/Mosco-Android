@@ -102,4 +102,15 @@
     <!-- Profile Luxury Colors -->
     <color name="white_10">#1AFFFFFF</color>
     <color name="white_40">#66FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_25">#40FFFFFF</color>
+    <color name="white_15">#26FFFFFF</color>
+    <color name="planet_purple_deep">#1A0B2E</color>
+    <color name="planet_purple_bright">#9370DB</color>
+    <color name="planet_storm_spot">#BA55D3</color>
+    <color name="planet_glow_cyan">#00FFFF</color>
+    <color name="planet_shadow_heavy">#E6000000</color>
+    <color name="planet_lava_red">#FF4500</color>
+    <color name="planet_ice_blue">#E0FFFF</color>
+    <color name="planet_terra_green">#228B22</color>
 </resources>

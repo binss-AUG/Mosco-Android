@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Thân chính thiên thạch: Đa giác góc cạnh -->
+    <path
+        android:pathData="M40,60 L80,30 L140,40 L170,90 L150,150 L80,170 L30,130 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="170"
+                android:endY="170"
+                android:startX="40"
+                android:startY="40"
+                android:type="linear">
+                <item android:color="#4A4A4A" android:offset="0" />
+                <item android:color="#2B2B2B" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Các mảng lồi lõm & hố thiên thạch (Craters) -->
+    <path
+        android:fillColor="#1A1A1A"
+        android:pathData="M60,70 L90,60 L100,90 L70,100 Z" />
+    <path
+        android:fillColor="#3A3A3A"
+        android:pathData="M110,110 L140,100 L150,130 L120,140 Z" />
+    <path
+        android:fillColor="#1A1A1A"
+        android:pathData="M130,50 L155,55 L160,80 L135,75 Z" />
+
+    <!-- Cạnh cháy sáng tạo khối 3D -->
+    <path
+        android:fillColor="#6A6A6A"
+        android:pathData="M40,60 L80,30 L100,45 L70,65 Z" />
+    <path
+        android:fillColor="#5A5A5A"
+        android:pathData="M140,40 L170,90 L155,95 L130,55 Z" />
+
+</vector>
