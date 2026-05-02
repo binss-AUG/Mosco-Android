@@ -155,7 +155,6 @@
 
     <color name="shadow_dark">#80000000</color>
     <color name="white_60">#99FFFFFF</color>
-    <color name="white_80">#CCFFFFFF</color>
     
     <!-- Auth Luxury Colors -->
     <color name="mosco_primary_action">@color/mosco_primary</color>
