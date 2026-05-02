@@ -27,6 +27,16 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.browser.customtabs.CustomTabsIntent;
+import android.net.Uri;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -40,6 +50,9 @@ public class SignUpActivity extends AppCompatActivity {
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
     private boolean isSigningUp = false;
+
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +79,9 @@ public class SignUpActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
+
+        initGoogleSignIn();
+        handleIntent(getIntent());
 
         // Nhận thời gian chạy Animation từ màn trước
         
@@ -126,6 +142,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         // --- Observe Send Code result ---
+        // --- Observe Send Code result ---
         viewModel.getSendCodeResult().observe(this, resource -> {
             switch (resource.getStatus()) {
                 case LOADING:
@@ -151,6 +168,21 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onDebouncedClick(View v) {
                 validateAndSignUp();
+            }
+        });
+
+        // --- Social Login buttons ---
+        findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithGoogle();
+            }
+        });
+
+        findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithDiscord();
             }
         });
 
@@ -182,7 +214,6 @@ public class SignUpActivity extends AppCompatActivity {
                                 getString(R.string.msg_create_account_success),
                                 Toast.LENGTH_SHORT).show();
 
-                        // User mới luôn chưa có Display Name → sang Setup
                         Intent intent;
                         String ingame = resource.getData().getData() != null
                                 ? resource.getData().getData().getIngameName() : null;
@@ -193,10 +224,6 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        
-                        // Transfer cosmic heartbeat
-                        
-                        
                         startActivity(intent);
                         finish();
                     } else {
@@ -322,5 +349,84 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent == null) return;
+        Uri data = intent.getData();
+        if (data == null) return;
+
+        if (!"mosco".equals(data.getScheme())) return;
+
+        setLoading(true);
+        com.vn.jet.mosco.utils.DiscordAuthManager.handleCallback(this, data, new com.vn.jet.mosco.utils.DiscordAuthManager.DiscordAuthCallback() {
+            @Override
+            public void onSuccess(String id, String username, String email, String accessToken, String avatarUrl) {
+                // Đẩy Access Token vào Backend xử lý tiếp (hoặc bypass tùy backend)
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, null));
+            }
+
+            @Override
+            public void onError(String error) {
+                setLoading(false);
+                Toast.makeText(SignUpActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void initGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(com.vn.jet.mosco.utils.AppConfig.GOOGLE_WEB_CLIENT_ID)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        handleGoogleSignInResult(task);
+                    }
+                }
+        );
+    }
+
+    private void signInWithGoogle() {
+        if (isSigningUp) return;
+        setLoading(true);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            String email = account.getEmail();
+            
+            if (idToken != null) {
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, email));
+            } else {
+                setLoading(false);
+                Toast.makeText(this, "Google Token is null. Check Web Client ID.", Toast.LENGTH_LONG).show();
+            }
+        } catch (ApiException e) {
+            setLoading(false);
+            android.util.Log.e("MoscoAuth", "Google sign in failed", e);
+            Toast.makeText(this, "Google Error: " + e.getStatusCode() + " (Check Client ID/SHA1)", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void signInWithDiscord() {
+        if (isSigningUp) return;
+        com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 }

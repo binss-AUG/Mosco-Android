@@ -75,6 +75,10 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
         // Pre-fill với username hiện tại (mặc định)
         String username = sessionManager.getUsername();
         if (username != null && !username.isEmpty()) {
+            // Bảo vệ chống Crash: Cắt ngắn nếu dài hơn maxLength (16) của EditText
+            if (username.length() > 16) {
+                username = username.substring(0, 16);
+            }
             edtDisplayName.setText(username);
             edtDisplayName.setSelection(username.length());
         }

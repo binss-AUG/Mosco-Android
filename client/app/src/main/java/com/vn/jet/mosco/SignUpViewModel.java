@@ -84,6 +84,10 @@ public class SignUpViewModel extends AndroidViewModel {
         repository.sendVerificationCode(email, sendCodeResult);
     }
 
+    public void socialLogin(com.vn.jet.mosco.model.SocialAuthRequest request) {
+        repository.socialLogin(request, signUpResult);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();

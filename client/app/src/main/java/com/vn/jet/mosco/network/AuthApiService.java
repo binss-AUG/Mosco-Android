@@ -24,4 +24,7 @@ public interface AuthApiService {
 
     @retrofit2.http.POST("/api/auth/reset-password")
     retrofit2.Call<AuthResponse> resetPassword(@retrofit2.http.Body com.vn.jet.mosco.model.ResetPasswordRequest request);
+
+    @retrofit2.http.POST("/api/auth/social-login")
+    retrofit2.Call<AuthResponse> socialLogin(@retrofit2.http.Body com.vn.jet.mosco.model.SocialAuthRequest request);
 }

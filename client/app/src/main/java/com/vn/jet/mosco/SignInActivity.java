@@ -29,6 +29,21 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.browser.customtabs.CustomTabsIntent;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.AuthCredential;
+import com.vn.jet.mosco.model.AuthResponse;
+import android.net.Uri;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -41,7 +56,11 @@ public class SignInActivity extends AppCompatActivity {
 
     private SignInViewModel viewModel;
     private SessionManager sessionManager;
-    private boolean isSigningIn = false; // Cờ kiểm soát trạng thái đăng nhập
+    private boolean isSigningIn = false; 
+
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +79,10 @@ public class SignInActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SignInViewModel.class);
         sessionManager = new SessionManager(this);
+        mAuth = FirebaseAuth.getInstance();
+
+        initGoogleSignIn();
+        handleIntent(getIntent());
 
         // --- Spannable link for "Sign Up" ---
         String text = getString(R.string.msg_new_user_sign_up);
@@ -115,14 +138,14 @@ public class SignInActivity extends AppCompatActivity {
         findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
-                Toast.makeText(SignInActivity.this, "Google Sign-In coming soon", Toast.LENGTH_SHORT).show();
+                signInWithGoogle();
             }
         });
 
         findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
-                Toast.makeText(SignInActivity.this, "Discord Sign-In coming soon", Toast.LENGTH_SHORT).show();
+                signInWithDiscord();
             }
         });
 
@@ -236,5 +259,134 @@ public class SignInActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent == null) return;
+        Uri data = intent.getData();
+        if (data == null) return;
+
+        if (!"mosco".equals(data.getScheme())) return;
+
+        setLoading(true);
+        com.vn.jet.mosco.utils.DiscordAuthManager.handleCallback(this, data, new com.vn.jet.mosco.utils.DiscordAuthManager.DiscordAuthCallback() {
+            @Override
+            public void onSuccess(String id, String username, String email, String accessToken, String avatarUrl) {
+                // TẮT BYPASS: Gọi thẳng API Backend để lấy ID thật từ SQL Database (1, 2, 3...)
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, email));
+            }
+
+            @Override
+            public void onError(String error) {
+                setLoading(false);
+                Toast.makeText(SignInActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+
+    /**
+     * Hỗ trợ đăng nhập nhanh bằng Social để kịp nộp bài (Bypass Server verify)
+     */
+    private void handleSuccessLogin(String discordId, String name, String email, String token) {
+        setLoading(false);
+        com.vn.jet.mosco.model.AuthResponse.UserData dummyUser = new com.vn.jet.mosco.model.AuthResponse.UserData();
+        
+        long parsedId = System.currentTimeMillis();
+        try {
+            if (discordId != null && !discordId.isEmpty()) {
+                parsedId = Long.parseLong(discordId);
+            }
+        } catch (NumberFormatException ignored) {}
+        
+        dummyUser.setId(parsedId);
+        dummyUser.setUsername(name);
+        dummyUser.setEmail(email);
+        dummyUser.setIngameName(name); // Set mặc định để không bị đá vào màn hình Setup Name
+        dummyUser.setToken(token);
+        dummyUser.setAvatarId("1");
+
+        sessionManager.saveSession(dummyUser);
+        
+        Toast.makeText(this, "Welcome to Mosco Galaxy!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void initGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(com.vn.jet.mosco.utils.AppConfig.GOOGLE_WEB_CLIENT_ID)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        handleGoogleSignInResult(task);
+                    }
+                }
+        );
+    }
+
+    private void signInWithGoogle() {
+        if (isSigningIn) return;
+        setLoading(true);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            String email = account.getEmail();
+            
+            if (idToken != null) {
+                firebaseAuthWithGoogle(idToken);
+            } else {
+                setLoading(false);
+                Toast.makeText(this, "Google Token is null.", Toast.LENGTH_LONG).show();
+            }
+        } catch (ApiException e) {
+            setLoading(false);
+            android.util.Log.e("MoscoAuth", "Google sign in failed", e);
+            Toast.makeText(this, "Google Error: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // TẮT BYPASS: Gọi thẳng API Backend để lấy ID thật từ SQL Database (1, 2, 3...)
+                            viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, user.getEmail()));
+                        }
+                    } else {
+                        setLoading(false);
+                        Toast.makeText(SignInActivity.this, "Firebase Auth Failed: " + 
+                                task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void signInWithDiscord() {
+        if (isSigningIn) return;
+        com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 }
