@@ -85,9 +85,13 @@ public class AuthService {
                 email,
                 hashedPassword);
         
-        // Tặng tài nguyên tân thủ
         newUser.setCoins(50000L);
         newUser.setDiamonds(10000L);
+        
+        // Khởi tạo streak ngay khi đăng ký
+        newUser.setStreak(1);
+        newUser.setBestStreak(1);
+        newUser.setLastLoginAt(java.time.LocalDateTime.now());
         
         userRepository.save(newUser);
 
@@ -210,15 +214,103 @@ public class AuthService {
 
         String token = generateToken(user);
         user.setActiveToken(token);
+
+        updateStreak(user);
+
         userRepository.save(user);
         
         return new AuthResponse(true, "Login successful", user, token);
     }
 
     /**
+     * 🔥 LOGIC DAILY STREAK (GLOBAL)
+     * Được gọi mỗi khi User login hoặc lấy thông tin Profile.
+     * Đảm bảo streak luôn được cập nhật ngay cả khi dùng Auto-login.
+     */
+    public void updateStreak(User user) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        if (user.getLastLoginAt() == null) {
+            user.setStreak(1);
+            if (user.getBestStreak() < 1) {
+                user.setBestStreak(1);
+            }
+            System.out.println(">>> [STREAK] First interaction detected for user: " + user.getUsername() + ". Set streak to 1.");
+        } else {
+            java.time.LocalDate lastDate = user.getLastLoginAt().toLocalDate();
+            java.time.LocalDate today = now.toLocalDate();
+            
+            System.out.println(">>> [STREAK] Check for user: " + user.getUsername() + ". Last interaction: " + lastDate + ", Today: " + today);
+
+            if (today.isAfter(lastDate)) {
+                if (today.minusDays(1).equals(lastDate)) {
+                    user.setStreak(user.getStreak() + 1);
+                    System.out.println(">>> [STREAK] Consecutive interaction! New streak: " + user.getStreak());
+                } else {
+                    user.setStreak(1);
+                    System.out.println(">>> [STREAK] Streak broken. Reset to 1.");
+                }
+                // Chỉ cập nhật lastLoginAt khi sang ngày mới để tránh ghi đè liên tục trong ngày
+                user.setLastLoginAt(now);
+            } else {
+                System.out.println(">>> [STREAK] Already interacted today. Streak remains: " + user.getStreak());
+            }
+        }
+        
+        // LUÔN ĐẢM BẢO BEST STREAK CẬP NHẬT (Auto-Repair logic)
+        if (user.getStreak() > user.getBestStreak()) {
+            user.setBestStreak(user.getStreak());
+        }
+        
+        // Đảm bảo nếu có streak thì record không được bằng 0
+        if (user.getStreak() > 0 && user.getBestStreak() == 0) {
+            user.setBestStreak(user.getStreak());
+        }
+    }
+
+    /**
      * Generate a signed JWT token containing userId and username.
      * Token is valid for the duration configured in jwt.expiration (default: 24h).
      */
+    /**
+     * Khôi phục chuỗi đăng nhập.
+     * Quy tắc: 3 lần đầu trong tháng miễn phí. Từ lần thứ 4 giá 500 Kim cương.
+     */
+    public AuthResponse restoreStreak(User user) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        int currentMonth = now.getMonthValue() + now.getYear() * 100;
+
+        // Reset số lượt free nếu sang tháng mới
+        if (user.getLastRestoreMonth() == null || user.getLastRestoreMonth() < currentMonth) {
+            user.setStreakRestoresThisMonth(0);
+            user.setLastRestoreMonth(currentMonth);
+        }
+
+        int restores = user.getStreakRestoresThisMonth();
+        long cost = (restores < 3) ? 0 : 500;
+
+        if (cost > 0 && user.getDiamonds() < cost) {
+            return new AuthResponse(false, "Bạn không đủ Kim cương để khôi phục (Cần 500).", null, null);
+        }
+
+        // Thực hiện khôi phục: streak = record (về trạng thái tốt nhất)
+        if (user.getStreak() >= user.getBestStreak() && user.getStreak() > 0) {
+            return new AuthResponse(false, "Ngọn lửa của bạn đang rực cháy ở mức cao nhất rồi! Hãy quay lại khi chuỗi bị gián đoạn nhé.", null, null);
+        }
+
+        user.setDiamonds(user.getDiamonds() - cost);
+        user.setStreak(user.getBestStreak()); // Khôi phục về kỷ lục
+        user.setStreakRestoresThisMonth(restores + 1);
+        user.setLastLoginAt(now); // Cập nhật ngày để không bị reset ngay lập tức
+
+        userRepository.save(user);
+
+        String msg = (cost == 0) 
+            ? "Khôi phục chuỗi thành công! (Miễn phí " + (restores + 1) + "/3)"
+            : "Khôi phục chuỗi thành công! (Tốn 500 Kim cương)";
+
+        return new AuthResponse(true, msg, user, null);
+    }
+
     private String generateToken(User user) {
         return jwtUtil.generateToken(user.getId(), user.getUsername());
     }

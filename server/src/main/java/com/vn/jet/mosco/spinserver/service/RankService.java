@@ -125,4 +125,45 @@ public class RankService {
         rankings.sort((a, b) -> Integer.compare((int) b.get("value"), (int) a.get("value")));
         return rankings.size() > 10 ? rankings.subList(0, 10) : rankings;
     }
+
+    /**
+     * Top 10 user theo tổng tài sản (Wealth = Diamonds).
+     */
+    public List<Map<String, Object>> getTopByWealth() {
+        List<User> allUsers = userRepository.findAll();
+
+        return allUsers.stream()
+                .filter(user -> user.getDiamonds() > 0)
+                .sorted(Comparator.comparingLong(User::getDiamonds).reversed())
+                .limit(10)
+                .map(user -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("userId", user.getId());
+                    entry.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
+                    entry.put("avatarId", user.getAvatarId());
+                    entry.put("value", user.getDiamonds());
+                    return entry;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Top 10 user theo Chuỗi đăng nhập (Streak).
+     */
+    public List<Map<String, Object>> getTopByStreak() {
+        return userRepository.findAll().stream()
+                .filter(u -> u.getBestStreak() > 0)
+                .sorted((u1, u2) -> Integer.compare(u2.getBestStreak(), u1.getBestStreak()))
+                .limit(10)
+                .map(u -> {
+                    Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("userId", u.getId());
+                    map.put("username", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                    map.put("value", u.getBestStreak()); // Hiển thị kỷ lục
+                    map.put("currentStreak", u.getStreak()); // Để client dùng nếu cần
+                    map.put("avatarId", u.getAvatarId());
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

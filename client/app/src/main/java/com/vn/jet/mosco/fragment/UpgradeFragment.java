@@ -25,7 +25,9 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -60,13 +62,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * UpgradeFragment - Premium Galactic Edition (V2 - Fix Ghosting & White Card)
+ * UpgradeFragment - Phiên bản Thiên hà Cao cấp (V2 - Sửa lỗi Ghosting & Thẻ trắng)
  * Chức năng rèn thẻ với hiệu ứng điện ảnh sấm sét, glitch và cháy nổ.
  * Đã tối ưu sequencing để tránh hiện tượng bóng ma và lóa sáng.
  */
 public class UpgradeFragment extends Fragment {
+    private static final String TAG = "UpgradeFragment";
 
-    // Views
+    // Các View giao diện
     private View rootView;
     private View layoutContentWrapper;
     private VideoView bgVideoView;
@@ -76,34 +79,35 @@ public class UpgradeFragment extends Fragment {
     private View viewCardBg;
     private TextView tvCardOvr;
     private ImageView ivCardLevelBadge;
-
+ 
     private LinearLayout layoutRightStats;
     private TextView tvOvrAfter;
     private TextView tvOvrCurrentSmall;
-
+ 
     private LinearLayout layoutLevelIndicator;
     private ImageView ivLevelCurrent;
     private ImageView ivLevelNext;
     private TextView tvLevelCurrent;
     private TextView tvLevelNext;
-
+ 
     private View viewProgressFill;
     private TextView tvMaterialsCount;
-
+ 
     private View[] frameMaterials = new View[5];
     private ImageView[] ivMaterials = new ImageView[5];
     private TextView[] tvMaterialPlus = new TextView[5];
     private View[] viewMaterialBg = new View[5];
     private TextView[] tvMaterialOvr = new TextView[5];
     private ImageView[] ivMaterialLevel = new ImageView[5];
-
+ 
     private androidx.appcompat.widget.AppCompatButton btnUpgrade;
-
-    // Data
+    private View btnBack;
+ 
+    // Dữ liệu logic
     private Objet mainCard = null;
     private Objet[] materialCards = new Objet[5];
     private int currentMaterialSlot = -1;
-
+ 
     private UpgradeAlgorithm upgradeAlgorithm;
 
     public UpgradeFragment() {}
@@ -213,7 +217,7 @@ public class UpgradeFragment extends Fragment {
             }
             upgradeAlgorithm = new UpgradeAlgorithm(upgradeRates, customUpgrades);
         } catch (Exception e) {
-            e.printStackTrace();
+            android.util.Log.e(TAG, "Lỗi khi tải cấu hình nâng cấp", e);
         }
     }
 
@@ -240,6 +244,7 @@ public class UpgradeFragment extends Fragment {
         viewProgressFill = view.findViewById(R.id.view_progress_fill);
         tvMaterialsCount = view.findViewById(R.id.tv_materials_count);
         btnUpgrade = view.findViewById(R.id.btn_upgrade);
+        btnBack = view.findViewById(R.id.btn_back_upgrade);
 
         int[] materialFrameIds = {R.id.frame_material_1, R.id.frame_material_2, R.id.frame_material_3, R.id.frame_material_4, R.id.frame_material_5};
         int[] materialPlusIds = {R.id.tv_material_plus_1, R.id.tv_material_plus_2, R.id.tv_material_plus_3, R.id.tv_material_plus_4, R.id.tv_material_plus_5};
@@ -260,6 +265,16 @@ public class UpgradeFragment extends Fragment {
     }
 
     private void setupClickListeners() {
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else {
+                    // Fallback: Quay về tab Home nếu không có backstack
+                    navigateToTab(R.id.nav_home);
+                }
+            });
+        }
         frameMainCard.setOnClickListener(v -> openCardSelector(-1));
         for (int i = 0; i < 5; i++) {
             final int slotIndex = i;
@@ -270,7 +285,7 @@ public class UpgradeFragment extends Fragment {
 
     private void openCardSelector(int slotIndex) {
         if (slotIndex != -1 && mainCard == null) {
-            Toast.makeText(getContext(), "Vui lòng chọn thẻ chính trước!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.upgrade_msg_select_main_first), Toast.LENGTH_SHORT).show();
             return;
         }
         currentMaterialSlot = slotIndex;
@@ -300,12 +315,23 @@ public class UpgradeFragment extends Fragment {
     }
 
     // --- CONSTANTS cho Timing & Sync ---
-    private static final int ANIM_DURATION_MATERIALS_GATHER = 600;
+    private static final int RESULT_TEXT_SLIDE_DURATION = 300;
+    private static final float TITLE_SLIDE_OFFSET = 80f;
+    private static final float CARD_OVERSHOOT_TENSION = 2.5f;
+    private static final int OVERLAY_FADE_DURATION = 150;
     private static final int VIDEO_FADE_DURATION = 150;
-    private static final int VIDEO_CLIMAX_DELAY_MS = 2500; // Đoạn tia sét/sáng mạnh nhất
+    private static final float CARD_INITIAL_SCALE = 0.8f;
+    private static final int CARD_GATHER_DURATION = 800;
+    private static final int NEON_GLOW_DURATION = 300;
+    private static final int CUTSCENE_CROSSFADE_DURATION = 400;
+    private static final int RESULT_REVEAL_DURATION = 300;
+    private static final float SUCCESS_VIDEO_TOP_MARGIN_DP = 80f;
+    private static final float DONE_BUTTON_BOTTOM_MARGIN_DP = 64f;
+    private static final float RESULT_CARD_WIDTH_PERCENT = 0.5f;
+    private static final float RESULT_CARD_RATIO = 1.54f;
+    private static final int VIDEO_CLIMAX_DELAY_MS = 2500;
     private static final int CAMERA_SHAKE_DURATION_MS = 200;
     private static final int CARD_REVEAL_OVERSHOOT_DURATION = 500;
-    private static final int RESULT_TEXT_SLIDE_DURATION = 300;
 
     // --- SFX HOOKS ---
     private void playSfx(String eventType) {
@@ -325,9 +351,9 @@ public class UpgradeFragment extends Fragment {
 
         // Disable button ngay lập tức để block click liên tục
         btnUpgrade.setEnabled(false);
-        btnUpgrade.setText("UPGRADING...");
+        btnUpgrade.setText(getString(R.string.upgrade_btn_upgrading));
         btnUpgrade.setBackgroundResource(R.drawable.bg_upgrade_button_disabled);
-        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        int disabledColor = ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
         btnUpgrade.setTextColor(disabledColor);
 
         Long userId = new SessionManager(requireContext()).getUserId();
@@ -343,14 +369,14 @@ public class UpgradeFragment extends Fragment {
                     performUpgradeAnimation(result);
                 } else {
                     resetUpgradeButton();
-                    Toast.makeText(getContext(), "Lỗi hệ thống khi nâng cấp", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.upgrade_msg_system_error), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<UpgradeResponse>> call, Throwable t) {
                 resetUpgradeButton();
-                Toast.makeText(getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.upgrade_msg_network_error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -374,7 +400,7 @@ public class UpgradeFragment extends Fragment {
             if (navBar != null) navBar.setVisibility(View.GONE);
         }
         if (layoutContentWrapper != null) {
-            layoutContentWrapper.animate().alpha(0f).setDuration(150).start();
+            layoutContentWrapper.animate().alpha(0f).setDuration(OVERLAY_FADE_DURATION).start();
         }
 
         // === OVERLAY ===
@@ -416,8 +442,8 @@ public class UpgradeFragment extends Fragment {
         // === CARD WRAPPER ===
         FrameLayout cardWrapper = new FrameLayout(getContext());
         cardWrapper.setAlpha(0f);
-        cardWrapper.setScaleX(0.8f);
-        cardWrapper.setScaleY(0.8f);
+        cardWrapper.setScaleX(CARD_INITIAL_SCALE);
+        cardWrapper.setScaleY(CARD_INITIAL_SCALE);
 
         com.google.android.material.card.MaterialCardView resultCard = new com.google.android.material.card.MaterialCardView(getContext());
         resultCard.setId(View.generateViewId());
@@ -431,8 +457,8 @@ public class UpgradeFragment extends Fragment {
         LayoutInflater.from(getContext()).inflate(R.layout.layout_core_card, cardContainer, true);
         resultCard.addView(cardContainer, new ViewGroup.LayoutParams(-1, -1));
 
-        int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.5f);
-        int height = (int) (width * 1.54f);
+        int width = (int) (getResources().getDisplayMetrics().widthPixels * RESULT_CARD_WIDTH_PERCENT);
+        int height = (int) (width * RESULT_CARD_RATIO);
         FrameLayout.LayoutParams cardParams = new FrameLayout.LayoutParams(width, height);
         cardParams.gravity = android.view.Gravity.CENTER;
         resultCard.setLayoutParams(cardParams);
@@ -455,7 +481,7 @@ public class UpgradeFragment extends Fragment {
 
         // Flash trắng (Climax)
         View flashWhite = new View(getContext());
-        flashWhite.setBackgroundColor(Color.WHITE);
+        flashWhite.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white));
         flashWhite.setAlpha(0f);
         flashWhite.setVisibility(View.GONE);
         overlay.addView(flashWhite, new FrameLayout.LayoutParams(-1, -1));
@@ -478,8 +504,8 @@ public class UpgradeFragment extends Fragment {
 
         // Nút DONE
         androidx.appcompat.widget.AppCompatButton btnDone = new androidx.appcompat.widget.AppCompatButton(getContext());
-        btnDone.setText("DONE");
-        btnDone.setTextColor(Color.WHITE);
+        btnDone.setText(getString(R.string.reveal_btn_done));
+        btnDone.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         btnDone.setBackgroundResource(R.drawable.bg_upgrade_button_active);
         btnDone.setVisibility(View.GONE);
         btnDone.setAlpha(0f);
@@ -490,26 +516,26 @@ public class UpgradeFragment extends Fragment {
         int btnHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.07f);
         FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(btnWidth, btnHeight);
         btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
-        btnParams.bottomMargin = (int)(64 * getResources().getDisplayMetrics().density);
+        btnParams.bottomMargin = (int)(DONE_BUTTON_BOTTOM_MARGIN_DP * getResources().getDisplayMetrics().density);
         overlay.addView(btnDone, btnParams);
 
         // Title kết quả
         TextView tvTitle = new TextView(getContext());
-        tvTitle.setText(result.isSuccess() ? "Upgrade Successful!" : "Upgrade Failed!");
-        tvTitle.setTextColor(Color.WHITE);
+        tvTitle.setText(result.isSuccess() ? getString(R.string.upgrade_msg_success) : getString(R.string.upgrade_msg_failed));
+        tvTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         tvTitle.setTextSize(24);
         tvTitle.setAlpha(0f);
         tvTitle.setVisibility(View.GONE);
-        tvTitle.setTranslationY(80f);
+        tvTitle.setTranslationY(TITLE_SLIDE_OFFSET);
         FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-2, -2);
         titleParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
-        titleParams.topMargin = (int)(80 * getResources().getDisplayMetrics().density);
+        titleParams.topMargin = (int)(SUCCESS_VIDEO_TOP_MARGIN_DP * getResources().getDisplayMetrics().density);
         overlay.addView(tvTitle, titleParams);
 
         // ══════════════════════════════════════════════════
         // SEQUENCE BẮT ĐẦU
         // ══════════════════════════════════════════════════
-        overlay.animate().alpha(1f).setDuration(150).start();
+        overlay.animate().alpha(1f).setDuration(OVERLAY_FADE_DURATION).start();
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             // Hiện card bay lên giữa
@@ -519,11 +545,11 @@ public class UpgradeFragment extends Fragment {
             cardWrapper.setTranslationY(currentY - centerY);
 
             ObjectAnimator moveAnim = ObjectAnimator.ofFloat(cardWrapper, "translationY", currentY - centerY, 0f);
-            ObjectAnimator sx = ObjectAnimator.ofFloat(cardWrapper, "scaleX", 0.8f, 1.0f);
-            ObjectAnimator sy = ObjectAnimator.ofFloat(cardWrapper, "scaleY", 0.8f, 1.0f);
-            moveAnim.setDuration(800);
-            sx.setDuration(800);
-            sy.setDuration(800);
+            ObjectAnimator sx = ObjectAnimator.ofFloat(cardWrapper, "scaleX", CARD_INITIAL_SCALE, 1.0f);
+            ObjectAnimator sy = ObjectAnimator.ofFloat(cardWrapper, "scaleY", CARD_INITIAL_SCALE, 1.0f);
+            moveAnim.setDuration(CARD_GATHER_DURATION);
+            sx.setDuration(CARD_GATHER_DURATION);
+            sy.setDuration(CARD_GATHER_DURATION);
             moveAnim.setInterpolator(new DecelerateInterpolator());
 
             moveAnim.addListener(new AnimatorListenerAdapter() {
@@ -532,7 +558,7 @@ public class UpgradeFragment extends Fragment {
                     // Khi card đã đáp xuống tâm, cho lớp trắng (neonGlow) mờ dần hiện lên
                     neonGlow.setScaleX(1.0f);
                     neonGlow.setScaleY(1.0f);
-                    neonGlow.animate().alpha(1f).setDuration(300).withEndAction(() -> {
+                    neonGlow.animate().alpha(1f).setDuration(NEON_GLOW_DURATION).withEndAction(() -> {
                         
                         // TRANSITION INTO CUTSCENE: Cross-fade (Tiền Cutscene)
                         sceneView.setCoreBounds(
@@ -543,10 +569,10 @@ public class UpgradeFragment extends Fragment {
                         sceneView.setAlpha(0f);
                         sceneView.setVisibility(View.VISIBLE);
                         sceneView.startAnimation();
-                        sceneView.animate().alpha(1f).setDuration(400).start();
+                        sceneView.animate().alpha(1f).setDuration(CUTSCENE_CROSSFADE_DURATION).start();
 
                         // Sau khi lớp trắng hiện xong, cả card + layer cùng fade out
-                        cardWrapper.animate().alpha(0f).setDuration(400).withEndAction(() -> {
+                        cardWrapper.animate().alpha(0f).setDuration(CUTSCENE_CROSSFADE_DURATION).withEndAction(() -> {
                             // Khi đã mờ hẳn, dọn dẹp
                             neonGlow.setVisibility(View.GONE);
                             cardWrapper.setVisibility(View.GONE);
@@ -580,7 +606,7 @@ public class UpgradeFragment extends Fragment {
                             // ── CLIMAX: TRANSITION OUT OF CUTSCENE (Hậu Cutscene) ──
                             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                                 // Cross-fade mờ đi Cutscene
-                                sceneView.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                                sceneView.animate().alpha(0f).setDuration(RESULT_REVEAL_DURATION).withEndAction(() -> {
                                     sceneView.stopAnimation();
                                     sceneView.setVisibility(View.GONE);
                                     sceneView.setAlpha(1f); // Reset state
@@ -601,7 +627,7 @@ public class UpgradeFragment extends Fragment {
                                         if (what == android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                                             new Handler(Looper.getMainLooper()).post(() -> {
                                                 // Object, FX, và Flash lập tức bung ra không cần delay
-                                                cardWrapper.animate().alpha(1f).setDuration(300).setStartDelay(0).start();
+                                                cardWrapper.animate().alpha(1f).setDuration(RESULT_REVEAL_DURATION).setStartDelay(0).start();
                                                 playSfx("lightning_strike");
                                                 // Vô hiệu hóa Flash trắng theo yêu cầu
                                                 /*
@@ -642,10 +668,10 @@ public class UpgradeFragment extends Fragment {
                                             spriteSheetView.setVisibility(View.GONE);
                                         }).start();
                                     }
-
+ 
                                     cardWrapper.animate()
                                             .translationY(0f).scaleX(1.0f).scaleY(1.0f)
-                                            .setDuration(800).setInterpolator(new AccelerateInterpolator())
+                                            .setDuration(CARD_GATHER_DURATION).setInterpolator(new AccelerateInterpolator())
                                             .withEndAction(() -> {
                                                 finalizeAnimationUI(tvTitle, btnDone, cardWrapper, null);
                                             }).start();
@@ -658,7 +684,7 @@ public class UpgradeFragment extends Fragment {
             moveAnim.start();
             sx.start();
             sy.start();
-        }, 500);
+        }, CARD_REVEAL_OVERSHOOT_DURATION);
 
         // Nút DONE: Khôi phục toàn bộ UI
         btnDone.setOnClickListener(v -> {
@@ -887,5 +913,17 @@ public class UpgradeFragment extends Fragment {
         c.level = card.getCardLevel();
         c.ovr = card.getOvr();
         return c;
+    }
+    /**
+     * Navigates to a specific bottom navigation tab by its menu item ID.
+     */
+    private void navigateToTab(int navItemId) {
+        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+            BottomNavigationView nav = 
+                getActivity().findViewById(R.id.bottom_navigation);
+            if (nav != null) {
+                nav.setSelectedItemId(navItemId);
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Item for friend list: Avatar | Name + Level | Unfriend button -->
+<!-- Item for friend list: Avatar | Name + Level — CLEAN VERSION -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -9,25 +9,48 @@
     android:background="@drawable/bg_header_glass_v2"
     android:paddingHorizontal="14dp"
     android:paddingVertical="12dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
-    <!-- Avatar -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        app:cardCornerRadius="100dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="#3A3A55"
-        app:strokeColor="#30FFFFFF"
-        app:strokeWidth="0.8dp">
+    <!-- Avatar with Online Status Glow -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp">
 
-        <ImageView
-            android:id="@+id/iv_friend_avatar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_user" />
-    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_friend_avatar"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#3A3A55"
+            app:strokeColor="#30FFFFFF"
+            app:strokeWidth="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_friend_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Status Dot Glow -->
+        <View
+            android:id="@+id/view_online_status"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/bg_status_online"
+            android:elevation="2dp"
+            app:layout_constraintBottom_toBottomOf="@id/card_friend_avatar"
+            app:layout_constraintEnd_toEndOf="@id/card_friend_avatar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Name + Level -->
     <LinearLayout
@@ -35,18 +58,19 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_marginStart="14dp">
 
         <TextView
             android:id="@+id/tv_friend_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textSize="@dimen/text_size_hud_small"
+            android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
             android:fontWeight="700"
             android:singleLine="true"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/tv_friend_level"
@@ -54,7 +78,8 @@
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
             android:textColor="#A2A2A7"
-            android:textSize="@dimen/text_size_mini" />
+            android:textSize="@dimen/text_size_caption"
+            android:layout_marginTop="2dp" />
     </LinearLayout>
 
 </LinearLayout>

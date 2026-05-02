@@ -2,8 +2,11 @@ package com.vn.jet.mosco;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -47,8 +51,9 @@ public class FriendActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient(this).create(GameApiService.class);
 
-        // Nút back
-        findViewById(R.id.btn_back_friend).setOnClickListener(v -> finish());
+        // Nút back & Title
+        findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
+        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.friend_header_title);
 
         // Setup Tab — giống Collection
         TabLayout tabLayout = findViewById(R.id.tab_layout_friend);
@@ -60,32 +65,81 @@ public class FriendActivity extends AppCompatActivity {
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0: tab.setText("FRIENDS"); break;
-                case 1: tab.setText("REQUESTS"); break;
+                case 0: tab.setText(getString(R.string.friend_tab_explore)); break;
+                case 1: tab.setText(getString(R.string.friend_tab_friends)); break;
+                case 2: tab.setText(getString(R.string.friend_tab_requests)); break;
             }
         }).attach();
 
-        // Setup Search — tìm user và gửi lời mời
+        // Setup Search — lọc danh sách cũ hoặc tìm user mới
         setupSearch();
+
+        // Setup QR Code Button
+        findViewById(R.id.btn_friend_qr).setOnClickListener(v -> showGalacticIdDialog());
     }
 
     /**
-     * Thiết lập thanh tìm kiếm: nhấn Enter gửi lời mời kết bạn theo ID hoặc tên.
+     * Hiện Dialog thẻ căn cước thiên hà của Sếp kèm mã QR.
+     */
+    private void showGalacticIdDialog() {
+        Toast.makeText(this, "Opening Galactic ID...", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Thiết lập thanh tìm kiếm: Real-time filtering cho bạn cũ, Enter/Search cho bạn mới.
      */
     private void setupSearch() {
         EditText etSearch = findViewById(R.id.et_search_friend);
         if (etSearch == null) return;
 
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
+            private java.util.Timer timer = new java.util.Timer();
+            private final long DELAY = 300; 
+
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                timer.cancel();
+                timer = new java.util.Timer();
+                timer.schedule(new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(() -> handleSearch(s.toString()));
+                    }
+                }, DELAY);
+            }
+        });
+
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 String query = etSearch.getText().toString().trim();
-                if (!query.isEmpty()) {
-                    searchAndAddFriend(query);
-                }
+                handleGlobalSearch(query);
                 return true;
             }
             return false;
         });
+    }
+
+    private void handleSearch(String query) {
+        if (query == null || query.trim().isEmpty()) return;
+        handleGlobalSearch(query);
+    }
+
+    private void handleGlobalSearch(String query) {
+        if (query.isEmpty()) return;
+
+        ViewPager2 viewPager = findViewById(R.id.view_pager_friend);
+        if (viewPager == null) return;
+
+        // Luôn chuyển sang tab EXPLORE (vị trí 0)
+        viewPager.setCurrentItem(0, true);
+        
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f0");
+        if (currentFragment instanceof com.vn.jet.mosco.fragment.FriendSearchFragment) {
+            ((com.vn.jet.mosco.fragment.FriendSearchFragment) currentFragment).performSearch(query);
+        }
     }
 
     /**
@@ -164,22 +218,116 @@ public class FriendActivity extends AppCompatActivity {
     }
 
     /**
+     * Hiển thị BottomSheet xem trước thông tin người dùng (Phiên bản V2 - Tinh chỉnh).
+     */
+    public void showUserProfile(JSONObject user) {
+        if (user == null) return;
+
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = 
+                new com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.GalacticBottomSheetDialog);
+        View view = getLayoutInflater().inflate(R.layout.layout_user_profile_preview, null);
+        dialog.setContentView(view);
+
+        // Cấu hình chiều cao BottomSheet
+        View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet != null) {
+            com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
+                    com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
+            int screenHeight = getResources().getDisplayMetrics().heightPixels;
+            int targetHeight = (int) (screenHeight * 0.85); // 85% cho sang
+            
+            bottomSheet.getLayoutParams().height = targetHeight;
+            behavior.setPeekHeight(targetHeight);
+            behavior.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
+        }
+
+        // Ánh xạ views - V5.0 ULTRA MINIMALIST
+        ImageView ivAvatar = view.findViewById(R.id.iv_preview_avatar);
+        TextView tvName = view.findViewById(R.id.tv_preview_name);
+        TextView tvLevel = view.findViewById(R.id.tv_info_level);
+        TextView tvObjets = view.findViewById(R.id.tv_info_objets);
+        TextView tvId = view.findViewById(R.id.tv_info_id);
+        TextView tvJoinDate = view.findViewById(R.id.tv_info_join_date);
+        View viewStatusDot = view.findViewById(R.id.view_preview_status_dot);
+
+        // Đổ dữ liệu
+        String name = user.optString("ingameName", getString(R.string.profile_preview_default_name));
+        long id = user.optLong("userId", 0);
+        int level = user.optInt("level", 1);
+        boolean isOnline = user.optBoolean("online", false);
+
+        tvName.setText(name.toUpperCase());
+        tvLevel.setText(String.valueOf(level));
+        tvObjets.setText(String.valueOf(user.optInt("objetsCount", 42))); 
+        tvId.setText(String.valueOf(10000000 + id));
+        
+        String rawDate = user.optString("createdAt", getString(R.string.profile_preview_default_date));
+        tvJoinDate.setText(rawDate.split("T")[0]);
+
+        // Status logic
+        viewStatusDot.setBackgroundResource(isOnline ? R.drawable.bg_status_online : R.drawable.bg_dot_inactive);
+
+        // Avatar
+        String avatarId = user.optString("avatarId", "1");
+        JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(this, avatarId);
+        if (card != null) {
+            String imgUrl = card.optString("frontImage", "");
+            com.bumptech.glide.Glide.with(this)
+                    .load(imgUrl)
+                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
+                    .placeholder(R.drawable.ic_user)
+                    .into(ivAvatar);
+        }
+
+        // Main Action Button
+        androidx.appcompat.widget.AppCompatButton btnAction = view.findViewById(R.id.btn_profile_action_main);
+        boolean isFriend = user.optBoolean("isFriend", false); 
+        btnAction.setText(isFriend ? getString(R.string.profile_v3_btn_unfriend) : getString(R.string.profile_v3_btn_add));
+        
+        btnAction.setOnClickListener(v -> {
+            if (isFriend) {
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.profile_preview_unfriend_title)
+                    .setMessage(getString(R.string.profile_preview_unfriend_msg, name))
+                    .setPositiveButton(R.string.profile_preview_btn_remove, (d, w) -> {
+                         Toast.makeText(this, getString(R.string.profile_preview_unfriend_success, name), Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .show();
+            } else {
+                sendFriendRequest(id);
+            }
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_preview_message_small).setOnClickListener(v -> {
+            Toast.makeText(this, getString(R.string.profile_preview_msg_chat_coming, name), Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+
+
+    /**
      * PagerAdapter — 2 Tab con giống Collection.
      */
-    private static class FriendPagerAdapter extends FragmentStateAdapter {
+    private static class FriendPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
         public FriendPagerAdapter(@NonNull AppCompatActivity activity) { super(activity); }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
-                case 0: return new FriendListFragment();
-                case 1: return new FriendRequestFragment();
-                default: return new FriendListFragment();
+                case 0: return new com.vn.jet.mosco.fragment.FriendSearchFragment();
+                case 1: return new FriendListFragment();
+                case 2: return new FriendRequestFragment();
+                default: return new com.vn.jet.mosco.fragment.FriendSearchFragment();
             }
         }
 
         @Override
-        public int getItemCount() { return 2; }
+        public int getItemCount() { return 3; }
     }
 }

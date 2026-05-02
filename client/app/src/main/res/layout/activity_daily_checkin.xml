@@ -1,416 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Daily Check-in — 3 stacked banner cards -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/daily_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="@drawable/bg_global_gradient">
 
-    <!-- Header -->
-    <LinearLayout
+    <!-- Dynamic Overlay Background -->
+    <View
+        android:id="@+id/view_bg_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@color/black" />
+
+    <!-- Simplified Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_header_daily"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:paddingHorizontal="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="12dp">
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_back_daily"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_back_arrow"
-            android:padding="6dp"
+            android:padding="8dp"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="@color/white" />
 
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            app:cardBackgroundColor="#1A1C29"
-            app:cardCornerRadius="8dp"
-            app:strokeColor="#8A2BE2"
-            app:strokeWidth="1dp">
+            android:orientation="vertical"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/btn_back_daily"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/daily_header"
                 style="@style/MoscoText.Luxury.SubHeader"
-                android:textSize="@dimen/text_size_body_lg"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:fontWeight="700"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="4dp"
-                android:letterSpacing="0.05" />
-        </com.google.android.material.card.MaterialCardView>
+                android:fontWeight="900"
+                android:letterSpacing="0.1" />
+            
+            <View
+                android:layout_width="32dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="2dp"
+                android:background="#8A2BE2" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ViewPager2 with Perfect 1:1.5 Proportions -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_daily_cards"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingHorizontal="56dp"
+        android:paddingBottom="48dp"
+        app:layout_constraintDimensionRatio="H,1:1.5"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_daily"
+        app:layout_constraintBottom_toTopOf="@id/layout_bottom_indicator"
+        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom Indicator -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <View
+            android:id="@+id/dot_0"
+            android:layout_width="16dp"
+            android:layout_height="3dp"
+            android:background="@drawable/bg_indicator_active"
+            android:layout_marginHorizontal="4dp" />
+        <View
+            android:id="@+id/dot_1"
+            android:layout_width="16dp"
+            android:layout_height="3dp"
+            android:background="@drawable/bg_indicator_inactive"
+            android:layout_marginHorizontal="4dp" />
+        <View
+            android:id="@+id/dot_2"
+            android:layout_width="16dp"
+            android:layout_height="3dp"
+            android:background="@drawable/bg_indicator_inactive"
+            android:layout_marginHorizontal="4dp" />
     </LinearLayout>
 
-    <!-- Scrollable stack of 3 cards -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingHorizontal="16dp"
-        android:clipToPadding="false">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- ═══ Slot 0: MORNING ═══ -->
-            <LinearLayout
-                android:id="@+id/card_slot_morning"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_header_glass_v2"
-                android:layout_marginBottom="12dp"
-                android:clipToPadding="false"
-                android:clipChildren="false">
-
-                <!-- Banner area -->
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp">
-
-                    <ImageView
-                        android:id="@+id/iv_banner_morning"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bg_global_gradient"
-                        android:alpha="0.4" />
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_mosco_logo_static"
-                        android:alpha="0.6" />
-                </FrameLayout>
-
-                <!-- Info area -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
-
-                    <!-- Left: Title + Time + Rewards -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/daily_morning"
-                            style="@style/MoscoText.Luxury.SubHeader"
-                            android:textSize="@dimen/text_size_body_md"
-                            android:textStyle="bold"
-                            android:fontWeight="700" />
- 
-                        <TextView
-                            android:id="@+id/tv_time_morning"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="06:00 - 11:59"
-                            style="@style/MoscoText.Luxury.Body"
-                            android:textColor="#BDBDBD"
-                            android:textSize="@dimen/text_size_mini" />
-
-                        <!-- Rewards row: coin icon + amount + diamond icon + amount -->
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="4dp">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_coin" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="500"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="#FFD700"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_diamond"
-                                android:layout_marginStart="12dp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="1"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="@color/item_diamond"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Right: Claim button -->
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btn_claim_morning"
-                        android:layout_width="100dp"
-                        android:layout_height="40dp"
-                        android:text="@string/daily_claim"
-                        style="@style/MoscoText.Luxury.Button"
-                        android:textSize="@dimen/text_size_body_sm"
-                        android:textStyle="bold"
-                        android:fontWeight="700"
-                        android:background="@drawable/bg_btn_rainbow"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- ═══ Slot 1: AFTERNOON ═══ -->
-            <LinearLayout
-                android:id="@+id/card_slot_noon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_header_glass_v2"
-                android:layout_marginBottom="12dp"
-                android:clipToPadding="false"
-                android:clipChildren="false">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp">
-
-                    <ImageView
-                        android:id="@+id/iv_banner_noon"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bg_global_gradient"
-                        android:alpha="0.4" />
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_mosco_logo_static"
-                        android:alpha="0.6" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/daily_afternoon"
-                            style="@style/MoscoText.Luxury.SubHeader"
-                            android:textSize="@dimen/text_size_body_md"
-                            android:textStyle="bold"
-                            android:fontWeight="700" />
- 
-                        <TextView
-                            android:id="@+id/tv_time_noon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="12:00 - 17:59"
-                            style="@style/MoscoText.Luxury.Body"
-                            android:textColor="#BDBDBD"
-                            android:textSize="@dimen/text_size_mini" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="4dp">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_coin" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="800"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="#FFD700"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_diamond"
-                                android:layout_marginStart="12dp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="2"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="@color/item_diamond"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btn_claim_noon"
-                        android:layout_width="100dp"
-                        android:layout_height="40dp"
-                        android:text="@string/daily_claim"
-                        style="@style/MoscoText.Luxury.Button"
-                        android:textSize="@dimen/text_size_body_sm"
-                        android:textStyle="bold"
-                        android:fontWeight="700"
-                        android:background="@drawable/bg_btn_rainbow"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- ═══ Slot 2: EVENING ═══ -->
-            <LinearLayout
-                android:id="@+id/card_slot_evening"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_header_glass_v2"
-                android:layout_marginBottom="16dp"
-                android:clipToPadding="false"
-                android:clipChildren="false">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp">
-
-                    <ImageView
-                        android:id="@+id/iv_banner_evening"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bg_global_gradient"
-                        android:alpha="0.4" />
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_mosco_logo_static"
-                        android:alpha="0.6" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/daily_evening"
-                            style="@style/MoscoText.Luxury.SubHeader"
-                            android:textSize="@dimen/text_size_body_md"
-                            android:textStyle="bold"
-                            android:fontWeight="700" />
- 
-                        <TextView
-                            android:id="@+id/tv_time_evening"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="18:00 - 23:59"
-                            style="@style/MoscoText.Luxury.Body"
-                            android:textColor="#BDBDBD"
-                            android:textSize="@dimen/text_size_mini" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="4dp">
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_coin" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="1,200"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="#FFD700"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_item_diamond"
-                                android:layout_marginStart="12dp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="3"
-                                    style="@style/MoscoText.Luxury.Price"
-                                    android:textColor="@color/item_diamond"
-                                    android:textSize="@dimen/text_size_mini"
-                                    android:layout_marginStart="4dp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btn_claim_evening"
-                        android:layout_width="100dp"
-                        android:layout_height="40dp"
-                        android:text="@string/daily_claim"
-                        style="@style/MoscoText.Luxury.Button"
-                        android:textSize="@dimen/text_size_body_sm"
-                        android:textStyle="bold"
-                        android:fontWeight="700"
-                        android:background="@drawable/bg_btn_rainbow"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

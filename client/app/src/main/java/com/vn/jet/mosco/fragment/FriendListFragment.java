@@ -36,21 +36,29 @@ public class FriendListFragment extends Fragment {
 
     private static final String TAG = "FriendListFragment";
     private RecyclerView rvFriends;
+    private View layoutEmpty;
+    private com.airbnb.lottie.LottieAnimationView lottieEmpty;
     private TextView tvEmpty;
     private FriendAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rank_list, container, false);
+        return inflater.inflate(R.layout.fragment_friend_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rvFriends = view.findViewById(R.id.rv_rank_list);
-        tvEmpty = view.findViewById(R.id.tv_rank_empty);
-        tvEmpty.setText("No friends yet");
+        rvFriends = view.findViewById(R.id.rv_friend_list);
+        layoutEmpty = view.findViewById(R.id.layout_friend_empty);
+        lottieEmpty = view.findViewById(R.id.lottie_friend_empty);
+        tvEmpty = view.findViewById(R.id.tv_friend_empty);
+        
+        if (lottieEmpty != null) {
+            lottieEmpty.setAnimation(R.raw.loading);
+            lottieEmpty.playAnimation();
+        }
 
         rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FriendAdapter(new ArrayList<>());
@@ -82,13 +90,15 @@ public class FriendListFragment extends Fragment {
                         if (data != null && data.length() > 0) {
                             List<JSONObject> friends = new ArrayList<>();
                             for (int i = 0; i < data.length(); i++) {
-                                friends.add(data.getJSONObject(i));
+                                JSONObject friend = data.getJSONObject(i);
+                                friend.put("isFriend", true);
+                                friends.add(friend);
                             }
                             adapter.updateData(friends);
-                            tvEmpty.setVisibility(View.GONE);
+                            layoutEmpty.setVisibility(View.GONE);
                             rvFriends.setVisibility(View.VISIBLE);
                         } else {
-                            tvEmpty.setVisibility(View.VISIBLE);
+                            layoutEmpty.setVisibility(View.VISIBLE);
                             rvFriends.setVisibility(View.GONE);
                         }
                     }
@@ -100,11 +110,22 @@ public class FriendListFragment extends Fragment {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Connection error", t);
-                if (tvEmpty != null) {
-                    tvEmpty.setVisibility(View.VISIBLE);
-                    tvEmpty.setText("Connection error");
-                }
             }
         });
+    }
+
+    /**
+     * Lọc danh sách bạn bè hiện tại.
+     */
+    public void filterFriends(String query) {
+        if (adapter != null) {
+            adapter.filter(query);
+            if (adapter.getItemCount() == 0 && !query.isEmpty()) {
+                layoutEmpty.setVisibility(View.VISIBLE);
+                tvEmpty.setText("No matches found in your galaxy");
+            } else if (adapter.getItemCount() > 0) {
+                layoutEmpty.setVisibility(View.GONE);
+            }
+        }
     }
 }

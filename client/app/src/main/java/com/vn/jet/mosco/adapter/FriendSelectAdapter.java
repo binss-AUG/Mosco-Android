@@ -82,18 +82,13 @@ public class FriendSelectAdapter extends RecyclerView.Adapter<FriendSelectAdapte
                 holder.ivAvatar.setImageResource(R.drawable.ic_user);
             }
 
-            // Hiệu ứng chọn: đổi màu indicator — dùng color resource thay vì hardcode
+            // Hiệu ứng chọn: Highlight toàn bộ card thay vì dùng chấm tròn
             boolean isSelected = (position == selectedPosition);
-            int selectedColor = androidx.core.content.ContextCompat.getColor(
-                    holder.itemView.getContext(), R.color.quick_tool_gift);
-            int defaultColor = androidx.core.content.ContextCompat.getColor(
-                    holder.itemView.getContext(), R.color.mosco_outline_variant);
-            holder.viewIndicator.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(
-                            isSelected ? selectedColor : defaultColor
-                    ));
-            holder.viewIndicator.setScaleX(isSelected ? 1.2f : 1f);
-            holder.viewIndicator.setScaleY(isSelected ? 1.2f : 1f);
+            if (isSelected) {
+                holder.itemView.setBackgroundResource(R.drawable.bg_friend_selected_luxury);
+            } else {
+                holder.itemView.setBackgroundResource(R.drawable.bg_header_glass_v2);
+            }
 
             // Click → select
             holder.itemView.setOnClickListener(v -> {
@@ -112,14 +107,12 @@ public class FriendSelectAdapter extends RecyclerView.Adapter<FriendSelectAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvLevel;
         ImageView ivAvatar;
-        View viewIndicator;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_friend_select_name);
             tvLevel = itemView.findViewById(R.id.tv_friend_select_level);
             ivAvatar = itemView.findViewById(R.id.iv_friend_select_avatar);
-            viewIndicator = itemView.findViewById(R.id.view_friend_select_indicator);
         }
     }
 }

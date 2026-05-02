@@ -18,4 +18,6 @@ public class ApiResponse<T> {
 
     public T getData() { return data; }
     public void setData(T data) { this.data = data; }
+
+    public boolean isSuccess() { return status == 200 || status == 201; }
 }

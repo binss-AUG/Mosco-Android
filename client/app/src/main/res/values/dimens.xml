@@ -16,11 +16,18 @@
     <dimen name="item_reveal_result_button_corner">12dp</dimen>
     
     <!-- Generic Spacing System -->
+    <dimen name="spacing_2dp">2dp</dimen>
     <dimen name="spacing_4dp">4dp</dimen>
     <dimen name="spacing_8dp">8dp</dimen>
     <dimen name="spacing_12dp">12dp</dimen>
     <dimen name="spacing_16dp">16dp</dimen>
     <dimen name="spacing_24dp">24dp</dimen>
+    
+    <dimen name="icon_size_16dp">16dp</dimen>
+    <dimen name="icon_size_52dp">52dp</dimen>
+    <dimen name="divider_height_l">40dp</dimen>
+    <dimen name="stroke_thin">1dp</dimen>
+    <dimen name="streak_icon_size">120dp</dimen>
     
     <!-- Standard Text Sizes -->
     <dimen name="text_9sp">9sp</dimen>
@@ -155,9 +162,14 @@
     <dimen name="radius_none">0dp</dimen>
     <dimen name="radius_xs">5dp</dimen>
     <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_m">12dp</dimen>
     <dimen name="radius_md">11dp</dimen>
     <dimen name="radius_lg">18dp</dimen>
     <dimen name="radius_pill">999dp</dimen>
+    
+    <dimen name="elevation_m">8dp</dimen>
+    <dimen name="handle_width">40dp</dimen>
+    <dimen name="handle_height">4dp</dimen>
 
     <!-- Home Header Refined (Scaled +25%) -->
     <dimen name="home_header_avatar_outer">60dp</dimen>
@@ -172,8 +184,51 @@
 
     <!-- Home Quick Tools (Scaled +25%) -->
     <dimen name="home_quick_tool_fab_size">60dp</dimen>
-    <dimen name="home_quick_tool_icon_size">28dp</dimen>
+    <dimen name="home_quick_tool_icon_size">38dp</dimen>
     <dimen name="home_quick_tool_text_size">11sp</dimen>
     <dimen name="home_quick_tool_spacing">10dp</dimen>
     <dimen name="planet_base_size">400dp</dimen>
+
+    <!-- Ranking Screen Dimensions -->
+    <dimen name="rank_badge_size">48dp</dimen>
+    <dimen name="rank_crown_size">42dp</dimen>
+    <dimen name="text_size_rank_badge">18sp</dimen>
+    <dimen name="rank_item_padding_v">12dp</dimen>
+    <dimen name="rank_item_padding_h">14dp</dimen>
+    <dimen name="rank_avatar_size">42dp</dimen>
+
+    <!-- Profile Preview Dimensions -->
+    <dimen name="profile_preview_min_height">550dp</dimen>
+    <dimen name="profile_preview_avatar_size">90dp</dimen>
+    <dimen name="profile_preview_avatar_corner">45dp</dimen>
+    <dimen name="profile_preview_showcase_height">120dp</dimen>
+    <dimen name="profile_preview_badge_size">32dp</dimen>
+    <dimen name="profile_handle_width">40dp</dimen>
+    <dimen name="profile_handle_height">4dp</dimen>
+    <dimen name="profile_avatar_glow_size">120dp</dimen>
+    <dimen name="profile_avatar_size_v2">100dp</dimen>
+    <dimen name="profile_avatar_corner_v2">50dp</dimen>
+    <dimen name="profile_avatar_top_margin_v2">60dp</dimen>
+    <dimen name="header_btn_size">40dp</dimen>
+
+    <!-- Friend System Dimensions -->
+    <dimen name="friend_stats_height">72dp</dimen>
+    <dimen name="friend_stats_padding_h">24dp</dimen>
+    <dimen name="friend_stats_padding_v">16dp</dimen>
+    <dimen name="friend_explore_padding">20dp</dimen>
+    <dimen name="formation_grid_margin">8dp</dimen>
+    <dimen name="formation_bottom_sheet_peek">56dp</dimen>
+    <dimen name="formation_handle_width">40dp</dimen>
+    <dimen name="formation_handle_height">5dp</dimen>
+    <dimen name="formation_stage_margin_top">80dp</dimen>
+
+    <!-- Gift Module Standard Dimensions -->
+    <dimen name="gift_card_width_large">160dp</dimen>
+    <dimen name="gift_card_height_large">246dp</dimen>
+    <dimen name="gift_card_width_placeholder">120dp</dimen>
+    <dimen name="gift_card_height_placeholder">186dp</dimen>
+    <dimen name="gift_card_width_preview">100dp</dimen>
+    <dimen name="gift_card_height_preview">154dp</dimen>
+    <dimen name="gift_avatar_confirm_size">80dp</dimen>
+    <dimen name="gift_avatar_confirm_radius">40dp</dimen>
 </resources>

@@ -27,15 +27,17 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
     private List<JSONObject> data;
     private final String rankType;
-
-    // Màu highlight cho Top 3
-    private static final int COLOR_GOLD = Color.parseColor("#FFD700");
-    private static final int COLOR_SILVER = Color.parseColor("#C0C0C0");
-    private static final int COLOR_BRONZE = Color.parseColor("#CD7F32");
+    private Long currentUserId;
 
     public RankAdapter(List<JSONObject> data, String rankType) {
         this.data = data;
         this.rankType = rankType;
+    }
+
+    public RankAdapter(List<JSONObject> data, String rankType, Long currentUserId) {
+        this.data = data;
+        this.rankType = rankType;
+        this.currentUserId = currentUserId;
     }
 
     /**
@@ -57,60 +59,98 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
     public void onBindViewHolder(@NonNull RankViewHolder holder, int position) {
         try {
             JSONObject entry = data.get(position);
-            int rank = position + 1;
+            int rank = entry.optInt("rank", position + 4);
 
-            // Hạng
             holder.tvPosition.setText(String.valueOf(rank));
-
-            // Tên người chơi
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
 
-            // --- 🎭 SYNC AVATAR LOGIC ---
+            String avatarUrl = entry.optString("avatarUrl", null);
             String avatarId = entry.optString("avatarId", "1");
-            JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
-            if (card != null) {
-                String imgUrl = card.optString("frontImage", "");
-                Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user)
-                        .into(holder.ivAvatar);
-            } else {
-                holder.ivAvatar.setImageResource(R.drawable.ic_user);
+            
+            if (avatarUrl == null || avatarUrl.isEmpty() || "null".equals(avatarUrl)) {
+                JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
+                if (card != null) {
+                    avatarUrl = card.optString("frontImage", null);
+                }
             }
 
-            // Chỉ số — định dạng tiền tố/hậu tố dể rõ ràng
+            Glide.with(holder.itemView.getContext())
+                .load(avatarUrl)
+                .placeholder(R.drawable.ic_user)
+                .transform(new SmartFaceCropTransformation())
+                .into(holder.ivAvatar);
+
             int value = entry.optInt("value", 0);
+            android.content.Context context = holder.itemView.getContext();
             switch (rankType) {
                 case "level": 
-                    holder.tvValue.setText("LV " + value);
+                    holder.tvValue.setText(context.getString(R.string.rank_label_level_format, value));
+                    holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
-                case "ovr": 
-                    holder.tvValue.setText("OVR " + value);
+                case "wealth": 
+                    holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value));
+                    holder.ivTypeIcon.setImageResource(R.drawable.ic_item_diamond);
+                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
                 case "collection": 
-                    holder.tvValue.setText(value + " Objet");
+                    holder.tvValue.setText(context.getString(R.string.rank_label_album_format, value)); 
+                    holder.ivTypeIcon.setImageResource(R.drawable.ic_objets);
+                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
+                    break;
+                case "streak":
+                    holder.tvValue.setText(context.getString(R.string.rank_label_streak_format, value));
+                    holder.ivTypeIcon.setImageResource(R.drawable.ic_streak_fire);
+                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
             }
 
-            // Highlight Top 3 (Gold / Silver / Bronze)
-            if (rank == 1) {
-                holder.tvPosition.setTextColor(COLOR_GOLD);
-                holder.tvValue.setTextColor(COLOR_GOLD);
-            } else if (rank == 2) {
-                holder.tvPosition.setTextColor(COLOR_SILVER);
-                holder.tvValue.setTextColor(COLOR_SILVER);
-            } else if (rank == 3) {
-                holder.tvPosition.setTextColor(COLOR_BRONZE);
-                holder.tvValue.setTextColor(COLOR_BRONZE);
+            long userId = entry.optLong("userId", -1L);
+            if (currentUserId != null && userId == currentUserId) {
+                holder.itemView.setBackgroundResource(R.drawable.bg_rank_item_highlight);
             } else {
-                holder.tvPosition.setTextColor(Color.WHITE);
-                holder.tvValue.setTextColor(Color.parseColor("#00E5FF")); // Neon Cyan
+                holder.itemView.setBackgroundResource(R.drawable.bg_header_glass_v2);
             }
 
         } catch (Exception e) {
-            // Null-safety: không crash nếu data bị lỗi
+            // Null-safety
         }
+    }
+
+    private void showStreakDetail(android.content.Context context, JSONObject entry) {
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = 
+            new com.google.android.material.bottomsheet.BottomSheetDialog(context, R.style.CustomBottomSheetDialogTheme);
+        View view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_streak_detail, null);
+        
+        TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
+        TextView tvBest = view.findViewById(R.id.tv_best_streak);
+        ImageView ivIcon = view.findViewById(R.id.iv_streak_icon);
+        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
+
+        int currentStreak = entry.optInt("value", 0);
+        tvCurrent.setText(context.getString(R.string.rank_label_streak_format, currentStreak));
+        
+        // Vẽ vời: Record giả lập hoặc lấy từ data nếu có
+        int bestStreak = entry.optInt("bestStreak", currentStreak + 5); 
+        tvBest.setText(context.getString(R.string.rank_label_streak_format, bestStreak));
+
+        // Animation cho ngọn lửa (Dùng ObjectAnimator để lặp lại)
+        android.animation.ObjectAnimator pulse = android.animation.ObjectAnimator.ofPropertyValuesHolder(
+            ivIcon,
+            android.animation.PropertyValuesHolder.ofFloat("scaleX", 1.2f),
+            android.animation.PropertyValuesHolder.ofFloat("scaleY", 1.2f)
+        );
+        pulse.setDuration(800);
+        pulse.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
+        pulse.setRepeatMode(android.animation.ObjectAnimator.REVERSE);
+        pulse.start();
+
+        btnRestore.setOnClickListener(v -> {
+            android.widget.Toast.makeText(context, "Streak Shield Activated! (Feature Coming Soon)", android.widget.Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
     }
 
     @Override
@@ -120,7 +160,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
     static class RankViewHolder extends RecyclerView.ViewHolder {
         TextView tvPosition, tvName, tvValue;
-        ImageView ivAvatar;
+        ImageView ivAvatar, ivTypeIcon;
+        View layoutRankValueContainer;
 
         RankViewHolder(View itemView) {
             super(itemView);
@@ -128,6 +169,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             tvName = itemView.findViewById(R.id.tv_rank_name);
             tvValue = itemView.findViewById(R.id.tv_rank_value);
             ivAvatar = itemView.findViewById(R.id.iv_rank_avatar);
+            ivTypeIcon = itemView.findViewById(R.id.iv_rank_type_icon);
+            layoutRankValueContainer = itemView.findViewById(R.id.layout_rank_value_container);
         }
     }
 }

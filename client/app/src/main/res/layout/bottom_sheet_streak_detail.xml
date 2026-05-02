@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_galactic"
+    android:padding="@dimen/spacing_lg">
+
+    <!-- Handle -->
+    <View
+        android:id="@+id/view_handle"
+        android:layout_width="@dimen/handle_width"
+        android:layout_height="@dimen/handle_height"
+        android:background="@color/white_25"
+        android:layout_marginTop="@dimen/spacing_xs"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/streak_dialog_title"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textSize="@dimen/text_size_h3"
+        android:layout_marginTop="@dimen/spacing_lg"
+        app:layout_constraintTop_toBottomOf="@id/view_handle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Fire Animation Icon -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/iv_streak_icon"
+        android:layout_width="@dimen/streak_icon_size"
+        android:layout_height="@dimen/streak_icon_size"
+        android:layout_marginTop="@dimen/spacing_lg"
+        app:lottie_rawRes="@raw/loading"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_colorFilter="@color/galactic_accent_orange"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Current Streak -->
+    <LinearLayout
+        android:id="@+id/layout_current_streak"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="@dimen/spacing_lg"
+        app:layout_constraintTop_toBottomOf="@id/iv_streak_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/view_divider">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/streak_dialog_current"
+            style="@style/MoscoText.Luxury.Nav"
+            android:textSize="@dimen/text_size_badge"
+            android:alpha="0.6" />
+
+        <TextView
+            android:id="@+id/tv_current_streak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rank_placeholder_empty"
+            style="@style/MoscoText.Luxury.Header"
+            android:textSize="@dimen/text_size_h2"
+            android:textColor="@color/galactic_accent_orange" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view_divider"
+        android:layout_width="@dimen/stroke_thin"
+        android:layout_height="@dimen/divider_height_l"
+        android:background="@color/white_15"
+        app:layout_constraintTop_toTopOf="@id/layout_current_streak"
+        app:layout_constraintBottom_toBottomOf="@id/layout_current_streak"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Best Streak -->
+    <LinearLayout
+        android:id="@+id/layout_best_streak"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/layout_current_streak"
+        app:layout_constraintStart_toEndOf="@id/view_divider"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/streak_dialog_best"
+            style="@style/MoscoText.Luxury.Nav"
+            android:textSize="@dimen/text_size_badge"
+            android:alpha="0.6" />
+
+        <TextView
+            android:id="@+id/tv_best_streak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rank_placeholder_empty"
+            style="@style/MoscoText.Luxury.Header"
+            android:textSize="@dimen/text_size_h2"
+            android:textColor="@color/galactic_accent_purple" />
+    </LinearLayout>
+
+    <!-- Streak Shield Section -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginBottom="@dimen/spacing_md"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardBackgroundColor="@color/white_10"
+        app:strokeColor="@color/white_20"
+        app:strokeWidth="@dimen/stroke_thin"
+        app:layout_constraintTop_toBottomOf="@id/layout_current_streak"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/streak_dialog_shield"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_card_title"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/streak_dialog_shield_desc"
+                style="@style/MoscoText.Luxury.Body"
+                android:textSize="@dimen/text_size_body_sm"
+                android:alpha="0.6"
+                android:layout_marginTop="@dimen/spacing_xxs" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_restore_streak"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_reveal_result_button_height"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:text="@string/streak_dialog_restore_btn"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    app:cornerRadius="@dimen/radius_m"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/galactic_accent_purple" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

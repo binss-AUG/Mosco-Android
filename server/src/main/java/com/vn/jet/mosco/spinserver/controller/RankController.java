@@ -51,4 +51,22 @@ public class RankController {
         List<Map<String, Object>> rankings = rankService.getTopByCollection();
         return ResponseEntity.ok(ApiResponse.success("Top Collection", rankings));
     }
+
+    /**
+     * GET /api/rank/wealth — Top 10 theo tổng tài sản (Wealth/Coins).
+     */
+    @GetMapping("/wealth")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopWealth() {
+        List<Map<String, Object>> rankings = rankService.getTopByWealth();
+        return ResponseEntity.ok(ApiResponse.success("Top Wealth", rankings));
+    }
+
+    /**
+     * GET /api/rank/streak — Top 10 theo Chuỗi đăng nhập (Streak).
+     */
+    @GetMapping("/streak")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopStreak() {
+        List<Map<String, Object>> rankings = rankService.getTopByStreak();
+        return ResponseEntity.ok(ApiResponse.success("Top Streak", rankings));
+    }
 }

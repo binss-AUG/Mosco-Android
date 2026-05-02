@@ -1,6 +1,7 @@
 package com.vn.jet.mosco.spinserver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,6 +50,22 @@ public class User {
 
     @Column(length = 800)
     private String activeToken;
+
+    @Column(nullable = false)
+    private int streak = 0;
+
+    @JsonProperty("bestStreak")
+    @Column(nullable = false)
+    private int bestStreak = 0;
+
+    @Column(nullable = false)
+    private int streakRestoresThisMonth = 0;
+
+    @Column
+    private Integer lastRestoreMonth = 0; // Lưu tháng cuối cùng khôi phục để reset số lượt free
+
+    @Column
+    private java.time.LocalDateTime lastLoginAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_unlocked_collections", 
@@ -106,4 +123,32 @@ public class User {
 
     public Set<String> getUnlockedCollections() { return unlockedCollections; }
     public void setUnlockedCollections(Set<String> unlockedCollections) { this.unlockedCollections = unlockedCollections; }
+
+    public int getStreak() { return streak; }
+    public void setStreak(int streak) { 
+        this.streak = streak; 
+        // LUÔN ĐẢM BẢO BEST STREAK CẬP NHẬT (Auto-Repair logic)
+        if (this.streak > this.bestStreak) {
+            this.bestStreak = this.streak;
+            System.out.println(">>> [STREAK] Record Updated! New Best: " + this.bestStreak);
+        }
+        
+        // Đảm bảo nếu có streak thì record không được bằng 0
+        if (this.streak > 0 && this.bestStreak == 0) {
+            this.bestStreak = this.streak;
+            System.out.println(">>> [STREAK] Emergency Repair: Best streak was 0, fixed to " + this.streak);
+        }
+    }
+
+    public int getBestStreak() { return bestStreak; }
+    public void setBestStreak(int bestStreak) { this.bestStreak = bestStreak; }
+
+    public int getStreakRestoresThisMonth() { return streakRestoresThisMonth; }
+    public void setStreakRestoresThisMonth(int streakRestoresThisMonth) { this.streakRestoresThisMonth = streakRestoresThisMonth; }
+
+    public Integer getLastRestoreMonth() { return lastRestoreMonth; }
+    public void setLastRestoreMonth(Integer lastRestoreMonth) { this.lastRestoreMonth = lastRestoreMonth; }
+
+    public java.time.LocalDateTime getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(java.time.LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
 }

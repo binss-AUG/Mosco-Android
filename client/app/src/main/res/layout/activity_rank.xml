@@ -6,50 +6,55 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_global_gradient">
 
-    <!-- Header -->
-    <LinearLayout
-        android:id="@+id/layout_rank_header"
+    <!-- Standard Galactic Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_header_rank"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="@dimen/item_reveal_result_card_margin_horizontal"
+        android:paddingBottom="@dimen/spacing_12dp"
+        android:paddingHorizontal="24dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_back_rank"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_back_arrow"
-            android:padding="6dp"
+            android:padding="@dimen/spacing_xs"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="@color/white" />
 
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            app:cardBackgroundColor="#1A1C29"
-            app:cardCornerRadius="8dp"
-            app:strokeColor="#8A2BE2"
-            app:strokeWidth="1dp">
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/spacing_16dp"
+            app:layout_constraintStart_toEndOf="@id/btn_back_rank"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rank_header_title"
                 style="@style/MoscoText.Luxury.SubHeader"
-                android:textSize="@dimen/text_size_body_lg"
-                android:textStyle="bold"
-                android:fontWeight="700"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="4dp"
-                android:letterSpacing="0.05" />
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+                android:textSize="@dimen/text_size_h3"
+                android:letterSpacing="0.1"
+                android:textColor="@color/white" />
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="2dp"
+                android:background="@color/galactic_accent_purple" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- TabLayout — Giống hệt Collection -->
     <com.google.android.material.tabs.TabLayout
@@ -60,7 +65,7 @@
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_rank_header"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_rank"
         app:tabIndicatorColor="#8A2BE2"
         app:tabIndicatorHeight="4dp"
         app:tabIndicatorFullWidth="false"
@@ -71,14 +76,52 @@
         app:tabMode="fixed"
         app:tabGravity="fill" />
 
-    <!-- ViewPager2 — Giống hệt Collection -->
+    <!-- ViewPager2 — Danh sách xếp hạng -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_rank"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@id/card_my_rank"
         app:layout_constraintTop_toBottomOf="@id/tab_layout_rank" />
+
+    <!-- My Rank Floating Footer (Quiet Luxury Style) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_my_rank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="12dp"
+        app:cardBackgroundColor="#F21A1C29"
+        app:strokeColor="@color/galactic_accent_purple"
+        app:strokeWidth="1.2dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YOUR RANKING"
+                style="@style/MoscoText.Luxury.Nav"
+                android:textSize="11sp"
+                android:alpha="0.7"
+                android:letterSpacing="0.1"
+                android:layout_marginStart="24dp"
+                android:layout_marginBottom="2dp"
+                android:textColor="@color/white" />
+
+            <!-- Chúng ta sẽ xử lý background transparent trong code RankActivity -->
+            <include
+                android:id="@+id/layout_my_rank_item"
+                layout="@layout/item_rank_entry" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

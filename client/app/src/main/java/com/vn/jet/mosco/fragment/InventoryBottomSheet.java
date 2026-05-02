@@ -206,23 +206,24 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         rvInventory.setAdapter(adapter);
 
-        // BƯỚC 1: Hiển thị từ Cache
+        // BƯỚC 1: Hiển thị từ Cache NGAY LẬP TỨC
         if (DatabaseLoader.cachedUserInventory != null && !DatabaseLoader.cachedUserInventory.isEmpty()) {
-            List<Objet> realObjets = new ArrayList<>();
+            List<Objet> realObjets = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
-                Objet obj = Objet.fromCacheItem(item);
-                realObjets.add(obj);
+                realObjets.add(Objet.fromCacheItem(item));
             }
             originalObjets = realObjets;
+            adapter.updateData(originalObjets);
             layoutEmptyState.setVisibility(View.GONE);
             rvInventory.setVisibility(View.VISIBLE);
             loaderLottie.setVisibility(View.GONE);
-            applyFilters();
+            
+            // Chạy applyFilters ngầm sau khi đã hiện data thô
+            rvInventory.post(this::applyFilters);
         } else {
             loaderLottie.setVisibility(View.VISIBLE);
             loaderLottie.playAnimation();
             rvInventory.setVisibility(View.GONE);
-            layoutEmptyState.setVisibility(View.GONE);
         }
 
         // BƯỚC 2: Gọi API ngầm Sync

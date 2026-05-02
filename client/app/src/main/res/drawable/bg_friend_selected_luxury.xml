@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer Glow / Primary Stroke -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="20dp" />
+            <solid android:color="@color/mosco_primary" />
+        </shape>
+    </item>
+
+    <!-- Content Body (Slightly brighter than default) -->
+    <item android:top="1.5dp" android:left="1.5dp" android:right="1.5dp" android:bottom="1.5dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="18.5dp" />
+            <gradient
+                android:startColor="#F21A1C29"
+                android:endColor="#CC232533"
+                android:angle="135" />
+        </shape>
+    </item>
+</layer-list>

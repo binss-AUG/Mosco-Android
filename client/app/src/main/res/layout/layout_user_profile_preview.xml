@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BottomSheet Profile "The Obsidian Passport" — V5.0 — Ultra Minimalist -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_surface">
+
+    <!-- 1. Background Banner -->
+    <ImageView
+        android:id="@+id/iv_profile_banner"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_profile_banner_galactic"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_gradient_transparent_black"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 2. Header Area -->
+    <LinearLayout
+        android:id="@+id/layout_profile_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Handle spacer -->
+        <View android:layout_width="@dimen/profile_handle_width" android:layout_height="@dimen/profile_handle_height" android:layout_marginTop="@dimen/spacing_sm" android:background="@drawable/bg_bottomsheet_handle" android:alpha="0.2" />
+
+        <!-- Avatar -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/profile_avatar_top_margin_v2">
+            <View
+                android:layout_width="@dimen/profile_avatar_glow_size"
+                android:layout_height="@dimen/profile_avatar_glow_size"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_avatar_glow" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_preview_avatar"
+                android:layout_width="@dimen/profile_avatar_size_v2"
+                android:layout_height="@dimen/profile_avatar_size_v2"
+                android:layout_gravity="center"
+                app:cardCornerRadius="@dimen/profile_avatar_corner_v2"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/white_10"
+                app:strokeWidth="@dimen/home_avatar_stroke">
+                <ImageView
+                    android:id="@+id/iv_preview_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user" />
+            </com.google.android.material.card.MaterialCardView>
+            <View
+                android:id="@+id/view_preview_status_dot"
+                android:layout_width="@dimen/icon_size_sm"
+                android:layout_height="@dimen/icon_size_sm"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/spacing_xs"
+                android:background="@drawable/bg_status_online"
+                android:elevation="4dp" />
+        </FrameLayout>
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/tv_preview_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/profile_preview_default_name"
+            style="@style/MoscoText.Luxury.Header"
+            android:textSize="@dimen/text_size_h1"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <!-- 3. Minimal Content Area -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_profile_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="120dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_profile_header"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="32dp">
+
+            <!-- Label: INFO -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="INFO"
+                style="@style/MoscoText.Luxury.Nav"
+                android:textColor="@color/mosco_primary"
+                android:textSize="@dimen/text_size_body_xs"
+                android:letterSpacing="0.2"
+                android:layout_marginBottom="@dimen/spacing_md" />
+
+            <!-- Level Row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_header_glass_v2" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="LEVEL" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
+                <TextView android:id="@+id/tv_info_level" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="69" style="@style/MoscoText.Luxury.SubHeader" android:textColor="@color/white" />
+            </LinearLayout>
+
+            <!-- Objets Row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_header_glass_v2" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="OBJETS" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
+                <TextView android:id="@+id/tv_info_objets" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="420" style="@style/MoscoText.Luxury.SubHeader" android:textColor="@color/white" />
+            </LinearLayout>
+
+            <!-- ID Row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_badge_dark" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="ID" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+                <TextView android:id="@+id/tv_info_id" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="10000001" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+            </LinearLayout>
+
+            <!-- Join Date Row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_badge_dark" android:paddingHorizontal="@dimen/spacing_lg">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="JOINED" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+                <TextView android:id="@+id/tv_info_join_date" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="2024-05-01" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 4. Bottom Glass Action Bar -->
+    <LinearLayout
+        android:id="@+id/layout_profile_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_lg"
+        android:background="@drawable/bg_glass_footer"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_profile_action_main"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/item_reveal_result_button_height"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_rainbow"
+            android:text="@string/profile_v3_btn_add"
+            style="@style/MoscoText.Luxury.Button"
+            android:textColor="@color/white" />
+
+        <ImageButton
+            android:id="@+id/btn_preview_message_small"
+            android:layout_width="@dimen/item_reveal_result_button_height"
+            android:layout_height="@dimen/item_reveal_result_button_height"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:background="@drawable/bg_hud_mini_fab"
+            android:src="@drawable/ic_mailbox"
+            app:tint="@color/white"
+            android:padding="@dimen/spacing_sm"
+            android:scaleType="centerInside" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

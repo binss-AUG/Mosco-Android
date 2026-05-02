@@ -49,7 +49,7 @@
         android:layout_height="0dp"
         android:gravity="start|top"
         android:fontFamily="@font/pretendard"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textStyle="bold"
         android:fontWeight="700"
         android:includeFontPadding="false"

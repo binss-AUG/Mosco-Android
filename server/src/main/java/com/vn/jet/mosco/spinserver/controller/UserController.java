@@ -1,6 +1,7 @@
 package com.vn.jet.mosco.spinserver.controller;
 
 import com.vn.jet.mosco.spinserver.dto.ApiResponse;
+import com.vn.jet.mosco.spinserver.dto.AuthResponse;
 import com.vn.jet.mosco.spinserver.dto.DisplayNameRequest;
 import com.vn.jet.mosco.spinserver.dto.UpdateProfileRequest;
 import com.vn.jet.mosco.spinserver.model.User;
@@ -34,6 +35,7 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserRepository userRepository;
+    private final com.vn.jet.mosco.spinserver.service.AuthService authService;
 
     // Danh sách tên hệ thống bị cấm — chống giả mạo quyền hạn
     private static final Set<String> RESERVED_NAMES = Set.of(
@@ -48,8 +50,9 @@ public class UserController {
     // Pattern cho username: chỉ chữ/số/underscore, 3-20 ký tự
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, com.vn.jet.mosco.spinserver.service.AuthService authService) {
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
     /**
@@ -58,8 +61,13 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserInfo(@PathVariable Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
-        return userOpt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            authService.updateStreak(user);
+            userRepository.save(user);
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     /**
@@ -158,6 +166,29 @@ public class UserController {
         userRepository.save(user);
         logger.info("Profile updated: userId={}", userId);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", user));
+    }
+
+    /**
+     * POST /api/user/streak/restore — Khôi phục chuỗi đăng nhập.
+     */
+    @PostMapping("/streak/restore")
+    public ResponseEntity<ApiResponse<User>> restoreStreak(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(ApiResponse.error(404, "User not found"));
+        }
+
+        AuthResponse response = authService.restoreStreak(user);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(ApiResponse.success(response.getMessage(), user));
+        } else {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, response.getMessage()));
+        }
     }
 
     // ════════════════════════════════════════════════════════════════
