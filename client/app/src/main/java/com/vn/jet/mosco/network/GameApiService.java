@@ -76,6 +76,9 @@ public interface GameApiService {
     @retrofit2.http.PUT("/api/user/update-profile")
     Call<ResponseBody> updateProfile(@Body java.util.Map<String, String> body);
 
+    @POST("/api/user/streak/restore")
+    Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> restoreStreak();
+
     // ══════════════════════════════════════════════════════════════
     //  DAILY CHECK-IN — Điểm danh hằng ngày
     // ══════════════════════════════════════════════════════════════
@@ -127,6 +130,14 @@ public interface GameApiService {
     /** Top 10 theo số thẻ không trùng. */
     @GET("/api/rank/collection")
     Call<ResponseBody> getRankByCollection();
+
+    /** Top 10 theo tổng tài sản (Wealth/Coins). */
+    @GET("/api/rank/wealth")
+    Call<ResponseBody> getRankByWealth();
+
+    /** Top 10 theo Chuỗi đăng nhập (Streak). */
+    @GET("/api/rank/streak")
+    Call<ResponseBody> getRankByStreak();
 
     // ══════════════════════════════════════════════════════════════
     //  FRIEND — Quản lý Bạn bè

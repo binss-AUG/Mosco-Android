@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.vn.jet.mosco.adapter.FriendSelectAdapter;
 import com.vn.jet.mosco.adapter.GiftHistoryAdapter;
@@ -60,7 +61,8 @@ public class GiftActivity extends AppCompatActivity {
     private TextView tvDailyRemaining;
 
     // Step 1: Chọn thẻ
-    private View cvSelectCardBtn, cvSelectedCard, btnStep1Next;
+    private View cvSelectCardBtn, btnStep1Next;
+    private MaterialCardView cvSelectedCard;
 
     // Step 2: Chọn bạn bè
     private RecyclerView rvFriendSelect;
@@ -73,7 +75,6 @@ public class GiftActivity extends AppCompatActivity {
     private TextView tvConfirmFriendName, tvSenderName;
     private View btnConfirmCancel, btnConfirmSend, btnConfirmDone;
     private View layoutConfirmActions, layoutGiftCost;
-    private android.animation.ObjectAnimator flipAnimator;
 
     // Tab Nhận
     private RecyclerView rvGiftReceived;
@@ -123,7 +124,8 @@ public class GiftActivity extends AppCompatActivity {
 
     private void initViews() {
         // Header
-        findViewById(R.id.btn_back_gift).setOnClickListener(v -> finish());
+        findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
+        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.gift_title);
         tvDailyRemaining = findViewById(R.id.tv_daily_remaining);
 
         // Tabs
@@ -149,7 +151,7 @@ public class GiftActivity extends AppCompatActivity {
         btnStep2Next = findViewById(R.id.btn_step2_next);
         btnStep2Prev = findViewById(R.id.btn_step2_prev);
         tvNoFriends = findViewById(R.id.tv_no_friends);
-        etSearchFriend = findViewById(R.id.et_search_friend);
+        etSearchFriend = findViewById(R.id.et_gift_search_friend);
 
         // Step 3
         ivConfirmFriendAvatar = findViewById(R.id.iv_confirm_friend_avatar);
@@ -244,16 +246,35 @@ public class GiftActivity extends AppCompatActivity {
         // Access internal layout_core_card views
         ImageView ivCardImage = cvSelectedCard.findViewById(R.id.card_iv_image);
         TextView tvCardOvr = cvSelectedCard.findViewById(R.id.card_tv_ovr);
+        ImageView ivCardLevel = cvSelectedCard.findViewById(R.id.card_iv_level);
+        View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
 
         Glide.with(this)
                 .load(selectedObjet.getImageUrl())
                 .placeholder(R.drawable.objet_back_spin)
                 .into(ivCardImage);
 
+        // HIỆU ỨNG SHOWCASE CAO CẤP (Bê nguyên từ HomeFragment)
         if (tvCardOvr != null) {
-            tvCardOvr.setText(String.valueOf(selectedObjet.getOvr()));
             tvCardOvr.setVisibility(View.GONE);
         }
+
+        if (ivCardLevel != null) {
+            if (selectedObjet.getUpgradeLevel() > 0) {
+                String assetPath = "file:///android_asset/grade/" + selectedObjet.getUpgradeLevel() + ".png";
+                Glide.with(this).load(assetPath).into(ivCardLevel);
+                ivCardLevel.setVisibility(View.VISIBLE);
+                
+                // Hiệu ứng Glow cho Badge
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevel, selectedObjet.getUpgradeLevel());
+            } else {
+                ivCardLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivCardLevel);
+            }
+        }
+
+        // Hiệu ứng Shimmer + TriplesBorder + Neon Glow bao quanh
+        com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSelectedCard, viewCardShimmer, selectedObjet, true);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -380,34 +401,23 @@ public class GiftActivity extends AppCompatActivity {
     private void bindConfirmation() {
         if (selectedObjet == null || selectedFriend == null) return;
 
-        // Card preview (floating card)
-        View cvStep3Card = findViewById(R.id.cv_step3_card);
-        ImageView ivCardImage = cvStep3Card.findViewById(R.id.card_iv_image);
-        TextView tvCardOvr = cvStep3Card.findViewById(R.id.card_tv_ovr);
+        // No card preview in Confirm step as requested
 
-        Glide.with(this)
-                .load(selectedObjet.getImageUrl())
-                .into(ivCardImage);
+        // Sender info & Avatar
+        com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(this);
+        tvSenderName.setText(session.getIngameName() != null ? session.getIngameName() : "You");
 
-        if (tvCardOvr != null) {
-            tvCardOvr.setText(String.valueOf(selectedObjet.getOvr()));
-            tvCardOvr.setVisibility(View.GONE);
+        // Load personal avatar
+        String myAvatarId = session.getAvatarId();
+        JSONObject myAvatarCard = DatabaseLoader.findByCollectionId(this, myAvatarId);
+        ImageView ivSenderAvatar = findViewById(R.id.iv_sender_avatar_img);
+        if (myAvatarCard != null) {
+            Glide.with(this)
+                    .load(myAvatarCard.optString("frontImage", ""))
+                    .transform(new SmartFaceCropTransformation())
+                    .placeholder(R.drawable.ic_user)
+                    .into(ivSenderAvatar);
         }
-
-        // Apply flip animation to floating card
-        if (flipAnimator != null) {
-            flipAnimator.cancel();
-        }
-        flipAnimator = android.animation.ObjectAnimator.ofFloat(cvStep3Card, "rotationY", 0f, 360f);
-        flipAnimator.setDuration(4000);
-        flipAnimator.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-        flipAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
-        flipAnimator.start();
-
-        // Check if SessionManager is available to show sender name
-        try {
-            tvSenderName.setText("You");
-        } catch(Exception e) {}
 
         // Friend info
         tvConfirmFriendName.setText(selectedFriend.optString("ingameName", "Unknown"));
@@ -465,7 +475,6 @@ public class GiftActivity extends AppCompatActivity {
                         layoutConfirmActions.setVisibility(View.GONE);
                         layoutGiftCost.setVisibility(View.INVISIBLE);
                         btnConfirmDone.setVisibility(View.VISIBLE);
-                        if (flipAnimator != null) flipAnimator.cancel();
 
                         loadDailyRemaining();
                         
@@ -594,7 +603,7 @@ public class GiftActivity extends AppCompatActivity {
         layoutStep3.setVisibility(View.GONE);
 
         // Reset màu indicator — dùng color resource thay vì hardcode
-        int activeColor = getResources().getColor(R.color.quick_tool_gift, getTheme());
+        int activeColor = getResources().getColor(R.color.mosco_primary, getTheme());
         int dimColor = getResources().getColor(R.color.mosco_text_dim, getTheme());
 
         tvStep1.setTextColor(step >= 1 ? activeColor : dimColor);
@@ -613,6 +622,10 @@ public class GiftActivity extends AppCompatActivity {
      * Reset wizard về trạng thái ban đầu.
      */
     private void resetSendWizard() {
+        // Xóa sạch hiệu ứng Showcase của thẻ cũ (Glow, Shimmer)
+        View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
+        com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSelectedCard, viewCardShimmer);
+
         cvSelectCardBtn.setVisibility(View.VISIBLE);
         cvSelectedCard.setVisibility(View.GONE);
         btnStep1Next.setVisibility(View.GONE);

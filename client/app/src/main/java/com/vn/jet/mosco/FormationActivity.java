@@ -76,7 +76,8 @@ public class FormationActivity extends AppCompatActivity {
         slotViews[4] = findViewById(R.id.slot4);
         slotViews[5] = findViewById(R.id.slot5);
         
-        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
+        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.home_nav_formation);
         
         // ── Thiết lập BottomSheet cho Synergy Panel ──
         View synergySheet = findViewById(R.id.synergy_bottom_sheet);
@@ -443,7 +444,7 @@ public class FormationActivity extends AppCompatActivity {
 
             if (newOvr > baseOvr) {
                 tvOvr.setText(String.valueOf(newOvr));
-                tvOvr.setTextColor(android.graphics.Color.parseColor("#80FFB4")); // Xanh Neon
+                tvOvr.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_tertiary)); // Xanh Neon
             } else {
                 tvOvr.setText(String.valueOf(baseOvr));
                 tvOvr.setTextColor(android.graphics.Color.WHITE); // Trắng gốc
@@ -456,9 +457,9 @@ public class FormationActivity extends AppCompatActivity {
         container.setOrientation(android.widget.LinearLayout.VERTICAL);
         
         android.graphics.drawable.GradientDrawable gd = new android.graphics.drawable.GradientDrawable();
-        gd.setColor(android.graphics.Color.parseColor("#E61E1E2E")); // 90% dark
-        gd.setCornerRadius(24f);
-        gd.setStroke(2, android.graphics.Color.parseColor("#44FFFFFF"));
+        gd.setColor(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_surface_container_high_80)); 
+        gd.setCornerRadius(getResources().getDimension(R.dimen.radius_lg));
+        gd.setStroke(2, androidx.core.content.ContextCompat.getColor(this, R.color.white_25));
         container.setBackground(gd);
 
         int padding = Math.round(16 * getResources().getDisplayMetrics().density);
@@ -494,7 +495,7 @@ public class FormationActivity extends AppCompatActivity {
         animator.setDuration(800);
         animator.addUpdateListener(animation -> {
             currentOvr = (int) animation.getAnimatedValue();
-            tvTotalOvr.setText("OVR: " + currentOvr);
+            tvTotalOvr.setText(getString(R.string.formation_ovr_label, currentOvr));
         });
         animator.start();
     }

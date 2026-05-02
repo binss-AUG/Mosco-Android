@@ -7,39 +7,53 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_header_glass_v2"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="12dp"
-    android:layout_marginBottom="8dp">
+    android:paddingHorizontal="@dimen/rank_item_padding_h"
+    android:paddingVertical="@dimen/rank_item_padding_v"
+    android:layout_marginBottom="@dimen/spacing_8dp">
 
-    <!-- Hạng (1-10) -->
-    <TextView
-        android:id="@+id/tv_rank_position"
-        android:layout_width="36dp"
-        android:layout_height="wrap_content"
-        style="@style/MoscoText.Luxury.Nav"
-        android:textSize="@dimen/text_size_body_lg"
-        android:textStyle="bold"
-        android:fontWeight="700"
-        android:gravity="center" />
+    <!-- Rank Badge Area (Crown with Number inside) -->
+    <FrameLayout
+        android:layout_width="@dimen/rank_badge_size"
+        android:layout_height="@dimen/rank_badge_size"
+        android:layout_marginEnd="@dimen/spacing_8dp">
 
-    <!-- Avatar -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_marginStart="8dp"
-        app:cardCornerRadius="100dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="#3A3A55"
-        app:strokeColor="#30FFFFFF"
-        app:strokeWidth="0.8dp">
 
-        <ImageView
-            android:id="@+id/iv_rank_avatar"
+        <TextView
+            android:id="@+id/tv_rank_position"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_user" />
-    </com.google.android.material.card.MaterialCardView>
+            android:gravity="center"
+            android:translationY="5dp"
+            style="@style/MoscoText.Luxury.Nav"
+            android:textSize="@dimen/text_size_rank_badge"
+            android:textStyle="bold"
+            android:fontWeight="900"
+            android:textColor="@color/white" />
+    </FrameLayout>
+
+    <!-- Avatar Area with Crown -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_8dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="@dimen/rank_avatar_size"
+            android:layout_height="@dimen/rank_avatar_size"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#3A3A55"
+            app:strokeColor="#30FFFFFF"
+            app:strokeWidth="0.8dp">
+
+            <ImageView
+                android:id="@+id/iv_rank_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 
     <!-- Tên người chơi -->
     <TextView
@@ -56,13 +70,32 @@
         android:ellipsize="end" />
 
     <!-- Chỉ số (Level / OVR / Card Count) -->
-    <TextView
-        android:id="@+id/tv_rank_value"
+    <LinearLayout
+        android:id="@+id/layout_rank_value_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/MoscoText.Luxury.Price"
-        android:textColor="@color/item_diamond"
-        android:textSize="@dimen/text_size_hud_large"
-        android:textStyle="bold"
-        android:fontWeight="700" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+        
+        <ImageView
+            android:id="@+id/iv_rank_type_icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone"
+            app:tint="@color/item_diamond" />
+
+        <TextView
+            android:id="@+id/tv_rank_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.Price"
+            android:textColor="@color/item_diamond"
+            android:textSize="@dimen/text_size_hud_large"
+            android:textStyle="bold"
+            android:fontWeight="700" />
+    </LinearLayout>
 </LinearLayout>

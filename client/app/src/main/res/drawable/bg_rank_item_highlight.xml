@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#26FFFFFF" /> <!-- Trắng mờ 15% tạo hiệu ứng xám nhẹ trên nền tối -->
+    <corners android:radius="12dp" />
+    <stroke
+        android:width="1.2dp"
+        android:color="#4DFFFFFF" /> <!-- Viền trắng mờ 30% -->
+</shape>

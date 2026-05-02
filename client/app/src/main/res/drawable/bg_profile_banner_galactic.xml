@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="240dp"
+    android:viewportWidth="400"
+    android:viewportHeight="240">
+    <!-- Deep Space Gradient Background -->
+    <path android:pathData="M0,0 h400 v240 h-400 z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="200"
+                android:startY="0"
+                android:endX="200"
+                android:endY="240"
+                android:type="linear">
+                <item android:offset="0" android:color="#1A1C29" />
+                <item android:offset="0.6" android:color="#0e0e0e" />
+                <item android:offset="1.0" android:color="#0e0e0e" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Subtle Accent Nebula Glow -->
+    <path
+        android:pathData="M0,0 h400 v120 Q200,180 0,120 Z"
+        android:fillAlpha="0.1">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="400"
+                android:endY="0"
+                android:type="linear">
+                <item android:offset="0" android:color="#6c29fd" />
+                <item android:offset="1.0" android:color="#00E5FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

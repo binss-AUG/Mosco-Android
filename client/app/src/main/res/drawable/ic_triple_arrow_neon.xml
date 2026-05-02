@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="24dp"
+    android:viewportWidth="48"
+    android:viewportHeight="24">
+    
+    <!-- Arrow 1 (Dim) -->
+    <path
+        android:pathData="M8,4 L16,12 L8,20"
+        android:strokeWidth="2.5"
+        android:strokeColor="#33FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+        
+    <!-- Arrow 2 (Medium) -->
+    <path
+        android:pathData="M18,4 L26,12 L18,20"
+        android:strokeWidth="2.5"
+        android:strokeColor="#80FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+        
+    <!-- Arrow 3 (Bright Neon) -->
+    <path
+        android:pathData="M28,4 L36,12 L28,20"
+        android:strokeWidth="2.5"
+        android:strokeColor="@color/mosco_primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

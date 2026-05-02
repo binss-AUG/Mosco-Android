@@ -28,6 +28,8 @@
     <color name="mosco_link">#0066FF</color>
     
     <color name="mosco_gold">#FFD700</color>
+    <color name="rank_silver">#C0C0C0</color>
+    <color name="rank_bronze">#CD7F32</color>
     <color name="mosco_surface_container_high_80">#CC20201F</color>
     <color name="mosco_success">#00C853</color>
     
@@ -62,6 +64,7 @@
     <color name="quick_tool_upgrade">#00E5FF</color> <!-- Cyan -->
     <color name="quick_tool_rank">#76FF03</color> <!-- Neon Green -->
     <color name="quick_tool_shop">#FF9800</color> <!-- Orange -->
+    <color name="quick_tool_formation">#00F2FF</color> <!-- Neon Blue -->
     <color name="quick_tool_friends">#9C27B0</color> <!-- Purple -->
     <color name="quick_tool_gift">#FF6B9D</color> <!-- Rose Pink -->
 
@@ -100,9 +103,57 @@
     <color name="reveal_metallic_4">#F5F5F5</color>
 
     <!-- Profile Luxury Colors -->
+    <color name="white_05">#0DFFFFFF</color>
     <color name="white_10">#1AFFFFFF</color>
+    <color name="white_15">#26FFFFFF</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="white_25">#40FFFFFF</color>
     <color name="white_40">#66FFFFFF</color>
     <color name="white_50">#80FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_80">#CCFFFFFF</color>
+    <color name="planet_purple_deep">#1A0B2E</color>
+    <color name="planet_purple_bright">#9370DB</color>
+    <color name="planet_storm_spot">#BA55D3</color>
+    <color name="planet_glow_cyan">#00FFFF</color>
+    <color name="planet_shadow_heavy">#E6000000</color>
+    <color name="planet_lava_red">#FF4500</color>
+    <color name="planet_ice_blue">#E0FFFF</color>
+    <color name="planet_terra_green">#228B22</color>
+    <color name="galactic_accent_purple">#8A2BE2</color>
+    <color name="galactic_accent_orange">#FF4500</color>
+    <!-- Daily Check-in Sessions (Refined Luxury Muted Palette) -->
+    <color name="daily_morning_accent">#00E5FF</color>
+    <color name="daily_morning_bg">#05101E</color>
+    <color name="daily_noon_accent">#FFD700</color>
+    <color name="daily_noon_bg">#3D2108</color>
+    <color name="daily_evening_accent">#BD00FF</color>
+    <color name="daily_evening_bg">#0F051E</color>
+
+    <!-- Podium 3D Colors -->
+    <color name="podium_gold_top">#FFF2A8</color>
+    <color name="podium_gold_start">#D4AF37</color>
+    <color name="podium_gold_end">#8B6508</color>
+    <color name="podium_gold_stroke">#B38B00</color>
+
+    <color name="podium_silver_top">#F5F5F5</color>
+    <color name="podium_silver_start">#C0C0C0</color>
+    <color name="podium_silver_end">#696969</color>
+    <color name="podium_silver_stroke">#A9A9A9</color>
+
+    <color name="podium_bronze_top">#FFDAB9</color>
+    <color name="podium_bronze_start">#CD7F32</color>
+    <color name="podium_bronze_end">#8B4513</color>
+    <color name="podium_bronze_stroke">#A0522D</color>
+
+    <!-- Podium Unified Professional Colors -->
+    <color name="podium_unified_top">#1A1C29</color>
+    <color name="podium_unified_start">#3A3A55</color>
+    <color name="podium_unified_end">#0A0A0E</color>
+    <color name="podium_unified_stroke">#4DFFFFFF</color>
+    <color name="podium_unified_pill">#1E2230</color>
+
+    <color name="shadow_dark">#80000000</color>
     <color name="white_60">#99FFFFFF</color>
     <color name="white_80">#CCFFFFFF</color>
     

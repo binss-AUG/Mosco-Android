@@ -51,18 +51,19 @@
     <string name="home_format_ovr">%d</string>
     <string name="home_format_level">LV. %d</string>
     <string name="home_default_level">LV. 1</string>
+    <string name="home_header_streak_format">%d</string>
     <string name="home_label_id_format">ID: %s</string>
-    <string name="home_toast_copy_success">Đã sao chép ID: %s</string>
+    <string name="home_toast_copy_success">ID Copied: %s</string>
     <string name="home_msg_copy_clipboard_label">UserID</string>
-    <string name="home_showcase_loading_msg">Đang tải Showcase...</string>
+    <string name="home_showcase_loading_msg">Loading Showcase...</string>
     <string name="home_format_currency_trillions">%.1fT</string>
     <string name="home_format_currency_billions">%.1fB</string>
     <string name="home_format_currency_millions">%.1fM</string>
     <string name="home_format_currency_thousands">%.1fK</string>
 
     <!-- HomeFragment: Showcase -->
-    <string name="home_showcase_empty_title">No Objets Yet</string>
-    <string name="home_showcase_empty_subtitle">Spin to collect your first card!</string>
+    <string name="home_showcase_empty_title">The archive is silent… no objets found yet.</string>
+    <string name="home_showcase_empty_subtitle">Venture into the unknown to find your first relic.</string>
     <string name="home_cd_showcase_front">Showcase card front image</string>
     <string name="home_cd_showcase_back">Showcase card back image</string>
     <string name="home_cd_user_avatar">User profile avatar</string>
@@ -80,8 +81,9 @@
 
     <!-- Gift Activity -->
     <string name="gift_title">GIFT</string>
+    <string name="gift_daily_limit_label">GIFTS LEFT</string>
     <string name="gift_step1_tap">Tap to select\nObjet to gift</string>
-    <string name="gift_next">CONTINUE →</string>
+    <string name="gift_next">CONTINUE</string>
     <string name="gift_cancel">CANCEL</string>
     <string name="gift_previous">PREVIOUS</string>
     <string name="gift_done">DONE</string>
@@ -90,9 +92,9 @@
     <string name="gift_search_hint">Search friends...</string>
     <string name="gift_tab_send">SEND</string>
     <string name="gift_tab_received">INBOX</string>
-    <string name="gift_step_1">① SELECT CARD</string>
-    <string name="gift_step_2">② SELECT FRIEND</string>
-    <string name="gift_step_3">③ CONFIRM</string>
+    <string name="gift_step_1">SELECT OBJET</string>
+    <string name="gift_step_2">SELECT FRIEND</string>
+    <string name="gift_step_3">CONFIRM</string>
     <string name="gift_no_friends">You have no friends yet.\nAdd some to send gifts!</string>
     <string name="gift_no_received">Inbox is empty.\nWait for a gift from friends!</string>
     <string name="formation_preview_failed">Preview failed</string>
@@ -184,15 +186,22 @@
 
     <!-- Inventory Strings -->
     <string name="inventory_title">Select an Objet</string>
-    <string name="inventory_empty_title">No Objets found in your inventory</string>
-    <string name="inventory_empty_desc">Go to Shop to buy some packs first.</string>
+    <string name="inventory_empty_title">Your collection is hauntingly empty...</string>
+    <string name="inventory_empty_desc">Venture to the shop and summon your first artifact.</string>
     <string name="inventory_btn_confirm">Confirm</string>
 
     <!-- Upgrade Strings -->
-    <string name="upgrade_probability_badge">TĂNG TỈ LỆ NÂNG CẤP</string>
+    <string name="upgrade_header">UPGRADE</string>
+    <string name="upgrade_msg_select_main_first">Vui lòng chọn thẻ chính trước!</string>
+    <string name="upgrade_msg_system_error">Lỗi hệ thống khi nâng cấp</string>
+    <string name="upgrade_msg_network_error_format">Lỗi mạng: %s</string>
+    <string name="upgrade_msg_success">Upgrade Successful!</string>
+    <string name="upgrade_msg_failed">Upgrade Failed!</string>
+    <string name="upgrade_probability_badge">UPGRADE BOOST</string>
     <string name="upgrade_materials_label">MATERIALS</string>
     <string name="upgrade_materials_count_format">%1$d / %2$d Selected</string>
     <string name="upgrade_btn_text">UPGRADE</string>
+    <string name="upgrade_btn_upgrading">UPGRADING...</string>
 
     <!-- Shop Dialog Strings -->
     <string name="dialog_shop_buy_title">BUY NOW</string>
@@ -209,7 +218,27 @@
 
     <!-- Rank Strings -->
     <string name="rank_header_title">RANKING</string>
+    <string name="rank_tab_level">LEVEL</string>
+    <string name="rank_tab_album">ALBUM</string>
+    <string name="rank_tab_wealth">WEALTH</string>
+    <string name="rank_tab_streak">STREAK</string>
+    <string name="rank_label_level_format">LV %d</string>
+    <string name="rank_label_wealth_format">%d Diamonds</string>
+    <string name="rank_label_album_format">%d Objet</string>
+    <string name="rank_label_streak_format">%d Days</string>
+    
+    <string name="streak_dialog_title">STREAK GALAXY</string>
+    <string name="streak_dialog_current">CURRENT STREAK</string>
+    <string name="streak_dialog_best">ALL-TIME RECORD</string>
+    <string name="streak_dialog_shield">STREAK SHIELD</string>
+    <string name="streak_dialog_shield_desc">Protect or restore your streak using Diamonds.</string>
+    <string name="streak_dialog_restore_btn">RESTORE</string>
+    <string name="rank_placeholder_empty">--</string>
+    <string name="rank_default_boss_name">Commander</string>
     <string name="rank_empty_msg">No ranking data yet</string>
+    <string name="rank_num_1">1</string>
+    <string name="rank_num_2">2</string>
+    <string name="rank_num_3">3</string>
 
     <!-- Settings Strings -->
     <string name="settings_title">SETTINGS</string>
@@ -270,6 +299,46 @@
     <string name="stat_label_crit_dmg">Crit DMG:</string>
     <string name="label_level_up">Level up</string>
     <string name="label_upgrade">Upgrade</string>
+
+    <!-- Profile Preview Strings -->
+    <string name="profile_preview_default_name">GALACTIC TRAVELER</string>
+    <string name="profile_preview_label_level">LEVEL</string>
+    <string name="profile_preview_label_joined">JOINED GALAXY</string>
+    <string name="profile_preview_label_showcase">EQUIPPED SHOWCASE</string>
+    <string name="profile_preview_label_achievements">ACHIEVEMENTS</string>
+    <string name="profile_preview_btn_message">SEND MESSAGE</string>
+    <string name="profile_preview_msg_chat_coming">Opening chat with %s</string>
+    <string name="profile_preview_unfriend_title">Unfriend</string>
+    <string name="profile_preview_unfriend_msg">Remove %s from your galaxy?</string>
+    <string name="profile_preview_unfriend_success">Unfriended %s</string>
+    <string name="profile_preview_id_format">ID: %d</string>
+    <string name="profile_preview_status_online">ONLINE</string>
+    <string name="profile_preview_status_offline">OFFLINE</string>
+    <string name="profile_preview_btn_remove">REMOVE</string>
+    <string name="profile_preview_default_date">2024-05-01</string>
+
+    <!-- Friend System V2 Strings -->
+    <string name="friend_tab_friends">FRIENDS</string>
+    <string name="friend_tab_explore">EXPLORE</string>
+    <string name="friend_tab_requests">REQUESTS</string>
+    <string name="friend_stats_total">TOTAL FRIENDS</string>
+    <string name="friend_stats_online">ONLINE NOW</string>
+    <string name="friend_empty_msg">The archive is silent...</string>
+    <string name="friend_explore_title">EXPLORE</string>
+    <string name="friend_explore_desc"></string>
+    <string name="friend_explore_hint">NO NEW SUGGESTIONS</string>
+
+    <!-- Profile Preview V3 -->
+    <string name="profile_v3_label_friend">FRIEND</string>
+    <string name="profile_v3_label_follower">FOLLOWER</string>
+    <string name="profile_v3_label_objets">OBJETS</string>
+    <string name="profile_v3_tab_info">INFO</string>
+    <string name="profile_v3_tab_showcase">SHOWCASE</string>
+    <string name="profile_v3_btn_add">ADD FRIEND</string>
+    <string name="profile_v3_btn_unfriend">UNFRIEND</string>
+    <string name="profile_v3_label_title">GALACTIC TRAVELER</string>
+    <string name="formation_ovr_label">OVR: %d</string>
+    <string name="home_nav_formation">FORMATION</string>
     <string name="label_error">Error</string>
     <string name="label_or_continue_with">Or continue with</string>
     <string name="action_sign_in_google">Google</string>

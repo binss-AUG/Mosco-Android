@@ -25,13 +25,45 @@ import java.util.List;
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendViewHolder> {
 
     private List<JSONObject> data;
+    private List<JSONObject> fullData;
 
     public FriendAdapter(List<JSONObject> data) {
-        this.data = data;
+        this.data = new java.util.ArrayList<>(data);
+        this.fullData = new java.util.ArrayList<>(data);
     }
 
     public void updateData(List<JSONObject> newData) {
-        this.data = newData;
+        this.data = new java.util.ArrayList<>(newData);
+        this.fullData = new java.util.ArrayList<>(newData);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Lọc danh sách bạn bè theo tên hoặc ID ngay lập tức (Real-time).
+     * Hỗ trợ tìm kiếm theo ID định dạng (1000000x) và tên hiển thị.
+     */
+    public void filter(String query) {
+        if (query == null || query.isEmpty()) {
+            data = new java.util.ArrayList<>(fullData);
+        } else {
+            List<JSONObject> filtered = new java.util.ArrayList<>();
+            String lowerQuery = query.toLowerCase().trim();
+            
+            for (JSONObject obj : fullData) {
+                String name = obj.optString("ingameName", "").toLowerCase();
+                String username = obj.optString("username", "").toLowerCase();
+                long rawId = obj.optLong("userId", -1);
+                String formattedId = String.valueOf(10000000 + rawId);
+                
+                // Lọc theo: Tên chứa query HOẶC ID định dạng chứa query (Không cho phép tìm theo ID gốc)
+                if (name.contains(lowerQuery) || 
+                    username.contains(lowerQuery) ||
+                    formattedId.contains(lowerQuery)) {
+                    filtered.add(obj);
+                }
+            }
+            data = filtered;
+        }
         notifyDataSetChanged();
     }
 
@@ -49,6 +81,10 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
             holder.tvLevel.setText("LV " + entry.optInt("level", 1));
 
+            // --- 🟢 STATUS GLOW LOGIC (Sử dụng data thực từ server) ---
+            boolean isOnline = entry.optBoolean("online", false); 
+            holder.viewStatus.setVisibility(isOnline ? View.VISIBLE : View.GONE);
+
             // --- 🎭 SYNC AVATAR LOGIC ---
             String avatarId = entry.optString("avatarId", "1");
             JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
@@ -62,6 +98,14 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             } else {
                 holder.ivAvatar.setImageResource(R.drawable.ic_user);
             }
+
+            // Click listener cho cả item để hiện Profile Preview
+            holder.itemView.setOnClickListener(v -> {
+                if (holder.itemView.getContext() instanceof com.vn.jet.mosco.FriendActivity) {
+                    ((com.vn.jet.mosco.FriendActivity) holder.itemView.getContext()).showUserProfile(entry);
+                }
+            });
+
         } catch (Exception ignored) {}
     }
 
@@ -71,12 +115,14 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
     static class FriendViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvLevel;
         ImageView ivAvatar;
+        View viewStatus;
 
         FriendViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_friend_name);
             tvLevel = itemView.findViewById(R.id.tv_friend_level);
             ivAvatar = itemView.findViewById(R.id.iv_friend_avatar);
+            viewStatus = itemView.findViewById(R.id.view_online_status);
         }
     }
 }

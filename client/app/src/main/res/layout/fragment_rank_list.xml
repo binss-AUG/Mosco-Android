@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Fragment hiển thị danh sách rank (dùng chung cho 3 tab) -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
@@ -13,17 +14,33 @@
         android:paddingTop="8dp"
         android:clipToPadding="false" />
 
-    <!-- Empty state -->
-    <TextView
-        android:id="@+id/tv_rank_empty"
+    <!-- Empty state container -->
+    <LinearLayout
+        android:id="@+id/layout_rank_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/rank_empty_msg"
-        style="@style/MoscoText.Luxury.Body"
-        android:textColor="#A2A2A7"
-        android:textSize="@dimen/text_size_body_sm"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_rank_empty"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true" />
+
+        <TextView
+            android:id="@+id/tv_rank_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rank_empty_msg"
+            style="@style/MoscoText.Luxury.Body"
+            android:textColor="#A2A2A7"
+            android:textSize="@dimen/text_size_body_sm"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
 
     <!-- Loading -->
     <com.airbnb.lottie.LottieAnimationView

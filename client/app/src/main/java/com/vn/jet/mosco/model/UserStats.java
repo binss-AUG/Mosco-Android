@@ -24,6 +24,15 @@ public class UserStats {
     @SerializedName("exp")
     private long exp;
 
+    @SerializedName("streak")
+    private int streak;
+
+    @SerializedName("bestStreak")
+    private int bestStreak;
+
+    @SerializedName("streakRestoresThisMonth")
+    private int streakRestoresThisMonth;
+
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
@@ -31,4 +40,7 @@ public class UserStats {
     public Long getDiamonds() { return diamonds; }
     public int getLevel() { return level; }
     public long getExp() { return exp; }
+    public int getStreak() { return streak; }
+    public int getBestStreak() { return bestStreak; }
+    public int getStreakRestoresThisMonth() { return streakRestoresThisMonth; }
 }

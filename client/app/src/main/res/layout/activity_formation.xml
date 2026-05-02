@@ -8,62 +8,52 @@
     tools:context=".FormationActivity">
 
     <!-- ── PART 1: HEADER (TOP) ──────────────────────────────────────── -->
-    <RelativeLayout
-        android:id="@+id/header_container"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:padding="16dp">
+    <!-- Standard Galactic Header (Abstracted) -->
+    <include
+        android:id="@+id/layout_header_formation_container"
+        layout="@layout/layout_galactic_header"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Right Side Content (OVR Stats) -->
+    <LinearLayout
+        android:id="@+id/layout_header_stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:orientation="vertical"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/layout_header_formation_container"
+        app:layout_constraintBottom_toBottomOf="@id/layout_header_formation_container">
+        
         <TextView
             android:id="@+id/tv_total_ovr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             style="@style/MoscoText.Luxury.Header"
             android:text="OVR: 0"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:fontWeight="700"
-            android:visibility="gone" />
-
+            android:textColor="@color/mosco_tertiary"
+            android:textSize="@dimen/text_size_h3"
+            android:fontWeight="700" />
+            
         <TextView
             android:id="@+id/btn_global_buffs"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:layout_toEndOf="@id/tv_total_ovr"
-            android:layout_marginStart="12dp"
-            android:layout_centerVertical="true"
-            android:background="@drawable/bg_button_outline"
-            style="@style/MoscoText.Luxury.Badge"
-            android:gravity="center"
-            android:paddingHorizontal="16dp"
-            android:text="BUFF"
-            android:textColor="#80FFB4"
-            android:textSize="@dimen/text_size_badge"
-            android:textStyle="bold"
-            android:fontWeight="700"
+            android:layout_height="wrap_content"
+            android:text="BUFF ACTIVE"
+            style="@style/MoscoText.Luxury.Label"
+            android:textColor="@color/white_40"
+            android:textSize="@dimen/text_size_mini"
             android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            app:tint="@color/mosco_neon_blue" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- ── PART 2: STAGE (BODY) ──────────────────────────────────────── -->
     <FrameLayout
         android:id="@+id/stage_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
-        android:layout_marginBottom="56dp"
+        android:layout_marginTop="@dimen/formation_stage_margin_top"
+        android:layout_marginBottom="@dimen/formation_bottom_sheet_peek"
         android:clipChildren="false">
 
         <!-- Custom Canvas for Neon Lines -->
@@ -77,7 +67,7 @@
             android:id="@+id/ll_stage_grid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/formation_grid_margin"
             android:clipChildren="false"
             android:orientation="vertical"
             android:weightSum="4">
@@ -139,7 +129,7 @@
         android:id="@+id/dim_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#AA000000"
+        android:background="@color/shadow_dark"
         android:visibility="gone" />
 
     <!-- ── PART 3: SYNERGY BOTTOMSHEET ────────────────────────────────── -->
@@ -151,7 +141,7 @@
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
-        app:behavior_peekHeight="56dp"
+        app:behavior_peekHeight="@dimen/formation_bottom_sheet_peek"
         app:behavior_hideable="false"
         app:behavior_fitToContents="false"
         app:behavior_halfExpandedRatio="0.30"
@@ -161,17 +151,17 @@
         <LinearLayout
             android:id="@+id/synergy_header"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/formation_bottom_sheet_peek"
             android:background="@drawable/bg_synergy_header"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="@dimen/spacing_md">
 
             <!-- Drag Handle -->
             <View
-                android:layout_width="40dp"
-                android:layout_height="5dp"
-                android:layout_marginEnd="12dp"
+                android:layout_width="@dimen/formation_handle_width"
+                android:layout_height="@dimen/formation_handle_height"
+                android:layout_marginEnd="@dimen/spacing_sm"
                 android:background="@drawable/bg_bottomsheet_handle" />
 
             <!-- Title -->
@@ -190,8 +180,8 @@
             <!-- Toggle Button (+/-) -->
             <ImageButton
                 android:id="@+id/btn_synergy_toggle"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/profile_preview_badge_size"
+                android:layout_height="@dimen/profile_preview_badge_size"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_arrow_up"
                 android:contentDescription="Toggle synergy panel"
@@ -205,7 +195,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            android:paddingBottom="16dp"
+            android:paddingBottom="@dimen/spacing_md"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_synergy_badge" />
     </LinearLayout>

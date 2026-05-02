@@ -19,7 +19,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -87,7 +89,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private static final int SHOWCASE_FLOAT_DURATION = 3000;
 
     // ── UI References ──
-    private TextView tvUsername, tvLevel, tvOvr, tvCoins, tvDiamonds, tvUserId;
+    private TextView tvUsername, tvLevel, tvOvr, tvCoins, tvDiamonds, tvUserId, tvHomeStreak;
     private View layoutUserId;
     private ImageView ivShowcaseFront, ivShowcaseBack, ivLevelBadge;
     private com.vn.jet.mosco.utils.StrokedTextView tvShowcaseOvr;
@@ -97,7 +99,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private View layoutShowcaseLoading;
     private TextView tvShowcaseLoading, tvCardCount;
     private ViewPager2 vpBanners;
-    private View viewProjectorBeam, viewAvatarGlow, flAvatarGroup;
+    private View viewProjectorBeam, viewAvatarGlow, flAvatarGroup, viewEmptyCardBg;
+    private View clHeader, cvBannerContainer, layoutHomeStreak;
 
     // ── Quick Tool References (New HUD V3) ──
     private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
@@ -111,6 +114,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private float startCardRotation = 0f;
     private ObjectAnimator snapAnimator;
     private String heroBackImageUrl = null;
+    private boolean isPlanetActive = false;
+    private java.util.List<android.animation.Animator> activeAnimators = new java.util.ArrayList<>();
 
     // ── Services ──
     private SessionManager sessionManager;
@@ -133,6 +138,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private JSONObject heroCardJson;
     private int pendingShowcaseAssetLoads = 0;
     private ImageView ivHomeAvatar;
+    private int bestStreakValue = 0;
+    private int restoresThisMonth = 0;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -145,6 +152,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
         initServices();
+        
+        // Setup Long Click Copy cho Username và ID
+        setupLongClickCopy(tvUsername, "Tên chỉ huy");
+        setupLongClickCopy(tvUserId, "Mã ID");
         initGestureDetector();
         setupBannerCarousel();
         setupQuickToolActions();
@@ -160,6 +171,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         super.onResume();
         startBannerAutoScroll();
         startAvatarPulse();
+        setupZenMode();
         loadUserData();
         loadHeroShowcase();
     }
@@ -172,12 +184,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        // Dọn dẹp animation để tránh Memory Leak và tối ưu cho máy yếu
+        for (android.animation.Animator animator : activeAnimators) {
+            if (animator != null) animator.cancel();
+        }
+        activeAnimators.clear();
         DatabaseLoader.unregisterInventoryChangeListener(this);
         stopBannerAutoScroll();
         if (showcaseLoadingTimeoutRunnable != null) {
             showcaseLoadingHandler.removeCallbacks(showcaseLoadingTimeoutRunnable);
         }
+        super.onDestroyView();
     }
 
     @Override
@@ -198,6 +215,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             tvOvr = v.findViewById(R.id.tv_home_ovr);
             tvCoins = v.findViewById(R.id.tv_home_coins);
             tvDiamonds = v.findViewById(R.id.tv_home_diamonds);
+            tvHomeStreak = v.findViewById(R.id.tv_home_streak);
             ivHomeAvatar = v.findViewById(R.id.iv_home_avatar);
             ivShowcaseFront = v.findViewById(R.id.card_iv_image);
             ivShowcaseBack = v.findViewById(R.id.iv_showcase_back);
@@ -206,6 +224,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             cvShowcaseCard = v.findViewById(R.id.cv_showcase_card);
             viewCardShimmer = v.findViewById(R.id.view_card_shimmer);
             llEmptyState = v.findViewById(R.id.ll_empty_state);
+            viewEmptyCardBg = v.findViewById(R.id.view_empty_card_bg);
             llBannerDots = v.findViewById(R.id.ll_banner_dots);
             
             btnQuickRank = v.findViewById(R.id.btn_quick_rank);
@@ -230,6 +249,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             tvUserId = v.findViewById(R.id.tv_home_user_id);
             layoutUserId = v.findViewById(R.id.layout_user_id);
             llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
+            clHeader = v.findViewById(R.id.cl_header);
+            cvBannerContainer = v.findViewById(R.id.cv_banner_container);
+            layoutHomeStreak = v.findViewById(R.id.layout_home_streak);
         } catch (Exception e) {
             Log.e(TAG, "Error initializing views", e);
         }
@@ -459,7 +481,16 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> {
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.MissionActivity.class));
         });
-        if (btnQuickUpgrade != null) btnQuickUpgrade.setOnClickListener(v -> navigateToTab(R.id.nav_stage));
+        if (btnQuickUpgrade != null) {
+            btnQuickUpgrade.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.frame_layout, new UpgradeFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+        }
         if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> {
             startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.RankActivity.class));
         });
@@ -496,6 +527,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                             .addToBackStack(null)
                             .commit();
                 }
+            });
+        }
+
+        if (layoutHomeStreak != null) {
+            layoutHomeStreak.setOnClickListener(v -> {
+                int currentStreak = 0;
+                try {
+                    String streakStr = tvHomeStreak.getText().toString();
+                    currentStreak = Integer.parseInt(streakStr);
+                } catch (Exception ignored) {}
+                showStreakDetail(currentStreak, bestStreakValue, restoresThisMonth);
             });
         }
     }
@@ -616,6 +658,27 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     /**
      * Heartbeat pulse animation for the avatar glow ring.
+        if (viewAvatarGlow == null) return;
+        
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(viewAvatarGlow, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(viewAvatarGlow, "scaleY", 1f, 1.2f, 1f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(viewAvatarGlow, "alpha", 0.1f, 0.4f, 0.1f);
+        
+        AnimatorSet pulse = new AnimatorSet();
+        pulse.playTogether(scaleX, scaleY, alpha);
+        pulse.setDuration(2000);
+        pulse.setStartDelay(500);
+        pulse.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (isAdded()) pulse.start();
+            }
+        });
+        pulse.start();
+    }
+
+    /**
+     * Heartbeat pulse animation for the avatar glow ring.
      */
     private void startAvatarPulse() {
         if (viewAvatarGlow == null) return;
@@ -636,6 +699,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         });
         pulse.start();
     }
+
 
     /**
      * Minimal RecyclerView.Adapter for the ViewPager2 banner carousel.
@@ -675,6 +739,37 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         static class VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
             VH(@NonNull View itemView) {
                 super(itemView);
+            }
+        }
+    }
+
+    private void setupZenMode() {
+        if (getView() == null) return;
+        
+        GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(MotionEvent e) {
+                toggleZenMode(true);
+            }
+        });
+
+        getView().setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                toggleZenMode(false);
+            }
+            return true;
+        });
+    }
+
+    private void toggleZenMode(boolean zen) {
+        float alpha = zen ? 0f : 1f;
+        long duration = 500;
+        
+        View[] elements = {clHeader, cvBannerContainer, llBannerDots, hsvQuickTools, flShowcaseContainer, viewProjectorBeam};
+        for (View v : elements) {
+            if (v != null) {
+                v.animate().alpha(alpha).setDuration(duration).start();
             }
         }
     }
@@ -748,7 +843,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                     if (!isAdded() || getContext() == null) return;
                     if (response.isSuccessful() && response.body() != null) {
                         UserStats stats = response.body();
-                        bindCurrency(stats.getCoins(), stats.getDiamonds());
+                        bindCurrency(stats.getCoins(), stats.getDiamonds(), stats.getStreak(), stats.getBestStreak(), stats.getStreakRestoresThisMonth());
                         if (tvLevel != null) {
                             tvLevel.setText("LV. " + stats.getLevel());
                         }
@@ -769,7 +864,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
      * Định dạng và hiển thị tài nguyên (Tiền/Kim cương) với logic rút gọn số.
      * Giúp giao diện luôn gọn gàng ngay cả khi người dùng là "đại gia".
      */
-    private void bindCurrency(Long coins, Long diamonds) {
+    private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores) {
         if (tvCoins != null) {
             long c = coins != null ? coins : 0;
             tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(getContext(), c));
@@ -778,6 +873,73 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             long d = diamonds != null ? diamonds : 0;
             tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(getContext(), d));
         }
+        if (tvHomeStreak != null) {
+            tvHomeStreak.setText(getString(R.string.home_header_streak_format, streak));
+        }
+        this.bestStreakValue = bestStreak;
+        this.restoresThisMonth = restores;
+    }
+
+    private void showStreakDetail(int currentStreak, int bestStreak, int restores) {
+        if (getContext() == null) return;
+        
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = 
+            new com.google.android.material.bottomsheet.BottomSheetDialog(getContext(), R.style.CustomBottomSheetDialogTheme);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_streak_detail, null);
+        
+        TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
+        TextView tvBest = view.findViewById(R.id.tv_best_streak);
+        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
+
+        tvCurrent.setText(getString(R.string.rank_label_streak_format, currentStreak));
+        tvBest.setText(getString(R.string.rank_label_streak_format, bestStreak));
+
+        // Logic nút khôi phục
+        if (restores < 3) {
+            btnRestore.setText("RESTORE (FREE " + (3 - restores) + "/3)");
+        } else {
+            btnRestore.setText("RESTORE (500 DIAMONDS)");
+        }
+
+        btnRestore.setOnClickListener(v -> {
+            if (currentStreak >= bestStreak && currentStreak > 0) {
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext(), R.style.GalacticDialogTheme)
+                    .setTitle("STREAK SHIELD")
+                    .setMessage("Your flame is already at its peak! Come back when your streak is broken to use the shield.")
+                    .setPositiveButton("CONFIRM", null)
+                    .show();
+                return;
+            }
+
+            btnRestore.setEnabled(false);
+            com.vn.jet.mosco.network.ApiClient.getClient(getContext()).create(com.vn.jet.mosco.network.GameApiService.class).restoreStreak().enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<UserStats>>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
+                    if (!isAdded() || getContext() == null) return;
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        UserStats updated = response.body().getData();
+                        bindCurrency(updated.getCoins(), updated.getDiamonds(), updated.getStreak(), updated.getBestStreak(), updated.getStreakRestoresThisMonth());
+                        android.widget.Toast.makeText(getContext(), response.body().getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    } else {
+                        String error = "Restore failed";
+                        if (response.body() != null) error = response.body().getMessage();
+                        android.widget.Toast.makeText(getContext(), error, android.widget.Toast.LENGTH_SHORT).show();
+                        btnRestore.setEnabled(true);
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Throwable t) {
+                    if (!isAdded() || getContext() == null) return;
+                    android.widget.Toast.makeText(getContext(), "Network error: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                    btnRestore.setEnabled(true);
+                }
+            });
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
     }
 
 
@@ -890,28 +1052,67 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void showEmptyState(boolean show) {
-        if (llEmptyState != null) {
-            llEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
         if (cvShowcaseCard != null) {
+            cvShowcaseCard.setVisibility(View.VISIBLE); // Luôn hiện để giữ tỉ lệ 1:1.54
+            
             if (show) {
-                // Xóa bỏ ảnh cũ nếu có
-                if (ivShowcaseFront != null) Glide.with(this).clear(ivShowcaseFront);
-                if (ivShowcaseBack != null) Glide.with(this).clear(ivShowcaseBack);
+                // Trạng thái Trống: Hiện Placeholder xám và Text u buồn
+                if (viewEmptyCardBg != null) viewEmptyCardBg.setVisibility(View.VISIBLE);
+                if (llEmptyState != null) llEmptyState.setVisibility(View.VISIBLE);
+                
+                // Ẩn các thành phần thẻ thật
+                if (ivShowcaseFront != null) {
+                    ivShowcaseFront.setVisibility(View.GONE);
+                    Glide.with(this).clear(ivShowcaseFront);
+                }
+                if (ivShowcaseBack != null) {
+                    ivShowcaseBack.setVisibility(View.GONE);
+                    Glide.with(this).clear(ivShowcaseBack);
+                }
                 if (tvShowcaseOvr != null) tvShowcaseOvr.setVisibility(View.GONE);
                 if (ivLevelBadge != null) ivLevelBadge.setVisibility(View.GONE);
                 if (viewCardShimmer != null) viewCardShimmer.setVisibility(View.GONE);
                 
-                // Hiển thị khung với hiệu ứng Glow tím nhạt Placeholder + Floating
-                cvShowcaseCard.setVisibility(View.VISIBLE);
-                com.vn.jet.mosco.utils.CardEffectHelper.applyEmptyStateGlow(cvShowcaseCard, true);
+                cvShowcaseCard.setCardElevation(0);
+                com.vn.jet.mosco.utils.CardEffectHelper.remove(cvShowcaseCard, viewCardShimmer);
                 
-                // Tắt beam sáng (Projector) trong khi empty
-                if (viewProjectorBeam != null) viewProjectorBeam.setAlpha(0f);
+                if (viewProjectorBeam != null) {
+                    viewProjectorBeam.animate().cancel();
+                    viewProjectorBeam.setAlpha(0f);
+                    viewProjectorBeam.setVisibility(View.GONE);
+                }
             } else {
-                cvShowcaseCard.setVisibility(View.VISIBLE);
+                // Trạng thái Có Thẻ: Ẩn Placeholder
+                if (viewEmptyCardBg != null) viewEmptyCardBg.setVisibility(View.GONE);
+                if (llEmptyState != null) llEmptyState.setVisibility(View.GONE);
+                
+                if (ivShowcaseFront != null) ivShowcaseFront.setVisibility(View.VISIBLE);
+                if (viewProjectorBeam != null) viewProjectorBeam.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    /**
+     * Hỗ trợ copy thông tin khi ấn giữ.
+     */
+    private void setupLongClickCopy(TextView textView, String label) {
+        if (textView == null) return;
+        textView.setOnLongClickListener(v -> {
+            String text = textView.getText().toString();
+            if (text.isEmpty()) return true;
+            
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) 
+                    requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText(label, text);
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(clip);
+                android.widget.Toast.makeText(getContext(), "Đã sao chép " + label, android.widget.Toast.LENGTH_SHORT).show();
+                
+                // Haptic feedback cho cảm giác "Senior"
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+            }
+            return true;
+        });
     }
 
     /**
