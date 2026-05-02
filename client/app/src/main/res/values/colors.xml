@@ -102,4 +102,11 @@
     <!-- Profile Luxury Colors -->
     <color name="white_10">#1AFFFFFF</color>
     <color name="white_40">#66FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_60">#99FFFFFF</color>
+    <color name="white_80">#CCFFFFFF</color>
+    
+    <!-- Auth Luxury Colors -->
+    <color name="mosco_primary_action">@color/mosco_primary</color>
+    <color name="mosco_shadow_light">#20000000</color>
 </resources>

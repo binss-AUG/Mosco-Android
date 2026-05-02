@@ -1,5 +1,7 @@
 package com.vn.jet.mosco;
 
+import com.vn.jet.mosco.utils.AuthUIHelper;
+
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
@@ -30,13 +32,12 @@ import com.vn.jet.mosco.utils.SessionManager;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private TextInputEditText edtUsername, edtPassword;
-    private TextInputLayout tilUsername, tilPassword;
+    private TextInputEditText edtEmail, edtPassword;
+    private TextInputLayout tilEmail, tilPassword;
     private TextView tvGoToSignUp;
+    private android.widget.CheckBox cbRememberMe;
     private Button btnSignIn;
     private ProgressBar loadingProgress;
-    private ImageView ivBackground;
-    private ObjectAnimator driftX, driftY;
 
     private SignInViewModel viewModel;
     private SessionManager sessionManager;
@@ -46,11 +47,13 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+        AuthUIHelper.animateAurora(this);
 
-        edtUsername = findViewById(R.id.edt_username);
+        edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
-        tilUsername = findViewById(R.id.til_username);
+        tilEmail = findViewById(R.id.til_email);
         tilPassword = findViewById(R.id.til_password);
+        cbRememberMe = findViewById(R.id.cb_remember_me);
         tvGoToSignUp = findViewById(R.id.tv_go_to_signup);
         btnSignIn = findViewById(R.id.btn_signin);
         loadingProgress = findViewById(R.id.loading_progress);
@@ -58,21 +61,14 @@ public class SignInActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(SignInViewModel.class);
         sessionManager = new SessionManager(this);
 
-        // Nhận thời gian chạy Animation từ màn trước
-        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
-        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
-
-        // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
-        setupAmbientEffects(playTimeX, playTimeY);
-
         // --- Spannable link for "Sign Up" ---
         String text = getString(R.string.msg_new_user_sign_up);
         SpannableString spannable = new SpannableString(text);
-        int start = text.indexOf(getString(R.string.title_sign_up));
+        int start = text.indexOf(getString(R.string.action_sign_up));
         if (start != -1) {
             spannable.setSpan(
-                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_link)),
-                    start, start + getString(R.string.title_sign_up).length(),
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
+                    start, start + getString(R.string.action_sign_up).length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         tvGoToSignUp.setText(spannable);
@@ -83,11 +79,6 @@ public class SignInActivity extends AppCompatActivity {
             public void onDebouncedClick(View v) {
                 if (isSigningIn) return;
                 Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
-                // Transfer heartbeat to the next screen
-                if (driftX != null && driftY != null) {
-                    intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                    intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
-                }
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -100,8 +91,6 @@ public class SignInActivity extends AppCompatActivity {
                 finish();
             }
         });
-        findViewById(R.id.btn_back).setOnClickListener(v ->
-                getOnBackPressedDispatcher().onBackPressed());
 
         // --- Forgot Password ---
         findViewById(R.id.tv_forgot_password).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
@@ -109,11 +98,6 @@ public class SignInActivity extends AppCompatActivity {
             public void onDebouncedClick(View v) {
                 if (isSigningIn) return;
                 Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
-                // Continue the cosmic drift
-                if (driftX != null && driftY != null) {
-                    intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                    intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
-                }
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -127,7 +111,22 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-        // Lắng nghe sự kiện "Done" từ bàn phím để tự động đăng nhập (UX tối ưu)
+        // --- Social Login Placeholders ---
+        findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                Toast.makeText(SignInActivity.this, "Google Sign-In coming soon", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                Toast.makeText(SignInActivity.this, "Discord Sign-In coming soon", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Lắng nghe sự kiện "Done" từ bàn phím để tự động đăng nhập
         edtPassword.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 if (!isSigningIn) {
@@ -150,93 +149,56 @@ public class SignInActivity extends AppCompatActivity {
                 case SUCCESS:
                     setLoading(false);
                     if (resource.getData() != null && resource.getData().isSuccess()) {
-                        // Save session
                         sessionManager.saveSession(resource.getData().getData());
                         Toast.makeText(this, getString(R.string.msg_sign_in_success),
                                 Toast.LENGTH_SHORT).show();
 
-                        // Kiểm tra: đã có Display Name chưa?
                         Intent intent;
                         String ingame = resource.getData().getData() != null
                                 ? resource.getData().getData().getIngameName() : null;
                         if (ingame == null || ingame.isEmpty()) {
-                            // Chưa có → sang màn hình đặt tên
                             intent = new Intent(this, DisplayNameSetupActivity.class);
                         } else {
                             intent = new Intent(this, MainActivity.class);
                         }
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        
-                        // Transfer cosmic heartbeat
-                        if (driftX != null && driftY != null) {
-                            intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                            intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
-                        }
-                        
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     } else {
-                        // Trường hợp thành công nhưng API báo lỗi logic (VD: sai pass)
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : "Error";
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.label_error);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : "Unknown Error";
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.msg_network_error);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
         });
     }
 
-    private void setupAmbientEffects(long playTimeX, long playTimeY) {
-        // 1. Hiệu ứng Parallax trôi nền vũ trụ (Floating Nebula)
-        ivBackground = findViewById(R.id.iv_background_parallax);
-        if (ivBackground != null) {
-            // Đảm bảo phủ đủ chiều rộng để trôi (Scale 1.3x)
-            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ivBackground.setScaleX(1.3f);
-            ivBackground.setScaleY(1.3f);
-
-            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
-            driftX.setDuration(15000); 
-            driftX.setRepeatMode(ValueAnimator.REVERSE);
-            driftX.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
-            driftY.setDuration(20000);
-            driftY.setRepeatMode(ValueAnimator.REVERSE);
-            driftY.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftX.start();
-            driftX.setCurrentPlayTime(playTimeX);
-            
-            driftY.start();
-            driftY.setCurrentPlayTime(playTimeY);
-        }
-
-        // 2. Hiệu ứng nhịp thở cho Glass Card
-        View glassCard = findViewById(R.id.glass_container);
-        if (glassCard != null) {
-            Animation breathing = AnimationUtils.loadAnimation(this, R.anim.anim_neon_breathing);
-            glassCard.startAnimation(breathing);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        com.vn.jet.mosco.utils.GalacticBackgroundView galacticBg = findViewById(R.id.galactic_bg);
+        if (galacticBg != null) {
+            galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.SIGN_IN);
         }
     }
 
     private void validateAndSignIn() {
         if (isSigningIn) return;
         
-        String username = edtUsername.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        tilUsername.setError(null);
+        tilEmail.setError(null);
         tilPassword.setError(null);
 
-        if (username.isEmpty()) {
-            tilUsername.setError(getString(R.string.error_empty_field));
+        if (email.isEmpty()) {
+            tilEmail.setError(getString(R.string.error_empty_field));
             return;
         }
         if (password.isEmpty()) {
@@ -248,7 +210,7 @@ public class SignInActivity extends AppCompatActivity {
             return;
         }
 
-        viewModel.signIn(username, password);
+        viewModel.signIn(email, password);
     }
 
     private void setLoading(boolean isLoading) {
@@ -256,7 +218,7 @@ public class SignInActivity extends AppCompatActivity {
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnSignIn.setEnabled(!isLoading);
         tvGoToSignUp.setEnabled(!isLoading);
-        edtUsername.setEnabled(!isLoading);
+        edtEmail.setEnabled(!isLoading);
         edtPassword.setEnabled(!isLoading);
 
         if (isLoading) {
@@ -268,5 +230,11 @@ public class SignInActivity extends AppCompatActivity {
             btnSignIn.setBackgroundTintList(null);
             btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
     }
 }

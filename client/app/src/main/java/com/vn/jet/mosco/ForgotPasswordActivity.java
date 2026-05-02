@@ -1,5 +1,7 @@
 package com.vn.jet.mosco;
 
+import com.vn.jet.mosco.utils.AuthUIHelper;
+
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.os.Bundle;
@@ -38,13 +40,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private Button btnSendCode, btnResetPassword;
     private LottieAnimationView loadingProgress;
     private AuthApiService apiService;
-    private ImageView ivBackground;
-    private ObjectAnimator driftX, driftY;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
+
+        AuthUIHelper.animateAurora(this);
 
         // Map views
         edtEmail = findViewById(R.id.edt_email);
@@ -56,15 +59,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnSendCode = findViewById(R.id.btn_send_code);
         btnResetPassword = findViewById(R.id.btn_reset_password);
         loadingProgress = findViewById(R.id.loading_progress);
-        ImageView btnBack = findViewById(R.id.btn_back);
-        ivBackground = findViewById(R.id.iv_background_parallax);
+        
 
         apiService = ApiClient.getClient(this).create(AuthApiService.class);
 
-        // Receive galactic heartbeat from previous screen
-        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
-        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
-        activateGalacticEffects(playTimeX, playTimeY);
+
 
         btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
@@ -78,37 +77,26 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 handleResetPassword();
             }
         });
-        btnBack.setOnClickListener(v -> finish());
+
+        // --- Spannable "Log In" link ---
+        android.widget.TextView tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
+        String text = getString(R.string.msg_already_have_account);
+        android.text.SpannableString spannable = new android.text.SpannableString(text);
+        int start = text.indexOf(getString(R.string.action_sign_in));
+        if (start != -1) {
+            spannable.setSpan(
+                    new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_primary)),
+                    start, start + getString(R.string.action_sign_in).length(),
+                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        tvGoToSignIn.setText(spannable);
+        tvGoToSignIn.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
     }
 
-    private void activateGalacticEffects(long playTimeX, long playTimeY) {
-        if (ivBackground != null) {
-            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ivBackground.setScaleX(1.3f);
-            ivBackground.setScaleY(1.3f);
 
-            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
-            driftX.setDuration(15000);
-            driftX.setRepeatMode(ValueAnimator.REVERSE);
-            driftX.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
-            driftY.setDuration(20000);
-            driftY.setRepeatMode(ValueAnimator.REVERSE);
-            driftY.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftX.start();
-            driftX.setCurrentPlayTime(playTimeX);
-            driftY.start();
-            driftY.setCurrentPlayTime(playTimeY);
-        }
-
-        View glassCard = findViewById(R.id.glass_container);
-        if (glassCard != null) {
-            Animation breathing = AnimationUtils.loadAnimation(this, R.anim.anim_neon_breathing);
-            glassCard.startAnimation(breathing);
-        }
-    }
 
     private void handleSendCode() {
         String email = edtEmail.getText().toString().trim();
@@ -209,5 +197,20 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             btnSendCode.setBackgroundTintList(null);
             btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        com.vn.jet.mosco.utils.GalacticBackgroundView galacticBg = findViewById(R.id.galactic_bg);
+        if (galacticBg != null) {
+            galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.RECOVERY);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
     }
 }

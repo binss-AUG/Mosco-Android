@@ -2,9 +2,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Nền kính mờ sáng hơn khi focus -->
     <solid android:color="#26FFFFFF" />
-    <corners android:radius="14dp" />
-    <!-- Viền Neon xanh rực rỡ -->
+    <corners android:radius="@dimen/radius_md" />
+    <!-- Viền Primary sang trọng -->
     <stroke
-        android:width="2dp"
-        android:color="#00E5FF" />
+        android:width="1.5dp"
+        android:color="@color/mosco_primary" />
 </shape>

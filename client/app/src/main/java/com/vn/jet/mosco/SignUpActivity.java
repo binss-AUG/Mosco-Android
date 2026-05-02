@@ -1,5 +1,7 @@
 package com.vn.jet.mosco;
 
+import com.vn.jet.mosco.utils.AuthUIHelper;
+
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
@@ -34,8 +36,6 @@ public class SignUpActivity extends AppCompatActivity {
     private Button btnSendCode, btnSignUp;
     private ProgressBar loadingProgress;
     private TextView tvGoToSignIn;
-    private ImageView ivBackground;
-    private ObjectAnimator driftX, driftY;
 
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
@@ -45,6 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        AuthUIHelper.animateAurora(this);
 
         edtUsername = findViewById(R.id.edt_username);
         edtEmail = findViewById(R.id.edt_email);
@@ -60,18 +62,17 @@ public class SignUpActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.btn_signup);
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
         loadingProgress = findViewById(R.id.loading_progress);
-        ImageView btnBack = findViewById(R.id.btn_back);
-        ivBackground = findViewById(R.id.iv_background_parallax);
+        
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
 
         // Nhận thời gian chạy Animation từ màn trước
-        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
-        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
+        
+        
 
         // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
-        setupAmbientEffects(playTimeX, playTimeY);
+        // setupAmbientEffects(playTimeX, playTimeY);
 
         // --- Send Code button ---
         btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
@@ -194,22 +195,19 @@ public class SignUpActivity extends AppCompatActivity {
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         
                         // Transfer cosmic heartbeat
-                        if (driftX != null && driftY != null) {
-                            intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                            intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
-                        }
+                        
                         
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : "Error";
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.label_error);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : "Unknown Error";
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.msg_network_error);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
@@ -221,7 +219,7 @@ public class SignUpActivity extends AppCompatActivity {
         int start = text.indexOf(getString(R.string.action_sign_in));
         if (start != -1) {
             spannable.setSpan(
-                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_link)),
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
                     start, start + getString(R.string.action_sign_in).length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -231,43 +229,10 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
-        btnBack.setOnClickListener(v -> {
-            finish();
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        });
     }
 
     private void setupAmbientEffects(long playTimeX, long playTimeY) {
-        // 1. Hiệu ứng Parallax trôi nền vũ trụ (Floating Nebula)
-        if (ivBackground != null) {
-            // Đảm bảo phủ đủ chiều rộng (Scale 1.3x)
-            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ivBackground.setScaleX(1.3f);
-            ivBackground.setScaleY(1.3f);
-
-            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
-            driftX.setDuration(15000); // Đồng bộ 15 giây
-            driftX.setRepeatMode(ValueAnimator.REVERSE);
-            driftX.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
-            driftY.setDuration(20000); // Đồng bộ 20 giây
-            driftY.setRepeatMode(ValueAnimator.REVERSE);
-            driftY.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftX.start();
-            driftX.setCurrentPlayTime(playTimeX);
-            
-            driftY.start();
-            driftY.setCurrentPlayTime(playTimeY);
-        }
-
-        // 2. Hiệu ứng nhịp thở cho Glass Card
-        View glassCard = findViewById(R.id.glass_container);
-        if (glassCard != null) {
-            Animation breathing = AnimationUtils.loadAnimation(this, R.anim.anim_neon_breathing);
-            glassCard.startAnimation(breathing);
-        }
+        // GalacticBackgroundView handles its own animation now.
     }
 
     private void validateAndSignUp() {
@@ -342,5 +307,20 @@ public class SignUpActivity extends AppCompatActivity {
             btnSignUp.setBackgroundTintList(null);
             btnSignUp.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        com.vn.jet.mosco.utils.GalacticBackgroundView galacticBg = findViewById(R.id.galactic_bg);
+        if (galacticBg != null) {
+            galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.SIGN_UP);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
     }
 }
