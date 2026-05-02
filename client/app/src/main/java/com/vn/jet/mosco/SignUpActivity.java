@@ -1,5 +1,7 @@
 package com.vn.jet.mosco;
 
+import com.vn.jet.mosco.utils.AuthUIHelper;
+
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
@@ -25,6 +27,16 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.browser.customtabs.CustomTabsIntent;
+import android.net.Uri;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -34,17 +46,20 @@ public class SignUpActivity extends AppCompatActivity {
     private Button btnSendCode, btnSignUp;
     private ProgressBar loadingProgress;
     private TextView tvGoToSignIn;
-    private ImageView ivBackground;
-    private ObjectAnimator driftX, driftY;
 
     private SignUpViewModel viewModel;
     private SessionManager sessionManager;
     private boolean isSigningUp = false;
 
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        AuthUIHelper.animateAurora(this);
 
         edtUsername = findViewById(R.id.edt_username);
         edtEmail = findViewById(R.id.edt_email);
@@ -60,18 +75,20 @@ public class SignUpActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.btn_signup);
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
         loadingProgress = findViewById(R.id.loading_progress);
-        ImageView btnBack = findViewById(R.id.btn_back);
-        ivBackground = findViewById(R.id.iv_background_parallax);
+        
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
 
+        initGoogleSignIn();
+        handleIntent(getIntent());
+
         // Nhận thời gian chạy Animation từ màn trước
-        long playTimeX = getIntent().getLongExtra("EXTRA_PLAY_TIME_X", 0L);
-        long playTimeY = getIntent().getLongExtra("EXTRA_PLAY_TIME_Y", 0L);
+        
+        
 
         // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
-        setupAmbientEffects(playTimeX, playTimeY);
+        // setupAmbientEffects(playTimeX, playTimeY);
 
         // --- Send Code button ---
         btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
@@ -125,6 +142,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         // --- Observe Send Code result ---
+        // --- Observe Send Code result ---
         viewModel.getSendCodeResult().observe(this, resource -> {
             switch (resource.getStatus()) {
                 case LOADING:
@@ -150,6 +168,21 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onDebouncedClick(View v) {
                 validateAndSignUp();
+            }
+        });
+
+        // --- Social Login buttons ---
+        findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithGoogle();
+            }
+        });
+
+        findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+            @Override
+            public void onDebouncedClick(View v) {
+                signInWithDiscord();
             }
         });
 
@@ -181,7 +214,6 @@ public class SignUpActivity extends AppCompatActivity {
                                 getString(R.string.msg_create_account_success),
                                 Toast.LENGTH_SHORT).show();
 
-                        // User mới luôn chưa có Display Name → sang Setup
                         Intent intent;
                         String ingame = resource.getData().getData() != null
                                 ? resource.getData().getData().getIngameName() : null;
@@ -192,24 +224,17 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        
-                        // Transfer cosmic heartbeat
-                        if (driftX != null && driftY != null) {
-                            intent.putExtra("EXTRA_PLAY_TIME_X", driftX.getCurrentPlayTime());
-                            intent.putExtra("EXTRA_PLAY_TIME_Y", driftY.getCurrentPlayTime());
-                        }
-                        
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : "Error";
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.label_error);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : "Unknown Error";
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.msg_network_error);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
@@ -221,7 +246,7 @@ public class SignUpActivity extends AppCompatActivity {
         int start = text.indexOf(getString(R.string.action_sign_in));
         if (start != -1) {
             spannable.setSpan(
-                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_link)),
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
                     start, start + getString(R.string.action_sign_in).length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -231,43 +256,10 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
-        btnBack.setOnClickListener(v -> {
-            finish();
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        });
     }
 
     private void setupAmbientEffects(long playTimeX, long playTimeY) {
-        // 1. Hiệu ứng Parallax trôi nền vũ trụ (Floating Nebula)
-        if (ivBackground != null) {
-            // Đảm bảo phủ đủ chiều rộng (Scale 1.3x)
-            ivBackground.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            ivBackground.setScaleX(1.3f);
-            ivBackground.setScaleY(1.3f);
-
-            driftX = ObjectAnimator.ofFloat(ivBackground, "translationX", -60f, 60f);
-            driftX.setDuration(15000); // Đồng bộ 15 giây
-            driftX.setRepeatMode(ValueAnimator.REVERSE);
-            driftX.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftY = ObjectAnimator.ofFloat(ivBackground, "translationY", -40f, 40f);
-            driftY.setDuration(20000); // Đồng bộ 20 giây
-            driftY.setRepeatMode(ValueAnimator.REVERSE);
-            driftY.setRepeatCount(ValueAnimator.INFINITE);
-
-            driftX.start();
-            driftX.setCurrentPlayTime(playTimeX);
-            
-            driftY.start();
-            driftY.setCurrentPlayTime(playTimeY);
-        }
-
-        // 2. Hiệu ứng nhịp thở cho Glass Card
-        View glassCard = findViewById(R.id.glass_container);
-        if (glassCard != null) {
-            Animation breathing = AnimationUtils.loadAnimation(this, R.anim.anim_neon_breathing);
-            glassCard.startAnimation(breathing);
-        }
+        // GalacticBackgroundView handles its own animation now.
     }
 
     private void validateAndSignUp() {
@@ -342,5 +334,99 @@ public class SignUpActivity extends AppCompatActivity {
             btnSignUp.setBackgroundTintList(null);
             btnSignUp.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        com.vn.jet.mosco.utils.GalacticBackgroundView galacticBg = findViewById(R.id.galactic_bg);
+        if (galacticBg != null) {
+            galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.SIGN_UP);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent == null) return;
+        Uri data = intent.getData();
+        if (data == null) return;
+
+        if (!"mosco".equals(data.getScheme())) return;
+
+        setLoading(true);
+        com.vn.jet.mosco.utils.DiscordAuthManager.handleCallback(this, data, new com.vn.jet.mosco.utils.DiscordAuthManager.DiscordAuthCallback() {
+            @Override
+            public void onSuccess(String id, String username, String email, String accessToken, String avatarUrl) {
+                // Đẩy Access Token vào Backend xử lý tiếp (hoặc bypass tùy backend)
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("discord", accessToken, null));
+            }
+
+            @Override
+            public void onError(String error) {
+                setLoading(false);
+                Toast.makeText(SignUpActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void initGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(com.vn.jet.mosco.utils.AppConfig.GOOGLE_WEB_CLIENT_ID)
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        handleGoogleSignInResult(task);
+                    }
+                }
+        );
+    }
+
+    private void signInWithGoogle() {
+        if (isSigningUp) return;
+        setLoading(true);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String idToken = account.getIdToken();
+            String email = account.getEmail();
+            
+            if (idToken != null) {
+                viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, email));
+            } else {
+                setLoading(false);
+                Toast.makeText(this, "Google Token is null. Check Web Client ID.", Toast.LENGTH_LONG).show();
+            }
+        } catch (ApiException e) {
+            setLoading(false);
+            android.util.Log.e("MoscoAuth", "Google sign in failed", e);
+            Toast.makeText(this, "Google Error: " + e.getStatusCode() + " (Check Client ID/SHA1)", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void signInWithDiscord() {
+        if (isSigningUp) return;
+        com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 }

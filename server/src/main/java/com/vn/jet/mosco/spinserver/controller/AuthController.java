@@ -87,4 +87,23 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    @PostMapping("/social-login")
+    public ResponseEntity<AuthResponse> socialLogin(@RequestBody com.vn.jet.mosco.spinserver.dto.SocialAuthRequest request) {
+        if (request == null) {
+            return ResponseEntity.badRequest()
+                    .body(new AuthResponse(false, "Vui lòng truyền thông tin Social Login.", null, null));
+        }
+
+        AuthResponse response = authService.socialLogin(
+                request.getProvider(),
+                request.getToken(),
+                request.getEmail()
+        );
+
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

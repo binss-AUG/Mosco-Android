@@ -1,25 +1,33 @@
 <resources>
     <string name="app_name">Mosco</string>
-    <string name="base_url">http://192.168.1.86:8080/</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_sign_in">Sign In</string>
-    <string name="title_sign_up">Sign Up</string>
+    <string name="title_sign_in">Welcome Back</string>
+    <string name="subtitle_sign_in">Login to your account below</string>
+    <string name="title_sign_up">Create Account</string>
+    <string name="subtitle_sign_up">Join the Mosco Galaxy today</string>
     <string name="label_email">Email Address</string>
-    <string name="prompt_email">Email Address</string>
+    <string name="prompt_email">user@example.com</string>
     <string name="label_password">Password</string>
-    <string name="prompt_password">Password</string>
+    <string name="prompt_password">••••••</string>
+    <string name="label_remember_me">Remember me</string>
     <string name="label_username">Username</string>
     <string name="prompt_username">Username</string>
-    <string name="prompt_confirm_password">Confirm Password</string>
-    <string name="prompt_verification_code">Verification code</string>
-    <string name="action_sign_in">Sign In</string>
+    <string name="prompt_confirm_password">••••••</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="label_verification_code">Verification Code</string>
+    <string name="prompt_verification_code">------</string>
+    <string name="action_sign_in">Log In</string>
     <string name="action_sign_up">Sign Up</string>
     <string name="action_send_code">Send code</string>
     <string name="action_resend">Resend</string>
     <string name="action_forgot_password">Forgot Password?</string>
-    <string name="msg_new_user_sign_up">I\'m a new user. Sign Up</string>
-    <string name="msg_already_have_account">Already have an account? Sign In</string>
+    <string name="title_recovery">Account Recovery</string>
+    <string name="subtitle_recovery">Restore your connection to the galaxy</string>
+    <string name="label_new_password">New Password</string>
+    <string name="action_reset_password">Reset Password</string>
+    <string name="msg_new_user_sign_up">Don\'t have an account? Sign Up</string>
+    <string name="msg_already_have_account">Already have an account? Log In</string>
     <string name="msg_passwords_not_match">Passwords do not match!</string>
     <string name="msg_create_account_success">Account created successfully!</string>
     <string name="msg_code_sent">Verification code sent!</string>
@@ -331,4 +339,8 @@
     <string name="profile_v3_label_title">GALACTIC TRAVELER</string>
     <string name="formation_ovr_label">OVR: %d</string>
     <string name="home_nav_formation">FORMATION</string>
+    <string name="label_error">Error</string>
+    <string name="label_or_continue_with">Or continue with</string>
+    <string name="action_sign_in_google">Google</string>
+    <string name="action_sign_in_discord">Discord</string>
 </resources>

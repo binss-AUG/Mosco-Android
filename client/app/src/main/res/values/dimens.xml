@@ -134,6 +134,7 @@
 
     <!-- Global Typography Tokens -->
     <dimen name="text_size_h1">28sp</dimen>
+    <dimen name="text_size_h1_xl">32sp</dimen>
     <dimen name="text_size_h2">24sp</dimen>
     <dimen name="text_size_h3">20sp</dimen>
     <dimen name="text_size_body_lg">17sp</dimen>
@@ -231,4 +232,8 @@
     <dimen name="gift_card_height_preview">154dp</dimen>
     <dimen name="gift_avatar_confirm_size">80dp</dimen>
     <dimen name="gift_avatar_confirm_radius">40dp</dimen>
+
+    <!-- Social Login Dimensions -->
+    <dimen name="social_button_size">56dp</dimen>
+    <dimen name="social_icon_padding">14dp</dimen>
 </resources>

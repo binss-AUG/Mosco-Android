@@ -7,44 +7,22 @@
     android:layout_height="match_parent"
     android:background="@color/mosco_screen_bg">
 
-    <!-- Bối cảnh vũ trụ trôi nổi (Quản lý tại layout_auth_background) -->
     <include layout="@layout/layout_auth_background" />
 
-    <!-- Khung Logo Glassmorphism -->
-    <LinearLayout
-        android:id="@+id/logo_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_matte_obsidian_card"
-        android:orientation="vertical"
-        android:padding="32dp"
+
+    <!-- Khung Loading Trung tâm -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/iv_logo_lottie"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5">
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/iv_logo_lottie"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:layout_gravity="center"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/loading" />
-
-        <TextView
-            android:id="@+id/tv_mosco"
-            style="@style/MoscoText.Luxury.Header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:letterSpacing="0.3"
-            android:text="MOSCO"
-            android:textAllCaps="true"
-            android:textSize="36sp" />
-    </LinearLayout>
+        app:layout_constraintVertical_bias="0.5"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading" />
 
     <!-- 🚀 KHU VỰC TẢI DỮ LIỆU (Ẩn mặc định) -->
     <LinearLayout

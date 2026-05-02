@@ -119,5 +119,13 @@
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">4dp</item>
         <item name="android:background">@drawable/bg_bottomsheet_handle</item>
+
+    <!-- ========================================== -->
+    <!-- 3. INPUT FIELD ENHANCEMENTS                -->
+    <!-- ========================================== -->
+    <style name="MoscoTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">none</item>
+        <item name="hintEnabled">false</item>
+        <item name="android:stateListAnimator">@animator/luxury_input_state_animator</item>
     </style>
 </resources>

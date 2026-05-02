@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Nền kính mờ đặc xíu để text dễ đọc -->
-    <solid android:color="#260C0C0C" />
-    <corners android:radius="24dp" />
+    <!-- Sophisticated Glassmorphism: Semi-transparent dark gradient -->
+    <gradient
+        android:startColor="#2A101010"
+        android:centerColor="#200A0A0A"
+        android:endColor="#2A101010"
+        android:angle="45" />
+    
+    <corners android:radius="@dimen/radius_lg" />
+    
+    <!-- Ultra-thin white stroke for glass edge effect -->
     <stroke
-        android:width="1.5dp"
-        android:color="#40FFFFFF" />
+        android:width="0.8dp"
+        android:color="#33FFFFFF" />
 </shape>
