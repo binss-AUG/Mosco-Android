@@ -27,6 +27,7 @@ public class UserCardDTO {
     private String slug;
     private String backgroundColor;
     private String textColor;
+    private String status;
     private Object rarityColor; // Mã màu hex hoặc mảng màu cho gradient
 
     public UserCardDTO() {}
@@ -94,4 +95,7 @@ public class UserCardDTO {
 
     public Object getRarityColor() { return rarityColor; }
     public void setRarityColor(Object rarityColor) { this.rarityColor = rarityColor; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

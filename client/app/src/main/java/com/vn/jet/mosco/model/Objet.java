@@ -1,7 +1,7 @@
 package com.vn.jet.mosco.model;
 
 public class Objet {
-    private int id;
+    private long id;
     private String collectionId;
     @com.google.gson.annotations.SerializedName("frontImage")
     private String imageUrl;
@@ -24,8 +24,9 @@ public class Objet {
     private String textColor;
     private java.util.List<String> availableTags;
     private String dimension;
+    private String status;
 
-    public Objet(int id, String collectionId, String imageUrl, int level, int exp, int upgradeLevel) {
+    public Objet(long id, String collectionId, String imageUrl, int level, int exp, int upgradeLevel) {
         this.id = id;
         this.collectionId = collectionId;
         this.imageUrl = imageUrl;
@@ -40,7 +41,7 @@ public class Objet {
      * Chuyển đổi từ Cache Item sang Objet Model dùng cho UI
      */
     public static Objet fromCacheItem(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem item) {
-        Objet obj = new Objet(item.id.intValue(), item.collectionId, item.frontImage, item.level, item.exp, item.upgradeLevel);
+        Objet obj = new Objet(item.id, item.collectionId, item.frontImage, item.level, item.exp, item.upgradeLevel);
         obj.setOvr(item.ovr);
         obj.setTypeKey(item.cardClass);
         obj.setBackImageUrl(item.backImage);
@@ -52,6 +53,7 @@ public class Objet {
         obj.setTextColor(item.textColor);
         obj.setAvailableTags(item.availableTags);
         obj.setDimension(item.dimension);
+        obj.setStatus(item.status);
         return obj;
     }
 
@@ -59,7 +61,7 @@ public class Objet {
      * Chuyển đổi từ UserCard DTO sang Objet Model dùng cho UI
      */
     public static Objet fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
-        Objet obj = new Objet(userCard.getId().intValue(), userCard.getCollectionId(), userCard.getFrontImage(), userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel());
+        Objet obj = new Objet(userCard.getId(), userCard.getCollectionId(), userCard.getFrontImage(), userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel());
         obj.setOvr(userCard.getOvr());
         obj.setTypeKey(userCard.getCardClass());
         obj.setBackImageUrl(userCard.getBackImage());
@@ -71,10 +73,11 @@ public class Objet {
         obj.setTextColor(userCard.getTextColor());
         obj.setAvailableTags(userCard.getAvailableTags());
         obj.setDimension(userCard.getDimension());
+        obj.setStatus(userCard.getStatus());
         return obj;
     }
 
-    public int getId() { return id; }
+    public long getId() { return id; }
     public String getIdString() { return String.valueOf(id); }
     public String getCollectionId() { return collectionId; }
     public String getTypeKey() { return typeKey; }
@@ -116,4 +119,7 @@ public class Objet {
 
     public String getDimension() { return dimension; }
     public void setDimension(String dimension) { this.dimension = dimension; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

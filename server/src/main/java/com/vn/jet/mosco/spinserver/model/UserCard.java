@@ -28,6 +28,9 @@ public class UserCard {
     @Column(nullable = false)
     private int upgradeLevel = 1;
 
+    @Column(nullable = false)
+    private String status = "AVAILABLE";
+
     public UserCard() {}
 
     public UserCard(User user, String collectionId, int level, int exp, int upgradeLevel) {
@@ -36,6 +39,7 @@ public class UserCard {
         this.level = level;
         this.exp = exp;
         this.upgradeLevel = upgradeLevel;
+        this.status = "AVAILABLE";
     }
 
     public Long getId() { return id; }
@@ -55,4 +59,7 @@ public class UserCard {
 
     public int getUpgradeLevel() { return upgradeLevel; }
     public void setUpgradeLevel(int upgradeLevel) { this.upgradeLevel = upgradeLevel; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

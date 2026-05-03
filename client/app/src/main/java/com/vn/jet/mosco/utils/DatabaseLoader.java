@@ -51,12 +51,13 @@ public class DatabaseLoader {
         public String textColor;
         public List<String> availableTags;
         public String dimension;
+        public String status;
 
         public UserInventoryItem() {}
 
         public UserInventoryItem(Long id, String collectionId, String frontImage, String backImage, int level, int exp, int upgradeLevel, int ovr, 
                                  String cardClass, String member, String season, String collectionNo, String slug, String backgroundColor, String textColor, 
-                                 List<String> availableTags, String dimension) {
+                                 List<String> availableTags, String dimension, String status) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
@@ -74,6 +75,7 @@ public class DatabaseLoader {
             this.textColor = textColor;
             this.availableTags = availableTags;
             this.dimension = dimension;
+            this.status = status;
         }
 
         /**
@@ -97,7 +99,8 @@ public class DatabaseLoader {
                 userCard.getBackgroundColor(),
                 userCard.getTextColor(),
                 userCard.getAvailableTags(),
-                userCard.getDimension()
+                userCard.getDimension(),
+                userCard.getStatus()
             );
         }
     }
@@ -267,6 +270,7 @@ public class DatabaseLoader {
                         obj.put("availableTags", new org.json.JSONArray(item.availableTags));
                     }
                     obj.put("dimension", item.dimension);
+                    obj.put("status", item.status);
                     array.put(obj);
                 }
                 java.io.File file = new java.io.File(context.getFilesDir(), "inventory_cache_" + userId + ".json");
@@ -323,7 +327,8 @@ public class DatabaseLoader {
                         obj.optString("backgroundColor", "#FFFFFF"),
                         obj.optString("textColor", "#000000"),
                         tags,
-                        obj.optString("dimension", "")
+                        obj.optString("dimension", ""),
+                        obj.optString("status", "AVAILABLE")
                 ));
             }
             cachedUserInventory = items;
@@ -351,7 +356,25 @@ public class DatabaseLoader {
     }
 
     public static List<JSONObject> loadEveryCard(Context context) {
-        return loadAllCards(context);
+        List<JSONObject> cards = new ArrayList<>();
+        try {
+            String json = loadJSONFromAsset(context, FILE_NAME);
+            if (json != null) {
+                JSONObject root = new JSONObject(json);
+                JSONArray array = root.optJSONArray("collections");
+                if (array == null) array = root.optJSONArray("cards"); // Hỗ trợ cả 2 định dạng
+                
+                if (array != null) {
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject card = array.optJSONObject(i);
+                        if (card != null) cards.add(card);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi loadEveryCard: " + e.getMessage());
+        }
+        return cards;
     }
 
     /**

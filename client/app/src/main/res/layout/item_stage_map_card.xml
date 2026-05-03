@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="12dp"
+    app:cardBackgroundColor="@color/white_05"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_glass_card">
+
+        <!-- Map Illustration Placeholder -->
+        <ImageView
+            android:id="@+id/iv_map_illustration"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:alpha="0.4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/bg_global_gradient" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_stage_card_gradient_overlay" />
+
+        <!-- Dimension Tag -->
+        <TextView
+            android:id="@+id/tv_map_dimension"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="@string/stage_map_1_sub"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"
+            android:background="@drawable/bg_dimension_tag"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Level Lock Overlay -->
+        <LinearLayout
+            android:id="@+id/layout_lock_overlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_lock"
+                app:tint="@color/white_50" />
+
+            <TextView
+                android:id="@+id/tv_lock_level"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/stage_lock_level_format"
+                android:textColor="@color/white_50"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Content Info -->
+        <LinearLayout
+            android:id="@+id/layout_map_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tv_map_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/stage_map_1_name"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_map_reward_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/stage_map_reward_coins"
+                android:textColor="@color/white_70"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:id="@+id/layout_duration_picker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/stage_label_select_duration"
+                    android:textAllCaps="true"
+                    android:textColor="@color/white_40"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+
+                <!-- Segmented Control Duration Selector -->
+                <FrameLayout
+                    android:id="@+id/layout_duration_selection"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_segmented_container"
+                    android:padding="2dp">
+
+                    <!-- Sliding Thumb -->
+                    <View
+                        android:id="@+id/segmented_thumb"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_segmented_thumb" />
+
+                    <!-- Duration Labels -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_duration_1h"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/stage_duration_1h"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_duration_4h"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/stage_duration_4h"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_duration_8h"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/stage_duration_8h"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_duration_12h"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="@string/stage_duration_12h"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/view_accent_line"
+                android:layout_width="32dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/mosco_primary" />
+
+            <!-- Dispatch Button / Progress -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_dispatch"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/stage_button_height"
+                    android:text="@string/stage_btn_dispatch"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_btn_dispatch" />
+
+                <LinearLayout
+                    android:id="@+id/layout_running"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/pb_stage_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:indicatorColor="@color/mosco_primary"
+                        app:trackColor="@color/white_10"
+                        app:trackCornerRadius="4dp"
+                        android:progress="0" />
+                        
+                    <TextView
+                        android:id="@+id/tv_timer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/rank_placeholder_empty"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <!-- Actions when running (Timer > 0) -->
+                    <LinearLayout
+                        android:id="@+id/layout_running_actions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_16dp"
+                        android:orientation="horizontal">
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_abort_mission"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/stage_button_height"
+                            android:layout_weight="1"
+                            android:text="@string/stage_btn_abort"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_btn_abort" />
+
+                        <View
+                            android:layout_width="@dimen/spacing_12dp"
+                            android:layout_height="0dp" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btn_speed_up"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/stage_button_height"
+                            android:layout_weight="2"
+                            android:text="@string/stage_btn_speed_up"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_btn_speed_up" />
+                    </LinearLayout>
+
+                    <!-- Action when completed (Timer == 0) -->
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_claim_reward"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/stage_button_height"
+                        android:layout_marginTop="@dimen/spacing_16dp"
+                        android:text="@string/stage_btn_claim"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:background="@drawable/bg_btn_dispatch" />
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

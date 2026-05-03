@@ -1,224 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_daily_card"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="4dp"
-    android:clipChildren="false"
-    android:clipToPadding="false">
+    android:layout_margin="@dimen/spacing_sm"
+    app:cardBackgroundColor="@color/white_05"
+    app:cardCornerRadius="@dimen/daily_card_corner"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/white_20">
 
-    <!-- Card ngoài: Chỉ xử lý Viền Neon -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_daily_card"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/transparent"
-        app:cardPreventCornerOverlap="false"
-        app:cardUseCompatPadding="false"
-        app:strokeWidth="3dp"
-        app:strokeColor="#33FFFFFF">
+        android:layout_height="match_parent">
 
-        <!-- Card trong: Chuyên trách việc cắt (Clipping) nội dung -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- Artwork Background (Stage Style) -->
+        <ImageView
+            android:id="@+id/iv_banner_artwork"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:alpha="0.5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/bg_global_gradient" />
+
+        <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="#1A1C29"
-            app:cardPreventCornerOverlap="false">
+            android:background="@drawable/bg_stage_card_gradient_overlay" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Time Chip (Floating Glass) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_lg"
+            app:cardCornerRadius="@dimen/daily_chip_corner"
+            app:cardBackgroundColor="@color/daily_chip_bg"
+            app:strokeColor="@color/white_20"
+            app:strokeWidth="@dimen/stroke_thin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            
+            <TextView
+                android:id="@+id/tv_time_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/daily_time_chip_padding_h"
+                android:paddingVertical="@dimen/daily_time_chip_padding_v"
+                style="@style/MoscoText.Luxury.Badge"
+                android:textColor="@color/white"
+                tools:text="06:00 - 11:59" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Info Area (Bottom Aligned like Stage Map) -->
+        <LinearLayout
+            android:id="@+id/layout_card_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/daily_info_padding_h"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tv_session_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/MoscoText.Luxury.Header"
+                android:textSize="@dimen/daily_header_text_size"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                tools:text="MORNING" />
+
+            <TextView
+                android:id="@+id/tv_session_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xxs"
+                style="@style/MoscoText.Luxury.Body"
+                android:textColor="@color/white_70"
+                android:textSize="@dimen/text_size_body_sm"
+                tools:text="Start your day with an energy boost from Mosco." />
+
+            <View
+                android:id="@+id/view_accent_line"
+                android:layout_width="32dp"
+                android:layout_height="@dimen/stroke_thin"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:background="@color/galactic_accent_purple" />
+
+            <!-- Rewards Panel (Compact Glass) -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:background="@drawable/bg_glass_card"
+                android:padding="@dimen/spacing_sm"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <!-- Main Artwork Container -->
-                <FrameLayout
-                    android:id="@+id/layout_banner_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/layout_card_info"
-                    app:layout_constraintVertical_weight="1.2">
-
-                    <ImageView
-                        android:id="@+id/iv_banner_artwork"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bg_global_gradient" />
-                    
-                    <!-- Subtle Texture/Shimmer Overlay -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_gradient_transparent_black"
-                        android:alpha="0.4" />
-
-                    <!-- Larger Time Chip -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="20dp"
-                        app:cardCornerRadius="14dp"
-                        app:cardBackgroundColor="#CC000000"
-                        app:strokeColor="#66FFFFFF"
-                        app:strokeWidth="1dp">
-                        
-                        <TextView
-                            android:id="@+id/tv_time_range"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
-                            style="@style/MoscoText.Luxury.Badge"
-                            android:textColor="@color/white"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:letterSpacing="0.05"
-                            tools:text="06:00 - 11:59" />
-                    </com.google.android.material.card.MaterialCardView>
-                </FrameLayout>
-
-                <!-- Info Area -->
                 <LinearLayout
-                    android:id="@+id/layout_card_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="24dp"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="24dp"
-                    android:gravity="center_horizontal"
-                    app:layout_constraintTop_toBottomOf="@id/layout_banner_container"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintVertical_weight="1">
-
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="@dimen/daily_reward_icon_size"
+                        android:layout_height="@dimen/daily_reward_icon_size"
+                        android:src="@drawable/ic_item_coin" />
                     <TextView
-                        android:id="@+id/tv_session_title"
+                        android:id="@+id/tv_reward_coin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/MoscoText.Luxury.Header"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:fontWeight="900"
-                        android:letterSpacing="0.1"
-                        tools:text="MORNING" />
-
-                    <TextView
-                        android:id="@+id/tv_session_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        style="@style/MoscoText.Luxury.Body"
-                        android:textColor="#A2A2A7"
-                        android:textSize="13sp"
-                        android:textAlignment="center"
-                        android:lineSpacingExtra="2dp"
-                        tools:text="Bắt đầu ngày mới đầy năng lượng với quà tặng từ Mosco." />
-
-                    <View
-                        android:layout_width="40dp"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="16dp"
-                        android:background="#22FFFFFF" />
-
-                    <!-- Prominent Rewards with Glow -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical">
-                            <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:src="@drawable/ic_item_coin" />
-                            <TextView
-                                android:id="@+id/tv_reward_coin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                style="@style/MoscoText.Luxury.Price"
-                                android:textColor="@color/item_coin"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
-                                android:shadowColor="#4DFFD700"
-                                android:shadowDx="0"
-                                android:shadowDy="0"
-                                android:shadowRadius="8"
-                                tools:text="500" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="1dp"
-                            android:layout_height="20dp"
-                            android:layout_marginHorizontal="24dp"
-                            android:background="#33FFFFFF" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical">
-                            <ImageView
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:src="@drawable/ic_item_diamond" />
-                            <TextView
-                                android:id="@+id/tv_reward_diamond"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                style="@style/MoscoText.Luxury.Price"
-                                android:textColor="@color/item_diamond"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
-                                android:shadowColor="#4DFF00FF"
-                                android:shadowDx="0"
-                                android:shadowDy="0"
-                                android:shadowRadius="8"
-                                tools:text="1" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <!-- Claim Button -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btn_claim_daily"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:cardCornerRadius="18dp"
-                        app:cardElevation="6dp"
-                        app:cardBackgroundColor="#8A2BE2">
-                        
-                        <TextView
-                            android:id="@+id/tv_claim_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingVertical="14dp"
-                            android:text="@string/daily_claim"
-                            style="@style/MoscoText.Luxury.Button"
-                            android:textAlignment="center"
-                            android:textSize="15sp"
-                            android:textStyle="bold"
-                            android:fontWeight="900"
-                            android:letterSpacing="0.05" />
-                    </com.google.android.material.card.MaterialCardView>
-
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:textColor="@color/item_coin"
+                        android:textSize="@dimen/text_size_body_md"
+                        tools:text="500" />
                 </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </com.google.android.material.card.MaterialCardView>
+                <View
+                    android:layout_width="@dimen/stroke_thin"
+                    android:layout_height="16dp"
+                    android:background="@color/white_10" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="@dimen/daily_reward_icon_size"
+                        android:layout_height="@dimen/daily_reward_icon_size"
+                        android:src="@drawable/ic_item_diamond" />
+                    <TextView
+                        android:id="@+id/tv_reward_diamond"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:textColor="@color/item_diamond"
+                        android:textSize="@dimen/text_size_body_md"
+                        tools:text="1" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Claim Button (Stage Button Style) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_claim_daily"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                app:cardCornerRadius="@dimen/daily_button_corner"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/galactic_accent_purple">
+                
+                <TextView
+                    android:id="@+id/tv_claim_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="@dimen/spacing_md"
+                    android:text="@string/daily_claim"
+                    style="@style/MoscoText.Luxury.Button"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/text_size_body_md"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -51,7 +51,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static final int GRID_HEIGHT = 231;
 
     private final List<Objet> allObjets;
-    private final List<Objet> displayObjets;
+    protected final List<Objet> displayObjets;
     private final OnItemClickListener listener;
     private final Context mContext;
     private boolean isLoadingMore = false;
@@ -73,7 +73,9 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     // =============== SUPPORT MULTI-SELECT ===============
     private boolean isMultiSelectMode = false;
-    private java.util.Set<Integer> selectedIds = new java.util.HashSet<>();
+    private java.util.Set<Long> selectedIds = new java.util.HashSet<>();
+    private java.util.Set<Long> disabledIds = new java.util.HashSet<>();
+    private java.util.Set<String> disabledMembers = new java.util.HashSet<>();
     private OnItemSelectListener selectListener;
 
     public interface OnItemSelectListener {
@@ -85,8 +87,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.selectListener = listener;
     }
 
-    public void setSelectedIds(java.util.Set<Integer> ids) {
+    public void setSelectedIds(java.util.Set<Long> ids) {
         this.selectedIds = ids != null ? ids : new java.util.HashSet<>();
+        notifyDataSetChanged();
+    }
+
+    public void setDisabledStates(java.util.Set<Long> ids, java.util.Set<String> members) {
+        this.disabledIds = ids != null ? ids : new java.util.HashSet<>();
+        this.disabledMembers = members != null ? members : new java.util.HashSet<>();
         notifyDataSetChanged();
     }
     // =======================================================
@@ -180,17 +188,47 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                 }
             }
 
-            // 🔥 BIND MULTI-SELECT OVERLAY
-            if (itemHolder.viewOverlay != null) {
-                if (isMultiSelectMode) {
-                    boolean isSelected = selectedIds.contains(item.getId());
-                    itemHolder.viewOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-                } else {
-                    itemHolder.viewOverlay.setVisibility(View.GONE);
+            // 🔥 BIND MULTI-SELECT OVERLAY & DISABLED STATE
+            boolean isSelected = selectedIds.contains(item.getId());
+            boolean isDisabled = disabledIds.contains(item.getId()) || 
+                               (item.getMember() != null && disabledMembers.contains(item.getMember().trim().toLowerCase()) && !isSelected);
+
+            if (isDisabled) {
+                applyGrayscale(itemHolder.ivObjet, true);
+                if (itemHolder.viewDisabledOverlay != null) itemHolder.viewDisabledOverlay.setVisibility(View.VISIBLE);
+                itemHolder.itemView.setAlpha(0.6f);
+
+                if (itemHolder.tvBusyStatus != null) {
+                    if (disabledIds.contains(item.getId())) {
+                        String status = item.getStatus();
+                        String loc = "Mission";
+                        if (status != null && status.startsWith("BUSY_AFK_")) {
+                            String mapIdStr = status.substring("BUSY_AFK_".length());
+                            loc = getMapLocation(mapIdStr);
+                        }
+                        itemHolder.tvBusyStatus.setText(mContext.getString(R.string.stage_busy_msg_format, loc));
+                        itemHolder.tvBusyStatus.setVisibility(View.VISIBLE);
+                    } else if (item.getMember() != null && disabledMembers.contains(item.getMember().trim().toLowerCase()) && !isSelected) {
+                        itemHolder.tvBusyStatus.setText(R.string.stage_busy_member_format);
+                        itemHolder.tvBusyStatus.setVisibility(View.VISIBLE);
+                    } else {
+                        itemHolder.tvBusyStatus.setVisibility(View.GONE);
+                    }
                 }
+            } else {
+                applyGrayscale(itemHolder.ivObjet, false);
+                if (itemHolder.viewDisabledOverlay != null) itemHolder.viewDisabledOverlay.setVisibility(View.GONE);
+                if (itemHolder.tvBusyStatus != null) itemHolder.tvBusyStatus.setVisibility(View.GONE);
+                itemHolder.itemView.setAlpha(1.0f);
+            }
+
+            if (itemHolder.viewOverlay != null) {
+                itemHolder.viewOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
             }
 
             itemHolder.itemView.setOnClickListener(v -> {
+                if (isDisabled) return; // Prevent click on disabled items
+
                 if (isMultiSelectMode) {
                     boolean currentlySelected = selectedIds.contains(item.getId());
                     if (currentlySelected) {
@@ -209,6 +247,26 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    private void applyGrayscale(ImageView iv, boolean enabled) {
+        if (enabled) {
+            android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+            matrix.setSaturation(0);
+            iv.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+        } else {
+            iv.clearColorFilter();
+        }
+    }
+
+    private String getMapLocation(String mapId) {
+        switch (mapId) {
+            case "1": return mContext.getString(R.string.stage_map_1_loc);
+            case "2": return mContext.getString(R.string.stage_map_2_loc);
+            case "3": return mContext.getString(R.string.stage_map_3_loc);
+            case "4": return mContext.getString(R.string.stage_map_4_loc);
+            default: return "Mission";
+        }
+    }
+
     @Override
     public int getItemCount() {
         return displayObjets.size();
@@ -219,6 +277,8 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         android.widget.TextView tvOvr;
         ImageView ivLevel;
         View viewOverlay;
+        View viewDisabledOverlay;
+        android.widget.TextView tvBusyStatus;
         
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -226,6 +286,8 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
             ivLevel = itemView.findViewById(R.id.card_iv_level);
             viewOverlay = itemView.findViewById(R.id.view_selected_overlay);
+            viewDisabledOverlay = itemView.findViewById(R.id.view_disabled_overlay);
+            tvBusyStatus = itemView.findViewById(R.id.tv_busy_status);
         }
     }
 

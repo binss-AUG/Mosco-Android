@@ -27,7 +27,6 @@ public class DailyCheckinController {
 
     /**
      * GET /api/daily/status — Trạng thái 3 slot trong ngày.
-     * Response: { slotStatuses: {0: "claimed", 1: "available", 2: "locked"}, currentSlot, rewards }
      */
     @GetMapping("/status")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStatus(HttpServletRequest request) {
@@ -43,7 +42,6 @@ public class DailyCheckinController {
 
     /**
      * POST /api/daily/claim — Nhận thưởng slot hiện tại.
-     * Chống double-claim ở Service layer.
      */
     @PostMapping("/claim")
     public ResponseEntity<ApiResponse<Map<String, Object>>> claim(HttpServletRequest request) {

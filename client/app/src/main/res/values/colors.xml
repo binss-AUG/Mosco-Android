@@ -129,6 +129,7 @@
     <color name="daily_noon_bg">#3D2108</color>
     <color name="daily_evening_accent">#BD00FF</color>
     <color name="daily_evening_bg">#0F051E</color>
+    <color name="daily_chip_bg">#CC000000</color>
 
     <!-- Podium 3D Colors -->
     <color name="podium_gold_top">#FFF2A8</color>
@@ -159,4 +160,16 @@
     <!-- Auth Luxury Colors -->
     <color name="mosco_primary_action">@color/mosco_primary</color>
     <color name="mosco_shadow_light">#20000000</color>
+    <color name="red_soft">#FF4B5C</color>
+    <color name="red_soft_30">#4DFF4B5C</color>
+    <color name="red_soft_20">#33FF4B5C</color>
+    <!-- Stage Reward Colors -->
+    <color name="glass_white_10">#1AFFFFFF</color>
+    <color name="glass_white_20">#33FFFFFF</color>
+    <color name="glass_white_30">#4DFFFFFF</color>
+    <color name="stage_coin_bg">#26FFD700</color>
+    <color name="stage_diamond_bg">#2600E5FF</color>
+    <color name="stage_coin_gold">#FFD700</color>
+    <color name="stage_diamond_cyan">#00E5FF</color>
+    <color name="overlay_dark_90">#E60A0A0A</color>
 </resources>

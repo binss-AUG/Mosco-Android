@@ -41,6 +41,10 @@ public class UpgradeService {
         // 1. Kiểm tra thẻ chính
         UserCard mainCard = userCardRepository.findByIdAndUserId(request.getBaseCardId(), userId)
                 .orElseThrow(() -> new RuntimeException("Thẻ chính không tồn tại hoặc không thuộc về bạn"));
+
+        if (!"AVAILABLE".equals(mainCard.getStatus())) {
+            throw new RuntimeException("Thẻ chính đang bận hoạt động khác, không thể nâng cấp");
+        }
                 
         // 2. Lấy thẻ phôi và xóa khỏi CSDL
         List<UpgradeSystem.CardInfo> materialInfos = new ArrayList<>();
@@ -50,6 +54,10 @@ public class UpgradeService {
             UserCard matCard = userCardRepository.findByIdAndUserId(matId, userId)
                     .orElseThrow(() -> new RuntimeException("Thẻ phôi không hợp lệ: " + matId));
             
+            if (!"AVAILABLE".equals(matCard.getStatus())) {
+                throw new RuntimeException("Thẻ phôi " + matId + " đang bận hoạt động khác");
+            }
+
             // Lấy OVR chính xác từ CardDataService (thay vì mockup cũ)
             String typeKey = cardDataService.getTypeKey(matCard.getCollectionId());
             int matOvr = cardDataService.getOvr(matCard.getCollectionId(), matCard.getUpgradeLevel());

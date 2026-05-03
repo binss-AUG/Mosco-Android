@@ -1157,14 +1157,14 @@ public class CollectionFragment extends Fragment {
                 }
 
                 filtered.sort((a, b) -> {
-                    if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
+                    if ("Oldest".equals(currentSort)) return Long.compare(a.getId(), b.getId());
                     if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
                     if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
                     if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
                     if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
                     if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
                     if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                    return Integer.compare(b.getId(), a.getId());
+                    return Long.compare(b.getId(), a.getId());
                 });
 
                 if (getActivity() != null) {
