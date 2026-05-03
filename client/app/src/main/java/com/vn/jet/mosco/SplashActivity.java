@@ -132,10 +132,13 @@ public class SplashActivity extends AppCompatActivity {
             return;
         }
 
+        // Kích hoạt nạp Master Data (O(1) lookup cho 10k thẻ)
+        DatabaseLoader.initMasterData(getApplicationContext());
+
         boolean allReady = CardAssetManager.isAllAssetsReadyQuick(getApplicationContext());
 
         if (!allReady) {
-            DatabaseLoader.loadEveryCard(getApplicationContext());
+            // Kiểm tra sâu: Quét từng file 2x dựa trên database.json (Master Data)
             allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
         }
 

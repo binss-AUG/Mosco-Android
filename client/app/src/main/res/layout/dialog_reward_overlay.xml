@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_reward_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/overlay_dark_90"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Explosion Effect (Scaled up for full screen) -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_reward_explosion"
+        android:layout_width="@dimen/stage_reward_explosion_size"
+        android:layout_height="@dimen/stage_reward_explosion_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="customUpgrade.json"
+        app:lottie_loop="false" />
+
+    <!-- Content Grouped in the Center -->
+    <LinearLayout
+        android:id="@+id/layout_content_center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_reward_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.RewardTitle"
+            android:text="@string/stage_reward_dialog_title" />
+
+        <TextView
+            android:id="@+id/tv_reward_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/stage_reward_subtitle_margin_top"
+            style="@style/MoscoText.Luxury.Body"
+            android:text="@string/stage_reward_dialog_subtitle"
+            android:textColor="@color/white"
+            android:alpha="0.6" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/layout_rewards_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/stage_reward_panel_margin_top"
+            android:layout_marginHorizontal="@dimen/stage_reward_panel_margin_horizontal"
+            app:cardBackgroundColor="@color/glass_white_10"
+            app:cardCornerRadius="@dimen/stage_reward_panel_corner"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/glass_white_20"
+            app:strokeWidth="@dimen/stroke_thin">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="@dimen/stage_reward_panel_padding_vertical"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/layout_reward_coins"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/stage_reward_icon_size"
+                        android:layout_height="@dimen/stage_reward_icon_size"
+                        android:src="@drawable/ic_item_coin" />
+
+                    <TextView
+                        android:id="@+id/tv_reward_coins"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        style="@style/MoscoText.Luxury.Header"
+                        android:text="0"
+                        android:textSize="@dimen/stage_reward_value_text_size"
+                        android:textColor="@color/stage_coin_gold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="@dimen/stroke_thin"
+                    android:layout_height="@dimen/divider_height_l"
+                    android:background="@color/glass_white_10" />
+
+                <LinearLayout
+                    android:id="@+id/layout_reward_diamonds"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/stage_reward_icon_size"
+                        android:layout_height="@dimen/stage_reward_icon_size"
+                        android:src="@drawable/ic_item_diamond" />
+
+                    <TextView
+                        android:id="@+id/tv_reward_diamonds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        style="@style/MoscoText.Luxury.Header"
+                        android:text="0"
+                        android:textSize="@dimen/stage_reward_value_text_size"
+                        android:textColor="@color/stage_diamond_cyan" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <!-- Footer Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/stage_reward_footer_margin_bottom"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tv_reward_tap_to_continue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.RewardTap"
+            android:text="@string/reward_dialog_tap_to_continue" />
+
+        <TextView
+            android:id="@+id/tv_reward_footer_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            style="@style/MoscoText.Luxury.Body"
+            android:text="@string/stage_reward_footer_hint"
+            android:textSize="@dimen/text_size_body_xs"
+            android:alpha="0.4"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

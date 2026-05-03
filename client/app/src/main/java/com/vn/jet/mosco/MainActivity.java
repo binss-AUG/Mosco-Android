@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_stage) {
-                selectedFragment = new UpgradeFragment();
+                selectedFragment = new com.vn.jet.mosco.fragment.StageFragment();
             } else if (itemId == R.id.nav_collect) {
                 selectedFragment = new CollectionFragment();
             } else if (itemId == R.id.nav_spin) {

@@ -39,11 +39,16 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private List<Objet> selectedMaterials = new ArrayList<>();
     private Objet mainCard;
     private UpgradeAlgorithm upgradeAlgorithm;
+    private int maxSelectionCount = 5; // Default for upgrade
+    private boolean isSquadMode = false;
+    private java.util.Set<Long> busyIds = new java.util.HashSet<>();
 
     public static final java.util.Set<String> objetFilter = new java.util.LinkedHashSet<>();
     public static String currentSortOption = "Newest";
-    private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Highest OVR", "Lowest OVR", "Highest Level", "Lowest Level", "Highest Badge", "Lowest Badge"};
+    private boolean isAscending = false;
+    private final String[] SORT_OPTIONS = {"Newest", "Badge", "Level", "Artist (A-Z)", "Status"};
     private List<Objet> originalObjets = new ArrayList<>();
+    private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
 
     private androidx.appcompat.widget.AppCompatButton btnConfirm;
     private BaseInventoryAdapter adapter;
@@ -65,6 +70,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     public void setMultiSelectMode(Objet mainCard, UpgradeAlgorithm algorithm, List<Objet> preSelected, OnMultiObjetsSelectedListener listener) {
         this.isMultiSelect = true;
+        this.isSquadMode = false;
+        this.maxSelectionCount = 5;
         this.mainCard = mainCard;
         this.upgradeAlgorithm = algorithm;
         this.multiSelectListener = listener;
@@ -73,6 +80,28 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 if (c != null) this.selectedMaterials.add(c);
             }
         }
+    }
+
+    public void setSquadSelectMode(int maxSelect, OnMultiObjetsSelectedListener listener) {
+        this.isMultiSelect = true;
+        this.isSquadMode = true;
+        this.maxSelectionCount = maxSelect;
+        this.multiSelectListener = listener;
+        this.selectedMaterials = new ArrayList<>();
+    }
+    
+    // Logic kiểm tra xem một Objet có bị trùng Artist với các Objet đã chọn không
+    private boolean isArtistCollision(Objet newItem) {
+        if (!isSquadMode || newItem == null) return false;
+        String newMember = newItem.getMember();
+        if (newMember == null) return false;
+        
+        for (Objet selected : selectedMaterials) {
+            if (newMember.equalsIgnoreCase(selected.getMember())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -114,7 +143,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         ImageView ivBack = view.findViewById(R.id.iv_back);
         rvInventory = view.findViewById(R.id.rv_inventory);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
+        View layoutActionButtons = view.findViewById(R.id.layout_action_buttons);
         btnConfirm = view.findViewById(R.id.btn_confirm);
+        View btnQuickBottom = view.findViewById(R.id.btn_quick_pick_bottom);
         loaderLottie = view.findViewById(R.id.loader_lottie);
         TextView tvTitle = view.findViewById(R.id.tv_title);
 
@@ -124,29 +155,36 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         rvInventory.setItemViewCacheSize(20);
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        View filterBtn = view.findViewById(R.id.btn_filter_select);
-        if (filterBtn != null) {
-            filterBtn.setOnClickListener(v ->
-                CollectionFragment.showFilterBottomSheet(this, CollectionFragment.buildObjetCategories(requireContext()), 0, objetFilter, this::applyFilters));
-        }
-
-        View sortBtn = view.findViewById(R.id.btn_sort_select);
-        if (sortBtn instanceof TextView) {
-            ((TextView) sortBtn).setText(currentSortOption);
-        }
-        android.widget.LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_select);
-        if (sortBtn != null && dropdown != null) {
-            CollectionFragment.setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, () -> {
-                if (sortBtn instanceof TextView) {
-                    currentSortOption = ((TextView) sortBtn).getText().toString();
+        filterBar = view.findViewById(R.id.filter_bar);
+        LinearLayout dropdownSort = view.findViewById(R.id.dropdown_sort_select);
+        
+        if (filterBar != null) {
+            if (dropdownSort != null) filterBar.attachDropdown(dropdownSort);
+            filterBar.setSortText(currentSortOption);
+            filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                @Override
+                public void onFilterChanged(String sortOption, boolean ascending) {
+                    currentSortOption = sortOption;
+                    isAscending = ascending;
+                    applyFilters();
                 }
-                applyFilters();
+
+                @Override
+                public void onFilterRequested() {
+                    CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, CollectionFragment.buildObjetCategories(requireContext()), 0, objetFilter, InventoryBottomSheet.this::applyFilters);
+                }
             });
         }
 
         if (isMultiSelect) {
-            btnConfirm.setVisibility(View.VISIBLE);
-            if (tvTitle != null) tvTitle.setText("Select Materials");
+            if (layoutActionButtons != null) layoutActionButtons.setVisibility(View.VISIBLE);
+            
+            if (btnQuickBottom != null) {
+                btnQuickBottom.setVisibility(isSquadMode ? View.VISIBLE : View.GONE);
+                btnQuickBottom.setOnClickListener(v -> quickPickTeam());
+            }
+
+            if (tvTitle != null) tvTitle.setText(isSquadMode ? getString(R.string.stage_squad_title) : getString(R.string.inventory_title));
             btnConfirm.setOnClickListener(v -> {
                 if (multiSelectListener != null) {
                     multiSelectListener.onMaterialsSelected(selectedMaterials);
@@ -154,7 +192,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 dismiss();
             });
         } else {
-            btnConfirm.setVisibility(View.GONE);
+            if (layoutActionButtons != null) layoutActionButtons.setVisibility(View.GONE);
             if (tvTitle != null) tvTitle.setText("Select a Card");
         }
 
@@ -178,29 +216,42 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         if (isMultiSelect) {
             adapter.setMultiSelectMode(true, (item, selected) -> {
                 if (selected) {
-                    if (selectedMaterials.size() >= 5) {
-                        Toast.makeText(getContext(), "Vui lòng gỡ thẻ cũ trước khi thêm mới (Tối đa 5 thẻ)!", Toast.LENGTH_SHORT).show();
+                    if (selectedMaterials.size() >= maxSelectionCount) {
+                        int msgRes = isSquadMode ? R.string.stage_msg_squad_full : R.string.upgrade_msg_materials_full;
+                        String msg = isSquadMode ? getString(msgRes, maxSelectionCount) : getString(msgRes);
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
                         adapter.setSelectedIds(getSelectedIds());
                         return;
                     }
-                    double currentProgress = calculateCurrentProgress();
-                    if (currentProgress >= 100.0) {
-                        Toast.makeText(getContext(), "Tỷ lệ đã đủ 100%, không cần thêm thẻ!", Toast.LENGTH_SHORT).show();
+                    
+                    if (isSquadMode && isArtistCollision(item)) {
+                        Toast.makeText(getContext(), R.string.stage_msg_artist_collision, Toast.LENGTH_SHORT).show();
                         adapter.setSelectedIds(getSelectedIds());
                         return;
                     }
-                    if (mainCard != null && mainCard.getId() == item.getId()) {
-                        Toast.makeText(getContext(), "Không thể rèn chính nó!", Toast.LENGTH_SHORT).show();
-                        adapter.setSelectedIds(getSelectedIds());
-                        return;
+
+                    if (!isSquadMode) {
+                        double currentProgress = calculateCurrentProgress();
+                        if (currentProgress >= 100.0) {
+                            Toast.makeText(getContext(), R.string.upgrade_msg_max_prob, Toast.LENGTH_SHORT).show();
+                            adapter.setSelectedIds(getSelectedIds());
+                            return;
+                        }
+                        if (mainCard != null && mainCard.getId() == item.getId()) {
+                            Toast.makeText(getContext(), R.string.upgrade_msg_main_as_material, Toast.LENGTH_SHORT).show();
+                            adapter.setSelectedIds(getSelectedIds());
+                            return;
+                        }
                     }
                     selectedMaterials.add(0, item);
                 } else {
                     selectedMaterials.removeIf(sc -> sc.getId() == item.getId());
                 }
+                updateDisabledStates();
                 updateConfirmButtonText();
             });
             adapter.setSelectedIds(getSelectedIds());
+            updateDisabledStates();
             updateConfirmButtonText();
         }
 
@@ -209,8 +260,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         // BƯỚC 1: Hiển thị từ Cache NGAY LẬP TỨC
         if (DatabaseLoader.cachedUserInventory != null && !DatabaseLoader.cachedUserInventory.isEmpty()) {
             List<Objet> realObjets = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
+            busyIds.clear();
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
-                realObjets.add(Objet.fromCacheItem(item));
+                Objet obj = Objet.fromCacheItem(item);
+                realObjets.add(obj);
+                if (obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
+                    busyIds.add(obj.getId());
+                }
             }
             originalObjets = realObjets;
             adapter.updateData(originalObjets);
@@ -218,6 +274,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             rvInventory.setVisibility(View.VISIBLE);
             loaderLottie.setVisibility(View.GONE);
             
+            updateDisabledStates();
             // Chạy applyFilters ngầm sau khi đã hiện data thô
             rvInventory.post(this::applyFilters);
         } else {
@@ -264,8 +321,16 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                                     rvInventory.setVisibility(View.VISIBLE);
                                     layoutEmptyState.setVisibility(View.GONE);
                                     originalObjets = realObjets;
+
+                                    busyIds.clear();
+                                    for (Objet obj : realObjets) {
+                                        if (obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
+                                            busyIds.add(obj.getId());
+                                        }
+                                    }
                                 }
                                 applyFilters();
+                                updateDisabledStates();
                             });
                         }
                     }).start();
@@ -287,8 +352,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-    private Set<Integer> getSelectedIds() {
-        Set<Integer> ids = new HashSet<>();
+    private Set<Long> getSelectedIds() {
+        Set<Long> ids = new HashSet<>();
         for (Objet obj : selectedMaterials) {
             ids.add(obj.getId());
         }
@@ -353,21 +418,94 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             }
         }
 
+        // Cache seasons to avoid DB lookups inside the sort loop
+        java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
+        for (Objet obj : filtered) {
+            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+            String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+            seasonCache.put(obj.getId(), season != null ? season : "");
+        }
+
         filtered.sort((a, b) -> {
-            if ("Oldest".equals(currentSort)) return Integer.compare(a.getId(), b.getId());
-            if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
-            if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
-            if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
-            if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
-            if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-            if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-            return Integer.compare(b.getId(), a.getId()); // Default: Newest (ID lớn nhất = mới nhất)
+            int result = 0;
+            if ("Badge".equals(currentSort)) result = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+            else if ("Level".equals(currentSort)) result = Integer.compare(a.getLevel(), b.getLevel());
+            else if ("Artist (A-Z)".equals(currentSort)) {
+                String m1 = a.getMember() != null ? a.getMember() : "";
+                String m2 = b.getMember() != null ? b.getMember() : "";
+                result = m1.compareToIgnoreCase(m2);
+            }
+            else if ("Status".equals(currentSort)) {
+                boolean b1 = busyIds.contains(a.getId());
+                boolean b2 = busyIds.contains(b.getId());
+                result = Boolean.compare(b1, b2); // Available first by default
+            }
+            else if ("Class".equals(currentSort)) {
+                int rankA = getCardClassRank(a.getTypeKey());
+                int rankB = getCardClassRank(b.getTypeKey());
+                if (rankA != rankB) {
+                    result = Integer.compare(rankA, rankB);
+                } else {
+                    String s1 = seasonCache.get(a.getId());
+                    String s2 = seasonCache.get(b.getId());
+                    if (s1 == null) s1 = "";
+                    if (s2 == null) s2 = "";
+                    int seasonComp = s1.compareToIgnoreCase(s2);
+                    if (seasonComp != 0) {
+                        result = seasonComp;
+                    } else {
+                        int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
+                        if (ovrComp != 0) {
+                            result = ovrComp;
+                        } else {
+                            int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
+                            if (lvlComp != 0) {
+                                result = lvlComp;
+                            } else {
+                                result = Long.compare(a.getId(), b.getId());
+                            }
+                        }
+                    }
+                }
+            }
+            else if ("Season".equals(currentSort)) {
+                String s1 = seasonCache.get(a.getId());
+                String s2 = seasonCache.get(b.getId());
+                if (s1 == null) s1 = "";
+                if (s2 == null) s2 = "";
+                int seasonComp = s1.compareToIgnoreCase(s2);
+                if (seasonComp != 0) {
+                    result = seasonComp;
+                } else {
+                    int rankA = getCardClassRank(a.getTypeKey());
+                    int rankB = getCardClassRank(b.getTypeKey());
+                    if (rankA != rankB) {
+                        result = Integer.compare(rankA, rankB);
+                    } else {
+                        int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
+                        if (ovrComp != 0) {
+                            result = ovrComp;
+                        } else {
+                            int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
+                            if (lvlComp != 0) {
+                                result = lvlComp;
+                            } else {
+                                result = Long.compare(a.getId(), b.getId());
+                            }
+                        }
+                    }
+                }
+            }
+            else result = Long.compare(a.getId(), b.getId()); // Default: Newest (ID)
+
+            return isAscending ? result : -result;
         });
 
         if (adapter != null) {
             adapter.updateData(filtered);
             if (isMultiSelect) {
                 adapter.setSelectedIds(getSelectedIds());
+                updateDisabledStates();
             }
         }
         updateItemCount(getView(), filtered.size());
@@ -410,11 +548,107 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     private void updateConfirmButtonText() {
         if (btnConfirm == null) return;
+        if (isSquadMode) {
+            btnConfirm.setText(String.format("Confirm (%d/%d)", selectedMaterials.size(), maxSelectionCount));
+            return;
+        }
         double percent = calculateCurrentProgress();
         if (selectedMaterials.isEmpty()) {
             btnConfirm.setText("Confirm");
         } else {
             btnConfirm.setText(String.format("Confirm (%.1f%%)", percent));
         }
+    }
+
+    private void updateDisabledStates() {
+        if (adapter == null) return;
+        java.util.Set<String> disabledMembers = new java.util.HashSet<>();
+        if (isSquadMode) {
+            for (Objet obj : selectedMaterials) {
+                if (obj.getMember() != null) {
+                    disabledMembers.add(obj.getMember().trim().toLowerCase());
+                }
+            }
+        }
+        adapter.setDisabledStates(busyIds, disabledMembers);
+    }
+
+    private int getCardClassRank(String cardClass) {
+        if (cardClass == null) return 0;
+        String key = cardClass.replaceAll("\\s+", "").toLowerCase();
+        if (key.contains("premier")) return 4;
+        if (key.contains("special")) return 3;
+        if (key.contains("double")) return 2;
+        if (key.contains("first") || key.contains("welcome")) return 1;
+        return 0;
+    }
+
+    private void quickPickTeam() {
+        if (!isSquadMode || originalObjets == null) return;
+        
+        selectedMaterials.clear();
+        List<Objet> pool = new ArrayList<>(originalObjets);
+        
+        // Cache seasons to avoid DB lookups inside the sort loop
+        java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
+        for (Objet obj : pool) {
+            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+            String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+            seasonCache.put(obj.getId(), season != null ? season : "");
+        }
+
+        // Sort by Card Class desc, Season desc, OVR desc, Level desc, ID desc
+        pool.sort((a, b) -> {
+            int rankA = getCardClassRank(a.getTypeKey());
+            int rankB = getCardClassRank(b.getTypeKey());
+            if (rankA != rankB) return Integer.compare(rankB, rankA);
+            
+            String seasonA = seasonCache.get(a.getId());
+            String seasonB = seasonCache.get(b.getId());
+            if (seasonA != null && seasonB != null) {
+                int seasonComp = seasonB.compareToIgnoreCase(seasonA);
+                if (seasonComp != 0) return seasonComp;
+            }
+
+            int ovrComp = Integer.compare(b.getOvr(), a.getOvr());
+            if (ovrComp != 0) return ovrComp;
+            
+            int lvlComp = Integer.compare(b.getLevel(), a.getLevel());
+            if (lvlComp != 0) return lvlComp;
+            
+            return Long.compare(b.getId(), a.getId());
+        });
+        
+        for (Objet item : pool) {
+            if (selectedMaterials.size() >= maxSelectionCount) break;
+            
+            // Check if busy
+            if (busyIds.contains(item.getId())) continue;
+            
+            // Check artist collision
+            if (!isArtistCollision(item)) {
+                selectedMaterials.add(item);
+            }
+        }
+        
+        if (adapter != null) {
+            adapter.setSelectedIds(getSelectedIds());
+            updateDisabledStates();
+        }
+        
+        // Auto-scroll and sort to show the selected cards at the top
+        currentSortOption = "Class";
+        isAscending = false; // Descending (Best first)
+        if (filterBar != null) {
+            filterBar.setSortText("Class");
+            filterBar.setAscending(false);
+        }
+        applyFilters();
+        if (rvInventory != null) {
+            rvInventory.scrollToPosition(0);
+        }
+        
+        updateConfirmButtonText();
+        Toast.makeText(getContext(), R.string.inventory_quick_pick_toast, Toast.LENGTH_SHORT).show();
     }
 }

@@ -15,6 +15,10 @@ public class AppConfig {
     public static final String DISCORD_AUTH_URL_BASE = "https://discord.com/api/oauth2/authorize";
     public static final String DISCORD_SCOPE = "identify email";
 
+    // Gameplay Constants
+    public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
+    public static final long MS_PER_HOUR = 3600000L;
+
     // Prevent instantiation
     private AppConfig() {}
 }

@@ -88,38 +88,48 @@ public class DailyCheckinActivity extends AppCompatActivity {
         List<DailySlotData> slots = new ArrayList<>();
         // Sử dụng ảnh Demo ads1, ads2, ads3 và màu accent từ resources
         slots.add(new DailySlotData(getString(R.string.daily_morning), "06:00 - 11:59", 
-                "Bắt đầu ngày mới đầy năng lượng với quà tặng từ Mosco.", 500, 1, 
+                getString(R.string.daily_morning_desc), 500, 1, 
                 R.drawable.ads1, ContextCompat.getColor(this, R.color.daily_morning_accent)));
         
         slots.add(new DailySlotData(getString(R.string.daily_afternoon), "12:00 - 17:59", 
-                "Nghỉ trưa thư giãn và nhận thêm chút 'vốn' cho hành trình.", 800, 2, 
+                getString(R.string.daily_afternoon_desc), 800, 2, 
                 R.drawable.ads2, ContextCompat.getColor(this, R.color.daily_noon_accent)));
         
         slots.add(new DailySlotData(getString(R.string.daily_evening), "18:00 - 23:59", 
-                "Kết thúc một ngày tuyệt vời với phần thưởng giá trị nhất.", 1200, 3, 
+                getString(R.string.daily_evening_desc), 1200, 3, 
                 R.drawable.ads3, ContextCompat.getColor(this, R.color.daily_evening_accent)));
 
         adapter = new DailyBannerAdapter(slots);
         vpDaily.setAdapter(adapter);
         vpDaily.setOffscreenPageLimit(3);
 
-        // Custom 3D Page Transformer với khử răng cưa (Anti-aliasing)
+        // Custom 3D Page Transformer tinh chỉnh để tránh clipping
         vpDaily.setPageTransformer((page, position) -> {
             float absPos = Math.abs(position);
             float scale = 0.85f + (1 - absPos) * 0.15f;
             
-            // Debug & Fix: Sử dụng Hardware Layer để khử răng cưa góc nhọn khi xoay 3D
-            if (position == 0) {
-                page.setLayerType(View.LAYER_TYPE_NONE, null);
-            } else {
-                page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            }
+            // Fix: Giảm góc xoay để tránh card đâm vào nhau gây clipping
+            float rotation = position * -12f; 
+            
+            // Tinh chỉnh translation để giữ card tập trung và mượt mà
+            float translationX = -position * (page.getWidth() / 3.5f);
 
+            page.setTranslationX(translationX);
             page.setScaleX(scale);
             page.setScaleY(scale);
-            page.setRotationY(position * -20f);
-            page.setAlpha(0.5f + (1 - absPos) * 0.5f);
-            page.setTranslationZ((1 - absPos) * 10f);
+            page.setRotationY(rotation);
+            
+            // Focus Logic: Chỉ hiện card chính diện, ẩn các card lân cận khi idle
+            // absPos = 0 -> alpha 1
+            // absPos >= 1 -> alpha 0
+            page.setAlpha(Math.max(0f, 1f - absPos));
+            
+            // Tăng tốc phần cứng khi đang scroll để góc bo tròn mượt mà
+            if (absPos > 0 && absPos < 1) {
+                page.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            } else {
+                page.setLayerType(View.LAYER_TYPE_NONE, null);
+            }
         });
 
         // Dynamic Background & Indicator Update
@@ -185,8 +195,12 @@ public class DailyCheckinActivity extends AppCompatActivity {
                 try {
                     if (response.isSuccessful() && response.body() != null) {
                         JSONObject json = new JSONObject(response.body().string());
-                        String message = json.optString("message", "Check-in successful!");
-                        Toast.makeText(DailyCheckinActivity.this, message, Toast.LENGTH_SHORT).show();
+                        JSONObject data = json.optJSONObject("data");
+                        if (data != null) {
+                            long coins = data.optLong("coinsRewarded", 0);
+                            long diamonds = data.optLong("diamondsRewarded", 0);
+                            showRewardDialog(coins, diamonds);
+                        }
                         loadDailyStatus();
                     } else {
                         String errorMsg = "Cannot check in";
@@ -206,6 +220,40 @@ public class DailyCheckinActivity extends AppCompatActivity {
                 Toast.makeText(DailyCheckinActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showRewardDialog(long coins, long diamonds) {
+        android.app.Dialog dialog = new android.app.Dialog(this, R.style.RewardOverlayTheme);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_reward_overlay, null);
+        dialog.setContentView(dialogView);
+        dialog.setCancelable(false);
+
+        // Update to Daily specific strings
+        ((TextView) dialogView.findViewById(R.id.tv_reward_title)).setText(R.string.daily_reward_dialog_title);
+        ((TextView) dialogView.findViewById(R.id.tv_reward_subtitle)).setText(R.string.daily_reward_dialog_subtitle);
+        ((TextView) dialogView.findViewById(R.id.tv_reward_footer_hint)).setText(R.string.daily_reward_footer_hint);
+
+        TextView tvCoins = dialogView.findViewById(R.id.tv_reward_coins);
+        TextView tvDiamonds = dialogView.findViewById(R.id.tv_reward_diamonds);
+        tvCoins.setText(String.format("%,d", coins));
+        tvDiamonds.setText(String.format("%,d", diamonds));
+
+        // Dim if reward is 0
+        if (coins <= 0) {
+            dialogView.findViewById(R.id.layout_reward_coins).setAlpha(0.4f);
+        }
+        if (diamonds <= 0) {
+            dialogView.findViewById(R.id.layout_reward_diamonds).setAlpha(0.4f);
+        }
+
+        dialogView.findViewById(R.id.root_reward_layout).setOnClickListener(v -> dialog.dismiss());
+        dialogView.setOnClickListener(v -> dialog.dismiss());
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+
+        dialog.show();
     }
 
     // --- INNER CLASSES ---
@@ -238,6 +286,9 @@ public class DailyCheckinActivity extends AppCompatActivity {
                 items.get(i).status = statuses[i];
             }
             notifyDataSetChanged();
+            
+            // Fix: Ép ViewPager2 tính toán lại Transformer để tránh card bị ẩn sau khi refresh
+            vpDaily.post(() -> vpDaily.requestTransform());
         }
 
         @NonNull
@@ -249,6 +300,10 @@ public class DailyCheckinActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
             DailySlotData data = items.get(position);
+            
+            // Đảm bảo card luôn hiển thị khi bind (trước khi Transformer can thiệp)
+            holder.itemView.setAlpha(1.0f);
+            
             holder.tvTitle.setText(data.title);
             holder.tvTime.setText(data.time);
             holder.tvDesc.setText(data.desc);
@@ -258,7 +313,8 @@ public class DailyCheckinActivity extends AppCompatActivity {
             holder.ivBanner.setColorFilter(0, android.graphics.PorterDuff.Mode.SRC_OVER);
             
             // Đặc biệt: Đồng bộ viền (stroke) với màu chủ đạo của buổi
-            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(data.accentColor));
+            // Đồng bộ viền Luxury trắng trong suốt (đã set trong XML)
+            // holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(data.accentColor));
             
             updateButton(holder, data.status, data.accentColor);
 
@@ -271,12 +327,12 @@ public class DailyCheckinActivity extends AppCompatActivity {
             
             switch (status) {
                 case "claimed":
-                    holder.tvClaimText.setText("CLAIMED");
-                    holder.btnClaim.setCardBackgroundColor(0xFF444444);
+                    holder.tvClaimText.setText(getString(R.string.daily_status_claimed));
+                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.mosco_surface_variant));
                     holder.btnClaim.setAlpha(0.6f);
                     break;
                 case "available":
-                    holder.tvClaimText.setText("CLAIM");
+                    holder.tvClaimText.setText(getString(R.string.daily_claim));
                     holder.btnClaim.setCardBackgroundColor(accentColor);
                     holder.btnClaim.setAlpha(1.0f);
                     holder.btnClaim.setClickable(true);
@@ -284,8 +340,8 @@ public class DailyCheckinActivity extends AppCompatActivity {
                     break;
                 case "locked":
                 default:
-                    holder.tvClaimText.setText("CLAIM");
-                    holder.btnClaim.setCardBackgroundColor(0xFF333333);
+                    holder.tvClaimText.setText(getString(R.string.daily_claim));
+                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.mosco_input_bg));
                     holder.btnClaim.setAlpha(0.35f);
                     break;
             }

@@ -58,7 +58,13 @@ public class UserCard {
     @SerializedName("textColor")
     private String textColor;
 
+    @SerializedName("status")
+    private String status;
+
     public UserCard() {}
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public String getFrontImage() { return frontImage; }
     public void setFrontImage(String frontImage) { this.frontImage = frontImage; }

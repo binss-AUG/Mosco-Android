@@ -194,4 +194,23 @@ public interface GameApiService {
     /** Số quà chưa đọc (cho badge thông báo). */
     @GET("/api/gift/unread-count")
     Call<ResponseBody> getGiftUnreadCount();
+
+    // ══════════════════════════════════════════════════════════════
+    //  AFK STAGE — Hệ thống phái cử tự động
+    // ══════════════════════════════════════════════════════════════
+
+    @POST("/api/stage/start/{userId}")
+    Call<com.vn.jet.mosco.dto.StageSessionResponse> startStage(@Path("userId") Long userId, @Body com.vn.jet.mosco.dto.StartStageRequest request);
+
+    @POST("/api/stage/claim/{userId}/{sessionId}")
+    Call<com.vn.jet.mosco.dto.StageRewardResponse> claimStageReward(@Path("userId") Long userId, @Path("sessionId") Long sessionId);
+
+    @POST("/api/stage/abort/{userId}/{sessionId}")
+    Call<ResponseBody> abortStage(@Path("userId") Long userId, @Path("sessionId") Long sessionId);
+
+    @POST("/api/stage/speed-up/{userId}/{sessionId}")
+    Call<ResponseBody> speedUpStage(@Path("userId") Long userId, @Path("sessionId") Long sessionId);
+
+    @GET("/api/stage/my-sessions/{userId}")
+    Call<List<com.vn.jet.mosco.dto.StageSessionResponse>> getMyStageSessions(@Path("userId") Long userId);
 }

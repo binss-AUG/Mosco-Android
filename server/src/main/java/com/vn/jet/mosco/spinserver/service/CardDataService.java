@@ -202,6 +202,7 @@ public class CardDataService {
         
         dto.setAvailableTags(availableTags);
         dto.setDimension(dimension);
+        dto.setStatus(card.getStatus());
         return dto;
     }
 

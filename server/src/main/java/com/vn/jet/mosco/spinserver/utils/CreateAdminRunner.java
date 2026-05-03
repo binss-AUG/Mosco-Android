@@ -36,14 +36,18 @@ public class CreateAdminRunner implements CommandLineRunner {
     private final ShopItemRepository shopItemRepository;
     private final com.vn.jet.mosco.spinserver.repository.UserMailRepository userMailRepository;
     private final GachaHistoryRepository gachaHistoryRepository;
+    private final com.vn.jet.mosco.spinserver.repository.StageSessionRepository sessionRepository;
+    private final com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository;
 
-    public CreateAdminRunner(UserRepository userRepository, UserCardRepository userCardRepository, UserItemRepository userItemRepository, ShopItemRepository shopItemRepository, com.vn.jet.mosco.spinserver.repository.UserMailRepository userMailRepository, GachaHistoryRepository gachaHistoryRepository) {
+    public CreateAdminRunner(UserRepository userRepository, UserCardRepository userCardRepository, UserItemRepository userItemRepository, ShopItemRepository shopItemRepository, com.vn.jet.mosco.spinserver.repository.UserMailRepository userMailRepository, GachaHistoryRepository gachaHistoryRepository, com.vn.jet.mosco.spinserver.repository.StageSessionRepository sessionRepository, com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository) {
         this.userRepository = userRepository;
         this.userCardRepository = userCardRepository;
         this.userItemRepository = userItemRepository;
         this.shopItemRepository = shopItemRepository;
         this.userMailRepository = userMailRepository;
         this.gachaHistoryRepository = gachaHistoryRepository;
+        this.sessionRepository = sessionRepository;
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -89,6 +93,21 @@ public class CreateAdminRunner implements CommandLineRunner {
         admin.setDiamonds(999999999L);
         userRepository.save(admin);
 
+        // 🛑 CLEANUP STAGE DATA FOR ADMIN (As requested for re-testing)
+        System.out.println("Cleaning up old Stage data for admin...");
+        java.util.List<com.vn.jet.mosco.spinserver.model.StageSession> sessions = sessionRepository.findByUserId(admin.getId());
+        for (com.vn.jet.mosco.spinserver.model.StageSession session : sessions) {
+            memberRepository.deleteByStageSessionId(session.getId());
+        }
+        sessionRepository.deleteByUserId(admin.getId());
+        
+        // Reset Card status
+        java.util.List<com.vn.jet.mosco.spinserver.model.UserCard> adminCards = userCardRepository.findByUserId(admin.getId());
+        for (com.vn.jet.mosco.spinserver.model.UserCard card : adminCards) {
+            card.setStatus("AVAILABLE");
+        }
+        userCardRepository.saveAll(adminCards);
+
         // Populate items
         userItemRepository.deleteByUser(admin); // Clear old items
         List<UserItem> items = new ArrayList<>();
@@ -107,8 +126,12 @@ public class CreateAdminRunner implements CommandLineRunner {
 
         // 🚀 FULL OBJET: Thêm TOÀN BỘ thẻ trong database.json vào kho admin (Level 10, +10)
         try {
-            System.out.println("Syncing FULL card collection for admin from database.json...");
-            userCardRepository.deleteByUser(admin);
+            System.out.println("Syncing missing cards for admin from database.json...");
+            List<UserCard> existingCards = userCardRepository.findByUserId(admin.getId());
+            java.util.Set<String> existingIds = new java.util.HashSet<>();
+            for (UserCard c : existingCards) {
+                existingIds.add(c.getCollectionId());
+            }
 
             ClassPathResource dbResource = new ClassPathResource("database.json");
             JsonObject dbJson = new JsonParser().parse(new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
@@ -119,8 +142,10 @@ public class CreateAdminRunner implements CommandLineRunner {
                 JsonObject cardObj = element.getAsJsonObject();
                 if (cardObj.has("id")) {
                     String cardId = cardObj.get("id").getAsString();
-                    // Mỗi cardId thêm 1 thẻ: Level 1, EXP 0, upgradeLevel 1
-                    allCards.add(new UserCard(admin, cardId, 1, 0, 1));
+                    if (!existingIds.contains(cardId)) {
+                        // Mỗi cardId thêm 1 thẻ: Level 1, EXP 0, upgradeLevel 1
+                        allCards.add(new UserCard(admin, cardId, 1, 0, 1));
+                    }
                 }
             }
 
@@ -131,7 +156,7 @@ public class CreateAdminRunner implements CommandLineRunner {
                 userCardRepository.saveAll(batch);
             }
             
-            System.out.println("Admin account sync success: Added " + allCards.size() + " unique cards at Level 1 / +1");
+            System.out.println("Admin account sync success: Added " + allCards.size() + " new unique cards.");
         } catch (Exception e) {
             System.err.println("CRITICAL: Failed to seed ALL cards for admin: " + e.getMessage());
             e.printStackTrace();
