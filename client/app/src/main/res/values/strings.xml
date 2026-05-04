@@ -430,4 +430,21 @@
     <string name="home_mini_rank_wealth">TOP FLEET WEALTH</string>
     <string name="home_notification_default">Welcome Commander to the Mosco system. Have a great day!</string>
     <string name="home_chat_hint">Tap to send a message...</string>
+
+    <!-- Splash Screen Standardized English -->
+    <string name="splash_status_connecting">Connecting...</string>
+    <string name="splash_status_checking">Checking for updates...</string>
+    <string name="splash_status_downloading">Downloading resources...</string>
+    <string name="splash_status_preparing">Preparing data...</string>
+    <string name="splash_status_loading">Finalizing Quantum Alignment...</string>
+    <string name="splash_status_download_format">Sector Code: #%s</string>
+    <string name="splash_error_no_internet">Quantum signal lost. Please check your internet connection.</string>
+    <string name="splash_error_server_unavailable">Galactic server is offline. Please try again later.</string>
+    <string name="splash_error_connection_title">CONNECTION FAILED</string>
+    <string name="splash_error_connection_msg">The archive is unreachable. Please verify your link to the galaxy.</string>
+    <string name="splash_confirm_cellular_title">Data Usage Warning</string>
+    <string name="splash_confirm_cellular_msg">You are using cellular data. Do you want to download approximately %1$d MB of assets?</string>
+    <string name="splash_btn_download">Download Now</string>
+    <string name="splash_btn_exit">Exit</string>
+    <string name="splash_btn_retry">Retry</string>
 </resources>

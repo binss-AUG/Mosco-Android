@@ -28,9 +28,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <!-- REAL CONTENT (Hidden while loading) -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_real_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
 
             <!-- HEADER — Premium HUD Pill (Fused Asymmetric Design) -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -331,6 +338,20 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- SKELETON LOADING (Visible by default) -->
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:shimmer_auto_start="true"
+            app:shimmer_duration="1200"
+            app:shimmer_base_alpha="0.3"
+            app:shimmer_highlight_alpha="0.8">
+            <include layout="@layout/skeleton_home" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        </FrameLayout>
 
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 

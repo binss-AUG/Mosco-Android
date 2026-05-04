@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/spacing_12dp">
+
+    <!-- Header Skeleton -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sk_header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/home_header_pill_height"
+        android:background="@drawable/bg_header_asymmetric_glass"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:id="@+id/sk_avatar"
+            android:layout_width="@dimen/home_header_avatar_size_hud"
+            android:layout_height="@dimen/home_header_avatar_size_hud"
+            android:layout_marginStart="@dimen/spacing_12dp"
+            android:background="@drawable/bg_quick_tool_bubble_base"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <View
+            android:id="@+id/sk_name"
+            android:layout_width="100dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:background="@color/white_10"
+            app:layout_constraintStart_toEndOf="@id/sk_avatar"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/sk_xp_bar"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:background="@color/white_10"
+            app:layout_constraintStart_toStartOf="@id/sk_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sk_name" />
+
+        <View
+            android:id="@+id/sk_currency"
+            android:layout_width="80dp"
+            android:layout_height="12dp"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:background="@color/white_10"
+            app:layout_constraintStart_toStartOf="@id/sk_name"
+            app:layout_constraintTop_toBottomOf="@id/sk_xp_bar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Banner Skeleton -->
+    <View
+        android:id="@+id/sk_banner"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/home_banner_height"
+        android:layout_marginTop="@dimen/spacing_16dp"
+        android:background="@drawable/bg_banner_glass"
+        app:layout_constraintTop_toBottomOf="@id/sk_header" />
+
+    <!-- Modules Skeleton -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/spacing_md"
+        app:layout_constraintTop_toBottomOf="@id/sk_banner"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <View
+            android:id="@+id/sk_module_left"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:background="@drawable/bg_streak_module_glass"
+            app:layout_constraintWidth_percent="0.38"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/sk_module_right"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:background="@color/white_05"
+            app:layout_constraintStart_toEndOf="@id/sk_module_left"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/sk_module_left" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

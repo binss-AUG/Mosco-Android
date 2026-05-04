@@ -79,4 +79,7 @@ dependencies {
 
     // --- Google ML Kit Face Detection cho ảnh đại diện Auto-Crop ---
     implementation 'com.google.mlkit:face-detection:16.1.6'
+
+    // --- Cronet (Google Play Services version) - Chuẩn 2026 cho HTTP/3 (QUIC) ---
+    implementation 'com.google.android.gms:play-services-cronet:18.0.1'
 }

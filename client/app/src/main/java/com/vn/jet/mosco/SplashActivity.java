@@ -20,6 +20,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import com.vn.jet.mosco.utils.CardAssetManager;
 import com.vn.jet.mosco.utils.DatabaseLoader;
@@ -30,9 +33,6 @@ import com.vn.jet.mosco.network.GameApiService;
 public class SplashActivity extends AppCompatActivity {
 
     private static final String TAG = "SplashActivity";
-
-    public static final int OBJET_WIDTH = 300;
-    public static final int OBJET_HEIGHT = 462;
 
     private LinearLayout layoutDownloadProgress;
     private View layoutRetryConnection;
@@ -46,16 +46,15 @@ public class SplashActivity extends AppCompatActivity {
     private volatile boolean isResourceLoadFinished = false;
     private volatile boolean isNavigating = false; 
     private volatile boolean isErrorShown = false;
-    private static volatile boolean isCheckStarted = false;
+    private volatile boolean isCheckStarted = false;
+    private volatile boolean isSyncing = false;
 
     private long splashStartTime;
-    private java.util.Map<String, Long> renderMetrics = new java.util.HashMap<>();
+    private long downloadStartTime;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
-            isCheckStarted = false;
-        }
         super.onCreate(savedInstanceState);
         splashStartTime = System.currentTimeMillis();
         EdgeToEdge.enable(this);
@@ -89,206 +88,275 @@ public class SplashActivity extends AppCompatActivity {
         pbDownload = findViewById(R.id.pb_download);
         tvDownloadStatus = findViewById(R.id.tv_download_status);
         tvDownloadCount = findViewById(R.id.tv_download_count);
-        lottieSplash = findViewById(R.id.iv_logo_lottie); 
+        lottieSplash = findViewById(R.id.iv_logo_lottie);
         
         mainHandler = new Handler(Looper.getMainLooper());
 
+        layoutDownloadProgress.setVisibility(View.GONE);
+        tvDownloadStatus.setVisibility(View.VISIBLE);
+        tvDownloadStatus.setText(R.string.splash_status_connecting);
+
         btnRetryConnection.setOnClickListener(v -> {
-            isCheckStarted = false; // Allow retry
+            isCheckStarted = false;
             layoutRetryConnection.setVisibility(View.GONE);
             lottieSplash.setVisibility(View.VISIBLE);
+            tvDownloadStatus.setVisibility(View.VISIBLE);
             new Thread(this::checkAndLoadResources).start();
         });
 
-        trackRenderTime("Init", () -> {
+        setupNetworkMonitoring();
+
+        mainHandler.postDelayed(() -> {
             new Thread(this::checkAndLoadResources).start();
-        });
+        }, 500);
     }
 
-    private void trackRenderTime(String component, Runnable action) {
-        long start = System.currentTimeMillis();
-        action.run();
-        long end = System.currentTimeMillis();
-        renderMetrics.put(component, end - start);
+    private void setupNetworkMonitoring() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) return;
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onLost(Network network) {
+                if (isSyncing) {
+                    mainHandler.post(() -> showConnectionError());
+                }
+            }
+        };
+
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build();
+        cm.registerNetworkCallback(request, networkCallback);
     }
 
     private void checkAndLoadResources() {
         if (isCheckStarted) return;
         isCheckStarted = true;
-        
         isResourceLoadFinished = false;
         isErrorShown = false;
         
-        Runnable timeoutRunnable = () -> {
-            if (!isResourceLoadFinished && !isFinishing() && !isNavigating) {
-                showConnectionError();
-            }
-        };
-
-        mainHandler.postDelayed(timeoutRunnable, 8000);
-
         if (!isNetworkAvailable()) {
             showConnectionError();
             return;
         }
 
-        // Kích hoạt nạp Master Data (O(1) lookup cho 10k thẻ)
+        GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
+        
+        // 1. Sync Database
+        syncDatabase(apiService);
+        
+        // 2. Master Data
         DatabaseLoader.initMasterData(getApplicationContext());
+        
+        // 3. Pre-fetch Session
+        preFetchUserSession(apiService);
 
-        boolean allReady = CardAssetManager.isAllAssetsReadyQuick(getApplicationContext());
+        // 4. Sync Assets (This will trigger navigation on completion)
+        syncAssets();
+    }
 
-        if (!allReady) {
-            // Kiểm tra sâu: Quét từng file 2x dựa trên database.json (Master Data)
-            allReady = CardAssetManager.isAllAssetsReady(getApplicationContext());
-        }
-
-        if (!allReady) {
-            mainHandler.removeCallbacks(timeoutRunnable);
-            mainHandler.postDelayed(timeoutRunnable, 600000);
-
-            mainHandler.post(() -> {
-                layoutDownloadProgress.setVisibility(View.VISIBLE);
-                tvDownloadStatus.setText("Đang đồng bộ dữ liệu...");
-                pbDownload.setProgress(0);
-                tvDownloadCount.setText("0%");
-            });
-
-            final int[] displayedProgress = {0};
-            final int[] realPercent = {0};
-            final Object downloadLock = new Object();
-
-            new Thread(() -> {
-                while (displayedProgress[0] < 100) {
-                    try {
-                        Thread.sleep(30);
-                        int increment = 0;
-                        if (displayedProgress[0] < 80) {
-                            increment = (int) (Math.random() * 5) + 3;
-                        } else if (displayedProgress[0] < 98) {
-                            if (Math.random() > 0.5) increment = 1;
-                        } else {
-                            if (realPercent[0] >= 100) increment = 1;
-                        }
-
-                        if (increment > 0) {
-                            displayedProgress[0] += increment;
-                            if (displayedProgress[0] > 100) displayedProgress[0] = 100;
-                            final int val = displayedProgress[0];
-                            mainHandler.post(() -> pbDownload.setProgress(val));
-                        }
-                    } catch (InterruptedException e) { break; }
-                }
-            }).start();
-
-            CardAssetManager.downloadAllAssets(getApplicationContext(), new CardAssetManager.DownloadProgressListener() {
-                @Override
-                public void onProgress(int downloaded, int total, String currentFile) {
-                    realPercent[0] = (int) ((downloaded / (float) total) * 100);
-                    mainHandler.post(() -> tvDownloadCount.setText(formatNumber(downloaded) + " / " + formatNumber(total)));
-                }
-
-                @Override
-                public void onComplete() {
-                    realPercent[0] = 100;
-                    synchronized (downloadLock) { downloadLock.notifyAll(); }
-                }
-
-                @Override
-                public void onError(String errorMessage) {
-                    realPercent[0] = 100;
-                    synchronized (downloadLock) { downloadLock.notifyAll(); }
-                }
-            });
-
-            synchronized (downloadLock) {
-                try { downloadLock.wait(600000); } catch (InterruptedException ignored) {}
-            }
-            
-            displayedProgress[0] = 100;
-            mainHandler.post(() -> {
-                pbDownload.setProgress(100);
-                tvDownloadStatus.setText("Sẵn sàng!");
-            });
-            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
-        }
-
-        mainHandler.post(() -> layoutDownloadProgress.setVisibility(View.GONE));
-
-        SessionManager sessionManager = new SessionManager(SplashActivity.this);
-        Long userId = sessionManager.getUserId();
-        if (userId != null && sessionManager.isLoggedIn()) {
-            DatabaseLoader.loadInventoryFromLocal(SplashActivity.this, userId);
-            try {
-                com.vn.jet.mosco.network.GameApiService apiService =
-                        com.vn.jet.mosco.network.ApiClient.getClient(SplashActivity.this)
-                                .create(com.vn.jet.mosco.network.GameApiService.class);
-                retrofit2.Response<java.util.List<com.vn.jet.mosco.model.UserCard>> response =
-                        apiService.getUserCards(userId).execute();
-                if (response.isSuccessful() && response.body() != null) {
-                    java.util.List<DatabaseLoader.UserInventoryItem> newList = new java.util.ArrayList<>();
-                    for (com.vn.jet.mosco.model.UserCard userCard : response.body()) {
-                        newList.add(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem.fromUserCard(userCard));
+    private void syncDatabase(GameApiService apiService) {
+        mainHandler.post(() -> tvDownloadStatus.setText(R.string.splash_status_checking));
+        try {
+            String localVersion = DatabaseLoader.getLocalDatabaseVersion(this);
+            retrofit2.Response<java.util.Map<String, String>> versionResponse = apiService.getDatabaseVersion().execute();
+            if (versionResponse.isSuccessful() && versionResponse.body() != null) {
+                String serverVersion = versionResponse.body().get("version");
+                if (serverVersion != null && !serverVersion.equals(localVersion)) {
+                    mainHandler.post(() -> {
+                        layoutDownloadProgress.setVisibility(View.VISIBLE);
+                        tvDownloadStatus.setText(R.string.splash_status_downloading);
+                    });
+                    retrofit2.Response<okhttp3.ResponseBody> dbResponse = apiService.downloadDatabase().execute();
+                    if (dbResponse.isSuccessful() && dbResponse.body() != null) {
+                        DatabaseLoader.updateInternalDatabase(this, dbResponse.body().string(), serverVersion);
                     }
-                    DatabaseLoader.cachedUserInventory = newList;
-                    DatabaseLoader.saveInventoryToLocal(SplashActivity.this, userId, newList);
                 }
-            } catch (Exception e) {
-                Log.w(TAG, "Lỗi kết nối Server: " + e.getMessage() + ". Sử dụng dữ liệu cache.");
             }
+        } catch (Exception e) { Log.w(TAG, "DB Sync Failed: " + e.getMessage()); }
+    }
+
+    private void syncAssets() {
+        mainHandler.post(() -> tvDownloadStatus.setText(R.string.splash_status_preparing));
+        if (!isNetworkAvailable()) {
+            showConnectionError();
+            return;
+        }
+
+        CardAssetManager.DownloadInfo info = CardAssetManager.getPendingDownloadInfo(this);
+        if (info.pendingCount == 0) {
+            mainHandler.post(() -> {
+                tvDownloadStatus.setText(R.string.splash_status_loading);
+                layoutDownloadProgress.setVisibility(View.GONE);
+                isResourceLoadFinished = true;
+                navigateToNextScreen();
+            });
+            return;
+        }
+
+        if (isWifiConnected()) {
+            startActualDownload(info, true);
+        } else {
+            showCellularConfirmationDialog(info);
+        }
+    }
+
+    private void startActualDownload(CardAssetManager.DownloadInfo info, boolean isWifi) {
+        isSyncing = true;
+        downloadStartTime = System.currentTimeMillis();
+        final Object downloadLock = new Object();
+        final int[] realPercent = {0};
+        final int[] displayedProgress = {0};
+
+        mainHandler.post(() -> {
+            layoutDownloadProgress.setVisibility(View.VISIBLE);
+            tvDownloadStatus.setText(R.string.splash_status_downloading);
+            pbDownload.setProgress(0);
+        });
+
+        // Fast Smooth Progress Thread
+        new Thread(() -> {
+            while (displayedProgress[0] < 100 && isSyncing) {
+                try {
+                    Thread.sleep(40);
+                    int increment = 0;
+                    if (displayedProgress[0] < 80) {
+                        increment = (int) (Math.random() * 3) + 1;
+                    } else if (displayedProgress[0] < 98) {
+                        if (Math.random() > 0.8) increment = 1;
+                    } else {
+                        if (realPercent[0] >= 100) increment = 1;
+                    }
+
+                    if (increment > 0) {
+                        displayedProgress[0] += increment;
+                        if (displayedProgress[0] > 100) displayedProgress[0] = 100;
+                        final int val = displayedProgress[0];
+                        mainHandler.post(() -> pbDownload.setProgress(val));
+                    }
+                } catch (InterruptedException e) { break; }
+            }
+            synchronized (downloadLock) { downloadLock.notifyAll(); }
+        }).start();
+
+        CardAssetManager.startDownloadWithInfo(this, info, isWifi, new CardAssetManager.DownloadProgressListener() {
+            @Override
+            public void onProgress(int downloaded, int total, String imageId) {
+                if (!isSyncing) return;
+                realPercent[0] = (int) ((downloaded / (float) total) * 100);
+                long elapsedSeconds = (System.currentTimeMillis() - downloadStartTime) / 1000;
+                mainHandler.post(() -> {
+                    String statusText = String.format("#%s | %ds", 
+                            imageId != null ? imageId.substring(0, Math.min(6, imageId.length())) : "...", 
+                            elapsedSeconds);
+                    tvDownloadCount.setText(statusText);
+                });
+            }
+            @Override public void onComplete() { 
+                realPercent[0] = 100; 
+                isSyncing = false;
+            }
+            @Override public void onError(String errorMessage) {
+                isSyncing = false;
+                mainHandler.post(() -> showConnectionError());
+            }
+        });
+
+        synchronized (downloadLock) {
+            try { downloadLock.wait(600000); } catch (InterruptedException ignored) {}
         }
         
-        isResourceLoadFinished = true;
+        // After download completes or fails (and error is shown), navigate if successful
+        if (realPercent[0] >= 100 && !isErrorShown) {
+            isResourceLoadFinished = true;
+            mainHandler.post(() -> {
+                tvDownloadStatus.setText(R.string.splash_status_loading);
+                navigateToNextScreen();
+            });
+        }
+    }
 
-        long totalLoadingTime = System.currentTimeMillis() - splashStartTime;
-        long waitTime = Math.max(0, 2000 - totalLoadingTime);
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
 
+    private boolean isWifiConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    private void showCellularConfirmationDialog(CardAssetManager.DownloadInfo info) {
+        mainHandler.post(() -> {
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+                .setTitle(getString(R.string.splash_confirm_cellular_title))
+                .setMessage(String.format(getString(R.string.splash_confirm_cellular_msg), info.estimatedSizeMB))
+                .setPositiveButton(getString(R.string.splash_btn_download), (dialog, which) -> {
+                    new Thread(() -> startActualDownload(info, false)).start();
+                })
+                .setNegativeButton(getString(R.string.splash_btn_exit), (dialog, which) -> finish())
+                .setCancelable(false)
+                .show();
+        });
+    }
+
+    private void preFetchUserSession(GameApiService apiService) {
+        SessionManager sm = new SessionManager(this);
+        if (sm.isLoggedIn()) {
+            Long userId = sm.getUserId();
+            DatabaseLoader.loadInventoryFromLocal(this, userId);
+            try {
+                apiService.getUserStats(userId).execute();
+                DatabaseLoader.reloadInventoryFromServer(this, userId, apiService);
+            } catch (Exception e) {}
+        }
+    }
+
+    private void navigateToNextScreen() {
+        if (!isResourceLoadFinished || isNavigating) return;
+        long waitTime = Math.max(0, 2500 - (System.currentTimeMillis() - splashStartTime));
         mainHandler.postDelayed(() -> {
-            if (isErrorShown || !isResourceLoadFinished || isNavigating || isFinishing()) return;
+            if (isErrorShown || isNavigating || isFinishing()) return;
             isNavigating = true;
-            
-            SessionManager sm = new SessionManager(SplashActivity.this);
-            Intent intent;
-            if (sm.isLoggedIn()) {
-                if (sm.getIngameName() == null || sm.getIngameName().isEmpty()) {
-                    intent = new Intent(SplashActivity.this, DisplayNameSetupActivity.class);
-                } else {
-                    intent = new Intent(SplashActivity.this, MainActivity.class);
-                }
-            } else {
-                intent = new Intent(SplashActivity.this, OnboardingActivity.class);
-            }
-            
+            SessionManager sm = new SessionManager(this);
+            Intent intent = sm.isLoggedIn() ? 
+                    (sm.getIngameName() == null || sm.getIngameName().isEmpty() ? new Intent(this, DisplayNameSetupActivity.class) : new Intent(this, MainActivity.class)) : 
+                    new Intent(this, OnboardingActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         }, waitTime);
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        if (connectivityManager == null) return false;
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
     private void showConnectionError() {
         if (isErrorShown) return;
         isErrorShown = true;
+        isSyncing = false; 
         mainHandler.post(() -> {
-            isResourceLoadFinished = false;
             layoutDownloadProgress.setVisibility(View.GONE);
+            tvDownloadStatus.setVisibility(View.GONE); // Hide "Downloading..." status
             lottieSplash.setVisibility(View.GONE);
             layoutRetryConnection.setVisibility(View.VISIBLE);
         });
     }
 
-    private String formatNumber(int number) {
-        return String.format("%,d", number);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            if (cm != null) cm.unregisterNetworkCallback(networkCallback);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
+        AuthUIHelper.saveAnimationState();
     }
 }
