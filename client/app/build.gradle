@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'io.github.scwang90:refresh-layout-kernel:2.1.0'
 
     // --- Firebase (Dùng cho Auth và lưu trữ kho đồ Online) ---
     implementation platform('com.google.firebase:firebase-bom:34.12.0')

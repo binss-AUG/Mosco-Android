@@ -1,0 +1,64 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="@dimen/spacing_xxs">
+
+    <!-- AVATAR -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_mini_rank_avatar"
+        android:layout_width="@dimen/rank_avatar_size_mini"
+        android:layout_height="@dimen/rank_avatar_size_mini"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        android:src="@drawable/ic_user"
+        app:strokeColor="@color/white_20"
+        app:strokeWidth="1dp" />
+
+    <!-- NAME & VALUE (Stacked) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_mini_rank_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Commander"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_body_sm"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/pretendard"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_mini_rank_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="999"
+            android:textColor="@color/white_40"
+            android:textSize="@dimen/text_size_caption"
+            android:fontFamily="@font/pretendard" />
+    </LinearLayout>
+
+    <!-- RANK POSITION (Right Side) -->
+    <TextView
+        android:id="@+id/tv_mini_rank_pos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_xs"
+        android:text="1"
+        android:textColor="@color/white_40"
+        android:textSize="@dimen/text_size_body_md"
+        android:fontFamily="@font/pretendard"
+        android:textStyle="bold"
+        android:gravity="end"
+        android:minWidth="24dp" />
+
+</LinearLayout>

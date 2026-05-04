@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.airbnb.lottie.LottieAnimationView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,6 +83,7 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
             int value = entry.optInt("value", 0);
             android.content.Context context = holder.itemView.getContext();
+            holder.ivTypeIcon.cancelAnimation();
             switch (rankType) {
                 case "level": 
                     holder.tvValue.setText(context.getString(R.string.rank_label_level_format, value));
@@ -99,7 +101,12 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
                     break;
                 case "streak":
                     holder.tvValue.setText(context.getString(R.string.rank_label_streak_format, value));
-                    holder.ivTypeIcon.setImageResource(R.drawable.ic_streak_fire);
+                    holder.ivTypeIcon.setAnimation(R.raw.streak_animation);
+                    holder.ivTypeIcon.setMinAndMaxFrame(0, 24);
+                    if (!holder.ivTypeIcon.isAnimating()) {
+                        holder.ivTypeIcon.playAnimation();
+                    }
+                    com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(holder.ivTypeIcon, value);
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
             }
@@ -123,10 +130,12 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
         
         TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
         TextView tvBest = view.findViewById(R.id.tv_best_streak);
-        ImageView ivIcon = view.findViewById(R.id.iv_streak_icon);
-        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
-
+        com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
+        ivIcon.setMinAndMaxFrame(0, 24);
+        ivIcon.playAnimation();
         int currentStreak = entry.optInt("value", 0);
+        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
+        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
         tvCurrent.setText(context.getString(R.string.rank_label_streak_format, currentStreak));
         
         // Vẽ vời: Record giả lập hoặc lấy từ data nếu có
@@ -160,7 +169,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
     static class RankViewHolder extends RecyclerView.ViewHolder {
         TextView tvPosition, tvName, tvValue;
-        ImageView ivAvatar, ivTypeIcon;
+        ImageView ivAvatar;
+        LottieAnimationView ivTypeIcon;
         View layoutRankValueContainer;
 
         RankViewHolder(View itemView) {

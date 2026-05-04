@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Bong bóng đơn giản nhất - Chỉ dùng tông trắng trong suốt -->
+    
+    <!-- Lớp mờ ảo bên trong -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="40dp"
+                android:centerX="0.3"
+                android:centerY="0.3"
+                android:startColor="#1AFFFFFF"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <!-- Vệt sáng lung linh xoay nhẹ -->
+    <item android:top="4dp" android:left="4dp" android:right="4dp" android:bottom="4dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="30dp"
+                android:centerX="0.5"
+                android:centerY="0.5"
+                android:startColor="#26FFFFFF"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+</layer-list>

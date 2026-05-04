@@ -24,6 +24,9 @@
     <dimen name="spacing_24dp">24dp</dimen>
     
     <dimen name="icon_size_16dp">16dp</dimen>
+    <dimen name="icon_size_20dp">20dp</dimen>
+    <dimen name="icon_size_24dp">24dp</dimen>
+    <dimen name="icon_size_32dp">32dp</dimen>
     <dimen name="icon_size_52dp">52dp</dimen>
     <dimen name="divider_height_l">40dp</dimen>
     <dimen name="stroke_thin">1dp</dimen>
@@ -32,6 +35,7 @@
     <!-- Standard Text Sizes -->
     <dimen name="text_9sp">9sp</dimen>
     <dimen name="text_10sp">10sp</dimen>
+    <dimen name="text_11sp">11sp</dimen>
     <dimen name="text_12sp">12sp</dimen>
     <dimen name="text_14sp">14sp</dimen>
     <dimen name="text_16sp">16sp</dimen>
@@ -46,7 +50,7 @@
     <dimen name="home_currency_icon_size">28dp</dimen>
     <dimen name="home_token_padding_horizontal">12dp</dimen>
     <dimen name="home_token_padding_vertical">4dp</dimen>
-    <dimen name="home_banner_height">192dp</dimen>
+    <dimen name="home_banner_height">96dp</dimen>
     <dimen name="home_banner_margin_horizontal">16dp</dimen>
     <dimen name="home_banner_margin_top">8dp</dimen>
     <dimen name="home_banner_corner">16dp</dimen>
@@ -61,12 +65,25 @@
     <dimen name="home_hud_spacing">12dp</dimen>
     <dimen name="home_dot_size">8dp</dimen>
     <dimen name="home_dot_spacing">6dp</dimen>
+    <dimen name="home_avatar_stroke_hud">1.5dp</dimen>
+    <dimen name="home_streak_value_text_size">22sp</dimen>
+    <dimen name="home_chat_avatar_size">28dp</dimen>
+    <dimen name="home_chat_send_icon_size">24dp</dimen>
+    <dimen name="home_chat_text_size">13sp</dimen>
 
-    <!-- Prominent Header & HUD Panel V5.3 -->
-    <dimen name="home_avatar_size_prominent">80dp</dimen>
-    <dimen name="home_avatar_glow_prominent">90dp</dimen>
-    <dimen name="home_hud_panel_margin">16dp</dimen>
-    <dimen name="home_hud_panel_offset">12dp</dimen>
+    <!-- Notification Bar (Reverted to Quiet Luxury standard) -->
+    <dimen name="home_notification_height">32dp</dimen>
+    <dimen name="home_notification_text_size">11sp</dimen>
+    <dimen name="home_notification_icon_size">14dp</dimen>
+    <dimen name="home_notification_margin_top">4dp</dimen>
+
+
+    <!-- Header Pill HUD V3.5 -->
+    <dimen name="home_header_pill_height">64dp</dimen>
+    <dimen name="home_header_pill_radius_head">32dp</dimen>
+    <dimen name="home_header_avatar_size_hud">54dp</dimen>
+    <dimen name="home_xp_bar_height">4dp</dimen>
+    <dimen name="home_currency_icon_size_hud">14dp</dimen>
 
     <!-- Global Icon Standards — One variable to rule them all! -->
     <!-- Hạ icon_size_sm xuống 18dp để cân đối giao diện -->
@@ -162,10 +179,12 @@
     <!-- Apple Border Radius Scale -->
     <dimen name="radius_none">0dp</dimen>
     <dimen name="radius_xs">5dp</dimen>
+    <dimen name="radius_s">8dp</dimen>
     <dimen name="radius_sm">8dp</dimen>
     <dimen name="radius_m">12dp</dimen>
     <dimen name="radius_md">11dp</dimen>
     <dimen name="radius_lg">18dp</dimen>
+    <dimen name="radius_xl">32dp</dimen>
     <dimen name="radius_pill">999dp</dimen>
     
     <dimen name="elevation_m">8dp</dimen>
@@ -185,7 +204,7 @@
 
     <!-- Home Quick Tools (Scaled +25%) -->
     <dimen name="home_quick_tool_fab_size">60dp</dimen>
-    <dimen name="home_quick_tool_icon_size">38dp</dimen>
+    <dimen name="home_quick_tool_icon_size">50dp</dimen>
     <dimen name="home_quick_tool_text_size">11sp</dimen>
     <dimen name="home_quick_tool_spacing">10dp</dimen>
     <dimen name="planet_base_size">400dp</dimen>
@@ -197,6 +216,7 @@
     <dimen name="rank_item_padding_v">12dp</dimen>
     <dimen name="rank_item_padding_h">14dp</dimen>
     <dimen name="rank_avatar_size">42dp</dimen>
+    <dimen name="rank_avatar_size_mini">32dp</dimen>
 
     <!-- Profile Preview Dimensions -->
     <dimen name="profile_preview_min_height">550dp</dimen>

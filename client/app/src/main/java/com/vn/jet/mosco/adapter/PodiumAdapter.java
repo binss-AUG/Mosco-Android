@@ -10,6 +10,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.airbnb.lottie.LottieAnimationView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -99,10 +100,12 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
         }
     }
 
-    private void bindPillar(Context context, JSONObject user, ImageView ivAvatar, TextView tvName, TextView tvValue, ImageView ivType) {
+    private void bindPillar(Context context, JSONObject user, ImageView ivAvatar, TextView tvName, TextView tvValue, LottieAnimationView ivType) {
         tvName.setText(user.optString("ingameName", "Unknown"));
         
         int value = user.optInt("value", 0);
+        ivType.cancelAnimation();
+        
         switch (rankType) {
             case "level": 
                 tvValue.setText(context.getString(R.string.rank_label_level_format, value)); 
@@ -120,7 +123,9 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
                 break;
             case "streak":
                 tvValue.setText(context.getString(R.string.rank_label_streak_format, value));
-                ivType.setImageResource(R.drawable.ic_streak_fire);
+                ivType.setAnimation(R.raw.streak_animation);
+                ivType.setProgress(0.5f);
+                ivType.pauseAnimation();
                 ivType.setVisibility(View.VISIBLE);
                 break;
         }
@@ -214,7 +219,7 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
     static class PodiumViewHolder extends RecyclerView.ViewHolder {
         View layoutGold, layoutSilver, layoutBronze;
         ImageView ivAvatarGold, ivAvatarSilver, ivAvatarBronze;
-        ImageView ivTypeGold, ivTypeSilver, ivTypeBronze;
+        LottieAnimationView ivTypeGold, ivTypeSilver, ivTypeBronze;
         TextView tvNameGold, tvNameSilver, tvNameBronze;
         TextView tvValueGold, tvValueSilver, tvValueBronze;
         View flAvatarGold, flAvatarSilver, flAvatarBronze;

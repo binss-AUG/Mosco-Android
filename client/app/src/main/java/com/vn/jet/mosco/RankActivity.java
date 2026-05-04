@@ -97,7 +97,7 @@ public class RankActivity extends AppCompatActivity {
         TextView tvName = cardMyRank.findViewById(R.id.tv_rank_name);
         TextView tvValue = cardMyRank.findViewById(R.id.tv_rank_value);
         ImageView ivAvatar = cardMyRank.findViewById(R.id.iv_rank_avatar);
-        ImageView ivType = cardMyRank.findViewById(R.id.iv_rank_type_icon);
+        com.airbnb.lottie.LottieAnimationView ivType = cardMyRank.findViewById(R.id.iv_rank_type_icon);
 
         try {
             if (userRankData == null) {
@@ -129,6 +129,7 @@ public class RankActivity extends AppCompatActivity {
             tvName.setText(userRankData.optString("ingameName", "Unknown"));
             
             int value = userRankData.optInt("value", 0);
+            if (ivType != null) ivType.cancelAnimation();
             switch (rankType) {
                 case "level": 
                     tvValue.setText(getString(R.string.rank_label_level_format, value)); 
@@ -151,7 +152,12 @@ public class RankActivity extends AppCompatActivity {
                 case "streak":
                     tvValue.setText(getString(R.string.rank_label_streak_format, value));
                     if (ivType != null) {
-                        ivType.setImageResource(R.drawable.ic_streak_fire);
+                        ivType.setAnimation(R.raw.streak_animation);
+                        ivType.setMinAndMaxFrame(0, 24);
+                        if (!ivType.isAnimating()) {
+                            ivType.playAnimation();
+                        }
+                        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivType, value);
                         ivType.setVisibility(View.VISIBLE);
                     }
                     break;

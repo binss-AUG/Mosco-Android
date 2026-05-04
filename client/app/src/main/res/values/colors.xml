@@ -67,6 +67,13 @@
     <color name="quick_tool_formation">#00F2FF</color> <!-- Neon Blue -->
     <color name="quick_tool_friends">#9C27B0</color> <!-- Purple -->
     <color name="quick_tool_gift">#FF6B9D</color> <!-- Rose Pink -->
+    
+    <!-- Iridescent Bubble Palette -->
+    <color name="bubble_iri_pink">#66FF00D4</color>
+    <color name="bubble_iri_cyan">#6600F2FF</color>
+    <color name="bubble_iri_violet">#668A2BE2</color>
+    <color name="bubble_iri_gold">#66FFD700</color>
+    <color name="bubble_iri_emerald">#6600FF88</color>
 
     <!-- Matte Obsidian Gradient -->
     <color name="obsidian_start">#161622</color>
@@ -122,6 +129,7 @@
     <color name="planet_terra_green">#228B22</color>
     <color name="galactic_accent_purple">#8A2BE2</color>
     <color name="galactic_accent_orange">#FF4500</color>
+    <color name="galactic_accent_cyan">#00E5FF</color>
     <!-- Daily Check-in Sessions (Refined Luxury Muted Palette) -->
     <color name="daily_morning_accent">#00E5FF</color>
     <color name="daily_morning_bg">#05101E</color>

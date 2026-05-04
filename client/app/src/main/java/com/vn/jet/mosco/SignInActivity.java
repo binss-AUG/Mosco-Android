@@ -52,7 +52,7 @@ public class SignInActivity extends AppCompatActivity {
     private TextView tvGoToSignUp;
     private android.widget.CheckBox cbRememberMe;
     private Button btnSignIn;
-    private ProgressBar loadingProgress;
+    private com.airbnb.lottie.LottieAnimationView loadingProgress;
 
     private SignInViewModel viewModel;
     private SessionManager sessionManager;

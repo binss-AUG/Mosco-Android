@@ -80,7 +80,7 @@
         android:focusable="true"
         android:background="?attr/selectableItemBackground">
         
-        <ImageView
+        <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/iv_rank_type_icon"
             android:layout_width="16dp"
             android:layout_height="16dp"

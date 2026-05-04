@@ -18,24 +18,29 @@ public class NumberUtils {
     public static String format(Context context, long value) {
         if (context == null) return String.valueOf(value);
 
+        java.util.Locale locale = java.util.Locale.US;
+
         if (value >= 999_950_000_000L) {
-            return String.format(context.getString(R.string.home_format_currency_trillions), value / 1_000_000_000_000.0);
+            return String.format(locale, context.getString(R.string.home_format_currency_trillions), value / 1_000_000_000_000.0);
         } else if (value >= 999_950_000L) {
-            return String.format(context.getString(R.string.home_format_currency_billions), value / 1_000_000_000.0);
+            return String.format(locale, context.getString(R.string.home_format_currency_billions), value / 1_000_000_000.0);
         } else if (value >= 999_950L) {
-            return String.format(context.getString(R.string.home_format_currency_millions), value / 1_000_000.0);
+            return String.format(locale, context.getString(R.string.home_format_currency_millions), value / 1_000_000.0);
         } else if (value >= 999L) {
-            return String.format(context.getString(R.string.home_format_currency_thousands), value / 1_000.0);
+            return String.format(locale, context.getString(R.string.home_format_currency_thousands), value / 1_000.0);
         } else {
             return String.valueOf(value);
         }
     }
 
     /**
-     * Định dạng số có dấu phân cách nghìn (Ví dụ: 1,000,000).
-     * Dùng cho những chỗ cần hiển thị chính xác con số.
+     * Định dạng số có dấu phân cách nghìn (Ví dụ: 1.000.000).
+     * Cưỡng bức dùng dấu chấm (.) để thống nhất phong cách Luxury.
      */
     public static String formatFull(long value) {
-        return String.format("%,d", value);
+        java.text.DecimalFormatSymbols symbols = new java.text.DecimalFormatSymbols(java.util.Locale.US);
+        symbols.setGroupingSeparator('.');
+        java.text.DecimalFormat df = new java.text.DecimalFormat("#,###", symbols);
+        return df.format(value);
     }
 }

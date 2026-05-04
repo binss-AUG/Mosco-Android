@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 
+        Asymmetric Pill Shape for Mosco HUD (No Hardcoding)
+        Left: Semi-circle (Head)
+        Right: Standard Rounded (Body)
+    -->
+    <corners
+        android:topLeftRadius="@dimen/home_header_pill_radius_head"
+        android:bottomLeftRadius="@dimen/home_header_pill_radius_head"
+        android:topRightRadius="@dimen/radius_m"
+        android:bottomRightRadius="@dimen/radius_m" />
+    
+    <solid android:color="@color/white_05" />
+    
+    <stroke
+        android:width="@dimen/stroke_thin"
+        android:color="@color/white_10" />
+</shape>
