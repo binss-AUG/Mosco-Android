@@ -6,6 +6,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public class DatabaseLoader {
 
     private static final String TAG = "DatabaseLoader";
     private static final String FILE_NAME = "database.json";
+    private static final String INTERNAL_DB_NAME = "database_sync.json";
+    private static final String PREF_DB_VERSION = "db_version_hash";
 
     // Cached list to avoid re-reading the 7MB file every time
     private static List<JSONObject> cachedCards = null;
@@ -155,7 +158,9 @@ public class DatabaseLoader {
                 String json = loadJSONFromAsset(context, FILE_NAME);
                 if (json != null) {
                     JSONObject root = new JSONObject(json);
-                    JSONArray cardsArray = root.optJSONArray("cards");
+                    JSONArray cardsArray = root.optJSONArray("collections");
+                    if (cardsArray == null) cardsArray = root.optJSONArray("cards");
+
                     if (cardsArray != null) {
                         int len = cardsArray.length();
                         java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(len);
@@ -163,6 +168,7 @@ public class DatabaseLoader {
                             JSONObject card = cardsArray.optJSONObject(i);
                             if (card != null) {
                                 String id = card.optString("id");
+                                if (id.isEmpty()) id = card.optString("collectionId");
                                 if (!id.isEmpty()) tempMasterMap.put(id, card);
                             }
                         }
@@ -181,16 +187,56 @@ public class DatabaseLoader {
 
     private static String loadJSONFromAsset(Context context, String fileName) {
         try {
-            InputStream is = context.getAssets().open(fileName);
+            InputStream is;
+            File internalFile = new File(context.getFilesDir(), INTERNAL_DB_NAME);
+            
+            if (internalFile.exists() && internalFile.length() > 0) {
+                Log.d(TAG, "Loading Galactic Database from Internal Storage (Dynamic Sync)");
+                is = new java.io.FileInputStream(internalFile);
+            } else {
+                Log.d(TAG, "Loading Galactic Database from Assets (Default)");
+                is = context.getAssets().open(fileName);
+            }
+
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
             return new String(buffer, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            Log.e(TAG, "Error reading asset: " + fileName, e);
+            Log.e(TAG, "Error reading database: " + fileName, e);
             return null;
         }
+    }
+
+    /**
+     * Cập nhật file database mới từ server vào Internal Storage.
+     */
+    public static boolean updateInternalDatabase(Context context, String json, String versionHash) {
+        try {
+            File internalFile = new File(context.getFilesDir(), INTERNAL_DB_NAME);
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(internalFile);
+            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+            
+            // Lưu lại hash version để lần sau không tải lại
+            context.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
+                    .edit().putString(PREF_DB_VERSION, versionHash).apply();
+            
+            Log.d(TAG, "Galactic Database Updated Successfully to version: " + versionHash);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to update internal database", e);
+            return false;
+        }
+    }
+
+    /**
+     * Lấy version hiện tại đang lưu ở máy.
+     */
+    public static String getLocalDatabaseVersion(Context context) {
+        return context.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
+                .getString(PREF_DB_VERSION, "0");
     }
 
     /**
@@ -356,13 +402,15 @@ public class DatabaseLoader {
     }
 
     public static List<JSONObject> loadEveryCard(Context context) {
+        if (cachedAllCardsRaw != null) return cachedAllCardsRaw;
+        
         List<JSONObject> cards = new ArrayList<>();
         try {
             String json = loadJSONFromAsset(context, FILE_NAME);
             if (json != null) {
                 JSONObject root = new JSONObject(json);
                 JSONArray array = root.optJSONArray("collections");
-                if (array == null) array = root.optJSONArray("cards"); // Hỗ trợ cả 2 định dạng
+                if (array == null) array = root.optJSONArray("cards");
                 
                 if (array != null) {
                     for (int i = 0; i < array.length(); i++) {
@@ -370,6 +418,7 @@ public class DatabaseLoader {
                         if (card != null) cards.add(card);
                     }
                 }
+                cachedAllCardsRaw = cards;
             }
         } catch (Exception e) {
             Log.e(TAG, "Lỗi loadEveryCard: " + e.getMessage());

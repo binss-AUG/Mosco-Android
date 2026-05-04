@@ -60,6 +60,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     // ── Constants ──
     private static final int BANNER_AUTO_SCROLL_DELAY = 4000;
     private static final int RANK_AUTO_SCROLL_DELAY = 6000;
+    private static final int MIN_SKELETON_DURATION = 1500; // Thời gian tối thiểu hiện Skeleton (Luxury feel)
 
     // ── UI References ──
     private TextView tvUsername, tvCoins, tvDiamonds, tvUserId, tvNotification, tvLevel, tvXpVal;
@@ -70,6 +71,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private LinearLayout llBannerDots;
     private View flAvatarGroup;
     private com.scwang.smart.refresh.layout.SmartRefreshLayout swipeRefreshLayout;
+    private com.facebook.shimmer.ShimmerFrameLayout shimmerHome;
+    private View clRealContent;
+    
+    private boolean isUserStatsLoaded = false;
+    private boolean isRankLoaded = false;
     private boolean isDataLoaded = false;
     
     // Dashboard Modules
@@ -98,6 +104,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private Runnable rankRunnable;
     private MiniRankPagerAdapter miniRankAdapter;
     private final Map<String, List<JSONObject>> rankDataCache = new HashMap<>();
+    private long skeletonStartTime = 0;
 
     // ── Services ──
     private SessionManager sessionManager;
@@ -112,6 +119,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        skeletonStartTime = System.currentTimeMillis();
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
         initServices();
@@ -129,6 +137,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         loadMiniRankData();
         startRankAutoScroll();
         startQuickToolAnimations(view);
+        
+        // Bắt đầu Shimmer ngay khi mở fragment
+        if (shimmerHome != null) shimmerHome.startShimmer();
         
         return view;
     }
@@ -298,6 +309,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         lottieModuleStreakGlow = v.findViewById(R.id.lottie_module_streak_glow);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
         btnFullRank = v.findViewById(R.id.btn_home_full_rank);
+        
+        shimmerHome = v.findViewById(R.id.shimmer_home);
+        clRealContent = v.findViewById(R.id.cl_real_content);
     }
 
     private void initServices() {
@@ -351,6 +365,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void loadMiniRankData() {
+        isRankLoaded = false;
         String[] types = {"level", "collection", "wealth", "streak"};
         for (String type : types) {
             fetchRankTop5(type);
@@ -381,6 +396,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                             }
                             rankDataCache.put(type, list);
                             if (miniRankAdapter != null) miniRankAdapter.notifyDataSetChanged();
+                            
+                            // Coi như đã load xong Rank khi có ít nhất 1 loại dữ liệu về (để không bắt user đợi quá lâu)
+                            isRankLoaded = true;
+                            checkAndShowContent();
                         }
                     }
                 } catch (Exception e) { Log.e(TAG, "Mini rank error: " + type, e); }
@@ -556,6 +575,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void loadUserData() {
+        isUserStatsLoaded = false;
         if (sessionManager == null || gameApiService == null) return;
         try {
             String displayName = sessionManager.getIngameName();
@@ -587,10 +607,15 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                     if (response.isSuccessful() && response.body() != null) {
                         UserStats stats = response.body();
                         bindCurrency(stats.getCoins(), stats.getDiamonds(), stats.getStreak(), stats.getBestStreak(), stats.getStreakRestoresThisMonth(), stats.getLevel(), stats.getExp());
+                        isUserStatsLoaded = true;
+                        checkAndShowContent();
                     }
                 }
                 @Override
-                public void onFailure(Call<UserStats> call, Throwable t) { }
+                public void onFailure(Call<UserStats> call, Throwable t) {
+                    isUserStatsLoaded = true; 
+                    checkAndShowContent();
+                }
             });
         } catch (Exception e) { Log.e(TAG, "Error data", e); }
     }
@@ -647,6 +672,39 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         this.bestStreakValue = bestStreak;
         this.restoresThisMonth = restores;
+    }
+
+    private void checkAndShowContent() {
+        if (isUserStatsLoaded && isRankLoaded) {
+            long elapsedTime = System.currentTimeMillis() - skeletonStartTime;
+            if (elapsedTime < MIN_SKELETON_DURATION) {
+                // Nếu dữ liệu về quá nhanh, đợi thêm cho đủ thời gian "Luxury"
+                new Handler(Looper.getMainLooper()).postDelayed(this::checkAndShowContent, MIN_SKELETON_DURATION - elapsedTime);
+                return;
+            }
+
+            if (shimmerHome != null && shimmerHome.getVisibility() == View.VISIBLE) {
+                // Hiệu ứng Fade out skeleton và Fade in content
+                clRealContent.setAlpha(0f);
+                clRealContent.setVisibility(View.VISIBLE);
+                
+                clRealContent.animate()
+                        .alpha(1f)
+                        .setDuration(400)
+                        .setListener(null);
+                
+                shimmerHome.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                shimmerHome.stopShimmer();
+                                shimmerHome.setVisibility(View.GONE);
+                            }
+                        });
+            }
+        }
     }
 
     private void showStreakDetail(int currentStreak, int bestStreak, int restores) {

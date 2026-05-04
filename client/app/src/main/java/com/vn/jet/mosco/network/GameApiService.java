@@ -213,4 +213,14 @@ public interface GameApiService {
 
     @GET("/api/stage/my-sessions/{userId}")
     Call<List<com.vn.jet.mosco.dto.StageSessionResponse>> getMyStageSessions(@Path("userId") Long userId);
+
+    // ══════════════════════════════════════════════════════════════
+    //  CONFIG & SYNC — Đồng bộ cấu hình động
+    // ══════════════════════════════════════════════════════════════
+
+    @GET("/api/config/db-version")
+    Call<Map<String, String>> getDatabaseVersion();
+
+    @GET("/api/config/db-download")
+    Call<ResponseBody> downloadDatabase();
 }
