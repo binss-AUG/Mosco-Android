@@ -45,7 +45,7 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
     private TextInputEditText edtDisplayName;
     private TextInputLayout tilDisplayName;
     private View btnEnter;
-    private ProgressBar loadingProgress;
+    private com.airbnb.lottie.LottieAnimationView loadingProgress;
     private View welcomeOverlay;
     private TextView tvWelcome;
     private com.airbnb.lottie.LottieAnimationView lottieConfetti;

@@ -117,7 +117,7 @@
             app:layout_constraintStart_toStartOf="@+id/block_silver"
             app:layout_constraintTop_toTopOf="@+id/block_silver">
 
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/iv_type_silver"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
@@ -247,7 +247,7 @@
             app:layout_constraintStart_toStartOf="@+id/block_bronze"
             app:layout_constraintTop_toTopOf="@+id/block_bronze">
 
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/iv_type_bronze"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
@@ -385,7 +385,7 @@
             app:layout_constraintStart_toStartOf="@+id/block_gold"
             app:layout_constraintTop_toTopOf="@+id/block_gold">
 
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/iv_type_gold"
                 android:layout_width="18dp"
                 android:layout_height="18dp"

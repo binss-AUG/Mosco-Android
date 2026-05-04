@@ -158,7 +158,7 @@ public class RankService {
                 .map(u -> {
                     Map<String, Object> map = new java.util.HashMap<>();
                     map.put("userId", u.getId());
-                    map.put("username", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                    map.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
                     map.put("value", u.getBestStreak()); // Hiển thị kỷ lục
                     map.put("currentStreak", u.getStreak()); // Để client dùng nếu cần
                     map.put("avatarId", u.getAvatarId());

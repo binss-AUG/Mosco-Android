@@ -44,7 +44,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText edtPassword, edtConfirmPassword;
     private TextInputLayout tilUsername, tilEmail, tilVerificationCode, tilPassword, tilConfirmPassword;
     private Button btnSendCode, btnSignUp;
-    private ProgressBar loadingProgress;
+    private com.airbnb.lottie.LottieAnimationView loadingProgress;
     private TextView tvGoToSignIn;
 
     private SignUpViewModel viewModel;

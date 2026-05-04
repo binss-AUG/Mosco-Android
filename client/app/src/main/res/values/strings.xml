@@ -55,6 +55,12 @@
     <string name="home_label_id_format">ID: %s</string>
     <string name="home_toast_copy_success">ID Copied: %s</string>
     <string name="home_msg_copy_clipboard_label">UserID</string>
+    <string name="home_default_xp">0.00%%</string>
+    <string name="home_default_currency">0</string>
+    <string name="home_default_streak">0 DAYS</string>
+    <string name="home_format_streak_days">%d DAYS</string>
+    <string name="home_notification_ticker">GALACTIC NEWS: New sector discovered in the Andromeda fringe. Elite commanders wanted for exploration.</string>
+    <string name="home_chat_input_hint">Type message to global fleet…</string>
     <string name="home_showcase_loading_msg">Loading Showcase...</string>
     <string name="home_format_currency_trillions">%.1fT</string>
     <string name="home_format_currency_billions">%.1fB</string>
@@ -408,4 +414,20 @@
     <string name="daily_afternoon_desc">Take a midday break and gather extra resources for your journey.</string>
     <string name="daily_evening_desc">End your day perfectly with our most valuable rewards.</string>
     <string name="daily_status_claimed">CLAIMED</string>
+
+    <!-- Home Ranking Module -->
+    <string name="home_rank_wealth_title">WEALTH RANK</string>
+    <string name="home_rank_level_title">LEVEL RANK</string>
+    <string name="home_rank_label_rank">RANK</string>
+    <string name="home_rank_label_wealth">WEALTH</string>
+    <string name="home_rank_label_level">LEVEL</string>
+    <string name="home_module_station_pending">STATION\nPENDING</string>
+    <string name="home_module_open_ranking">OPEN RANKING CENTER</string>
+    <string name="home_module_streaks">STREAKS</string>
+    <string name="home_module_top_streakers">TOP STREAKERS</string>
+    <string name="home_mini_rank_level">TOP COMMANDERS</string>
+    <string name="home_mini_rank_album">TOP COLLECTORS</string>
+    <string name="home_mini_rank_wealth">TOP FLEET WEALTH</string>
+    <string name="home_notification_default">Welcome Commander to the Mosco system. Have a great day!</string>
+    <string name="home_chat_hint">Tap to send a message...</string>
 </resources>

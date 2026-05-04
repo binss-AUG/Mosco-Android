@@ -1,0 +1,26 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Glass Background -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_m" />
+            <gradient
+                android:angle="135"
+                android:endColor="#1AFFFFFF"
+                android:startColor="#0DFFFFFF" />
+            <stroke
+                android:width="1dp"
+                android:color="#1AFFFFFF" />
+        </shape>
+    </item>
+    
+    <!-- Subtle Inner Pattern (Simulated with a gradient) -->
+    <item android:top="20dp" android:left="20dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="100dp"
+                android:startColor="#0800E5FF"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+</layer-list>
