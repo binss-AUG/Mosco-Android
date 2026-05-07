@@ -30,6 +30,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private List<CollectionEntry> list;
     private final OnBookCardClickListener listener;
     private boolean isLoading = false;
+    private boolean isPagingLoading = false;
 
     /** Callback khi user click vào 1 thẻ trong Album */
     public interface OnBookCardClickListener {
@@ -46,16 +47,27 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
-    /** Cập nhật dữ liệu mới (sau khi filter hoặc API trả về) */
     public void updateData(List<CollectionEntry> newList) {
         this.list = newList;
         this.isLoading = false;
+        this.isPagingLoading = false;
         notifyDataSetChanged();
+    }
+
+    public void setPagingLoading(boolean loading) {
+        if (this.isPagingLoading == loading) return;
+        this.isPagingLoading = loading;
+        if (loading) {
+            notifyItemRangeInserted(list == null ? 0 : list.size(), 3);
+        } else {
+            notifyItemRangeRemoved(list == null ? 0 : list.size(), 3);
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
         if (isLoading) return VIEW_TYPE_SKELETON;
+        if (list != null && position >= list.size()) return VIEW_TYPE_SKELETON;
         return VIEW_TYPE_ITEM;
     }
 
@@ -96,15 +108,9 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     vh.tvOvr.setVisibility(View.GONE);
                 }
 
-                // Hiện Level badge
+                // Ẩn Level badge (Album không cần hiển thị cấp độ)
                 if (vh.ivLevel != null) {
-                    if (entry.getLevel() > 0) {
-                        String assetPath = "file:///android_asset/grade/" + entry.getLevel() + ".png";
-                        Glide.with(ctx).load(assetPath).into(vh.ivLevel);
-                        vh.ivLevel.setVisibility(View.VISIBLE);
-                    } else {
-                        vh.ivLevel.setVisibility(View.GONE);
-                    }
+                    vh.ivLevel.setVisibility(View.GONE);
                 }
 
                 if (vh.cvCard != null) {
@@ -138,7 +144,9 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public int getItemCount() {
         if (isLoading) return 12;
-        return list != null ? list.size() : 0;
+        int count = list == null ? 0 : list.size();
+        if (isPagingLoading) count += 3;
+        return count;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

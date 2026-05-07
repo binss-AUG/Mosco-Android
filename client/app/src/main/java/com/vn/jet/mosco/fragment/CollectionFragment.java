@@ -1474,6 +1474,9 @@ public class CollectionFragment extends Fragment {
         private TextView tvProgress, tvCount;
         private android.widget.ProgressBar progressBar;
         private List<com.vn.jet.mosco.model.CollectionEntry> originalEntries = new ArrayList<>();
+        private List<com.vn.jet.mosco.model.CollectionEntry> currentFilteredList = new ArrayList<>();
+        private int currentLimit = 18;
+        private boolean isPagingLoading = false;
         private int totalCards = 0;
         private int ownedCount = 0;
 
@@ -1507,7 +1510,39 @@ public class CollectionFragment extends Fragment {
             adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
             rvAlbum.setAdapter(adapter);
 
+            rvAlbum.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (dy > 0 && !isPagingLoading) {
+                        GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+                        if (layoutManager != null && layoutManager.findLastVisibleItemPosition() >= adapter.getItemCount() - 3) {
+                            loadNextPage();
+                        }
+                    }
+                }
+            });
+
             loadCollectionBook();
+        }
+
+        private void loadNextPage() {
+            if (currentLimit >= currentFilteredList.size() || isPagingLoading) return;
+
+            isPagingLoading = true;
+            if (adapter != null) adapter.setPagingLoading(true);
+
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                if (!isAdded()) return;
+                currentLimit += 18;
+                int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+
+                if (adapter != null) {
+                    adapter.setPagingLoading(false);
+                    adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+                }
+                isPagingLoading = false;
+            }, 400); // Khựng 1 nhịp 400ms để tạo cảm giác load
         }
 
         /**
@@ -1733,8 +1768,11 @@ public class CollectionFragment extends Fragment {
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        if (adapter != null) adapter.updateData(filtered);
-                        if (tvCount != null) tvCount.setText(filtered.size() + " Cards");
+                        currentFilteredList = filtered;
+                        currentLimit = 18;
+                        int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+                        if (adapter != null) adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+                        if (tvCount != null) tvCount.setText(currentFilteredList.size() + " Cards");
                     });
                 }
             }).start();
