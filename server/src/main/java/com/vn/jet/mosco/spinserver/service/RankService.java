@@ -1,169 +1,94 @@
 package com.vn.jet.mosco.spinserver.service;
 
 import com.vn.jet.mosco.spinserver.model.User;
-import com.vn.jet.mosco.spinserver.model.UserCard;
-import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Service xử lý logic Bảng xếp hạng (Leaderboard).
- * 
- * 3 loại ranking:
- *   1. LEVEL: Top 10 user có level cao nhất
- *   2. OVR: Top 10 user có OVR cao nhất (OVR = OVR tổ của Objet to nhất đang có)
- *   3. COLLECTION: Top 10 user có nhiều thẻ không trùng nhất (count distinct collectionId)
- *
- * OVR được tính bằng CardDataService.getOvr() — Server là nguồn sự thật duy nhất.
+ * Service xử lý logic Bảng xếp hạng (Leaderboard) sử dụng Redis ZSET.
+ * Đảm bảo hiệu năng realtime cho 20.000+ người chơi.
  */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class RankService {
 
-    private static final Logger logger = LoggerFactory.getLogger(RankService.class);
-
     private final UserRepository userRepository;
-    private final UserCardRepository userCardRepository;
-    private final CardDataService cardDataService;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public RankService(UserRepository userRepository, UserCardRepository userCardRepository, CardDataService cardDataService) {
-        this.userRepository = userRepository;
-        this.userCardRepository = userCardRepository;
-        this.cardDataService = cardDataService;
-    }
+    private static final String RANK_KEY_LEVEL = "rank:level";
+    private static final String RANK_KEY_OVR = "rank:ovr";
+    private static final String RANK_KEY_COLLECTION = "rank:collection";
+    private static final String RANK_KEY_WEALTH = "rank:wealth";
+    private static final String RANK_KEY_STREAK = "rank:streak";
 
     /**
-     * Top 10 user theo Level (cao nhất trước).
+     * Cập nhật điểm số của User lên Redis ZSET.
+     * Cần được gọi mỗi khi User thay đổi chỉ số (Level up, nạp coin, cào thẻ...).
      */
+    public void updateUserRank(User user, long maxOvr, long distinctCollection) {
+        ZSetOperations<String, String> zSet = redisTemplate.opsForZSet();
+        String userIdStr = user.getId().toString();
+
+        zSet.add(RANK_KEY_LEVEL, userIdStr, user.getExp());
+        zSet.add(RANK_KEY_OVR, userIdStr, maxOvr);
+        zSet.add(RANK_KEY_COLLECTION, userIdStr, distinctCollection);
+        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getDiamonds());
+        zSet.add(RANK_KEY_STREAK, userIdStr, user.getBestStreak());
+    }
+
     public List<Map<String, Object>> getTopByLevel() {
-        List<User> allUsers = userRepository.findAll();
-
-        // Sắp xếp theo exp giảm dần (Exp đại diện cho Level thực tế), lấy top 10
-        return allUsers.stream()
-                .sorted(Comparator.comparingLong(User::getExp).reversed())
-                .limit(10)
-                .map(user -> {
-                    Map<String, Object> entry = new LinkedHashMap<>();
-                    entry.put("userId", user.getId());
-                    entry.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
-                    entry.put("avatarId", user.getAvatarId());
-                    
-                    // Lấy level chuẩn từ Entity (đã được bọc logic dynamic)
-                    entry.put("value", user.getLevel());
-                    
-                    return entry;
-                })
-                .collect(Collectors.toList());
+        return getTopFromRedis(RANK_KEY_LEVEL);
     }
 
-    /**
-     * Top 10 user theo OVR (cao nhất trước).
-     * OVR = OVR tổ của Objet to nhất đang có (cardDataService.getOvr).
-     */
     public List<Map<String, Object>> getTopByOvr() {
-        List<User> allUsers = userRepository.findAll();
-        List<Map<String, Object>> rankings = new ArrayList<>();
+        return getTopFromRedis(RANK_KEY_OVR);
+    }
 
-        for (User user : allUsers) {
-            List<UserCard> cards = userCardRepository.findByUserId(user.getId());
-            int maxOvr = 0;
+    public List<Map<String, Object>> getTopByCollection() {
+        return getTopFromRedis(RANK_KEY_COLLECTION);
+    }
 
-            // Tìm thẻ có OVR cao nhất trong kho của user
-            for (UserCard card : cards) {
-                int ovr = cardDataService.getOvr(card.getCollectionId(), card.getUpgradeLevel());
-                if (ovr > maxOvr) {
-                    maxOvr = ovr;
+    public List<Map<String, Object>> getTopByWealth() {
+        return getTopFromRedis(RANK_KEY_WEALTH);
+    }
+
+    public List<Map<String, Object>> getTopByStreak() {
+        return getTopFromRedis(RANK_KEY_STREAK);
+    }
+
+    private List<Map<String, Object>> getTopFromRedis(String key) {
+        Set<ZSetOperations.TypedTuple<String>> topEntries = redisTemplate.opsForZSet()
+                .reverseRangeWithScores(key, 0, 9);
+
+        if (topEntries == null || topEntries.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return topEntries.stream().map(tuple -> {
+            Long userId = Long.valueOf(tuple.getValue());
+            User user = userRepository.findById(userId).orElse(null);
+            Map<String, Object> map = new HashMap<>();
+            if (user != null) {
+                map.put("userId", userId);
+                map.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
+                map.put("avatarId", user.getAvatarId());
+                
+                // Trả về giá trị điểm số
+                if (key.equals(RANK_KEY_LEVEL)) {
+                    map.put("value", user.getLevel());
+                } else {
+                    map.put("value", tuple.getScore().intValue());
                 }
             }
-
-            // Chỉ xếp hạng user có ít nhất 1 thẻ
-            if (maxOvr > 0) {
-                Map<String, Object> entry = new LinkedHashMap<>();
-                entry.put("userId", user.getId());
-                entry.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
-                entry.put("avatarId", user.getAvatarId());
-                entry.put("value", maxOvr);
-                rankings.add(entry);
-            }
-        }
-
-        // Sắp xếp giảm dần, lấy top 10
-        rankings.sort((a, b) -> Integer.compare((int) b.get("value"), (int) a.get("value")));
-        return rankings.size() > 10 ? rankings.subList(0, 10) : rankings;
-    }
-
-    /**
-     * Top 10 user theo số thẻ không trùng (Collection = COUNT DISTINCT collectionId).
-     */
-    public List<Map<String, Object>> getTopByCollection() {
-        List<User> allUsers = userRepository.findAll();
-        List<Map<String, Object>> rankings = new ArrayList<>();
-
-        for (User user : allUsers) {
-            List<UserCard> cards = userCardRepository.findByUserId(user.getId());
-
-            // Đếm số collectionId không trùng
-            long distinctCount = cards.stream()
-                    .map(UserCard::getCollectionId)
-                    .distinct()
-                    .count();
-
-            if (distinctCount > 0) {
-                Map<String, Object> entry = new LinkedHashMap<>();
-                entry.put("userId", user.getId());
-                entry.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
-                entry.put("avatarId", user.getAvatarId());
-                entry.put("value", (int) distinctCount);
-                rankings.add(entry);
-            }
-        }
-
-        rankings.sort((a, b) -> Integer.compare((int) b.get("value"), (int) a.get("value")));
-        return rankings.size() > 10 ? rankings.subList(0, 10) : rankings;
-    }
-
-    /**
-     * Top 10 user theo tổng tài sản (Wealth = Diamonds).
-     */
-    public List<Map<String, Object>> getTopByWealth() {
-        List<User> allUsers = userRepository.findAll();
-
-        return allUsers.stream()
-                .filter(user -> user.getDiamonds() > 0)
-                .sorted(Comparator.comparingLong(User::getDiamonds).reversed())
-                .limit(10)
-                .map(user -> {
-                    Map<String, Object> entry = new LinkedHashMap<>();
-                    entry.put("userId", user.getId());
-                    entry.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
-                    entry.put("avatarId", user.getAvatarId());
-                    entry.put("value", user.getDiamonds());
-                    return entry;
-                })
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Top 10 user theo Chuỗi đăng nhập (Streak).
-     */
-    public List<Map<String, Object>> getTopByStreak() {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getBestStreak() > 0)
-                .sorted((u1, u2) -> Integer.compare(u2.getBestStreak(), u1.getBestStreak()))
-                .limit(10)
-                .map(u -> {
-                    Map<String, Object> map = new java.util.HashMap<>();
-                    map.put("userId", u.getId());
-                    map.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
-                    map.put("value", u.getBestStreak()); // Hiển thị kỷ lục
-                    map.put("currentStreak", u.getStreak()); // Để client dùng nếu cần
-                    map.put("avatarId", u.getAvatarId());
-                    return map;
-                })
-                .collect(java.util.stream.Collectors.toList());
+            return map;
+        }).filter(m -> !m.isEmpty()).collect(Collectors.toList());
     }
 }
