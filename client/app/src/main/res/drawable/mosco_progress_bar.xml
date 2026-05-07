@@ -3,8 +3,8 @@
     <!-- Background track -->
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
-            <corners android:radius="12dp" />
-            <solid android:color="#33FFFFFF" />
+            <corners android:radius="@dimen/radius_lg" />
+            <solid android:color="@color/mosco_white_20" />
         </shape>
     </item>
 
@@ -12,13 +12,14 @@
     <item android:id="@android:id/progress">
         <clip>
             <shape android:shape="rectangle">
-                <corners android:radius="12dp" />
+                <corners android:radius="@dimen/radius_lg" />
                 <gradient
                     android:angle="0"
                     android:endColor="#9547f7"
-                    android:startColor="#6c29fd"
+                    android:startColor="@color/mosco_primary"
                     android:type="linear" />
             </shape>
         </clip>
     </item>
 </layer-list>
+

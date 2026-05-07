@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="@string/title_sign_up"
+                    android:text="@string/auth_title_sign_up"
                     android:textSize="@dimen/text_size_h1_xl" />
 
                 <TextView
@@ -64,7 +64,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:alpha="0.7"
-                    android:text="@string/subtitle_sign_up"
+                    android:text="@string/auth_subtitle_sign_up"
                     android:textSize="@dimen/text_size_hud_small" />
 
                 <LinearLayout
@@ -82,7 +82,7 @@
                         style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_username" />
+                        android:text="@string/auth_label_username" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_username"
                         android:layout_width="match_parent"
@@ -98,16 +98,16 @@
                             android:id="@+id/edt_username"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_user"
-                            android:drawablePadding="15dp"
-                            android:hint="@string/prompt_username"
+                            android:drawablePadding="@dimen/spacing_15dp"
+                            android:hint="@string/auth_prompt_username"
                             android:imeOptions="actionNext"
                             android:inputType="textPersonName"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_email"
-                            android:paddingStart="15dp"
+                            android:paddingStart="@dimen/spacing_15dp"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -118,7 +118,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/label_email" />
+                        android:text="@string/auth_label_email" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_email"
                         style="@style/MoscoTextInputLayout"
@@ -133,16 +133,16 @@
                             android:id="@+id/edt_email"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_email"
-                            android:drawablePadding="15dp"
-                            android:hint="@string/prompt_email"
+                            android:drawablePadding="@dimen/spacing_15dp"
+                            android:hint="@string/auth_prompt_email"
                             android:imeOptions="actionNext"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_password"
-                            android:paddingStart="15dp"
+                            android:paddingStart="@dimen/spacing_15dp"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -153,7 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/label_password" />
+                        android:text="@string/auth_label_password" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_password"
                         android:layout_width="match_parent"
@@ -171,17 +171,17 @@
                             android:id="@+id/edt_password"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_sm"
-                            android:hint="@string/prompt_password"
+                            android:hint="@string/auth_prompt_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_confirm_password"
-                            android:paddingEnd="15dp"
-                            android:paddingStart="15dp"
+                            android:paddingEnd="@dimen/spacing_15dp"
+                            android:paddingStart="@dimen/spacing_15dp"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -192,7 +192,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/label_confirm_password" />
+                        android:text="@string/auth_label_confirm_password" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_confirm_password"
                         android:layout_width="match_parent"
@@ -210,17 +210,17 @@
                             android:id="@+id/edt_confirm_password"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_sm"
-                            android:hint="@string/prompt_confirm_password"
+                            android:hint="@string/auth_prompt_confirm_password"
                             android:imeOptions="actionNext"
                             android:inputType="textPassword"
                             android:maxLines="1"
                             android:nextFocusForward="@id/btn_send_code"
-                            android:paddingEnd="15dp"
-                            android:paddingStart="15dp"
+                            android:paddingEnd="@dimen/spacing_15dp"
+                            android:paddingStart="@dimen/spacing_15dp"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -231,7 +231,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/label_verification_code" />
+                        android:text="@string/auth_label_verification_code" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -256,31 +256,31 @@
                                 android:id="@+id/edt_verification_code"
                                 style="@style/MoscoText.Luxury.Input"
                                 android:layout_width="match_parent"
-                                android:layout_height="52dp"
+                                android:layout_height="@dimen/spacing_52dp"
                                 android:background="@drawable/bg_glass_input"
                                 android:drawableStart="@drawable/ic_shield_check"
-                                android:drawablePadding="15dp"
-                                android:hint="@string/prompt_verification_code"
+                                android:drawablePadding="@dimen/spacing_15dp"
+                                android:hint="@string/auth_prompt_verification_code"
                                 android:imeOptions="actionDone"
                                 android:inputType="number"
                                 android:maxLength="6"
                                 android:maxLines="1"
                                 android:nextFocusForward="@id/btn_signup"
-                                android:paddingStart="15dp"
+                                android:paddingStart="@dimen/spacing_15dp"
                                 android:textCursorDrawable="@null" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btn_send_code"
                             style="@style/MoscoText.Luxury.Label"
-                            android:layout_width="100dp"
-                            android:layout_height="52dp"
+                            android:layout_width="@dimen/spacing_100dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_shop_buy_btn"
                             android:stateListAnimator="@animator/btn_scale_anim"
-                            android:text="@string/action_send_code"
+                            android:text="@string/auth_action_send_code"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/text_size_body"
                             app:elevation="0dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -291,13 +291,13 @@
                         android:id="@+id/btn_signup"
                         style="@style/MoscoText.Luxury.Button.Primary"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="@dimen/spacing_56dp"
                         android:layout_marginTop="@dimen/spacing_xl"
                         android:background="@drawable/bg_btn_luxury_action"
                         android:elevation="@dimen/spacing_xxs"
                         android:nextFocusForward="@id/tv_go_to_signin"
                         android:stateListAnimator="@animator/luxury_button_state_animator"
-                        android:text="@string/action_sign_up" />
+                        android:text="@string/auth_action_sign_up" />
 
                     <!-- OR Divider -->
                     <LinearLayout
@@ -309,7 +309,7 @@
 
                         <View
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="@dimen/stroke_thin"
                             android:layout_weight="1"
                             android:background="@color/white_10" />
 
@@ -318,12 +318,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="@dimen/spacing_md"
-                            android:text="@string/label_or_continue_with"
+                            android:text="@string/auth_label_or_continue"
                             android:textSize="@dimen/text_size_body_xs" />
 
                         <View
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="@dimen/stroke_thin"
                             android:layout_weight="1"
                             android:background="@color/white_10" />
                     </LinearLayout>
@@ -370,8 +370,8 @@
                     android:layout_marginTop="@dimen/spacing_xl"
                     android:focusable="true"
                     android:nextFocusForward="@id/btn_back"
-                    android:text="@string/msg_already_have_account"
-                    android:textSize="14sp" />
+                    android:text="@string/auth_msg_already_have_account"
+                    android:textSize="@dimen/text_size_body_lg" />
 
             </LinearLayout>
 
@@ -380,8 +380,8 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/loading_progress"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="@dimen/spacing_120dp"
+        android:layout_height="@dimen/spacing_120dp"
         android:layout_gravity="center"
         app:lottie_rawRes="@raw/loading"
         app:lottie_autoPlay="true"
@@ -389,3 +389,4 @@
         android:visibility="gone" />
 
 </FrameLayout>
+

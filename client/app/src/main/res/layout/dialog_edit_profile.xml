@@ -4,15 +4,15 @@
     android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    app:cardBackgroundColor="#1A1C29"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    app:cardBackgroundColor="@color/mosco_card_bg"
+    app:cardCornerRadius="@dimen/spacing_md"
+    app:cardElevation="@dimen/spacing_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_lg">
 
         <TextView
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:id="@+id/til_edit_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/spacing_20dp"
             app:boxBackgroundMode="none"
             app:hintEnabled="false"
             app:errorEnabled="true"
@@ -38,17 +38,17 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_edit_username"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="@dimen/spacing_52dp"
                 android:background="@drawable/bg_glass_input"
                 android:drawableStart="@drawable/ic_user"
-                android:drawablePadding="12dp"
+                android:drawablePadding="@dimen/radius_lg"
                 style="@style/MoscoText.Luxury.Body"
-                android:hint="@string/prompt_username"
+                android:hint="@string/auth_prompt_username"
                 android:inputType="textPersonName"
                 android:maxLines="1"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:textColorHint="#80FFFFFF"
+                android:paddingStart="@dimen/spacing_15dp"
+                android:paddingEnd="@dimen/spacing_15dp"
+                android:textColorHint="@color/mosco_white_50"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/text_size_body_sm" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -58,26 +58,26 @@
             android:id="@+id/til_edit_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/radius_lg"
             app:boxBackgroundMode="none"
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_edit_email"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="@dimen/spacing_52dp"
                 android:background="@drawable/bg_glass_input"
                 android:drawableStart="@drawable/ic_email"
-                android:drawablePadding="12dp"
+                android:drawablePadding="@dimen/radius_lg"
                 android:enabled="false"
                 android:alpha="0.5"
                 style="@style/MoscoText.Luxury.Body"
-                android:hint="@string/prompt_email"
+                android:hint="@string/auth_prompt_email"
                 android:inputType="none"
                 android:maxLines="1"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:textColorHint="#80FFFFFF"
+                android:paddingStart="@dimen/spacing_15dp"
+                android:paddingEnd="@dimen/spacing_15dp"
+                android:textColorHint="@color/mosco_white_50"
                 android:textSize="@dimen/text_size_body_sm" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -86,7 +86,7 @@
             android:id="@+id/til_edit_display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/radius_lg"
             app:boxBackgroundMode="none"
             app:hintEnabled="false"
             app:errorEnabled="true"
@@ -99,18 +99,18 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_edit_display_name"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="@dimen/spacing_52dp"
                 android:background="@drawable/bg_glass_input"
                 android:drawableStart="@drawable/ic_profile"
-                android:drawablePadding="12dp"
+                android:drawablePadding="@dimen/radius_lg"
                 style="@style/MoscoText.Luxury.Body"
-                android:hint="@string/prompt_display_name"
+                android:hint="@string/setup_prompt_display_name"
                 android:inputType="text"
                 android:maxLength="16"
                 android:maxLines="1"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
-                android:textColorHint="#80FFFFFF"
+                android:paddingStart="@dimen/spacing_15dp"
+                android:paddingEnd="@dimen/spacing_15dp"
+                android:textColorHint="@color/mosco_white_50"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/text_size_body_sm" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -119,32 +119,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:gravity="end"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/spacing_xxl"
                 android:background="@android:color/transparent"
-                android:text="@string/dialog_cancel"
+                android:text="@string/action_cancel"
                 style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="16dp"
+                android:paddingHorizontal="@dimen/spacing_md"
                 android:textAllCaps="false"
-                android:textColor="#A2A2A7"
+                android:textColor="@color/mosco_text_disabled"
                 android:textSize="@dimen/text_size_body_sm" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_save"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="12dp"
+                android:layout_height="@dimen/spacing_xxl"
+                android:layout_marginStart="@dimen/radius_lg"
                 android:background="@drawable/bg_button"
-                android:backgroundTint="#8A2BE2"
-                android:text="@string/profile_save"
+                android:backgroundTint="@color/mosco_card_stroke"
+                android:text="@string/action_save"
                 style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="20dp"
+                android:paddingHorizontal="@dimen/spacing_20dp"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_body_sm"
@@ -154,3 +154,5 @@
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+
+

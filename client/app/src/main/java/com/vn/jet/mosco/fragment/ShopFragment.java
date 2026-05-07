@@ -81,8 +81,8 @@ public class ShopFragment extends Fragment {
 
         tvCoins    = root.findViewById(R.id.tv_coins);
         tvDiamonds = root.findViewById(R.id.tv_diamonds);
-        tvCoins.setText("0");
-        tvDiamonds.setText("0");
+        tvCoins.setText(getString(R.string.placeholder_empty));
+        tvDiamonds.setText(getString(R.string.placeholder_empty));
     }
 
     private void fetchUserResources() {
@@ -93,8 +93,8 @@ public class ShopFragment extends Fragment {
             @Override
             public void onResponse(Call<UserStats> call, Response<UserStats> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    tvCoins.setText(NumberUtils.format(getContext(), response.body().getCoins()));
-                    tvDiamonds.setText(NumberUtils.format(getContext(), response.body().getDiamonds()));
+                    tvCoins.setText(NumberUtils.format(requireContext(), response.body().getCoins()));
+                    tvDiamonds.setText(NumberUtils.format(requireContext(), response.body().getDiamonds()));
                 }
             }
             @Override
@@ -115,7 +115,7 @@ public class ShopFragment extends Fragment {
             }
             @Override
             public void onFailure(Call<List<ShopItem>> call, Throwable t) {
-                Toast.makeText(requireContext(), "Error loading shop", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.shop_error_load), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -173,7 +173,7 @@ public class ShopFragment extends Fragment {
     private void executePurchase(ShopItem item, int quantity) {
         Long userId = sessionManager.getUserId();
         if (userId == null) {
-            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.shop_msg_login_first), Toast.LENGTH_SHORT).show();
             return;
         }
         
@@ -185,13 +185,13 @@ public class ShopFragment extends Fragment {
                     showSuccessDialog(item, quantity);
                     fetchUserResources(); // Refresh coins and diamonds
                 } else {
-                    Toast.makeText(requireContext(), "Purchase failed: Not enough resources", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.shop_msg_purchase_failed), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(requireContext(), "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -210,7 +210,7 @@ public class ShopFragment extends Fragment {
         com.google.android.material.button.MaterialButton btnUse = dialog.findViewById(R.id.btn_use_now);
         com.google.android.material.button.MaterialButton btnOk = dialog.findViewById(R.id.btn_ok);
 
-        tvMessage.setText("You bought " + quantity + "x " + item.getName());
+        tvMessage.setText(getString(R.string.shop_format_buy_success, quantity, item.getName()));
 
         String itemType = item.getType() != null ? item.getType().toUpperCase() : "";
         boolean isResource = itemType.equals("RESOURCE");
@@ -254,9 +254,9 @@ public class ShopFragment extends Fragment {
                                 .commit();
                     }
                 } else if (itemType.equals("OBJET")) {
-                    Toast.makeText(requireContext(), getString(R.string.reveal_only_pack_supported), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.reveal_error_only_packs), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "Used " + quantity + "x " + item.getName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.shop_format_used, quantity, item.getName()), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -302,9 +302,9 @@ public class ShopFragment extends Fragment {
                 long days = hours / 24;
                 tvTimer.setVisibility(View.VISIBLE);
                 if (days > 0) {
-                    tvTimer.setText("⏳ Ends in " + days + " days");
+                    tvTimer.setText(getString(R.string.shop_format_timer_days, (int)days));
                 } else {
-                    tvTimer.setText("⏳ Ends in " + hours + " hours");
+                    tvTimer.setText(getString(R.string.shop_format_timer_hours, (int)hours));
                 }
             } else {
                 tvTimer.setVisibility(View.GONE);
@@ -318,7 +318,7 @@ public class ShopFragment extends Fragment {
 
         Runnable updatePrice = () -> {
             long total = (priceD > 0 ? priceD : priceC) * qty[0];
-            tvTotalPrice.setText(NumberUtils.format(getContext(), total));
+            tvTotalPrice.setText(NumberUtils.format(requireContext(), total));
         };
         updatePrice.run(); // Initial calculation
 
@@ -352,13 +352,13 @@ public class ShopFragment extends Fragment {
 
         btnConfirm.setOnClickListener(v -> {
             new android.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Confirm Purchase")
-                    .setMessage("Do you want to buy " + qty[0] + "x " + item.getName() + " for " + tvTotalPrice.getText().toString() + "?")
-                    .setPositiveButton("Buy", (dialogInterface, i) -> {
+                    .setTitle(getString(R.string.shop_dialog_buy_confirm_title))
+                    .setMessage(getString(R.string.shop_dialog_buy_confirm_msg, qty[0], item.getName(), tvTotalPrice.getText().toString()))
+                    .setPositiveButton(getString(R.string.action_buy), (dialogInterface, i) -> {
                         dialog.dismiss();
                         executePurchase(item, qty[0]);
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(getString(R.string.action_cancel), null)
                     .show();
         });
 
@@ -395,9 +395,9 @@ public class ShopFragment extends Fragment {
                     long days = hours / 24;
                     h.tvTimer.setVisibility(View.VISIBLE);
                     if (days > 0) {
-                        h.tvTimer.setText("⏳ Ends in " + days + " days");
+                        h.tvTimer.setText(getString(R.string.shop_format_timer_days, (int)days));
                     } else {
-                        h.tvTimer.setText("⏳ Ends in " + hours + " hours");
+                        h.tvTimer.setText(getString(R.string.shop_format_timer_hours, (int)hours));
                     }
                 } else {
                     h.tvTimer.setVisibility(View.INVISIBLE);

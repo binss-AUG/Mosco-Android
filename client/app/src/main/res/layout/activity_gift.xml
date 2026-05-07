@@ -28,9 +28,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/gift_daily_limit_label"
+            android:text="@string/social_label_gift_limit"
             style="@style/MoscoText.Luxury.Badge"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_xs"
             android:textStyle="bold"
             android:letterSpacing="0.05" />
@@ -51,13 +51,13 @@
         android:id="@+id/tab_layout_gift"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_header_gift_container"
         app:tabIndicatorColor="@color/mosco_primary"
-        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
         app:tabSelectedTextColor="@color/mosco_primary"
         app:tabTextColor="@color/mosco_text_disabled"
@@ -71,7 +71,7 @@
         android:id="@+id/fl_gift_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/spacing_xs"
         app:layout_constraintTop_toBottomOf="@id/tab_layout_gift"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingVertical="12dp">
+                android:paddingVertical="@dimen/radius_lg">
 
                 <TextView
                     android:id="@+id/tv_step_1"
@@ -104,10 +104,10 @@
                     android:textStyle="bold" />
 
                 <View
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="#33FFFFFF" />
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/stroke_thin"
+                    android:layout_marginHorizontal="@dimen/spacing_sm"
+                    android:background="@color/mosco_white_20" />
 
                 <TextView
                     android:id="@+id/tv_step_2"
@@ -120,10 +120,10 @@
                     android:textStyle="bold" />
 
                 <View
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="#33FFFFFF" />
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/stroke_thin"
+                    android:layout_marginHorizontal="@dimen/spacing_sm"
+                    android:background="@color/mosco_white_20" />
 
                 <TextView
                     android:id="@+id/tv_step_3"
@@ -161,11 +161,11 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="8dp"
-                        app:cardBackgroundColor="#2A2A3A"
-                        app:strokeColor="#33FFFFFF"
-                        app:strokeWidth="1dp"
+                        app:cardCornerRadius="@dimen/spacing_md"
+                        app:cardElevation="@dimen/spacing_sm"
+                        app:cardBackgroundColor="@color/mosco_card_bg_variant"
+                        app:strokeColor="@color/mosco_white_20"
+                        app:strokeWidth="@dimen/stroke_thin"
                         android:visibility="gone">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -186,9 +186,9 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="10dp"
-                        app:cardBackgroundColor="#D91A1C29"
+                        app:cardCornerRadius="@dimen/spacing_md"
+                        app:cardElevation="@dimen/spacing_10dp"
+                        app:cardBackgroundColor="@color/mosco_card_bg"
                         android:clickable="true"
                         android:focusable="true">
 
@@ -197,8 +197,8 @@
                             android:layout_height="match_parent">
 
                             <FrameLayout
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
+                                android:layout_width="@dimen/spacing_60dp"
+                                android:layout_height="@dimen/spacing_60dp"
                                 android:layout_gravity="center"
                                 android:background="@drawable/bg_circle_dark">
 
@@ -208,7 +208,7 @@
                                     android:layout_gravity="center"
                                     android:text="+"
                                     android:textColor="@color/white"
-                                    android:textSize="32sp" />
+                                    android:textSize="@dimen/text_size_h1_xl" />
                             </FrameLayout>
                         </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -217,9 +217,9 @@
                         android:id="@+id/tv_selected_card_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="@dimen/radius_lg"
                         style="@style/MoscoText.Luxury.Body"
-                        android:textColor="#BDBDBD"
+                        android:textColor="@color/palette_gray_300"
                         android:textSize="@dimen/text_size_badge"
                         android:textAlignment="center"
                         android:visibility="gone"
@@ -232,10 +232,10 @@
                         android:id="@+id/btn_step1_next"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="@dimen/spacing_lg"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp"
+                        app:cardCornerRadius="@dimen/radius_lg"
+                        app:cardElevation="@dimen/spacing_xs"
                         app:cardBackgroundColor="@color/mosco_primary"
                         android:clickable="true"
                         android:focusable="true"
@@ -247,13 +247,13 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/gift_next"
+                            android:text="@string/action_next"
                             style="@style/MoscoText.Luxury.Button"
                             android:textSize="@dimen/text_size_body_md"
                             android:textStyle="bold"
                             android:fontWeight="700"
                             android:textAlignment="center"
-                            android:paddingVertical="14dp" />
+                            android:paddingVertical="@dimen/spacing_14dp" />
                     </com.google.android.material.card.MaterialCardView>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -263,7 +263,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="@dimen/spacing_20dp"
                     android:visibility="gone">
 
                     <!-- Search Bar (Synced with Friend Activity) -->
@@ -271,24 +271,24 @@
                         android:id="@+id/card_gift_search_friend"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginHorizontal="4dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp"
-                        app:cardBackgroundColor="#CC1A1C29"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:layout_marginHorizontal="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/radius_lg"
+                        app:cardElevation="@dimen/spacing_xs"
+                        app:cardBackgroundColor="@color/mosco_card_bg"
                         app:strokeColor="@color/galactic_accent_purple"
-                        app:strokeWidth="1dp">
+                        app:strokeWidth="@dimen/stroke_thin">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp">
+                            android:paddingHorizontal="@dimen/spacing_md"
+                            android:paddingVertical="@dimen/spacing_sm">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="@dimen/spacing_20dp"
+                                android:layout_height="@dimen/spacing_20dp"
                                 android:src="@drawable/ic_search"
                                 app:tint="@color/galactic_accent_purple" />
 
@@ -297,9 +297,9 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:layout_marginStart="12dp"
-                                android:hint="@string/friend_search_hint"
-                                android:textColorHint="#99A2A2A7"
+                                android:layout_marginStart="@dimen/radius_lg"
+                                android:hint="@string/social_search_hint"
+                                android:textColorHint="@color/mosco_text_disabled"
                                 android:textColor="@color/white"
                                 style="@style/MoscoText.Luxury.Body"
                                 android:textSize="@dimen/text_size_body_md"
@@ -315,18 +315,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/spacing_sm"
                         android:clipToPadding="false"
-                        android:paddingBottom="80dp" />
+                        android:paddingBottom="@dimen/spacing_80dp" />
 
                     <TextView
                         android:id="@+id/tv_no_friends"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="@string/gift_no_friends"
+                        android:text="@string/gift_empty_friends"
                         style="@style/MoscoText.Luxury.Body"
-                        android:textColor="#A2A2A7"
+                        android:textColor="@color/mosco_text_disabled"
                         android:textSize="@dimen/text_size_body_md"
                         android:visibility="gone" />
 
@@ -334,7 +334,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="@dimen/spacing_md"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
                         android:gravity="center"
                         android:orientation="horizontal">
@@ -345,26 +345,26 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="#2A2A3A"
-                            app:strokeColor="#484847"
-                            app:strokeWidth="1dp"
+                            android:layout_marginEnd="@dimen/spacing_sm"
+                            app:cardCornerRadius="@dimen/radius_lg"
+                            app:cardElevation="@dimen/spacing_2dp"
+                            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+                            app:strokeColor="@color/palette_obsidian_300"
+                            app:strokeWidth="@dimen/stroke_thin"
                             android:clickable="true"
                             android:focusable="true">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/gift_previous"
+                                android:text="@string/action_previous"
                                 style="@style/MoscoText.Luxury.Button"
-                                android:textColor="#A2A2A7"
+                                android:textColor="@color/mosco_text_disabled"
                                 android:textSize="@dimen/text_size_body_sm"
                                 android:textStyle="bold"
                                 android:fontWeight="700"
                                 android:textAlignment="center"
-                                android:paddingVertical="14dp" />
+                                android:paddingVertical="@dimen/spacing_14dp" />
                         </com.google.android.material.card.MaterialCardView>
 
                         <!-- Next Button -->
@@ -373,9 +373,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp"
+                            android:layout_marginStart="@dimen/spacing_sm"
+                            app:cardCornerRadius="@dimen/radius_lg"
+                            app:cardElevation="@dimen/spacing_xs"
                             app:cardBackgroundColor="@color/mosco_primary"
                             android:clickable="true"
                             android:focusable="true"
@@ -384,12 +384,12 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/gift_next"
+                                android:text="@string/action_next"
                                 style="@style/MoscoText.Luxury.Button"
                                 android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold"
                                 android:textAlignment="center"
-                                android:paddingVertical="14dp" />
+                                android:paddingVertical="@dimen/spacing_14dp" />
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
                 </LinearLayout>
@@ -401,14 +401,14 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:paddingHorizontal="32dp"
+                    android:paddingHorizontal="@dimen/spacing_xl"
                     android:visibility="gone">
 
                     <!-- Avatars & XML Arrows Container (No card here as requested) -->
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="64dp">
+                        android:layout_marginTop="@dimen/spacing_64dp">
 
                         <!-- Sender (Left) -->
                         <LinearLayout
@@ -424,12 +424,12 @@
                             app:layout_constraintHorizontal_chainStyle="packed">
 
                             <com.google.android.material.card.MaterialCardView
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                app:cardCornerRadius="32dp"
-                                app:cardElevation="4dp"
+                                android:layout_width="@dimen/spacing_64dp"
+                                android:layout_height="@dimen/spacing_64dp"
+                                app:cardCornerRadius="@dimen/spacing_xl"
+                                app:cardElevation="@dimen/spacing_xs"
                                 app:strokeWidth="1.5dp"
-                                app:strokeColor="#2E7D32">
+                                app:strokeColor="@color/palette_green_forest">
                                 <ImageView
                                     android:id="@+id/iv_sender_avatar_img"
                                     android:layout_width="match_parent"
@@ -442,20 +442,20 @@
                                 android:id="@+id/tv_sender_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/spacing_sm"
                                 android:text="You"
                                 style="@style/MoscoText.Luxury.Badge"
-                                android:textColor="#BDBDBD"
-                                android:textSize="10sp"
+                                android:textColor="@color/palette_gray_300"
+                                android:textSize="@dimen/text_size_caption"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
                         <!-- XML Arrows (Triple Neon) -->
                         <ImageView
                             android:id="@+id/iv_confirm_arrows"
-                            android:layout_width="60dp"
-                            android:layout_height="24dp"
-                            android:layout_marginHorizontal="24dp"
+                            android:layout_width="@dimen/spacing_60dp"
+                            android:layout_height="@dimen/spacing_lg"
+                            android:layout_marginHorizontal="@dimen/spacing_lg"
                             android:src="@drawable/ic_triple_arrow_neon"
                             app:layout_constraintStart_toEndOf="@id/layout_confirm_sender"
                             app:layout_constraintEnd_toStartOf="@+id/layout_confirm_receiver"
@@ -475,12 +475,12 @@
                             app:layout_constraintBottom_toBottomOf="parent">
 
                             <com.google.android.material.card.MaterialCardView
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                app:cardCornerRadius="32dp"
-                                app:cardElevation="4dp"
+                                android:layout_width="@dimen/spacing_64dp"
+                                android:layout_height="@dimen/spacing_64dp"
+                                app:cardCornerRadius="@dimen/spacing_xl"
+                                app:cardElevation="@dimen/spacing_xs"
                                 app:strokeWidth="1.5dp"
-                                app:strokeColor="#D32F2F">
+                                app:strokeColor="@color/palette_red_accent">
                                 <ImageView
                                     android:id="@+id/iv_confirm_friend_avatar"
                                     android:layout_width="match_parent"
@@ -493,10 +493,10 @@
                                 android:id="@+id/tv_confirm_friend_name"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/spacing_sm"
                                 style="@style/MoscoText.Luxury.Badge"
                                 android:textColor="@color/white"
-                                android:textSize="10sp"
+                                android:textSize="@dimen/text_size_caption"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -506,19 +506,19 @@
                         android:id="@+id/layout_gift_cost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="32dp"
+                        android:layout_marginTop="@dimen/spacing_xl"
                         android:gravity="center"
                         android:background="@drawable/bg_header_glass_v2"
-                        android:paddingVertical="12dp"
-                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="@dimen/radius_lg"
+                        android:paddingHorizontal="@dimen/spacing_md"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/gift_cost_label"
+                            android:text="@string/gift_label_cost"
                             style="@style/MoscoText.Luxury.Badge"
-                            android:textColor="#A2A2A7"
+                            android:textColor="@color/mosco_text_disabled"
                             android:textSize="@dimen/text_size_mini"
                             android:textStyle="bold"
                             android:fontWeight="700"
@@ -527,19 +527,19 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="@dimen/spacing_sm"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="@dimen/spacing_20dp"
+                                android:layout_height="@dimen/spacing_20dp"
                                 android:src="@drawable/ic_item_coin" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
+                                android:layout_marginStart="@dimen/spacing_sm"
                                 android:text="36,000"
                                 style="@style/MoscoText.Luxury.Body"
                                 android:textColor="@color/mosco_primary"
@@ -549,22 +549,22 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="8dp"
+                                android:layout_marginHorizontal="@dimen/spacing_sm"
                                 android:text="+"
                                 android:textColor="#555555" />
 
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
+                                android:layout_width="@dimen/spacing_md"
+                                android:layout_height="@dimen/spacing_md"
                                 android:src="@drawable/ic_item_diamond" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
+                                android:layout_marginStart="@dimen/spacing_sm"
                                 android:text="36"
                                 style="@style/MoscoText.Luxury.Body"
-                                android:textColor="#00E5FF"
+                                android:textColor="@color/palette_cyan_neon"
                                 android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -580,7 +580,7 @@
                         android:id="@+id/layout_confirm_actions"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="@dimen/spacing_lg"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
                         android:gravity="center"
                         android:orientation="horizontal">
@@ -591,25 +591,25 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="#2A2A3A"
-                            app:strokeColor="#484847"
-                            app:strokeWidth="1dp"
+                            android:layout_marginEnd="@dimen/spacing_sm"
+                            app:cardCornerRadius="@dimen/radius_lg"
+                            app:cardElevation="@dimen/spacing_2dp"
+                            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+                            app:strokeColor="@color/palette_obsidian_300"
+                            app:strokeWidth="@dimen/stroke_thin"
                             android:clickable="true"
                             android:focusable="true">
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/gift_previous"
+                                android:text="@string/action_previous"
                                 style="@style/MoscoText.Luxury.Button"
-                                android:textColor="#A2A2A7"
+                                android:textColor="@color/mosco_text_disabled"
                                 android:textSize="@dimen/text_size_body_sm"
                                 android:textStyle="bold"
                                 android:textAlignment="center"
-                                android:paddingVertical="14dp" />
+                                android:paddingVertical="@dimen/spacing_14dp" />
                         </com.google.android.material.card.MaterialCardView>
 
                         <!-- Send Button -->
@@ -618,9 +618,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="4dp"
+                            android:layout_marginStart="@dimen/spacing_sm"
+                            app:cardCornerRadius="@dimen/radius_lg"
+                            app:cardElevation="@dimen/spacing_xs"
                             app:cardBackgroundColor="@color/mosco_primary"
                             android:clickable="true"
                             android:focusable="true">
@@ -628,12 +628,12 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/gift_send"
+                                android:text="@string/gift_action_send"
                                 style="@style/MoscoText.Luxury.Button"
                                 android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold"
                                 android:textAlignment="center"
-                                android:paddingVertical="14dp" />
+                                android:paddingVertical="@dimen/spacing_14dp" />
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
 
@@ -642,10 +642,10 @@
                         android:id="@+id/btn_confirm_done"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="@dimen/spacing_lg"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp"
+                        app:cardCornerRadius="@dimen/radius_lg"
+                        app:cardElevation="@dimen/spacing_xs"
                         app:cardBackgroundColor="@color/mosco_primary"
                         android:clickable="true"
                         android:focusable="true"
@@ -654,12 +654,12 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/gift_done"
+                            android:text="@string/action_done"
                             style="@style/MoscoText.Luxury.Button"
                             android:textSize="@dimen/text_size_body_md"
                             android:textStyle="bold"
                             android:textAlignment="center"
-                            android:paddingVertical="14dp" />
+                            android:paddingVertical="@dimen/spacing_14dp" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </FrameLayout>
@@ -671,28 +671,32 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp"
+            android:paddingHorizontal="@dimen/spacing_20dp"
             android:visibility="gone">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_gift_received"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:clipToPadding="false"
-                android:paddingBottom="16dp" />
+                android:paddingBottom="@dimen/spacing_md" />
 
             <TextView
                 android:id="@+id/tv_no_gifts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="@string/gift_no_received"
+                android:text="@string/gift_empty_received"
                 style="@style/MoscoText.Luxury.Body"
-                android:textColor="#A2A2A7"
+                android:textColor="@color/mosco_text_disabled"
                 android:textSize="@dimen/text_size_body_md"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+

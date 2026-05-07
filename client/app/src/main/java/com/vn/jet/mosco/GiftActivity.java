@@ -125,7 +125,7 @@ public class GiftActivity extends AppCompatActivity {
     private void initViews() {
         // Header
         findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
-        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.gift_title);
+        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.gift_header_title);
         tvDailyRemaining = findViewById(R.id.tv_daily_remaining);
 
         // Tabs
@@ -297,7 +297,7 @@ public class GiftActivity extends AppCompatActivity {
                 goToStep(3);
                 bindConfirmation();
             } else {
-                Toast.makeText(this, "Please select a friend first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.gift_msg_select_friend_first, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -363,7 +363,7 @@ public class GiftActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Lỗi kết nối", t);
-                Toast.makeText(GiftActivity.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GiftActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -380,10 +380,10 @@ public class GiftActivity extends AppCompatActivity {
 
         btnConfirmSend.setOnClickListener(v -> {
             new android.app.AlertDialog.Builder(this)
-                .setTitle("Confirm Gift")
-                .setMessage("Are you sure you want to send this Objet to " + selectedFriend.optString("ingameName", "this friend") + "?")
-                .setPositiveButton("Send", (d, w) -> executeSendGift())
-                .setNegativeButton("Cancel", null)
+                .setTitle(R.string.gift_dialog_confirm_title)
+                .setMessage(getString(R.string.gift_dialog_confirm_msg, selectedFriend.optString("ingameName", "this friend")))
+                .setPositiveButton(R.string.gift_action_send, (d, w) -> executeSendGift())
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
         });
 
@@ -405,7 +405,7 @@ public class GiftActivity extends AppCompatActivity {
 
         // Sender info & Avatar
         com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(this);
-        tvSenderName.setText(session.getIngameName() != null ? session.getIngameName() : "You");
+        tvSenderName.setText(session.getIngameName() != null ? session.getIngameName() : getString(R.string.common_label_you));
 
         // Load personal avatar
         String myAvatarId = session.getAvatarId();
@@ -466,9 +466,9 @@ public class GiftActivity extends AppCompatActivity {
 
                         // Display Success Dialog
                         new android.app.AlertDialog.Builder(GiftActivity.this)
-                            .setTitle("Success")
+                            .setTitle(R.string.gift_dialog_success_title)
                             .setMessage(msg)
-                            .setPositiveButton("OK", null)
+                            .setPositiveButton(R.string.action_done, null)
                             .show();
                         
                         // Change UI state to Done
@@ -480,12 +480,12 @@ public class GiftActivity extends AppCompatActivity {
                         
                     } else if (response.errorBody() != null) {
                         JSONObject json = new JSONObject(response.errorBody().string());
-                        msg = json.optString("message", "Send failed!");
+                        msg = json.optString("message", getString(R.string.social_msg_request_error));
                         Toast.makeText(GiftActivity.this, msg, Toast.LENGTH_LONG).show();
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error processing response", e);
-                    Toast.makeText(GiftActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GiftActivity.this, R.string.common_error_unknown, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -493,7 +493,7 @@ public class GiftActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 btnConfirmSend.setEnabled(true);
                 Log.e(TAG, "Lỗi kết nối", t);
-                Toast.makeText(GiftActivity.this, "Server connection failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GiftActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -571,7 +571,7 @@ public class GiftActivity extends AppCompatActivity {
                         if (data != null) {
                             int remaining = data.optInt("remaining", 5);
                             int limit = data.optInt("limit", 5);
-                            tvDailyRemaining.setText(remaining + "/" + limit);
+                            tvDailyRemaining.setText(getString(R.string.format_fraction, String.valueOf(remaining), String.valueOf(limit)));
                         }
                     }
                 } catch (Exception e) {
@@ -581,7 +581,7 @@ public class GiftActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                tvDailyRemaining.setText("?/5");
+                tvDailyRemaining.setText(getString(R.string.format_fraction, "?", "5"));
             }
         });
     }

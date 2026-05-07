@@ -8,3 +8,4 @@
         android:fillColor="@color/mosco_on_surface"
         android:pathData="M4,6h16v2L13,14v6l-2,-1v-5L4,8z" />
 </vector>
+

@@ -5,17 +5,17 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_hud_menu_glass"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="@dimen/spacing_lg">
 
     <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="@dimen/spacing_lg">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_title"
+            android:text="@string/settings_header_title"
             style="@style/MoscoText.Luxury.SubHeader"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
@@ -23,8 +23,8 @@
             android:letterSpacing="0.1" />
         <ImageView
             android:id="@+id/btn_close_settings"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/spacing_lg"
+            android:layout_height="@dimen/spacing_lg"
             android:layout_alignParentEnd="true"
             android:src="@drawable/ic_close"
             app:tint="@color/white" />
@@ -33,20 +33,20 @@
     <!-- Theme Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/spacing_64dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/spacing_lg"
+            android:layout_height="@dimen/spacing_lg"
             android:src="@drawable/ic_dark_mode"
             app:tint="@color/white" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="@string/settings_dark_mode"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:text="@string/settings_label_dark_mode"
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
@@ -61,26 +61,26 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#1AFFFFFF" />
+        android:layout_height="@dimen/stroke_thin"
+        android:background="@color/mosco_white_10" />
 
     <!-- Music Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/spacing_64dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/spacing_lg"
+            android:layout_height="@dimen/spacing_lg"
             android:src="@drawable/ic_volume_up"
             app:tint="@color/white" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="@string/settings_music"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:text="@string/settings_label_music"
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
@@ -95,26 +95,26 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#1AFFFFFF" />
+        android:layout_height="@dimen/stroke_thin"
+        android:background="@color/mosco_white_10" />
 
     <!-- SFX Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/spacing_64dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/spacing_lg"
+            android:layout_height="@dimen/spacing_lg"
             android:src="@drawable/ic_volume_up"
             app:tint="@color/white" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="@string/settings_sfx"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:text="@string/settings_label_sfx"
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
@@ -129,14 +129,14 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#1AFFFFFF" />
+        android:layout_height="@dimen/stroke_thin"
+        android:background="@color/mosco_white_10" />
 
     <!-- Storage Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:paddingTop="12dp"
+        android:layout_height="@dimen/spacing_80dp"
+        android:paddingTop="@dimen/radius_lg"
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <LinearLayout
@@ -147,7 +147,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_storage"
+                android:text="@string/settings_label_storage"
                 style="@style/MoscoText.Luxury.Body"
                 android:textSize="@dimen/text_size_body_md"
                 android:textStyle="bold"
@@ -156,7 +156,7 @@
                 android:id="@+id/tv_cache_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Calculating..."
+                android:text="@string/common_msg_loading"
                 style="@style/MoscoText.Luxury.Body"
                 android:textColor="@color/mosco_on_surface_variant"
                 android:textSize="@dimen/text_size_mini" />
@@ -166,7 +166,7 @@
             style="@style/MoscoText.Luxury.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_clear_cache"
+            android:text="@string/settings_action_clear_cache"
             android:textColor="@color/stat_atk"
             android:textSize="@dimen/text_size_badge"
             android:textStyle="bold"
@@ -179,12 +179,14 @@
         android:id="@+id/tv_version_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/spacing_md"
         android:gravity="center"
-        android:text="Mosco Galactic Edition v1.0.0"
+        android:text="@string/common_galactic_edition"
         style="@style/MoscoText.Luxury.Body"
         android:textColor="@color/mosco_outline_variant"
         android:textSize="@dimen/text_size_mini"
         android:alpha="0.5" />
 
 </LinearLayout>
+
+

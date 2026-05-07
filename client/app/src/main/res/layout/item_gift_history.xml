@@ -7,17 +7,17 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_header_glass_v2"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="10dp"
-    android:layout_marginBottom="8dp">
+    android:paddingHorizontal="@dimen/spacing_14dp"
+    android:paddingVertical="@dimen/spacing_10dp"
+    android:layout_marginBottom="@dimen/spacing_sm">
 
     <!-- Card Thumbnail -->
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="48dp"
+        android:layout_width="@dimen/spacing_xxl"
         android:layout_height="74dp"
-        app:cardCornerRadius="6dp"
+        app:cardCornerRadius="@dimen/spacing_6dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#2A2A3A">
+        app:cardBackgroundColor="@color/mosco_card_bg_variant">
 
         <ImageView
             android:id="@+id/iv_gift_card_thumb"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_marginStart="@dimen/radius_lg">
 
         <!-- Tên người gửi/nhận -->
         <TextView
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_mini" />
 
         <!-- Thời gian -->
@@ -62,9 +62,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#666666"
+            android:textColor="@color/palette_gray_800"
             android:textSize="@dimen/text_size_mini"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="@dimen/spacing_2dp" />
     </LinearLayout>
 
     <!-- Badge "NEW" cho quà chưa đọc -->
@@ -74,12 +74,15 @@
         android:layout_height="wrap_content"
         android:text="NEW"
         style="@style/MoscoText.Luxury.Badge"
-        android:textColor="#FF6B9D"
+        android:textColor="@color/quick_tool_gift"
         android:textSize="@dimen/text_size_mini"
         android:textStyle="bold"
         android:fontWeight="700"
         android:visibility="gone"
         android:background="@drawable/bg_header_token"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="2dp" />
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="@dimen/spacing_2dp" />
 </LinearLayout>
+
+
+

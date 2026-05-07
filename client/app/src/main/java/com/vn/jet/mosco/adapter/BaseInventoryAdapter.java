@@ -259,10 +259,10 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private String getMapLocation(String mapId) {
         switch (mapId) {
-            case "1": return mContext.getString(R.string.stage_map_1_loc);
-            case "2": return mContext.getString(R.string.stage_map_2_loc);
-            case "3": return mContext.getString(R.string.stage_map_3_loc);
-            case "4": return mContext.getString(R.string.stage_map_4_loc);
+            case "1": return mContext.getString(R.string.stage_map_1_name);
+            case "2": return mContext.getString(R.string.stage_map_2_name);
+            case "3": return mContext.getString(R.string.stage_map_3_name);
+            case "4": return mContext.getString(R.string.stage_map_4_name);
             default: return "Mission";
         }
     }

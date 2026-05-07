@@ -3,16 +3,16 @@
     <!-- 1. Outer Glow/Stroke for that 'Thickness' premium feel -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="32dp" />
+            <corners android:radius="@dimen/spacing_xl" />
             <solid android:color="#20FF4B4B" /> <!-- Subtle red surrounding glow -->
             <stroke
-                android:width="2dp"
-                android:color="#4DFFFFFF" /> <!-- Glass edge -->
+                android:width="@dimen/spacing_2dp"
+                android:color="@color/mosco_white_30" /> <!-- Glass edge -->
         </shape>
     </item>
 
     <!-- 2. Main Glass Body -->
-    <item android:top="2dp" android:left="2dp" android:right="2dp" android:bottom="2dp">
+    <item android:top="@dimen/spacing_2dp" android:left="@dimen/spacing_2dp" android:right="@dimen/spacing_2dp" android:bottom="@dimen/spacing_2dp">
         <shape android:shape="rectangle">
             <corners android:radius="30dp" />
             <gradient
@@ -26,3 +26,4 @@
         </shape>
     </item>
 </layer-list>
+

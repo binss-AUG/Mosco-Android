@@ -4,26 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
+    android:layout_margin="@dimen/spacing_lg"
     app:cardBackgroundColor="@color/mosco_surface_container"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="@dimen/spacing_md"
     app:cardElevation="0dp"
     app:strokeColor="@color/mosco_outline_variant"
-    app:strokeWidth="1dp">
+    app:strokeWidth="@dimen/stroke_thin">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_lg">
 
         <!-- Close button -->
         <ImageView
             android:id="@+id/btn_dialog_close"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/spacing_28dp"
+            android:layout_height="@dimen/spacing_28dp"
             android:src="@drawable/ic_close"
             app:tint="@color/mosco_on_surface_variant"
-            android:padding="4dp"
+            android:padding="@dimen/spacing_xs"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
@@ -33,8 +33,8 @@
         <!-- Item Image -->
         <ImageView
             android:id="@+id/iv_buff_image"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="@dimen/spacing_80dp"
+            android:layout_height="@dimen/spacing_80dp"
             android:scaleType="centerInside"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +46,7 @@
             android:id="@+id/tv_buff_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/spacing_md"
             android:gravity="center"
             style="@style/MoscoText.Luxury.SubHeader"
             android:textColor="@color/mosco_on_surface"
@@ -63,7 +63,7 @@
             android:id="@+id/tv_buff_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:gravity="center"
             style="@style/MoscoText.Luxury.Body"
             android:textColor="@color/mosco_on_surface_variant"
@@ -78,8 +78,8 @@
             android:id="@+id/tv_qty_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Quantity"
+            android:layout_marginTop="@dimen/spacing_20dp"
+            android:text="@string/label_quantity"
             style="@style/MoscoText.Luxury.Body"
             android:textColor="@color/mosco_on_surface_variant"
             android:textSize="@dimen/text_size_body_xs"
@@ -90,7 +90,7 @@
             android:id="@+id/tv_available_qty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/spacing_20dp"
             style="@style/MoscoText.Luxury.Body"
             android:textColor="@color/mosco_on_surface_variant"
             android:textSize="@dimen/text_size_body_xs"
@@ -103,15 +103,15 @@
             android:id="@+id/ll_qty_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/tv_qty_label">
 
             <TextView
                 android:id="@+id/btn_minus"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/spacing_xxl"
+                android:layout_height="@dimen/spacing_xxl"
                 android:background="@drawable/bg_button"
                 android:backgroundTint="@color/mosco_surface_variant"
                 android:gravity="center"
@@ -125,8 +125,8 @@
             <android.widget.EditText
                 android:id="@+id/et_quantity"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="8dp"
+                android:layout_height="@dimen/spacing_xxl"
+                android:layout_marginHorizontal="@dimen/spacing_sm"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:backgroundTint="@color/mosco_surface_container_high"
@@ -135,13 +135,13 @@
                 android:maxLength="2"
                 android:text="1"
                 android:textColor="@color/mosco_on_surface"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subtitle"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/btn_plus"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/spacing_xxl"
+                android:layout_height="@dimen/spacing_xxl"
                 android:background="@drawable/bg_button"
                 android:backgroundTint="@color/mosco_surface_variant"
                 android:gravity="center"
@@ -158,17 +158,18 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_use"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="20dp"
-            android:text="Use"
+            android:layout_height="@dimen/spacing_56dp"
+            android:layout_marginTop="@dimen/spacing_20dp"
+            android:text="@string/action_use"
             style="@style/MoscoText.Luxury.Button"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
             android:fontWeight="700"
-            app:cornerRadius="12dp"
+            app:cornerRadius="@dimen/radius_lg"
             app:backgroundTint="@color/mosco_primary"
             app:layout_constraintTop_toBottomOf="@id/ll_qty_controls" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+

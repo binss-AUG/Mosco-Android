@@ -4,23 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="24dp"
+    android:layout_margin="@dimen/spacing_lg"
     app:cardBackgroundColor="@color/mosco_surface_container"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="12dp"
+    app:cardCornerRadius="@dimen/spacing_md"
+    app:cardElevation="@dimen/radius_lg"
     app:strokeColor="@color/mosco_outline_variant"
-    app:strokeWidth="2dp">
+    app:strokeWidth="@dimen/spacing_2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_lg">
 
         <!-- Success Icon -->
         <ImageView
             android:id="@+id/iv_success_icon"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="@dimen/spacing_64dp"
+            android:layout_height="@dimen/spacing_64dp"
             android:src="@drawable/ic_check"
             app:tint="@color/mosco_primary"
             app:layout_constraintTop_toTopOf="parent"
@@ -31,9 +31,9 @@
             android:id="@+id/tv_success_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/spacing_md"
             style="@style/MoscoText.Luxury.SubHeader"
-            android:text="@string/dialog_shop_success_title"
+            android:text="@string/shop_dialog_success_title"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700"
@@ -45,7 +45,7 @@
             android:id="@+id/tv_success_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:gravity="center"
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_sm"
@@ -57,53 +57,53 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/tv_success_message">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_go_inventory"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="8dp"
+                android:layout_height="@dimen/spacing_56dp"
+                android:layout_marginEnd="@dimen/spacing_sm"
                 android:layout_weight="1"
-                android:text="@string/dialog_shop_success_inventory"
+                android:text="@string/shop_dialog_action_inventory"
                 style="@style/MoscoText.Luxury.Button"
                 android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
                 android:fontWeight="700"
-                app:cornerRadius="12dp"
+                app:cornerRadius="@dimen/radius_lg"
                 app:strokeColor="@color/selector_btn_stroke_outlined"
                 android:textColor="@color/selector_btn_text_outlined" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_use_now"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginStart="8dp"
+                android:layout_height="@dimen/spacing_56dp"
+                android:layout_marginStart="@dimen/spacing_sm"
                 android:layout_weight="1"
-                android:text="@string/dialog_shop_success_use_now"
+                android:text="@string/shop_dialog_action_use_now"
                 android:textColor="@color/selector_btn_text_primary"
                 style="@style/MoscoText.Luxury.Button"
                 android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
                 android:fontWeight="700"
-                app:cornerRadius="12dp"
+                app:cornerRadius="@dimen/radius_lg"
                 app:backgroundTint="@color/mosco_primary" />
                 
             <!-- OK Button (for resource) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_ok"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="OK"
+                android:layout_height="@dimen/spacing_56dp"
+                android:text="@string/action_ok"
                 android:textColor="@color/selector_btn_text_primary"
                 style="@style/MoscoText.Luxury.Button"
                 android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
                 android:fontWeight="700"
                 android:visibility="gone"
-                app:cornerRadius="12dp"
+                app:cornerRadius="@dimen/radius_lg"
                 app:backgroundTint="@color/mosco_primary" />
 
         </LinearLayout>
@@ -111,3 +111,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#1AFFFFFF" />
-    <corners android:radius="8dp" />
-    <stroke android:width="1dp" android:color="#33FFFFFF" android:dashWidth="4dp" android:dashGap="4dp" />
+    <solid android:color="@color/mosco_white_10" />
+    <corners android:radius="@dimen/spacing_sm" />
+    <stroke android:width="@dimen/stroke_thin" android:color="@color/mosco_white_20" android:dashWidth="@dimen/spacing_xs" android:dashGap="@dimen/spacing_xs" />
 </shape>
+

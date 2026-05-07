@@ -1,6 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Mosco" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Global Typography - Quiet Luxury Standard -->
+        <item name="android:fontFamily">@font/pretendard</item>
+        
         <!-- Matte Obsidian Background - Đồng bộ toàn hệ thống -->
         <item name="android:windowBackground">@drawable/bg_global_gradient</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -124,8 +125,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         initViews(view);
         initServices();
         
-        setupLongClickCopy(tvUsername, "Tên chỉ huy");
-        setupLongClickCopy(tvUserId, "Mã ID");
+        setupLongClickCopy(tvUsername, getString(R.string.home_label_username));
+        setupLongClickCopy(tvUserId, getString(R.string.home_label_user_id));
         setupBannerCarousel();
         setupQuickToolActions();
         setupQuickToolDimensions();
@@ -345,7 +346,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
         
         if (btnFullRank != null) {
-            btnFullRank.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.RankActivity.class)));
+            btnFullRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
         }
 
         miniRankAdapter = new MiniRankPagerAdapter();
@@ -441,7 +442,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             btnHomeSend.setOnClickListener(v -> {
                 String msg = etHomeChat.getText().toString().trim();
                 if (!msg.isEmpty()) {
-                    android.widget.Toast.makeText(getContext(), "Broadcast sent to fleet!", android.widget.Toast.LENGTH_SHORT).show();
+                    android.widget.Toast.makeText(requireContext(), getString(R.string.home_msg_broadcast_success), android.widget.Toast.LENGTH_SHORT).show();
                     etHomeChat.setText("");
                 }
             });
@@ -449,8 +450,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupQuickToolActions() {
-        if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.DailyCheckinActivity.class)));
-        if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.MissionActivity.class)));
+        if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class)));
+        if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.MissionActivity.class)));
         if (btnQuickUpgrade != null) {
             btnQuickUpgrade.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -461,10 +462,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         }
-        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.RankActivity.class)));
-        if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FriendActivity.class)));
-        if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.FormationActivity.class)));
-        if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(getContext(), com.vn.jet.mosco.GiftActivity.class)));
+        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
+        if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FriendActivity.class)));
+        if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
+        if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
         
         if (flAvatarGroup != null) {
             flAvatarGroup.setOnClickListener(new ClickDebounce() {
@@ -489,7 +490,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void setupQuickToolDimensions() {
         if (hsvQuickTools == null || llQuickToolsContainer == null) return;
         hsvQuickTools.post(() -> {
-            if (!isAdded() || getContext() == null) return;
+            if (!isAdded() || requireContext() == null) return;
             int hsvWidth = hsvQuickTools.getMeasuredWidth();
             int horizontalPadding = hsvQuickTools.getPaddingLeft() + hsvQuickTools.getPaddingRight();
             int itemWidth = (hsvWidth - horizontalPadding) / 5;
@@ -505,7 +506,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupBannerCarousel() {
-        if (vpBanners == null || getContext() == null) return;
+        if (vpBanners == null || requireContext() == null) return;
         try {
             int[] bannerResIds = {R.drawable.ads1, R.drawable.ads2, R.drawable.ads3};
             bannerCount = bannerResIds.length;
@@ -522,12 +523,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void buildDotIndicators(int count) {
-        if (llBannerDots == null || getContext() == null) return;
+        if (llBannerDots == null || requireContext() == null) return;
         llBannerDots.removeAllViews();
         int dotSize = getResources().getDimensionPixelSize(R.dimen.home_dot_size);
         int dotSpacing = getResources().getDimensionPixelSize(R.dimen.home_dot_spacing);
         for (int i = 0; i < count; i++) {
-            View dot = new View(getContext());
+            View dot = new View(requireContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
             params.setMargins(dotSpacing, 0, dotSpacing, 0);
             dot.setLayoutParams(params);
@@ -581,7 +582,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             String displayName = sessionManager.getIngameName();
             if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
             if (tvUsername != null) {
-                tvUsername.setText(displayName != null ? displayName : getString(R.string.home_default_username));
+                tvUsername.setText(displayName != null ? displayName : getString(R.string.placeholder_commander));
                 tvUsername.setSelected(true);
             }
 
@@ -598,12 +599,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
             Long userId = sessionManager.getUserId();
             if (userId == null) return;
-            if (tvUserId != null) tvUserId.setText("ID: " + (10000000L + userId));
+            if (tvUserId != null) tvUserId.setText(getString(R.string.home_format_user_id, String.valueOf(10000000L + userId)));
 
             gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
                 @Override
                 public void onResponse(Call<UserStats> call, Response<UserStats> response) {
-                    if (!isAdded() || getContext() == null) return;
+                    if (!isAdded() || requireContext() == null) return;
                     if (response.isSuccessful() && response.body() != null) {
                         UserStats stats = response.body();
                         bindCurrency(stats.getCoins(), stats.getDiamonds(), stats.getStreak(), stats.getBestStreak(), stats.getStreakRestoresThisMonth(), stats.getLevel(), stats.getExp());
@@ -621,10 +622,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores, int level, long exp) {
-        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(getContext(), coins != null ? coins : 0));
-        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(getContext(), diamonds != null ? diamonds : 0));
+        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), coins != null ? coins : 0));
+        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), diamonds != null ? diamonds : 0));
         
-        if (tvModuleStreakVal != null) tvModuleStreakVal.setText(streak + " DAYS");
+        if (tvModuleStreakVal != null) tvModuleStreakVal.setText(getString(R.string.streak_format_days, streak));
         
         if (lottieModuleStreak != null) {
             lottieModuleStreak.setMinAndMaxFrame(0, 24);
@@ -650,7 +651,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
 
         // XP Bar Animation
-        if (tvLevel != null) tvLevel.setText("Level " + level);
+        if (tvLevel != null) tvLevel.setText(getString(R.string.format_level, level));
         
         long nextLevelXp = level * 1000L;
         if (nextLevelXp == 0) nextLevelXp = 1000;
@@ -708,9 +709,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void showStreakDetail(int currentStreak, int bestStreak, int restores) {
-        if (getContext() == null) return;
-        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(getContext(), R.style.CustomBottomSheetDialogTheme);
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_streak_detail, null);
+        if (requireContext() == null) return;
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_streak_detail, null);
         
         TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
         TextView tvBest = view.findViewById(R.id.tv_best_streak);
@@ -735,8 +736,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
             }
         }
-        tvCurrent.setText(getString(R.string.rank_label_streak_format, currentStreak));
-        tvBest.setText(getString(R.string.rank_label_streak_format, bestStreak));
+        tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));
+        tvBest.setText(getString(R.string.rank_format_streak, bestStreak));
         btnRestore.setText(restores < 3 ? "RESTORE (FREE " + (3 - restores) + "/3)" : "RESTORE (500 DIAMONDS)");
 
         btnRestore.setOnClickListener(v -> {
@@ -784,7 +785,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         textView.setOnLongClickListener(v -> {
             android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
             clipboard.setPrimaryClip(android.content.ClipData.newPlainText(label, textView.getText().toString()));
-            android.widget.Toast.makeText(getContext(), "Đã sao chép " + label, android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(requireContext(), getString(R.string.home_msg_copied_format, label), android.widget.Toast.LENGTH_SHORT).show();
             v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
             return true;
         });
@@ -796,10 +797,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         public MiniRankPagerAdapter() {
             titles = new String[]{
-                getString(R.string.home_mini_rank_level),
-                getString(R.string.home_mini_rank_album),
-                getString(R.string.home_mini_rank_wealth),
-                getString(R.string.home_module_top_streakers)
+                getString(R.string.home_rank_mini_level),
+                getString(R.string.home_rank_mini_album),
+                getString(R.string.home_rank_mini_wealth),
+                getString(R.string.home_rank_mini_streaks)
             };
         }
 
@@ -820,7 +821,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 super(v); 
                 tvTitle = v.findViewById(R.id.tv_mini_rank_title); 
                 rv = v.findViewById(R.id.rv_mini_rank); 
-                rv.setLayoutManager(new LinearLayoutManager(getContext()));
+                rv.setLayoutManager(new LinearLayoutManager(requireContext()));
                 adapter = new MiniRankItemAdapter(new ArrayList<>(), "level");
                 rv.setAdapter(adapter);
             }
@@ -847,13 +848,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             
             // Highlight Top 3 with specific colors
             if (pos == 1) {
-                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.mosco_gold));
+                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_gold));
             } else if (pos == 2) {
-                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.rank_silver));
+                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.rank_silver));
             } else if (pos == 3) {
-                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.rank_bronze));
+                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.rank_bronze));
             } else {
-                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.white_40));
+                holder.tvPos.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white_40));
             }
 
             String rawName = item.optString("ingameName", "Unknown");
@@ -864,20 +865,20 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             
             String valStr = "";
             int val = item.optInt("value", 0);
-            android.content.Context context = getContext();
+            android.content.Context context = requireContext();
             if (context != null) {
                 switch (type) {
                     case "streak": 
-                        valStr = context.getString(R.string.rank_label_streak_format, val); 
+                        valStr = context.getString(R.string.rank_format_streak, val); 
                         break;
                     case "wealth": 
                         valStr = com.vn.jet.mosco.utils.NumberUtils.format(context, (long)val); 
                         break;
                     case "collection": 
-                        valStr = context.getString(R.string.rank_label_album_format, val); 
+                        valStr = context.getString(R.string.rank_format_album, val); 
                         break;
                     default: 
-                        valStr = context.getString(R.string.rank_label_level_format, val); 
+                        valStr = context.getString(R.string.rank_format_level, val); 
                         break;
                 }
             }

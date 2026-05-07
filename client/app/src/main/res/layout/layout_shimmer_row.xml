@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:weightSum="3"
-    android:paddingHorizontal="14dp">
+    android:paddingHorizontal="@dimen/spacing_14dp">
 
     <include layout="@layout/item_inventory_shimmer"
         android:layout_width="0dp"
@@ -22,3 +22,4 @@
         android:layout_weight="1" />
 
 </LinearLayout>
+

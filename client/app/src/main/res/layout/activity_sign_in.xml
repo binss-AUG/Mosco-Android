@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="@string/title_sign_in" />
+                    android:text="@string/auth_title_sign_in" />
 
                 <TextView
                     android:id="@+id/tv_subtitle_signin"
@@ -61,7 +61,7 @@
                     android:layout_gravity="start"
                     android:layout_marginTop="@dimen/spacing_xxs"
                     android:alpha="0.7"
-                    android:text="@string/subtitle_sign_in"
+                    android:text="@string/auth_subtitle_sign_in"
                     android:textSize="@dimen/text_size_hud_small" />
 
                 <LinearLayout
@@ -78,7 +78,7 @@
                         style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_email" />
+                        android:text="@string/auth_label_email" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_email"
@@ -96,11 +96,11 @@
                             android:id="@+id/edt_email"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_user"
-                            android:drawablePadding="15dp"
-                            android:hint="@string/prompt_email"
+                            android:drawablePadding="@dimen/spacing_15dp"
+                            android:hint="@string/auth_prompt_email"
                             android:imeOptions="actionNext"
                             android:inputType="textEmailAddress"
                             android:maxLines="1"
@@ -114,7 +114,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/label_password" />
+                        android:text="@string/auth_label_password" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_password"
@@ -132,18 +132,18 @@
                             android:id="@+id/edt_password"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="@dimen/spacing_52dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_lock"
-                            android:drawablePadding="15dp"
-                            android:hint="@string/prompt_password"
+                            android:drawablePadding="@dimen/spacing_15dp"
+                            android:hint="@string/auth_prompt_password"
                             android:imeOptions="actionDone"
                             android:inputType="textPassword"
                             android:maxLines="1"
                             android:nextFocusForward="@id/btn_signin"
                             android:paddingStart="@dimen/spacing_md"
                             android:textColor="@color/white"
-                            android:textColorHint="#80FFFFFF"
+                            android:textColorHint="@color/mosco_white_50"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -160,7 +160,7 @@
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:buttonTint="@color/item_diamond"
-                            android:text="@string/label_remember_me"
+                            android:text="@string/auth_label_remember_me"
                             android:textSize="@dimen/text_size_body_xs" />
 
                         <TextView
@@ -172,7 +172,7 @@
                             android:layout_centerVertical="true"
                             android:focusable="true"
                             android:nextFocusForward="@id/tv_go_to_signup"
-                            android:text="@string/action_forgot_password"
+                            android:text="@string/auth_action_forgot_password"
                             android:textSize="@dimen/text_size_body_xs" />
                     </RelativeLayout>
 
@@ -180,13 +180,13 @@
                         android:id="@+id/btn_signin"
                         style="@style/MoscoText.Luxury.Button.Primary"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="@dimen/spacing_56dp"
                         android:layout_marginTop="@dimen/spacing_lg"
                         android:background="@drawable/bg_btn_luxury_action"
                         android:elevation="@dimen/spacing_xxs"
                         android:nextFocusForward="@id/tv_forgot_password"
                         android:stateListAnimator="@animator/luxury_button_state_animator"
-                        android:text="@string/action_sign_in" />
+                        android:text="@string/auth_action_sign_in" />
 
                     <!-- OR Divider -->
                     <LinearLayout
@@ -198,7 +198,7 @@
 
                         <View
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="@dimen/stroke_thin"
                             android:layout_weight="1"
                             android:background="@color/white_10" />
 
@@ -207,12 +207,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="@dimen/spacing_md"
-                            android:text="@string/label_or_continue_with"
+                            android:text="@string/auth_label_or_continue"
                             android:textSize="@dimen/text_size_body_xs" />
 
                         <View
                             android:layout_width="0dp"
-                            android:layout_height="1dp"
+                            android:layout_height="@dimen/stroke_thin"
                             android:layout_weight="1"
                             android:background="@color/white_10" />
                     </LinearLayout>
@@ -259,7 +259,7 @@
                     android:layout_marginTop="@dimen/spacing_xl"
                     android:focusable="true"
                     android:nextFocusForward="@id/btn_back"
-                    android:text="@string/msg_new_user_sign_up"
+                    android:text="@string/auth_msg_new_user"
                     android:textSize="@dimen/text_size_hud_small" />
 
             </LinearLayout>
@@ -269,8 +269,8 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/loading_progress"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="@dimen/spacing_120dp"
+        android:layout_height="@dimen/spacing_120dp"
         android:layout_gravity="center"
         app:lottie_rawRes="@raw/loading"
         app:lottie_autoPlay="true"
@@ -278,3 +278,4 @@
         android:visibility="gone" />
 
 </FrameLayout>
+

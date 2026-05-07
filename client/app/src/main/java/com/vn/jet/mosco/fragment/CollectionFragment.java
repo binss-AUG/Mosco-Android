@@ -2,7 +2,11 @@ package com.vn.jet.mosco.fragment;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -79,12 +84,10 @@ public class CollectionFragment extends Fragment {
         viewPager.setAdapter(adapter);
         viewPager.setUserInputEnabled(false);
 
+        String[] tabs = getResources().getStringArray(R.array.collection_tabs);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0: tab.setText("Album"); break;
-                case 1: tab.setText("Mailbox"); break;
-                case 2: tab.setText("Objets"); break;
-                case 3: tab.setText("Items"); break;
+            if (position < tabs.length) {
+                tab.setText(tabs[position]);
             }
         }).attach();
 
@@ -150,9 +153,9 @@ public class CollectionFragment extends Fragment {
         if (btnRecycle != null) {
             btnRecycle.setOnClickListener(v -> {
                 new androidx.appcompat.app.AlertDialog.Builder(context)
-                        .setTitle("Làm mới thẻ")
-                        .setMessage("Bạn có chắc chắn muốn làm mới dữ liệu của thẻ này không?")
-                        .setPositiveButton("Chắc chắn", (d, w) -> {
+                        .setTitle(context.getString(R.string.dialog_refresh_title))
+                        .setMessage(context.getString(R.string.dialog_refresh_msg))
+                        .setPositiveButton(context.getString(R.string.action_confirm), (d, w) -> {
                             if (cardJson != null) {
                                 String slug = cardJson.optString("slug", "");
                                 if (!slug.isEmpty()) {
@@ -160,14 +163,14 @@ public class CollectionFragment extends Fragment {
                                     org.json.JSONObject refreshedCard = com.vn.jet.mosco.utils.DatabaseLoader.findBySlug(context, slug);
                                     if (refreshedCard != null) {
                                         com.vn.jet.mosco.utils.ObjetDetailBinder.bind(dialog, context, refreshedCard, level, exp, upgrade);
-                                        android.widget.Toast.makeText(context, "Làm mới thành công!", android.widget.Toast.LENGTH_SHORT).show();
+                                        android.widget.Toast.makeText(context, context.getString(R.string.msg_refresh_success), android.widget.Toast.LENGTH_SHORT).show();
                                     } else {
-                                        android.widget.Toast.makeText(context, "Lỗi: Không tìm thấy thẻ", android.widget.Toast.LENGTH_SHORT).show();
+                                        android.widget.Toast.makeText(context, context.getString(R.string.msg_refresh_error), android.widget.Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             }
                         })
-                        .setNegativeButton("Hủy", (d, w) -> d.dismiss())
+                        .setNegativeButton(context.getString(R.string.action_cancel), (d, w) -> d.dismiss())
                         .show();
             });
         }
@@ -176,7 +179,7 @@ public class CollectionFragment extends Fragment {
         View btnLevelUp = dialog.findViewById(R.id.btn_level_up_detail);
         if (btnLevelUp != null) {
             btnLevelUp.setOnClickListener(v -> {
-                Toast.makeText(context, "Level Up clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show();
             });
         }
 
@@ -184,7 +187,7 @@ public class CollectionFragment extends Fragment {
         View btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
         if (btnUpgrade != null) {
             btnUpgrade.setOnClickListener(v -> {
-                Toast.makeText(context, "Upgrade clicked", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             });
         }
@@ -222,7 +225,7 @@ public class CollectionFragment extends Fragment {
                 item.setText(opt);
                 // Highlight currently selected
                 if (opt.equals(currentLabel)) {
-                    item.setTextColor(0xFF8A2BE2);
+                    item.setTextColor(ContextCompat.getColor(v.getContext(), R.color.mosco_card_stroke));
                     item.setTypeface(null, android.graphics.Typeface.BOLD);
                 }
                 item.setOnClickListener(sel -> {
@@ -237,7 +240,7 @@ public class CollectionFragment extends Fragment {
                             ((TextView) child).setTypeface(null, android.graphics.Typeface.NORMAL);
                         }
                     }
-                    item.setTextColor(0xFF8A2BE2);
+                    item.setTextColor(ContextCompat.getColor(v.getContext(), R.color.mosco_card_stroke));
                     dropdownContainer.setVisibility(View.GONE);
                     if (arrowIcon != null) arrowIcon.setImageResource(R.drawable.ic_arrow_up);
                     else if (sortBtn instanceof TextView) ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
@@ -302,7 +305,7 @@ public class CollectionFragment extends Fragment {
             Set<String> currentSelections,
             Runnable onFilterApplied) {
 
-        Context ctx = fragment.requireContext();
+        Context ctx = fragment.getContext();
         BottomSheetDialog dialog = new BottomSheetDialog(ctx, R.style.CustomBottomSheetDialogTheme);
         View bsView = LayoutInflater.from(ctx).inflate(R.layout.layout_bottom_sheet_objet_filter, null);
         
@@ -541,8 +544,8 @@ public class CollectionFragment extends Fragment {
         LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(size, size);
         card.setLayoutParams(cardLp);
         card.setRadius(size / 2f);
-        card.setStrokeColor(Color.parseColor("#8A2BE2"));
-        card.setCardBackgroundColor(Color.parseColor("#3A3A55"));
+        card.setStrokeColor(ContextCompat.getColor(ctx, R.color.mosco_card_stroke));
+        card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.mosco_card_bg_variant));
         card.setStrokeWidth(workingSet.contains(name) ? dpToPx(ctx, 2) : 0);
         // Add purple overlay if selected
         if (workingSet.contains(name)) {
@@ -560,7 +563,7 @@ public class CollectionFragment extends Fragment {
         TextView label = new TextView(ctx);
         label.setText(name);
         label.setTextSize(11f);
-        label.setTextColor(workingSet.contains(name) ? Color.WHITE : Color.parseColor("#A2A2A7"));
+        label.setTextColor(workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
         label.setTypeface(null, workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -575,7 +578,7 @@ public class CollectionFragment extends Fragment {
                 workingSet.remove(name);
                 card.setStrokeWidth(0);
                 card.setAlpha(1f);
-                label.setTextColor(Color.parseColor("#A2A2A7"));
+                label.setTextColor(ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
                 label.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
@@ -645,8 +648,8 @@ public class CollectionFragment extends Fragment {
         boolean selected = workingSet.contains(name);
         card.setBackground(ctx.getDrawable(R.drawable.bg_button));
         card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selected ? Color.parseColor("#6B2FD4") : Color.parseColor("#41455E")));
-        card.setTextColor(selected ? Color.WHITE : Color.parseColor("#A2A2A7"));
+                selected ? ContextCompat.getColor(ctx, R.color.mosco_primary) : ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
+        card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
         card.setTypeface(null, selected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         card.setText(name);
         card.setTextSize(14f);
@@ -656,12 +659,12 @@ public class CollectionFragment extends Fragment {
         card.setOnClickListener(v -> {
             if (workingSet.contains(name)) {
                 workingSet.remove(name);
-                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#41455E")));
-                card.setTextColor(Color.parseColor("#A2A2A7"));
+                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
+                card.setTextColor(ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
                 card.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
-                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#6B2FD4")));
+                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_primary)));
                 card.setTextColor(Color.WHITE);
                 card.setTypeface(null, android.graphics.Typeface.BOLD);
             }
@@ -753,7 +756,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class MailboxFragment extends Fragment {
         private final Set<String> mailboxFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Lowest No.", "Highest No."};
+        private String[] SORT_OPTIONS;
         private MailboxAdapter adapter;
         private List<com.vn.jet.mosco.model.UserMail> originalMails = new ArrayList<>();
 
@@ -766,6 +769,7 @@ public class CollectionFragment extends Fragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
 
             View sortBtn = view.findViewById(R.id.btn_sort_mailbox);
             LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_mailbox);
@@ -779,7 +783,7 @@ public class CollectionFragment extends Fragment {
 
             // RecyclerView
             RecyclerView rvMailbox = view.findViewById(R.id.rv_mailbox);
-            rvMailbox.setLayoutManager(new LinearLayoutManager(getContext()));
+            rvMailbox.setLayoutManager(new LinearLayoutManager(requireContext()));
 
             adapter = new MailboxAdapter(new ArrayList<>(), this::onMailClicked);
             rvMailbox.setAdapter(adapter);
@@ -789,7 +793,7 @@ public class CollectionFragment extends Fragment {
 
         private void onMailClicked(com.vn.jet.mosco.model.UserMail mail) {
             String giftInfo = (mail.getItemCode() != null && mail.getQuantity() != null) 
-                    ? "\n\n🎁 Quà tặng: " + mail.getItemCode() + " x" + NumberUtils.format(getContext(), mail.getQuantity()) 
+                    ? getString(R.string.social_gift_summary_format, mail.getItemCode(), NumberUtils.format(requireContext(), mail.getQuantity())) 
                     : "";
 
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), 
@@ -798,11 +802,11 @@ public class CollectionFragment extends Fragment {
                     .setMessage(mail.getContent() + giftInfo);
 
             if (!mail.isReceived()) {
-                builder.setPositiveButton("Nhận quà", (d, w) -> performClaim(mail));
-                builder.setNegativeButton("Để sau", null);
+                builder.setPositiveButton(getString(R.string.mailbox_action_claim), (d, w) -> performClaim(mail));
+                builder.setNegativeButton(getString(R.string.mailbox_action_later), null);
             } else {
-                builder.setPositiveButton("Đã nhận", null);
-                builder.setNegativeButton("Đóng", null);
+                builder.setPositiveButton(getString(R.string.mailbox_action_received), null);
+                builder.setNegativeButton(getString(R.string.mailbox_action_close), null);
             }
             
             builder.show();
@@ -814,7 +818,7 @@ public class CollectionFragment extends Fragment {
         private void performClaim(com.vn.jet.mosco.model.UserMail mail) {
             // Hiển thị Loading Dialog phong cách Galactic
             AlertDialog loading = new AlertDialog.Builder(requireContext())
-                    .setMessage("Đang kết nối tới trung tâm điều khiển để nhận quà...")
+                    .setMessage(getString(R.string.mailbox_msg_connecting))
                     .setCancelable(false)
                     .show();
 
@@ -833,19 +837,19 @@ public class CollectionFragment extends Fragment {
                         
                         // Hiển thị thông báo thành công cao cấp
                         new AlertDialog.Builder(requireContext())
-                                .setTitle("THÀNH CÔNG!")
-                                .setMessage("Chúc mừng sếp! Vật phẩm " + (mail.getItemCode() != null ? mail.getItemCode() : "") + " đã được chuyển vào kho đồ.")
-                                .setPositiveButton("Tuyệt vời", (d, w) -> loadMailbox())
+                                .setTitle(getString(R.string.mailbox_msg_claim_success_title))
+                                .setMessage(getString(R.string.mailbox_format_claim_success_msg, (mail.getItemCode() != null ? mail.getItemCode() : "")))
+                                .setPositiveButton(getString(R.string.mailbox_action_awesome), (d, w) -> loadMailbox())
                                 .show();
                     } else {
-                        Toast.makeText(getContext(), "Lỗi hệ thống: Không thể nhận quà lúc này.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
                     loading.dismiss();
-                    Toast.makeText(getContext(), "Mất kết nối tới vệ tinh: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -866,7 +870,7 @@ public class CollectionFragment extends Fragment {
 
                 @Override
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {
-                    Toast.makeText(getContext(), "Failed to load mailbox", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_mailbox), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -1015,10 +1019,10 @@ public class CollectionFragment extends Fragment {
 
             // RecyclerView — load REAL data from server
             rvObjets = view.findViewById(R.id.rv_objets);
-            rvObjets.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
             rvObjets.setAdapter(new com.vn.jet.mosco.adapter.BaseInventoryAdapter(new ArrayList<>(), rvObjets, item -> {
-                Context ctx = getContext();
+                Context ctx = requireContext();
                 if (ctx == null) return;
                 
                 org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, item.getCollectionId());
@@ -1172,7 +1176,7 @@ public class CollectionFragment extends Fragment {
                         if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
                             ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).updateData(filtered);
                         }
-                        if (tvCount != null) tvCount.setText(filtered.size() + " Items");
+                        if (tvCount != null) tvCount.setText(getString(R.string.inventory_format_items_count, filtered.size()));
                     });
                 }
             }).start();
@@ -1210,7 +1214,7 @@ public class CollectionFragment extends Fragment {
 
             // RecyclerView
             rvItems = view.findViewById(R.id.rv_items);
-            rvItems.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            rvItems.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
             adapter = new ItemsAdapter(new ArrayList<>(), this::onItemClicked);
             rvItems.setAdapter(adapter);
@@ -1234,7 +1238,7 @@ public class CollectionFragment extends Fragment {
                             .commit();
                 }
             } else if (type.equals("OBJET")) {
-                Toast.makeText(requireContext(), getString(R.string.reveal_only_pack_supported), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.reveal_error_only_packs), Toast.LENGTH_SHORT).show();
             } else {
                 // Buff / other items: show use dialog with quantity picker
                 showUseBuffDialog(item);
@@ -1268,7 +1272,7 @@ public class CollectionFragment extends Fragment {
 
             tvName.setText(item.getName());
             tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
-            tvAvailQty.setText("Available: " + (item.getQuantity() != null ? NumberUtils.format(getContext(), item.getQuantity()) : "0"));
+            tvAvailQty.setText(getString(R.string.items_label_available, (item.getQuantity() != null ? NumberUtils.format(requireContext(), item.getQuantity()) : "0")));
 
             Glide.with(this)
                     .load(item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "")
@@ -1334,7 +1338,7 @@ public class CollectionFragment extends Fragment {
 
                 @Override
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserItem>> call, Throwable t) {
-                    Toast.makeText(getContext(), "Failed to load inventory", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Failed to load inventory", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -1471,7 +1475,7 @@ public class CollectionFragment extends Fragment {
 
             // RecyclerView
             rvAlbum = view.findViewById(R.id.rv_album);
-            rvAlbum.setLayoutManager(new GridLayoutManager(getContext(), 3));
+            rvAlbum.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
             adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
             rvAlbum.setAdapter(adapter);
@@ -1484,8 +1488,8 @@ public class CollectionFragment extends Fragment {
          * Luôn mở Dialog chi tiết thẻ (hỗ trợ cả thẻ chưa sở hữu với icon ổ khóa).
          */
         private void onBookCardClicked(com.vn.jet.mosco.model.CollectionEntry entry) {
-            if (getContext() != null && entry != null) {
-                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(getContext(), entry);
+            if (requireContext() != null && entry != null) {
+                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), entry);
             }
         }
 
@@ -1536,8 +1540,8 @@ public class CollectionFragment extends Fragment {
                 public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call, Throwable t) {
                     if (!isAdded()) return;
                     android.util.Log.e("AlbumFragment", "API Failure", t);
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Không thể tải Bộ Sưu Tập", Toast.LENGTH_SHORT).show();
+                    if (requireContext() != null) {
+                        Toast.makeText(requireContext(), getString(R.string.collection_msg_error_album), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -1551,7 +1555,7 @@ public class CollectionFragment extends Fragment {
          */
         private void updateMilestones(int owned) {
             if (getView() == null || totalCards <= 0) return;
-            Context ctx = getContext();
+            Context ctx = requireContext();
             if (ctx == null) return;
 
             // Tính toán ngưỡng theo %
@@ -1580,11 +1584,11 @@ public class CollectionFragment extends Fragment {
             if (iv == null || container == null || tv == null) return;
 
             // Kiểm tra trạng thái đã nhận quà
-            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(getContext());
+            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(requireContext());
             Long userIdLong = session.getUserId();
             String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
             
-            android.content.SharedPreferences prefs = getContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE);
+            android.content.SharedPreferences prefs = requireContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE);
             boolean isClaimed = prefs.getBoolean("claimed_" + userId + "_ms_" + index, false);
 
             if (isClaimed) {
@@ -1595,7 +1599,7 @@ public class CollectionFragment extends Fragment {
                 tv.setText("COMPLETED");
                 container.clearAnimation();
                 container.setOnClickListener(v -> 
-                    android.widget.Toast.makeText(getContext(), "Bạn đã nhận phần thưởng này!", android.widget.Toast.LENGTH_SHORT).show());
+                    android.widget.Toast.makeText(requireContext(), getString(R.string.collection_msg_reward_claimed), android.widget.Toast.LENGTH_SHORT).show());
             } else if (achieved) {
                 // ĐÃ ĐẠT (CHƯA NHẬN): Hiệu ứng Pulse (Nhịp đập) mời gọi click
                 iv.setAlpha(1.0f);
@@ -1604,7 +1608,7 @@ public class CollectionFragment extends Fragment {
                 tv.setText("REWARD");
                 
                 if (container.getAnimation() == null) {
-                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils.loadAnimation(getContext(), R.anim.pulse_milestone);
+                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils.loadAnimation(requireContext(), R.anim.pulse_milestone);
                     container.startAnimation(pulse);
                 }
 
@@ -1615,16 +1619,16 @@ public class CollectionFragment extends Fragment {
                 matrix.setSaturation(0f);
                 iv.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
                 iv.setAlpha(0.2f);
-                tv.setTextColor(android.graphics.Color.parseColor("#66FFFFFF"));
+                tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_white_40));
                 tv.setText(owned + "/" + req);
                 container.clearAnimation();
                 container.setOnClickListener(v -> 
-                    android.widget.Toast.makeText(getContext(), "Cố gắng đạt " + req + " thẻ để nhận quà!", android.widget.Toast.LENGTH_SHORT).show());
+                    android.widget.Toast.makeText(requireContext(), getString(R.string.collection_format_reward_requirement, req), android.widget.Toast.LENGTH_SHORT).show());
             }
         }
 
         private void claimMilestone(int index, int req) {
-            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(getContext());
+            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(requireContext());
             Long userIdLong = session.getUserId();
             String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
             
@@ -1635,7 +1639,7 @@ public class CollectionFragment extends Fragment {
                     "Bạn đã đạt cột mốc " + req + " thẻ.\nPhần thưởng: " + rewardName, 
                     () -> {
                         // Logic sau khi nhấn THU THẬP
-                        getContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE)
+                        requireContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE)
                                 .edit().putBoolean("claimed_" + userId + "_ms_" + index, true).apply();
                         
                         updateMilestones(ownedCount);

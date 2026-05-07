@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mosco Corner Radius System -->
+    
+    <!-- XS: Sharp but softened -->
+    <dimen name="radius_xs">2dp</dimen>
+    
+    <!-- SM: Small elements (buttons, chips) -->
+    <dimen name="radius_sm">4dp</dimen>
+    
+    <!-- MD: Standard cards, containers -->
+    <dimen name="radius_md">8dp</dimen>
+    
+    <!-- LG: Large containers -->
+    <dimen name="radius_lg">12dp</dimen>
+    
+    <!-- XL: Major aesthetic elements, bottom sheets -->
+    <dimen name="radius_xl">16dp</dimen>
+    
+    <!-- XXL: Extra large aesthetic elements -->
+    <dimen name="radius_xxl">24dp</dimen>
+    
+    <!-- FULL: Pill shape / Circle -->
+    <dimen name="radius_full">999dp</dimen>
+</resources>

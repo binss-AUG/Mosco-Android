@@ -102,9 +102,9 @@ public class RankActivity extends AppCompatActivity {
         try {
             if (userRankData == null) {
                 // Trường hợp Sếp chưa lên Top hoặc chưa load được data cá nhân
-                tvPos.setText(getString(R.string.rank_placeholder_empty));
-                tvName.setText(session.getIngameName() != null ? session.getIngameName() : getString(R.string.rank_default_boss_name));
-                tvValue.setText(getString(R.string.rank_placeholder_empty));
+                tvPos.setText(getString(R.string.placeholder_empty));
+                tvName.setText(session.getIngameName() != null ? session.getIngameName() : getString(R.string.profile_preview_default_name));
+                tvValue.setText(getString(R.string.placeholder_empty));
                 
                 // Load avatar từ session để sếp vẫn thấy mặt mình
                 String avatarId = session.getAvatarId();
@@ -132,7 +132,7 @@ public class RankActivity extends AppCompatActivity {
             if (ivType != null) ivType.cancelAnimation();
             switch (rankType) {
                 case "level": 
-                    tvValue.setText(getString(R.string.rank_label_level_format, value)); 
+                    tvValue.setText(getString(R.string.rank_format_level, value)); 
                     if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
                 case "wealth": 
@@ -143,14 +143,14 @@ public class RankActivity extends AppCompatActivity {
                     }
                     break;
                 case "collection": 
-                    tvValue.setText(getString(R.string.rank_label_album_format, value)); 
+                    tvValue.setText(getString(R.string.rank_format_album, value)); 
                     if (ivType != null) {
                         ivType.setImageResource(R.drawable.ic_objets);
                         ivType.setVisibility(View.VISIBLE);
                     }
                     break;
                 case "streak":
-                    tvValue.setText(getString(R.string.rank_label_streak_format, value));
+                    tvValue.setText(getString(R.string.rank_format_streak, value));
                     if (ivType != null) {
                         ivType.setAnimation(R.raw.streak_animation);
                         ivType.setMinAndMaxFrame(0, 24);
@@ -185,8 +185,8 @@ public class RankActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             // Không ẩn footer nếu lỗi, chỉ để mặc định
-            tvPos.setText(getString(R.string.rank_placeholder_empty));
-            tvValue.setText(getString(R.string.rank_placeholder_empty));
+            tvPos.setText(getString(R.string.placeholder_empty));
+            tvValue.setText(getString(R.string.placeholder_empty));
         }
     }
 

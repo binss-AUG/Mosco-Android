@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Body"
-        android:text="0 Items"
+        android:text="@string/placeholder_empty"
         android:textColor="@color/mosco_text_disabled"
         android:textSize="@dimen/text_size_body_sm"
         app:layout_constraintEnd_toEndOf="parent"
@@ -157,7 +157,7 @@
             android:layout_marginEnd="@dimen/inventory_action_btn_spacing"
             android:background="@drawable/bg_filter_chip"
             style="@style/MoscoText.Luxury.Button"
-            android:text="@string/inventory_btn_quick"
+            android:text="@string/inventory_action_quick"
             android:textColor="@color/white"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold"
@@ -172,7 +172,7 @@
             android:layout_weight="0.7"
             android:background="@drawable/bg_upgrade_button_active"
             style="@style/MoscoText.Luxury.Button"
-            android:text="@string/inventory_btn_confirm"
+            android:text="@string/action_confirm"
             android:textColor="@color/white"
             android:textSize="@dimen/text_size_body_lg"
             android:textStyle="bold"
@@ -180,3 +180,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

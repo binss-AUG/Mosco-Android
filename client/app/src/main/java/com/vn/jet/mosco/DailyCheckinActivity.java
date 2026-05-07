@@ -40,8 +40,11 @@ public class DailyCheckinActivity extends AppCompatActivity {
     private GameApiService apiService;
     private ViewPager2 vpDaily;
     private DailyBannerAdapter adapter;
-    private View viewBgOverlay;
+    private View viewBgOverlay, viewHeaderAccent;
     private View[] dots;
+    
+    // Màu sắc accent tương ứng cho 3 buổi
+    private int[] accentColors;
 
     // Màu sắc đại diện cho 3 buổi lấy từ resources
     private int[] bgColors;
@@ -53,6 +56,7 @@ public class DailyCheckinActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient(this).create(GameApiService.class);
         viewBgOverlay = findViewById(R.id.view_bg_overlay);
+        viewHeaderAccent = findViewById(R.id.view_header_accent);
         vpDaily = findViewById(R.id.vp_daily_cards);
         
         dots = new View[]{
@@ -66,6 +70,12 @@ public class DailyCheckinActivity extends AppCompatActivity {
             ContextCompat.getColor(this, R.color.daily_morning_bg),
             ContextCompat.getColor(this, R.color.daily_noon_bg),
             ContextCompat.getColor(this, R.color.daily_evening_bg)
+        };
+        
+        accentColors = new int[]{
+            ContextCompat.getColor(this, R.color.daily_morning_accent),
+            ContextCompat.getColor(this, R.color.daily_noon_accent),
+            ContextCompat.getColor(this, R.color.daily_evening_accent)
         };
 
         findViewById(R.id.btn_back_daily).setOnClickListener(v -> finish());
@@ -87,16 +97,16 @@ public class DailyCheckinActivity extends AppCompatActivity {
     private void setupViewPager() {
         List<DailySlotData> slots = new ArrayList<>();
         // Sử dụng ảnh Demo ads1, ads2, ads3 và màu accent từ resources
-        slots.add(new DailySlotData(getString(R.string.daily_morning), "06:00 - 11:59", 
-                getString(R.string.daily_morning_desc), 500, 1, 
+        slots.add(new DailySlotData(getString(R.string.daily_label_morning), "06:00 - 11:59", 
+                getString(R.string.daily_desc_morning), 500, 1, 
                 R.drawable.ads1, ContextCompat.getColor(this, R.color.daily_morning_accent)));
         
-        slots.add(new DailySlotData(getString(R.string.daily_afternoon), "12:00 - 17:59", 
-                getString(R.string.daily_afternoon_desc), 800, 2, 
+        slots.add(new DailySlotData(getString(R.string.daily_label_afternoon), "12:00 - 17:59", 
+                getString(R.string.daily_desc_afternoon), 800, 2, 
                 R.drawable.ads2, ContextCompat.getColor(this, R.color.daily_noon_accent)));
         
-        slots.add(new DailySlotData(getString(R.string.daily_evening), "18:00 - 23:59", 
-                getString(R.string.daily_evening_desc), 1200, 3, 
+        slots.add(new DailySlotData(getString(R.string.daily_label_evening), "18:00 - 23:59", 
+                getString(R.string.daily_desc_evening), 1200, 3, 
                 R.drawable.ads3, ContextCompat.getColor(this, R.color.daily_evening_accent)));
 
         adapter = new DailyBannerAdapter(slots);
@@ -137,9 +147,13 @@ public class DailyCheckinActivity extends AppCompatActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (position < bgColors.length - 1) {
-                    int color = (int) new ArgbEvaluator().evaluate(positionOffset, bgColors[position], bgColors[position + 1]);
-                    viewBgOverlay.setBackgroundColor(color);
+                    ArgbEvaluator evaluator = new ArgbEvaluator();
+                    int bgColor = (int) evaluator.evaluate(positionOffset, bgColors[position], bgColors[position + 1]);
+                    viewBgOverlay.setBackgroundColor(bgColor);
                     viewBgOverlay.setAlpha(0.85f);
+                    
+                    int accentColor = (int) evaluator.evaluate(positionOffset, accentColors[position], accentColors[position + 1]);
+                    viewHeaderAccent.setBackgroundColor(accentColor);
                 }
             }
 
@@ -203,7 +217,7 @@ public class DailyCheckinActivity extends AppCompatActivity {
                         }
                         loadDailyStatus();
                     } else {
-                        String errorMsg = "Cannot check in";
+                        String errorMsg = getString(R.string.daily_error_claim);
                         if (response.errorBody() != null) {
                             JSONObject errJson = new JSONObject(response.errorBody().string());
                             errorMsg = errJson.optString("message", errorMsg);
@@ -217,7 +231,7 @@ public class DailyCheckinActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(DailyCheckinActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DailyCheckinActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -229,9 +243,9 @@ public class DailyCheckinActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         // Update to Daily specific strings
-        ((TextView) dialogView.findViewById(R.id.tv_reward_title)).setText(R.string.daily_reward_dialog_title);
-        ((TextView) dialogView.findViewById(R.id.tv_reward_subtitle)).setText(R.string.daily_reward_dialog_subtitle);
-        ((TextView) dialogView.findViewById(R.id.tv_reward_footer_hint)).setText(R.string.daily_reward_footer_hint);
+        ((TextView) dialogView.findViewById(R.id.tv_reward_title)).setText(R.string.daily_msg_reward_title);
+        ((TextView) dialogView.findViewById(R.id.tv_reward_subtitle)).setText(R.string.daily_msg_reward_subtitle);
+        ((TextView) dialogView.findViewById(R.id.tv_reward_footer_hint)).setText(R.string.daily_msg_footer_hint);
 
         TextView tvCoins = dialogView.findViewById(R.id.tv_reward_coins);
         TextView tvDiamonds = dialogView.findViewById(R.id.tv_reward_diamonds);
@@ -332,7 +346,7 @@ public class DailyCheckinActivity extends AppCompatActivity {
                     holder.btnClaim.setAlpha(0.6f);
                     break;
                 case "available":
-                    holder.tvClaimText.setText(getString(R.string.daily_claim));
+                    holder.tvClaimText.setText(getString(R.string.daily_action_claim));
                     holder.btnClaim.setCardBackgroundColor(accentColor);
                     holder.btnClaim.setAlpha(1.0f);
                     holder.btnClaim.setClickable(true);
@@ -340,7 +354,7 @@ public class DailyCheckinActivity extends AppCompatActivity {
                     break;
                 case "locked":
                 default:
-                    holder.tvClaimText.setText(getString(R.string.daily_claim));
+                    holder.tvClaimText.setText(getString(R.string.daily_action_claim));
                     holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.mosco_input_bg));
                     holder.btnClaim.setAlpha(0.35f);
                     break;

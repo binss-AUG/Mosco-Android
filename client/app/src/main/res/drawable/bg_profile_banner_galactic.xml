@@ -31,9 +31,10 @@
                 android:endX="400"
                 android:endY="0"
                 android:type="linear">
-                <item android:offset="0" android:color="#6c29fd" />
-                <item android:offset="1.0" android:color="#00E5FF" />
+                <item android:offset="0" android:color="@color/mosco_primary" />
+                <item android:offset="1.0" android:color="@color/palette_cyan_neon" />
             </gradient>
         </aapt:attr>
     </path>
 </vector>
+

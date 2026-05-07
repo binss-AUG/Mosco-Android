@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inventory & BottomSheet -->
+    <string name="inventory_title">Select an Objet</string>
+    <string name="inventory_empty_title">Your collection is hauntingly empty…</string>
+    <string name="inventory_empty_desc">Venture to the shop and summon your first artifact.</string>
+    <string name="inventory_action_quick">Quick Pick</string>
+    <string name="inventory_msg_quick_pick_success">Best squad selected!</string>
+    <string name="inventory_format_items_count">%d Items</string>
+    <string name="inventory_loading_more">Loading more items…</string>
+    <string name="inventory_label_filter">Filter</string>
+    <string name="inventory_label_sort_newest">Newest</string>
+    <string name="inventory_label_sort_oldest">Oldest</string>
+    <string name="inventory_label_sort_lowest_no">Lowest No.</string>
+    <string name="inventory_label_sort_highest_no">Highest No.</string>
+
+    <string-array name="inventory_sort_options">
+        <item>@string/inventory_label_sort_newest</item>
+        <item>@string/inventory_label_sort_oldest</item>
+        <item>@string/inventory_label_sort_lowest_no</item>
+        <item>@string/inventory_label_sort_highest_no</item>
+    </string-array>
+
+    <!-- Collection & Album -->
+    <string name="collection_tab_album">Album</string>
+    <string name="collection_tab_mailbox">Mailbox</string>
+    <string name="collection_tab_objets">Objets</string>
+    <string name="collection_tab_items">Items</string>
+
+    <string-array name="collection_tabs">
+        <item>@string/collection_tab_album</item>
+        <item>@string/collection_tab_mailbox</item>
+        <item>@string/collection_tab_objets</item>
+        <item>@string/collection_tab_items</item>
+    </string-array>
+    <string name="collection_msg_reward_claimed">Reward already claimed!</string>
+    <string name="collection_format_reward_requirement">Collect %d cards to claim!</string>
+    <string name="collection_msg_error_mailbox">Failed to load mailbox</string>
+    <string name="collection_msg_error_inventory">Failed to load inventory</string>
+    <string name="collection_msg_error_album">Failed to load Collection</string>
+    <string name="collection_album_not_collected">POOR WAV… YOU HAVEN\'T COLLECTED THIS YET</string>
+    <string name="collection_action_receive_all">Receive All</string>
+
+    <!-- Synergies -->
+    <string name="synergy_label_active">ACTIVE SYNERGIES</string>
+    <string name="synergy_tier_bronze">BRONZE</string>
+    <string name="synergy_tier_silver">SILVER</string>
+    <string name="synergy_tier_gold">GOLD</string>
+
+    <!-- Team & Formation -->
+    <string name="formation_total_ovr">TOTAL FORMATION OVR: %d</string>
+    <string name="formation_msg_artist_collision">Only one Objet per Artist allowed!</string>
+    <string name="formation_msg_preview_failed">Preview failed</string>
+
+    <!-- Card Actions (Premium Buttons) -->
+    <string name="card_action_gacha_title">GACHA SPIN</string>
+    <string name="card_action_gacha_desc">Recycle cards or use tickets to get new ones</string>
+    <string name="card_action_shop_title">OPEN SHOP</string>
+    <string name="card_action_shop_desc">Browse exclusive deals and card packs</string>
+    <string name="card_action_capture_title">CAPTURE SCREEN</string>
+    <string name="card_action_capture_desc">Capture a high-quality snap of your card</string>
+    <string name="card_action_send_title">SEND GIFT</string>
+    <string name="card_action_send_desc">Share this collectible with your friends</string>
+    <string name="card_action_upgrade_title">UPGRADE</string>
+    <string name="card_action_upgrade_desc">Enhance card stats to dominate the galaxy</string>
+    <string name="stat_hp">HP</string>
+    <string name="stat_atk">ATK</string>
+    <string name="stat_def">DEF</string>
+    <string name="stat_spd">SPD</string>
+    <string name="stat_crit_rate">Crit Rate</string>
+    <string name="stat_crit_dmg">Crit DMG</string>
+
+    <!-- Upgrade System -->
+    <string name="upgrade_title">Upgrade Objet</string>
+    
+    <!-- Spin / Gacha System -->
+    <string name="spin_action_charging">Charging energy…</string>
+    <string name="spin_msg_nothing">Nothing</string>
+    <string name="spin_msg_failed">Sacrifice failed</string>
+    <string name="spin_format_received_objet">Received the %s Objekt.</string>
+
+    <!-- Shop System -->
+    <string name="shop_title">Galactic Shop</string>
+    <string name="shop_error_load">Error loading shop</string>
+    <string name="shop_msg_login_first">Please login first</string>
+    <string name="shop_msg_purchase_failed">Purchase failed: Not enough resources</string>
+    <string name="shop_format_buy_success">You bought %1$dx %2$s</string>
+    <string name="shop_format_used">Used %1$dx %2$s</string>
+    <string name="shop_format_timer_days">⏳ Ends in %d days</string>
+    <string name="shop_format_timer_hours">⏳ Ends in %d hours</string>
+    <string name="shop_dialog_buy_confirm_title">Confirm Purchase</string>
+    <string name="shop_dialog_buy_confirm_msg">Do you want to buy %1$dx %2$s for %3$s?</string>
+
+    <!-- Mailbox System -->
+    <string name="mailbox_action_claim">Claim Gift</string>
+    <string name="mailbox_action_later">Later</string>
+    <string name="mailbox_action_received">Received</string>
+    <string name="mailbox_action_close">Close</string>
+    <string name="mailbox_msg_connecting">Connecting to control center to receive gifts…</string>
+    <string name="mailbox_msg_claim_success_title">SUCCESS!</string>
+    <string name="mailbox_format_claim_success_msg">Congratulations! Item %s has been moved to your inventory.</string>
+    <string name="mailbox_action_awesome">Awesome</string>
+
+    <!-- Items System -->
+    <string name="items_label_available">Available: %s</string>
+    <string name="collection_label_completed">COMPLETED</string>
+    <string name="collection_label_reward">REWARD</string>
+</resources>

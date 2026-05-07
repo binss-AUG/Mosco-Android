@@ -59,7 +59,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             Long friendshipId = entry.optLong("friendshipId");
 
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
-            holder.tvLevel.setText("LV " + entry.optInt("level", 1));
+            holder.tvLevel.setText(holder.itemView.getContext().getString(R.string.format_level_short, entry.optInt("level", 1)));
 
             // --- 🎭 SYNC AVATAR LOGIC ---
             String avatarId = entry.optString("avatarId", "1");

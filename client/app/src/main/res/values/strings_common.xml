@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Metadata -->
+    <string name="app_name">Mosco</string>
+    <string name="common_app_version">App version %s</string>
+    <string name="common_galactic_edition">Mosco Galactic Edition v%s</string>
+    <string name="common_label_you">You</string>
+
+    <!-- Common Actions -->
+    <string name="action_confirm">Confirm</string>
+    <string name="common_action_loading">...</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_done">Done</string>
+    <string name="action_save">Save</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_close">Close</string>
+    <string name="action_back">Back</string>
+    <string name="action_next">Next</string>
+    <string name="action_previous">Previous</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_claim">Claim</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_exit">Exit</string>
+    <string name="action_stay">Stay</string>
+    <string name="action_buy">Buy</string>
+    <string name="action_send">Send</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_ok">OK</string>
+    <string name="action_use">Use</string>
+    <string name="action_use_item">Use Item</string>
+    <string name="action_get_more">Get more</string>
+    <string name="action_collect">Thu thập</string>
+    <string name="action_get_started">Get Started</string>
+    <string name="label_all">All</string>
+    <string name="label_quantity">Quantity</string>
+    <string name="label_choose_avatar">Choose your avatar</string>
+    
+    <!-- Ghost Buttons (Detail UI) -->
+    <string name="btn_spin_title">LUCKY SPIN</string>
+    <string name="btn_spin_desc">Venture into the Gacha to find this relic.</string>
+    <string name="btn_shop_title">GALACTIC SHOP</string>
+    <string name="btn_shop_desc">Acquire rare items from the trade center.</string>
+    <string name="btn_photo_title">CAPTURE PHOTO</string>
+    <string name="btn_photo_desc">Immortalize this Objet in your gallery.</string>
+    <string name="btn_send_title">GIFT OBJET</string>
+    <string name="btn_send_desc">Transfer ownership to another commander.</string>
+    <string name="btn_upgrade_title">PERFORMANCE TOUR</string>
+    <string name="btn_upgrade_desc">Deploy this Objet to earn rewards.</string>
+
+    <!-- Common Messages -->
+    <string name="common_msg_loading">Connecting to Galaxy…</string>
+    <string name="common_msg_coming_soon">Coming soon!</string>
+    <string name="common_msg_success">Success!</string>
+    <string name="common_error_unknown">An unknown error occurred</string>
+    <string name="common_error_network">Cannot connect to server.</string>
+
+    <!-- Mission / Event -->
+    <string name="common_mission_header">GALACTIC EVENTS</string>
+    <string name="common_mission_coming_soon">COMING SOON</string>
+    <string name="common_mission_coming_soon_desc">Our scouts are currently mapping this sector of the galaxy. Check back soon for new transmissions.</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_action_cancel">Cancel</string>
+    <string name="dialog_action_confirm">Confirm</string>
+    <string name="dialog_logout_title">Logout Confirmation</string>
+    <string name="dialog_logout_msg">Are you sure you want to disconnect from the Mosco world?</string>
+    <string name="dialog_exit_title">Exit Galactic World?</string>
+    <string name="dialog_exit_msg">Are you sure you want to leave the Mosco universe and return to Earth?</string>
+    <string name="dialog_btn_stay">STAY</string>
+    <string name="dialog_btn_exit">EXIT</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_status_connecting">Connecting...</string>
+    <string name="splash_status_checking">Checking for updates...</string>
+    <string name="splash_status_downloading">Downloading resources...</string>
+    <string name="splash_status_preparing">Preparing data...</string>
+    <string name="splash_status_loading">Finalizing Quantum Alignment...</string>
+    <string name="splash_format_download_sector">Sector Code: #%s</string>
+    <string name="splash_error_no_internet">Quantum signal lost. Please check your internet connection.</string>
+    <string name="splash_error_server_unavailable">Galactic server is offline. Please try again later.</string>
+    <string name="splash_error_connection_title">CONNECTION FAILED</string>
+    <string name="splash_error_connection_msg">The archive is unreachable. Please verify your link to the galaxy.</string>
+    <string name="splash_dialog_cellular_title">Data Usage Warning</string>
+    <string name="splash_dialog_cellular_msg">You are using cellular data. Do you want to download approximately %1$d MB of assets?</string>
+    <string name="splash_action_download">Download Now</string>
+    <string name="splash_action_exit">Exit</string>
+    <string name="splash_action_retry">Retry</string>
+    <string name="common_msg_connection_lost">Connection lost</string>
+    <string name="common_msg_back_online">Back online</string>
+    <string name="common_msg_system_error">System error occurred</string>
+    <string name="msg_milestone_achieved">Milestone achieved!</string>
+    
+    <!-- Placeholders & Formatting -->
+    <string name="placeholder_empty">--</string>
+    <string name="placeholder_commander">Commander</string>
+    <string name="common_msg_tap_to_continue">TAP TO CONTINUE</string>
+    <string name="placeholder_loading_showcase">Loading Showcase…</string>
+    <string name="format_currency_thousands">%.1fK</string>
+    <string name="format_currency_millions">%.1fM</string>
+    <string name="format_currency_billions">%.1fB</string>
+    <string name="format_currency_trillions">%.1fT</string>
+    <string name="format_qty">x%s</string>
+    <string name="format_qty_int">x%d</string>
+    <string name="format_fraction">%1$s/%2$s</string>
+    <string name="format_level">Level %d</string>
+    <string name="format_level_short">LV %d</string>
+    <string name="format_level_plus">+%d</string>
+    <string name="settings_label_cache_usage">Current usage: %s</string>
+    <string name="settings_msg_clearing_cache">Clearing cache…</string>
+    <string name="home_format_user_id">ID: %s</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_close">Close button</string>
+    <string name="cd_back">Back button</string>
+</resources>

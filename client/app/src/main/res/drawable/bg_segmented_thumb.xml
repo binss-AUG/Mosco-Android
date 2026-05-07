@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#26FFFFFF" /> <!-- 15% White glass thumb -->
-    <stroke android:width="0.5dp" android:color="#33FFFFFF" />
-    <corners android:radius="8dp" />
+    <solid android:color="@color/mosco_white_15" /> <!-- 15% White glass thumb -->
+    <stroke android:width="0.5dp" android:color="@color/mosco_white_20" />
+    <corners android:radius="@dimen/spacing_sm" />
 </shape>
+

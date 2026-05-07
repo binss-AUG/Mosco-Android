@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="24dp"
+    android:layout_margin="@dimen/spacing_lg"
     android:background="@drawable/bg_dialog_galactic"
-    android:padding="24dp">
+    android:padding="@dimen/spacing_lg">
 
     <!-- Hiệu ứng nổ Lottie -->
     <com.airbnb.lottie.LottieAnimationView
@@ -25,26 +25,26 @@
     <!-- Card chứa phần thưởng -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_reward_container"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="40dp"
+        android:layout_width="@dimen/spacing_120dp"
+        android:layout_height="@dimen/spacing_120dp"
+        android:layout_marginTop="@dimen/spacing_40dp"
         app:cardBackgroundColor="@color/mosco_surface_container"
-        app:cardCornerRadius="60dp"
-        app:cardElevation="12dp"
+        app:cardCornerRadius="@dimen/spacing_60dp"
+        app:cardElevation="@dimen/radius_lg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="#FFD700"
+        app:strokeColor="@color/palette_gold"
         app:strokeWidth="3dp">
 
         <ImageView
             android:id="@+id/iv_reward_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="24dp"
+            android:padding="@dimen/spacing_lg"
             android:scaleType="centerInside"
             android:src="@drawable/ic_gift"
-            app:tint="#FFD700" />
+            app:tint="@color/palette_gold" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -52,10 +52,10 @@
         android:id="@+id/tv_reward_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="@dimen/spacing_lg"
         style="@style/MoscoText.Luxury.SubHeader"
-        android:text="Milestone achieved!"
-        android:textColor="#FFD700"
+        android:text="@string/msg_milestone_achieved"
+        android:textColor="@color/palette_gold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cv_reward_container" />
@@ -64,7 +64,7 @@
         android:id="@+id/tv_reward_desc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         style="@style/MoscoText.Luxury.Body"
         android:gravity="center"
         android:text="You received 1,000 Coin!"
@@ -77,14 +77,16 @@
         android:id="@+id/btn_claim_reward"
         style="@style/MoscoButton.IconGlass"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginHorizontal="20dp"
+        android:layout_height="@dimen/spacing_56dp"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginHorizontal="@dimen/spacing_20dp"
         android:textAppearance="@style/MoscoText.Luxury.Button"
-        android:text="Thu thập"
+        android:text="@string/action_collect"
         android:textColor="@color/white"
-        app:cornerRadius="12dp"
+        app:cornerRadius="@dimen/radius_lg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_reward_desc" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+

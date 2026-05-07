@@ -52,14 +52,14 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
         super.onViewCreated(view, savedInstanceState);
         rvRequests = view.findViewById(R.id.rv_rank_list);
         tvEmpty = view.findViewById(R.id.tv_rank_empty);
-        tvEmpty.setText("No pending requests");
+        tvEmpty.setText(getString(R.string.social_msg_no_requests));
 
-        rvRequests.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvRequests.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FriendRequestAdapter(new ArrayList<>(), this);
         rvRequests.setAdapter(adapter);
 
-        if (getContext() != null) {
-            apiService = ApiClient.getClient(getContext()).create(GameApiService.class);
+        if (requireContext() != null) {
+            apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
         }
         loadRequests();
     }
@@ -74,7 +74,7 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
      * Load pending friend requests from API.
      */
     private void loadRequests() {
-        if (apiService == null || getContext() == null) return;
+        if (apiService == null || requireContext() == null) return;
 
         apiService.getFriendRequests().enqueue(new Callback<ResponseBody>() {
             @Override
@@ -121,19 +121,19 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
         apiService.acceptFriend(friendshipId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (getContext() == null) return;
+                if (requireContext() == null) return;
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Friend request accepted!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.social_msg_request_accepted), Toast.LENGTH_SHORT).show();
                     loadRequests(); // Refresh list
                 } else {
-                    Toast.makeText(getContext(), "Failed to accept", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.social_error_accept), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                if (requireContext() != null) {
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -146,19 +146,19 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
         apiService.removeFriend(friendshipId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (getContext() == null) return;
+                if (requireContext() == null) return;
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Request declined", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.social_msg_request_declined), Toast.LENGTH_SHORT).show();
                     loadRequests(); // Refresh list
                 } else {
-                    Toast.makeText(getContext(), "Failed to decline", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.social_error_decline), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                if (requireContext() != null) {
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
                 }
             }
         });

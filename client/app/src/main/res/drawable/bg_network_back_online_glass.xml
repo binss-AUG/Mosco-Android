@@ -3,7 +3,7 @@
     <!-- Subtle Inner Success Glow -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="12dp" />
+            <corners android:radius="@dimen/radius_lg" />
             <solid android:color="#0D00C853" />
             <stroke
                 android:width="0.8dp"
@@ -16,7 +16,7 @@
         <shape android:shape="rectangle">
             <corners android:radius="11.2dp" />
             <gradient
-                android:startColor="#F2080808"
+                android:startColor="@color/mosco_bg_dark"
                 android:endColor="#CC141414"
                 android:angle="225" />
             <stroke
@@ -25,3 +25,4 @@
         </shape>
     </item>
 </layer-list>
+

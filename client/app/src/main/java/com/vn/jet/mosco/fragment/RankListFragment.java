@@ -86,7 +86,7 @@ public class RankListFragment extends Fragment {
         tvEmpty = view.findViewById(R.id.tv_rank_empty);
         lottieLoading = view.findViewById(R.id.lottie_rank_loading);
 
-        rvRankList.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvRankList.setLayoutManager(new LinearLayoutManager(requireContext()));
         podiumAdapter = new PodiumAdapter(new ArrayList<>(), rankType);
         rankAdapter = new RankAdapter(new ArrayList<>(), rankType);
         rvRankList.setAdapter(new ConcatAdapter(podiumAdapter, rankAdapter));
@@ -151,9 +151,9 @@ public class RankListFragment extends Fragment {
      * Gọi API rank tương ứng và cập nhật RecyclerView.
      */
     private void loadRankData() {
-        if (getContext() == null) return;
+        if (requireContext() == null) return;
 
-        GameApiService apiService = ApiClient.getClient(getContext()).create(GameApiService.class);
+        GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
         Call<ResponseBody> call;
 
         // Chọn API dựa trên loại rank

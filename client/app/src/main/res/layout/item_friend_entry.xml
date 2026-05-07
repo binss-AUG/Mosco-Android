@@ -7,27 +7,27 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_header_glass_v2"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="12dp"
-    android:layout_marginBottom="8dp"
+    android:paddingHorizontal="@dimen/spacing_14dp"
+    android:paddingVertical="@dimen/radius_lg"
+    android:layout_marginBottom="@dimen/spacing_sm"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
 
     <!-- Avatar with Online Status Glow -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="52dp"
-        android:layout_height="52dp">
+        android:layout_width="@dimen/spacing_52dp"
+        android:layout_height="@dimen/spacing_52dp">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_friend_avatar"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="@dimen/spacing_44dp"
+            android:layout_height="@dimen/spacing_44dp"
             app:cardCornerRadius="22dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#3A3A55"
-            app:strokeColor="#30FFFFFF"
-            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+            app:strokeColor="@color/mosco_white_20"
+            app:strokeWidth="@dimen/stroke_thin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -44,10 +44,10 @@
         <!-- Status Dot Glow -->
         <View
             android:id="@+id/view_online_status"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
+            android:layout_width="@dimen/radius_lg"
+            android:layout_height="@dimen/radius_lg"
             android:background="@drawable/bg_status_online"
-            android:elevation="2dp"
+            android:elevation="@dimen/spacing_2dp"
             app:layout_constraintBottom_toBottomOf="@id/card_friend_avatar"
             app:layout_constraintEnd_toEndOf="@id/card_friend_avatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="14dp">
+        android:layout_marginStart="@dimen/spacing_14dp">
 
         <TextView
             android:id="@+id/tv_friend_name"
@@ -77,9 +77,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_caption"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="@dimen/spacing_2dp" />
     </LinearLayout>
 
 </LinearLayout>
+
+

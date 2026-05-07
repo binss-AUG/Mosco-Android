@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ClipData;
@@ -258,7 +259,7 @@ public class FormationActivity extends AppCompatActivity {
                 for (int i = 0; i < formation.size(); i++) {
                     if (i == position) continue; // Bỏ qua chính thẻ hiện đang xét thay thế
                     if (formation.get(i) != null && newArtist.equalsIgnoreCase(formation.get(i).getMember())) {
-                        Toast.makeText(this, "Trong đội hình không thể có 2 Objet cùng artist!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.formation_error_duplicate_artist), Toast.LENGTH_SHORT).show();
                         return; // Chặn không cho thêm vào
                     }
                 }
@@ -356,7 +357,7 @@ public class FormationActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<BattleResponse> call, Throwable t) {
-                Toast.makeText(FormationActivity.this, getString(R.string.formation_preview_failed), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FormationActivity.this, getString(R.string.formation_msg_preview_failed), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -471,7 +472,7 @@ public class FormationActivity extends AppCompatActivity {
             tv.setTextColor(android.graphics.Color.WHITE);
             tv.setTextSize(13f);
             try {
-                tv.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.poppins));
+                tv.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(this, R.font.pretendard));
             } catch (Exception e) {
                 // Ignore
             }
@@ -495,7 +496,7 @@ public class FormationActivity extends AppCompatActivity {
         animator.setDuration(800);
         animator.addUpdateListener(animation -> {
             currentOvr = (int) animation.getAnimatedValue();
-            tvTotalOvr.setText(getString(R.string.formation_ovr_label, currentOvr));
+            tvTotalOvr.setText(getString(R.string.formation_total_ovr, currentOvr));
         });
         animator.start();
     }

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="54dp"
-    android:paddingBottom="16dp"
+    android:paddingBottom="@dimen/spacing_md"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:visibility="gone"
@@ -27,21 +27,21 @@
             android:id="@+id/fl_avatar_silver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:clipChildren="false"
             app:layout_constraintBottom_toTopOf="@+id/tv_name_silver"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="8dp"
+                android:layout_width="@dimen/spacing_64dp"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_margin="@dimen/spacing_sm"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
-                app:cardCornerRadius="32dp"
-                app:cardElevation="12dp"
+                app:cardCornerRadius="@dimen/spacing_xl"
+                app:cardElevation="@dimen/radius_lg"
                 app:strokeColor="@color/podium_unified_stroke"
-                app:strokeWidth="2dp">
+                app:strokeWidth="@dimen/spacing_2dp">
 
                 <ImageView
                     android:id="@+id/iv_avatar_silver"
@@ -59,14 +59,14 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:background="@drawable/bg_pill_accent"
                 android:backgroundTint="@color/rank_silver"
-                android:elevation="16dp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
+                android:elevation="@dimen/spacing_md"
+                android:paddingHorizontal="@dimen/spacing_6dp"
+                android:paddingVertical="@dimen/spacing_2dp"
                 android:text="@string/rank_num_2"
                 android:textColor="@color/black"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
-                android:translationY="4dp" />
+                android:translationY="@dimen/spacing_xs" />
         </FrameLayout>
 
         <TextView
@@ -74,13 +74,13 @@
             style="@style/MoscoText.Luxury.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
             tools:text="Unknown"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/block_silver"
             app:layout_constraintEnd_toEndOf="parent"
@@ -90,14 +90,14 @@
             android:id="@+id/block_silver"
             android:layout_width="match_parent"
             android:layout_height="90dp"
-            android:elevation="8dp"
+            android:elevation="@dimen/spacing_sm"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <View
                 android:layout_width="match_parent"
-                android:layout_height="24dp"
+                android:layout_height="@dimen/spacing_lg"
                 android:background="@drawable/ic_trapezoid_silver" />
             <View
                 android:layout_width="match_parent"
@@ -109,8 +109,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:elevation="10dp"
+            android:layout_marginTop="@dimen/spacing_36dp"
+            android:elevation="@dimen/spacing_10dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             app:layout_constraintEnd_toEndOf="@+id/block_silver"
@@ -119,9 +119,9 @@
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/iv_type_silver"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginEnd="2dp"
+                android:layout_width="@dimen/spacing_14dp"
+                android:layout_height="@dimen/spacing_14dp"
+                android:layout_marginEnd="@dimen/spacing_2dp"
                 android:visibility="gone"
                 app:tint="@color/white" />
 
@@ -132,9 +132,9 @@
                 android:layout_height="wrap_content"
                 tools:text="0"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subtitle"
                 android:textStyle="bold"
-                android:shadowColor="#80000000"
+                android:shadowColor="@color/mosco_black_50"
                 android:shadowRadius="4"
                 android:shadowDy="2" />
         </LinearLayout>
@@ -157,21 +157,21 @@
             android:id="@+id/fl_avatar_bronze"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:clipChildren="false"
             app:layout_constraintBottom_toTopOf="@+id/tv_name_bronze"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="8dp"
+                android:layout_width="@dimen/spacing_64dp"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_margin="@dimen/spacing_sm"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
-                app:cardCornerRadius="32dp"
-                app:cardElevation="12dp"
+                app:cardCornerRadius="@dimen/spacing_xl"
+                app:cardElevation="@dimen/radius_lg"
                 app:strokeColor="@color/podium_unified_stroke"
-                app:strokeWidth="2dp">
+                app:strokeWidth="@dimen/spacing_2dp">
 
                 <ImageView
                     android:id="@+id/iv_avatar_bronze"
@@ -189,14 +189,14 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:background="@drawable/bg_pill_accent"
                 android:backgroundTint="@color/rank_bronze"
-                android:elevation="16dp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
+                android:elevation="@dimen/spacing_md"
+                android:paddingHorizontal="@dimen/spacing_6dp"
+                android:paddingVertical="@dimen/spacing_2dp"
                 android:text="@string/rank_num_3"
                 android:textColor="@color/white"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
-                android:translationY="4dp" />
+                android:translationY="@dimen/spacing_xs" />
         </FrameLayout>
 
         <TextView
@@ -204,13 +204,13 @@
             style="@style/MoscoText.Luxury.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
             tools:text="Unknown"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/block_bronze"
             app:layout_constraintEnd_toEndOf="parent"
@@ -220,14 +220,14 @@
             android:id="@+id/block_bronze"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:elevation="8dp"
+            android:elevation="@dimen/spacing_sm"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <View
                 android:layout_width="match_parent"
-                android:layout_height="24dp"
+                android:layout_height="@dimen/spacing_lg"
                 android:background="@drawable/ic_trapezoid_bronze" />
             <View
                 android:layout_width="match_parent"
@@ -239,8 +239,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:elevation="10dp"
+            android:layout_marginTop="@dimen/spacing_36dp"
+            android:elevation="@dimen/spacing_10dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             app:layout_constraintEnd_toEndOf="@+id/block_bronze"
@@ -249,9 +249,9 @@
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/iv_type_bronze"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_marginEnd="2dp"
+                android:layout_width="@dimen/spacing_14dp"
+                android:layout_height="@dimen/spacing_14dp"
+                android:layout_marginEnd="@dimen/spacing_2dp"
                 android:visibility="gone"
                 app:tint="@color/white" />
 
@@ -262,9 +262,9 @@
                 android:layout_height="wrap_content"
                 tools:text="0"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subtitle"
                 android:textStyle="bold"
-                android:shadowColor="#80000000"
+                android:shadowColor="@color/mosco_black_50"
                 android:shadowRadius="4"
                 android:shadowDy="2" />
         </LinearLayout>
@@ -286,7 +286,7 @@
             android:id="@+id/fl_avatar_gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:clipChildren="false"
             app:layout_constraintBottom_toTopOf="@+id/tv_name_gold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -295,10 +295,10 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="84dp"
                 android:layout_height="84dp"
-                android:layout_margin="10dp"
+                android:layout_margin="@dimen/spacing_10dp"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
                 app:cardCornerRadius="42dp"
-                app:cardElevation="16dp"
+                app:cardElevation="@dimen/spacing_md"
                 app:strokeColor="@color/podium_unified_stroke"
                 app:strokeWidth="3dp">
 
@@ -311,13 +311,13 @@
             </com.google.android.material.card.MaterialCardView>
 
             <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="@dimen/spacing_28dp"
+                android:layout_height="@dimen/spacing_28dp"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:layout_marginEnd="@dimen/spacing_xs"
                 android:rotation="25"
-                android:elevation="20dp"
+                android:elevation="@dimen/spacing_20dp"
                 android:src="@drawable/ic_crown"
                 app:tint="@color/mosco_gold" />
             
@@ -327,14 +327,14 @@
                 android:layout_gravity="bottom|center_horizontal"
                 android:background="@drawable/bg_pill_accent"
                 android:backgroundTint="@color/mosco_gold"
-                android:elevation="20dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:elevation="@dimen/spacing_20dp"
+                android:paddingHorizontal="@dimen/spacing_10dp"
+                android:paddingVertical="@dimen/spacing_xs"
                 android:text="@string/rank_num_1"
                 android:textColor="@color/black"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_body_lg"
                 android:textStyle="bold"
-                android:translationY="6dp" />
+                android:translationY="@dimen/spacing_6dp" />
         </FrameLayout>
 
         <TextView
@@ -342,13 +342,13 @@
             style="@style/MoscoText.Luxury.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/spacing_md"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
             tools:text="Unknown"
             android:textColor="@color/mosco_gold"
-            android:textSize="14sp"
+            android:textSize="@dimen/text_size_body_lg"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/block_gold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -358,14 +358,14 @@
             android:id="@+id/block_gold"
             android:layout_width="match_parent"
             android:layout_height="140dp"
-            android:elevation="12dp"
+            android:elevation="@dimen/radius_lg"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <View
                 android:layout_width="match_parent"
-                android:layout_height="24dp"
+                android:layout_height="@dimen/spacing_lg"
                 android:background="@drawable/ic_trapezoid_gold" />
             <View
                 android:layout_width="match_parent"
@@ -377,8 +377,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:elevation="16dp"
+            android:layout_marginTop="@dimen/spacing_40dp"
+            android:elevation="@dimen/spacing_md"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             app:layout_constraintEnd_toEndOf="@+id/block_gold"
@@ -389,7 +389,7 @@
                 android:id="@+id/iv_type_gold"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:layout_marginEnd="2dp"
+                android:layout_marginEnd="@dimen/spacing_2dp"
                 android:visibility="gone"
                 app:tint="@color/white" />
 
@@ -400,7 +400,7 @@
                 android:layout_height="wrap_content"
                 tools:text="0"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_title"
                 android:textStyle="bold"
                 android:shadowColor="@color/shadow_dark"
                 android:shadowRadius="4"
@@ -409,3 +409,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+

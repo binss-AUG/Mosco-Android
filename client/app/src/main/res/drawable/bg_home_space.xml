@@ -10,5 +10,6 @@
         android:centerY="45%"
         android:startColor="#1A1C29"
         android:centerColor="#0D0D14"
-        android:endColor="#080808" />
+        android:endColor="@color/mosco_bg_dark" />
 </shape>
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 8dp Grid Spacing System -->
+
+    <!-- XS: 4dp - Micro spacing, tight borders -->
+    <dimen name="spacing_xs">4dp</dimen>
+    
+    <!-- SM: 8dp - Standard small padding/margin -->
+    <dimen name="spacing_sm">8dp</dimen>
+    
+    <!-- MD: 16dp - Standard container padding -->
+    <dimen name="spacing_md">16dp</dimen>
+    
+    <!-- LG: 24dp - Major section spacing -->
+    <dimen name="spacing_lg">24dp</dimen>
+    
+    <!-- XL: 32dp - Large hero section spacing -->
+    <dimen name="spacing_xl">32dp</dimen>
+    
+    <!-- XXL: 48dp - Extreme spacing -->
+    <dimen name="spacing_xxl">48dp</dimen>
+
+    <!-- Semantic Spacing -->
+    <dimen name="screen_edge_margin">@dimen/spacing_md</dimen>
+    <dimen name="card_padding">@dimen/spacing_md</dimen>
+    <dimen name="item_spacing_sm">@dimen/spacing_sm</dimen>
+    <dimen name="item_spacing_md">@dimen/spacing_md</dimen>
+    <dimen name="item_spacing_lg">@dimen/spacing_lg</dimen>
+    
+    <!-- Component Specific -->
+    <dimen name="button_height_standard">48dp</dimen>
+    <dimen name="button_height_large">56dp</dimen>
+    <dimen name="input_height_standard">52dp</dimen>
+    
+    <!-- Fixed Component Dimensions -->
+    <dimen name="home_dot_size">8dp</dimen>
+    <dimen name="home_dot_spacing">4dp</dimen>
+    <dimen name="header_pill_height">32dp</dimen>
+    <dimen name="icon_size_xs">16dp</dimen>
+    <dimen name="icon_size_sm">24dp</dimen>
+    <dimen name="icon_size_md">32dp</dimen>
+    <dimen name="icon_size_lg">48dp</dimen>
+</resources>

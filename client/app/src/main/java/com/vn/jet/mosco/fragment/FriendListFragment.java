@@ -60,7 +60,7 @@ public class FriendListFragment extends Fragment {
             lottieEmpty.playAnimation();
         }
 
-        rvFriends.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvFriends.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FriendAdapter(new ArrayList<>());
         rvFriends.setAdapter(adapter);
         loadFriendList();
@@ -76,8 +76,8 @@ public class FriendListFragment extends Fragment {
      * Load accepted friends from API.
      */
     private void loadFriendList() {
-        if (getContext() == null) return;
-        GameApiService api = ApiClient.getClient(getContext()).create(GameApiService.class);
+        if (requireContext() == null) return;
+        GameApiService api = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
         api.getFriendList().enqueue(new Callback<ResponseBody>() {
             @Override
@@ -122,7 +122,7 @@ public class FriendListFragment extends Fragment {
             adapter.filter(query);
             if (adapter.getItemCount() == 0 && !query.isEmpty()) {
                 layoutEmpty.setVisibility(View.VISIBLE);
-                tvEmpty.setText("No matches found in your galaxy");
+                tvEmpty.setText(getString(R.string.social_msg_no_matches));
             } else if (adapter.getItemCount() > 0) {
                 layoutEmpty.setVisibility(View.GONE);
             }

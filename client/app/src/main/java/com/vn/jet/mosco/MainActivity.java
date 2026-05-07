@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         llNetworkStatus.setVisibility(View.VISIBLE);
         llNetworkContainer.setBackgroundResource(R.drawable.bg_network_lost_glass);
         ivNetworkIcon.setImageResource(R.drawable.ic_close);
-        tvNetworkMessage.setText("CONNECTION LOST");
+        tvNetworkMessage.setText(R.string.common_msg_connection_lost);
         tvNetworkMessage.startAnimation(pulseAnim);
     }
 
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         tvNetworkMessage.clearAnimation();
         llNetworkContainer.setBackgroundResource(R.drawable.bg_network_back_online_glass);
         ivNetworkIcon.setImageResource(R.drawable.ic_check);
-        tvNetworkMessage.setText("BACK ONLINE");
+        tvNetworkMessage.setText(R.string.common_msg_back_online);
 
         // Biến mất sau 2.5 giây để người dùng kịp nhìn thấy trạng thái đã khôi phục
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {

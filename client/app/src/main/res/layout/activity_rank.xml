@@ -13,13 +13,13 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/item_reveal_result_card_margin_horizontal"
         android:paddingBottom="@dimen/spacing_12dp"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="@dimen/spacing_lg"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_back_rank"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
             android:src="@drawable/ic_back_arrow"
             android:padding="@dimen/spacing_xs"
             android:clickable="true"
@@ -49,9 +49,9 @@
                 android:textColor="@color/white" />
 
             <View
-                android:layout_width="40dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="2dp"
+                android:layout_width="@dimen/spacing_40dp"
+                android:layout_height="@dimen/spacing_2dp"
+                android:layout_marginTop="@dimen/spacing_2dp"
                 android:background="@color/galactic_accent_purple" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -61,16 +61,16 @@
         android:id="@+id/tab_layout_rank"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_header_rank"
-        app:tabIndicatorColor="#8A2BE2"
-        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorColor="@color/mosco_card_stroke"
+        app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
-        app:tabSelectedTextColor="#8A2BE2"
-        app:tabTextColor="#A2A2A7"
+        app:tabSelectedTextColor="@color/mosco_card_stroke"
+        app:tabTextColor="@color/mosco_text_disabled"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"
@@ -81,7 +81,7 @@
         android:id="@+id/view_pager_rank"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         app:layout_constraintBottom_toTopOf="@id/card_my_rank"
         app:layout_constraintTop_toBottomOf="@id/tab_layout_rank" />
 
@@ -90,10 +90,10 @@
         android:id="@+id/card_my_rank"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/spacing_md"
         app:cardCornerRadius="@dimen/radius_lg"
-        app:cardElevation="12dp"
-        app:cardBackgroundColor="#F21A1C29"
+        app:cardElevation="@dimen/radius_lg"
+        app:cardBackgroundColor="@color/mosco_card_bg"
         app:strokeColor="@color/galactic_accent_purple"
         app:strokeWidth="1.2dp"
         android:visibility="gone"
@@ -103,18 +103,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingVertical="8dp">
+            android:paddingVertical="@dimen/spacing_sm">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="YOUR RANKING"
+                android:text="@string/rank_label_your_ranking"
                 style="@style/MoscoText.Luxury.Nav"
-                android:textSize="11sp"
+                android:textSize="@dimen/text_size_caption"
                 android:alpha="0.7"
                 android:letterSpacing="0.1"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="2dp"
+                android:layout_marginStart="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_2dp"
                 android:textColor="@color/white" />
 
             <!-- Chúng ta sẽ xử lý background transparent trong code RankActivity -->
@@ -125,3 +125,6 @@
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

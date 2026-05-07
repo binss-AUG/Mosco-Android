@@ -5,31 +5,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_banner_glass"
-    android:padding="16dp">
+    android:padding="@dimen/spacing_md">
 
     <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
+        android:layout_width="@dimen/spacing_40dp"
+        android:layout_height="@dimen/spacing_xs"
         android:layout_gravity="center_horizontal"
-        android:background="#66FFFFFF"
-        android:layout_marginBottom="16dp" />
+        android:background="@color/mosco_white_40"
+        android:layout_marginBottom="@dimen/spacing_md" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose your avatar"
+        android:text="@string/label_choose_avatar"
         style="@style/MoscoText.Luxury.SubHeader"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_body_md"
         android:textStyle="bold"
         android:fontWeight="700"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="@dimen/spacing_md" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_avatar_list"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:clipToPadding="false"
-        android:paddingBottom="20dp" />
+        android:paddingBottom="@dimen/spacing_20dp" />
 
 </LinearLayout>
+
+

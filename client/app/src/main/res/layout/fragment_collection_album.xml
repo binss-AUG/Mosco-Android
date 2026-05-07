@@ -23,9 +23,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="20dp"
-                android:paddingBottom="4dp">
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_20dp"
+                android:paddingBottom="@dimen/spacing_xs">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -33,10 +33,10 @@
                     android:orientation="horizontal"
                     android:background="@drawable/bg_currency_bar"
                     android:gravity="center_vertical"
-                    android:paddingVertical="6dp"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="12dp"
-                    android:layout_marginTop="2dp">
+                    android:paddingVertical="@dimen/spacing_6dp"
+                    android:paddingStart="@dimen/spacing_6dp"
+                    android:paddingEnd="@dimen/radius_lg"
+                    android:layout_marginTop="@dimen/spacing_2dp">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_idle_album"
@@ -47,14 +47,14 @@
                         app:icon="@drawable/ic_collect"
                         app:iconGravity="textStart"
                         app:iconPadding="0dp"
-                        app:iconSize="24dp" />
+                        app:iconSize="@dimen/spacing_lg" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Album"
-                        android:layout_marginStart="10dp"
+                        android:text="@string/collection_tab_album"
+                        android:layout_marginStart="@dimen/spacing_10dp"
                         style="@style/MoscoText.Luxury.SubHeader" />
 
                     <!-- Tiến trình thu thập -->
@@ -63,7 +63,7 @@
                         style="@style/MoscoText.Luxury.Price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#FFD700"
+                        android:textColor="@color/palette_gold"
                         android:textSize="@dimen/text_size_body_md"
                         tools:text="24/350" />
 
@@ -74,8 +74,8 @@
                     android:id="@+id/progress_album"
                     style="@android:style/Widget.ProgressBar.Horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="6dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="@dimen/spacing_6dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:max="100"
                     android:progress="0"
                     android:progressDrawable="@drawable/mosco_progress_bar" />
@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:weightSum="3">
 
                     <!-- Milestone 1 (30%) -->
@@ -102,10 +102,10 @@
                         android:focusable="true">
                         <ImageView
                             android:id="@+id/iv_ms_1_icon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="@dimen/spacing_lg"
+                            android:layout_height="@dimen/spacing_lg"
                             android:src="@drawable/ic_gift"
-                            app:tint="#CD7F32" />
+                            app:tint="@color/palette_bronze_medium" />
                         <TextView
                             android:id="@+id/tv_ms_1_req"
                             style="@style/MoscoText.Luxury.Label"
@@ -128,10 +128,10 @@
                         android:focusable="true">
                         <ImageView
                             android:id="@+id/iv_ms_2_icon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="@dimen/spacing_lg"
+                            android:layout_height="@dimen/spacing_lg"
                             android:src="@drawable/ic_gift"
-                            app:tint="#C0C0C0" />
+                            app:tint="@color/palette_silver_medium" />
                         <TextView
                             android:id="@+id/tv_ms_2_req"
                             style="@style/MoscoText.Luxury.Label"
@@ -154,10 +154,10 @@
                         android:focusable="true">
                         <ImageView
                             android:id="@+id/iv_ms_3_icon"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
+                            android:layout_width="@dimen/spacing_28dp"
+                            android:layout_height="@dimen/spacing_28dp"
                             android:src="@drawable/ic_gift"
-                            app:tint="#FFD700" />
+                            app:tint="@color/palette_gold" />
                         <TextView
                             android:id="@+id/tv_ms_3_req"
                             style="@style/MoscoText.Luxury.Label"
@@ -174,9 +174,9 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="8dp">
+                android:paddingHorizontal="@dimen/radius_lg"
+                android:paddingTop="@dimen/radius_lg"
+                android:paddingBottom="@dimen/spacing_sm">
 
                 <!-- Sort Button -->
                 <TextView
@@ -184,11 +184,11 @@
                     style="@style/FilterChipStyle"
                     android:layout_width="110dp"
                     android:layout_alignParentStart="true"
-                    android:text="All"
+                    android:text="@string/label_all"
                     android:ellipsize="end"
                     android:maxLines="1"
                     app:drawableEndCompat="@drawable/ic_arrow_down"
-                    android:drawablePadding="4dp"
+                    android:drawablePadding="@dimen/spacing_xs"
                     app:drawableTint="@color/selector_filter_chip_text"
                     android:fontFamily="@font/pretendard"
                     android:fontWeight="400" />
@@ -198,10 +198,10 @@
                     android:id="@+id/btn_filter_album"
                     style="@style/FilterChipStyle"
                     android:layout_toEndOf="@id/btn_sort_album"
-                    android:layout_marginStart="8dp"
-                    android:text="Filter"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:text="@string/inventory_label_filter"
                     app:drawableStartCompat="@drawable/ic_filter"
-                    android:drawablePadding="6dp"
+                    android:drawablePadding="@dimen/spacing_6dp"
                     app:drawableTint="@color/selector_filter_chip_text"
                     android:fontFamily="@font/pretendard"
                     android:fontWeight="400" />
@@ -214,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginHorizontal="6dp"
+                    android:layout_marginHorizontal="@dimen/spacing_6dp"
                     android:textSize="@dimen/text_size_body_sm"
                     tools:text="350 Cards" />
 
@@ -227,9 +227,9 @@
         android:id="@+id/rv_album"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginHorizontal="6dp"
+        android:layout_marginHorizontal="@dimen/spacing_6dp"
         android:clipToPadding="false"
-        android:paddingBottom="20dp"
+        android:paddingBottom="@dimen/spacing_20dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_collection_book_card" />
 
@@ -240,8 +240,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/bg_sort_dropdown"
-        android:paddingVertical="8dp"
+        android:paddingVertical="@dimen/spacing_sm"
         android:visibility="gone"
-        android:elevation="8dp" />
+        android:elevation="@dimen/spacing_sm" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

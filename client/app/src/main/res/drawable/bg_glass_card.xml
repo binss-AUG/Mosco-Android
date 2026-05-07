@@ -12,5 +12,6 @@
     <!-- Ultra-thin white stroke for glass edge effect -->
     <stroke
         android:width="0.8dp"
-        android:color="#33FFFFFF" />
+        android:color="@color/mosco_white_20" />
 </shape>
+

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#40FFFFFF">
+    android:color="@color/mosco_white_25">
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/radius_pill" />
@@ -8,7 +8,8 @@
                 android:startColor="@color/mosco_primary"
                 android:endColor="@color/mosco_primary_dim"
                 android:angle="0" />
-            <stroke android:width="0.5dp" android:color="#80FFFFFF" />
+            <stroke android:width="0.5dp" android:color="@color/mosco_white_50" />
         </shape>
     </item>
 </ripple>
+

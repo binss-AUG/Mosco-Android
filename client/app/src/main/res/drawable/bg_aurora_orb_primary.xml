@@ -5,5 +5,6 @@
         android:type="radial"
         android:gradientRadius="400dp"
         android:startColor="#266C29FD"
-        android:endColor="#00000000" />
+        android:endColor="@color/mosco_black_00" />
 </shape>
+

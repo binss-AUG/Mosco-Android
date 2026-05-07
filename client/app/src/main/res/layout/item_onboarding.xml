@@ -69,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:textSize="24sp" />
+                android:textSize="@dimen/text_size_headline" />
 
             <!-- Responsive Description Text -->
             <TextView
@@ -80,9 +80,10 @@
                 android:layout_marginTop="@dimen/spacing_sm"
                 android:alpha="0.8"
                 android:textAlignment="center"
-                android:textSize="14sp" />
+                android:textSize="@dimen/text_size_body_lg" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
+

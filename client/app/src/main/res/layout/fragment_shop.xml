@@ -15,14 +15,14 @@
         android:id="@+id/header_currency_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="@dimen/spacing_20dp"
+        android:layout_marginHorizontal="@dimen/spacing_md"
         android:background="@drawable/bg_currency_bar"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingVertical="6dp"
-        android:paddingStart="6dp"
-        android:paddingEnd="12dp"
+        android:paddingVertical="@dimen/spacing_6dp"
+        android:paddingStart="@dimen/spacing_6dp"
+        android:paddingEnd="@dimen/radius_lg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -46,14 +46,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:text="@string/shop_title" />
+            android:layout_marginStart="@dimen/spacing_10dp"
+            android:text="@string/shop_header_title" />
 
         <!-- Coins Display -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
+            android:layout_marginEnd="@dimen/radius_lg"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -68,7 +68,7 @@
                 style="@style/MoscoText.Luxury.Price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="@dimen/spacing_xs"
                 android:text="1,250"
                 android:textSize="@dimen/text_size_body_md" />
         </LinearLayout>
@@ -91,7 +91,7 @@
                 style="@style/MoscoText.Luxury.Price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="@dimen/spacing_xs"
                 android:text="80"
                 android:textSize="@dimen/text_size_body_md" />
         </LinearLayout>
@@ -105,9 +105,9 @@
         android:id="@+id/hsv_categories"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="@dimen/spacing_14dp"
         android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="@dimen/spacing_md"
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -122,40 +122,40 @@
             <TextView
                 android:id="@+id/chip_all"
                 style="@style/FilterChipStyle"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="@dimen/spacing_sm"
                 android:state_selected="true"
-                android:text="@string/shop_category_all"
+                android:text="@string/shop_tab_all"
                 android:fontFamily="@font/pretendard"
                 android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_objet"
                 style="@style/FilterChipStyle"
-                android:layout_marginEnd="8dp"
-                android:text="@string/shop_category_objet"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                android:text="@string/shop_tab_objet"
                 android:fontFamily="@font/pretendard"
                 android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_pack"
                 style="@style/FilterChipStyle"
-                android:layout_marginEnd="8dp"
-                android:text="@string/shop_category_pack"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                android:text="@string/shop_tab_pack"
                 android:fontFamily="@font/pretendard"
                 android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_buff"
                 style="@style/FilterChipStyle"
-                android:layout_marginEnd="8dp"
-                android:text="@string/shop_category_buff"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                android:text="@string/shop_tab_buff"
                 android:fontFamily="@font/pretendard"
                 android:fontWeight="400" />
 
             <TextView
                 android:id="@+id/chip_resource"
                 style="@style/FilterChipStyle"
-                android:text="@string/shop_category_resource"
+                android:text="@string/shop_tab_resource"
                 android:fontFamily="@font/pretendard"
                 android:fontWeight="400" />
 
@@ -169,10 +169,10 @@
         android:id="@+id/rv_shop"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="@dimen/spacing_14dp"
+        android:layout_marginHorizontal="@dimen/spacing_10dp"
         android:clipToPadding="false"
-        android:paddingBottom="24dp"
+        android:paddingBottom="@dimen/spacing_lg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -180,3 +180,4 @@
         tools:listitem="@layout/item_shop_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

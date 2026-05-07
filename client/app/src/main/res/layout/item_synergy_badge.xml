@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Mỗi hàng buff trong bảng Synergy BottomSheet -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="10dp"
+    android:paddingHorizontal="@dimen/spacing_md"
+    android:paddingVertical="@dimen/spacing_10dp"
     android:background="?attr/selectableItemBackground">
 
     <!-- Cột 1: Tên Buff -->
@@ -16,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         style="@style/MoscoText.Luxury.SubHeader"
-        android:text="EVOLution"
+        tools:text="EVOLution"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_body_sm"
         android:textStyle="bold"
@@ -30,12 +31,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Price"
-        android:text="+15%"
-        android:textColor="#80FFB4"
+        tools:text="+15%"
+        android:textColor="@color/mosco_tertiary"
         android:textSize="@dimen/text_size_body_sm"
         android:textStyle="bold"
         android:fontWeight="700"
-        android:layout_marginEnd="12dp" />
+        android:layout_marginEnd="@dimen/radius_lg" />
 
     <!-- Cột 3: Container sao đánh giá -->
     <LinearLayout
@@ -48,3 +49,4 @@
     </LinearLayout>
 
 </LinearLayout>
+

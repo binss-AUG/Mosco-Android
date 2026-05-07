@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Authentication -->
+    <string name="auth_title_sign_in">Welcome Back</string>
+    <string name="auth_subtitle_sign_in">Login to your account below</string>
+    <string name="auth_title_sign_up">Create Account</string>
+    <string name="auth_subtitle_sign_up">Join the Mosco Galaxy today</string>
+    <string name="auth_label_email">Email Address</string>
+    <string name="auth_prompt_email">user@example.com</string>
+    <string name="auth_label_password">Password</string>
+    <string name="auth_prompt_password">••••••</string>
+    <string name="auth_label_remember_me">Remember me</string>
+    <string name="auth_label_username">Username</string>
+    <string name="auth_prompt_username">Username</string>
+    <string name="auth_prompt_confirm_password">••••••</string>
+    <string name="auth_label_confirm_password">Confirm Password</string>
+    <string name="auth_label_verification_code">Verification Code</string>
+    <string name="auth_prompt_verification_code">------</string>
+    <string name="auth_action_sign_in">Log In</string>
+    <string name="auth_action_sign_up">Sign Up</string>
+    <string name="auth_action_send_code">Send code</string>
+    <string name="auth_action_resend">Resend</string>
+    <string name="auth_action_forgot_password">Forgot Password?</string>
+    <string name="auth_title_recovery">Account Recovery</string>
+    <string name="auth_subtitle_recovery">Restore your connection to the galaxy</string>
+    <string name="auth_label_new_password">New Password</string>
+    <string name="auth_action_reset_password">Reset Password</string>
+    <string name="auth_msg_new_user">Don\'t have an account? Sign Up</string>
+    <string name="auth_msg_already_have_account">Already have an account? Log In</string>
+    <string name="auth_msg_passwords_not_match">Passwords do not match!</string>
+    <string name="auth_msg_create_account_success">Account created successfully!</string>
+    <string name="auth_msg_code_sent">Verification code sent!</string>
+    <string name="auth_msg_sign_in_success">Welcome back!</string>
+    <string name="auth_msg_forgot_password_recovery">Check your email for recovery code.</string>
+    <string name="auth_msg_reset_password_success">Password reset successfully!</string>
+    <string name="auth_msg_invalid_code">Invalid or expired verification code!</string>
+    <string name="auth_error_short_code">Verification code must be 6 digits</string>
+    <string name="auth_msg_email_not_found">Email not found or connection error!</string>
+    <string name="auth_error_empty_field">This field is required</string>
+    <string name="auth_error_invalid_email">Invalid email format</string>
+    <string name="auth_error_short_password">Password must be at least 6 characters</string>
+    <string name="auth_format_resend_timer">%ds</string>
+    <string name="auth_label_or_continue">Or continue with</string>
+    <string name="auth_action_google">Google</string>
+    <string name="auth_action_discord">Discord</string>
+
+    <!-- Display Name Setup -->
+    <string name="setup_title">CHOOSE YOUR NAME</string>
+    <string name="setup_subtitle">This is how other players will know you</string>
+    <string name="setup_btn_enter">ENTER THE GALAXY</string>
+    <string name="setup_welcome">Welcome, %s!</string>
+    <string name="setup_prompt_display_name">Display Name</string>
+    <string name="setup_error_display_name_length">Display name must be 2–16 characters</string>
+    <string name="auth_error_google_token_null">Google Token is null. Check Web Client ID.</string>
+    <string name="auth_error_google_general">Google Error: %1$s</string>
+    <string name="auth_error_discord_general">Discord Error: %1$s</string>
+    <string name="auth_msg_welcome_galaxy">Welcome to Mosco Galaxy!</string>
+</resources>

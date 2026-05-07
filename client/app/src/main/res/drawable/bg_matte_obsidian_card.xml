@@ -2,11 +2,12 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Nền Obsidian Matte sâu tích hợp Style 2026 -->
     <gradient
-        android:startColor="#F2080808"
+        android:startColor="@color/mosco_bg_dark"
         android:endColor="#CC141414"
         android:angle="225" />
-    <corners android:radius="24dp" />
+    <corners android:radius="@dimen/radius_xxl" />
     <stroke
         android:width="0.8dp"
-        android:color="#26FFFFFF" /> 
+        android:color="@color/mosco_white_15" /> 
 </shape>
+

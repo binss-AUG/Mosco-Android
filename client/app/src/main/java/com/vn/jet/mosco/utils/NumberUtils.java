@@ -21,13 +21,13 @@ public class NumberUtils {
         java.util.Locale locale = java.util.Locale.US;
 
         if (value >= 999_950_000_000L) {
-            return String.format(locale, context.getString(R.string.home_format_currency_trillions), value / 1_000_000_000_000.0);
+            return String.format(locale, context.getString(R.string.format_currency_trillions), value / 1_000_000_000_000.0);
         } else if (value >= 999_950_000L) {
-            return String.format(locale, context.getString(R.string.home_format_currency_billions), value / 1_000_000_000.0);
+            return String.format(locale, context.getString(R.string.format_currency_billions), value / 1_000_000_000.0);
         } else if (value >= 999_950L) {
-            return String.format(locale, context.getString(R.string.home_format_currency_millions), value / 1_000_000.0);
+            return String.format(locale, context.getString(R.string.format_currency_millions), value / 1_000_000.0);
         } else if (value >= 999L) {
-            return String.format(locale, context.getString(R.string.home_format_currency_thousands), value / 1_000.0);
+            return String.format(locale, context.getString(R.string.format_currency_thousands), value / 1_000.0);
         } else {
             return String.valueOf(value);
         }

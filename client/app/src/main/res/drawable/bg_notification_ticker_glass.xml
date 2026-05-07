@@ -11,3 +11,4 @@
         android:centerColor="@color/white_05"
         android:endColor="@color/transparent" />
 </shape>
+

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_marginHorizontal="24dp"
+    android:layout_marginHorizontal="@dimen/spacing_lg"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:paddingVertical="32dp">
+    android:paddingVertical="@dimen/spacing_xl">
 
     <!-- Container tỷ lệ vé 1:1.75 -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,12 +44,12 @@
         <!-- Nút đóng -->
         <ImageView
             android:id="@+id/btn_close_collection_detail"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="@dimen/spacing_xl"
+            android:layout_height="@dimen/spacing_xl"
             android:src="@drawable/ic_close"
-            android:padding="4dp"
-            android:layout_margin="12dp"
-            app:tint="#99FFFFFF"
+            android:padding="@dimen/spacing_xs"
+            android:layout_margin="@dimen/radius_lg"
+            app:tint="@color/mosco_white_60"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -58,9 +58,9 @@
             android:id="@+id/cv_album_card_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="48dp"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_marginHorizontal="@dimen/spacing_xxl"
             android:clipChildren="false"
             android:clipToPadding="false"
             app:layout_constraintDimensionRatio="1:1.54"
@@ -68,9 +68,9 @@
             app:layout_constraintBottom_toTopOf="@id/guide_notch"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:cardBackgroundColor="#1A1C29"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="8dp">
+            app:cardBackgroundColor="@color/mosco_card_bg"
+            app:cardCornerRadius="@dimen/radius_lg"
+            app:cardElevation="@dimen/spacing_sm">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -82,10 +82,10 @@
                 <!-- Lock Icon (Góc trên phải) -->
                 <ImageView
                     android:id="@+id/iv_detail_lock"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_lock"
-                    android:layout_margin="8dp"
+                    android:layout_margin="@dimen/spacing_sm"
                     app:tint="@color/mosco_gold"
                     android:visibility="gone"
                     app:layout_constraintTop_toTopOf="parent"
@@ -105,7 +105,7 @@
                     android:id="@+id/layout_locked_overlay"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#CC1A1C29"
+                    android:background="@color/mosco_card_bg"
                     android:visibility="gone"
                     android:gravity="center"
                     android:orientation="vertical">
@@ -115,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(╥﹏╥)"
-                        android:textColor="#4DFFFFFF"
+                        android:textColor="@color/mosco_white_30"
                         android:textSize="40sp"
                         android:textStyle="bold"
                         app:layout_constraintTop_toTopOf="parent"
@@ -128,18 +128,18 @@
                         android:id="@+id/tv_locked_sad_notice"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/album_sad_wav_notice"
-                        android:textColor="#66FFFFFF"
+                        android:text="@string/collection_album_not_collected"
+                        android:textColor="@color/mosco_white_40"
                         android:textSize="@dimen/text_size_body_xs"
                         android:textStyle="bold"
                         android:fontWeight="700"
                         android:gravity="center"
-                        android:paddingHorizontal="24dp"
+                        android:paddingHorizontal="@dimen/spacing_lg"
                         style="@style/MoscoText.Luxury.Body"
                         app:layout_constraintTop_toBottomOf="@id/tv_locked_emoji"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="@dimen/radius_lg" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -151,9 +151,9 @@
         <View
             android:id="@+id/divider_ticket"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="#22FFFFFF"
+            android:layout_height="@dimen/stroke_thin"
+            android:layout_marginHorizontal="@dimen/spacing_20dp"
+            android:background="@color/mosco_white_15"
             app:layout_constraintTop_toTopOf="@id/guide_notch"
             app:layout_constraintBottom_toBottomOf="@id/guide_notch"
             app:layout_constraintStart_toStartOf="parent"
@@ -164,9 +164,9 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="16dp"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingTop="@dimen/spacing_sm"
+            android:paddingBottom="@dimen/spacing_md"
             app:layout_constraintTop_toBottomOf="@id/guide_notch"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -195,7 +195,7 @@
                             android:id="@+id/item_btn_spin"
                             layout="@layout/item_ghost_menu" />
 
-                        <View android:layout_width="match_parent" android:layout_height="8dp" />
+                        <View android:layout_width="match_parent" android:layout_height="@dimen/spacing_sm" />
 
                         <include
                             android:id="@+id/item_btn_shop"
@@ -222,7 +222,7 @@
                             android:orientation="vertical"
                             android:gravity="center_horizontal"
                             android:visibility="gone"
-                            android:layout_marginTop="4dp">
+                            android:layout_marginTop="@dimen/spacing_xs">
 
                             <LinearLayout
                                 android:id="@+id/btn_get_more_header"
@@ -230,7 +230,7 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:padding="8dp"
+                                android:padding="@dimen/spacing_sm"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -238,8 +238,8 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Get more"
-                                    android:textColor="#99FFFFFF"
+                                    android:text="@string/action_get_more"
+                                    android:textColor="@color/mosco_white_60"
                                     android:textSize="@dimen/text_size_body_xs"
                                     android:textStyle="bold"
                                     android:fontWeight="700"
@@ -247,11 +247,11 @@
 
                                 <ImageView
                                     android:id="@+id/iv_get_more_arrow"
-                                    android:layout_width="14dp"
-                                    android:layout_height="14dp"
-                                    android:layout_marginStart="4dp"
+                                    android:layout_width="@dimen/spacing_14dp"
+                                    android:layout_height="@dimen/spacing_14dp"
+                                    android:layout_marginStart="@dimen/spacing_xs"
                                     android:src="@drawable/ic_arrow_down"
-                                    app:tint="#99FFFFFF" />
+                                    app:tint="@color/mosco_white_60" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -261,13 +261,13 @@
                                 android:orientation="vertical"
                                 android:visibility="gone"
                                 android:alpha="0"
-                                android:layout_marginTop="4dp">
+                                android:layout_marginTop="@dimen/spacing_xs">
 
                                 <include
                                     android:id="@+id/item_btn_shop_secondary"
                                     layout="@layout/item_ghost_menu" />
 
-                                <View android:layout_width="match_parent" android:layout_height="8dp" />
+                                <View android:layout_width="match_parent" android:layout_height="@dimen/spacing_sm" />
 
                                 <include
                                     android:id="@+id/item_btn_spin_secondary"
@@ -278,7 +278,7 @@
                         <View 
                             android:id="@+id/spacer_owned_1"
                             android:layout_width="match_parent" 
-                            android:layout_height="8dp" />
+                            android:layout_height="@dimen/spacing_sm" />
 
                         <include
                             android:id="@+id/item_btn_send"
@@ -287,7 +287,7 @@
                         <View 
                             android:id="@+id/spacer_owned_2"
                             android:layout_width="match_parent" 
-                            android:layout_height="8dp" />
+                            android:layout_height="@dimen/spacing_sm" />
 
                         <include
                             android:id="@+id/item_btn_upgrade"
@@ -302,3 +302,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+

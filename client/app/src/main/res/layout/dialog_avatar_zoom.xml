@@ -10,9 +10,9 @@
         android:layout_height="320dp"
         android:layout_gravity="center"
         app:cardCornerRadius="160dp"
-        app:cardElevation="20dp"
+        app:cardElevation="@dimen/spacing_20dp"
         app:strokeColor="@color/white"
-        app:strokeWidth="4dp">
+        app:strokeWidth="@dimen/spacing_xs">
 
         <ImageView
             android:id="@+id/iv_avatar_zoom"
@@ -24,3 +24,4 @@
     </com.google.android.material.card.MaterialCardView>
 
 </FrameLayout>
+

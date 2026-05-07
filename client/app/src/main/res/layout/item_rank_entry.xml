@@ -40,10 +40,10 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="@dimen/rank_avatar_size"
             android:layout_height="@dimen/rank_avatar_size"
-            app:cardCornerRadius="100dp"
+            app:cardCornerRadius="@dimen/spacing_100dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#3A3A55"
-            app:strokeColor="#30FFFFFF"
+            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+            app:strokeColor="@color/mosco_white_20"
             app:strokeWidth="0.8dp">
 
             <ImageView
@@ -61,7 +61,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="@dimen/radius_lg"
         style="@style/MoscoText.Luxury.Body"
         android:textSize="@dimen/text_size_hud_small"
         android:textStyle="bold"
@@ -82,9 +82,9 @@
         
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/iv_rank_type_icon"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginEnd="4dp"
+            android:layout_width="@dimen/spacing_md"
+            android:layout_height="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_xs"
             android:visibility="gone"
             app:tint="@color/item_diamond" />
 
@@ -99,3 +99,5 @@
             android:fontWeight="700" />
     </LinearLayout>
 </LinearLayout>
+
+

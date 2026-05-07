@@ -66,7 +66,7 @@ public class FriendSelectAdapter extends RecyclerView.Adapter<FriendSelectAdapte
         try {
             JSONObject entry = data.get(position);
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
-            holder.tvLevel.setText("LV " + entry.optInt("level", 1));
+            holder.tvLevel.setText(holder.itemView.getContext().getString(R.string.format_level_short, entry.optInt("level", 1)));
 
             // Avatar — load từ avatarId giống FriendAdapter
             String avatarId = entry.optString("avatarId", "1");

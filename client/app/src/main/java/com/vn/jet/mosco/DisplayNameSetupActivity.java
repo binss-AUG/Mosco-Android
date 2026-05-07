@@ -125,11 +125,11 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
         tilDisplayName.setError(null);
 
         if (name.isEmpty()) {
-            tilDisplayName.setError(getString(R.string.error_empty_field));
+            tilDisplayName.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (name.length() < 2 || name.length() > 16) {
-            tilDisplayName.setError(getString(R.string.error_display_name_length));
+            tilDisplayName.setError(getString(R.string.setup_error_display_name_length));
             return;
         }
 
@@ -155,7 +155,7 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 setLoading(false);
                 Toast.makeText(DisplayNameSetupActivity.this,
-                        getString(R.string.msg_network_error), Toast.LENGTH_SHORT).show();
+                        getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }

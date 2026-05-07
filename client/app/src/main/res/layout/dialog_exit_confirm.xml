@@ -5,26 +5,26 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@drawable/bg_glass_exit"
-    android:padding="2dp">
+    android:padding="@dimen/spacing_2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="28dp">
+        android:padding="@dimen/spacing_28dp">
 
         <ImageView
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/spacing_lg"
             android:src="@drawable/ic_close"
-            app:tint="#FF4B4B" />
+            app:tint="@color/mosco_error" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/radius_lg"
             android:text="@string/dialog_exit_title"
             style="@style/MoscoText.Luxury.Header"
             android:textAlignment="center"
@@ -39,7 +39,7 @@
             android:text="@string/dialog_exit_msg"
             style="@style/MoscoText.Luxury.Body"
             android:textAlignment="center"
-            android:textColor="#BDBDBD"
+            android:textColor="@color/palette_gray_300"
             android:textSize="@dimen/text_size_body_md"
             android:alpha="0.8"
             android:lineSpacingExtra="5dp" />
@@ -47,20 +47,20 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="@dimen/spacing_36dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="@dimen/spacing_56dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:text="@string/dialog_exit_stay"
+                android:text="@string/dialog_btn_stay"
                 style="@style/MoscoText.Luxury.Button"
                 android:textAllCaps="true"
-                android:textColor="#A2A2A7"
+                android:textColor="@color/mosco_text_disabled"
                 android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
                 android:fontWeight="700"
@@ -70,12 +70,12 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_exit"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="@dimen/spacing_56dp"
                 android:layout_weight="1"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="@dimen/spacing_20dp"
                 android:background="@drawable/bg_button"
-                android:backgroundTint="#FF4B4B"
-                android:text="@string/dialog_exit_confirm"
+                android:backgroundTint="@color/mosco_error"
+                android:text="@string/dialog_btn_exit"
                 style="@style/MoscoText.Luxury.Button"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
@@ -87,3 +87,6 @@
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
+
+
+

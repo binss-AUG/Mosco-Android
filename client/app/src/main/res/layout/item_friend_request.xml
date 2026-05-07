@@ -7,18 +7,18 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_header_glass_v2"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="12dp"
-    android:layout_marginBottom="8dp">
+    android:paddingHorizontal="@dimen/spacing_14dp"
+    android:paddingVertical="@dimen/radius_lg"
+    android:layout_marginBottom="@dimen/spacing_sm">
 
     <!-- Avatar -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="42dp"
         android:layout_height="42dp"
-        app:cardCornerRadius="100dp"
+        app:cardCornerRadius="@dimen/spacing_100dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#3A3A55"
-        app:strokeColor="#30FFFFFF"
+        app:cardBackgroundColor="@color/mosco_card_bg_variant"
+        app:strokeColor="@color/mosco_white_20"
         app:strokeWidth="0.8dp">
 
         <ImageView
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_marginStart="@dimen/radius_lg">
 
         <TextView
             android:id="@+id/tv_friend_name"
@@ -53,15 +53,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_mini" />
     </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_accept"
         android:layout_width="70dp"
-        android:layout_height="32dp"
-        android:text="@string/friend_btn_accept"
+        android:layout_height="@dimen/spacing_xl"
+        android:text="@string/social_action_accept"
         style="@style/MoscoText.Luxury.Button"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_mini"
@@ -69,19 +69,21 @@
         android:fontWeight="700"
         android:background="@drawable/bg_btn_rainbow"
         android:textAllCaps="false"
-        android:layout_marginEnd="6dp" />
+        android:layout_marginEnd="@dimen/spacing_6dp" />
 
     <!-- Reject button -->
     <ImageView
         android:id="@+id/btn_reject"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="@dimen/spacing_xl"
+        android:layout_height="@dimen/spacing_xl"
         android:src="@drawable/ic_arrow_down"
         android:rotation="0"
-        android:padding="6dp"
+        android:padding="@dimen/spacing_6dp"
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#FF5252" />
+        app:tint="@color/palette_red_accent" />
 
 </LinearLayout>
+
+

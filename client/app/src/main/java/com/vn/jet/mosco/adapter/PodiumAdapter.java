@@ -108,7 +108,7 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
         
         switch (rankType) {
             case "level": 
-                tvValue.setText(context.getString(R.string.rank_label_level_format, value)); 
+                tvValue.setText(context.getString(R.string.rank_format_level, value)); 
                 ivType.setVisibility(View.GONE);
                 break;
             case "wealth": 
@@ -117,12 +117,12 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
                 ivType.setVisibility(View.VISIBLE);
                 break;
             case "collection": 
-                tvValue.setText(context.getString(R.string.rank_label_album_format, value)); 
+                tvValue.setText(context.getString(R.string.rank_format_album, value)); 
                 ivType.setImageResource(R.drawable.ic_objets);
                 ivType.setVisibility(View.VISIBLE);
                 break;
             case "streak":
-                tvValue.setText(context.getString(R.string.rank_label_streak_format, value));
+                tvValue.setText(context.getString(R.string.rank_format_streak, value));
                 ivType.setAnimation(R.raw.streak_animation);
                 ivType.setProgress(0.5f);
                 ivType.pauseAnimation();

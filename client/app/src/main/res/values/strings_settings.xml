@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Module Strings -->
+    <string name="settings_header_title">SETTINGS</string>
+    <string name="settings_label_dark_mode">Dark Mode</string>
+    <string name="settings_label_music">Music</string>
+    <string name="settings_label_sfx">Sound Effects</string>
+    <string name="settings_label_storage">Storage</string>
+    <string name="settings_action_clear_cache">Clear Cache</string>
+    <string name="settings_msg_cache_cleared">Cache cleared successfully</string>
+</resources>

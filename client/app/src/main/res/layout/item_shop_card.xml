@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     app:cardBackgroundColor="@color/mosco_surface_container"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp"
     app:strokeColor="@color/mosco_outline_variant"
-    app:strokeWidth="1dp"
+    app:strokeWidth="@dimen/stroke_thin"
     app:cardPreventCornerOverlap="false"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -24,7 +24,7 @@
             android:id="@+id/iv_shop_item_image"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingVertical="10dp"
+            android:paddingVertical="@dimen/spacing_10dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:background="@color/mosco_surface_container_high"
@@ -40,10 +40,10 @@
             style="@style/MoscoText.Luxury.Badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="6dp"
+            android:layout_margin="@dimen/spacing_6dp"
             android:background="@drawable/bg_price_tag"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
+            android:paddingHorizontal="@dimen/spacing_6dp"
+            android:paddingVertical="@dimen/spacing_2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="RARE" />
@@ -54,8 +54,8 @@
             style="@style/MoscoText.Luxury.Card.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:ellipsize="end"
             android:maxLines="1"
             app:layout_constraintEnd_toEndOf="parent"
@@ -69,8 +69,8 @@
             style="@style/MoscoText.Luxury.Card.Desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_2dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
@@ -85,8 +85,8 @@
             style="@style/MoscoText.Luxury.Label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_2dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
@@ -102,9 +102,9 @@
         <View
             android:id="@+id/divider_shop_item"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="@dimen/stroke_thin"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:background="@color/mosco_outline_variant"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -115,9 +115,9 @@
             android:id="@+id/ll_price_row"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginBottom="@dimen/spacing_10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -128,8 +128,8 @@
             <!-- Currency Icon -->
             <ImageView
                 android:id="@+id/iv_price_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="@dimen/spacing_20dp"
+                android:layout_height="@dimen/spacing_20dp"
                 android:src="@drawable/ic_item_coin"
                 android:contentDescription="Currency" />
 
@@ -139,7 +139,7 @@
                 style="@style/MoscoText.Luxury.Card.Price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="@dimen/spacing_xs"
                 android:layout_weight="1"
                 tools:text="250" />
 
@@ -151,8 +151,8 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_shop_buy_btn"
                 android:paddingHorizontal="30dp"
-                android:paddingVertical="6dp"
-                android:text="@string/shop_btn_buy"
+                android:paddingVertical="@dimen/spacing_6dp"
+                android:text="@string/shop_action_buy"
                 android:textColor="@color/mosco_on_surface" />
 
         </LinearLayout>
@@ -160,3 +160,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+

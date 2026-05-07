@@ -12,16 +12,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="12dp">
+        android:paddingHorizontal="@dimen/spacing_20dp"
+        android:paddingTop="@dimen/spacing_md"
+        android:paddingBottom="@dimen/radius_lg">
 
         <ImageView
             android:id="@+id/btn_back_mission"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/spacing_36dp"
+            android:layout_height="@dimen/spacing_36dp"
             android:src="@drawable/ic_back_arrow"
-            android:padding="6dp"
+            android:padding="@dimen/spacing_6dp"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -30,22 +30,22 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            app:cardBackgroundColor="#1A1C29"
-            app:cardCornerRadius="8dp"
-            app:strokeColor="#8A2BE2"
-            app:strokeWidth="1dp">
+            android:layout_marginStart="@dimen/radius_lg"
+            app:cardBackgroundColor="@color/mosco_card_bg"
+            app:cardCornerRadius="@dimen/spacing_sm"
+            app:strokeColor="@color/mosco_card_stroke"
+            app:strokeWidth="@dimen/stroke_thin">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/mission_header_title"
+                android:text="@string/common_mission_header"
                 style="@style/MoscoText.Luxury.SubHeader"
                 android:textSize="@dimen/text_size_body_lg"
                 android:textStyle="bold"
                 android:fontWeight="700"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_xs"
                 android:letterSpacing="0.05" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
@@ -57,21 +57,21 @@
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="40dp">
+        android:paddingHorizontal="@dimen/spacing_40dp">
 
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="@dimen/spacing_80dp"
+            android:layout_height="@dimen/spacing_80dp"
             android:src="@drawable/ic_mosco_logo_static"
             android:alpha="0.3"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="@dimen/spacing_20dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/mission_coming_soon"
+            android:text="@string/common_mission_coming_soon"
             style="@style/MoscoText.Luxury.SubHeader"
-            android:textSize="28sp"
+            android:textSize="@dimen/text_size_h1"
             android:textStyle="bold"
             android:fontWeight="700"
             android:letterSpacing="0.1" />
@@ -79,13 +79,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/mission_coming_soon_desc"
+            android:text="@string/common_mission_coming_soon_desc"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_sm"
             android:gravity="center"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="@dimen/spacing_sm" />
 
     </LinearLayout>
 
 </LinearLayout>
+
+

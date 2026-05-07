@@ -53,7 +53,7 @@ public class FriendActivity extends AppCompatActivity {
 
         // Nút back & Title
         findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
-        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.friend_header_title);
+        ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.social_header_friends);
 
         // Setup Tab — giống Collection
         TabLayout tabLayout = findViewById(R.id.tab_layout_friend);
@@ -65,9 +65,9 @@ public class FriendActivity extends AppCompatActivity {
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0: tab.setText(getString(R.string.friend_tab_explore)); break;
-                case 1: tab.setText(getString(R.string.friend_tab_friends)); break;
-                case 2: tab.setText(getString(R.string.friend_tab_requests)); break;
+                case 0: tab.setText(getString(R.string.social_tab_explore)); break;
+                case 1: tab.setText(getString(R.string.social_tab_friends)); break;
+                case 2: tab.setText(getString(R.string.social_tab_requests)); break;
             }
         }).attach();
 
@@ -82,7 +82,7 @@ public class FriendActivity extends AppCompatActivity {
      * Hiện Dialog thẻ căn cước thiên hà của Sếp kèm mã QR.
      */
     private void showGalacticIdDialog() {
-        Toast.makeText(this, "Opening Galactic ID...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.social_msg_opening_galactic_id, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -162,13 +162,13 @@ public class FriendActivity extends AppCompatActivity {
 
                             // Hiện dialog xác nhận
                             new androidx.appcompat.app.AlertDialog.Builder(FriendActivity.this)
-                                    .setTitle("Add Friend")
-                                    .setMessage("Send friend request to " + targetName + "?")
-                                    .setPositiveButton("Send", (d, w) -> sendFriendRequest(targetId))
-                                    .setNegativeButton("Cancel", null)
+                                    .setTitle(R.string.social_dialog_add_friend_title)
+                                    .setMessage(getString(R.string.social_dialog_add_friend_msg, targetName))
+                                    .setPositiveButton(R.string.social_dialog_action_send, (d, w) -> sendFriendRequest(targetId))
+                                    .setNegativeButton(R.string.action_cancel, null)
                                     .show();
                         } else {
-                            Toast.makeText(FriendActivity.this, "Player not found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FriendActivity.this, R.string.social_msg_player_not_found, Toast.LENGTH_SHORT).show();
                         }
                     }
                 } catch (Exception e) {
@@ -178,7 +178,7 @@ public class FriendActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(FriendActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FriendActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -197,12 +197,12 @@ public class FriendActivity extends AppCompatActivity {
                     String msg;
                     if (response.isSuccessful() && response.body() != null) {
                         JSONObject json = new JSONObject(response.body().string());
-                        msg = json.optString("message", "Friend request sent!");
+                        msg = json.optString("message", getString(R.string.social_msg_request_sent));
                     } else if (response.errorBody() != null) {
                         JSONObject json = new JSONObject(response.errorBody().string());
-                        msg = json.optString("message", "Could not send request");
+                        msg = json.optString("message", getString(R.string.social_msg_request_error));
                     } else {
-                        msg = "Unknown error";
+                        msg = getString(R.string.common_error_unknown);
                     }
                     Toast.makeText(FriendActivity.this, msg, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
@@ -212,7 +212,7 @@ public class FriendActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(FriendActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FriendActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -261,7 +261,7 @@ public class FriendActivity extends AppCompatActivity {
         tvObjets.setText(String.valueOf(user.optInt("objetsCount", 42))); 
         tvId.setText(String.valueOf(10000000 + id));
         
-        String rawDate = user.optString("createdAt", getString(R.string.profile_preview_default_date));
+        String rawDate = user.optString("createdAt", getString(R.string.placeholder_empty));
         tvJoinDate.setText(rawDate.split("T")[0]);
 
         // Status logic
@@ -292,7 +292,7 @@ public class FriendActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.profile_preview_btn_remove, (d, w) -> {
                          Toast.makeText(this, getString(R.string.profile_preview_unfriend_success, name), Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .setNegativeButton(R.string.action_cancel, null)
                     .show();
             } else {
                 sendFriendRequest(id);

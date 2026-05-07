@@ -9,7 +9,7 @@
     app:cardBackgroundColor="@color/white_05"
     app:cardCornerRadius="@dimen/daily_card_corner"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
+    app:strokeWidth="@dimen/stroke_thin"
     app:strokeColor="@color/white_20">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -88,7 +88,7 @@
 
             <View
                 android:id="@+id/view_accent_line"
-                android:layout_width="32dp"
+                android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/stroke_thin"
                 android:layout_marginTop="@dimen/spacing_md"
                 android:background="@color/galactic_accent_purple" />
@@ -126,7 +126,7 @@
 
                 <View
                     android:layout_width="@dimen/stroke_thin"
-                    android:layout_height="16dp"
+                    android:layout_height="@dimen/spacing_md"
                     android:background="@color/white_10" />
 
                 <LinearLayout
@@ -166,7 +166,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="@dimen/spacing_md"
-                    android:text="@string/daily_claim"
+                    android:text="@string/daily_action_claim"
                     style="@style/MoscoText.Luxury.Button"
                     android:textAlignment="center"
                     android:textSize="@dimen/text_size_body_md"
@@ -178,3 +178,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
+

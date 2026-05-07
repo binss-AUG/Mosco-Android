@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mosco Typography System (SP) - Quiet Luxury Standard -->
+    
+    <dimen name="text_size_mini">9sp</dimen>
+    <dimen name="text_size_badge">10sp</dimen>
+    <dimen name="text_size_caption">11sp</dimen>
+    <dimen name="text_size_body_xs">12sp</dimen>
+    <dimen name="text_size_body_sm">13sp</dimen>
+    <dimen name="text_size_body_md">15sp</dimen>
+    <dimen name="text_size_body_lg">17sp</dimen>
+    
+    <dimen name="text_size_h3">20sp</dimen>
+    <dimen name="text_size_h2">24sp</dimen>
+    <dimen name="text_size_h1">28sp</dimen>
+    <dimen name="text_size_h1_xl">32sp</dimen>
+    
+    <!-- Semantic Aliases -->
+    <dimen name="text_size_body">@dimen/text_size_body_sm</dimen>
+    <dimen name="text_size_subtitle">@dimen/text_size_body_lg</dimen>
+    <dimen name="text_size_title">@dimen/text_size_h3</dimen>
+    <dimen name="text_size_headline">@dimen/text_size_h2</dimen>
+</resources>

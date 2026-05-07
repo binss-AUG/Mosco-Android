@@ -56,11 +56,14 @@ public class DatabaseLoader {
         public String dimension;
         public String status;
 
-        public UserInventoryItem() {}
+        public UserInventoryItem() {
+        }
 
-        public UserInventoryItem(Long id, String collectionId, String frontImage, String backImage, int level, int exp, int upgradeLevel, int ovr, 
-                                 String cardClass, String member, String season, String collectionNo, String slug, String backgroundColor, String textColor, 
-                                 List<String> availableTags, String dimension, String status) {
+        public UserInventoryItem(Long id, String collectionId, String frontImage, String backImage, int level, int exp,
+                int upgradeLevel, int ovr,
+                String cardClass, String member, String season, String collectionNo, String slug,
+                String backgroundColor, String textColor,
+                List<String> availableTags, String dimension, String status) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
@@ -86,33 +89,34 @@ public class DatabaseLoader {
          */
         public static UserInventoryItem fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
             return new UserInventoryItem(
-                userCard.getId(),
-                userCard.getCollectionId(),
-                userCard.getFrontImage(),
-                userCard.getBackImage(),
-                userCard.getLevel(),
-                userCard.getExp(),
-                userCard.getUpgradeLevel(),
-                userCard.getOvr(),
-                userCard.getCardClass(),
-                userCard.getMember(),
-                userCard.getSeason(),
-                userCard.getCollectionNo(),
-                userCard.getSlug(),
-                userCard.getBackgroundColor(),
-                userCard.getTextColor(),
-                userCard.getAvailableTags(),
-                userCard.getDimension(),
-                userCard.getStatus()
-            );
+                    userCard.getId(),
+                    userCard.getCollectionId(),
+                    userCard.getFrontImage(),
+                    userCard.getBackImage(),
+                    userCard.getLevel(),
+                    userCard.getExp(),
+                    userCard.getUpgradeLevel(),
+                    userCard.getOvr(),
+                    userCard.getCardClass(),
+                    userCard.getMember(),
+                    userCard.getSeason(),
+                    userCard.getCollectionNo(),
+                    userCard.getSlug(),
+                    userCard.getBackgroundColor(),
+                    userCard.getTextColor(),
+                    userCard.getAvailableTags(),
+                    userCard.getDimension(),
+                    userCard.getStatus());
         }
     }
+
     public static List<UserInventoryItem> cachedUserInventory = null;
     public static Long cachedInventoryUserId = null; // ID của người dùng sở hữu cache hiện tại
 
     public interface OnInventoryChangeListener {
         void onInventoryChanged();
     }
+
     private static final List<OnInventoryChangeListener> inventoryChangeListeners = new ArrayList<>();
 
     public static void registerInventoryChangeListener(OnInventoryChangeListener listener) {
@@ -148,9 +152,10 @@ public class DatabaseLoader {
      * Giải quyết triệt để vấn đề đơ app 3-5s khi vào Album.
      */
     public static void initMasterData(Context context) {
-        if (isMasterDataLoaded || isMasterDataLoading) return;
+        if (isMasterDataLoaded || isMasterDataLoading)
+            return;
         isMasterDataLoading = true;
-        
+
         new Thread(() -> {
             Log.d(TAG, "Starting Galactic Master Data Loading...");
             long startTime = System.currentTimeMillis();
@@ -159,7 +164,8 @@ public class DatabaseLoader {
                 if (json != null) {
                     JSONObject root = new JSONObject(json);
                     JSONArray cardsArray = root.optJSONArray("collections");
-                    if (cardsArray == null) cardsArray = root.optJSONArray("cards");
+                    if (cardsArray == null)
+                        cardsArray = root.optJSONArray("cards");
 
                     if (cardsArray != null) {
                         int len = cardsArray.length();
@@ -168,13 +174,16 @@ public class DatabaseLoader {
                             JSONObject card = cardsArray.optJSONObject(i);
                             if (card != null) {
                                 String id = card.optString("id");
-                                if (id.isEmpty()) id = card.optString("collectionId");
-                                if (!id.isEmpty()) tempMasterMap.put(id, card);
+                                if (id.isEmpty())
+                                    id = card.optString("collectionId");
+                                if (!id.isEmpty())
+                                    tempMasterMap.put(id, card);
                             }
                         }
                         cachedMasterMap = tempMasterMap;
                         isMasterDataLoaded = true;
-                        Log.d(TAG, "Master Data Loaded: " + len + " cards in " + (System.currentTimeMillis() - startTime) + "ms");
+                        Log.d(TAG, "Master Data Loaded: " + len + " cards in "
+                                + (System.currentTimeMillis() - startTime) + "ms");
                     }
                 }
             } catch (Exception e) {
@@ -189,7 +198,7 @@ public class DatabaseLoader {
         try {
             InputStream is;
             File internalFile = new File(context.getFilesDir(), INTERNAL_DB_NAME);
-            
+
             if (internalFile.exists() && internalFile.length() > 0) {
                 Log.d(TAG, "Loading Galactic Database from Internal Storage (Dynamic Sync)");
                 is = new java.io.FileInputStream(internalFile);
@@ -218,11 +227,11 @@ public class DatabaseLoader {
             java.io.FileOutputStream fos = new java.io.FileOutputStream(internalFile);
             fos.write(json.getBytes(StandardCharsets.UTF_8));
             fos.close();
-            
+
             // Lưu lại hash version để lần sau không tải lại
             context.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
                     .edit().putString(PREF_DB_VERSION, versionHash).apply();
-            
+
             Log.d(TAG, "Galactic Database Updated Successfully to version: " + versionHash);
             return true;
         } catch (Exception e) {
@@ -242,7 +251,8 @@ public class DatabaseLoader {
     /**
      * Nạp lại inventory từ Server.
      */
-    public static void reloadInventoryFromServer(Context context, Long userId, com.vn.jet.mosco.network.GameApiService apiService) {
+    public static void reloadInventoryFromServer(Context context, Long userId,
+            com.vn.jet.mosco.network.GameApiService apiService) {
         if (userId == null || apiService == null) {
             notifyInventoryChanged();
             return;
@@ -253,7 +263,8 @@ public class DatabaseLoader {
 
         apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
             @Override
-            public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
+            public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call,
+                    retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     new Thread(() -> {
                         List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
@@ -265,7 +276,7 @@ public class DatabaseLoader {
                             newList.add(item);
                             newMap.put(item.collectionId, convertToJSONObject(item));
                         }
-                        
+
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             cachedUserInventory = newList;
                             cachedCollectionMap = newMap;
@@ -281,7 +292,8 @@ public class DatabaseLoader {
 
             @Override
             public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
-                if (cachedUserInventory == null) loadInventoryFromLocal(context, userId);
+                if (cachedUserInventory == null)
+                    loadInventoryFromLocal(context, userId);
                 notifyInventoryChanged();
             }
         });
@@ -291,7 +303,8 @@ public class DatabaseLoader {
      * Lưu Inventory vào file cục bộ để chống mất dữ liệu khi xóa memory.
      */
     public static void saveInventoryToLocal(Context context, Long userId, List<UserInventoryItem> items) {
-        if (userId == null || items == null) return;
+        if (userId == null || items == null)
+            return;
         new Thread(() -> {
             try {
                 org.json.JSONArray array = new org.json.JSONArray();
@@ -334,10 +347,12 @@ public class DatabaseLoader {
      * Nạp Inventory từ file cục bộ (Dùng khi vào app hoặc mất mạng).
      */
     public static void loadInventoryFromLocal(Context context, Long userId) {
-        if (userId == null) return;
+        if (userId == null)
+            return;
         try {
             java.io.File file = new java.io.File(context.getFilesDir(), "inventory_cache_" + userId + ".json");
-            if (!file.exists()) return;
+            if (!file.exists())
+                return;
 
             java.io.FileInputStream fis = new java.io.FileInputStream(file);
             byte[] data = new byte[(int) file.length()];
@@ -349,11 +364,12 @@ public class DatabaseLoader {
             List<UserInventoryItem> items = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
                 org.json.JSONObject obj = array.getJSONObject(i);
-                
+
                 List<String> tags = new ArrayList<>();
                 if (obj.has("availableTags")) {
                     org.json.JSONArray tagArray = obj.getJSONArray("availableTags");
-                    for (int j = 0; j < tagArray.length(); j++) tags.add(tagArray.getString(j));
+                    for (int j = 0; j < tagArray.length(); j++)
+                        tags.add(tagArray.getString(j));
                 }
 
                 items.add(new UserInventoryItem(
@@ -374,18 +390,17 @@ public class DatabaseLoader {
                         obj.optString("textColor", "#000000"),
                         tags,
                         obj.optString("dimension", ""),
-                        obj.optString("status", "AVAILABLE")
-                ));
+                        obj.optString("status", "AVAILABLE")));
             }
             cachedUserInventory = items;
             cachedInventoryUserId = userId;
-            
+
             // Build map for O(1) lookups
             cachedCollectionMap = new java.util.HashMap<>(items.size());
             for (UserInventoryItem item : items) {
                 cachedCollectionMap.put(item.collectionId, convertToJSONObject(item));
             }
-            
+
             Log.d(TAG, "Đã khôi phục " + items.size() + " thẻ từ bộ nhớ máy.");
         } catch (Exception e) {
             Log.e(TAG, "Lỗi nạp Inventory local: " + e.getMessage());
@@ -393,7 +408,8 @@ public class DatabaseLoader {
     }
 
     public static List<JSONObject> loadAllCards(Context context) {
-        if (cachedUserInventory == null) return new ArrayList<>();
+        if (cachedUserInventory == null)
+            return new ArrayList<>();
         List<JSONObject> list = new ArrayList<>();
         for (UserInventoryItem item : cachedUserInventory) {
             list.add(convertToJSONObject(item));
@@ -402,20 +418,23 @@ public class DatabaseLoader {
     }
 
     public static List<JSONObject> loadEveryCard(Context context) {
-        if (cachedAllCardsRaw != null) return cachedAllCardsRaw;
-        
+        if (cachedAllCardsRaw != null)
+            return cachedAllCardsRaw;
+
         List<JSONObject> cards = new ArrayList<>();
         try {
             String json = loadJSONFromAsset(context, FILE_NAME);
             if (json != null) {
                 JSONObject root = new JSONObject(json);
                 JSONArray array = root.optJSONArray("collections");
-                if (array == null) array = root.optJSONArray("cards");
-                
+                if (array == null)
+                    array = root.optJSONArray("cards");
+
                 if (array != null) {
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject card = array.optJSONObject(i);
-                        if (card != null) cards.add(card);
+                        if (card != null)
+                            cards.add(card);
                     }
                 }
                 cachedAllCardsRaw = cards;
@@ -428,11 +447,13 @@ public class DatabaseLoader {
 
     /**
      * Finds a card by its unique ID.
-     * Cơ chế Hybrid: Tìm trong Master Data trước để lấy Metadata đầy đủ (backImage, artist...),
+     * Cơ chế Hybrid: Tìm trong Master Data trước để lấy Metadata đầy đủ (backImage,
+     * artist...),
      * sau đó nếu thẻ có trong Inventory thì ghi đè các thông số level/ovr động.
      */
     public static JSONObject findById(Context context, String id) {
-        if (id == null) return null;
+        if (id == null)
+            return null;
 
         // 1. Lấy dữ liệu gốc từ Master Data (Để luôn có backImage, info gốc)
         JSONObject masterCard = null;
@@ -447,8 +468,9 @@ public class DatabaseLoader {
         }
 
         // Nếu không có Master, trả về Inventory (fallback)
-        if (masterCard == null) return inventoryCard;
-        
+        if (masterCard == null)
+            return inventoryCard;
+
         // Nếu có cả hai, ta clone Master và merge thông tin Inventory vào
         if (inventoryCard != null) {
             try {
@@ -470,7 +492,8 @@ public class DatabaseLoader {
      * Finds a card by its slug.
      */
     public static JSONObject findBySlug(Context context, String slug) {
-        if (cachedUserInventory == null) return null;
+        if (cachedUserInventory == null)
+            return null;
         for (UserInventoryItem item : cachedUserInventory) {
             if (item.slug != null && item.slug.equalsIgnoreCase(slug)) {
                 return convertToJSONObject(item);
@@ -518,7 +541,8 @@ public class DatabaseLoader {
         if (cachedUserInventory != null) {
             java.util.Set<String> set = new java.util.HashSet<>();
             for (UserInventoryItem item : cachedUserInventory) {
-                if (item.member != null) set.add(item.member);
+                if (item.member != null)
+                    set.add(item.member);
             }
             artistNames.addAll(set);
         }

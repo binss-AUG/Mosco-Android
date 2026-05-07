@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardBackgroundColor="#1A1C29"
-    app:cardCornerRadius="12dp"
+    android:layout_margin="@dimen/spacing_6dp"
+    app:cardBackgroundColor="@color/mosco_card_bg"
+    app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,7 +16,7 @@
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#2E303D"
+            android:background="@color/mosco_filter_bg"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -26,3 +26,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
+
+

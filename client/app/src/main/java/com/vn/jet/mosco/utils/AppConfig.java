@@ -6,7 +6,7 @@ package com.vn.jet.mosco.utils;
  */
 public class AppConfig {
     // API Endpoints
-    public static final String BASE_URL = "http://192.168.1.86:8080/";
+    public static final String BASE_URL = "http://192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)
     public static final String GOOGLE_WEB_CLIENT_ID = "241886304917-7ngj2t444l4avu4h3cv5oka4u6h67nc4.apps.googleusercontent.com";
@@ -20,5 +20,6 @@ public class AppConfig {
     public static final long MS_PER_HOUR = 3600000L;
 
     // Prevent instantiation
-    private AppConfig() {}
+    private AppConfig() {
+    }
 }

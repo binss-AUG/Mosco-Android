@@ -7,13 +7,13 @@
                 <shape>
                     <corners android:radius="@dimen/radius_md" />
                     <solid android:color="#206C29FD" /> <!-- Very faint primary glow -->
-                    <padding android:bottom="1dp" android:left="1dp" android:right="1dp" android:top="1dp" />
+                    <padding android:bottom="@dimen/stroke_thin" android:left="@dimen/stroke_thin" android:right="@dimen/stroke_thin" android:top="@dimen/stroke_thin" />
                 </shape>
             </item>
             <!-- Main Background -->
             <item>
                 <shape>
-                    <solid android:color="#26FFFFFF" />
+                    <solid android:color="@color/mosco_white_15" />
                     <corners android:radius="@dimen/radius_md" />
                     <stroke
                         android:width="1.8dp"
@@ -32,3 +32,4 @@
         </shape>
     </item>
 </selector>
+

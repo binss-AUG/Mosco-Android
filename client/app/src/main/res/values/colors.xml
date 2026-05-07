@@ -1,183 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-   <!-- <color name="mosco_bg_dark">#12141D</color>
-   <color name="mosco_text_hint">#8A8D9F</color>
-    <color name="mosco_input_bg">#1E2230</color>-->
-    <color name="mosco_primary">#6c29fd</color>
-    <color name="transparent">#00000000</color>
-    <color name="mosco_surface">#0e0e0e</color>
-    <color name="mosco_surface_container_low">#131313</color>
-    <color name="mosco_surface_container">#1a1a1a</color>
-    <color name="mosco_surface_container_high">#20201f</color>
-    <color name="mosco_surface_variant">#262626</color>
-    <color name="mosco_primary_dim">#9547f7</color>
-    <color name="mosco_secondary">#ffffff</color>
-    <color name="mosco_tertiary">#08ff00</color>
-    <color name="mosco_surface_tint">#6c29fd</color>
-    <color name="mosco_on_surface">#ffffff</color>
-    <color name="mosco_on_surface_variant">#adaaaa</color>
-    <color name="mosco_outline_variant">#484847</color>
-    <color name="mosco_outline_variant_20">#33484847</color>
-    <color name="mosco_outline">#484847</color>
-    <color name="mosco_btn_disabled">#41455E</color>
-    <color name="mosco_text_disabled">#A2A2A7</color>
-    <color name="mosco_screen_bg">#161622</color>
-    <color name="mosco_input_bg">#232533</color>
-    <color name="mosco_link">#0066FF</color>
-    
-    <color name="mosco_gold">#FFD700</color>
-    <color name="rank_silver">#C0C0C0</color>
-    <color name="rank_bronze">#CD7F32</color>
-    <color name="mosco_surface_container_high_80">#CC20201F</color>
-    <color name="mosco_success">#00C853</color>
-    
-    <!-- Stats Colors -->
-    <color name="stat_hp">#4CAF50</color> <!-- Xanh lá -->
-    <color name="stat_atk">#F44336</color> <!-- Đỏ -->
-    <color name="stat_def">#2196F3</color> <!-- Xanh biển -->
-    <color name="stat_crit_rate">#9C27B0</color> <!-- Tím -->
+    <!-- 
+      SEMANTIC LAYER (Roles)
+      Dinh nghia mau sac theo vai tro su dung. 
+      Day la file duy nhat nen duoc su dung trong layout va code Java.
+    -->
 
-    <!-- New Item & Resource Colors -->
-    <color name="item_coin">#FFD700</color>
-    <color name="item_diamond">#00E5FF</color>
-    <color name="item_pack">#FF5722</color>
-    <color name="item_buff">#76FF03</color>
-    <color name="shop_timer_warning">#FFB74D</color>
+    <!-- Common -->
+    <color name="black">@color/palette_black</color>
+    <color name="white">@color/palette_white</color>
+    <color name="transparent">@color/palette_transparent</color>
+    <color name="mosco_success">@color/palette_green_success</color>
+    <color name="mosco_link">@color/palette_blue_link</color>
 
-    <!-- Glass Effect -->
-    <color name="mosco_glass_fill">#22FFFFFF</color>
-    <color name="mosco_glass_stroke">@color/item_diamond</color>
-
-    <!-- Home Screen -->
-    <color name="home_hologram_neon">#00E5FF</color>
-    <color name="home_hologram_neon_40">#6600E5FF</color>
-    <color name="home_hud_overlay">#80161622</color>
-    <color name="home_showcase_border">#4000E5FF</color>
-    <color name="home_dot_inactive">#33FFFFFF</color>
-    <color name="home_dot_active">@color/item_diamond</color>
-
-    <!-- Quick Tool Colors -->
-    <color name="quick_tool_daily">#FFD700</color> <!-- Gold -->
-    <color name="quick_tool_event">#E91E63</color> <!-- Pink -->
-    <color name="quick_tool_upgrade">#00E5FF</color> <!-- Cyan -->
-    <color name="quick_tool_rank">#76FF03</color> <!-- Neon Green -->
-    <color name="quick_tool_shop">#FF9800</color> <!-- Orange -->
-    <color name="quick_tool_formation">#00F2FF</color> <!-- Neon Blue -->
-    <color name="quick_tool_friends">#9C27B0</color> <!-- Purple -->
-    <color name="quick_tool_gift">#FF6B9D</color> <!-- Rose Pink -->
-    
-    <!-- Iridescent Bubble Palette -->
-    <color name="bubble_iri_pink">#66FF00D4</color>
-    <color name="bubble_iri_cyan">#6600F2FF</color>
-    <color name="bubble_iri_violet">#668A2BE2</color>
-    <color name="bubble_iri_gold">#66FFD700</color>
-    <color name="bubble_iri_emerald">#6600FF88</color>
-
-    <!-- Matte Obsidian Gradient -->
-    <color name="obsidian_start">#161622</color>
-    <color name="obsidian_end">#080808</color>
-    <color name="mosco_bg_dark">#0A0A0E</color>
-    <color name="mosco_neon_blue">#00F2FF</color>
-    <color name="mosco_text_dim">#888888</color>
-    <color name="mosco_neon_pink">#FF00D4</color>
-    <color name="mosco_dim_overlay_70">#B3000000</color>
-
-    <!-- Rarity/Tier Colors -->
-    <color name="rarity_unit">#FFD700</color>
-    <color name="rarity_premier">#8A2BE2</color>
-    <color name="rarity_double">#4169E1</color>
-    <color name="rarity_common">#90EE90</color>
-    <color name="rarity_metallic_violet">#8A2BE2</color>
-    
-    <!-- Special Gradient Components -->
-    <color name="rarity_special_white">#FFFFFF</color>
-    <color name="rarity_special_sakura">#FFB7C5</color>
-    <color name="rarity_special_sky">#ADD8E6</color>
-    
-    <color name="galactic_dark_card">#1A1C29</color>
-    <color name="galactic_deep_blue">#3A3A55</color>
-    <color name="reveal_tier_4_primary">#8A2BE2</color>
-    <color name="reveal_tier_4_secondary">#00FFFF</color>
-    <color name="reveal_tier_3_secondary">#9370DB</color>
-    <color name="reveal_tier_2">#4169E1</color>
-    <color name="reveal_tier_1">#90EE90</color>
-    <color name="reveal_summary_qty_text">#88FFFFFF</color>
-    <color name="reveal_metallic_1">#E0E0E0</color>
-    <color name="reveal_metallic_2">#FFFFFF</color>
-    <color name="reveal_metallic_3">#9E9E9E</color>
-    <color name="reveal_metallic_4">#F5F5F5</color>
-
-    <!-- Profile Luxury Colors -->
-    <color name="white_05">#0DFFFFFF</color>
-    <color name="white_10">#1AFFFFFF</color>
-    <color name="white_15">#26FFFFFF</color>
-    <color name="white_20">#33FFFFFF</color>
-    <color name="white_25">#40FFFFFF</color>
-    <color name="white_40">#66FFFFFF</color>
-    <color name="white_50">#80FFFFFF</color>
-    <color name="white_70">#B3FFFFFF</color>
-    <color name="white_80">#CCFFFFFF</color>
-    <color name="planet_purple_deep">#1A0B2E</color>
-    <color name="planet_purple_bright">#9370DB</color>
-    <color name="planet_storm_spot">#BA55D3</color>
-    <color name="planet_glow_cyan">#00FFFF</color>
-    <color name="planet_shadow_heavy">#E6000000</color>
-    <color name="planet_lava_red">#FF4500</color>
-    <color name="planet_ice_blue">#E0FFFF</color>
-    <color name="planet_terra_green">#228B22</color>
-    <color name="galactic_accent_purple">#8A2BE2</color>
-    <color name="galactic_accent_orange">#FF4500</color>
-    <color name="galactic_accent_cyan">#00E5FF</color>
-    <!-- Daily Check-in Sessions (Refined Luxury Muted Palette) -->
-    <color name="daily_morning_accent">#00E5FF</color>
-    <color name="daily_morning_bg">#05101E</color>
-    <color name="daily_noon_accent">#FFD700</color>
-    <color name="daily_noon_bg">#3D2108</color>
-    <color name="daily_evening_accent">#BD00FF</color>
-    <color name="daily_evening_bg">#0F051E</color>
-    <color name="daily_chip_bg">#CC000000</color>
-
-    <!-- Podium 3D Colors -->
-    <color name="podium_gold_top">#FFF2A8</color>
-    <color name="podium_gold_start">#D4AF37</color>
-    <color name="podium_gold_end">#8B6508</color>
-    <color name="podium_gold_stroke">#B38B00</color>
-
-    <color name="podium_silver_top">#F5F5F5</color>
-    <color name="podium_silver_start">#C0C0C0</color>
-    <color name="podium_silver_end">#696969</color>
-    <color name="podium_silver_stroke">#A9A9A9</color>
-
-    <color name="podium_bronze_top">#FFDAB9</color>
-    <color name="podium_bronze_start">#CD7F32</color>
-    <color name="podium_bronze_end">#8B4513</color>
-    <color name="podium_bronze_stroke">#A0522D</color>
-
-    <!-- Podium Unified Professional Colors -->
-    <color name="podium_unified_top">#1A1C29</color>
-    <color name="podium_unified_start">#3A3A55</color>
-    <color name="podium_unified_end">#0A0A0E</color>
-    <color name="podium_unified_stroke">#4DFFFFFF</color>
-    <color name="podium_unified_pill">#1E2230</color>
-
-    <color name="shadow_dark">#80000000</color>
-    <color name="white_60">#99FFFFFF</color>
-    
-    <!-- Auth Luxury Colors -->
+    <!-- Brand / Primary -->
+    <color name="mosco_primary">@color/palette_violet_700</color>
+    <color name="mosco_primary_dim">@color/palette_violet_400</color>
     <color name="mosco_primary_action">@color/mosco_primary</color>
-    <color name="mosco_shadow_light">#20000000</color>
-    <color name="red_soft">#FF4B5C</color>
-    <color name="red_soft_30">#4DFF4B5C</color>
-    <color name="red_soft_20">#33FF4B5C</color>
-    <!-- Stage Reward Colors -->
-    <color name="glass_white_10">#1AFFFFFF</color>
-    <color name="glass_white_20">#33FFFFFF</color>
-    <color name="glass_white_30">#4DFFFFFF</color>
-    <color name="stage_coin_bg">#26FFD700</color>
-    <color name="stage_diamond_bg">#2600E5FF</color>
-    <color name="stage_coin_gold">#FFD700</color>
-    <color name="stage_diamond_cyan">#00E5FF</color>
-    <color name="overlay_dark_90">#E60A0A0A</color>
+    <color name="mosco_secondary">@color/palette_white</color>
+    <color name="mosco_tertiary">@color/palette_green_neon</color>
+    <color name="mosco_neon_blue">@color/palette_cyan_neon</color>
+    
+    <!-- Surface & Backgrounds -->
+    <color name="mosco_surface">@color/palette_obsidian_800</color>
+    <color name="mosco_surface_container_low">@color/palette_obsidian_700</color>
+    <color name="mosco_surface_container">@color/palette_obsidian_600</color>
+    <color name="mosco_surface_container_high">@color/palette_obsidian_500</color>
+    <color name="mosco_surface_variant">@color/palette_obsidian_400</color>
+    <color name="mosco_screen_bg">@color/palette_space_blue_900</color>
+    <color name="mosco_input_bg">@color/palette_space_blue_700</color>
+    <color name="mosco_bg_dark">@color/palette_obsidian_900</color>
+    <color name="mosco_bg_deep">@color/palette_space_blue_900</color>
+    
+    <!-- Text -->
+    <color name="mosco_on_surface">@color/palette_white</color>
+    <color name="mosco_on_surface_variant">@color/palette_gray_400</color>
+    <color name="mosco_text_dim">@color/palette_gray_600</color>
+    <color name="mosco_text_disabled">@color/palette_gray_500</color>
+    <color name="mosco_text_hint">@color/palette_gray_700</color>
+
+    <!-- Outline & States -->
+    <color name="mosco_outline">@color/palette_obsidian_300</color>
+    <color name="mosco_outline_variant">@color/palette_obsidian_300</color>
+    <color name="mosco_btn_disabled">@color/palette_gray_900</color>
+    
+    <!-- Functional: Stats -->
+    <color name="stat_hp">@color/palette_green_stat</color>
+    <color name="stat_atk">@color/palette_red_stat</color>
+    <color name="stat_def">@color/palette_blue_stat</color>
+    <color name="stat_crit_rate">@color/palette_violet_600</color>
+
+    <!-- Functional: Rarity -->
+    <color name="rarity_unit">@color/palette_gold</color>
+    <color name="rarity_premier">@color/palette_violet_600</color>
+    <color name="rarity_double">@color/palette_blue_royal</color>
+    <color name="rarity_common">@color/palette_green_light</color>
+    <color name="rarity_metallic_violet">@color/palette_violet_600</color>
+
+    <!-- Functional: Features -->
+    <color name="home_hologram_neon">@color/palette_cyan_neon</color>
+    <color name="home_dot_active">@color/palette_cyan_neon</color>
+    <color name="quick_tool_daily">@color/palette_gold</color>
+    <color name="quick_tool_event">@color/palette_pink_neon</color>
+    <color name="quick_tool_upgrade">@color/palette_cyan_neon</color>
+    <color name="quick_tool_rank">@color/palette_green_bright</color>
+    <color name="quick_tool_shop">@color/palette_orange_warm</color>
+    <color name="quick_tool_formation">@color/palette_cyan_bright</color>
+    <color name="quick_tool_friends">@color/palette_violet_600</color>
+    <color name="quick_tool_gift">@color/palette_pink_rose</color>
+
+    <!-- Podium & Awards -->
+    <color name="podium_gold_start">@color/palette_gold_medium</color>
+    <color name="podium_gold_end">@color/palette_gold_dark</color>
+    <color name="podium_silver_start">@color/palette_silver_medium</color>
+    <color name="podium_silver_end">@color/palette_silver_obsidian</color>
+    <color name="podium_bronze_start">@color/palette_bronze_medium</color>
+    <color name="podium_bronze_end">@color/palette_bronze_obsidian</color>
+
+    <!-- Glass & Alpha Layers -->
+    <color name="mosco_white_00">#00FFFFFF</color>
+    <color name="mosco_white_05">#0DFFFFFF</color>
+    <color name="mosco_white_10">#1AFFFFFF</color>
+    <color name="mosco_white_15">#26FFFFFF</color>
+    <color name="mosco_white_20">#33FFFFFF</color>
+    <color name="mosco_white_25">#40FFFFFF</color>
+    <color name="mosco_white_30">#4DFFFFFF</color>
+    <color name="mosco_white_40">#66FFFFFF</color>
+    <color name="mosco_white_50">#80FFFFFF</color>
+    <color name="mosco_white_60">#99FFFFFF</color>
+    <color name="mosco_white_70">#B3FFFFFF</color>
+    <color name="mosco_white_80">#CCFFFFFF</color>
+    <color name="mosco_white_90">#E6FFFFFF</color>
+    <color name="mosco_white_95">#F2FFFFFF</color>
+    <color name="mosco_black_00">#00000000</color>
+    <color name="mosco_black_05">#0D000000</color>
+    <color name="mosco_black_10">#1A000000</color>
+    <color name="mosco_black_15">#26000000</color>
+    <color name="mosco_black_20">#33000000</color>
+    <color name="mosco_black_25">#40000000</color>
+    <color name="mosco_black_30">#4D000000</color>
+    <color name="mosco_black_40">#66000000</color>
+    <color name="mosco_black_50">#80000000</color>
+    <color name="mosco_black_60">#99000000</color>
+    <color name="mosco_black_70">#B3000000</color>
+    <color name="mosco_black_80">#CC000000</color>
+    <color name="mosco_black_90">#E6000000</color>
+    <color name="mosco_black_95">#F2000000</color>
+
+    <!-- Hardcoded Fixes (Mapping them to semantic roles) -->
+    <color name="mosco_card_bg">@color/palette_space_blue_800</color>
+    <color name="mosco_card_bg_variant">@color/palette_blue_deep</color>
+    <color name="mosco_card_stroke">@color/palette_violet_600</color>
+    <color name="mosco_card_stroke_alpha_70">#B38A2BE2</color>
+    <color name="mosco_filter_bg">@color/palette_space_blue_600</color>
+    <color name="mosco_filter_hint">@color/palette_gray_700</color>
+    <color name="mosco_overlay_dark">#E60A0A0A</color>
+    <color name="mosco_shadow_dark">@color/mosco_black_50</color>
+    <color name="mosco_card_bg_alpha_50">#801A1C29</color>
+    <color name="mosco_error">@color/palette_red_accent</color>
+    <color name="mosco_primary_alpha_10">#1A6C29FD</color>
+    <color name="mosco_primary_alpha_12">#206C29FD</color>
+    <color name="mosco_primary_alpha_60">#996B2FD4</color>
+    <color name="mosco_outline_variant_20">#338A2BE2</color>
+    <color name="mosco_tertiary_alpha_10">#1A80FFB4</color>
+    <color name="mosco_surface_alpha_20">#33262626</color>
+    <color name="mosco_outline_alpha_20">#33484847</color>
+    <color name="mosco_white_33">#55FFFFFF</color>
+    <color name="mosco_black_65">#A6000000</color>
+    <color name="mosco_black_85">#D9000000</color>
+    <color name="mosco_bg_deep_alt">#1A1A2E</color>
+    <color name="mosco_bg_galactic_start">#2A2C40</color>
+    <color name="mosco_bg_galactic_center">#1E2033</color>
+    <color name="mosco_bg_galactic_end">#151726</color>
+
+    <!-- Legacy / Module Specific (Required for Stage/Daily modules) -->
+    <color name="daily_morning_accent">@color/palette_cyan_neon</color>
+    <color name="daily_morning_bg">#0D1B1E</color>
+    <color name="daily_noon_accent">@color/palette_gold</color>
+    <color name="daily_noon_bg">#1A1408</color>
+    <color name="daily_evening_accent">@color/palette_pink_rose</color>
+    <color name="daily_evening_bg">#1A0B14</color>
+    
+    <color name="stage_map_1_accent">@color/palette_green_emerald</color>
+    <color name="stage_map_1_bg">#0B1A14</color>
+    <color name="stage_map_2_accent">@color/palette_orange_warm</color>
+    <color name="stage_map_2_bg">#1A110B</color>
+    <color name="stage_map_3_accent">@color/palette_violet_200</color>
+    <color name="stage_map_3_bg">@color/palette_violet_900</color>
+    <color name="stage_map_4_accent">@color/palette_pink_bright</color>
+    <color name="stage_map_4_bg">#1A0B1A</color>
+
+    <color name="obsidian_start">@color/palette_obsidian_900</color>
+    <color name="obsidian_end">@color/palette_black</color>
+
+    <!-- Reveal Tier Colors -->
+    <color name="reveal_tier_1">@color/palette_gray_400</color>
+    <color name="reveal_tier_2">@color/palette_blue_royal</color>
+    <color name="reveal_tier_3_secondary">@color/palette_gold</color>
+    <color name="reveal_tier_4_primary">@color/palette_pink_bright</color>
+    <color name="reveal_tier_4_secondary">@color/palette_violet_neon</color>
+    <color name="reveal_summary_qty_text">@color/palette_cyan_bright</color>
+
+    <!-- Metallic Reveal Gradients -->
+    <color name="reveal_metallic_1">#232533</color>
+    <color name="reveal_metallic_2">#3A3A55</color>
+    <color name="reveal_metallic_3">#1A1C29</color>
+    <color name="reveal_metallic_4">#12131F</color>
+
+    <!-- More Legacy Aliases -->
+    <color name="mosco_gold">@color/palette_gold</color>
+    <color name="rank_silver">@color/palette_silver_medium</color>
+    <color name="rank_bronze">@color/palette_bronze_medium</color>
+    <!-- Legacy Aliases -->
+    <color name="white_05">@color/mosco_white_05</color>
+    <color name="white_10">@color/mosco_white_10</color>
+    <color name="white_20">@color/mosco_white_20</color>
+    <color name="white_25">@color/mosco_white_25</color>
+    <color name="white_40">@color/mosco_white_40</color>
+    <color name="white_50">@color/mosco_white_50</color>
+    <color name="white_60">@color/mosco_white_60</color>
+    <color name="white_70">@color/mosco_white_70</color>
+    <color name="white_80">@color/mosco_white_80</color>
+    <color name="white_90">@color/mosco_white_90</color>
+    <color name="mosco_dim_overlay_70">@color/mosco_black_70</color>
+    <color name="mosco_surface_container_high_80">#CC1A1C29</color>
+    <color name="stage_coin_gold">@color/mosco_gold</color>
+    <color name="overlay_dark_90">@color/mosco_black_90</color>
+    <color name="galactic_accent_purple">@color/mosco_primary</color>
+    <color name="podium_unified_start">@color/mosco_white_15</color>
+    <color name="podium_unified_top">@color/mosco_white_20</color>
+    <color name="podium_unified_end">@android:color/transparent</color>
+    <color name="podium_unified_stroke">@color/mosco_white_25</color>
+    <color name="shadow_dark">@color/mosco_shadow_dark</color>
+    <color name="item_coin">@color/palette_gold</color>
+    <color name="item_diamond">@color/palette_cyan_accent</color>
+    <color name="glass_white_10">@color/mosco_white_10</color>
+    <color name="glass_white_20">@color/mosco_white_20</color>
+    <color name="glass_white_30">@color/mosco_white_30</color>
+    <color name="white_15">@color/mosco_white_15</color>
+    <color name="stage_diamond_cyan">@color/palette_cyan_accent</color>
+    <color name="galactic_accent_cyan">@color/palette_cyan_neon</color>
+    <color name="galactic_accent_orange">@color/palette_orange_warm</color>
+    <color name="galactic_accent_gold">@color/palette_gold</color>
+    <color name="galactic_deep_blue">@color/mosco_bg_deep</color>
+    <color name="daily_chip_bg">@color/mosco_white_10</color>
+    <color name="daily_chip_text">@color/white</color>
+    <color name="shop_timer_warning">@color/palette_red_accent</color>
+    <color name="red_soft">@color/palette_red_accent</color>
+    <color name="red_hard">@color/palette_red_stat</color>
+    <color name="palette_pink_lavender">#E6E6FA</color>
+    <color name="palette_blue_powder">#B0E0E6</color>
+    <color name="palette_pink_soft_alt">#FFC0CB</color>
 </resources>

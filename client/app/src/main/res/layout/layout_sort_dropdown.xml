@@ -4,8 +4,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bg_sort_dropdown"
-    android:paddingVertical="8dp">
+    android:paddingVertical="@dimen/spacing_sm">
 
     <!-- Items added programmatically -->
 
 </LinearLayout>
+

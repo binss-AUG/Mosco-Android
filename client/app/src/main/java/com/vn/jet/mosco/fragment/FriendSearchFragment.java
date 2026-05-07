@@ -56,7 +56,7 @@ public class FriendSearchFragment extends Fragment {
         layoutEmpty = view.findViewById(R.id.layout_search_empty);
         lottieLoading = view.findViewById(R.id.lottie_search_loading);
 
-        rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FriendAdapter(new ArrayList<>());
         rvResults.setAdapter(adapter);
 
@@ -105,7 +105,7 @@ public class FriendSearchFragment extends Fragment {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 lottieLoading.setVisibility(View.GONE);
                 layoutEmpty.setVisibility(View.VISIBLE);
-                Toast.makeText(getContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }

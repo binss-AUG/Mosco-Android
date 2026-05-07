@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shop Module -->
+    <string name="shop_header_title">SHOP</string>
+    <string name="shop_tab_all">All</string>
+    <string name="shop_tab_objet">Objet</string>
+    <string name="shop_tab_pack">Pack</string>
+    <string name="shop_tab_buff">Buff</string>
+    <string name="shop_tab_resource">Resource</string>
+    <string name="shop_action_buy">Buy</string>
+    
+    <!-- Shop Dialogs -->
+    <string name="shop_dialog_buy_title">BUY NOW</string>
+    <string name="shop_label_total">TOTAL</string>
+    <string name="shop_dialog_buy_total_format">Total: %s</string>
+    <string name="shop_dialog_success_title">Purchase Successful!</string>
+    <string name="shop_dialog_action_inventory">Inventory</string>
+    <string name="shop_dialog_action_use_now">Use Now</string>
+    <string name="shop_msg_insufficient_funds">Insufficient Galactic currency!</string>
+</resources>

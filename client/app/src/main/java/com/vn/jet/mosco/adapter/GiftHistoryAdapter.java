@@ -51,10 +51,10 @@ public class GiftHistoryAdapter extends RecyclerView.Adapter<GiftHistoryAdapter.
             // Tên người liên quan
             if (isReceivedTab) {
                 holder.tvUserName.setText(entry.optString("senderName", "Unknown"));
-                holder.tvDirection.setText("Nhận từ");
+                holder.tvDirection.setText(holder.itemView.getContext().getString(R.string.gift_label_received_from));
             } else {
                 holder.tvUserName.setText(entry.optString("receiverName", "Unknown"));
-                holder.tvDirection.setText("Gửi cho");
+                holder.tvDirection.setText(holder.itemView.getContext().getString(R.string.gift_label_sent_to));
             }
 
             // Thời gian — format đơn giản

@@ -5,3 +5,4 @@
         android:width="@dimen/item_reveal_result_stroke_width"
         android:color="@color/mosco_outline_variant_20" />
 </shape>
+

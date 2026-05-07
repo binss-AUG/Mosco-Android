@@ -8,9 +8,9 @@
         android:id="@+id/tv_mini_rank_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TOP COMMANDERS"
+        android:text="@string/home_rank_mini_level"
         android:textColor="@color/white_80"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_size_body"
         android:fontFamily="@font/pretendard"
         android:letterSpacing="0.1"
         android:layout_marginBottom="@dimen/spacing_sm" />
@@ -23,3 +23,4 @@
         android:overScrollMode="never" />
 
 </LinearLayout>
+

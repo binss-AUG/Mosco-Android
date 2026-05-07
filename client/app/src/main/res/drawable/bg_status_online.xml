@@ -3,6 +3,7 @@
     android:shape="oval">
     <solid android:color="#00FF9D" /> <!-- Neon Green -->
     <stroke
-        android:width="2dp"
+        android:width="@dimen/spacing_2dp"
         android:color="#1A1C29" /> <!-- Dark border to separate from avatar -->
 </shape>
+

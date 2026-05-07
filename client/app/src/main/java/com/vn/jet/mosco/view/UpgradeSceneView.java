@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import com.vn.jet.mosco.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class UpgradeSceneView extends View {
     private Random random = new Random();
 
     private int coreColor = Color.WHITE;
-    private int coreGlowColor = Color.parseColor("#00d4ff");
+    private int coreGlowColor = 0; // Will be initialized in init()
     private int glitch1Color = Color.argb((int)(0.4f * 255), 255, 0, 85);
     private int glitch2Color = Color.argb((int)(0.4f * 255), 0, 255, 255);
 
@@ -64,6 +66,9 @@ public class UpgradeSceneView extends View {
     }
 
     private void init() {
+        if (coreGlowColor == 0) {
+            coreGlowColor = ContextCompat.getColor(getContext(), R.color.palette_cyan_accent);
+        }
         setLayerType(LAYER_TYPE_SOFTWARE, null);
 
         corePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -331,7 +336,7 @@ public class UpgradeSceneView extends View {
             
             LinearGradient grad = new LinearGradient(
                     -length, 0, 0, 0,
-                    new int[]{Color.TRANSPARENT, Color.argb((int)(0.8f * 255), 0, 162, 255), Color.argb((int)(0.9f * 255), 255, 255, 255)},
+                    new int[]{Color.TRANSPARENT, ContextCompat.getColor(getContext(), R.color.mosco_primary_alpha_60), Color.WHITE},
                     new float[]{0f, 0.4f, 1f},
                     Shader.TileMode.CLAMP
             );

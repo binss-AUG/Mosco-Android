@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="100dp"
-    android:height="20dp"
+    android:width="@dimen/spacing_100dp"
+    android:height="@dimen/spacing_20dp"
     android:viewportWidth="100"
     android:viewportHeight="20">
     <path
         android:fillColor="@color/podium_unified_top"
         android:pathData="M 0 0 L 85 0 L 100 20 L 0 20 Z" />
 </vector>
+

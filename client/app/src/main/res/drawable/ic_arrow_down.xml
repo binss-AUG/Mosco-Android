@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ic_back_arrow rotated +90° = pointing DOWN -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
+    android:width="@dimen/spacing_20dp"
+    android:height="@dimen/spacing_20dp"
     android:viewportWidth="20"
     android:viewportHeight="20">
     <path
@@ -12,3 +12,4 @@
         android:strokeWidth="1.5"
         android:strokeLineJoin="round" />
 </vector>
+

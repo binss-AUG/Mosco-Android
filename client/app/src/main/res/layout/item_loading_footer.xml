@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:padding="@dimen/spacing_md"
     android:gravity="center"
     android:orientation="horizontal">
 
     <com.airbnb.lottie.LottieAnimationView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/spacing_40dp"
+        android:layout_height="@dimen/spacing_40dp"
         app:lottie_rawRes="@raw/loading"
         app:lottie_autoPlay="true"
         app:lottie_loop="true" />
@@ -17,9 +17,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:text="Loading more items..."
-        android:textColor="#A2A2A7"
+        android:layout_marginStart="@dimen/radius_lg"
+        android:text="@string/inventory_loading_more"
+        android:textColor="@color/mosco_text_disabled"
         style="@style/MoscoText.Luxury.Body"
         android:textSize="@dimen/text_size_body_sm" />
 </LinearLayout>
+
+

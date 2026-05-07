@@ -57,7 +57,7 @@ public class TicketBackgroundView extends View {
         strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(dpToPx(1.2f));
-        strokePaint.setColor(Color.parseColor("#33FFFFFF"));
+        strokePaint.setColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.mosco_white_20));
 
         ticketPath = new Path();
     }
@@ -75,8 +75,8 @@ public class TicketBackgroundView extends View {
         // Cập nhật Gradient khi kích thước thay đổi
         fillPaint.setShader(new LinearGradient(
                 0, 0, w, h,
-                Color.parseColor("#2A2C40"),
-                Color.parseColor("#151726"),
+                androidx.core.content.ContextCompat.getColor(getContext(), R.color.mosco_bg_galactic_start),
+                androidx.core.content.ContextCompat.getColor(getContext(), R.color.mosco_bg_galactic_end),
                 Shader.TileMode.CLAMP
         ));
 

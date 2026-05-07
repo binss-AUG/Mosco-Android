@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AFK Stage (K-Tour) -->
+    <string name="stage_header_title">K-TOUR</string>
+    <string name="stage_btn_dispatch">START PERFORMANCE</string>
+    <string name="stage_btn_running">ON TOUR...</string>
+    <string name="stage_squad_title">Select Tour Squad (Max 6)</string>
+    <string name="stage_confirm_btn_format">Confirm Tour (%d)</string>
+    <string name="stage_msg_artist_selected">%s is already in the tour squad!</string>
+    <string name="stage_msg_max_members">Max %d members allowed!</string>
+    <string name="stage_msg_dispatch_success">Tour started successfully!</string>
+    
+    <!-- Map Names -->
+    <string name="stage_map_1_name">Seoul (Han River)</string>
+    <string name="stage_map_2_name">Busan (Haeundae)</string>
+    <string name="stage_map_3_name">Jeju (Hallasan)</string>
+    <string name="stage_map_4_name">Gyeongju (Bulguksa)</string>
+    <string name="stage_map_1_sub">METROPOLIS</string>
+    <string name="stage_map_2_sub">COASTAL</string>
+    <string name="stage_map_3_sub">VOLCANIC</string>
+    <string name="stage_map_4_sub">HISTORIC</string>
+    
+    <!-- Rewards Info -->
+    <string name="stage_map_reward_coins">Coins &amp; Random Objet</string>
+    <string name="stage_map_reward_rare">Higher Coins &amp; Rare Items</string>
+    <string name="stage_map_reward_premium">Premium Rewards &amp; Diamonds</string>
+    <string name="stage_map_reward_epic">Epic Rewards &amp; High Diamonds</string>
+    
+    <!-- UI Labels -->
+    <string name="stage_lock_level_format">UNLOCK AT LV.%d</string>
+    <string name="stage_label_select_duration">SELECT PERFORMANCE TIME</string>
+    <string name="stage_duration_1h">1H</string>
+    <string name="stage_duration_4h">4H</string>
+    <string name="stage_duration_8h">8H</string>
+    <string name="stage_duration_12h">12H</string>
+    
+    <!-- Errors & Validation -->
+    <string name="stage_msg_artist_collision">Only one Objet per Artist allowed!</string>
+    <string name="stage_msg_squad_full">Squad is full (Max %d)!</string>
+    <string name="stage_busy_msg_format">This Objet is currently\non tour at %s</string>
+    <string name="stage_busy_member_format">This Artist is already\nin the squad</string>
+    
+    <!-- Dialogs -->
+    <string name="stage_dialog_abort_title">CANCEL TOUR</string>
+    <string name="stage_dialog_abort_msg">Are you sure you want to cancel this performance tour? Your squad will return immediately, but no rewards will be collected.</string>
+    <string name="stage_dialog_speedup_title">SPEED UP PERFORMANCE</string>
+    <string name="stage_dialog_speedup_msg">Instantly complete this performance for %d Diamonds? All rewards will be collected immediately.</string>
+    <string name="stage_btn_abort">CANCEL</string>
+    <string name="stage_btn_speed_up">BOOST NOW</string>
+    <string name="stage_btn_claim">CLAIM REWARDS</string>
+    
+    <!-- Status Feedback -->
+    <string name="stage_msg_abort_success">Tour canceled.</string>
+    <string name="stage_msg_speedup_success">Performance completed instantly!</string>
+    <string name="stage_msg_claim_success">Rewards collected successfully!</string>
+    
+    <!-- Results -->
+    <string name="stage_reward_dialog_title">TOUR PERFORMANCE COMPLETE!</string>
+    <string name="stage_reward_dialog_subtitle">Your squad has successfully finished the tour.</string>
+    <string name="stage_reward_received_format">You received %1$s Coins and %2$s Diamonds!</string>
+    <string name="stage_reward_footer_hint">Collect rewards to start your next tour!</string>
+</resources>

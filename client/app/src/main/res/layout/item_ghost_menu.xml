@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
+    android:layout_height="@dimen/spacing_64dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="#33262626"
-    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="@color/mosco_surface_alpha_20"
+    app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#33484847">
+    app:strokeWidth="@dimen/stroke_thin"
+    app:strokeColor="@color/mosco_outline_alpha_20">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="@dimen/spacing_md">
 
         <!-- Cụm Text (Title + Desc) -->
         <LinearLayout
@@ -50,11 +50,11 @@
         <!-- Arrow Indicator (Căn phải) -->
         <ImageView
             android:id="@+id/iv_ghost_arrow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="@dimen/spacing_20dp"
+            android:layout_height="@dimen/spacing_20dp"
             android:src="@drawable/ic_back_arrow"
             android:rotation="180"
-            app:tint="#4DFFFFFF"
+            app:tint="@color/mosco_white_30"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -62,3 +62,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+
+

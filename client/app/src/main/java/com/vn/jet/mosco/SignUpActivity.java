@@ -98,11 +98,11 @@ public class SignUpActivity extends AppCompatActivity {
                 tilEmail.setError(null);
 
                 if (email.isEmpty()) {
-                    tilEmail.setError(getString(R.string.error_empty_field));
+                    tilEmail.setError(getString(R.string.auth_error_empty_field));
                     return;
                 }
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    tilEmail.setError(getString(R.string.error_invalid_email));
+                    tilEmail.setError(getString(R.string.auth_error_invalid_email));
                     return;
                 }
                 // Call real API to send code
@@ -121,7 +121,7 @@ public class SignUpActivity extends AppCompatActivity {
                 btnSendCode.setTextColor(
                         ContextCompat.getColor(this, R.color.mosco_text_disabled));
             } else {
-                btnSendCode.setText(sentOnce ? getString(R.string.action_resend) : getString(R.string.action_send_code));
+                btnSendCode.setText(sentOnce ? getString(R.string.auth_action_resend) : getString(R.string.auth_action_send_code));
                 btnSendCode.setEnabled(true);
                 btnSendCode.setBackgroundTintList(null);
                 btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.white));
@@ -131,13 +131,13 @@ public class SignUpActivity extends AppCompatActivity {
         viewModel.getTimeLeftMillis().observe(this, millis -> {
             if (Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
                 btnSendCode.setText(String.format(
-                        getString(R.string.format_resend_timer), millis / 1000));
+                        getString(R.string.auth_format_resend_timer), millis / 1000));
             }
         });
 
         viewModel.getCodeSentOnce().observe(this, sentOnce -> {
             if (!Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
-                btnSendCode.setText(sentOnce ? getString(R.string.action_resend) : getString(R.string.action_send_code));
+                btnSendCode.setText(sentOnce ? getString(R.string.auth_action_resend) : getString(R.string.auth_action_send_code));
             }
         });
 
@@ -147,7 +147,7 @@ public class SignUpActivity extends AppCompatActivity {
             switch (resource.getStatus()) {
                 case LOADING:
                     btnSendCode.setEnabled(false);
-                    btnSendCode.setText("...");
+                    btnSendCode.setText(R.string.common_action_loading);
                     break;
                 case SUCCESS:
                     if (resource.getData() != null) {
@@ -157,7 +157,7 @@ public class SignUpActivity extends AppCompatActivity {
                     break;
                 case ERROR:
                     btnSendCode.setEnabled(true);
-                    btnSendCode.setText(getString(R.string.action_send_code));
+                    btnSendCode.setText(getString(R.string.auth_action_send_code));
                     Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -211,7 +211,7 @@ public class SignUpActivity extends AppCompatActivity {
                     if (resource.getData() != null && resource.getData().isSuccess()) {
                         sessionManager.saveSession(resource.getData().getData());
                         Toast.makeText(this,
-                                getString(R.string.msg_create_account_success),
+                                getString(R.string.auth_msg_create_account_success),
                                 Toast.LENGTH_SHORT).show();
 
                         Intent intent;
@@ -227,27 +227,28 @@ public class SignUpActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.label_error);
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.common_error_unknown);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.msg_network_error);
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.common_error_network);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
         });
 
         // --- Spannable "Sign In" link ---
-        String text = getString(R.string.msg_already_have_account);
-        SpannableString spannable = new SpannableString(text);
-        int start = text.indexOf(getString(R.string.action_sign_in));
+        String fullText = getString(R.string.auth_msg_already_have_account);
+        String linkText = getString(R.string.auth_action_sign_in);
+        SpannableString spannable = new SpannableString(fullText);
+        int start = fullText.indexOf(linkText);
         if (start != -1) {
             spannable.setSpan(
                     new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
-                    start, start + getString(R.string.action_sign_in).length(),
+                    start, start + linkText.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         tvGoToSignIn.setText(spannable);
@@ -279,31 +280,31 @@ public class SignUpActivity extends AppCompatActivity {
         tilVerificationCode.setError(null);
 
         if (username.isEmpty()) {
-            tilUsername.setError(getString(R.string.error_empty_field));
+            tilUsername.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (email.isEmpty()) {
-            tilEmail.setError(getString(R.string.error_empty_field));
+            tilEmail.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError(getString(R.string.error_invalid_email));
+            tilEmail.setError(getString(R.string.auth_error_invalid_email));
             return;
         }
         if (pass.isEmpty()) {
-            tilPassword.setError(getString(R.string.error_empty_field));
+            tilPassword.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (pass.length() < 6) {
-            tilPassword.setError(getString(R.string.error_short_password));
+            tilPassword.setError(getString(R.string.auth_error_short_password));
             return;
         }
         if (!pass.equals(confirmPass)) {
-            tilConfirmPassword.setError(getString(R.string.msg_passwords_not_match));
+            tilConfirmPassword.setError(getString(R.string.auth_msg_passwords_not_match));
             return;
         }
         if (code.isEmpty()) {
-            tilVerificationCode.setError(getString(R.string.error_empty_field));
+            tilVerificationCode.setError(getString(R.string.auth_error_empty_field));
             return;
         }
 
@@ -375,7 +376,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onError(String error) {
                 setLoading(false);
-                Toast.makeText(SignUpActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+                Toast.makeText(SignUpActivity.this, getString(R.string.auth_error_discord_general, error), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -416,12 +417,12 @@ public class SignUpActivity extends AppCompatActivity {
                 viewModel.socialLogin(new com.vn.jet.mosco.model.SocialAuthRequest("google", idToken, email));
             } else {
                 setLoading(false);
-                Toast.makeText(this, "Google Token is null. Check Web Client ID.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.auth_error_google_token_null, Toast.LENGTH_LONG).show();
             }
         } catch (ApiException e) {
             setLoading(false);
             android.util.Log.e("MoscoAuth", "Google sign in failed", e);
-            Toast.makeText(this, "Google Error: " + e.getStatusCode() + " (Check Client ID/SHA1)", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.auth_error_google_general, e.getStatusCode()), Toast.LENGTH_LONG).show();
         }
     }
 

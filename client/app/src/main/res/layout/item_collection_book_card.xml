@@ -4,10 +4,10 @@
     android:id="@+id/cv_book_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    app:cardBackgroundColor="#1A1C29"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    android:layout_margin="@dimen/spacing_xs"
+    app:cardBackgroundColor="@color/mosco_card_bg"
+    app:cardCornerRadius="@dimen/radius_lg"
+    app:cardElevation="@dimen/spacing_xs"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -34,11 +34,11 @@
         <!-- Icon khóa cho thẻ chưa sở hữu -->
         <ImageView
             android:id="@+id/iv_lock_icon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/spacing_28dp"
+            android:layout_height="@dimen/spacing_28dp"
             android:src="@drawable/ic_lock"
             android:visibility="gone"
-            app:tint="#55FFFFFF"
+            app:tint="@color/mosco_white_30"
             app:layout_constraintTop_toTopOf="@id/card_iv_image"
             app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
             app:layout_constraintStart_toStartOf="@id/card_iv_image"
@@ -47,3 +47,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
+
+
+

@@ -47,9 +47,9 @@
 
                 <!-- Icon thẻ bài nhỏ (tượng trưng danh tính) -->
                 <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_width="@dimen/spacing_64dp"
+                    android:layout_height="@dimen/spacing_64dp"
+                    android:layout_marginBottom="@dimen/spacing_20dp"
                     android:src="@drawable/ic_user"
                     app:tint="@color/mosco_primary"
                     android:contentDescription="@null" />
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/setup_title"
                     style="@style/MoscoText.Luxury.Header"
-                    android:textSize="28sp"
+                    android:textSize="@dimen/text_size_h1"
                     android:textAlignment="center" />
 
                 <!-- Subtitle -->
@@ -81,7 +81,7 @@
                     android:id="@+id/glass_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="36dp"
+                    android:layout_marginTop="@dimen/spacing_36dp"
                     android:background="@drawable/bg_glass_card"
                     android:orientation="vertical"
                     android:padding="@dimen/spacing_lg">
@@ -102,19 +102,19 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_display_name"
                             android:layout_width="match_parent"
-                            android:layout_height="56dp"
+                            android:layout_height="@dimen/spacing_56dp"
                             android:background="@drawable/bg_glass_input"
                             android:drawableStart="@drawable/ic_user"
-                            android:drawablePadding="15dp"
+                            android:drawablePadding="@dimen/spacing_15dp"
                             style="@style/MoscoText.Luxury.Body"
-                            android:hint="@string/prompt_display_name"
+                            android:hint="@string/setup_prompt_display_name"
                             android:imeOptions="actionDone"
                             android:inputType="text"
                             android:maxLength="16"
                             android:maxLines="1"
-                            android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
-                            android:textColorHint="#80FFFFFF"
+                            android:paddingStart="@dimen/spacing_15dp"
+                            android:paddingEnd="@dimen/spacing_15dp"
+                            android:textColorHint="@color/mosco_white_50"
                             android:textCursorDrawable="@null"
                             android:textSize="@dimen/text_size_body_md" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -123,7 +123,7 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btn_enter_galaxy"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="@dimen/spacing_56dp"
                         android:layout_marginTop="@dimen/spacing_lg"
                         android:background="@drawable/bg_btn_rainbow"
                         android:text="@string/setup_btn_enter"
@@ -145,7 +145,7 @@
         android:id="@+id/welcome_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E6000000"
+        android:background="@color/mosco_black_90"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true">
@@ -163,15 +163,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             style="@style/MoscoText.Luxury.Header"
-            android:textSize="32sp"
+            android:textSize="@dimen/text_size_h1_xl"
             android:textAlignment="center"
             android:alpha="0" />
     </FrameLayout>
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/loading_progress"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="@dimen/spacing_120dp"
+        android:layout_height="@dimen/spacing_120dp"
         android:layout_gravity="center"
         app:lottie_rawRes="@raw/loading"
         app:lottie_autoPlay="true"
@@ -179,3 +179,6 @@
         android:visibility="gone" />
 
 </FrameLayout>
+
+
+

@@ -193,7 +193,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             });
         } else {
             if (layoutActionButtons != null) layoutActionButtons.setVisibility(View.GONE);
-            if (tvTitle != null) tvTitle.setText("Select a Card");
+            if (tvTitle != null) tvTitle.setText(getString(R.string.inventory_title));
         }
 
         loadRealInventory();
@@ -217,7 +217,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             adapter.setMultiSelectMode(true, (item, selected) -> {
                 if (selected) {
                     if (selectedMaterials.size() >= maxSelectionCount) {
-                        int msgRes = isSquadMode ? R.string.stage_msg_squad_full : R.string.upgrade_msg_materials_full;
+                        int msgRes = isSquadMode ? R.string.stage_msg_squad_full : R.string.upgrade_error_max_materials;
                         String msg = isSquadMode ? getString(msgRes, maxSelectionCount) : getString(msgRes);
                         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
                         adapter.setSelectedIds(getSelectedIds());
@@ -233,7 +233,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     if (!isSquadMode) {
                         double currentProgress = calculateCurrentProgress();
                         if (currentProgress >= 100.0) {
-                            Toast.makeText(getContext(), R.string.upgrade_msg_max_prob, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), R.string.upgrade_error_max_probability, Toast.LENGTH_SHORT).show();
                             adapter.setSelectedIds(getSelectedIds());
                             return;
                         }
@@ -364,7 +364,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         if (view == null) return;
         TextView tvCount = view.findViewById(R.id.tv_select_types_count);
         if (tvCount != null) {
-            tvCount.setText(count + " Items");
+            tvCount.setText(getString(R.string.inventory_format_items_count, count));
         }
     }
 
@@ -554,7 +554,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         }
         double percent = calculateCurrentProgress();
         if (selectedMaterials.isEmpty()) {
-            btnConfirm.setText("Confirm");
+            btnConfirm.setText(getString(R.string.action_confirm));
         } else {
             btnConfirm.setText(String.format("Confirm (%.1f%%)", percent));
         }
@@ -649,6 +649,6 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         }
         
         updateConfirmButtonText();
-        Toast.makeText(getContext(), R.string.inventory_quick_pick_toast, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.inventory_msg_quick_pick_success, Toast.LENGTH_SHORT).show();
     }
 }

@@ -86,7 +86,7 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             holder.ivTypeIcon.cancelAnimation();
             switch (rankType) {
                 case "level": 
-                    holder.tvValue.setText(context.getString(R.string.rank_label_level_format, value));
+                    holder.tvValue.setText(context.getString(R.string.rank_format_level, value));
                     holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
                 case "wealth": 
@@ -95,12 +95,12 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
                 case "collection": 
-                    holder.tvValue.setText(context.getString(R.string.rank_label_album_format, value)); 
+                    holder.tvValue.setText(context.getString(R.string.rank_format_album, value)); 
                     holder.ivTypeIcon.setImageResource(R.drawable.ic_objets);
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
                 case "streak":
-                    holder.tvValue.setText(context.getString(R.string.rank_label_streak_format, value));
+                    holder.tvValue.setText(context.getString(R.string.rank_format_streak, value));
                     holder.ivTypeIcon.setAnimation(R.raw.streak_animation);
                     holder.ivTypeIcon.setMinAndMaxFrame(0, 24);
                     if (!holder.ivTypeIcon.isAnimating()) {
@@ -136,11 +136,11 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
         int currentStreak = entry.optInt("value", 0);
         com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
         android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
-        tvCurrent.setText(context.getString(R.string.rank_label_streak_format, currentStreak));
+        tvCurrent.setText(context.getString(R.string.rank_format_streak, currentStreak));
         
         // Vẽ vời: Record giả lập hoặc lấy từ data nếu có
         int bestStreak = entry.optInt("bestStreak", currentStreak + 5); 
-        tvBest.setText(context.getString(R.string.rank_label_streak_format, bestStreak));
+        tvBest.setText(context.getString(R.string.rank_format_streak, bestStreak));
 
         // Animation cho ngọn lửa (Dùng ObjectAnimator để lặp lại)
         android.animation.ObjectAnimator pulse = android.animation.ObjectAnimator.ofPropertyValuesHolder(

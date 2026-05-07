@@ -80,13 +80,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         // --- Spannable "Log In" link ---
         android.widget.TextView tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
-        String text = getString(R.string.msg_already_have_account);
+        String text = getString(R.string.auth_msg_already_have_account);
         android.text.SpannableString spannable = new android.text.SpannableString(text);
-        int start = text.indexOf(getString(R.string.action_sign_in));
+        int start = text.indexOf(getString(R.string.auth_action_sign_in));
         if (start != -1) {
             spannable.setSpan(
                     new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_primary)),
-                    start, start + getString(R.string.action_sign_in).length(),
+                    start, start + getString(R.string.auth_action_sign_in).length(),
                     android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         tvGoToSignIn.setText(spannable);
@@ -103,7 +103,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         tilEmail.setError(null);
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError(getString(R.string.error_invalid_email));
+            tilEmail.setError(getString(R.string.auth_error_invalid_email));
             return;
         }
 
@@ -115,14 +115,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ForgotPasswordActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.msg_email_not_found), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.auth_msg_email_not_found), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(ForgotPasswordActivity.this, getString(R.string.msg_network_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForgotPasswordActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -137,15 +137,15 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         tilPassword.setError(null);
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError(getString(R.string.error_invalid_email));
+            tilEmail.setError(getString(R.string.auth_error_invalid_email));
             return;
         }
         if (code.length() < 6) {
-            tilVerificationCode.setError(getString(R.string.error_short_code));
+            tilVerificationCode.setError(getString(R.string.auth_error_short_code));
             return;
         }
         if (pass.length() < 6) {
-            tilPassword.setError(getString(R.string.error_short_password));
+            tilPassword.setError(getString(R.string.auth_error_short_password));
             return;
         }
 
@@ -156,10 +156,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.msg_reset_password_success), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.auth_msg_reset_password_success), Toast.LENGTH_LONG).show();
                     finish();
                 } else {
-                    String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.msg_invalid_code);
+                    String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.auth_msg_invalid_code);
                     Toast.makeText(ForgotPasswordActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             }
@@ -167,7 +167,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(ForgotPasswordActivity.this, getString(R.string.msg_network_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForgotPasswordActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -21,7 +21,7 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/streak_dialog_title"
+        android:text="@string/streak_header_title"
         style="@style/MoscoText.Luxury.SubHeader"
         android:textSize="@dimen/text_size_h3"
         android:layout_marginTop="@dimen/spacing_lg"
@@ -72,7 +72,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/streak_dialog_current"
+                android:text="@string/streak_label_current"
                 style="@style/MoscoText.Luxury.Nav"
                 android:textSize="@dimen/text_size_badge"
                 android:alpha="0.6" />
@@ -81,9 +81,9 @@
                 android:id="@+id/tv_current_streak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/rank_placeholder_empty"
+                android:text="@string/placeholder_empty"
                 style="@style/MoscoText.Luxury.Header"
-                android:textSize="32sp"
+                android:textSize="@dimen/text_size_h1_xl"
                 android:textColor="@color/galactic_accent_orange" />
         </LinearLayout>
 
@@ -104,7 +104,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/streak_dialog_best"
+                android:text="@string/streak_label_best"
                 style="@style/MoscoText.Luxury.Nav"
                 android:textSize="@dimen/text_size_badge"
                 android:alpha="0.6" />
@@ -113,9 +113,9 @@
                 android:id="@+id/tv_best_streak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/rank_placeholder_empty"
+                android:text="@string/placeholder_empty"
                 style="@style/MoscoText.Luxury.Header"
-                android:textSize="32sp"
+                android:textSize="@dimen/text_size_h1_xl"
                 android:textColor="@color/galactic_accent_purple" />
         </LinearLayout>
     </LinearLayout>
@@ -143,7 +143,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/streak_dialog_shield"
+                android:text="@string/streak_label_shield"
                 style="@style/MoscoText.Luxury.SubHeader"
                 android:textSize="@dimen/text_size_card_title"
                 android:textColor="@color/white" />
@@ -151,7 +151,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/streak_dialog_shield_desc"
+                android:text="@string/streak_desc_shield"
                 style="@style/MoscoText.Luxury.Body"
                 android:textSize="@dimen/text_size_body_sm"
                 android:alpha="0.6"
@@ -162,7 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/item_reveal_result_button_height"
                 android:layout_marginTop="@dimen/spacing_md"
-                android:text="@string/streak_dialog_restore_btn"
+                android:text="@string/streak_action_restore"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 app:cornerRadius="@dimen/radius_m"
                 android:textColor="@color/white"
@@ -171,3 +171,4 @@
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

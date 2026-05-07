@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 
+      PALETTE LAYER (Primitives)
+      Dinh nghia cac ma mau goc. Khong su dung truc tiep trong layout.
+      Su dung qua cac semantic tokens trong colors.xml.
+    -->
+
+    <!-- Neutrals & Obsidian (Greyscale) -->
+    <color name="palette_black">#FF000000</color>
+    <color name="palette_white">#FFFFFFFF</color>
+    <color name="palette_transparent">#00000000</color>
+    
+    <color name="palette_obsidian_950">#080808</color>
+    <color name="palette_obsidian_900">#0A0A0E</color>
+    <color name="palette_obsidian_800">#0E0E0E</color>
+    <color name="palette_obsidian_700">#131313</color>
+    <color name="palette_obsidian_600">#1A1A1A</color>
+    <color name="palette_obsidian_500">#20201F</color>
+    <color name="palette_obsidian_400">#262626</color>
+    <color name="palette_obsidian_300">#484847</color>
+    
+    <color name="palette_space_blue_900">#161622</color>
+    <color name="palette_space_blue_800">#1A1C29</color>
+    <color name="palette_space_blue_700">#232533</color>
+    <color name="palette_space_blue_600">#2E303D</color>
+    <color name="palette_space_blue_500">#3A3A55</color>
+    <color name="palette_blue_deep">#12131F</color>
+    <color name="palette_cyan_accent">#00D4FF</color>
+    
+    <color name="palette_gray_900">#41455E</color>
+    <color name="palette_gray_800">#666666</color>
+    <color name="palette_gray_700">#818293</color>
+    <color name="palette_gray_600">#888888</color>
+    <color name="palette_gray_500">#A2A2A7</color>
+    <color name="palette_gray_400">#ADAAAA</color>
+    <color name="palette_gray_300">#BBBBBB</color>
+    <color name="palette_gray_200">#E0E0E0</color>
+
+    <!-- Purples & Violets (Brand) -->
+    <color name="palette_violet_900">#1A0B2E</color>
+    <color name="palette_violet_700">#6C29FD</color>
+    <color name="palette_violet_600">#8A2BE2</color>
+    <color name="palette_violet_500">#9370DB</color>
+    <color name="palette_violet_400">#9547F7</color>
+    <color name="palette_violet_300">#BA55D3</color>
+    <color name="palette_violet_200">#CBA6F7</color>
+    <color name="palette_violet_100">#E6E6FA</color>
+    <color name="palette_violet_neon">#BD00FF</color>
+
+    <!-- Cyans & Blues -->
+    <color name="palette_cyan_neon">#00E5FF</color>
+    <color name="palette_cyan_bright">#00F2FF</color>
+    <color name="palette_cyan_pure">#00FFFF</color>
+    <color name="palette_cyan_soft">#B0E0E6</color>
+    <color name="palette_blue_link">#0066FF</color>
+    <color name="palette_blue_stat">#2196F3</color>
+    <color name="palette_blue_royal">#4169E1</color>
+    <color name="palette_blue_sky">#ADD8E6</color>
+
+    <!-- Golds & Yellows -->
+    <color name="palette_gold">#FFD700</color>
+    <color name="palette_gold_bright">#FFF2A8</color>
+    <color name="palette_gold_medium">#D4AF37</color>
+    <color name="palette_gold_dark">#8B6508</color>
+    <color name="palette_yellow_soft">#FFE082</color>
+
+    <!-- Greens -->
+    <color name="palette_green_success">#00C853</color>
+    <color name="palette_green_stat">#4CAF50</color>
+    <color name="palette_green_neon">#08FF00</color>
+    <color name="palette_green_bright">#76FF03</color>
+    <color name="palette_green_emerald">#00FF88</color>
+    <color name="palette_green_forest">#228B22</color>
+    <color name="palette_green_light">#90EE90</color>
+
+    <!-- Reds & Pinks -->
+    <color name="palette_red_stat">#F44336</color>
+    <color name="palette_red_soft">#FF4B5C</color>
+    <color name="palette_red_accent">#FF5252</color>
+    <color name="palette_orange_vibrant">#FF4500</color>
+    <color name="palette_orange_warm">#FF9800</color>
+    <color name="palette_pink_neon">#E91E63</color>
+    <color name="palette_pink_rose">#FF6B9D</color>
+    <color name="palette_pink_bright">#FF00D4</color>
+    <color name="palette_pink_soft">#FFB7C5</color>
+    
+    <!-- Silvers & Bronzes -->
+    <color name="palette_silver_light">#F5F5F5</color>
+    <color name="palette_silver_medium">#C0C0C0</color>
+    <color name="palette_silver_dark">#A9A9A9</color>
+    <color name="palette_silver_obsidian">#696969</color>
+    
+    <color name="palette_bronze_light">#FFDAB9</color>
+    <color name="palette_bronze_medium">#CD7F32</color>
+    <color name="palette_bronze_dark">#A0522D</color>
+    <color name="palette_bronze_obsidian">#8B4513</color>
+
+</resources>

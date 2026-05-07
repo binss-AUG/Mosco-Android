@@ -10,8 +10,8 @@
         android:id="@+id/rv_rank_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="8dp"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingTop="@dimen/spacing_sm"
         android:clipToPadding="false" />
 
     <!-- Empty state container -->
@@ -35,18 +35,20 @@
             android:id="@+id/tv_rank_empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rank_empty_msg"
+            android:text="@string/rank_msg_empty"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="#A2A2A7"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_sm"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="@dimen/spacing_sm" />
     </LinearLayout>
 
     <!-- Loading -->
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottie_rank_loading"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="@dimen/spacing_52dp"
+        android:layout_height="@dimen/spacing_52dp"
         android:layout_gravity="center"
         android:visibility="gone" />
 </FrameLayout>
+
+

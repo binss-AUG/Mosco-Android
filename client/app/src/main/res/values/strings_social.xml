@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Friend System -->
+    <string name="social_header_friends">FRIENDS</string>
+    <string name="social_tab_friends">FRIENDS</string>
+    <string name="social_tab_explore">EXPLORE</string>
+    <string name="social_tab_requests">REQUESTS</string>
+    <string name="social_stats_total">TOTAL FRIENDS</string>
+    <string name="social_stats_online">ONLINE NOW</string>
+    <string name="social_search_hint">Search by name or ID…</string>
+    <string name="social_empty_msg">The archive is silent…</string>
+    <string name="social_explore_hint">NO NEW SUGGESTIONS</string>
+    <string name="social_action_accept">Accept</string>
+    <string name="social_action_decline">Decline</string>
+    <string name="social_msg_opening_galactic_id">Opening Galactic ID…</string>
+    <string name="social_msg_player_not_found">Player not found</string>
+    <string name="social_msg_request_sent">Friend request sent!</string>
+    <string name="social_msg_request_error">Could not send request</string>
+    <string name="social_dialog_add_friend_title">Add Friend</string>
+    <string name="social_dialog_add_friend_msg">Send friend request to %s?</string>
+    <string name="social_dialog_action_send">Send</string>
+    <string name="social_msg_request_accepted">Friend request accepted!</string>
+    <string name="social_msg_request_declined">Request declined</string>
+    <string name="social_gift_summary_format">\n\n🎁 Gift: %1$s x%2$s</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_header_title">PROFILE</string>
+    <string name="profile_label_account">Account</string>
+    <string name="profile_label_system">System</string>
+    <string name="profile_action_edit">Edit Profile</string>
+    <string name="profile_action_inventory">Inventory</string>
+    <string name="profile_action_change_password">Change Password</string>
+    <string name="profile_action_settings">Settings</string>
+    <string name="profile_action_logout">Logout</string>
+    <string name="profile_footer_version">App version %s</string>
+    <string name="profile_edit_title">Edit Profile</string>
+
+    <!-- Profile Preview -->
+    <string name="profile_preview_default_name">GALACTIC TRAVELER</string>
+    <string name="profile_preview_label_level">LEVEL</string>
+    <string name="profile_preview_label_joined">JOINED GALAXY</string>
+    <string name="profile_preview_label_showcase">EQUIPPED SHOWCASE</string>
+    <string name="profile_preview_label_achievements">ACHIEVEMENTS</string>
+    <string name="profile_preview_action_message">MESSAGE</string>
+    <string name="profile_preview_action_unfriend">UNFRIEND</string>
+    <string name="profile_preview_action_add">ADD FRIEND</string>
+    <string name="profile_preview_msg_chat_format">Opening chat with %s…</string>
+    <string name="profile_preview_msg_chat_coming">Chat with %s is coming soon!</string>
+    <string name="profile_preview_dialog_unfriend_title">Unfriend</string>
+    <string name="profile_preview_dialog_unfriend_msg">Remove %s from your galaxy?</string>
+    <string name="profile_preview_msg_unfriend_success">Unfriended %s</string>
+    <string name="profile_v3_btn_unfriend">UNFRIEND</string>
+    <string name="profile_v3_btn_add">ADD FRIEND</string>
+    <string name="profile_preview_unfriend_title">Unfriend Confirmation</string>
+    <string name="profile_preview_unfriend_msg">Are you sure you want to remove %s from your friends list?</string>
+    <string name="profile_preview_btn_remove">Remove</string>
+    <string name="profile_preview_unfriend_success">Successfully removed %s from friends.</string>
+    <string name="profile_preview_msg_chat_coming_soon">Chat with %s is coming soon!</string>
+    <string name="profile_preview_status_online">ONLINE</string>
+    <string name="profile_preview_status_offline">OFFLINE</string>
+    <string name="profile_v3_label_follower">FOLLOWER</string>
+    <string name="profile_v3_label_objets">OBJETS</string>
+    <string name="profile_v3_tab_info">INFO</string>
+    <string name="profile_v3_tab_showcase">SHOWCASE</string>
+
+    <!-- Gifting -->
+    <string name="gift_header_title">GIFT</string>
+    <string name="gift_tab_send">SEND</string>
+    <string name="gift_tab_received">INBOX</string>
+    <string name="gift_label_remaining">GIFTS LEFT</string>
+    <string name="gift_step_1">SELECT OBJET</string>
+    <string name="gift_step_2">SELECT FRIEND</string>
+    <string name="gift_step_3">CONFIRM</string>
+    <string name="gift_prompt_step1">Tap to select\nObjet to gift</string>
+    <string name="gift_action_send">SEND GIFT</string>
+    <string name="gift_label_cost">GIFT COST</string>
+    <string name="gift_empty_friends">You have no friends yet.\nAdd some to send gifts!</string>
+    <string name="gift_empty_received">Inbox is empty.\nWait for a gift from friends!</string>
+    <string name="gift_msg_select_friend_first">Please select a friend first</string>
+    <string name="gift_dialog_confirm_title">Confirm Gift</string>
+    <string name="gift_dialog_confirm_msg">Are you sure you want to send this Objet to %s?</string>
+    <string name="gift_dialog_success_title">Success</string>
+    <string name="gift_label_received_from">Received from</string>
+    <string name="gift_label_sent_to">Sent to</string>
+    <string name="social_label_gift_limit">DAILY GIFT LIMIT</string>
+    <string name="social_msg_no_matches">No matches found in your galaxy</string>
+    <string name="social_msg_no_requests">No pending requests</string>
+    <string name="social_error_accept">Failed to accept</string>
+    <string name="social_error_decline">Failed to decline</string>
+</resources>

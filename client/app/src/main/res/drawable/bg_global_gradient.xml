@@ -7,3 +7,4 @@
         android:endColor="@color/obsidian_end"
         android:type="linear" />
 </shape>
+

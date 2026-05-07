@@ -7,12 +7,13 @@
     <shape android:shape="rectangle">
         <gradient
             android:angle="0"
-            android:startColor="#00ffffff"
-            android:centerColor="#55ffffff"
-            android:endColor="#00ffffff"
+            android:startColor="@color/mosco_white_00"
+            android:centerColor="@color/mosco_white_33"
+            android:endColor="@color/mosco_white_00"
             android:type="linear" />
         <size
-            android:width="60dp"
+            android:width="@dimen/spacing_60dp"
             android:height="600dp" />
     </shape>
 </rotate>
+

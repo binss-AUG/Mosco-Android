@@ -294,12 +294,12 @@ public class SplashActivity extends AppCompatActivity {
     private void showCellularConfirmationDialog(CardAssetManager.DownloadInfo info) {
         mainHandler.post(() -> {
             new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
-                .setTitle(getString(R.string.splash_confirm_cellular_title))
-                .setMessage(String.format(getString(R.string.splash_confirm_cellular_msg), info.estimatedSizeMB))
-                .setPositiveButton(getString(R.string.splash_btn_download), (dialog, which) -> {
+                .setTitle(getString(R.string.splash_dialog_cellular_title))
+                .setMessage(String.format(getString(R.string.splash_dialog_cellular_msg), info.estimatedSizeMB))
+                .setPositiveButton(getString(R.string.splash_action_download), (dialog, which) -> {
                     new Thread(() -> startActualDownload(info, false)).start();
                 })
-                .setNegativeButton(getString(R.string.splash_btn_exit), (dialog, which) -> finish())
+                .setNegativeButton(getString(R.string.splash_action_exit), (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
         });

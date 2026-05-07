@@ -160,8 +160,8 @@ public class UpgradeFragment extends Fragment {
     }
 
     private void setupVideoBackground() {
-        if (bgVideoView == null || getContext() == null) return;
-        String path = "android.resource://" + getContext().getPackageName() + "/" + R.raw.thunderbackground;
+        if (bgVideoView == null || requireContext() == null) return;
+        String path = "android.resource://" + requireContext().getPackageName() + "/" + R.raw.thunderbackground;
         bgVideoView.setVideoURI(Uri.parse(path));
         bgVideoView.setOnPreparedListener(mp -> {
             mp.setLooping(true);
@@ -184,7 +184,7 @@ public class UpgradeFragment extends Fragment {
     };
 
     private void loadUpgradeConfig() {
-        Context ctx = getContext();
+        Context ctx = requireContext();
         if (ctx == null) return;
         Gson gson = new Gson();
         try {
@@ -285,7 +285,7 @@ public class UpgradeFragment extends Fragment {
 
     private void openCardSelector(int slotIndex) {
         if (slotIndex != -1 && mainCard == null) {
-            Toast.makeText(getContext(), getString(R.string.upgrade_msg_select_main_first), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.upgrade_msg_select_main), Toast.LENGTH_SHORT).show();
             return;
         }
         currentMaterialSlot = slotIndex;
@@ -351,7 +351,7 @@ public class UpgradeFragment extends Fragment {
 
         // Disable button ngay lập tức để block click liên tục
         btnUpgrade.setEnabled(false);
-        btnUpgrade.setText(getString(R.string.upgrade_btn_upgrading));
+        btnUpgrade.setText(getString(R.string.upgrade_action_upgrading));
         btnUpgrade.setBackgroundResource(R.drawable.bg_upgrade_button_disabled);
         int disabledColor = ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
         btnUpgrade.setTextColor(disabledColor);
@@ -369,26 +369,26 @@ public class UpgradeFragment extends Fragment {
                     performUpgradeAnimation(result);
                 } else {
                     resetUpgradeButton();
-                    Toast.makeText(getContext(), getString(R.string.upgrade_msg_system_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<UpgradeResponse>> call, Throwable t) {
                 resetUpgradeButton();
-                Toast.makeText(getContext(), getString(R.string.upgrade_msg_network_error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void resetUpgradeButton() {
         btnUpgrade.setEnabled(true);
-        btnUpgrade.setText("UPGRADE");
+        btnUpgrade.setText(getString(R.string.upgrade_btn_text));
         updateUpgradeButtonUI();
     }
 
     private void performUpgradeAnimation(UpgradeResponse result) {
-        if (getContext() == null || rootView == null) return;
+        if (requireContext() == null || rootView == null) return;
 
         ViewGroup parent = (ViewGroup) rootView;
         View oldOverlay = parent.findViewById(R.id.view_upgrade_overlay);
@@ -404,14 +404,14 @@ public class UpgradeFragment extends Fragment {
         }
 
         // === OVERLAY ===
-        FrameLayout overlay = new FrameLayout(getContext());
+        FrameLayout overlay = new FrameLayout(requireContext());
         overlay.setId(R.id.view_upgrade_overlay);
         overlay.setAlpha(0f);
         overlay.setBackgroundColor(Color.TRANSPARENT);
         parent.addView(overlay, new ViewGroup.LayoutParams(-1, -1));
 
         // Video sấm chớp (thành công)
-        VideoView successVideoView = new VideoView(getContext());
+        VideoView successVideoView = new VideoView(requireContext());
         successVideoView.setVisibility(View.GONE);
         successVideoView.setAlpha(1f);
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -420,7 +420,7 @@ public class UpgradeFragment extends Fragment {
         FrameLayout.LayoutParams successParams = new FrameLayout.LayoutParams(screenWidth, screenWidth);
         successParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
         overlay.addView(successVideoView, successParams);
-        String successVideoPath = "android.resource://" + getContext().getPackageName() + "/" + R.raw.successupgrade;
+        String successVideoPath = "android.resource://" + requireContext().getPackageName() + "/" + R.raw.successupgrade;
         successVideoView.setVideoURI(Uri.parse(successVideoPath));
 
         successVideoView.setOnPreparedListener(mp -> {
@@ -435,26 +435,26 @@ public class UpgradeFragment extends Fragment {
         });
 
         // UpgradeSceneView (Hiệu ứng glitch/streaks)
-        UpgradeSceneView sceneView = new UpgradeSceneView(getContext());
+        UpgradeSceneView sceneView = new UpgradeSceneView(requireContext());
         sceneView.setVisibility(View.GONE);
         overlay.addView(sceneView, new FrameLayout.LayoutParams(-1, -1));
 
         // === CARD WRAPPER ===
-        FrameLayout cardWrapper = new FrameLayout(getContext());
+        FrameLayout cardWrapper = new FrameLayout(requireContext());
         cardWrapper.setAlpha(0f);
         cardWrapper.setScaleX(CARD_INITIAL_SCALE);
         cardWrapper.setScaleY(CARD_INITIAL_SCALE);
 
-        com.google.android.material.card.MaterialCardView resultCard = new com.google.android.material.card.MaterialCardView(getContext());
+        com.google.android.material.card.MaterialCardView resultCard = new com.google.android.material.card.MaterialCardView(requireContext());
         resultCard.setId(View.generateViewId());
         resultCard.setCardBackgroundColor(Color.TRANSPARENT);
         resultCard.setRadius(getResources().getDisplayMetrics().density * 12f);
         resultCard.setCardElevation(0f);
         resultCard.setStrokeWidth(0);
 
-        androidx.constraintlayout.widget.ConstraintLayout cardContainer = new androidx.constraintlayout.widget.ConstraintLayout(getContext());
+        androidx.constraintlayout.widget.ConstraintLayout cardContainer = new androidx.constraintlayout.widget.ConstraintLayout(requireContext());
         cardContainer.setBackgroundResource(R.drawable.bg_card_filled);
-        LayoutInflater.from(getContext()).inflate(R.layout.layout_core_card, cardContainer, true);
+        LayoutInflater.from(requireContext()).inflate(R.layout.layout_core_card, cardContainer, true);
         resultCard.addView(cardContainer, new ViewGroup.LayoutParams(-1, -1));
 
         int width = (int) (getResources().getDisplayMetrics().widthPixels * RESULT_CARD_WIDTH_PERCENT);
@@ -464,14 +464,14 @@ public class UpgradeFragment extends Fragment {
         resultCard.setLayoutParams(cardParams);
         cardWrapper.addView(resultCard);
 
-        View neonGlow = new View(getContext());
+        View neonGlow = new View(requireContext());
         neonGlow.setBackgroundResource(R.drawable.bg_neon_glow);
         neonGlow.setAlpha(0f);
         neonGlow.setScaleX(0.8f);
         neonGlow.setScaleY(0.8f);
         cardWrapper.addView(neonGlow, new FrameLayout.LayoutParams(width, height, android.view.Gravity.CENTER));
 
-        SpriteSheetView spriteSheetView = new SpriteSheetView(getContext());
+        SpriteSheetView spriteSheetView = new SpriteSheetView(requireContext());
         spriteSheetView.setVisibility(View.GONE);
         spriteSheetView.init(R.drawable.failedupgrade, 8, 4, 18, 1000);
         spriteSheetView.setDrawSettings(1.7f, 0f, 0f);
@@ -480,7 +480,7 @@ public class UpgradeFragment extends Fragment {
         overlay.addView(cardWrapper, new FrameLayout.LayoutParams(-1, -1));
 
         // Flash trắng (Climax)
-        View flashWhite = new View(getContext());
+        View flashWhite = new View(requireContext());
         flashWhite.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white));
         flashWhite.setAlpha(0f);
         flashWhite.setVisibility(View.GONE);
@@ -493,18 +493,18 @@ public class UpgradeFragment extends Fragment {
         View shimmer = cardContainer.findViewById(R.id.view_card_shimmer);
 
         // Load ảnh thẻ CŨ lên card (sẽ swap sang data mới sau)
-        Glide.with(getContext()).load(mainCard.getImageUrl()).into(ivResultImage);
+        Glide.with(requireContext()).load(mainCard.getImageUrl()).into(ivResultImage);
         tvResultOvr.setVisibility(View.GONE);
         tvResultOvr.setText(String.valueOf(mainCard.getOvr()));
         if (mainCard.getCardLevel() > 0) {
             ivResultLevel.setVisibility(View.VISIBLE);
             String gradePath = "file:///android_asset/grade/" + Math.min(mainCard.getCardLevel(), 10) + ".png";
-            Glide.with(getContext()).load(gradePath).into(ivResultLevel);
+            Glide.with(requireContext()).load(gradePath).into(ivResultLevel);
         }
 
         // Nút DONE
-        androidx.appcompat.widget.AppCompatButton btnDone = new androidx.appcompat.widget.AppCompatButton(getContext());
-        btnDone.setText(getString(R.string.reveal_btn_done));
+        androidx.appcompat.widget.AppCompatButton btnDone = new androidx.appcompat.widget.AppCompatButton(requireContext());
+        btnDone.setText(getString(R.string.action_done));
         btnDone.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         btnDone.setBackgroundResource(R.drawable.bg_upgrade_button_active);
         btnDone.setVisibility(View.GONE);
@@ -520,7 +520,7 @@ public class UpgradeFragment extends Fragment {
         overlay.addView(btnDone, btnParams);
 
         // Title kết quả
-        TextView tvTitle = new TextView(getContext());
+        TextView tvTitle = new TextView(requireContext());
         tvTitle.setText(result.isSuccess() ? getString(R.string.upgrade_msg_success) : getString(R.string.upgrade_msg_failed));
         tvTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         tvTitle.setTextSize(24);
@@ -583,7 +583,7 @@ public class UpgradeFragment extends Fragment {
                                 if (result.getNewLevel() > 0) {
                                     ivResultLevel.setVisibility(View.VISIBLE);
                                     String p = "file:///android_asset/grade/" + Math.min(result.getNewLevel(), 10) + ".png";
-                                    Glide.with(getContext()).load(p).into(ivResultLevel);
+                                    Glide.with(requireContext()).load(p).into(ivResultLevel);
                                     LevelBadgeEffectHelper.apply(ivResultLevel, result.getNewLevel());
                                 } else {
                                     ivResultLevel.setVisibility(View.GONE);
@@ -801,8 +801,8 @@ public class UpgradeFragment extends Fragment {
     private void updateLevelIndicatorUI() {
         if (mainCard == null) {
             layoutLevelIndicator.setAlpha(0.4f);
-            tvLevelCurrent.setText("--");
-            tvLevelNext.setText("--");
+            tvLevelCurrent.setText(getString(R.string.placeholder_empty));
+            tvLevelNext.setText(getString(R.string.placeholder_empty));
             ivLevelCurrent.setVisibility(View.GONE);
             ivLevelNext.setVisibility(View.GONE);
         } else {
@@ -815,7 +815,7 @@ public class UpgradeFragment extends Fragment {
                 Glide.with(this).load("file:///android_asset/grade/" + currentLevel + ".png").into(ivLevelCurrent);
             } else {
                 tvLevelCurrent.setVisibility(View.VISIBLE);
-                tvLevelCurrent.setText("+0");
+                tvLevelCurrent.setText(getString(R.string.format_level_plus, 0));
                 ivLevelCurrent.setVisibility(View.GONE);
             }
             if (nextLevel > 0) {
@@ -824,7 +824,7 @@ public class UpgradeFragment extends Fragment {
                 Glide.with(this).load("file:///android_asset/grade/" + nextLevel + ".png").into(ivLevelNext);
             } else {
                 tvLevelNext.setVisibility(View.VISIBLE);
-                tvLevelNext.setText("+1");
+                tvLevelNext.setText(getString(R.string.format_level_plus, 1));
                 ivLevelNext.setVisibility(View.GONE);
             }
         }
@@ -889,7 +889,7 @@ public class UpgradeFragment extends Fragment {
                 CardEffectHelper.remove(cardView, shimmer);
             }
         }
-        tvMaterialsCount.setText(selectedCount + " / 5 Selected");
+        tvMaterialsCount.setText(getString(R.string.upgrade_format_materials_count_limit, selectedCount));
         int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
         int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
         tvMaterialsCount.setTextColor(selectedCount > 0 ? primaryColor : disabledColor);

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#33FFFFFF" /> <!-- 20% White for Glass effect -->
+    <solid android:color="@color/mosco_white_20" /> <!-- 20% White for Glass effect -->
     <stroke
         android:width="0.5dp"
-        android:color="#66FFFFFF" /> <!-- Very thin 40% white border -->
-    <corners android:radius="8dp" />
+        android:color="@color/mosco_white_40" /> <!-- Very thin 40% white border -->
+    <corners android:radius="@dimen/spacing_sm" />
 </shape>
+

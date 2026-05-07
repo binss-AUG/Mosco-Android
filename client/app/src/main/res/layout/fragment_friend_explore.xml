@@ -11,9 +11,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/friend_explore_title"
+        android:text="@string/social_tab_explore"
         style="@style/MoscoText.Luxury.Nav"
-        android:textSize="11sp"
+        android:textSize="@dimen/text_size_caption"
         android:textColor="@color/white_70"
         android:letterSpacing="0.1" />
 
@@ -22,7 +22,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="@dimen/spacing_20dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_results"
@@ -40,7 +40,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/friend_explore_hint"
+                android:text="@string/social_explore_hint"
                 style="@style/MoscoText.Luxury.Label"
                 android:textColor="@color/white_25"
                 android:letterSpacing="0.1" />
@@ -48,11 +48,12 @@
         
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottie_search_loading"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="@dimen/spacing_80dp"
+            android:layout_height="@dimen/spacing_80dp"
             android:layout_gravity="center"
             app:lottie_rawRes="@raw/loading"
             android:visibility="gone" />
 
     </FrameLayout>
 </LinearLayout>
+

@@ -164,10 +164,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // ════════════════════════════════════════════════════════════════
 
     private void showEditProfileDialog() {
-        if (getContext() == null) return;
+        if (requireContext() == null) return;
 
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_profile, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_profile, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
@@ -203,15 +203,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             tilDisplayName.setError(null);
 
             if (newUsername.isEmpty()) {
-                tilUsername.setError(getString(R.string.error_empty_field));
+                tilUsername.setError(getString(R.string.auth_error_empty_field));
                 return;
             }
             if (newDisplayName.isEmpty()) {
-                tilDisplayName.setError(getString(R.string.error_empty_field));
+                tilDisplayName.setError(getString(R.string.auth_error_empty_field));
                 return;
             }
             if (newDisplayName.length() < 2 || newDisplayName.length() > 16) {
-                tilDisplayName.setError(getString(R.string.error_display_name_length));
+                tilDisplayName.setError(getString(R.string.setup_error_display_name_length));
                 return;
             }
 
@@ -228,7 +228,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         sessionManager.setIngameName(newDisplayName);
                         // Cập nhật UI
                         tvUsername.setText(newDisplayName);
-                        Toast.makeText(getContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                     } else {
                         // Parse lỗi từ Server
@@ -244,7 +244,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Toast.makeText(getContext(), getString(R.string.msg_network_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
                 }
             });
         });
@@ -261,10 +261,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             public void onResponse(Call<UserStats> call, Response<UserStats> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UserStats stats = response.body();
-                    tvCoins.setText(NumberUtils.format(getContext(), stats.getCoins() != null ? stats.getCoins() : 0));
-                    tvDiamonds.setText(NumberUtils.format(getContext(), stats.getDiamonds() != null ? stats.getDiamonds() : 0));
+                    tvCoins.setText(NumberUtils.format(requireContext(), stats.getCoins() != null ? stats.getCoins() : 0));
+                    tvDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds() != null ? stats.getDiamonds() : 0));
                     if (tvLevel != null) {
-                        tvLevel.setText("LV. " + stats.getLevel());
+                        tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
                     }
                 }
             }
@@ -277,10 +277,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void showLogoutConfirmationDialog() {
-        if (getContext() == null) return;
+        if (requireContext() == null) return;
         
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_logout_confirm, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout_confirm, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);
         
         AlertDialog dialog = builder.create();
@@ -323,15 +323,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 if (response.isSuccessful()) {
                     sessionManager.setAvatarId(collectionId);
                     loadAvatar(); // Refresh UI ngay lập tức
-                    Toast.makeText(getContext(), "Avatar updated!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(), "Failed to update avatar", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_msg_system_error), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -369,10 +369,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
         if (card == null) return;
 
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_avatar_zoom, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_avatar_zoom, null);
         ImageView ivZoom = dialogView.findViewById(R.id.iv_avatar_zoom);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 

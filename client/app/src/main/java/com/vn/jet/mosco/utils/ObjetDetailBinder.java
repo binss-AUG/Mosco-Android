@@ -71,11 +71,19 @@ public class ObjetDetailBinder {
     public static void bind(Dialog dialog, Context context, com.vn.jet.mosco.model.Objet objet) {
         try {
             // ── 1. Xử lý màu sắc chủ đạo ──────────────────────────────
-            String bgColorHex = objet.getBackgroundColor() != null ? objet.getBackgroundColor() : "#6c29fd";
-            String txtColorHex = objet.getTextColor() != null ? objet.getTextColor() : "#ffffff";
+            int bgColor;
+            if (objet.getBackgroundColor() != null && objet.getBackgroundColor().startsWith("#")) {
+                bgColor = Color.parseColor(objet.getBackgroundColor());
+            } else {
+                bgColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_primary);
+            }
 
-            int bgColor = Color.parseColor(bgColorHex);
-            int txtColor = Color.parseColor(txtColorHex);
+            int txtColor;
+            if (objet.getTextColor() != null && objet.getTextColor().startsWith("#")) {
+                txtColor = Color.parseColor(objet.getTextColor());
+            } else {
+                txtColor = Color.WHITE;
+            }
             
             // Màu sắc đại diện cho Class của thẻ
             int classColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_btn_disabled);
@@ -135,10 +143,10 @@ public class ObjetDetailBinder {
             if (tvSpd != null) tvSpd.setText(String.valueOf(finalSpd));
 
             TextView tvCritRate = dialog.findViewById(R.id.tv_stat_crit_rate);
-            if (tvCritRate != null) tvCritRate.setText("10%");
+            if (tvCritRate != null) tvCritRate.setText(context.getString(R.string.format_qty, "10%"));
             
             TextView tvCritDmg = dialog.findViewById(R.id.tv_stat_crit_dmg);
-            if (tvCritDmg != null) tvCritDmg.setText("150%");
+            if (tvCritDmg != null) tvCritDmg.setText(context.getString(R.string.format_qty, "150%"));
 
             // ── 4. Hiển thị Tiêu đề, Badge & Dual-tone Chip ─────────────
             TextView tvTitle = dialog.findViewById(R.id.tv_objet_title);
@@ -178,10 +186,10 @@ public class ObjetDetailBinder {
                 int[] leftColors;
                 if ("Special".equalsIgnoreCase(cardClass)) {
                     leftColors = new int[]{
-                            Color.parseColor("#FFC0CB"),
-                            Color.parseColor("#B0E0E6"),
-                            Color.parseColor("#E6E6FA"),
-                            Color.parseColor("#FFFFFF")
+                            androidx.core.content.ContextCompat.getColor(context, R.color.palette_pink_soft_alt),
+                            androidx.core.content.ContextCompat.getColor(context, R.color.palette_blue_powder),
+                            androidx.core.content.ContextCompat.getColor(context, R.color.palette_pink_lavender),
+                            Color.WHITE
                     };
                 } else {
                     leftColors = new int[]{bgColor};
@@ -388,14 +396,14 @@ public class ObjetDetailBinder {
 
             TextView tvLevelLabel = dialog.findViewById(R.id.tv_level_label);
             if (tvLevelLabel != null) {
-                tvLevelLabel.setText("Level " + level);
+                tvLevelLabel.setText(context.getString(R.string.format_level, level));
                 tvLevelLabel.setTextColor(txtColor);
             }
  
             int maxExp = level * 100;
             TextView tvLevelValue = dialog.findViewById(R.id.tv_level_value);
             if (tvLevelValue != null) {
-                tvLevelValue.setText(exp + " / " + maxExp);
+                tvLevelValue.setText(context.getString(R.string.format_fraction, String.valueOf(exp), String.valueOf(maxExp)));
                 tvLevelValue.setTextColor(txtColor);
             }
 

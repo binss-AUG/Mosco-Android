@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="@color/black">
 
     <VideoView
         android:id="@+id/bg_video_view"
@@ -19,7 +19,7 @@
         android:id="@+id/layout_content_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="24dp">
+        android:paddingHorizontal="@dimen/spacing_lg">
 
     <!-- Standard Galactic Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -32,8 +32,8 @@
 
         <ImageView
             android:id="@+id/btn_back_upgrade"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
             android:src="@drawable/ic_back_arrow"
             android:padding="@dimen/spacing_xs"
             android:clickable="true"
@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/upgrade_header"
+                android:text="@string/upgrade_header_title"
                 style="@style/MoscoText.Luxury.SubHeader"
                 android:textSize="@dimen/text_size_h3"
                 android:textStyle="bold"
@@ -132,7 +132,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="@dimen/radius_lg"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/guide_card_bottom"
         app:layout_constraintDimensionRatio="1:1.54"
@@ -175,7 +175,7 @@
                     android:layout_gravity="center"
                     android:text="+"
                     android:textColor="@color/mosco_primary"
-                    android:textSize="28sp" />
+                    android:textSize="@dimen/text_size_h1" />
             </FrameLayout>
 
             <!-- Unified Card Content (Image + OVR + Badge) -->
@@ -209,7 +209,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="↑"
-                android:textColor="#4ADE80"
+                android:textColor="@color/mosco_success"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -247,8 +247,8 @@
         android:background="@drawable/bg_level_indicator"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="6dp"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:paddingVertical="@dimen/spacing_6dp"
         app:layout_constraintBottom_toTopOf="@id/guide_level_bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -257,8 +257,8 @@
         <!-- Current Level -->
         <FrameLayout
             android:id="@+id/frame_level_current"
-            android:layout_width="40dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_28dp"
             android:background="@drawable/bg_level_badge">
 
             <ImageView
@@ -285,16 +285,16 @@
             android:id="@+id/tv_level_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="@dimen/spacing_md"
             android:text="→"
-            android:textColor="#c2c6d1"
-            android:textSize="16sp" />
+            android:textColor="@color/mosco_text_dim"
+            android:textSize="@dimen/text_size_subtitle" />
 
         <!-- Next Level -->
         <FrameLayout
             android:id="@+id/frame_level_next"
-            android:layout_width="40dp"
-            android:layout_height="28dp"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_28dp"
             android:background="@drawable/bg_level_badge">
 
             <ImageView
@@ -337,9 +337,9 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_probability_badge"
             style="@style/MoscoText.Luxury.Badge"
-            android:paddingHorizontal="12dp"
+            android:paddingHorizontal="@dimen/radius_lg"
             android:paddingVertical="3dp"
-            android:text="@string/upgrade_probability_badge"
+            android:text="@string/upgrade_label_boost"
             android:textAllCaps="true"
             android:textColor="@color/mosco_primary"
             android:textSize="@dimen/text_size_badge" />
@@ -347,8 +347,8 @@
         <!-- Progress Bar Container -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="@dimen/spacing_10dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:background="@drawable/bg_progress_track">
 
             <!-- Progress Fill -->
@@ -370,9 +370,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Badge"
-        android:text="@string/upgrade_materials_label"
+        android:text="@string/upgrade_label_materials"
         android:textAllCaps="true"
-        android:textColor="#94A3B8"
+        android:textColor="@color/mosco_text_dim"
         android:textSize="@dimen/text_size_badge"
         app:layout_constraintBottom_toTopOf="@id/layout_materials_grid"
         app:layout_constraintStart_toStartOf="parent"
@@ -383,8 +383,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Badge"
-        android:text="0 / 5 Selected"
-        android:textColor="#c2c6d1"
+        android:text="@string/placeholder_empty"
+        android:textColor="@color/mosco_text_dim"
         android:textSize="@dimen/text_size_badge"
         app:layout_constraintBaseline_toBaselineOf="@id/tv_materials_label"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -394,7 +394,7 @@
         android:id="@+id/layout_materials_grid"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="@dimen/spacing_6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_materials_label">
@@ -405,7 +405,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1.54"
-            android:layout_marginEnd="2dp"
+            android:layout_marginEnd="@dimen/spacing_2dp"
             app:layout_constraintEnd_toStartOf="@id/frame_material_2"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintHorizontal_weight="1"
@@ -413,7 +413,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="@dimen/spacing_sm"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -436,8 +436,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+"
-                    android:textColor="#424750"
-                    android:textSize="18sp"
+                    android:textColor="@color/palette_obsidian_400"
+                    android:textSize="@dimen/text_size_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -455,14 +455,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1.54"
-            android:layout_marginHorizontal="2dp"
+            android:layout_marginHorizontal="@dimen/spacing_2dp"
             app:layout_constraintEnd_toStartOf="@id/frame_material_3"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/frame_material_1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="@dimen/spacing_sm"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -485,8 +485,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+"
-                    android:textColor="#424750"
-                    android:textSize="18sp"
+                    android:textColor="@color/palette_obsidian_400"
+                    android:textSize="@dimen/text_size_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -503,14 +503,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1.54"
-            android:layout_marginHorizontal="2dp"
+            android:layout_marginHorizontal="@dimen/spacing_2dp"
             app:layout_constraintEnd_toStartOf="@id/frame_material_4"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/frame_material_2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="@dimen/spacing_sm"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -533,8 +533,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+"
-                    android:textColor="#424750"
-                    android:textSize="18sp"
+                    android:textColor="@color/palette_obsidian_400"
+                    android:textSize="@dimen/text_size_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -551,14 +551,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1.54"
-            android:layout_marginHorizontal="2dp"
+            android:layout_marginHorizontal="@dimen/spacing_2dp"
             app:layout_constraintEnd_toStartOf="@id/frame_material_5"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/frame_material_3"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="@dimen/spacing_sm"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -581,8 +581,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+"
-                    android:textColor="#424750"
-                    android:textSize="18sp"
+                    android:textColor="@color/palette_obsidian_400"
+                    android:textSize="@dimen/text_size_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -606,7 +606,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="@dimen/spacing_sm"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -629,8 +629,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="+"
-                    android:textColor="#424750"
-                    android:textSize="18sp"
+                    android:textColor="@color/palette_obsidian_400"
+                    android:textSize="@dimen/text_size_title"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -656,7 +656,7 @@
         style="@style/MoscoText.Luxury.Button"
         android:text="@string/upgrade_btn_text"
         android:textAllCaps="true"
-        android:textColor="#c2c6d1"
+        android:textColor="@color/mosco_text_dim"
         android:textSize="@dimen/text_size_body_lg"
         android:textStyle="bold"
         android:fontWeight="700"
@@ -669,3 +669,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

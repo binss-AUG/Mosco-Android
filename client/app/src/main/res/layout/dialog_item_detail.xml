@@ -3,75 +3,76 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="16dp"
+    android:layout_margin="@dimen/spacing_md"
     app:cardBackgroundColor="@color/mosco_surface_container"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    app:cardCornerRadius="@dimen/spacing_md"
+    app:cardElevation="@dimen/spacing_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="@dimen/spacing_lg"
         android:gravity="center">
 
         <!-- Item Image Placeholder -->
         <ImageView
             android:id="@+id/dialogItemImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="@dimen/spacing_120dp"
+            android:layout_height="@dimen/spacing_120dp"
             android:src="@drawable/ic_launcher_foreground"
             android:background="@drawable/card_border"
-            android:padding="8dp"/>
+            android:padding="@dimen/spacing_sm"/>
 
         <TextView
             android:id="@+id/dialogItemName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Item Name"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/placeholder_empty"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_h3"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/dialogItemDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:gravity="center"
-            android:text="This is an item description that explains what it does."
+            android:text="@string/placeholder_empty"
             android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_body_lg" />
             
         <TextView
             android:id="@+id/dialogItemQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:text="Owned: 0"
             android:textColor="@color/mosco_primary_dim"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_subtitle"
             android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btnUseItem"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="24dp"
+            android:layout_height="@dimen/spacing_xxl"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:backgroundTint="@color/mosco_primary"
-            android:text="Use Item"
+            android:text="@string/action_use_item"
             android:textColor="@color/white"
-            app:cornerRadius="8dp" />
+            app:cornerRadius="@dimen/spacing_sm" />
             
         <Button
             android:id="@+id/btnCloseDialog"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:text="Close"
+            android:layout_height="@dimen/spacing_xxl"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/action_close"
             android:textColor="@color/mosco_on_surface_variant" />
             
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+

@@ -22,9 +22,9 @@
         android:id="@+id/layout_header_stage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="24dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="16dp"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:paddingTop="@dimen/spacing_xl"
+        android:paddingBottom="@dimen/spacing_md"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -47,18 +47,18 @@
             
             <View
                 android:id="@+id/header_line"
-                android:layout_width="48dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="4dp"
+                android:layout_width="@dimen/spacing_xxl"
+                android:layout_height="@dimen/spacing_2dp"
+                android:layout_marginTop="@dimen/spacing_xs"
                 android:background="@color/mosco_primary" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/iv_stage_info"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
             android:src="@drawable/ic_info"
-            android:padding="8dp"
+            android:padding="@dimen/spacing_sm"
             android:alpha="0.7"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -73,8 +73,8 @@
         android:layout_height="0dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:paddingHorizontal="56dp"
-        android:paddingBottom="40dp"
+        android:paddingHorizontal="@dimen/spacing_56dp"
+        android:paddingBottom="@dimen/spacing_40dp"
         app:layout_constraintDimensionRatio="H,1:1.6"
         app:layout_constraintTop_toBottomOf="@id/layout_header_stage"
         app:layout_constraintBottom_toTopOf="@id/layout_bottom_indicator"
@@ -88,35 +88,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="@dimen/spacing_40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         
         <View
             android:id="@+id/dot_0"
-            android:layout_width="16dp"
+            android:layout_width="@dimen/spacing_md"
             android:layout_height="3dp"
             android:background="@drawable/bg_indicator_active"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="@dimen/spacing_xs" />
         <View
             android:id="@+id/dot_1"
-            android:layout_width="16dp"
+            android:layout_width="@dimen/spacing_md"
             android:layout_height="3dp"
             android:background="@drawable/bg_indicator_inactive"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="@dimen/spacing_xs" />
         <View
             android:id="@+id/dot_2"
-            android:layout_width="16dp"
+            android:layout_width="@dimen/spacing_md"
             android:layout_height="3dp"
             android:background="@drawable/bg_indicator_inactive"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="@dimen/spacing_xs" />
         <View
             android:id="@+id/dot_3"
-            android:layout_width="16dp"
+            android:layout_width="@dimen/spacing_md"
             android:layout_height="3dp"
             android:background="@drawable/bg_indicator_inactive"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="@dimen/spacing_xs" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

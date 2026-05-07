@@ -26,8 +26,8 @@
 
         <View
             android:id="@+id/sk_name"
-            android:layout_width="100dp"
-            android:layout_height="16dp"
+            android:layout_width="@dimen/spacing_100dp"
+            android:layout_height="@dimen/spacing_md"
             android:layout_marginStart="@dimen/spacing_md"
             android:layout_marginTop="@dimen/spacing_sm"
             android:background="@color/white_10"
@@ -37,7 +37,7 @@
         <View
             android:id="@+id/sk_xp_bar"
             android:layout_width="0dp"
-            android:layout_height="8dp"
+            android:layout_height="@dimen/spacing_sm"
             android:layout_marginTop="@dimen/spacing_sm"
             android:layout_marginEnd="@dimen/spacing_md"
             android:background="@color/white_10"
@@ -47,8 +47,8 @@
 
         <View
             android:id="@+id/sk_currency"
-            android:layout_width="80dp"
-            android:layout_height="12dp"
+            android:layout_width="@dimen/spacing_80dp"
+            android:layout_height="@dimen/radius_lg"
             android:layout_marginTop="@dimen/spacing_sm"
             android:background="@color/white_10"
             app:layout_constraintStart_toStartOf="@id/sk_name"
@@ -96,3 +96,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

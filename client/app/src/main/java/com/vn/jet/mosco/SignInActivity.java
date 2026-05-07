@@ -85,13 +85,13 @@ public class SignInActivity extends AppCompatActivity {
         handleIntent(getIntent());
 
         // --- Spannable link for "Sign Up" ---
-        String text = getString(R.string.msg_new_user_sign_up);
+        String text = getString(R.string.auth_msg_new_user);
         SpannableString spannable = new SpannableString(text);
-        int start = text.indexOf(getString(R.string.action_sign_up));
+        int start = text.indexOf(getString(R.string.auth_action_sign_up));
         if (start != -1) {
             spannable.setSpan(
                     new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
-                    start, start + getString(R.string.action_sign_up).length(),
+                    start, start + getString(R.string.auth_action_sign_up).length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         tvGoToSignUp.setText(spannable);
@@ -173,7 +173,7 @@ public class SignInActivity extends AppCompatActivity {
                     setLoading(false);
                     if (resource.getData() != null && resource.getData().isSuccess()) {
                         sessionManager.saveSession(resource.getData().getData());
-                        Toast.makeText(this, getString(R.string.msg_sign_in_success),
+                        Toast.makeText(this, getString(R.string.auth_msg_sign_in_success),
                                 Toast.LENGTH_SHORT).show();
 
                         Intent intent;
@@ -188,14 +188,14 @@ public class SignInActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.label_error);
+                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.common_error_unknown);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.msg_network_error);
+                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.common_error_network);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }
@@ -221,15 +221,15 @@ public class SignInActivity extends AppCompatActivity {
         tilPassword.setError(null);
 
         if (email.isEmpty()) {
-            tilEmail.setError(getString(R.string.error_empty_field));
+            tilEmail.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (password.isEmpty()) {
-            tilPassword.setError(getString(R.string.error_empty_field));
+            tilPassword.setError(getString(R.string.auth_error_empty_field));
             return;
         }
         if (password.length() < 6) {
-            tilPassword.setError(getString(R.string.error_short_password));
+            tilPassword.setError(getString(R.string.auth_error_short_password));
             return;
         }
 
@@ -285,7 +285,7 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onError(String error) {
                 setLoading(false);
-                Toast.makeText(SignInActivity.this, "Discord Error: " + error, Toast.LENGTH_LONG).show();
+                Toast.makeText(SignInActivity.this, getString(R.string.auth_error_discord_general, error), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -315,7 +315,7 @@ public class SignInActivity extends AppCompatActivity {
 
         sessionManager.saveSession(dummyUser);
         
-        Toast.makeText(this, "Welcome to Mosco Galaxy!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.auth_msg_welcome_galaxy), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -358,12 +358,12 @@ public class SignInActivity extends AppCompatActivity {
                 firebaseAuthWithGoogle(idToken);
             } else {
                 setLoading(false);
-                Toast.makeText(this, "Google Token is null.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.auth_error_google_token_null), Toast.LENGTH_LONG).show();
             }
         } catch (ApiException e) {
             setLoading(false);
             android.util.Log.e("MoscoAuth", "Google sign in failed", e);
-            Toast.makeText(this, "Google Error: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.auth_error_google_general, String.valueOf(e.getStatusCode())), Toast.LENGTH_LONG).show();
         }
     }
 

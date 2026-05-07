@@ -15,9 +15,9 @@
     <!-- Friend Specific Header Content (QR Button) -->
     <ImageView
         android:id="@+id/btn_friend_qr"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="24dp"
+        android:layout_width="@dimen/spacing_40dp"
+        android:layout_height="@dimen/spacing_40dp"
+        android:layout_marginEnd="@dimen/spacing_lg"
         android:src="@drawable/ic_qr_code"
         android:padding="@dimen/spacing_xs"
         android:clickable="true"
@@ -33,13 +33,13 @@
         android:id="@+id/card_search_friend"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="@dimen/spacing_20dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         app:cardCornerRadius="@dimen/radius_md"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="#CC1A1C29"
+        app:cardElevation="@dimen/spacing_xs"
+        app:cardBackgroundColor="@color/mosco_card_bg"
         app:strokeColor="@color/galactic_accent_purple"
-        app:strokeWidth="1dp"
+        app:strokeWidth="@dimen/stroke_thin"
         app:layout_constraintTop_toBottomOf="@id/layout_header_friend_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -48,12 +48,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_sm">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="@dimen/spacing_20dp"
+                android:layout_height="@dimen/spacing_20dp"
                 android:src="@drawable/ic_search"
                 app:tint="@color/galactic_accent_purple" />
 
@@ -62,9 +62,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:hint="@string/friend_search_hint"
-                android:textColorHint="#99A2A2A7"
+                android:layout_marginStart="@dimen/radius_lg"
+                android:hint="@string/social_search_hint"
+                android:textColorHint="@color/mosco_text_disabled"
                 android:textColor="@color/white"
                 style="@style/MoscoText.Luxury.Body"
                 android:textSize="@dimen/text_size_body_md"
@@ -80,16 +80,16 @@
         android:id="@+id/tab_layout_friend"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card_search_friend"
         app:tabIndicatorColor="@color/galactic_accent_purple"
-        app:tabIndicatorHeight="4dp"
+        app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="true"
         app:tabSelectedTextColor="@color/galactic_accent_purple"
-        app:tabTextColor="#A2A2A7"
+        app:tabTextColor="@color/mosco_text_disabled"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"
@@ -106,3 +106,6 @@
         app:layout_constraintTop_toBottomOf="@id/tab_layout_friend" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

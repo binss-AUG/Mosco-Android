@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardBackgroundColor="#1A1C29"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_margin="@dimen/spacing_6dp"
+    app:cardBackgroundColor="@color/mosco_card_bg"
+    app:cardCornerRadius="@dimen/radius_lg"
+    app:cardElevation="@dimen/spacing_xs">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -35,7 +35,7 @@
             android:id="@+id/view_disabled_overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#AA000000"
+            android:background="@color/mosco_black_70"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -48,13 +48,13 @@
             style="@style/MoscoText.Luxury"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/spacing_sm"
             android:gravity="center"
             android:letterSpacing="0.05"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingExtra="@dimen/spacing_2dp"
             android:textAllCaps="true"
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="@dimen/text_size_caption"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -64,3 +64,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
+
+
+

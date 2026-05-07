@@ -4,21 +4,21 @@
     android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    app:cardBackgroundColor="#1A1C29"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    app:cardBackgroundColor="@color/mosco_card_bg"
+    app:cardCornerRadius="@dimen/spacing_md"
+    app:cardElevation="@dimen/spacing_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_lg">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.SubHeader"
-            android:text="@string/dialog_spin_confirm_title"
+            android:text="@string/spin_dialog_confirm_title"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700" />
@@ -26,41 +26,41 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/radius_lg"
             style="@style/MoscoText.Luxury.Body"
-            android:text="@string/dialog_spin_confirm_msg"
-            android:textColor="#A2A2A7"
+            android:text="@string/spin_dialog_confirm_msg"
+            android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:gravity="end"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/spacing_xxl"
                 android:background="@android:color/transparent"
                 style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="16dp"
-                android:text="@string/dialog_spin_confirm_cancel"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:text="@string/action_cancel"
                 android:textAllCaps="false"
-                android:textColor="#A2A2A7"
+                android:textColor="@color/mosco_text_disabled"
                 android:textSize="@dimen/text_size_body_sm" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_confirm"
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="12dp"
+                android:layout_height="@dimen/spacing_xxl"
+                android:layout_marginStart="@dimen/radius_lg"
                 android:background="@drawable/bg_button"
-                android:backgroundTint="#8A2BE2"
+                android:backgroundTint="@color/mosco_card_stroke"
                 style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="20dp"
-                android:text="@string/dialog_spin_confirm_ok"
+                android:paddingHorizontal="@dimen/spacing_20dp"
+                android:text="@string/spin_dialog_action_spin"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_body_sm"
@@ -70,3 +70,5 @@
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+
+

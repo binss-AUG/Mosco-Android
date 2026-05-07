@@ -38,6 +38,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -162,9 +166,9 @@ public class ItemRevealFragment extends Fragment {
         
         packFlashOverlay = view.findViewById(R.id.view_pack_flash_overlay);
 
-        tvItemName.setText(itemName);
+        tvItemName.setText(itemName != null && !itemName.isEmpty() ? itemName : getString(R.string.reveal_default_item_name));
         tvItemInfo.setText(itemDesc != null && !itemDesc.isEmpty() ? itemDesc : getString(R.string.reveal_default_info));
-        tvItemQty.setText(getString(R.string.reveal_qty_format, NumberUtils.format(getContext(), itemQty)));
+        tvItemQty.setText(getString(R.string.format_qty, NumberUtils.format(requireContext(), itemQty)));
 
         if (itemImage != null && !itemImage.isEmpty()) {
             Glide.with(this).load(itemImage).placeholder(R.drawable.item_shop_demo).into(ivItemImage);
@@ -176,8 +180,8 @@ public class ItemRevealFragment extends Fragment {
             btnOpenAll.setVisibility(View.VISIBLE);
             final int maxOpenQuantity = getResources().getInteger(R.integer.reveal_open_pack_max_quantity);
             int openAllDisplayQty = Math.min(itemQty, maxOpenQuantity);
-            btnOpenAll.setText(getString(R.string.reveal_open_all_short_format, openAllDisplayQty));
-            String capHint = getString(R.string.reveal_open_all_cap_hint, maxOpenQuantity);
+            btnOpenAll.setText(getString(R.string.reveal_action_open_all, openAllDisplayQty));
+            String capHint = getString(R.string.reveal_msg_limit_hint, maxOpenQuantity);
             String baseInfo = itemDesc != null && !itemDesc.isEmpty() ? itemDesc : getString(R.string.reveal_default_info);
             tvItemInfo.setText(baseInfo + "\n" + capHint);
         } else {
@@ -239,7 +243,7 @@ public class ItemRevealFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         hideLoadingOverlay(true);
-                        Toast.makeText(getContext(), getString(R.string.reveal_error_format, errorMessage), Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), getString(R.string.reveal_error_format, errorMessage), Toast.LENGTH_LONG).show();
                         goBack();
                     });
                 }
@@ -364,11 +368,11 @@ public class ItemRevealFragment extends Fragment {
 
     private void showLoadingOverlay() {
         View rootView = getView();
-        if (!(rootView instanceof ViewGroup) || getContext() == null) return;
+        if (!(rootView instanceof ViewGroup) || requireContext() == null) return;
         ViewGroup root = (ViewGroup) rootView;
         hideLoadingOverlay(false);
 
-        loadingAnimView = new LottieAnimationView(getContext());
+        loadingAnimView = new LottieAnimationView(requireContext());
         loadingAnimView.setAnimation(R.raw.loading);
         loadingAnimView.loop(true);
         loadingAnimView.playAnimation();
@@ -471,14 +475,14 @@ public class ItemRevealFragment extends Fragment {
                 // Tạo mặt sau (Back Image) cho FLIP 3D
                 String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
                 if (backImageView == null) {
-                    backImageView = new ImageView(getContext());
+                    backImageView = new ImageView(requireContext());
                     backImageView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
                     backImageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     backImageView.setScaleX(-1f);
                     backImageView.setVisibility(View.GONE);
                     cardItem.addView(backImageView);
                 }
-                if (!backImageUrl.isEmpty() && getContext() != null) {
+                if (!backImageUrl.isEmpty() && requireContext() != null) {
                     Glide.with(this).load(backImageUrl).into(backImageView);
                 }
 
@@ -514,7 +518,7 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void buildPremiumRevealEffects(MaterialCardView cardItem, JSONObject topCardJson, int forcedGlowColor) {
-        if (getContext() == null || topCardJson == null) return;
+        if (requireContext() == null || topCardJson == null) return;
         
         // 1. Chuyển đổi JSONObject thành Objet model để xài CardEffectHelper (Dùng chung với Home/Collection)
         Objet heroObjet = new Objet(0, 
@@ -649,7 +653,7 @@ public class ItemRevealFragment extends Fragment {
             activeParticleView = null;
         }
 
-        ChaosParticleView particleView = new ChaosParticleView(getContext(), buildParticleConfig());
+        ChaosParticleView particleView = new ChaosParticleView(requireContext(), buildParticleConfig());
         activeParticleView = particleView;
         // Fix z-index & layouts
         ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(
@@ -758,11 +762,11 @@ public class ItemRevealFragment extends Fragment {
 
         // --- 2. Premium title: cleaner typography + safe top spacing ---
         String headline = getString(R.string.reveal_summary_headline);
-        String subtitle = getString(R.string.reveal_summary_congrats, bulkCards.size());
+        String subtitle = getString(R.string.reveal_summary_subtitle, bulkCards.size());
         SpannableStringBuilder titleBuilder = new SpannableStringBuilder(headline + "\n" + subtitle);
         titleBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_headline_size_percent)), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titleBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#FFE082")), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        titleBuilder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.palette_gold_medium)), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         int subtitleStart = headline.length() + 1;
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)), subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
@@ -771,7 +775,7 @@ public class ItemRevealFragment extends Fragment {
         tvTitle.setText(titleBuilder);
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
-        tvTitle.setShadowLayer(getResources().getDimension(R.dimen.reveal_title_shadow_radius), 0f, getResources().getDimension(R.dimen.reveal_title_shadow_dy), Color.parseColor("#B36C29FD"));
+        tvTitle.setShadowLayer(getResources().getDimension(R.dimen.reveal_title_shadow_radius), 0f, getResources().getDimension(R.dimen.reveal_title_shadow_dy), ContextCompat.getColor(requireContext(), R.color.mosco_card_stroke_alpha_70));
         tvTitle.setPadding(tvTitle.getPaddingLeft(), (int) getResources().getDimension(R.dimen.reveal_title_top_padding), tvTitle.getPaddingRight(), tvTitle.getPaddingBottom());
         tvTitle.animate().alpha(getPercent(R.integer.reveal_alpha_visible_percent)).translationY(getResources().getDimension(R.dimen.reveal_title_translation_y)).setDuration(getResources().getInteger(R.integer.reveal_summary_title_fade_ms)).start();
         tvTitle.setScaleX(getPercent(R.integer.reveal_title_initial_scale_percent));
@@ -789,18 +793,18 @@ public class ItemRevealFragment extends Fragment {
                 .start();
 
         // --- 3. Summary Glass Container ---
-        LinearLayout summaryContainer = new LinearLayout(getContext());
+        LinearLayout summaryContainer = new LinearLayout(requireContext());
         summaryContainer.setOrientation(LinearLayout.VERTICAL);
         summaryContainer.setAlpha(0f);
         
         GradientDrawable glassBg = new GradientDrawable();
-        glassBg.setColor(Color.parseColor("#E6111111")); 
+        glassBg.setColor(ContextCompat.getColor(requireContext(), R.color.mosco_overlay_dark)); 
         glassBg.setCornerRadius(getResources().getDimension(R.dimen.reveal_summary_corner_radius));
-        glassBg.setStroke((int) getResources().getDimension(R.dimen.reveal_summary_stroke_width), Color.parseColor("#33FFFFFF"));
+        glassBg.setStroke((int) getResources().getDimension(R.dimen.reveal_summary_stroke_width), ContextCompat.getColor(requireContext(), R.color.mosco_white_20));
         summaryContainer.setBackground(glassBg);
         
         // Header
-        TextView tvHeader = new TextView(getContext());
+        TextView tvHeader = new TextView(requireContext());
         tvHeader.setText(getString(R.string.reveal_summary_title_collapse));
         tvHeader.setTextColor(Color.WHITE);
         tvHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.reveal_summary_header_text_size));
@@ -816,21 +820,21 @@ public class ItemRevealFragment extends Fragment {
         tvHeader.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
         summaryContainer.addView(tvHeader);
         
-        View div = new View(getContext());
-        div.setBackgroundColor(Color.parseColor("#22FFFFFF"));
+        View div = new View(requireContext());
+        div.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.mosco_white_15));
         LinearLayout.LayoutParams divLp = new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.reveal_summary_divider_width), (int) getResources().getDimension(R.dimen.reveal_summary_divider_height));
         divLp.gravity = Gravity.CENTER;
         div.setLayoutParams(divLp);
         summaryContainer.addView(div);
 
         // Scrollable List
-        android.widget.ScrollView scrollView = new android.widget.ScrollView(getContext());
+        android.widget.ScrollView scrollView = new android.widget.ScrollView(requireContext());
         scrollView.setVerticalScrollBarEnabled(false);
         int expandedHeight = (int) getResources().getDimension(R.dimen.reveal_summary_list_height);
         int collapsedHeight = (int) getResources().getDimension(R.dimen.reveal_summary_list_collapsed_height);
         summaryContainer.addView(scrollView, new LinearLayout.LayoutParams(-1, expandedHeight)); 
         
-        LinearLayout listLayout = new LinearLayout(getContext());
+        LinearLayout listLayout = new LinearLayout(requireContext());
         listLayout.setOrientation(LinearLayout.VERTICAL);
         listLayout.setPadding(
                 (int) getResources().getDimension(R.dimen.reveal_summary_list_padding_horizontal),
@@ -853,12 +857,12 @@ public class ItemRevealFragment extends Fragment {
         }
         
         for (Map.Entry<String, Integer> entry : cardCounts.entrySet()) {
-            LinearLayout row = new LinearLayout(getContext());
+            LinearLayout row = new LinearLayout(requireContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(0, (int) getResources().getDimension(R.dimen.reveal_summary_row_padding_vertical), 0, (int) getResources().getDimension(R.dimen.reveal_summary_row_padding_vertical));
             row.setGravity(Gravity.CENTER_VERTICAL);
             
-            View colorIndicator = new View(getContext());
+            View colorIndicator = new View(requireContext());
             int targetTier = cardTiers.getOrDefault(entry.getKey(), 1);
             GradientDrawable indicatorBg = new GradientDrawable();
             indicatorBg.setShape(GradientDrawable.OVAL);
@@ -881,7 +885,7 @@ public class ItemRevealFragment extends Fragment {
             colorIndicator.setBackground(indicatorBg);
             colorIndicator.setLayoutParams(new LinearLayout.LayoutParams((int) getResources().getDimension(R.dimen.reveal_summary_indicator_size), (int) getResources().getDimension(R.dimen.reveal_summary_indicator_size)));
             
-            TextView tvName = new TextView(getContext());
+            TextView tvName = new TextView(requireContext());
             tvName.setText(entry.getKey());
             tvName.setTextColor(Color.WHITE);
             tvName.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.reveal_summary_name_text_size));
@@ -889,8 +893,8 @@ public class ItemRevealFragment extends Fragment {
             tvName.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
             tvName.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1.0f));
             
-            TextView tvQty = new TextView(getContext());
-            tvQty.setText(getString(R.string.reveal_qty_int_format, entry.getValue()));
+            TextView tvQty = new TextView(requireContext());
+            tvQty.setText(getString(R.string.format_qty_int, entry.getValue()));
             tvQty.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_summary_qty_text));
             tvQty.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.reveal_summary_qty_text_size));
             tvQty.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
@@ -908,7 +912,7 @@ public class ItemRevealFragment extends Fragment {
         if (btnOpenOne != null) btnOpenOne.setVisibility(View.GONE);
         if (btnOpenAll != null) btnOpenAll.setVisibility(View.GONE);
         btnDone.setVisibility(View.VISIBLE);
-        btnDone.setText(getString(R.string.reveal_btn_collect_all, bulkCards.size()));
+        btnDone.setText(getString(R.string.reveal_action_collect_all, bulkCards.size()));
         btnDone.setBackgroundTintList(ColorStateList.valueOf(
                 androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary)));
         btnDone.setCornerRadius((int) getResources().getDimension(R.dimen.reveal_button_corner_radius_summary)); 
@@ -939,10 +943,10 @@ public class ItemRevealFragment extends Fragment {
                 .start();
 
         // Footer spacer lớn để item cuối không bị FAB che khi cuộn tới cuối danh sách.
-        View listFooterSpacer = new View(getContext());
+        View listFooterSpacer = new View(requireContext());
         listFooterSpacer.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.reveal_summary_footer_spacer_height)));
-        TextView footerMarker = new TextView(getContext());
+        TextView footerMarker = new TextView(requireContext());
         footerMarker.setText(getString(R.string.reveal_summary_footer_marker));
         footerMarker.setGravity(Gravity.CENTER);
         footerMarker.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_on_surface_variant));

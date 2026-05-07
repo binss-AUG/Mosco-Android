@@ -3,8 +3,8 @@
     <!-- Outer Stroke Style 2026 -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
-            <solid android:color="#40000000" />
+            <corners android:radius="@dimen/radius_xxl" />
+            <solid android:color="@color/mosco_black_25" />
             <stroke
                 android:width="0.8dp"
                 android:color="#20FFFFFF" />
@@ -21,7 +21,8 @@
                 android:angle="225" />
             <stroke
                 android:width="0.5dp"
-                android:color="#1AFFFFFF" />
+                android:color="@color/mosco_white_10" />
         </shape>
     </item>
 </layer-list>
+

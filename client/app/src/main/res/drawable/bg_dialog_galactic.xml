@@ -2,12 +2,13 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
         android:angle="135"
-        android:centerColor="#1E2033"
-        android:endColor="#151726"
-        android:startColor="#2A2C40"
+        android:centerColor="@color/mosco_bg_galactic_center"
+        android:endColor="@color/mosco_bg_galactic_end"
+        android:startColor="@color/mosco_bg_galactic_start"
         android:type="linear" />
-    <corners android:radius="24dp" />
+    <corners android:radius="@dimen/radius_xxl" />
     <stroke
         android:width="1.2dp"
-        android:color="#33FFFFFF" />
+        android:color="@color/mosco_white_20" />
 </shape>
+

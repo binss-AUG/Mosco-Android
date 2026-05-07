@@ -19,7 +19,7 @@
         android:id="@+id/layout_header_stats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="@dimen/spacing_lg"
         android:orientation="vertical"
         android:gravity="end"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Header"
-            android:text="OVR: 0"
+            android:text="@string/placeholder_empty"
             android:textColor="@color/mosco_tertiary"
             android:textSize="@dimen/text_size_h3"
             android:fontWeight="700" />
@@ -40,7 +40,7 @@
             android:id="@+id/btn_global_buffs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BUFF ACTIVE"
+            android:text="@string/formation_label_buff_active"
             style="@style/MoscoText.Luxury.Label"
             android:textColor="@color/white_40"
             android:textSize="@dimen/text_size_mini"
@@ -171,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/MoscoText.Luxury.SubHeader"
-                android:text="@string/formation_active_synergies_label"
+                android:text="@string/formation_label_active_synergies"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_body_sm"
                 android:textStyle="bold"
@@ -201,3 +201,4 @@
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:padding="8dp">
+    android:padding="@dimen/spacing_sm">
 
     <!-- The Showcase Card Style (Ratio 1:1.54) -->
     <com.google.android.material.card.MaterialCardView
@@ -16,8 +16,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintDimensionRatio="1:1.54"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="8dp"
+        app:cardCornerRadius="@dimen/spacing_10dp"
+        app:cardElevation="@dimen/spacing_sm"
         app:cardBackgroundColor="@color/transparent"
         app:strokeWidth="0dp">
 
@@ -56,3 +56,4 @@
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

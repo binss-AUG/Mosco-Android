@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="12dp"
+    android:layout_margin="@dimen/radius_lg"
     app:cardBackgroundColor="@color/white_05"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="@dimen/spacing_lg"
     app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -36,12 +36,12 @@
             android:id="@+id/tv_map_dimension"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
+            android:layout_margin="@dimen/spacing_20dp"
+            android:paddingHorizontal="@dimen/radius_lg"
+            android:paddingVertical="@dimen/spacing_xs"
             android:text="@string/stage_map_1_sub"
             android:textColor="@color/white"
-            android:textSize="10sp"
+            android:textSize="@dimen/text_size_caption"
             android:textStyle="bold"
             android:letterSpacing="0.2"
             android:background="@drawable/bg_dimension_tag"
@@ -62,8 +62,8 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/spacing_xxl"
+                android:layout_height="@dimen/spacing_xxl"
                 android:src="@drawable/ic_lock"
                 app:tint="@color/white_50" />
 
@@ -71,10 +71,10 @@
                 android:id="@+id/tv_lock_level"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/spacing_sm"
                 android:text="@string/stage_lock_level_format"
                 android:textColor="@color/white_50"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp"
+            android:padding="@dimen/spacing_20dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
@@ -93,17 +93,17 @@
                 android:layout_height="wrap_content"
                 android:text="@string/stage_map_1_name"
                 android:textColor="@color/white"
-                android:textSize="24sp"
+                android:textSize="@dimen/text_size_headline"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_map_reward_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_xs"
                 android:text="@string/stage_map_reward_coins"
                 android:textColor="@color/white_70"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_body" />
 
             <LinearLayout
                 android:id="@+id/layout_duration_picker"
@@ -114,11 +114,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/spacing_md"
                     android:text="@string/stage_label_select_duration"
                     android:textAllCaps="true"
                     android:textColor="@color/white_40"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_caption"
                     android:textStyle="bold"
                     android:letterSpacing="0.1" />
 
@@ -126,10 +126,10 @@
                 <FrameLayout
                     android:id="@+id/layout_duration_selection"
                     android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="@dimen/spacing_36dp"
+                    android:layout_marginTop="@dimen/radius_lg"
                     android:background="@drawable/bg_segmented_container"
-                    android:padding="2dp">
+                    android:padding="@dimen/spacing_2dp">
 
                     <!-- Sliding Thumb -->
                     <View
@@ -151,7 +151,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="@string/stage_duration_1h"
-                            android:textSize="11sp"
+                            android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
 
@@ -162,7 +162,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="@string/stage_duration_4h"
-                            android:textSize="11sp"
+                            android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
 
@@ -173,7 +173,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="@string/stage_duration_8h"
-                            android:textSize="11sp"
+                            android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
 
@@ -184,7 +184,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:text="@string/stage_duration_12h"
-                            android:textSize="11sp"
+                            android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
                     </LinearLayout>
@@ -193,16 +193,16 @@
 
             <View
                 android:id="@+id/view_accent_line"
-                android:layout_width="32dp"
-                android:layout_height="2dp"
-                android:layout_marginTop="12dp"
+                android:layout_width="@dimen/spacing_xl"
+                android:layout_height="@dimen/spacing_2dp"
+                android:layout_marginTop="@dimen/radius_lg"
                 android:background="@color/mosco_primary" />
 
             <!-- Dispatch Button / Progress -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="@dimen/spacing_20dp">
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btn_dispatch"
@@ -226,7 +226,7 @@
                         android:layout_height="wrap_content"
                         app:indicatorColor="@color/mosco_primary"
                         app:trackColor="@color/white_10"
-                        app:trackCornerRadius="4dp"
+                        app:trackCornerRadius="@dimen/spacing_xs"
                         android:progress="0" />
                         
                     <TextView
@@ -234,10 +234,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/rank_placeholder_empty"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:text="@string/placeholder_empty"
                         android:textColor="@color/white"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/text_size_body_lg"
                         android:textStyle="bold" />
 
                     <!-- Actions when running (Timer > 0) -->
@@ -290,3 +290,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
+

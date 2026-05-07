@@ -5,5 +5,6 @@
         android:startColor="@color/mosco_primary"
         android:endColor="@color/mosco_primary_dim"
         android:angle="0" />
-    <corners android:radius="16dp" />
+    <corners android:radius="@dimen/spacing_md" />
 </shape>
+

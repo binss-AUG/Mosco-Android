@@ -13,5 +13,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#1A000000" />
+        android:background="@color/mosco_black_10" />
 </FrameLayout>
+

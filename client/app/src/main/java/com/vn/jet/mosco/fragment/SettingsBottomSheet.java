@@ -88,7 +88,7 @@ public class SettingsBottomSheet extends BottomSheetDialogFragment {
     private void calculateCacheSize() {
         long size = getDirSize(requireContext().getCacheDir());
         String sizeStr = android.text.format.Formatter.formatFileSize(requireContext(), size);
-        tvCacheSize.setText("Current usage: " + sizeStr);
+        tvCacheSize.setText(getString(R.string.settings_label_cache_usage, sizeStr));
     }
 
     private long getDirSize(File dir) {
@@ -110,7 +110,7 @@ public class SettingsBottomSheet extends BottomSheetDialogFragment {
                 // Clear Glide memory on main thread
                 requireActivity().runOnUiThread(() -> {
                     com.bumptech.glide.Glide.get(requireContext()).clearMemory();
-                    Toast.makeText(getContext(), "Clearing cache...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.settings_msg_clearing_cache), Toast.LENGTH_SHORT).show();
                 });
 
                 // Clear files from cache dir
@@ -118,7 +118,7 @@ public class SettingsBottomSheet extends BottomSheetDialogFragment {
                 
                 requireActivity().runOnUiThread(() -> {
                     calculateCacheSize();
-                    Toast.makeText(getContext(), "Cache cleared successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
                 });
             } catch (Exception e) {
                 e.printStackTrace();

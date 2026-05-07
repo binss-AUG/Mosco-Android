@@ -33,6 +33,7 @@ import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
@@ -238,9 +239,9 @@ public class SpinFragment extends Fragment {
     }
 
     private void showConfirmDialog() {
-        if (getContext() == null) return;
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_spin_confirm, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        if (requireContext() == null) return;
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_spin_confirm, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
@@ -250,7 +251,7 @@ public class SpinFragment extends Fragment {
         dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
             AppCompatButton btnC = (AppCompatButton) v;
             btnC.setEnabled(false);
-            btnC.setText("Charging energy...");
+            btnC.setText(getString(R.string.spin_action_charging));
 
             // BẮT ĐẦU LOAD DATA NGẦM NGAY KHI ẤN
             gachaRepository.spinCard(new GachaSpinRequest(selectedSacrificeId), new GachaRepository.GachaCallback<GachaSpinResponse>() {
@@ -281,7 +282,7 @@ public class SpinFragment extends Fragment {
                 public void onError(int httpCode, String errorMessage) {
                     android.util.Log.e("SpinFragment", "Lỗi Spin: " + errorMessage);
                     videoComplete = true;
-                    android.widget.Toast.makeText(getContext(), "Lỗi: " + errorMessage, android.widget.Toast.LENGTH_LONG).show();
+                    android.widget.Toast.makeText(requireContext(), getString(R.string.common_msg_system_error) + ": " + errorMessage, android.widget.Toast.LENGTH_LONG).show();
                     resetToSpinMain();
                 }
             });
@@ -335,7 +336,7 @@ public class SpinFragment extends Fragment {
 
         if (currentSpinResult.getCardData() != null) {
             String name = String.valueOf(currentSpinResult.getCardData().get("name"));
-            if (tvResultSubtitle != null) tvResultSubtitle.setText("Received the " + name + " Objekt.");
+            if (tvResultSubtitle != null) tvResultSubtitle.setText(getString(R.string.spin_format_received_objet, name));
         }
     }
 
@@ -344,7 +345,7 @@ public class SpinFragment extends Fragment {
      * @param earlyCompleteMs nếu > 0, gọi onComplete sớm hơn N ms trước khi video kết thúc
      */
     private void playVideo(int resId, int fadeOutMs, int earlyCompleteMs, Runnable onComplete) {
-        if (videoSpinEffect == null || videoContainer == null || getContext() == null) return;
+        if (videoSpinEffect == null || videoContainer == null || requireContext() == null) return;
         if (layoutSpinMain != null) layoutSpinMain.setVisibility(View.GONE);
         if (layoutRevealGrid != null) layoutRevealGrid.setVisibility(View.GONE);
         if (layoutResultReveal != null) layoutResultReveal.setVisibility(View.GONE);
@@ -439,7 +440,7 @@ public class SpinFragment extends Fragment {
         }
 
         if (rvSecretGrid != null) {
-            rvSecretGrid.setLayoutManager(new GridLayoutManager(getContext(), 4));
+            rvSecretGrid.setLayoutManager(new GridLayoutManager(requireContext(), 4));
 
             // Đợi layout đo xong, rồi tính kích thước thẻ
             rvSecretGrid.post(() -> {
@@ -788,7 +789,7 @@ public class SpinFragment extends Fragment {
         boolean isWin = currentSpinResult != null && currentSpinResult.isWin();
 
         // Lấy tên thẻ bài từ dữ liệu thẻ (collectionId)
-        String cardName = "Nothing";
+        String cardName = getString(R.string.spin_msg_nothing);
         if (currentSpinResult != null && currentSpinResult.getCardData() != null) {
             Object cid = currentSpinResult.getCardData().get("collectionId");
             if (cid != null) cardName = String.valueOf(cid);
@@ -796,8 +797,8 @@ public class SpinFragment extends Fragment {
 
         // Fade-in title: Trạng thái (Thắng/Thua)
         if (tvResultTitle != null) {
-            tvResultTitle.setText(isWin ? "Spin was successful!" : "Sacrifice failed");
-            tvResultTitle.setTextColor(isWin ? Color.WHITE : Color.parseColor("#A2A2A7"));
+            tvResultTitle.setText(isWin ? getString(R.string.spin_msg_success) : getString(R.string.spin_msg_failed));
+            tvResultTitle.setTextColor(isWin ? Color.WHITE : ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
             tvResultTitle.animate()
                     .alpha(1f)
                     .setDuration(400)
@@ -809,7 +810,7 @@ public class SpinFragment extends Fragment {
                     ? "You received: " + cardName
                     : "Unfortunately, you received: " + cardName + " (Trash)";
             tvResultSubtitle.setText(subMsg);
-            tvResultSubtitle.setTextColor(isWin ? Color.parseColor("#BBBBBB") : Color.parseColor("#777777"));
+            tvResultSubtitle.setTextColor(isWin ? ContextCompat.getColor(requireContext(), R.color.palette_gray_300) : ContextCompat.getColor(requireContext(), R.color.mosco_text_dim));
             tvResultSubtitle.animate()
                     .alpha(1f)
                     .setDuration(400)
@@ -847,7 +848,7 @@ public class SpinFragment extends Fragment {
         // Đặt layout thành INVISIBLE để nó được layout và vẽ ngầm trên GPU
         layoutRevealResultGrid.setVisibility(View.INVISIBLE);
 
-        rvRevealResultGrid.setLayoutManager(new GridLayoutManager(getContext(), 4));
+        rvRevealResultGrid.setLayoutManager(new GridLayoutManager(requireContext(), 4));
 
         rvRevealResultGrid.post(() -> {
             if (!isAdded()) return;
@@ -944,8 +945,8 @@ public class SpinFragment extends Fragment {
         // Reset nút Confirm
         if (btnConfirmSelect != null) {
             btnConfirmSelect.setEnabled(false);
-            ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(Color.parseColor("#41455E")));
-            btnConfirmSelect.setTextColor(Color.parseColor("#A2A2A7"));
+            ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_btn_disabled)));
+            btnConfirmSelect.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
         }
         // Hiện lại màn Spin chính
         layoutSpinMain.setVisibility(View.VISIBLE);
@@ -968,8 +969,8 @@ public class SpinFragment extends Fragment {
         }
         if (btnSpin != null) {
             btnSpin.setEnabled(false);
-            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(Color.parseColor("#41455E")));
-            btnSpin.setTextColor(Color.parseColor("#A2A2A7"));
+            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_btn_disabled)));
+            btnSpin.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
         }
     }
 
@@ -1078,7 +1079,7 @@ public class SpinFragment extends Fragment {
                     notifyItemChanged(selectedPosition);
                     if (btnConfirmSelect != null) {
                         btnConfirmSelect.setEnabled(true);
-                        ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(Color.parseColor("#8A2BE2")));
+                        ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_card_stroke)));
                         btnConfirmSelect.setTextColor(Color.WHITE);
                     }
                 }
@@ -1570,14 +1571,14 @@ public class SpinFragment extends Fragment {
                     }
 
                     // 💎 Load ảnh mặt sau (backImage) từ database.json cho Flip 3D
-                    if (getContext() != null && selectedObj.getCollectionId() != null) {
+                    if (requireContext() != null && selectedObj.getCollectionId() != null) {
                         org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(
-                                getContext(), selectedObj.getCollectionId());
+                                requireContext(), selectedObj.getCollectionId());
                         if (cardJson != null) {
                             sacrificeBackImageUrl = cardJson.optString("backImage", "");
                             if (ivSacrificeBack != null && !sacrificeBackImageUrl.isEmpty()) {
                                 java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(
-                                        getContext(), sacrificeBackImageUrl);
+                                        requireContext(), sacrificeBackImageUrl);
                                 com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> backThumb = null;
                                 if (localBackThumb != null && localBackThumb.exists()) {
                                     backThumb = Glide.with(this).load(localBackThumb);
@@ -1598,7 +1599,7 @@ public class SpinFragment extends Fragment {
 
         if (btnSpin != null) {
             btnSpin.setEnabled(true);
-            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(Color.parseColor("#8A2BE2")));
+            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_card_stroke)));
             btnSpin.setTextColor(Color.WHITE);
         }
     }

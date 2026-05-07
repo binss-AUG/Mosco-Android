@@ -4,7 +4,7 @@
     <!-- 1. Khi nút bị tắt (Disabled): Nền xám trơn -->
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
+            <corners android:radius="@dimen/radius_xxl" />
             <solid android:color="@color/mosco_btn_disabled" />
         </shape>
     </item>

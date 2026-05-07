@@ -31,8 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="110dp"
-        android:text="Connecting..."
-        android:textSize="14sp"
+        android:text="@string/splash_status_connecting"
+        android:textSize="@dimen/text_size_body_lg"
         android:textColor="@color/white_80"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,10 +43,10 @@
         android:id="@+id/layout_download_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="@dimen/spacing_60dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="48dp"
+        android:paddingHorizontal="@dimen/spacing_xxl"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
             android:id="@+id/pb_download"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="10dp"
+            android:layout_height="@dimen/spacing_10dp"
             android:progressDrawable="@drawable/mosco_progress_bar"
             android:max="100"
             android:progress="0" />
@@ -67,10 +67,10 @@
             style="@style/MoscoText.Luxury.Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:alpha="0.8"
             android:text="0%"
-            android:textSize="12sp" />
+            android:textSize="@dimen/text_size_body" />
     </LinearLayout>
 
     <!-- ❌ KHU VỰC BÁO LỖI KẾT NỐI (Ẩn mặc định) -->
@@ -78,10 +78,10 @@
         android:id="@+id/layout_retry_connection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="@dimen/spacing_60dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="48dp"
+        android:paddingHorizontal="@dimen/spacing_xxl"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,31 +91,31 @@
             style="@style/MoscoText.Luxury.SubHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/spacing_sm"
             android:letterSpacing="0.1"
             android:text="@string/splash_error_connection_title"
             android:textColor="@color/stat_atk"
-            android:textSize="18sp" />
+            android:textSize="@dimen/text_size_title" />
 
         <TextView
             style="@style/MoscoText.Luxury.Body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/spacing_lg"
             android:alpha="0.8"
             android:gravity="center"
             android:text="@string/splash_error_connection_msg"
-            android:textSize="12sp" />
+            android:textSize="@dimen/text_size_body" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_retry_connection"
             style="@style/MoscoText.Luxury.Button"
             android:layout_width="200dp"
             android:layout_height="54dp"
-            android:text="@string/splash_btn_retry"
+            android:text="@string/splash_action_retry"
             app:backgroundTint="@color/mosco_surface"
             app:cornerRadius="27dp"
-            app:elevation="8dp"
+            app:elevation="@dimen/spacing_sm"
             app:strokeColor="@color/mosco_primary"
             app:strokeWidth="1.5dp" />
     </LinearLayout>

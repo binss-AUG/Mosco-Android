@@ -85,10 +85,10 @@ public class StageFragment extends Fragment {
     }
 
     private void initMaps() {
-        maps.add(new MapData(1, R.string.stage_map_1_name, R.string.stage_map_1_sub, 1, R.color.daily_morning_accent, R.color.daily_morning_bg, R.string.stage_map_reward_coins, 1, R.drawable.bg_stage_map_1));
-        maps.add(new MapData(2, R.string.stage_map_2_name, R.string.stage_map_2_sub, 5, R.color.daily_noon_accent, R.color.daily_noon_bg, R.string.stage_map_reward_rare, 4, R.drawable.bg_stage_map_2));
-        maps.add(new MapData(3, R.string.stage_map_3_name, R.string.stage_map_3_sub, 15, R.color.white, R.color.obsidian_start, R.string.stage_map_reward_premium, 8, R.drawable.bg_stage_map_3));
-        maps.add(new MapData(4, R.string.stage_map_4_name, R.string.stage_map_4_sub, 36, R.color.daily_evening_accent, R.color.daily_evening_bg, R.string.stage_map_reward_epic, 12, R.drawable.bg_stage_map_4));
+        maps.add(new MapData(1, R.string.stage_map_1_name, R.string.stage_map_1_sub, 1, R.color.stage_map_1_accent, R.color.stage_map_1_bg, R.string.stage_map_reward_coins, 1, R.drawable.bg_stage_map_1));
+        maps.add(new MapData(2, R.string.stage_map_2_name, R.string.stage_map_2_sub, 5, R.color.stage_map_2_accent, R.color.stage_map_2_bg, R.string.stage_map_reward_rare, 4, R.drawable.bg_stage_map_2));
+        maps.add(new MapData(3, R.string.stage_map_3_name, R.string.stage_map_3_sub, 15, R.color.stage_map_3_accent, R.color.stage_map_3_bg, R.string.stage_map_reward_premium, 8, R.drawable.bg_stage_map_3));
+        maps.add(new MapData(4, R.string.stage_map_4_name, R.string.stage_map_4_sub, 36, R.color.stage_map_4_accent, R.color.stage_map_4_bg, R.string.stage_map_reward_epic, 12, R.drawable.bg_stage_map_4));
     }
 
     @Nullable
@@ -169,7 +169,7 @@ public class StageFragment extends Fragment {
             holder.layoutDurationPicker.setVisibility(View.GONE);
         } else {
             holder.pbTime.setProgress(100);
-            holder.tvTimer.setText(R.string.gift_done);
+            holder.tvTimer.setText(R.string.action_done);
 
             holder.layoutRunningActions.setVisibility(View.GONE);
             holder.btnClaim.setVisibility(View.VISIBLE);
@@ -475,8 +475,8 @@ public class StageFragment extends Fragment {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.GalacticDialogTheme)
             .setTitle(R.string.stage_dialog_abort_title)
             .setMessage(R.string.stage_dialog_abort_msg)
-            .setPositiveButton(R.string.dialog_exit_confirm, (dialog, which) -> abortMission(session.getId()))
-            .setNegativeButton(R.string.dialog_cancel, null)
+            .setPositiveButton(R.string.action_confirm, (dialog, which) -> abortMission(session.getId()))
+            .setNegativeButton(R.string.action_cancel, null)
             .show();
     }
 
@@ -489,7 +489,7 @@ public class StageFragment extends Fragment {
             .setTitle(R.string.stage_dialog_speedup_title)
             .setMessage(getString(R.string.stage_dialog_speedup_msg, cost))
             .setPositiveButton(R.string.stage_btn_speed_up, (dialog, which) -> speedUpMission(session.getId()))
-            .setNegativeButton(R.string.dialog_cancel, null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show();
     }
 
@@ -500,7 +500,7 @@ public class StageFragment extends Fragment {
                 @Override
                 public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(getContext(), R.string.stage_msg_abort_success, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), R.string.stage_msg_abort_success, Toast.LENGTH_SHORT).show();
                         loadActiveSessions();
                     }
                 }
@@ -516,12 +516,12 @@ public class StageFragment extends Fragment {
                 @Override
                 public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(getContext(), R.string.stage_msg_speedup_success, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), R.string.stage_msg_speedup_success, Toast.LENGTH_SHORT).show();
                         loadActiveSessions();
                     } else {
                         try {
                             String error = response.errorBody() != null ? response.errorBody().string() : "Error";
-                            Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                         } catch (Exception e) {}
                     }
                 }
@@ -543,7 +543,7 @@ public class StageFragment extends Fragment {
                 }
                 @Override
                 public void onFailure(retrofit2.Call<com.vn.jet.mosco.dto.StageRewardResponse> call, Throwable t) {
-                    Toast.makeText(getContext(), R.string.stage_error_network, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.common_error_network, Toast.LENGTH_SHORT).show();
                 }
             });
     }
@@ -599,10 +599,10 @@ public class StageFragment extends Fragment {
             @Override
             public void onResponse(retrofit2.Call<com.vn.jet.mosco.dto.StageSessionResponse> call, retrofit2.Response<com.vn.jet.mosco.dto.StageSessionResponse> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), R.string.stage_msg_dispatch_success, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), R.string.stage_msg_dispatch_success, Toast.LENGTH_LONG).show();
                     loadActiveSessions();
                 } else {
-                    String errorMsg = getString(R.string.label_error) + " (" + response.code() + ")";
+                    String errorMsg = getString(R.string.common_error_unknown) + " (" + response.code() + ")";
                     try {
                         if (response.errorBody() != null) {
                             errorMsg = response.errorBody().string();
@@ -610,13 +610,13 @@ public class StageFragment extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(retrofit2.Call<com.vn.jet.mosco.dto.StageSessionResponse> call, Throwable t) {
-                Toast.makeText(getContext(), R.string.stage_error_network, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -3,7 +3,7 @@
     <!-- Nền xám mờ -->
     <item android:id="@android:id/background">
         <shape>
-            <corners android:radius="4dp" />
+            <corners android:radius="@dimen/spacing_xs" />
             <solid android:color="@color/mosco_surface_variant" />
         </shape>
     </item>
@@ -11,7 +11,7 @@
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <corners android:radius="4dp" />
+                <corners android:radius="@dimen/spacing_xs" />
                 <gradient
                     android:startColor="@color/mosco_primary"
                     android:endColor="@color/mosco_tertiary"

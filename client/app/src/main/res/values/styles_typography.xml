@@ -3,6 +3,8 @@
     <!-- ========================================== -->
     <!-- MOSCO LUXURY TYPOGRAPHY SYSTEM (2026)      -->
     <!-- Base Font: Pretendard (Quiet Luxury)       -->
+    <!-- Galactic Font: Orbitron (Futuristic)       -->
+    <!-- Technical Font: Chakra Petch (Stats/Data)  -->
     <!-- ========================================== -->
 
     <!-- Root Mosco Text Style -->
@@ -11,6 +13,19 @@
     <!-- Base Luxury Style -->
     <style name="MoscoText.Luxury">
         <item name="android:fontFamily">@font/pretendard</item>
+    </style>
+    
+    <!-- 2. GALACTIC TYPOGRAPHY (Futuristic/Bold) -->
+    <style name="MoscoText.Galactic">
+        <item name="android:fontFamily">@font/orbitron</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.15</item>
+    </style>
+
+    <!-- 3. TECHNICAL TYPOGRAPHY (Monospace/Data) -->
+    <style name="MoscoText.Technical">
+        <item name="android:fontFamily">@font/chakra_petch</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <!-- Luxury Header: Airy, Light, Sophisticated -->
@@ -167,5 +182,40 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:letterSpacing">0.2</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Semantic Galactic Styles -->
+    <style name="MoscoText.Galactic.Header">
+        <item name="android:textSize">@dimen/text_size_h1</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MoscoText.Galactic.SubHeader">
+        <item name="android:textSize">@dimen/text_size_h3</item>
+        <item name="android:textColor">@color/white_70</item>
+    </style>
+
+    <style name="MoscoText.Galactic.Label">
+        <item name="android:textSize">@dimen/text_size_badge</item>
+        <item name="android:textColor">@color/white_40</item>
+        <item name="android:letterSpacing">0.2</item>
+    </style>
+
+    <!-- Semantic Technical Styles -->
+    <style name="MoscoText.Technical.Badge">
+        <item name="android:textSize">@dimen/text_size_badge</item>
+        <item name="android:textColor">@color/galactic_accent_cyan</item>
+    </style>
+
+    <style name="MoscoText.Technical.Stat">
+        <item name="android:textSize">@dimen/text_size_body_xs</item>
+        <item name="android:textColor">@color/white_90</item>
+    </style>
+
+    <style name="MoscoText.Technical.Value">
+        <item name="android:textSize">@dimen/text_size_h2</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

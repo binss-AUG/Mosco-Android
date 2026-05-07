@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import com.vn.jet.mosco.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,7 @@ public class NeonLineView extends View {
         paint.setStyle(Paint.Style.STROKE);
 
         glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        glowPaint.setColor(Color.parseColor("#00F2FF")); // Neon Cyan
+        glowPaint.setColor(ContextCompat.getColor(getContext(), R.color.palette_cyan_bright)); // Neon Cyan
         glowPaint.setStrokeWidth(12f);
         glowPaint.setStyle(Paint.Style.STROKE);
         glowPaint.setMaskFilter(new BlurMaskFilter(15, BlurMaskFilter.Blur.NORMAL));

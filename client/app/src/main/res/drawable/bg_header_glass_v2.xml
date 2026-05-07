@@ -3,11 +3,11 @@
     <!-- Subtle Inner Glow -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="20dp" />
-            <solid android:color="#0DFFFFFF" />
+            <corners android:radius="@dimen/spacing_20dp" />
+            <solid android:color="@color/mosco_white_05" />
             <stroke
                 android:width="0.8dp"
-                android:color="#1AFFFFFF" />
+                android:color="@color/mosco_white_10" />
         </shape>
     </item>
 
@@ -20,8 +20,9 @@
                 android:endColor="#CC161622"
                 android:angle="135" />
             <stroke
-                android:width="1dp"
+                android:width="@dimen/stroke_thin"
                 android:color="#20FFFFFF" /> 
         </shape>
     </item>
 </layer-list>
+

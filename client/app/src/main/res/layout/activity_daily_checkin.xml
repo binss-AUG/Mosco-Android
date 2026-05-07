@@ -53,17 +53,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/daily_header"
+                android:text="@string/daily_header_title"
                 style="@style/MoscoText.Luxury.SubHeader"
                 android:textSize="@dimen/text_size_h3"
                 android:textStyle="bold"
                 android:letterSpacing="0.1" />
             
             <View
+                android:id="@+id/view_header_accent"
                 android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/stroke_thin"
                 android:layout_marginTop="@dimen/spacing_xxs"
-                android:background="@color/galactic_accent_purple" />
+                android:background="@color/daily_morning_accent" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -74,7 +75,7 @@
         android:layout_height="0dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:paddingHorizontal="56dp"
+        android:paddingHorizontal="@dimen/spacing_56dp"
         android:paddingBottom="@dimen/spacing_xxl"
         app:layout_constraintDimensionRatio="H,1:1.5"
         app:layout_constraintTop_toBottomOf="@id/layout_header_daily"
@@ -115,3 +116,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

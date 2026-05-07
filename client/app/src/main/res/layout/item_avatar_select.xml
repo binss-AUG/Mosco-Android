@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="80dp"
-    android:layout_height="80dp"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="40dp"
+    android:layout_width="@dimen/spacing_80dp"
+    android:layout_height="@dimen/spacing_80dp"
+    android:layout_margin="@dimen/spacing_sm"
+    app:cardCornerRadius="@dimen/spacing_40dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="#33FFFFFF"
-    app:strokeColor="#66FFFFFF"
-    app:strokeWidth="1dp"
+    app:cardBackgroundColor="@color/mosco_white_20"
+    app:strokeColor="@color/mosco_white_40"
+    app:strokeWidth="@dimen/stroke_thin"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
@@ -23,7 +23,11 @@
         android:id="@+id/v_selection_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#6600E5FF"
+        android:background="@color/palette_cyan_neon"
         android:visibility="gone" />
 
 </com.google.android.material.card.MaterialCardView>
+
+
+
+

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pack Reveal -->
+    <string name="reveal_title_summary">Summary</string>
+    <string name="reveal_summary_title_expand">Show Summary</string>
+    <string name="reveal_summary_title_collapse">Hide Summary</string>
+    <string name="reveal_headline_rewards">Rewards Unlocked</string>
+    <string name="reveal_msg_congrats">Congratulations! You opened %d cards!</string>
+    <string name="reveal_summary_footer_marker">--- END OF TRANSMISSION ---</string>
+    <string name="reveal_summary_headline">REVEAL SUMMARY</string>
+    <string name="reveal_summary_subtitle">You have successfully collected %d cards</string>
+    <string name="reveal_subtitle_rewards">Your rewards are listed below</string>
+    <string name="reveal_default_info">Analyzing galactic transmission…</string>
+    <string name="reveal_error_format">Transmission error: %s</string>
+    <string name="reveal_action_awesome">Awesome!</string>
+    <string name="reveal_action_collect_all">COLLECT ALL (%d)</string>
+    <string name="reveal_format_amazing_reveal">AMAZING REVEAL\n%s</string>
+    <string name="reveal_action_open_x1">Open x1</string>
+    <string name="reveal_action_open_all">Open All (%d packs)</string>
+    <string name="reveal_msg_limit_hint">Open All limit: max %d packs per roll</string>
+    <string name="reveal_msg_loading">Opening to reveal a surprise…</string>
+    <string name="reveal_error_only_packs">Only PACK items can be opened here.</string>
+    <string name="reveal_default_item_name">Unknown Objekt</string>
+
+    <!-- Card Refresh -->
+    <string name="dialog_refresh_title">Refresh Card</string>
+    <string name="dialog_refresh_msg">Are you sure you want to refresh this card\'s data?</string>
+    <string name="msg_refresh_success">Refreshed successfully!</string>
+    <string name="msg_refresh_error">Error: Card not found</string>
+
+    <!-- Upgrades -->
+    <string name="upgrade_btn_text">UPGRADE</string>
+    <string name="upgrade_format_materials_count_limit">%1$d / 5 Selected</string>
+    <string name="upgrade_header_title">UPGRADE</string>
+    <string name="upgrade_label_materials">MATERIALS</string>
+    <string name="upgrade_format_materials_count">%1$d / %2$d Selected</string>
+    <string name="upgrade_label_boost">UPGRADE BOOST</string>
+    <string name="upgrade_action_upgrading">UPGRADING…</string>
+    <string name="upgrade_msg_select_main">Please select a main card first!</string>
+    <string name="upgrade_msg_success">Upgrade Successful!</string>
+    <string name="upgrade_msg_failed">Upgrade Failed!</string>
+    <string name="upgrade_error_max_materials">Max 5 materials allowed!</string>
+    <string name="upgrade_error_max_probability">Probability already 100%!</string>
+    <string name="upgrade_msg_main_as_material">Cannot use main card as material!</string>
+
+    <!-- Gacha Spin -->
+    <string name="spin_header_title">GACHA SPIN</string>
+    <string name="spin_label_ticket">Spin Ticket</string>
+    <string name="spin_label_grid_title">Select a card to reveal</string>
+    <string name="spin_action_confirm">Confirm Selection</string>
+    <string name="spin_msg_success">Spin was successful!</string>
+    <string name="spin_action_reveal_unchosen">Reveal unchosen Objekts  ></string>
+    <string name="spin_msg_result_grid">Spin Result</string>
+    <string name="spin_action_try_again">Try again</string>
+    <string name="spin_action_spin">Spin</string>
+    <string name="spin_action_collect">Collect</string>
+
+    <!-- Spin Dialogs -->
+    <string name="spin_dialog_confirm_title">Spin Confirmation</string>
+    <string name="spin_dialog_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this Objekt?</string>
+    <string name="spin_dialog_action_spin">Spin Now</string>
+</resources>

@@ -15,8 +15,8 @@
             android:id="@+id/rv_friend_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="8dp"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingTop="@dimen/spacing_sm"
             android:clipToPadding="false" />
 
         <!-- Empty State -->
@@ -38,11 +38,12 @@
                 android:id="@+id/tv_friend_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/friend_empty_msg"
+                android:text="@string/social_empty_msg"
                 style="@style/MoscoText.Luxury.Body"
                 android:textColor="@color/white_40"
-                android:textSize="13sp"
-                android:layout_marginTop="8dp" />
+                android:textSize="@dimen/text_size_body_sm"
+                android:layout_marginTop="@dimen/spacing_sm" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>
+

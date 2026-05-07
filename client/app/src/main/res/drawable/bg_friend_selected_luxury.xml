@@ -3,7 +3,7 @@
     <!-- Outer Glow / Primary Stroke -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="20dp" />
+            <corners android:radius="@dimen/spacing_20dp" />
             <solid android:color="@color/mosco_primary" />
         </shape>
     </item>
@@ -19,3 +19,4 @@
         </shape>
     </item>
 </layer-list>
+

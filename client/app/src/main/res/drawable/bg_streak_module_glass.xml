@@ -5,22 +5,23 @@
             <corners android:radius="@dimen/radius_m" />
             <gradient
                 android:angle="135"
-                android:endColor="#1AFFFFFF"
-                android:startColor="#0DFFFFFF" />
+                android:endColor="@color/mosco_white_10"
+                android:startColor="@color/mosco_white_05" />
             <stroke
-                android:width="1dp"
-                android:color="#1AFFFFFF" />
+                android:width="@dimen/stroke_thin"
+                android:color="@color/mosco_white_10" />
         </shape>
     </item>
     
     <!-- Subtle Inner Pattern (Simulated with a gradient) -->
-    <item android:top="20dp" android:left="20dp">
+    <item android:top="@dimen/spacing_20dp" android:left="@dimen/spacing_20dp">
         <shape android:shape="oval">
             <gradient
                 android:type="radial"
-                android:gradientRadius="100dp"
+                android:gradientRadius="@dimen/spacing_100dp"
                 android:startColor="#0800E5FF"
                 android:endColor="@android:color/transparent" />
         </shape>
     </item>
 </layer-list>
+

@@ -67,7 +67,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="@dimen/spacing_xs"
                 android:background="@drawable/bg_status_online"
-                android:elevation="4dp" />
+                android:elevation="@dimen/spacing_xs" />
         </FrameLayout>
 
         <!-- Name -->
@@ -88,9 +88,9 @@
         android:id="@+id/scroll_profile_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/spacing_md"
         android:clipToPadding="false"
-        android:paddingBottom="120dp"
+        android:paddingBottom="@dimen/spacing_120dp"
         app:layout_constraintTop_toBottomOf="@id/layout_profile_header"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -98,13 +98,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="32dp">
+            android:paddingHorizontal="@dimen/spacing_xl">
 
             <!-- Label: INFO -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INFO"
+                android:text="@string/profile_v3_tab_info"
                 style="@style/MoscoText.Luxury.Nav"
                 android:textColor="@color/mosco_primary"
                 android:textSize="@dimen/text_size_body_xs"
@@ -113,25 +113,25 @@
 
             <!-- Level Row -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_header_glass_v2" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="LEVEL" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/profile_preview_label_level" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
                 <TextView android:id="@+id/tv_info_level" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="69" style="@style/MoscoText.Luxury.SubHeader" android:textColor="@color/white" />
             </LinearLayout>
 
             <!-- Objets Row -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_header_glass_v2" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="OBJETS" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/profile_v3_label_objets" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_40" />
                 <TextView android:id="@+id/tv_info_objets" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="420" style="@style/MoscoText.Luxury.SubHeader" android:textColor="@color/white" />
             </LinearLayout>
 
             <!-- ID Row -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_badge_dark" android:paddingHorizontal="@dimen/spacing_lg" android:layout_marginBottom="@dimen/spacing_sm">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="ID" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/home_label_id" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
                 <TextView android:id="@+id/tv_info_id" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="10000001" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
             </LinearLayout>
 
             <!-- Join Date Row -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="@dimen/spacing_md" android:background="@drawable/bg_badge_dark" android:paddingHorizontal="@dimen/spacing_lg">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="JOINED" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/profile_preview_label_joined" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
                 <TextView android:id="@+id/tv_info_join_date" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="2024-05-01" style="@style/MoscoText.Luxury.Label" android:textColor="@color/white_25" />
             </LinearLayout>
 
@@ -171,3 +171,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

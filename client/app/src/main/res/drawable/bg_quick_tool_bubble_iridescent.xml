@@ -7,24 +7,25 @@
         <shape android:shape="oval">
             <gradient
                 android:type="radial"
-                android:gradientRadius="40dp"
+                android:gradientRadius="@dimen/spacing_40dp"
                 android:centerX="0.3"
                 android:centerY="0.3"
-                android:startColor="#1AFFFFFF"
+                android:startColor="@color/mosco_white_10"
                 android:endColor="@android:color/transparent" />
         </shape>
     </item>
 
     <!-- Vệt sáng lung linh xoay nhẹ -->
-    <item android:top="4dp" android:left="4dp" android:right="4dp" android:bottom="4dp">
+    <item android:top="@dimen/spacing_xs" android:left="@dimen/spacing_xs" android:right="@dimen/spacing_xs" android:bottom="@dimen/spacing_xs">
         <shape android:shape="oval">
             <gradient
                 android:type="radial"
                 android:gradientRadius="30dp"
                 android:centerX="0.5"
                 android:centerY="0.5"
-                android:startColor="#26FFFFFF"
+                android:startColor="@color/mosco_white_15"
                 android:endColor="@android:color/transparent" />
         </shape>
     </item>
 </layer-list>
+

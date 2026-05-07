@@ -8,9 +8,9 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/bg_header_glass_v2"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="12dp"
-    android:layout_marginBottom="8dp"
+    android:paddingHorizontal="@dimen/spacing_14dp"
+    android:paddingVertical="@dimen/radius_lg"
+    android:layout_marginBottom="@dimen/spacing_sm"
     android:clickable="true"
     android:focusable="true">
 
@@ -18,10 +18,10 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="42dp"
         android:layout_height="42dp"
-        app:cardCornerRadius="100dp"
+        app:cardCornerRadius="@dimen/spacing_100dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#3A3A55"
-        app:strokeColor="#30FFFFFF"
+        app:cardBackgroundColor="@color/mosco_card_bg_variant"
+        app:strokeColor="@color/mosco_white_20"
         app:strokeWidth="0.8dp">
 
         <ImageView
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_marginStart="@dimen/radius_lg">
 
         <TextView
             android:id="@+id/tv_friend_select_name"
@@ -61,3 +61,5 @@
     </LinearLayout>
 
 </LinearLayout>
+
+
