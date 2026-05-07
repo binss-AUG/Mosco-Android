@@ -160,6 +160,15 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             if (itemHolder.layoutSkeleton != null) {
                 itemHolder.layoutSkeleton.setVisibility(View.VISIBLE);
+                if (itemHolder.ivLevel != null) itemHolder.ivLevel.setVisibility(View.INVISIBLE);
+            }
+
+            // Load grade image into ivLevel regardless, but control visibility later
+            if (itemHolder.ivLevel != null && item.getCardLevel() > 0) {
+                String assetPath = "file:///android_asset/grade/" + item.getCardLevel() + ".png";
+                Glide.with(mContext).load(assetPath).into(itemHolder.ivLevel);
+            } else if (itemHolder.ivLevel != null) {
+                itemHolder.ivLevel.setVisibility(View.GONE);
             }
 
             // 🚀 LOCAL FIRST: Tìm file ảnh 2x trong bộ nhớ máy
@@ -169,12 +178,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public boolean onLoadFailed(@androidx.annotation.Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
                     if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
+                    if (itemHolder.ivLevel != null && item.getCardLevel() > 0) itemHolder.ivLevel.setVisibility(View.VISIBLE);
                     return false;
                 }
 
                 @Override
                 public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
                     if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
+                    if (itemHolder.ivLevel != null && item.getCardLevel() > 0) itemHolder.ivLevel.setVisibility(View.VISIBLE);
                     return false;
                 }
             };
@@ -207,17 +218,6 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             if (itemHolder.tvOvr != null) {
                 itemHolder.tvOvr.setText(String.valueOf(item.getOvr()));
                 itemHolder.tvOvr.setVisibility(View.GONE);
-            }
-
-            // 🔥 BIND LEVEL BADGE
-            if (itemHolder.ivLevel != null) {
-                if (item.getCardLevel() > 0) {
-                    String assetPath = "file:///android_asset/grade/" + item.getCardLevel() + ".png";
-                    Glide.with(mContext).load(assetPath).into(itemHolder.ivLevel);
-                    itemHolder.ivLevel.setVisibility(View.VISIBLE);
-                } else {
-                    itemHolder.ivLevel.setVisibility(View.GONE);
-                }
             }
 
             // 🔥 BIND MULTI-SELECT OVERLAY & DISABLED STATE
