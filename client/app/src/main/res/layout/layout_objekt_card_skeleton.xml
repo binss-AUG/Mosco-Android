@@ -5,37 +5,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:shimmer_auto_start="true"
-    app:shimmer_base_alpha="0.1"
-    app:shimmer_highlight_alpha="0.2"
-    app:shimmer_duration="1200">
+    app:shimmer_base_alpha="0.15"
+    app:shimmer_highlight_alpha="0.4"
+    app:shimmer_duration="1200"
+    app:shimmer_direction="left_to_right"
+    app:shimmer_shape="linear">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Background Skeleton -->
+        <!-- Main Card Body -->
         <View
-            android:id="@+id/view_skeleton_bg"
+            android:id="@+id/sk_objet_body"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@drawable/bg_skeleton_card"
+            android:background="@drawable/bg_skeleton_rect_rounded"
             app:layout_constraintDimensionRatio="1:1.54"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Mock Stats/Info at bottom -->
+        <!-- Vertical Line Accent (Right Edge) - TripleS Signature -->
         <View
-            android:layout_width="0dp"
-            android:layout_height="12dp"
-            android:layout_marginBottom="12dp"
+            android:id="@+id/sk_objet_line"
+            android:layout_width="4dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_skeleton_rect"
+            android:alpha="0.8"
+            app:layout_constraintTop_toTopOf="@id/sk_objet_body"
+            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
+            app:layout_constraintEnd_toEndOf="@id/sk_objet_body" />
+
+        <!-- Signature Badge (Bottom Left) - TripleS Signature -->
+        <View
+            android:id="@+id/sk_objet_badge"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_skeleton_rect_rounded_sm"
+            android:alpha="0.9"
+            app:layout_constraintStart_toStartOf="@id/sk_objet_body"
+            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body" />
+
+        <!-- OVR Area Placeholder (Top Left) -->
+        <View
+            android:id="@+id/sk_objet_ovr"
+            android:layout_width="32dp"
+            android:layout_height="16dp"
             android:layout_marginStart="12dp"
-            android:layout_marginEnd="40dp"
-            android:background="@color/mosco_white_10"
-            app:layout_constraintBottom_toBottomOf="@id/view_skeleton_bg"
-            app:layout_constraintStart_toStartOf="@id/view_skeleton_bg"
-            app:layout_constraintEnd_toEndOf="@id/view_skeleton_bg" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_skeleton_rect"
+            android:alpha="0.6"
+            app:layout_constraintStart_toStartOf="@id/sk_objet_body"
+            app:layout_constraintTop_toTopOf="@id/sk_objet_body" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

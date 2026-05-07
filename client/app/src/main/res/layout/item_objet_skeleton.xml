@@ -5,14 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:shimmer_auto_start="true"
-    app:shimmer_base_alpha="0.1"
-    app:shimmer_highlight_alpha="0.3"
-    app:shimmer_duration="1500">
+    app:shimmer_base_alpha="0.15"
+    app:shimmer_highlight_alpha="0.4"
+    app:shimmer_duration="1200"
+    app:shimmer_direction="left_to_right"
+    app:shimmer_shape="linear">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp">
+        android:padding="2dp">
 
         <!-- Main Card Body -->
         <View
@@ -29,13 +31,13 @@
         <!-- Vertical Line Accent (Right Edge) - TripleS Signature -->
         <View
             android:id="@+id/sk_objet_line"
-            android:layout_width="3dp"
+            android:layout_width="4dp"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_skeleton_rect"
-            android:alpha="0.5"
+            android:alpha="0.8"
             app:layout_constraintTop_toTopOf="@id/sk_objet_body"
             app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
             app:layout_constraintEnd_toEndOf="@id/sk_objet_body" />
@@ -43,27 +45,26 @@
         <!-- Signature Badge (Bottom Left) - TripleS Signature -->
         <View
             android:id="@+id/sk_objet_badge"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/bg_skeleton_rect_rounded_sm"
-            android:alpha="0.6"
+            android:alpha="0.9"
             app:layout_constraintStart_toStartOf="@id/sk_objet_body"
             app:layout_constraintBottom_toBottomOf="@id/sk_objet_body" />
 
-        <!-- Name/Info Placeholder (Bottom Center-ish) -->
+        <!-- OVR Area Placeholder (Top Left) -->
         <View
-            android:id="@+id/sk_objet_name"
-            android:layout_width="60dp"
-            android:layout_height="8dp"
-            android:layout_marginBottom="12dp"
+            android:id="@+id/sk_objet_ovr"
+            android:layout_width="32dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/bg_skeleton_rect"
-            android:alpha="0.3"
-            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
-            app:layout_constraintStart_toEndOf="@id/sk_objet_badge"
-            app:layout_constraintEnd_toStartOf="@id/sk_objet_line"
-            app:layout_constraintHorizontal_bias="0.3" />
+            android:alpha="0.6"
+            app:layout_constraintStart_toStartOf="@id/sk_objet_body"
+            app:layout_constraintTop_toTopOf="@id/sk_objet_body" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

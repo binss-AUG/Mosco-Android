@@ -158,8 +158,26 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             Objet item = displayObjets.get(position);
             if (item == null) return;
 
+            if (itemHolder.layoutSkeleton != null) {
+                itemHolder.layoutSkeleton.setVisibility(View.VISIBLE);
+            }
+
             // 🚀 LOCAL FIRST: Tìm file ảnh 2x trong bộ nhớ máy
             File localFile = CardAssetManager.getLocalFile(mContext, item.getImageUrl());
+
+            com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> glideListener = new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                @Override
+                public boolean onLoadFailed(@androidx.annotation.Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
+                    if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                    if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
+                    return false;
+                }
+            };
 
             if (localFile != null && localFile.exists()) {
                 // ✅ Ảnh có sẵn ở máy → Nạp từ file local, scale down cho Grid
@@ -170,6 +188,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .skipMemoryCache(false) // Vẫn giữ trong RAM cho lần cuộn lại
                         .dontAnimate() // Hiện ngay tức thì
                         .placeholder(R.drawable.objet_back_spin)
+                        .listener(glideListener)
                         .into(itemHolder.ivObjet);
             } else {
                 // ⚡ Fallback: Ảnh chưa tải → Gọi URL bản 1x từ Cloudflare (nhẹ nhất)
@@ -180,6 +199,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .dontAnimate()
                         .placeholder(R.drawable.objet_back_spin)
+                        .listener(glideListener)
                         .into(itemHolder.ivObjet);
             }
 
@@ -292,6 +312,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         View viewOverlay;
         View viewDisabledOverlay;
         android.widget.TextView tvBusyStatus;
+        View layoutSkeleton;
         
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -301,6 +322,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             viewOverlay = itemView.findViewById(R.id.view_selected_overlay);
             viewDisabledOverlay = itemView.findViewById(R.id.view_disabled_overlay);
             tvBusyStatus = itemView.findViewById(R.id.tv_busy_status);
+            layoutSkeleton = itemView.findViewById(R.id.layout_card_skeleton);
         }
     }
 
