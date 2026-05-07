@@ -8,7 +8,10 @@ import androidx.room.PrimaryKey;
  * Entity lưu trữ dữ liệu thẻ bài ở Client (Room DB).
  * Sử dụng kỹ thuật Denormalization để tối ưu tốc độ render UI.
  */
-@Entity(tableName = "cards")
+@Entity(tableName = "cards", indices = {
+        @androidx.room.Index(value = {"memberName"}),
+        @androidx.room.Index(value = {"seasonName"})
+})
 public class CardEntity {
     @PrimaryKey
     @NonNull

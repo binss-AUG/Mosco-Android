@@ -506,6 +506,12 @@ public class GiftActivity extends AppCompatActivity {
      * Load danh sách quà đã nhận từ API.
      */
     private void loadReceivedGifts() {
+        if (giftHistoryAdapter != null) {
+            giftHistoryAdapter.setLoading(true);
+            rvGiftReceived.setVisibility(View.VISIBLE);
+            tvNoGifts.setVisibility(View.GONE);
+        }
+
         apiService.getReceivedGifts().enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -534,12 +540,14 @@ public class GiftActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Lỗi load received gifts", e);
+                    if (giftHistoryAdapter != null) giftHistoryAdapter.setLoading(false);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Lỗi kết nối", t);
+                if (giftHistoryAdapter != null) giftHistoryAdapter.setLoading(false);
             }
         });
     }

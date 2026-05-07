@@ -158,7 +158,8 @@ public class SplashActivity extends AppCompatActivity {
                 public void onComplete() {
                     mainHandler.post(() -> {
                         layoutDownloadProgress.setVisibility(View.GONE);
-                        continueLoading();
+                        // Chỉ vào tiếp khi DB đã sẵn sàng
+                        new Thread(SplashActivity.this::continueLoading).start();
                     });
                 }
 
@@ -175,16 +176,14 @@ public class SplashActivity extends AppCompatActivity {
     private void continueLoading() {
         GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
         
-        // 2. Master Data
-        DatabaseLoader.initMasterData(getApplicationContext());
+        // 2. Master Data (Blocking on this background thread)
+        DatabaseLoader.initMasterDataSync(getApplicationContext());
         
-        // 3. Pre-fetch Session
+        // 3. Pre-fetch Session & Assets concurrently
         preFetchUserSession(apiService);
-
-        // 4. Sync Assets (This will trigger navigation on completion)
         syncAssets();
         
-        // 5. Delta Sync ngầm
+        // 4. Delta Sync (Background)
         com.vn.jet.mosco.utils.SyncManager.startDeltaSync(this);
     }
 
@@ -274,18 +273,13 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
 
-        synchronized (downloadLock) {
-            try { downloadLock.wait(600000); } catch (InterruptedException ignored) {}
-        }
-        
-        // After download completes or fails (and error is shown), navigate if successful
-        if (realPercent[0] >= 100 && !isErrorShown) {
-            isResourceLoadFinished = true;
-            mainHandler.post(() -> {
-                tvDownloadStatus.setText(R.string.splash_status_loading);
-                navigateToNextScreen();
-            });
-        }
+        // Bỏ lệnh wait() để đạt mục tiêu 1.5s app entry. 
+        // Việc tải ảnh sẽ diễn ra ngầm trong khi người dùng đã vào Home.
+        isResourceLoadFinished = true;
+        mainHandler.post(() -> {
+            tvDownloadStatus.setText(R.string.splash_status_loading);
+            navigateToNextScreen();
+        });
     }
 
     private boolean isNetworkAvailable() {
@@ -321,10 +315,19 @@ public class SplashActivity extends AppCompatActivity {
         if (sm.isLoggedIn()) {
             Long userId = sm.getUserId();
             DatabaseLoader.loadInventoryFromLocal(this, userId);
-            try {
-                apiService.getUserStats(userId).execute();
-                DatabaseLoader.reloadInventoryFromServer(this, userId, apiService);
-            } catch (Exception e) {}
+            
+            // Chuyen sang Enqueue de khong block luong hien tai
+            apiService.getUserStats(userId).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.UserStats>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, retrofit2.Response<com.vn.jet.mosco.model.UserStats> response) {
+                    if (response.isSuccessful()) {
+                        DatabaseLoader.reloadInventoryFromServer(SplashActivity.this, userId, apiService);
+                    }
+                }
+                @Override public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, Throwable t) {
+                    Log.w(TAG, "Failed to pre-fetch session, continuing with local data");
+                }
+            });
         }
     }
 

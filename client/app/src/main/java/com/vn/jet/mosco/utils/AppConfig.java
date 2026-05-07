@@ -6,6 +6,8 @@ package com.vn.jet.mosco.utils;
  */
 public class AppConfig {
     // API Endpoints
+    // Lưu ý: Nếu dùng giả lập (Emulator), hãy dùng "http://10.0.2.2:8080/" 
+    // Nếu dùng máy thật cùng mạng WiFi, dùng IP LAN bên dưới.
     public static final String BASE_URL = "http://192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)

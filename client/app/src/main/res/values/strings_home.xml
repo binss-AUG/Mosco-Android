@@ -26,6 +26,7 @@
     <string name="home_rank_mini_wealth">TOP FLEET WEALTH</string>
     <string name="home_rank_mini_streaks">TOP STREAKERS</string>
     <string name="home_action_open_ranking">OPEN RANKING CENTER</string>
+    <string name="ranking_error_unavailable">Ranking data temporarily unavailable</string>
 
     <!-- Rank Module -->
     <string name="rank_header_title">RANKING</string>
@@ -45,7 +46,7 @@
     <string name="formation_label_buff_active">BUFF ACTIVE</string>
 
     <!-- Streak Module -->
-    <string name="streak_header_title">STREAK GALAXY</string>
+    <string name="streak_header_title">STREAK MOSCO</string>
     <string name="streak_label_current">CURRENT STREAK</string>
     <string name="streak_label_best">ALL-TIME RECORD</string>
     <string name="streak_label_shield">STREAK SHIELD</string>

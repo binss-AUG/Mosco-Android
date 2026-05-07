@@ -100,20 +100,8 @@ public class ObjetDetailBinder {
             // ── 3. Tải hình ảnh mặt trước ──────────────────────────────
             ImageView ivObjet = dialog.findViewById(R.id.card_iv_image);
             if (ivObjet != null && frontImageUrl != null && !frontImageUrl.isEmpty()) {
-                java.io.File localThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, frontImageUrl);
-                
-                com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> thumbRequest = null;
-                if (localThumb != null && localThumb.exists()) {
-                    thumbRequest = Glide.with(context).load(localThumb);
-                }
-
-                Glide.with(context)
-                        .load(frontImageUrl)
-                        .thumbnail(thumbRequest)
-                        .placeholder(R.drawable.item_shop_demo)
-                        .error(R.drawable.item_shop_demo)
-                        .transition(DrawableTransitionOptions.withCrossFade(500))
-                        .into(ivObjet);
+                // Su dung GlideBindingAdapter thong qua code Java (manual binding)
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivObjet, frontImageUrl, false);
             }
 
             // ── 3. Tính toán chỉ số (Stats) ──────────────────────────
@@ -240,18 +228,8 @@ public class ObjetDetailBinder {
                 // ── 7. Lật thẻ 3D (3D FLIP) ──────────────────────────────
                 String backImageUrl = objet.getBackImageUrl();
                 if (ivDetailBack != null && backImageUrl != null && !backImageUrl.isEmpty()) {
-                    java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(context, backImageUrl);
-                    com.bumptech.glide.RequestBuilder<Drawable> backThumb = null;
-                    if (localBackThumb != null && localBackThumb.exists()) {
-                        backThumb = Glide.with(context).load(localBackThumb);
-                    }
-                    Glide.with(context)
-                            .load(backImageUrl)
-                            .thumbnail(backThumb)
-                            .placeholder(android.R.color.transparent)
-                            .error(android.R.color.transparent)
-                            .dontAnimate()
-                            .into(ivDetailBack);
+                    // Load mat sau (Original) nhung khong hien ngay
+                    com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivDetailBack, backImageUrl, false);
                 }
 
                 float density = context.getResources().getDisplayMetrics().density;
@@ -279,6 +257,12 @@ public class ObjetDetailBinder {
                         case android.view.MotionEvent.ACTION_MOVE:
                             float diffX = event.getRawX() - initialTouchX[0];
                             float newRotation = startRotation[0] + (diffX / flipSensitivity);
+                            
+                            // Bat Hardware Layer khi bat dau xoay de tang hieu nang GPU
+                            if (cvImageContainer.getLayerType() != View.LAYER_TYPE_HARDWARE) {
+                                cvImageContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                            }
+                            
                             cvImageContainer.setRotationY(newRotation);
 
                             // Tính toán mặt hiện tại dựa trên góc xoay
@@ -330,7 +314,14 @@ public class ObjetDetailBinder {
                             snapAnim[0].setInterpolator(new android.view.animation.OvershootInterpolator(1.2f));
                             snapAnim[0].addListener(new android.animation.AnimatorListenerAdapter() {
                                 @Override
+                                public void onAnimationStart(android.animation.Animator animation) {
+                                    cvImageContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                                }
+                                @Override
                                 public void onAnimationEnd(android.animation.Animator animation) {
+                                    // Tat Hardware Layer de giai phong tai nguyen GPU
+                                    cvImageContainer.setLayerType(View.LAYER_TYPE_NONE, null);
+                                    
                                     // Kiểm tra lại mặt sau khi snap xong
                                     float finalNorm = cvImageContainer.getRotationY() % 360;
                                     if (finalNorm < 0) finalNorm += 360;
@@ -443,11 +434,13 @@ public class ObjetDetailBinder {
     /**
      * Lớp vẽ Drawable hỗ trợ dải màu gradient dừng cứng (Hard Stop).
      */
-    private static class HardStopGradientDrawable extends Drawable {
+    private static class HardStopGradientDrawable extends android.graphics.drawable.Drawable {
         private final android.graphics.Paint paint;
         private final int[] leftColors;
         private final int rightColor;
         private final float stopPoint;
+        private final android.graphics.Path clipPath = new android.graphics.Path();
+        private final android.graphics.RectF rectF = new android.graphics.RectF();
 
         public HardStopGradientDrawable(int[] leftColors, int rightColor, float stopPoint) {
             this.paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
@@ -457,15 +450,23 @@ public class ObjetDetailBinder {
         }
 
         @Override
+        protected void onBoundsChange(android.graphics.Rect bounds) {
+            super.onBoundsChange(bounds);
+            float width = bounds.width();
+            float height = bounds.height();
+            float cornerRadius = height / 2.0f;
+            
+            rectF.set(0, 0, width, height);
+            clipPath.reset();
+            clipPath.addRoundRect(rectF, cornerRadius, cornerRadius, android.graphics.Path.Direction.CW);
+        }
+
+        @Override
         public void draw(android.graphics.Canvas canvas) {
             android.graphics.Rect bounds = getBounds();
             float width = bounds.width();
             float height = bounds.height();
             float splitX = width * stopPoint;
-            float cornerRadius = height / 2.0f; // Pill shape
-
-            android.graphics.Path clipPath = new android.graphics.Path();
-            clipPath.addRoundRect(new android.graphics.RectF(0, 0, width, height), cornerRadius, cornerRadius, android.graphics.Path.Direction.CW);
 
             canvas.save();
             canvas.clipPath(clipPath);

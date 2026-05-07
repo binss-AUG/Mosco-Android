@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmer_view_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:shimmer_auto_start="true"
+    app:shimmer_base_alpha="0.1"
+    app:shimmer_highlight_alpha="0.2"
+    app:shimmer_duration="1200">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Background Skeleton -->
+        <View
+            android:id="@+id/view_skeleton_bg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_skeleton_card"
+            app:layout_constraintDimensionRatio="1:1.54"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Mock Stats/Info at bottom -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="12dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="40dp"
+            android:background="@color/mosco_white_10"
+            app:layout_constraintBottom_toBottomOf="@id/view_skeleton_bg"
+            app:layout_constraintStart_toStartOf="@id/view_skeleton_bg"
+            app:layout_constraintEnd_toEndOf="@id/view_skeleton_bg" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.facebook.shimmer.ShimmerFrameLayout>

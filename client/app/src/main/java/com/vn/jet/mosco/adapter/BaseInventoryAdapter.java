@@ -38,6 +38,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_LOADING = 1;
+    private static final int VIEW_TYPE_SKELETON = 2;
 
     // Số ảnh nạp tức thì ban đầu (ảnh local nên load rất nhanh)
     private static final int INSTANT_LOAD_COUNT = 100;
@@ -55,15 +56,22 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private final OnItemClickListener listener;
     private final Context mContext;
     private boolean isLoadingMore = false;
+    private boolean isLoading = false; // "Quiet Luxury" Skeleton State
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // =============== SUPPORT FILTER & SORT ===============
+    public void setLoading(boolean loading) {
+        this.isLoading = loading;
+        notifyDataSetChanged();
+    }
+
     public void updateData(List<Objet> newAllObjets) {
         this.allObjets.clear();
         this.allObjets.addAll(newAllObjets);
         
         this.displayObjets.clear();
         this.isLoadingMore = false;
+        this.isLoading = false; // Tắt skeleton khi dữ liệu về
         
         this.displayObjets.addAll(allObjets);
         
@@ -124,13 +132,17 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
+        if (isLoading) return VIEW_TYPE_SKELETON;
         return VIEW_TYPE_ITEM;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_LOADING) {
+        if (viewType == VIEW_TYPE_SKELETON) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_objet_skeleton, parent, false);
+            return new SkeletonViewHolder(v);
+        } else if (viewType == VIEW_TYPE_LOADING) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading_footer, parent, false);
             return new LoadingViewHolder(v);
         } else {
@@ -269,6 +281,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
+        if (isLoading) return 12; // Hiện 12 ô skeleton (Grid 3 cột)
         return displayObjets.size();
     }
 
@@ -293,6 +306,12 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     static class LoadingViewHolder extends RecyclerView.ViewHolder {
         public LoadingViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
+
+    static class SkeletonViewHolder extends RecyclerView.ViewHolder {
+        public SkeletonViewHolder(@NonNull View itemView) {
             super(itemView);
         }
     }

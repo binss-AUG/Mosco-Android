@@ -15,6 +15,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:scaleType="centerCrop" />
 
+    <!-- Skeleton Loading Placeholder (Standardized) -->
+    <include
+        layout="@layout/layout_objekt_card_skeleton"
+        android:id="@+id/layout_card_skeleton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/card_iv_image"
+        app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
+        app:layout_constraintStart_toStartOf="@id/card_iv_image"
+        app:layout_constraintEnd_toEndOf="@id/card_iv_image" />
+
     <!-- Masking Container: Để chứa Shimmer và Lớp Mặt Nạ (triplesborder) cắt lẫn nhau -->
     <FrameLayout
         android:id="@+id/layout_shimmer_container"

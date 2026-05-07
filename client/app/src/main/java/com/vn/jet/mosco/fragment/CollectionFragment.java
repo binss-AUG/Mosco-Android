@@ -1053,12 +1053,23 @@ public class CollectionFragment extends Fragment {
          * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
          * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
          */
+        /**
+         * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
+         * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
+         */
         private void loadObjets(boolean forceFromServer) {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
             if (userId == null) return;
 
-            // ── 1. KIỂM TRA CACHE (INSTANT LOAD) ─────────────────────────
+            // Hiển thị Skeleton nếu chưa có cache
             List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
+            if (forceFromServer || cache == null || cache.isEmpty()) {
+                if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                    ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+                }
+            }
+
+            // ── 1. KIỂM TRA CACHE (INSTANT LOAD) ─────────────────────────
             if (!forceFromServer && cache != null && !cache.isEmpty()) {
                 android.util.Log.d("ObjetsFragment", "Instant Load from Galactic Cache: " + cache.size() + " items");
                 processAndDisplayInventory(cache);
@@ -1085,7 +1096,15 @@ public class CollectionFragment extends Fragment {
                     }
                 }
                 @Override
-                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {}
+                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(false);
+                            }
+                        });
+                    }
+                }
             });
         }
 
@@ -1125,7 +1144,15 @@ public class CollectionFragment extends Fragment {
         }
 
         private void applyFilters() {
+            // Hiển thị Skeleton ngay lập tức (Luxury Feel)
+            if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+            }
+
             new Thread(() -> {
+                // Độ trễ nhân tạo 250ms để mắt kịp cảm nhận Shimmer cao cấp
+                try { Thread.sleep(250); } catch (InterruptedException ignored) {}
+
                 List<com.vn.jet.mosco.model.Objet> filtered = new ArrayList<>();
                 View sortBtnView = getView() != null ? getView().findViewById(R.id.btn_sort_objets) : null;
                 String currentSort = (sortBtnView instanceof TextView) ? ((TextView) sortBtnView).getText().toString() : "Newest";

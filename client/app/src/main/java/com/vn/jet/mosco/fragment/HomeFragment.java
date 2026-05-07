@@ -106,6 +106,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private MiniRankPagerAdapter miniRankAdapter;
     private final Map<String, List<JSONObject>> rankDataCache = new HashMap<>();
     private long skeletonStartTime = 0;
+    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
+    private Runnable rankingTimeoutRunnable;
+    private boolean isRankLoading = false;
 
     // ── Services ──
     private SessionManager sessionManager;
@@ -136,6 +139,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         setupRefreshLogic();
         loadUserData();
         loadMiniRankData();
+        startRankingTimeout();
         startRankAutoScroll();
         startQuickToolAnimations(view);
         
@@ -234,6 +238,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         DatabaseLoader.unregisterInventoryChangeListener(this);
         stopBannerAutoScroll();
         stopRankAutoScroll();
+        stopRankingTimeout();
         super.onDestroyView();
     }
 
@@ -318,6 +323,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void initServices() {
         sessionManager = new SessionManager(requireContext());
         gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
+        miniRankAdapter = new MiniRankPagerAdapter();
         DatabaseLoader.registerInventoryChangeListener(this);
     }
 
@@ -349,7 +355,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             btnFullRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
         }
 
-        miniRankAdapter = new MiniRankPagerAdapter();
         if (vpMiniRanking != null) {
             vpMiniRanking.setAdapter(miniRankAdapter);
             
@@ -365,8 +370,38 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
     }
 
+    private void startRankingTimeout() {
+        stopRankingTimeout();
+        rankingTimeoutRunnable = () -> {
+            if (!isRankLoaded && isAdded()) {
+                isRankLoading = false;
+                showRankingError();
+            }
+        };
+        timeoutHandler.postDelayed(rankingTimeoutRunnable, 5000);
+    }
+
+    private void stopRankingTimeout() {
+        if (rankingTimeoutRunnable != null) {
+            timeoutHandler.removeCallbacks(rankingTimeoutRunnable);
+        }
+    }
+
+    private void showRankingError() {
+        if (vpMiniRanking != null) {
+            if (miniRankAdapter != null) {
+                miniRankAdapter.setLoadingState(false);
+                miniRankAdapter.setErrorState(true);
+            }
+        }
+    }
+
     private void loadMiniRankData() {
         isRankLoaded = false;
+        isRankLoading = true;
+        if (miniRankAdapter != null) {
+            miniRankAdapter.setLoadingState(true);
+        }
         String[] types = {"level", "collection", "wealth", "streak"};
         for (String type : types) {
             fetchRankTop5(type);
@@ -396,17 +431,24 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                                 list.add(data.getJSONObject(i));
                             }
                             rankDataCache.put(type, list);
-                            if (miniRankAdapter != null) miniRankAdapter.notifyDataSetChanged();
+                            isRankLoading = false;
+                            if (miniRankAdapter != null) {
+                                miniRankAdapter.setLoadingState(false);
+                                miniRankAdapter.notifyDataSetChanged();
+                            }
                             
                             // Coi như đã load xong Rank khi có ít nhất 1 loại dữ liệu về (để không bắt user đợi quá lâu)
                             isRankLoaded = true;
+                            stopRankingTimeout();
                             checkAndShowContent();
                         }
                     }
                 } catch (Exception e) { Log.e(TAG, "Mini rank error: " + type, e); }
             }
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) { }
+            public void onFailure(Call<ResponseBody> call, Throwable t) { 
+                // Không set isRankLoaded ở đây để timeout handler xử lý
+            }
         });
     }
 
@@ -676,7 +718,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void checkAndShowContent() {
-        if (isUserStatsLoaded && isRankLoaded) {
+        // Chỉ cần UserStats là cho hiện Home (Non-blocking Ranking)
+        if (isUserStatsLoaded) {
             long elapsedTime = System.currentTimeMillis() - skeletonStartTime;
             if (elapsedTime < MIN_SKELETON_DURATION) {
                 // Nếu dữ liệu về quá nhanh, đợi thêm cho đủ thời gian "Luxury"
@@ -791,9 +834,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         });
     }
 
-    private class MiniRankPagerAdapter extends RecyclerView.Adapter<MiniRankPagerAdapter.VH> {
+    private class MiniRankPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private String[] titles;
         private final String[] types = {"level", "collection", "wealth", "streak"};
+        private boolean isError = false;
+        private boolean isLoading = false;
+        private static final int TYPE_CONTENT = 0;
+        private static final int TYPE_ERROR = 1;
+        private static final int TYPE_LOADING = 2;
 
         public MiniRankPagerAdapter() {
             titles = new String[]{
@@ -804,17 +852,57 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             };
         }
 
-        @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public void setErrorState(boolean error) {
+            this.isError = error;
+            if (error) this.isLoading = false;
+            notifyDataSetChanged();
+        }
+
+        public void setLoadingState(boolean loading) {
+            this.isLoading = loading;
+            if (loading) this.isError = false;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (isLoading) return TYPE_LOADING;
+            return isError ? TYPE_ERROR : TYPE_CONTENT;
+        }
+
+        @NonNull @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == TYPE_LOADING) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_rank_loading, parent, false);
+                return new LoadingVH(v);
+            }
+            if (viewType == TYPE_ERROR) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_rank_error, parent, false);
+                return new ErrorVH(v);
+            }
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_mini_rank_page, parent, false);
             return new VH(v);
         }
-        @Override public void onBindViewHolder(@NonNull VH holder, int position) {
-            holder.tvTitle.setText(titles[position]);
-            String type = types[position];
-            List<JSONObject> data = rankDataCache.get(type);
-            holder.adapter.updateData(data != null ? data : new ArrayList<>(), type);
+
+        @Override public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof VH) {
+                VH vh = (VH) holder;
+                vh.tvTitle.setText(titles[position]);
+                String type = types[position];
+                List<JSONObject> data = rankDataCache.get(type);
+                vh.adapter.updateData(data != null ? data : new ArrayList<>(), type);
+            } else if (holder instanceof ErrorVH) {
+                ErrorVH evh = (ErrorVH) holder;
+                evh.btnRetry.setOnClickListener(v -> {
+                    loadMiniRankData();
+                    startRankingTimeout();
+                });
+            }
         }
-        @Override public int getItemCount() { return types.length; }
+
+        @Override public int getItemCount() { 
+            return (isError || isLoading) ? 1 : types.length; 
+        }
+
         class VH extends RecyclerView.ViewHolder {
             TextView tvTitle; RecyclerView rv; MiniRankItemAdapter adapter;
             VH(View v) { 
@@ -825,6 +913,18 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 adapter = new MiniRankItemAdapter(new ArrayList<>(), "level");
                 rv.setAdapter(adapter);
             }
+        }
+
+        class ErrorVH extends RecyclerView.ViewHolder {
+            android.widget.Button btnRetry;
+            ErrorVH(View v) {
+                super(v);
+                btnRetry = v.findViewById(R.id.btn_rank_retry);
+            }
+        }
+
+        class LoadingVH extends RecyclerView.ViewHolder {
+            LoadingVH(View v) { super(v); }
         }
     }
 

@@ -23,10 +23,13 @@ import java.util.List;
  * - Chưa sở hữu: Hình mờ grayscale, overlay tối, icon khóa
  * Không áp dụng hiệu ứng Glow/Shimmer/Floating cho Album.
  */
-public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAdapter.ViewHolder> {
+public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_SKELETON = 1;
 
     private List<CollectionEntry> list;
     private final OnBookCardClickListener listener;
+    private boolean isLoading = false;
 
     /** Callback khi user click vào 1 thẻ trong Album */
     public interface OnBookCardClickListener {
@@ -38,88 +41,105 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAd
         this.listener = listener;
     }
 
+    public void setLoading(boolean loading) {
+        this.isLoading = loading;
+        notifyDataSetChanged();
+    }
+
     /** Cập nhật dữ liệu mới (sau khi filter hoặc API trả về) */
     public void updateData(List<CollectionEntry> newList) {
         this.list = newList;
+        this.isLoading = false;
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isLoading) return VIEW_TYPE_SKELETON;
+        return VIEW_TYPE_ITEM;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_SKELETON) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_objet_skeleton, parent, false);
+            return new SkeletonViewHolder(v);
+        }
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_collection_book_card, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CollectionEntry entry = list.get(position);
-        if (entry == null) return;
-        Context ctx = holder.itemView.getContext();
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ViewHolder) {
+            ViewHolder vh = (ViewHolder) holder;
+            CollectionEntry entry = list.get(position);
+            if (entry == null) return;
+            Context ctx = vh.itemView.getContext();
 
-        // Load hình ảnh thẻ bài (Ưu tiên bộ nhớ Local)
-        String imageUrl = entry.getFrontImage();
-        java.io.File localFile = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(ctx, imageUrl);
+            // Load hình ảnh thẻ bài (Sử dụng GlideBindingAdapter đã chuẩn hóa)
+            String imageUrl = entry.getFrontImage();
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(vh.ivCardImage, imageUrl, true);
 
-        Glide.with(ctx)
-                .load(localFile != null && localFile.exists() ? localFile : imageUrl)
-                .placeholder(R.drawable.item_shop_demo)
-                .into(holder.ivCardImage);
+            if (entry.isOwned()) {
+                // === TRẠNG THÁI: ĐÃ SỞ HỮU ===
+                vh.ivCardImage.setColorFilter(null);
+                vh.ivCardImage.setAlpha(1.0f);
+                vh.viewLockedOverlay.setVisibility(View.GONE);
+                vh.ivLockIcon.setVisibility(View.GONE);
 
-        if (entry.isOwned()) {
-            // === TRẠNG THÁI: ĐÃ SỞ HỮU ===
-            holder.ivCardImage.setColorFilter(null);
-            holder.ivCardImage.setAlpha(1.0f);
-            holder.viewLockedOverlay.setVisibility(View.GONE);
-            holder.ivLockIcon.setVisibility(View.GONE);
+                // Hiện OVR badge
+                if (vh.tvOvr != null) {
+                    vh.tvOvr.setText(String.valueOf(entry.getOvr()));
+                    vh.tvOvr.setVisibility(View.GONE);
+                }
 
-            // Hiện OVR badge
-            if (holder.tvOvr != null) {
-                holder.tvOvr.setText(String.valueOf(entry.getOvr()));
-                holder.tvOvr.setVisibility(View.GONE);
-            }
+                // Hiện Level badge
+                if (vh.ivLevel != null) {
+                    if (entry.getLevel() > 0) {
+                        String assetPath = "file:///android_asset/grade/" + entry.getLevel() + ".png";
+                        Glide.with(ctx).load(assetPath).into(vh.ivLevel);
+                        vh.ivLevel.setVisibility(View.VISIBLE);
+                    } else {
+                        vh.ivLevel.setVisibility(View.GONE);
+                    }
+                }
 
-            // Hiện Level badge
-            if (holder.ivLevel != null) {
-                if (entry.getLevel() > 0) {
-                    String assetPath = "file:///android_asset/grade/" + entry.getLevel() + ".png";
-                    Glide.with(ctx).load(assetPath).into(holder.ivLevel);
-                    holder.ivLevel.setVisibility(View.VISIBLE);
-                } else {
-                    holder.ivLevel.setVisibility(View.GONE);
+                if (vh.cvCard != null) {
+                    vh.cvCard.setCardBackgroundColor(0xFF1A1C29);
+                }
+
+            } else {
+                // === TRẠNG THÁI: CHƯA SỞ HỮU ===
+                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                matrix.setSaturation(0f);
+                vh.ivCardImage.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                vh.ivCardImage.setAlpha(0.2f);
+
+                vh.viewLockedOverlay.setVisibility(View.VISIBLE);
+                vh.ivLockIcon.setVisibility(View.VISIBLE);
+
+                if (vh.tvOvr != null) vh.tvOvr.setVisibility(View.GONE);
+                if (vh.ivLevel != null) vh.ivLevel.setVisibility(View.GONE);
+
+                if (vh.cvCard != null) {
+                    vh.cvCard.setCardBackgroundColor(0xFF0D0F1A);
                 }
             }
 
-            if (holder.cvCard != null) {
-                holder.cvCard.setCardBackgroundColor(0xFF1A1C29);
-            }
-
-        } else {
-            // === TRẠNG THÁI: CHƯA SỞ HỮU ===
-            android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-            matrix.setSaturation(0f);
-            holder.ivCardImage.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-            holder.ivCardImage.setAlpha(0.2f);
-
-            holder.viewLockedOverlay.setVisibility(View.VISIBLE);
-            holder.ivLockIcon.setVisibility(View.VISIBLE);
-
-            if (holder.tvOvr != null) holder.tvOvr.setVisibility(View.GONE);
-            if (holder.ivLevel != null) holder.ivLevel.setVisibility(View.GONE);
-
-            if (holder.cvCard != null) {
-                holder.cvCard.setCardBackgroundColor(0xFF0D0F1A);
-            }
+            vh.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onCardClick(entry);
+            });
         }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onCardClick(entry);
-        });
     }
 
     @Override
-    public int getItemCount() { return list != null ? list.size() : 0; }
+    public int getItemCount() {
+        if (isLoading) return 12;
+        return list != null ? list.size() : 0;
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         androidx.cardview.widget.CardView cvCard;
@@ -135,6 +155,12 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAd
             ivLevel = itemView.findViewById(R.id.card_iv_level);
             viewLockedOverlay = itemView.findViewById(R.id.view_locked_overlay);
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
+        }
+    }
+
+    static class SkeletonViewHolder extends RecyclerView.ViewHolder {
+        public SkeletonViewHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }

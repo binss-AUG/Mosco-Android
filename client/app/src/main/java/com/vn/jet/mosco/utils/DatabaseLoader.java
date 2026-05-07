@@ -154,44 +154,47 @@ public class DatabaseLoader {
     public static void initMasterData(Context context) {
         if (isMasterDataLoaded || isMasterDataLoading)
             return;
+        new Thread(() -> initMasterDataSync(context)).start();
+    }
+
+    public static void initMasterDataSync(Context context) {
+        if (isMasterDataLoaded || isMasterDataLoading)
+            return;
         isMasterDataLoading = true;
+        Log.d(TAG, "Starting Galactic Master Data Loading (Sync)...");
+        long startTime = System.currentTimeMillis();
+        try {
+            String json = loadJSONFromAsset(context, FILE_NAME);
+            if (json != null) {
+                JSONObject root = new JSONObject(json);
+                JSONArray cardsArray = root.optJSONArray("collections");
+                if (cardsArray == null)
+                    cardsArray = root.optJSONArray("cards");
 
-        new Thread(() -> {
-            Log.d(TAG, "Starting Galactic Master Data Loading...");
-            long startTime = System.currentTimeMillis();
-            try {
-                String json = loadJSONFromAsset(context, FILE_NAME);
-                if (json != null) {
-                    JSONObject root = new JSONObject(json);
-                    JSONArray cardsArray = root.optJSONArray("collections");
-                    if (cardsArray == null)
-                        cardsArray = root.optJSONArray("cards");
-
-                    if (cardsArray != null) {
-                        int len = cardsArray.length();
-                        java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(len);
-                        for (int i = 0; i < len; i++) {
-                            JSONObject card = cardsArray.optJSONObject(i);
-                            if (card != null) {
-                                String id = card.optString("id");
-                                if (id.isEmpty())
-                                    id = card.optString("collectionId");
-                                if (!id.isEmpty())
-                                    tempMasterMap.put(id, card);
-                            }
+                if (cardsArray != null) {
+                    int len = cardsArray.length();
+                    java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(len);
+                    for (int i = 0; i < len; i++) {
+                        JSONObject card = cardsArray.optJSONObject(i);
+                        if (card != null) {
+                            String id = card.optString("id");
+                            if (id.isEmpty())
+                                id = card.optString("collectionId");
+                            if (!id.isEmpty())
+                                tempMasterMap.put(id, card);
                         }
-                        cachedMasterMap = tempMasterMap;
-                        isMasterDataLoaded = true;
-                        Log.d(TAG, "Master Data Loaded: " + len + " cards in "
-                                + (System.currentTimeMillis() - startTime) + "ms");
                     }
+                    cachedMasterMap = tempMasterMap;
+                    isMasterDataLoaded = true;
+                    Log.d(TAG, "Master Data Loaded: " + len + " cards in "
+                            + (System.currentTimeMillis() - startTime) + "ms");
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Lỗi nạp Master Data: " + e.getMessage());
-            } finally {
-                isMasterDataLoading = false;
             }
-        }).start();
+        } catch (Exception e) {
+            Log.e(TAG, "Lỗi nạp Master Data: " + e.getMessage());
+        } finally {
+            isMasterDataLoading = false;
+        }
     }
 
     private static String loadJSONFromAsset(Context context, String fileName) {

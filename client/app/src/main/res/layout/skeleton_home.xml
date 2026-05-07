@@ -3,14 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/spacing_12dp">
+    android:layout_height="match_parent">
 
     <!-- Header Skeleton -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/sk_header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_header_pill_height"
+        android:layout_marginHorizontal="@dimen/spacing_12dp"
+        android:layout_marginTop="@dimen/spacing_12dp"
         android:background="@drawable/bg_header_asymmetric_glass"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -19,81 +20,124 @@
             android:layout_width="@dimen/home_header_avatar_size_hud"
             android:layout_height="@dimen/home_header_avatar_size_hud"
             android:layout_marginStart="@dimen/spacing_12dp"
-            android:background="@drawable/bg_quick_tool_bubble_base"
+            android:background="@drawable/bg_skeleton_circle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <View
             android:id="@+id/sk_name"
-            android:layout_width="@dimen/spacing_100dp"
-            android:layout_height="@dimen/spacing_md"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:background="@color/white_10"
+            android:layout_width="120dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_skeleton_rect"
             app:layout_constraintStart_toEndOf="@id/sk_avatar"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:id="@+id/sk_xp_bar"
             android:layout_width="0dp"
-            android:layout_height="@dimen/spacing_sm"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:layout_marginEnd="@dimen/spacing_md"
-            android:background="@color/white_10"
+            android:layout_height="6dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_skeleton_rect"
             app:layout_constraintStart_toStartOf="@id/sk_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sk_name" />
 
         <View
             android:id="@+id/sk_currency"
-            android:layout_width="@dimen/spacing_80dp"
-            android:layout_height="@dimen/radius_lg"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:background="@color/white_10"
+            android:layout_width="100dp"
+            android:layout_height="14dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_skeleton_rect"
             app:layout_constraintStart_toStartOf="@id/sk_name"
             app:layout_constraintTop_toBottomOf="@id/sk_xp_bar" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Notification Ticker Skeleton -->
+    <View
+        android:id="@+id/sk_ticker"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_skeleton_rect"
+        app:layout_constraintTop_toBottomOf="@id/sk_header" />
 
     <!-- Banner Skeleton -->
     <View
         android:id="@+id/sk_banner"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_banner_height"
-        android:layout_marginTop="@dimen/spacing_16dp"
+        android:layout_marginHorizontal="@dimen/home_banner_margin_horizontal"
+        android:layout_marginTop="12dp"
         android:background="@drawable/bg_banner_glass"
-        app:layout_constraintTop_toBottomOf="@id/sk_header" />
+        app:layout_constraintTop_toBottomOf="@id/sk_ticker" />
 
-    <!-- Modules Skeleton -->
+    <!-- Quick Tools Skeleton -->
+    <LinearLayout
+        android:id="@+id/sk_quick_tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/sk_banner">
+        
+        <include layout="@layout/item_skeleton_quick_tool" />
+        <include layout="@layout/item_skeleton_quick_tool" />
+        <include layout="@layout/item_skeleton_quick_tool" />
+        <include layout="@layout/item_skeleton_quick_tool" />
+        <include layout="@layout/item_skeleton_quick_tool" />
+    </LinearLayout>
+
+    <!-- Dashboard Skeleton (Optimized for dynamic space) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/spacing_md"
-        app:layout_constraintTop_toBottomOf="@id/sk_banner"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="@dimen/home_banner_margin_horizontal"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/sk_quick_tools"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <!-- Left Column: Streak + Station Pending -->
         <View
-            android:id="@+id/sk_module_left"
+            android:id="@+id/sk_module_streak"
             android:layout_width="0dp"
-            android:layout_height="160dp"
+            android:layout_height="0dp"
             android:background="@drawable/bg_streak_module_glass"
             app:layout_constraintWidth_percent="0.38"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHeight_percent="0.48" />
 
         <View
-            android:id="@+id/sk_module_right"
+            android:id="@+id/sk_module_station"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:background="@color/white_05"
-            app:layout_constraintStart_toEndOf="@id/sk_module_left"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_streak_module_glass"
+            app:layout_constraintWidth_percent="0.38"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sk_module_streak"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Right Column: Ranking (Tall) -->
+        <View
+            android:id="@+id/sk_module_ranking"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_banner_glass"
+            app:layout_constraintStart_toEndOf="@id/sk_module_streak"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/sk_module_left" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

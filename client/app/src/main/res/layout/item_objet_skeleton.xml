@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmer_view_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:shimmer_auto_start="true"
+    app:shimmer_base_alpha="0.1"
+    app:shimmer_highlight_alpha="0.3"
+    app:shimmer_duration="1500">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp">
+
+        <!-- Main Card Body -->
+        <View
+            android:id="@+id/sk_objet_body"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_skeleton_rect_rounded"
+            app:layout_constraintDimensionRatio="1:1.54"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Vertical Line Accent (Right Edge) - TripleS Signature -->
+        <View
+            android:id="@+id/sk_objet_line"
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/bg_skeleton_rect"
+            android:alpha="0.5"
+            app:layout_constraintTop_toTopOf="@id/sk_objet_body"
+            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
+            app:layout_constraintEnd_toEndOf="@id/sk_objet_body" />
+
+        <!-- Signature Badge (Bottom Left) - TripleS Signature -->
+        <View
+            android:id="@+id/sk_objet_badge"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_skeleton_rect_rounded_sm"
+            android:alpha="0.6"
+            app:layout_constraintStart_toStartOf="@id/sk_objet_body"
+            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body" />
+
+        <!-- Name/Info Placeholder (Bottom Center-ish) -->
+        <View
+            android:id="@+id/sk_objet_name"
+            android:layout_width="60dp"
+            android:layout_height="8dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_skeleton_rect"
+            android:alpha="0.3"
+            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
+            app:layout_constraintStart_toEndOf="@id/sk_objet_badge"
+            app:layout_constraintEnd_toStartOf="@id/sk_objet_line"
+            app:layout_constraintHorizontal_bias="0.3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.facebook.shimmer.ShimmerFrameLayout>
