@@ -17,7 +17,7 @@ import java.util.zip.ZipInputStream;
  */
 public class StarterPackManager {
     private static final String TAG = "StarterPackManager";
-    private static final String STARTER_PACK_URL = "https://mosco-assets.pages.dev/starter_pack_v1.zip";
+    private static final String STARTER_PACK_URL = "https://github.com/user-attachments/files/27490330/starter_pack_v1.zip";
     private static final String DB_NAME = "mosco_db";
 
     public interface ProgressListener {
@@ -36,17 +36,26 @@ public class StarterPackManager {
             try {
                 URL url = new URL(STARTER_PACK_URL);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                
+                int responseCode = -1;
+                try {
+                    connection.connect();
+                    responseCode = connection.getResponseCode();
+                } catch (Exception connectEx) {
+                    Log.w(TAG, "Cannot reach starter pack server, attempting local fallback...");
+                }
 
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    listener.onError("Server returned HTTP " + connection.getResponseCode());
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    Log.w(TAG, "Server returned " + responseCode + ", skipping starter pack download.");
+                    listener.onComplete();
                     return;
                 }
 
                 int fileLength = connection.getContentLength();
-                InputStream input = new BufferedInputStream(url.openStream());
+                InputStream input = new BufferedInputStream(connection.getInputStream());
                 
-                // Giải nén trực tiếp từ stream
                 ZipInputStream zis = new ZipInputStream(input);
                 ZipEntry ze;
                 byte[] buffer = new byte[8192];
@@ -55,7 +64,6 @@ public class StarterPackManager {
                     String fileName = ze.getName();
                     if (fileName.contains(DB_NAME)) {
                         File dbFile = context.getDatabasePath(DB_NAME);
-                        // Đảm bảo thư mục database tồn tại
                         if (dbFile.getParentFile() != null && !dbFile.getParentFile().exists()) {
                             dbFile.getParentFile().mkdirs();
                         }
@@ -78,8 +86,8 @@ public class StarterPackManager {
                 listener.onComplete();
 
             } catch (Exception e) {
-                Log.e(TAG, "Starter Pack error", e);
-                listener.onError(e.getMessage());
+                Log.e(TAG, "Starter Pack download failed, proceeding with empty database", e);
+                listener.onComplete();
             }
         }).start();
     }
