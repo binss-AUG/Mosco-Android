@@ -1,94 +1,142 @@
 package com.vn.jet.mosco.spinserver.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vn.jet.mosco.spinserver.model.UpgradeRequest;
 import com.vn.jet.mosco.spinserver.model.UpgradeResponse;
 import com.vn.jet.mosco.spinserver.model.UserCard;
 import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
-import com.vn.jet.mosco.spinserver.utils.UpgradeSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
- * Service xử lý logic ép thẻ (Upgrade).
- * Sử dụng CardDataService làm nguồn sự thật cho OVR + typeKey,
- * thay vì mockup "FirstWelcome" như trước.
+ * Service xử lý logic nâng cấp thẻ bài (FO4 Style).
+ * Đảm bảo tính nhất quán dữ liệu bằng Pessimistic Locking.
  */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UpgradeService {
-    private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
 
     private final UserCardRepository userCardRepository;
-    private final UpgradeSystem upgradeSystem;
     private final CardDataService cardDataService;
+    private final ObjectMapper objectMapper;
+    private final Random random = new Random();
 
-    public UpgradeService(UserCardRepository userCardRepository,
-                          UpgradeSystem upgradeSystem,
-                          CardDataService cardDataService) {
-        this.userCardRepository = userCardRepository;
-        this.upgradeSystem = upgradeSystem;
-        this.cardDataService = cardDataService;
+    private Map<Integer, Double> upgradeRates;
+    private JsonNode customUpgradeConfig;
+
+    @PostConstruct
+    public void init() {
+        try {
+            // Load upgrade rates
+            InputStream isRate = new ClassPathResource("upgradeRate.json").getInputStream();
+            upgradeRates = objectMapper.readValue(isRate, new TypeReference<Map<Integer, Double>>() {});
+
+            // Load custom upgrade config (X, M coefficients)
+            InputStream isCustom = new ClassPathResource("customUpgrade.json").getInputStream();
+            customUpgradeConfig = objectMapper.readTree(isCustom);
+
+            log.info("UpgradeService: Loaded upgrade configurations.");
+        } catch (Exception e) {
+            log.error("UpgradeService: Failed to load upgrade configurations", e);
+        }
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public UpgradeResponse upgradeCard(UpgradeRequest request) {
-        Long userId = request.getUserId();
-        
-        // 1. Kiểm tra thẻ chính
-        UserCard mainCard = userCardRepository.findByIdAndUserId(request.getBaseCardId(), userId)
-                .orElseThrow(() -> new RuntimeException("Thẻ chính không tồn tại hoặc không thuộc về bạn"));
+    /**
+     * Thực hiện nâng cấp thẻ bài.
+     * Sử dụng @Transactional và PESSIMISTIC_WRITE để chống Race Condition.
+     */
+    @Transactional
+    public UpgradeResponse upgrade(UpgradeRequest request) {
+        log.info("Bắt đầu tiến trình nâng cấp thẻ bài cho User: {}", request.getUserId());
 
-        if (!"AVAILABLE".equals(mainCard.getStatus())) {
-            throw new RuntimeException("Thẻ chính đang bận hoạt động khác, không thể nâng cấp");
-        }
-                
-        // 2. Lấy thẻ phôi và xóa khỏi CSDL
-        List<UpgradeSystem.CardInfo> materialInfos = new ArrayList<>();
-        List<UserCard> materialsToDelete = new ArrayList<>();
-        
-        for (Long matId : request.getMaterialCardIds()) {
-            UserCard matCard = userCardRepository.findByIdAndUserId(matId, userId)
-                    .orElseThrow(() -> new RuntimeException("Thẻ phôi không hợp lệ: " + matId));
-            
-            if (!"AVAILABLE".equals(matCard.getStatus())) {
-                throw new RuntimeException("Thẻ phôi " + matId + " đang bận hoạt động khác");
-            }
+        // 1. Khóa thẻ chính (PESSIMISTIC_WRITE)
+        UserCard mainCard = userCardRepository.findWithLockById(request.getBaseCardId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ chính"));
 
-            // Lấy OVR chính xác từ CardDataService (thay vì mockup cũ)
-            String typeKey = cardDataService.getTypeKey(matCard.getCollectionId());
-            int matOvr = cardDataService.getOvr(matCard.getCollectionId(), matCard.getUpgradeLevel());
-            
-            materialInfos.add(new UpgradeSystem.CardInfo(typeKey, matCard.getUpgradeLevel(), matOvr));
-            materialsToDelete.add(matCard);
+        if (mainCard.getUpgradeLevel() >= 10) {
+            throw new RuntimeException("Thẻ đã đạt cấp độ tối đa (+10)");
         }
-        
-        // Tiêu huỷ nguyên liệu
-        userCardRepository.deleteAll(materialsToDelete);
-        logger.info("Đã tiêu phôi: {} thẻ của user {}", materialsToDelete.size(), userId);
-        
-        // 3. Thực thi thuật toán ép thẻ — OVR giờ đã chính xác theo class thực tế
-        String mainTypeKey = cardDataService.getTypeKey(mainCard.getCollectionId());
+
+        // 2. Khóa và kiểm tra danh sách thẻ nguyên liệu
+        List<UserCard> materials = request.getMaterialCardIds().stream()
+                .map(id -> userCardRepository.findWithLockById(id)
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ nguyên liệu: " + id)))
+                .toList();
+
+        if (materials.isEmpty() || materials.size() > 5) {
+            throw new RuntimeException("Số lượng thẻ nguyên liệu không hợp lệ (1-5)");
+        }
+
+        // 3. Tính toán tỷ lệ thành công (RNG)
+        int nextLevel = mainCard.getUpgradeLevel() + 1;
+        double maxRate = upgradeRates.getOrDefault(nextLevel, 0.0);
+        String typeKey = cardDataService.getTypeKey(mainCard.getCollectionId());
+
+        JsonNode levelConfig = customUpgradeConfig.get(String.valueOf(nextLevel));
+        if (levelConfig == null || !levelConfig.has(typeKey)) {
+            throw new RuntimeException("Lỗi cấu hình nâng cấp cho level " + nextLevel);
+        }
+
+        double X = levelConfig.get(typeKey).get("X").asDouble();
+        double M = levelConfig.get(typeKey).get("M").asDouble();
+
         int mainOvr = cardDataService.getOvr(mainCard.getCollectionId(), mainCard.getUpgradeLevel());
-        UpgradeSystem.CardInfo mainCardInfo = new UpgradeSystem.CardInfo(mainTypeKey, mainCard.getUpgradeLevel(), mainOvr);
-        
-        UpgradeSystem.UpgradeResult result = upgradeSystem.executeUpgrade(mainCardInfo, materialInfos);
-        
-        // 4. Cập nhật thẻ chính
-        mainCard.setUpgradeLevel(result.newLevel);
+        double totalFillPercent = 0.0;
+
+        for (UserCard material : materials) {
+            int materialOvr = cardDataService.getOvr(material.getCollectionId(), material.getUpgradeLevel());
+            int deltaOvr = materialOvr - mainOvr;
+
+            if (deltaOvr >= 0) {
+                totalFillPercent += X * Math.pow(M, deltaOvr);
+            } else {
+                totalFillPercent += X / Math.pow(M, Math.abs(deltaOvr));
+            }
+        }
+
+        double fillPercent = Math.min(totalFillPercent, 100.0);
+        double actualSuccessRate = (fillPercent / 100.0) * maxRate;
+
+        // 4. Quay Gacha (Server Truth)
+        boolean isSuccess = (random.nextDouble() * 100.0) <= actualSuccessRate;
+
+        // 5. Cập nhật kết quả
+        int oldLevel = mainCard.getUpgradeLevel();
+        if (isSuccess) {
+            mainCard.setUpgradeLevel(oldLevel + 1);
+        } else {
+            // Penalty: Rớt 2 cấp, tối thiểu là 1
+            mainCard.setUpgradeLevel(Math.max(1, oldLevel - 2));
+        }
+
+        // 6. Xóa thẻ nguyên liệu (Consuming)
+        userCardRepository.deleteAll(materials);
+
+        // 7. Lưu thẻ chính và trả về kết quả
         userCardRepository.save(mainCard);
         
-        String message = result.isSuccess 
-            ? "Nâng cấp thành công lên cấp " + result.newLevel
-            : "Nâng cấp thất bại, thẻ bị rơi xuống cấp " + result.newLevel;
-            
-        logger.info("Upgrade Result - User: {}, Success: {}, New Level: {}", userId, result.isSuccess, result.newLevel);
+        int newOvr = cardDataService.getOvr(mainCard.getCollectionId(), mainCard.getUpgradeLevel());
+        
+        log.info("Nâng cấp kết thúc: Success={}, NewLevel={}, NewOVR={}", isSuccess, mainCard.getUpgradeLevel(), newOvr);
 
-        return new UpgradeResponse(result.isSuccess, result.newLevel,
-                cardDataService.getOvr(mainCard.getCollectionId(), result.newLevel),
-                result.actualSuccessRate, message);
+        return new UpgradeResponse(
+                isSuccess,
+                mainCard.getUpgradeLevel(),
+                newOvr,
+                actualSuccessRate,
+                isSuccess ? "Nâng cấp thành công rực rỡ!" : "Rất tiếc, nâng cấp thất bại và thẻ đã bị rớt cấp."
+        );
     }
 }
