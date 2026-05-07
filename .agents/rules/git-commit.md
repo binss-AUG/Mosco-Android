@@ -4,7 +4,7 @@ trigger: always_on
 
 # Quy Ước Commit Message (Git Convention) - Mosco Project
 
-Tài liệu này quy định cách đặt tên cho các commit trong dự án Mosco để đảm bảo tính chuyên nghiệp và dễ dàng tra cứu lịch sử thay đổi.
+Tài liệu này quy định cách đặt tên cho các commit trong dự án Mosco để đảm bảo tính chuyên nghiệp, thống nhất và dễ dàng tra cứu lịch sử thay đổi trong giai đoạn nước rút.
 
 ## 1. Cấu Trúc Cơ Bản
 Mọi commit phải tuân theo định dạng:
@@ -21,36 +21,37 @@ Mọi commit phải tuân theo định dạng:
 | :--- | :--- | :--- |
 | **feat** | Feature | Thêm một tính năng mới cho hệ thống. |
 | **fix** | Bug Fix | Sửa một lỗi nào đó trong code. |
-| **style** | Style/UI | Thay đổi liên quan đến UI, format, spacing (không ảnh hưởng logic). |
-| **refactor** | Refactor | Tái cấu trúc code để sạch hơn, dễ đọc hơn (không đổi tính năng). |
-| **perf** | Performance | Tối ưu hóa hiệu năng, tốc độ xử lý. |
+| **style** | Style/UI | Thay đổi liên quan đến UI, Dark Mode, format, spacing. |
+| **refactor** | Refactor | Tái cấu trúc code (Clean Code, DRY) không đổi tính năng. |
+| **perf** | Performance | Tối ưu hóa hiệu năng, giảm RAM, tối ưu tốc độ mạng/DB. |
 | **docs** | Documentation | Cập nhật tài liệu, README, hoặc ghi chú. |
-| **chore** | Chore | Cập nhật dependencies, cấu hình build, Gradle, Proguard. |
+| **chore** | Chore | Cập nhật dependencies, Gradle, cấu hình môi trường. |
 
 ---
 
 ## 3. Phạm Vi (Scope) Phổ Biến
 Dự án Mosco có các scope chính sau:
 - `auth`: Đăng nhập, đăng ký, social login.
-- `inventory`: Kho đồ, quản lý thẻ bài.
-- `home`: Màn hình chính, streak.
-- `gacha`: Hệ thống quay thưởng, nâng cấp.
-- `api`: Các service gọi lên server.
-- `ui`: Các custom components dùng chung.
+- `inventory`: Kho đồ, màn Collection, Local-First Room DB.
+- `gacha-engine`: Hệ thống quay thưởng, nâng cấp thẻ (Pessimistic Locking).
+- `etl`: Hệ thống cào và đồng bộ dữ liệu JSON vào MySQL.
+- `network`: Cấu hình API, OkHttp, Interceptor (ép WebP Cloudflare).
+- `ui`: Các custom components dùng chung (Shimmer, Animation lật thẻ).
+- `api`: Các service phân trang (Pagination) ở phía Server.
 
 ---
 
 ## 4. Ví dụ Cụ Thể
-- `feat(gacha): implement animation for premium card reveal`
-- `fix(inventory): prevent NPE when sorting empty collection`
-- `style(ui): extract all hardcoded dimensions to dimens.xml`
-- `refactor(auth): simplify login flow using BaseService`
-- `chore(gradle): upgrade okhttp to latest stable version`
+- `feat(gacha-engine): implement pessimistic lock for fo4 upgrade mechanic`
+- `perf(network): add okhttp interceptor to request webp from cloudflare`
+- `feat(etl): create scheduled spring boot task to upsert triples data`
+- `perf(inventory): apply room db for offline caching and pagination`
+- `style(ui): add shimmer loading effect for card list on emulator`
 
 ---
 
 ## 5. Lưu Ý Quan Trọng
-- **Ngôn ngữ:** Khuyến khích sử dụng **Tiếng Anh** cho description để chuẩn hóa quốc tế (vì Git là môi trường chung).
+- **Ngôn ngữ:** Khuyến khích sử dụng **Tiếng Anh** cho description.
 - **Viết thường:** Chữ cái đầu tiên của description nên viết thường.
 - **Ngắn gọn:** Không nên viết description quá 50 ký tự.
-- **Tần suất:** Nên commit ngay sau khi hoàn thành một đơn vị logic nhỏ, không nên dồn quá nhiều tính năng vào một commit duy nhất.
+- **Tần suất:** Commit ngay sau khi xong một logic nhỏ (ví dụ: xong Interceptor là commit), không dồn code.
