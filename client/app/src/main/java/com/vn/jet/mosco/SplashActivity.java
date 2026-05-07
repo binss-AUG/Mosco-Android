@@ -141,10 +141,39 @@ public class SplashActivity extends AppCompatActivity {
             return;
         }
 
+        // 1. Kiểm tra và tải Starter Pack nếu cần
+        if (!com.vn.jet.mosco.utils.StarterPackManager.isDbInitialized(this)) {
+            mainHandler.post(() -> {
+                layoutDownloadProgress.setVisibility(View.VISIBLE);
+                tvDownloadStatus.setText(R.string.splash_status_downloading);
+            });
+            
+            com.vn.jet.mosco.utils.StarterPackManager.downloadAndInitDb(this, new com.vn.jet.mosco.utils.StarterPackManager.ProgressListener() {
+                @Override
+                public void onProgress(int percent) {
+                    mainHandler.post(() -> pbDownload.setProgress(percent));
+                }
+
+                @Override
+                public void onComplete() {
+                    mainHandler.post(() -> {
+                        layoutDownloadProgress.setVisibility(View.GONE);
+                        continueLoading();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    mainHandler.post(() -> showConnectionError());
+                }
+            });
+        } else {
+            continueLoading();
+        }
+    }
+
+    private void continueLoading() {
         GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
-        
-        // 1. Sync Database
-        syncDatabase(apiService);
         
         // 2. Master Data
         DatabaseLoader.initMasterData(getApplicationContext());
@@ -154,27 +183,9 @@ public class SplashActivity extends AppCompatActivity {
 
         // 4. Sync Assets (This will trigger navigation on completion)
         syncAssets();
-    }
-
-    private void syncDatabase(GameApiService apiService) {
-        mainHandler.post(() -> tvDownloadStatus.setText(R.string.splash_status_checking));
-        try {
-            String localVersion = DatabaseLoader.getLocalDatabaseVersion(this);
-            retrofit2.Response<java.util.Map<String, String>> versionResponse = apiService.getDatabaseVersion().execute();
-            if (versionResponse.isSuccessful() && versionResponse.body() != null) {
-                String serverVersion = versionResponse.body().get("version");
-                if (serverVersion != null && !serverVersion.equals(localVersion)) {
-                    mainHandler.post(() -> {
-                        layoutDownloadProgress.setVisibility(View.VISIBLE);
-                        tvDownloadStatus.setText(R.string.splash_status_downloading);
-                    });
-                    retrofit2.Response<okhttp3.ResponseBody> dbResponse = apiService.downloadDatabase().execute();
-                    if (dbResponse.isSuccessful() && dbResponse.body() != null) {
-                        DatabaseLoader.updateInternalDatabase(this, dbResponse.body().string(), serverVersion);
-                    }
-                }
-            }
-        } catch (Exception e) { Log.w(TAG, "DB Sync Failed: " + e.getMessage()); }
+        
+        // 5. Delta Sync ngầm
+        com.vn.jet.mosco.utils.SyncManager.startDeltaSync(this);
     }
 
     private void syncAssets() {
