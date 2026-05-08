@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.signature.ObjectKey;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.SplashActivity;
 import com.vn.jet.mosco.model.Objet;
@@ -69,11 +69,18 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.allObjets.clear();
         this.allObjets.addAll(newAllObjets);
         
+        this.currentFilteredList = new ArrayList<>(newAllObjets);
+        this.currentLimit = 60;
+        this.isPagingLoading = false;
+        
         this.displayObjets.clear();
         this.isLoadingMore = false;
         this.isLoading = false; // Tắt skeleton khi dữ liệu về
         
-        this.displayObjets.addAll(allObjets);
+        int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+        if (maxLimit > 0) {
+            this.displayObjets.addAll(currentFilteredList.subList(0, maxLimit));
+        }
         
         notifyDataSetChanged();
     }
@@ -107,32 +114,112 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
     // =======================================================
 
+    private List<Objet> currentFilteredList;
+    private int currentLimit = 60;
+    private boolean isPagingLoading = false;
+
     public BaseInventoryAdapter(List<Objet> allObjets, RecyclerView rv, OnItemClickListener listener) {
         this.allObjets = new ArrayList<>(allObjets);
+        this.currentFilteredList = new ArrayList<>(allObjets);
         this.displayObjets = new ArrayList<>();
         this.listener = listener;
         this.mContext = rv.getContext();
 
+        // Khởi tạo hiển thị 60 phần tử đầu tiên
+        currentLimit = 60;
+        int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+        if (maxLimit > 0) {
+            displayObjets.addAll(currentFilteredList.subList(0, maxLimit));
+        }
+
         // Tối ưu RecyclerView
         rv.setHasFixedSize(true);
         // Tăng Cache Size để tránh GC giật lag khi cuộn nhanh với list 9000 item
-        rv.setItemViewCacheSize(50);
+        rv.setItemViewCacheSize(20);
         rv.setDrawingCacheEnabled(true);
         rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        // Khởi tạo layout manager và nạp dữ liệu tức thì (Không dùng OnScrollListener phức tạp gây kẹt thread)
-        GridLayoutManager layoutManager = (GridLayoutManager) rv.getLayoutManager();
+        // Đăng ký tự động phân trang 60 phần tử/lần
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0 && !isPagingLoading && !isLoading) {
+                    GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null && layoutManager.findLastVisibleItemPosition() >= getItemCount() - 15) {
+                        loadNextPage(recyclerView);
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadNextPage(RecyclerView rv) {
+        if (currentLimit >= currentFilteredList.size() || isPagingLoading || isLoading) return;
+
+        isPagingLoading = true;
         
-        // ═══════════════════════════════════════════════════════════
-        // TỐI ƯU HIỆU NĂNG - Tải toàn bộ Data ngay từ đầu thay vì Chunking
-        // (RecyclerView tự xử lý recycle view, chia nhỏ data gây chậm vòng lặp)
-        // ═══════════════════════════════════════════════════════════
-        displayObjets.addAll(allObjets);
+        // Hiện 3 skeleton chờ
+        rv.post(() -> notifyItemRangeInserted(displayObjets.size(), 3));
+
+        // Khựng nhẹ (300ms) để tải 60 thẻ tiếp theo tạo gia tốc lướt mượt
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            currentLimit += 60;
+            int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+            List<Objet> nextChunk = new ArrayList<>(currentFilteredList.subList(displayObjets.size(), maxLimit));
+            
+            isPagingLoading = false;
+            // Xóa 3 skeleton chờ
+            notifyItemRangeRemoved(displayObjets.size(), 3);
+            
+            // Chèn dữ liệu thực
+            int insertPos = displayObjets.size();
+            displayObjets.addAll(nextChunk);
+            notifyItemRangeInserted(insertPos, nextChunk.size());
+
+            // 🚀 PROGRESSIVE LOADING: Prefetch ảnh cho trang tiếp theo (60-120 item tiếp)
+            preloadNextPageImages();
+        }, 300);
+    }
+
+    /**
+     * Tải ngầm (Prefetch) ảnh cho trang tiếp theo để lướt không bị khựng skeleton.
+     */
+    private void preloadNextPageImages() {
+        if (currentFilteredList == null || displayObjets == null) return;
+        
+        int startPos = displayObjets.size();
+        int endPos = Math.min(startPos + 60, currentFilteredList.size());
+        
+        if (startPos >= endPos) return;
+
+        for (int i = startPos; i < endPos; i++) {
+            Objet item = currentFilteredList.get(i);
+            if (item == null) continue;
+
+            // Kiểm tra file local trước
+            File localFile = CardAssetManager.getLocalFile(mContext, item.getImageUrl());
+            if (localFile != null && localFile.exists()) {
+                Glide.with(mContext)
+                        .load(localFile)
+                        .override(GRID_WIDTH, GRID_HEIGHT)
+                        .priority(Priority.LOW) // Prefetch dùng độ ưu tiên thấp
+                        .preload();
+            } else {
+                String fallbackUrl = CardAssetManager.convertToVariant(item.getImageUrl(), "1x");
+                Glide.with(mContext)
+                        .load(fallbackUrl)
+                        .override(GRID_WIDTH, GRID_HEIGHT)
+                        .priority(Priority.LOW)
+                        .preload();
+            }
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
         if (isLoading) return VIEW_TYPE_SKELETON;
+        if (displayObjets != null && position >= displayObjets.size()) return VIEW_TYPE_SKELETON;
         return VIEW_TYPE_ITEM;
     }
 
@@ -158,6 +245,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             Objet item = displayObjets.get(position);
             if (item == null) return;
 
+            // Bind Card Name (Instant Metadata) - Move to top for faster UX
+            if (itemHolder.tvNameTag != null) {
+                String name = (item.getMember() != null ? item.getMember() : "") + " " +
+                             (item.getSeason() != null ? item.getSeason() : "") + " " +
+                             (item.getCollectionNo() != null ? item.getCollectionNo() : "");
+                itemHolder.tvNameTag.setText(name.trim());
+            }
+
             if (itemHolder.layoutSkeleton != null) {
                 itemHolder.layoutSkeleton.setVisibility(View.VISIBLE);
                 if (itemHolder.ivLevel != null) itemHolder.ivLevel.setVisibility(View.INVISIBLE);
@@ -177,7 +272,8 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> glideListener = new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
                 @Override
                 public boolean onLoadFailed(@androidx.annotation.Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                    if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
+                    // KHÔNG ẨN SKELETON KHI LỖI để giữ trải nghiệm mượt mà, tránh hiện placeholder xấu
+                    // if (itemHolder.layoutSkeleton != null) itemHolder.layoutSkeleton.setVisibility(View.GONE);
                     if (itemHolder.ivLevel != null && item.getCardLevel() > 0) itemHolder.ivLevel.setVisibility(View.VISIBLE);
                     return false;
                 }
@@ -197,8 +293,8 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .override(GRID_WIDTH, GRID_HEIGHT) // Scale down 2x → kích thước grid nhỏ
                         .diskCacheStrategy(DiskCacheStrategy.NONE) // Không cache lại (đã là file local)
                         .skipMemoryCache(false) // Vẫn giữ trong RAM cho lần cuộn lại
+                        .priority(Priority.IMMEDIATE) // 🚀 VIEWPORT PRIORITY: Tải ngay lập tức
                         .dontAnimate() // Hiện ngay tức thì
-                        .placeholder(R.drawable.objet_back_spin)
                         .listener(glideListener)
                         .into(itemHolder.ivObjet);
             } else {
@@ -208,11 +304,12 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .load(fallbackUrl)
                         .override(GRID_WIDTH, GRID_HEIGHT)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .dontAnimate()
-                        .placeholder(R.drawable.objet_back_spin)
+                        .priority(Priority.IMMEDIATE) // 🚀 VIEWPORT PRIORITY
+                        .transition(DrawableTransitionOptions.withCrossFade(200))
                         .listener(glideListener)
                         .into(itemHolder.ivObjet);
             }
+
 
             // BIND OVR TEXT
             if (itemHolder.tvOvr != null) {
@@ -256,6 +353,11 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             if (itemHolder.viewOverlay != null) {
                 itemHolder.viewOverlay.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            }
+
+            // Sync color to Album style (Quiet Luxury Deep Blue)
+            if (itemHolder.itemView instanceof androidx.cardview.widget.CardView) {
+                ((androidx.cardview.widget.CardView) itemHolder.itemView).setCardBackgroundColor(0xFF1A1C29);
             }
 
             itemHolder.itemView.setOnClickListener(v -> {
@@ -302,7 +404,9 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public int getItemCount() {
         if (isLoading) return 12; // Hiện 12 ô skeleton (Grid 3 cột)
-        return displayObjets.size();
+        int count = displayObjets == null ? 0 : displayObjets.size();
+        if (isPagingLoading) count += 3; // Thêm 3 skeleton cuối grid
+        return count;
     }
 
     static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -313,6 +417,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         View viewDisabledOverlay;
         android.widget.TextView tvBusyStatus;
         View layoutSkeleton;
+        android.widget.TextView tvNameTag;
         
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -323,6 +428,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             viewDisabledOverlay = itemView.findViewById(R.id.view_disabled_overlay);
             tvBusyStatus = itemView.findViewById(R.id.tv_busy_status);
             layoutSkeleton = itemView.findViewById(R.id.layout_card_skeleton);
+            tvNameTag = itemView.findViewById(R.id.tv_card_name);
         }
     }
 

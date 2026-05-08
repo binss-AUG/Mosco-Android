@@ -153,6 +153,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         rvInventory.setHasFixedSize(true);
         rvInventory.setItemViewCacheSize(20);
+        rvInventory.setDrawingCacheEnabled(true);
+        rvInventory.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
         filterBar = view.findViewById(R.id.filter_bar);
@@ -208,7 +210,30 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     singleSelectListener.onObjetSelected(item);
                     dismiss();
                 } else {
-                    com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(requireContext(), item);
+                    // Chuyển đổi sang CollectionEntry để dùng chung giao diện Premium (3D Flip, Showcase)
+                    com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
+                    entry.setCollectionId(item.getCollectionId());
+                    entry.setFrontImage(item.getImageUrl());
+                    entry.setOvr(item.getOvr());
+                    entry.setLevel(item.getCardLevel());
+                    entry.setUserCardId(item.getIdString());
+                    entry.setOwned(true);
+
+                    // Nạp thêm metadata từ database.json nếu có
+                    org.json.JSONObject meta = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), item.getCollectionId());
+                    if (meta != null) {
+                        entry.setMember(meta.optString("member"));
+                        entry.setSeason(meta.optString("season"));
+                        entry.setCardClass(meta.optString("class"));
+                        entry.setCollectionNo(meta.optString("collectionNo"));
+                    } else {
+                        entry.setMember(item.getMember());
+                        entry.setSeason(item.getSeason());
+                        entry.setCardClass(item.getTypeKey());
+                        entry.setCollectionNo(item.getCollectionNo());
+                    }
+                    
+                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), entry);
                 }
             }
         });

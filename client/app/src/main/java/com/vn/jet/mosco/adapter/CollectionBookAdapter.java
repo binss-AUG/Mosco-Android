@@ -89,6 +89,14 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ViewHolder vh = (ViewHolder) holder;
             CollectionEntry entry = list.get(position);
             if (entry == null) return;
+
+            // Bind Card Name (Instant Metadata) - Move to top for faster UX
+            if (vh.tvNameTag != null) {
+                String name = (entry.getMember() != null ? entry.getMember() : "") + " " +
+                             (entry.getSeason() != null ? entry.getSeason() : "") + " " +
+                             (entry.getCollectionNo() != null ? entry.getCollectionNo() : "");
+                vh.tvNameTag.setText(name.trim());
+            }
             Context ctx = vh.itemView.getContext();
 
             // Load hình ảnh thẻ bài (Sử dụng GlideBindingAdapter đã chuẩn hóa)
@@ -135,6 +143,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 }
             }
 
+
             vh.itemView.setOnClickListener(v -> {
                 if (listener != null) listener.onCardClick(entry);
             });
@@ -153,7 +162,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         androidx.cardview.widget.CardView cvCard;
         ImageView ivCardImage, ivLockIcon, ivLevel;
         View viewLockedOverlay;
-        TextView tvOvr;
+        TextView tvOvr, tvNameTag;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -163,6 +172,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ivLevel = itemView.findViewById(R.id.card_iv_level);
             viewLockedOverlay = itemView.findViewById(R.id.view_locked_overlay);
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
+            tvNameTag = itemView.findViewById(R.id.tv_card_name);
         }
     }
 
