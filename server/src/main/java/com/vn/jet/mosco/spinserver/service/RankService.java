@@ -29,6 +29,19 @@ public class RankService {
     private static final String RANK_KEY_WEALTH = "rank:wealth";
     private static final String RANK_KEY_STREAK = "rank:streak";
 
+    @jakarta.annotation.PostConstruct
+    public void repairTotalDiamonds() {
+        log.info("Checking and repairing totalDiamonds for existing users...");
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getTotalDiamonds() == 0 && user.getDiamonds() > 0) {
+                user.setTotalDiamonds(user.getDiamonds());
+                userRepository.save(user);
+            }
+        }
+        log.info("TotalDiamonds repair completed.");
+    }
+
     /**
      * Cập nhật điểm số của User lên Redis ZSET.
      * Cần được gọi mỗi khi User thay đổi chỉ số (Level up, nạp coin, cào thẻ...).

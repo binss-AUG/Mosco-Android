@@ -19,6 +19,8 @@ import com.vn.jet.mosco.utils.SessionManager;
 import org.json.JSONObject;
 import com.bumptech.glide.Glide;
 import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
+import com.scwang.smart.refresh.layout.SmartRefreshLayout;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 /**
  * Bảng xếp hạng — Cấu trúc Tab GIỐNG HỆT CollectionFragment.
@@ -32,6 +34,7 @@ public class RankActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private View cardMyRank;
     private SessionManager session;
+    private SmartRefreshLayout refreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,12 @@ public class RankActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tab_layout_rank);
         viewPager = findViewById(R.id.view_pager_rank);
         cardMyRank = findViewById(R.id.card_my_rank);
+        refreshLayout = findViewById(R.id.swipe_refresh_rank);
+
+        // Pull Refresh Listener
+        if (refreshLayout != null) {
+            refreshLayout.setOnRefreshListener(layout -> refreshCurrentFragment());
+        }
         
         // Loại bỏ nền của item bên trong để tránh bị "bí bách" (Double Border)
         View innerItem = findViewById(R.id.layout_my_rank_item);
@@ -81,6 +90,28 @@ public class RankActivity extends AppCompatActivity {
         if (cardMyRank != null) {
             cardMyRank.setVisibility(View.GONE);
             cardMyRank.animate().cancel();
+        }
+    }
+
+    /**
+     * Dừng hiệu ứng Refresh. Gọi bởi Fragment sau khi load xong.
+     */
+    public void stopRefresh() {
+        if (refreshLayout != null) {
+            refreshLayout.finishRefresh();
+        }
+    }
+
+    private void refreshCurrentFragment() {
+        if (viewPager == null) return;
+        
+        // ViewPager2 đặt tag cho fragment theo định dạng "f" + position
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + viewPager.getCurrentItem());
+        if (fragment instanceof RankListFragment) {
+            ((RankListFragment) fragment).refreshData();
+        } else {
+            // Fallback nếu tag không đúng
+            stopRefresh();
         }
     }
 

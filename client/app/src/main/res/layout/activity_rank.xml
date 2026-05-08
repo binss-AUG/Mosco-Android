@@ -76,14 +76,27 @@
         app:tabMode="fixed"
         app:tabGravity="fill" />
 
-    <!-- ViewPager2 — Danh sách xếp hạng -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/view_pager_rank"
+    <!-- PULL TO REFRESH CONTAINER -->
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/swipe_refresh_rank"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_sm"
         app:layout_constraintBottom_toTopOf="@id/card_my_rank"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout_rank" />
+        app:layout_constraintTop_toBottomOf="@id/tab_layout_rank">
+
+        <!-- Lottie Custom Header (Consistent with Home) -->
+        <com.vn.jet.mosco.utils.LottieHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- ViewPager2 — Danh sách xếp hạng -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_rank"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+            
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     <!-- My Rank Floating Footer (Quiet Luxury Style) -->
     <com.google.android.material.card.MaterialCardView
