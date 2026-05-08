@@ -21,6 +21,10 @@ public class AppConfig {
     public static final int MAX_FLING_VELOCITY = 8500;
     public static final float DETAIL_DIALOG_DIM_AMOUNT = 0.8f;
     public static final int INVENTORY_BATCH_SIZE_UNLEASHED = 99999;
+    
+    // AFK Stage Constants
+    public static final long MS_PER_HOUR = 3600000L;
+    public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
 
     // Prevent instantiation
     private AppConfig() {
