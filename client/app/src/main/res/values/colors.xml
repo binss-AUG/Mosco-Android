@@ -106,6 +106,9 @@
     <color name="mosco_black_80">#CC000000</color>
     <color name="mosco_black_90">#E6000000</color>
     <color name="mosco_black_95">#F2000000</color>
+    
+    <!-- UI Components -->
+    <color name="mosco_tag_bg">#B3444444</color>
 
     <!-- Hardcoded Fixes (Mapping them to semantic roles) -->
     <color name="mosco_card_bg">@color/palette_space_blue_800</color>

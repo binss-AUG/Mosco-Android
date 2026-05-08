@@ -24,7 +24,7 @@ public class InventoryFilterBar extends LinearLayout {
 
     private boolean isAscending = false;
     private String currentSort = "Newest";
-    private final String[] SORT_OPTIONS = {"Newest", "Badge", "Level", "Artist (A-Z)", "Status", "Class", "Season"};
+    private String[] SORT_OPTIONS = {"Newest", "Badge", "Level", "Artist (A-Z)", "Status", "Class", "Season"};
 
     private OnFilterChangeListener listener;
 
@@ -63,6 +63,13 @@ public class InventoryFilterBar extends LinearLayout {
     public void attachDropdown(LinearLayout dropdown) {
         this.dropdownSort = dropdown;
         setupSortDropdown();
+    }
+
+    public void setSortOptions(String[] options) {
+        if (options != null) {
+            this.SORT_OPTIONS = options;
+            setupSortDropdown();
+        }
     }
 
     private void setupSortDropdown() {
@@ -106,5 +113,13 @@ public class InventoryFilterBar extends LinearLayout {
         if (ivDirection != null) {
             ivDirection.setRotation(isAscending ? 0f : 180f);
         }
+    }
+
+    public String getSortOption() {
+        return currentSort;
+    }
+
+    public boolean isAscending() {
+        return isAscending;
     }
 }

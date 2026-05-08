@@ -99,6 +99,7 @@ public class ItemRevealFragment extends Fragment {
     private ValueAnimator parallaxIdleAnimator;
     private float summaryCardBaseTranslationY = 0f;
     private LottieAnimationView loadingAnimView;
+    private View skeletonLoadingView; // "Quiet Luxury" Objet Skeleton
     private ChaosParticleView activeParticleView;
     
     // Components dynamic for Flip
@@ -372,23 +373,21 @@ public class ItemRevealFragment extends Fragment {
         ViewGroup root = (ViewGroup) rootView;
         hideLoadingOverlay(false);
 
-        loadingAnimView = new LottieAnimationView(requireContext());
-        loadingAnimView.setAnimation(R.raw.loading);
-        loadingAnimView.loop(true);
-        loadingAnimView.playAnimation();
-        loadingAnimView.setAlpha(0f);
+        skeletonLoadingView = LayoutInflater.from(requireContext()).inflate(R.layout.item_objet_skeleton, root, false);
+        skeletonLoadingView.setAlpha(0f);
 
-        int loadingSize = (int) getResources().getDimension(R.dimen.reveal_loading_size);
-        ConstraintLayout.LayoutParams lpLottie = new ConstraintLayout.LayoutParams(loadingSize, loadingSize);
-        lpLottie.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        lpLottie.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-        lpLottie.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        lpLottie.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
-        lpLottie.verticalBias = 0.5f;
+        int loadingWidth = (int) getResources().getDimension(R.dimen.item_reveal_result_image_width);
+        int loadingHeight = (int) (loadingWidth * 1.54f);
+        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(loadingWidth, loadingHeight);
+        lp.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+        lp.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+        lp.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        lp.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        lp.verticalBias = 0.45f;
 
-        loadingAnimView.setElevation(getResources().getDimension(R.dimen.reveal_loading_overlay_elevation));
-        root.addView(loadingAnimView, lpLottie);
-        loadingAnimView.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_loading_fade_ms)).start();
+        skeletonLoadingView.setElevation(getResources().getDimension(R.dimen.reveal_loading_overlay_elevation));
+        root.addView(skeletonLoadingView, lp);
+        skeletonLoadingView.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_loading_fade_ms)).start();
     }
 
     private void hideLoadingOverlay(boolean immediate) {
@@ -396,26 +395,24 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void hideLoadingOverlay(boolean immediate, @Nullable Runnable endAction) {
-        if (loadingAnimView == null) {
+        if (skeletonLoadingView == null) {
             if (endAction != null) endAction.run();
             return;
         }
         if (immediate) {
-            ViewGroup parent = (ViewGroup) loadingAnimView.getParent();
-            loadingAnimView.cancelAnimation();
-            if (parent != null) parent.removeView(loadingAnimView);
-            loadingAnimView = null;
+            ViewGroup parent = (ViewGroup) skeletonLoadingView.getParent();
+            if (parent != null) parent.removeView(skeletonLoadingView);
+            skeletonLoadingView = null;
             if (endAction != null) endAction.run();
             return;
         }
-        loadingAnimView.animate()
+        skeletonLoadingView.animate()
                 .alpha(0f)
                 .setDuration(getResources().getInteger(R.integer.reveal_loading_fade_ms))
                 .withEndAction(() -> {
-                    ViewGroup parent = (ViewGroup) loadingAnimView.getParent();
-                    loadingAnimView.cancelAnimation();
-                    if (parent != null) parent.removeView(loadingAnimView);
-                    loadingAnimView = null;
+                    ViewGroup parent = (ViewGroup) skeletonLoadingView.getParent();
+                    if (parent != null) parent.removeView(skeletonLoadingView);
+                    skeletonLoadingView = null;
                     if (endAction != null) endAction.run();
                 }).start();
     }

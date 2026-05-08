@@ -38,7 +38,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.utils.NumberUtils;
 
-
 import android.widget.Button;
 import android.widget.GridLayout;
 
@@ -54,7 +53,8 @@ public class CollectionFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_collection, container, false);
     }
 
@@ -101,7 +101,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     // SHARED HELPER: Sort Dropdown (custom popup)
     // ==========================================
-    
+
     public static void showObjetDetailDialog(Context context, String imageUrl) {
         showObjetDetailDialog(context, imageUrl, null, 1, 0, 1);
     }
@@ -113,18 +113,19 @@ public class CollectionFragment extends Fragment {
     /**
      * Hiển thị hộp thoại chi tiết Thẻ bài với tùy chọn liên kết dữ liệu JSON.
      */
-    public static void showObjetDetailDialog(Context context, String imageUrl, org.json.JSONObject cardJson, int level, int exp, int upgrade) {
+    public static void showObjetDetailDialog(Context context, String imageUrl, org.json.JSONObject cardJson, int level,
+            int exp, int upgrade) {
         android.app.Dialog dialog = new android.app.Dialog(context);
         dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_objet_detail);
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
             // MATCH_PARENT — the card's own margin (12dp) creates the visual inset.
             // No scroll: ConstraintLayout distributes space automatically.
             dialog.getWindow().setLayout(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
-            );
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT);
         }
 
         // ── Dynamic binding from JSON (Task 2) ────────────────────────
@@ -160,12 +161,20 @@ public class CollectionFragment extends Fragment {
                                 String slug = cardJson.optString("slug", "");
                                 if (!slug.isEmpty()) {
                                     // Reload data from DatabaseLoader
-                                    org.json.JSONObject refreshedCard = com.vn.jet.mosco.utils.DatabaseLoader.findBySlug(context, slug);
+                                    org.json.JSONObject refreshedCard = com.vn.jet.mosco.utils.DatabaseLoader
+                                            .findBySlug(context, slug);
                                     if (refreshedCard != null) {
-                                        com.vn.jet.mosco.utils.ObjetDetailBinder.bind(dialog, context, refreshedCard, level, exp, upgrade);
-                                        android.widget.Toast.makeText(context, context.getString(R.string.msg_refresh_success), android.widget.Toast.LENGTH_SHORT).show();
+                                        com.vn.jet.mosco.utils.ObjetDetailBinder.bind(dialog, context, refreshedCard,
+                                                level, exp, upgrade);
+                                        android.widget.Toast
+                                                .makeText(context, context.getString(R.string.msg_refresh_success),
+                                                        android.widget.Toast.LENGTH_SHORT)
+                                                .show();
                                     } else {
-                                        android.widget.Toast.makeText(context, context.getString(R.string.msg_refresh_error), android.widget.Toast.LENGTH_SHORT).show();
+                                        android.widget.Toast
+                                                .makeText(context, context.getString(R.string.msg_refresh_error),
+                                                        android.widget.Toast.LENGTH_SHORT)
+                                                .show();
                                     }
                                 }
                             }
@@ -195,18 +204,19 @@ public class CollectionFragment extends Fragment {
         dialog.show();
     }
 
-
     public static void setupSortDropdown(
             View sortBtn, ImageView arrowIcon, TextView labelView,
             String[] options, LinearLayout dropdownContainer, Runnable onSortChanged) {
 
-        final boolean[] isOpen = {false};
+        final boolean[] isOpen = { false };
 
         sortBtn.setOnClickListener(v -> {
             if (isOpen[0]) {
                 dropdownContainer.setVisibility(View.GONE);
-                if (arrowIcon != null) arrowIcon.setImageResource(R.drawable.ic_arrow_up);
-                else if (sortBtn instanceof TextView) ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
+                if (arrowIcon != null)
+                    arrowIcon.setImageResource(R.drawable.ic_arrow_up);
+                else if (sortBtn instanceof TextView)
+                    ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
                 isOpen[0] = false;
                 return;
             }
@@ -217,8 +227,8 @@ public class CollectionFragment extends Fragment {
             int[] loc = new int[2];
             sortBtn.getLocationInWindow(loc);
 
-            String currentLabel = labelView != null ? labelView.getText().toString() : 
-                                 (sortBtn instanceof TextView ? ((TextView) sortBtn).getText().toString() : "");
+            String currentLabel = labelView != null ? labelView.getText().toString()
+                    : (sortBtn instanceof TextView ? ((TextView) sortBtn).getText().toString() : "");
 
             for (String opt : options) {
                 TextView item = (TextView) inf.inflate(R.layout.item_sort_option, dropdownContainer, false);
@@ -229,9 +239,11 @@ public class CollectionFragment extends Fragment {
                     item.setTypeface(null, android.graphics.Typeface.BOLD);
                 }
                 item.setOnClickListener(sel -> {
-                    if (labelView != null) labelView.setText(opt);
-                    else if (sortBtn instanceof TextView) ((TextView) sortBtn).setText(opt);
-                    
+                    if (labelView != null)
+                        labelView.setText(opt);
+                    else if (sortBtn instanceof TextView)
+                        ((TextView) sortBtn).setText(opt);
+
                     // Reset styles
                     for (int i = 0; i < dropdownContainer.getChildCount(); i++) {
                         View child = dropdownContainer.getChildAt(i);
@@ -242,18 +254,23 @@ public class CollectionFragment extends Fragment {
                     }
                     item.setTextColor(ContextCompat.getColor(v.getContext(), R.color.mosco_card_stroke));
                     dropdownContainer.setVisibility(View.GONE);
-                    if (arrowIcon != null) arrowIcon.setImageResource(R.drawable.ic_arrow_up);
-                    else if (sortBtn instanceof TextView) ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
+                    if (arrowIcon != null)
+                        arrowIcon.setImageResource(R.drawable.ic_arrow_up);
+                    else if (sortBtn instanceof TextView)
+                        ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_up, 0);
                     isOpen[0] = false;
-                    
-                    if (onSortChanged != null) onSortChanged.run();
+
+                    if (onSortChanged != null)
+                        onSortChanged.run();
                 });
                 dropdownContainer.addView(item);
             }
 
             dropdownContainer.setVisibility(View.VISIBLE);
-            if (arrowIcon != null) arrowIcon.setImageResource(R.drawable.ic_arrow_down);
-            else if (sortBtn instanceof TextView) ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
+            if (arrowIcon != null)
+                arrowIcon.setImageResource(R.drawable.ic_arrow_down);
+            else if (sortBtn instanceof TextView)
+                ((TextView) sortBtn).setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
             isOpen[0] = true;
 
             // Position below the sort button
@@ -264,13 +281,13 @@ public class CollectionFragment extends Fragment {
     private static void CoordinatorLayout_setDropdownPosition(View dropdown, View anchor) {
         int[] loc = new int[2];
         anchor.getLocationInWindow(loc);
-        
+
         ViewGroup parent = (ViewGroup) dropdown.getParent();
         int[] parentLoc = new int[2];
         if (parent != null) {
             parent.getLocationInWindow(parentLoc);
         }
-        
+
         int relativeY = loc[1] - parentLoc[1];
         int relativeX = loc[0] - parentLoc[0];
 
@@ -308,7 +325,7 @@ public class CollectionFragment extends Fragment {
         Context ctx = fragment.getContext();
         BottomSheetDialog dialog = new BottomSheetDialog(ctx, R.style.CustomBottomSheetDialogTheme);
         View bsView = LayoutInflater.from(ctx).inflate(R.layout.layout_bottom_sheet_objet_filter, null);
-        
+
         android.widget.FrameLayout wrapper = new android.widget.FrameLayout(ctx) {
             @Override
             public boolean dispatchTouchEvent(android.view.MotionEvent ev) {
@@ -325,7 +342,8 @@ public class CollectionFragment extends Fragment {
                         } else {
                             behavior.setDraggable(true);
                         }
-                    } else if (action == android.view.MotionEvent.ACTION_UP || action == android.view.MotionEvent.ACTION_CANCEL) {
+                    } else if (action == android.view.MotionEvent.ACTION_UP
+                            || action == android.view.MotionEvent.ACTION_CANCEL) {
                         behavior.setDraggable(true);
                         getParent().requestDisallowInterceptTouchEvent(false);
                     }
@@ -342,7 +360,8 @@ public class CollectionFragment extends Fragment {
         dialog.setOnShowListener(di -> {
             View sheet = ((BottomSheetDialog) di)
                     .findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (sheet == null) return;
+            if (sheet == null)
+                return;
 
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(sheet);
 
@@ -363,12 +382,14 @@ public class CollectionFragment extends Fragment {
             sheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
             sheet.requestLayout();
 
-            // Setup callback to keep bottom actions pinned to bottom of screen in COLLAPSED state
+            // Setup callback to keep bottom actions pinned to bottom of screen in COLLAPSED
+            // state
             BottomSheetBehavior.BottomSheetCallback slideCallback = new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(@NonNull View bottomSheet, int newState) {
                     updatePinnedActions(bottomSheet, bsView, ctx);
                 }
+
                 @Override
                 public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                     if (slideOffset >= 0) {
@@ -380,12 +401,12 @@ public class CollectionFragment extends Fragment {
             sheet.post(() -> updatePinnedActions(sheet, bsView, ctx));
         });
 
-
         TabLayout tabLayout = bsView.findViewById(R.id.tab_filter_categories);
         android.widget.FrameLayout flFilterContent = bsView.findViewById(R.id.fl_filter_content);
         LinearLayout llChips = bsView.findViewById(R.id.ll_selected_chips);
 
-        // A local working set so we can "Clear" without touching the original until Apply
+        // A local working set so we can "Clear" without touching the original until
+        // Apply
         Set<String> workingSet = new LinkedHashSet<>(currentSelections);
 
         // Build tabs
@@ -415,7 +436,8 @@ public class CollectionFragment extends Fragment {
                         rebuildContent(ctx, flFilterContent, categories,
                                 tabLayout.getSelectedTabPosition(), workingSet, this);
                         View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                        if (sheet != null) updatePinnedActions(sheet, bsView, ctx);
+                        if (sheet != null)
+                            updatePinnedActions(sheet, bsView, ctx);
                     });
                     llChips.addView(chip);
                 }
@@ -431,10 +453,17 @@ public class CollectionFragment extends Fragment {
                 buildContentForTab(ctx, flFilterContent, categories,
                         tab.getPosition(), workingSet, renderChips);
                 View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                if (sheet != null) updatePinnedActions(sheet, bsView, ctx);
+                if (sheet != null)
+                    updatePinnedActions(sheet, bsView, ctx);
             }
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
 
         // Render initial chips
@@ -443,14 +472,16 @@ public class CollectionFragment extends Fragment {
         // Select initial tab
         if (initialTabIndex < categories.size()) {
             TabLayout.Tab t = tabLayout.getTabAt(initialTabIndex);
-            if (t != null) t.select();
+            if (t != null)
+                t.select();
         }
 
         bsView.findViewById(R.id.btn_filter_apply).setOnClickListener(v -> {
             currentSelections.clear();
             currentSelections.addAll(workingSet);
             dialog.dismiss();
-            if (onFilterApplied != null) onFilterApplied.run();
+            if (onFilterApplied != null)
+                onFilterApplied.run();
         });
         bsView.findViewById(R.id.btn_filter_clear).setOnClickListener(v -> {
             workingSet.clear();
@@ -458,7 +489,8 @@ public class CollectionFragment extends Fragment {
             buildContentForTab(ctx, flFilterContent, categories,
                     tabLayout.getSelectedTabPosition(), workingSet, renderChips);
             View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (sheet != null) updatePinnedActions(sheet, bsView, ctx);
+            if (sheet != null)
+                updatePinnedActions(sheet, bsView, ctx);
         });
 
         dialog.show();
@@ -466,21 +498,25 @@ public class CollectionFragment extends Fragment {
 
     private static void updatePinnedActions(View bottomSheet, View bsView, Context ctx) {
         ViewGroup parent = (ViewGroup) bottomSheet.getParent();
-        if (parent == null) return;
+        if (parent == null)
+            return;
         int parentHeight = parent.getHeight();
         int offScreenAmount = bottomSheet.getHeight() + bottomSheet.getTop() - parentHeight;
-        if (offScreenAmount < 0) offScreenAmount = 0;
-        
+        if (offScreenAmount < 0)
+            offScreenAmount = 0;
+
         View actions = bsView.findViewById(R.id.layout_filter_actions);
-        if (actions != null) actions.setTranslationY(-offScreenAmount);
-        
+        if (actions != null)
+            actions.setTranslationY(-offScreenAmount);
+
         View flContent = bsView.findViewById(R.id.fl_filter_content);
         if (flContent instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) flContent;
             if (vg.getChildCount() > 0) {
                 View sv = vg.getChildAt(0);
                 if (sv != null) {
-                    sv.setPadding(sv.getPaddingLeft(), sv.getPaddingTop(), sv.getPaddingRight(), dpToPx(ctx, 8) + offScreenAmount);
+                    sv.setPadding(sv.getPaddingLeft(), sv.getPaddingTop(), sv.getPaddingRight(),
+                            dpToPx(ctx, 8) + offScreenAmount);
                 }
             }
         }
@@ -496,7 +532,8 @@ public class CollectionFragment extends Fragment {
             List<FilterCategory> categories, int tabIndex,
             Set<String> workingSet, Runnable renderChips) {
         fl.removeAllViews();
-        if (tabIndex < 0 || tabIndex >= categories.size()) return;
+        if (tabIndex < 0 || tabIndex >= categories.size())
+            return;
         FilterCategory cat = categories.get(tabIndex);
 
         if (cat.isArtistGrid) {
@@ -563,8 +600,10 @@ public class CollectionFragment extends Fragment {
         TextView label = new TextView(ctx);
         label.setText(name);
         label.setTextSize(11f);
-        label.setTextColor(workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
-        label.setTypeface(null, workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+        label.setTextColor(
+                workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
+        label.setTypeface(null,
+                workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.topMargin = dpToPx(ctx, 6);
@@ -625,7 +664,8 @@ public class CollectionFragment extends Fragment {
             } else {
                 // Empty placeholder
                 View placeholder = new View(ctx);
-                LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f);
                 placeholder.setLayoutParams(plp);
                 row.addView(placeholder);
             }
@@ -641,14 +681,17 @@ public class CollectionFragment extends Fragment {
             Runnable renderChips, boolean isLeft) {
         TextView card = new TextView(ctx);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dpToPx(ctx, 48), 1f);
-        if (isLeft) lp.rightMargin = dpToPx(ctx, 6);
-        else lp.leftMargin = dpToPx(ctx, 6);
+        if (isLeft)
+            lp.rightMargin = dpToPx(ctx, 6);
+        else
+            lp.leftMargin = dpToPx(ctx, 6);
         card.setLayoutParams(lp);
 
         boolean selected = workingSet.contains(name);
         card.setBackground(ctx.getDrawable(R.drawable.bg_button));
         card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selected ? ContextCompat.getColor(ctx, R.color.mosco_primary) : ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
+                selected ? ContextCompat.getColor(ctx, R.color.mosco_primary)
+                        : ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
         card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
         card.setTypeface(null, selected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         card.setText(name);
@@ -659,12 +702,14 @@ public class CollectionFragment extends Fragment {
         card.setOnClickListener(v -> {
             if (workingSet.contains(name)) {
                 workingSet.remove(name);
-                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
+                card.setBackgroundTintList(android.content.res.ColorStateList
+                        .valueOf(ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
                 card.setTextColor(ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
                 card.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
-                card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_primary)));
+                card.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_primary)));
                 card.setTextColor(Color.WHITE);
                 card.setTypeface(null, android.graphics.Typeface.BOLD);
             }
@@ -683,16 +728,16 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static List<FilterCategory> buildObjetCategories(Context context) {
         List<String> artists = java.util.Arrays.asList(
-            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", 
-            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", 
-            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
-        );
+                "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
+                "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
+                "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
 
         List<org.json.JSONObject> cards = com.vn.jet.mosco.utils.DatabaseLoader.loadAllCards(context);
         java.util.Set<String> seasonsSet = new java.util.LinkedHashSet<>();
         for (org.json.JSONObject card : cards) {
             String season = card.optString("season", "");
-            if (!season.isEmpty()) seasonsSet.add(season);
+            if (!season.isEmpty())
+                seasonsSet.add(season);
         }
 
         List<String> seasons = new ArrayList<>(seasonsSet);
@@ -715,7 +760,8 @@ public class CollectionFragment extends Fragment {
 
     private static List<FilterCategory> buildMailboxCategories() {
         List<String> types = new ArrayList<>();
-        for (String s : new String[]{"Pack", "Objet", "Item"}) types.add(s);
+        for (String s : new String[] { "Pack", "Objet", "Item" })
+            types.add(s);
         List<FilterCategory> cats = new ArrayList<>();
         cats.add(new FilterCategory("Type", types, false));
         return cats;
@@ -723,7 +769,8 @@ public class CollectionFragment extends Fragment {
 
     private static List<FilterCategory> buildItemsCategories() {
         List<String> types = new ArrayList<>();
-        for (String s : new String[]{"Materials", "Consumables", "Equipments"}) types.add(s);
+        for (String s : new String[] { "Materials", "Consumables", "Equipments" })
+            types.add(s);
         List<FilterCategory> cats = new ArrayList<>();
         cats.add(new FilterCategory("Category", types, false));
         return cats;
@@ -733,22 +780,31 @@ public class CollectionFragment extends Fragment {
     // PAGER ADAPTER
     // ==========================================
     private static class CollectionPagerAdapter extends FragmentStateAdapter {
-        public CollectionPagerAdapter(@NonNull Fragment fragment) { super(fragment); }
+        public CollectionPagerAdapter(@NonNull Fragment fragment) {
+            super(fragment);
+        }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
-                case 0: return new AlbumFragment();
-                case 1: return new MailboxFragment();
-                case 2: return new ObjetsFragment();
-                case 3: return new ItemsFragment();
-                default: return new AlbumFragment();
+                case 0:
+                    return new AlbumFragment();
+                case 1:
+                    return new MailboxFragment();
+                case 2:
+                    return new ObjetsFragment();
+                case 3:
+                    return new ItemsFragment();
+                default:
+                    return new AlbumFragment();
             }
         }
 
         @Override
-        public int getItemCount() { return 4; }
+        public int getItemCount() {
+            return 4;
+        }
     }
 
     // ==========================================
@@ -762,7 +818,8 @@ public class CollectionFragment extends Fragment {
 
         @Nullable
         @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_collection_mailbox, container, false);
         }
 
@@ -778,8 +835,8 @@ public class CollectionFragment extends Fragment {
 
             // Filter
             View filterBtn = view.findViewById(R.id.btn_filter_mailbox);
-            filterBtn.setOnClickListener(v ->
-                showFilterBottomSheet(this, buildMailboxCategories(), 0, mailboxFilter, this::applyFilters));
+            filterBtn.setOnClickListener(
+                    v -> showFilterBottomSheet(this, buildMailboxCategories(), 0, mailboxFilter, this::applyFilters));
 
             // RecyclerView
             RecyclerView rvMailbox = view.findViewById(R.id.rv_mailbox);
@@ -792,11 +849,12 @@ public class CollectionFragment extends Fragment {
         }
 
         private void onMailClicked(com.vn.jet.mosco.model.UserMail mail) {
-            String giftInfo = (mail.getItemCode() != null && mail.getQuantity() != null) 
-                    ? getString(R.string.social_gift_summary_format, mail.getItemCode(), NumberUtils.format(requireContext(), mail.getQuantity())) 
+            String giftInfo = (mail.getItemCode() != null && mail.getQuantity() != null)
+                    ? getString(R.string.social_gift_summary_format, mail.getItemCode(),
+                            NumberUtils.format(requireContext(), mail.getQuantity()))
                     : "";
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), 
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
                     android.R.style.Theme_DeviceDefault_Dialog_Alert)
                     .setTitle(mail.getTitle())
                     .setMessage(mail.getContent() + giftInfo);
@@ -808,7 +866,7 @@ public class CollectionFragment extends Fragment {
                 builder.setPositiveButton(getString(R.string.mailbox_action_received), null);
                 builder.setNegativeButton(getString(R.string.mailbox_action_close), null);
             }
-            
+
             builder.show();
         }
 
@@ -822,46 +880,52 @@ public class CollectionFragment extends Fragment {
                     .setCancelable(false)
                     .show();
 
-            com.vn.jet.mosco.network.GameApiService apiService = 
-                    com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext())
                     .create(com.vn.jet.mosco.network.GameApiService.class);
-            
+
             apiService.claimMail(mail.getId()).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
                 @Override
-                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, 
-                                     retrofit2.Response<okhttp3.ResponseBody> response) {
+                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
+                        retrofit2.Response<okhttp3.ResponseBody> response) {
                     loading.dismiss();
                     if (response.isSuccessful()) {
                         // Cập nhật trạng thái local
                         mail.setReceived(true);
-                        
+
                         // Hiển thị thông báo thành công cao cấp
                         new AlertDialog.Builder(requireContext())
                                 .setTitle(getString(R.string.mailbox_msg_claim_success_title))
-                                .setMessage(getString(R.string.mailbox_format_claim_success_msg, (mail.getItemCode() != null ? mail.getItemCode() : "")))
+                                .setMessage(getString(R.string.mailbox_format_claim_success_msg,
+                                        (mail.getItemCode() != null ? mail.getItemCode() : "")))
                                 .setPositiveButton(getString(R.string.mailbox_action_awesome), (d, w) -> loadMailbox())
                                 .show();
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT)
+                                .show();
                     }
                 }
 
                 @Override
                 public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
                     loading.dismiss();
-                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT)
+                            .show();
                 }
             });
         }
 
         private void loadMailbox() {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-            if (userId == null) return;
+            if (userId == null)
+                return;
 
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
             apiService.getUserMails(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserMail>>() {
                 @Override
-                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserMail>> response) {
+                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call,
+                        retrofit2.Response<List<com.vn.jet.mosco.model.UserMail>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         originalMails = response.body();
                         applyFilters();
@@ -870,16 +934,18 @@ public class CollectionFragment extends Fragment {
 
                 @Override
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {
-                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_mailbox), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_mailbox),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
         private void applyFilters() {
-            if (originalMails == null) return;
+            if (originalMails == null)
+                return;
             View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_mailbox) : null;
             String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
-            
+
             List<com.vn.jet.mosco.model.UserMail> filtered = new ArrayList<>();
             for (com.vn.jet.mosco.model.UserMail m : originalMails) {
                 // Chỉ hiển thị những thư CHƯA nhận quà để danh sách gọn gàng
@@ -893,14 +959,20 @@ public class CollectionFragment extends Fragment {
                 }
             }
 
-            filtered.sort((a,b) -> {
-                if ("Oldest".equals(currentSort)) return a.getId().compareTo(b.getId());
-                if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0, b.getQuantity() != null ? b.getQuantity() : 0);
-                if ("Highest No.".equals(currentSort)) return Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0, a.getQuantity() != null ? a.getQuantity() : 0);
+            filtered.sort((a, b) -> {
+                if ("Oldest".equals(currentSort))
+                    return a.getId().compareTo(b.getId());
+                if ("Lowest No.".equals(currentSort))
+                    return Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
+                            b.getQuantity() != null ? b.getQuantity() : 0);
+                if ("Highest No.".equals(currentSort))
+                    return Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0,
+                            a.getQuantity() != null ? a.getQuantity() : 0);
                 return b.getId().compareTo(a.getId());
             });
 
-            if (adapter != null) adapter.updateData(filtered);
+            if (adapter != null)
+                adapter.updateData(filtered);
         }
     }
 
@@ -925,27 +997,33 @@ public class CollectionFragment extends Fragment {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mailbox, parent, false));
+            return new ViewHolder(
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mailbox, parent, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             com.vn.jet.mosco.model.UserMail mail = list.get(position);
             holder.tvTitle.setText(mail.getTitle());
-            holder.tvQty.setText(mail.getQuantity() != null ? "x" + NumberUtils.format(holder.itemView.getContext(), mail.getQuantity()) : "");
+            holder.tvQty.setText(mail.getQuantity() != null
+                    ? "x" + NumberUtils.format(holder.itemView.getContext(), mail.getQuantity())
+                    : "");
             holder.tvDesc.setText(mail.getContent());
-            
+
             // Format time if possible, or use raw
             holder.tvTime.setText(mail.getCreatedAt() != null ? mail.getCreatedAt().substring(0, 10) : "");
-            
+
             holder.ivIcon.setImageResource(R.drawable.item_shop_demo);
             holder.itemView.setOnClickListener(v -> {
-                if (listener != null) listener.onMailClick(mail);
+                if (listener != null)
+                    listener.onMailClick(mail);
             });
         }
 
         @Override
-        public int getItemCount() { return list.size(); }
+        public int getItemCount() {
+            return list.size();
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivIcon;
@@ -968,14 +1046,16 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ObjetsFragment extends Fragment {
         private final Set<String> objetFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Highest OVR", "Lowest OVR", "Highest Level", "Lowest Level", "Highest Badge", "Lowest Badge"};
+        private final String[] SORT_OPTIONS = { "Newest", "Badge", "Level", "Artist (A-Z)", "Class", "Season" };
+        private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvObjets;
         private TextView tvCount;
         private List<com.vn.jet.mosco.model.Objet> originalObjets = new ArrayList<>();
 
         @Nullable
         @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_collection_objets, container, false);
         }
 
@@ -1008,57 +1088,94 @@ public class CollectionFragment extends Fragment {
 
             tvCount = view.findViewById(R.id.tv_objet_types_count);
 
-            // Filter button
-            view.findViewById(R.id.btn_filter_objets).setOnClickListener(v ->
-                showFilterBottomSheet(this, buildObjetCategories(requireContext()), 0, objetFilter, this::applyFilters));
-
-            // Sort
-            View sortBtn = view.findViewById(R.id.btn_sort_objets);
+            // Standardized Filter Bar Integration
+            filterBar = view.findViewById(R.id.filter_bar_objets);
             LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_objets);
-            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+            if (filterBar != null && dropdown != null) {
+                filterBar.setSortOptions(SORT_OPTIONS);
+                filterBar.attachDropdown(dropdown);
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void onFilterRequested() {
+                        showFilterBottomSheet(ObjetsFragment.this, buildObjetCategories(requireContext()), 0,
+                                objetFilter, ObjetsFragment.this::applyFilters);
+                    }
+                });
+            }
 
             // RecyclerView — load REAL data from server
             rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+            // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
+            com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvObjets);
 
             rvObjets.setAdapter(new com.vn.jet.mosco.adapter.BaseInventoryAdapter(new ArrayList<>(), rvObjets, item -> {
                 Context ctx = requireContext();
-                if (ctx == null) return;
-                
-                org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx, item.getCollectionId());
+                if (ctx == null)
+                    return;
+
+                org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx,
+                        item.getCollectionId());
+
+                // Áp dụng chung logic hiển thị Detail của Album (sử dụng
+                // CollectionDetailBinder) cho phần Tab Objets để có hiệu ứng 3D Flip & Showcase
+                com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
+                entry.setCollectionId(item.getCollectionId());
+                entry.setFrontImage(item.getImageUrl());
+                entry.setOvr(item.getOvr());
+                entry.setLevel(item.getCardLevel());
+                entry.setUserCardId(item.getIdString());
+                entry.setOwned(true);
+
+                // Nạp metadata từ cardJson nếu có, hoặc dùng từ item (local cache)
                 if (cardJson != null) {
-                    // Áp dụng chung logic hiển thị Detail của Album (sử dụng CollectionDetailBinder) cho phần Tab Objets
-                    com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
-                    entry.setCollectionId(item.getCollectionId());
-                    entry.setFrontImage(item.getImageUrl());
-                    entry.setOvr(item.getOvr());
-                    entry.setLevel(item.getCardLevel());
                     entry.setMember(cardJson.optString("member"));
                     entry.setSeason(cardJson.optString("season"));
                     entry.setCardClass(cardJson.optString("class"));
                     entry.setCollectionNo(cardJson.optString("collectionNo"));
-                    entry.setUserCardId(item.getIdString());
-                    entry.setOwned(true);
-                    
-                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, entry);
                 } else {
-                    showObjetDetailDialog(ctx, item.getImageUrl());
+                    entry.setMember(item.getMember());
+                    entry.setSeason(item.getSeason());
+                    entry.setCardClass(item.getTypeKey());
+                    entry.setCollectionNo(item.getCollectionNo());
                 }
+
+                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, entry);
             }));
 
             loadObjets(false);
         }
-        
+
         /**
          * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
+         * 
+         * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
+         */
+        /**
+         * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
+         * 
          * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
          */
         private void loadObjets(boolean forceFromServer) {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-            if (userId == null) return;
+            if (userId == null)
+                return;
+
+            // Hiển thị Skeleton nếu chưa có cache
+            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
+            if (forceFromServer || cache == null || cache.isEmpty()) {
+                if (rvObjets != null
+                        && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                    ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+                }
+            }
 
             // ── 1. KIỂM TRA CACHE (INSTANT LOAD) ─────────────────────────
-            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
             if (!forceFromServer && cache != null && !cache.isEmpty()) {
                 android.util.Log.d("ObjetsFragment", "Instant Load from Galactic Cache: " + cache.size() + " items");
                 processAndDisplayInventory(cache);
@@ -1066,15 +1183,18 @@ public class CollectionFragment extends Fragment {
             }
 
             // ── 2. NẠP TỪ SERVER (BACKGROUND) ────────────────────────────
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
             apiService.getUserCards(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserCard>>() {
                 @Override
-                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
+                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call,
+                        retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
                         // Chuyển đổi list UserCard sang list Objet (Model cũ của UI)
                         new Thread(() -> {
-                            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items = new ArrayList<>(userCards.size());
+                            List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items = new ArrayList<>(
+                                    userCards.size());
                             for (com.vn.jet.mosco.model.UserCard uc : userCards) {
                                 items.add(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem.fromUserCard(uc));
                             }
@@ -1084,8 +1204,19 @@ public class CollectionFragment extends Fragment {
                         }).start();
                     }
                 }
+
                 @Override
-                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {}
+                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (rvObjets != null
+                                    && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter())
+                                        .setLoading(false);
+                            }
+                        });
+                    }
+                }
             });
         }
 
@@ -1093,17 +1224,17 @@ public class CollectionFragment extends Fragment {
          * Xử lý mapping và hiển thị dữ liệu lên RecyclerView.
          */
         private void processAndDisplayInventory(List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items) {
-            if (items == null) return;
+            if (items == null)
+                return;
             new Thread(() -> {
                 List<com.vn.jet.mosco.model.Objet> realObjets = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
                     com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(
-                            uc.id.intValue(), uc.collectionId, uc.frontImage, uc.level, uc.exp, uc.upgradeLevel
-                    );
+                            uc.id.intValue(), uc.collectionId, uc.frontImage, uc.level, uc.exp, uc.upgradeLevel);
                     objet.setOvr(uc.ovr);
                     objet.setMember(uc.member);
                     objet.setSeason(uc.season);
-                    
+
                     objet.setTypeKey(mapClassToTypeKey(uc.cardClass));
                     objet.setBackImageUrl(uc.backImage);
                     objet.setCollectionNo(uc.collectionNo);
@@ -1125,19 +1256,33 @@ public class CollectionFragment extends Fragment {
         }
 
         private void applyFilters() {
+            // Hiển thị Skeleton ngay lập tức (Luxury Feel)
+            if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+            }
+
             new Thread(() -> {
+                // Độ trễ nhân tạo 250ms để mắt kịp cảm nhận Shimmer cao cấp
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException ignored) {
+                }
+
                 List<com.vn.jet.mosco.model.Objet> filtered = new ArrayList<>();
-                View sortBtnView = getView() != null ? getView().findViewById(R.id.btn_sort_objets) : null;
-                String currentSort = (sortBtnView instanceof TextView) ? ((TextView) sortBtnView).getText().toString() : "Newest";
+                String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
+                boolean isAsc = (filterBar != null) && filterBar.isAscending();
 
                 java.util.Set<String> selArtists = new java.util.HashSet<>();
                 java.util.Set<String> selClasses = new java.util.HashSet<>();
                 java.util.Set<String> selSeasons = new java.util.HashSet<>();
 
                 for (String f : objetFilter) {
-                    if (isArtist(f)) selArtists.add(f.toLowerCase());
-                    else if (isClass(f)) selClasses.add(f.toLowerCase());
-                    else selSeasons.add(f.toLowerCase());
+                    if (isArtist(f))
+                        selArtists.add(f.toLowerCase());
+                    else if (isClass(f))
+                        selClasses.add(f.toLowerCase());
+                    else
+                        selSeasons.add(f.toLowerCase());
                 }
 
                 for (com.vn.jet.mosco.model.Objet obj : originalObjets) {
@@ -1145,15 +1290,19 @@ public class CollectionFragment extends Fragment {
                         filtered.add(obj);
                         continue;
                     }
-                    
+
                     String member = obj.getMember();
                     String season = obj.getSeason();
                     String rawClass = obj.getTypeKey();
                     String mappedClass = mapClassToTypeKey(rawClass);
-                    
-                    boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
-                    boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
-                    boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+
+                    boolean matchArtist = selArtists.isEmpty()
+                            || (member != null && selArtists.contains(member.toLowerCase()));
+                    boolean matchClass = selClasses.isEmpty()
+                            || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null
+                                    && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+                    boolean matchSeason = selSeasons.isEmpty()
+                            || (season != null && selSeasons.contains(season.toLowerCase()));
 
                     if (matchArtist && matchClass && matchSeason) {
                         filtered.add(obj);
@@ -1161,22 +1310,38 @@ public class CollectionFragment extends Fragment {
                 }
 
                 filtered.sort((a, b) -> {
-                    if ("Oldest".equals(currentSort)) return Long.compare(a.getId(), b.getId());
-                    if ("Highest OVR".equals(currentSort)) return Integer.compare(b.getOvr(), a.getOvr());
-                    if ("Lowest OVR".equals(currentSort)) return Integer.compare(a.getOvr(), b.getOvr());
-                    if ("Highest Level".equals(currentSort)) return Integer.compare(b.getLevel(), a.getLevel());
-                    if ("Lowest Level".equals(currentSort)) return Integer.compare(a.getLevel(), b.getLevel());
-                    if ("Highest Badge".equals(currentSort)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                    if ("Lowest Badge".equals(currentSort)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                    return Long.compare(b.getId(), a.getId());
+                    int res = 0;
+                    if ("Badge".equals(currentSort))
+                        res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                    else if ("Level".equals(currentSort))
+                        res = Integer.compare(a.getLevel(), b.getLevel());
+                    else if ("Artist (A-Z)".equals(currentSort)) {
+                        String m1 = a.getMember() != null ? a.getMember() : "";
+                        String m2 = b.getMember() != null ? b.getMember() : "";
+                        res = m1.compareToIgnoreCase(m2);
+                    } else if ("Class".equals(currentSort)) {
+                        int r1 = getCardClassRank(a.getTypeKey());
+                        int r2 = getCardClassRank(b.getTypeKey());
+                        res = Integer.compare(r1, r2);
+                    } else if ("Season".equals(currentSort)) {
+                        String s1 = a.getSeason() != null ? a.getSeason() : "";
+                        String s2 = b.getSeason() != null ? b.getSeason() : "";
+                        res = s1.compareToIgnoreCase(s2);
+                    } else
+                        res = Long.compare(a.getId(), b.getId());
+
+                    return isAsc ? res : -res;
                 });
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                            ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).updateData(filtered);
+                        if (rvObjets != null
+                                && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
+                            ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter())
+                                    .updateData(filtered);
                         }
-                        if (tvCount != null) tvCount.setText(getString(R.string.inventory_format_items_count, filtered.size()));
+                        if (tvCount != null)
+                            tvCount.setText(getString(R.string.inventory_format_items_count, filtered.size()));
                     });
                 }
             }).start();
@@ -1188,14 +1353,16 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ItemsFragment extends Fragment {
         private final Set<String> itemsFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Lowest No.", "Highest No."};
+        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Lowest No.", "Highest No." };
+        private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvItems;
         private ItemsAdapter adapter;
         private List<com.vn.jet.mosco.model.UserItem> originalItems = new ArrayList<>();
 
         @Nullable
         @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_collection_items, container, false);
         }
 
@@ -1203,18 +1370,33 @@ public class CollectionFragment extends Fragment {
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            // Sort
-            View sortBtn = view.findViewById(R.id.btn_sort_items);
+            // Standardized Filter Bar Integration
+            filterBar = view.findViewById(R.id.filter_bar_items);
             LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_items);
-            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+            if (filterBar != null && dropdown != null) {
+                filterBar.setSortOptions(SORT_OPTIONS);
+                filterBar.attachDropdown(dropdown);
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
 
-            // Filter
-            view.findViewById(R.id.btn_filter_items).setOnClickListener(v ->
-                showFilterBottomSheet(this, buildItemsCategories(), 0, itemsFilter, this::applyFilters));
+                    @Override
+                    public void onFilterRequested() {
+                        showFilterBottomSheet(ItemsFragment.this, buildItemsCategories(), 0, itemsFilter,
+                                ItemsFragment.this::applyFilters);
+                    }
+                });
+            }
 
             // RecyclerView
             rvItems = view.findViewById(R.id.rv_items);
             rvItems.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+            rvItems.setHasFixedSize(true);
+            rvItems.setItemViewCacheSize(20);
+            rvItems.setDrawingCacheEnabled(true);
+            rvItems.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
             adapter = new ItemsAdapter(new ArrayList<>(), this::onItemClicked);
             rvItems.setAdapter(adapter);
@@ -1238,7 +1420,8 @@ public class CollectionFragment extends Fragment {
                             .commit();
                 }
             } else if (type.equals("OBJET")) {
-                Toast.makeText(requireContext(), getString(R.string.reveal_error_only_packs), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.reveal_error_only_packs), Toast.LENGTH_SHORT)
+                        .show();
             } else {
                 // Buff / other items: show use dialog with quantity picker
                 showUseBuffDialog(item);
@@ -1268,11 +1451,12 @@ public class CollectionFragment extends Fragment {
             ImageView btnClose = dialog.findViewById(R.id.btn_dialog_close);
 
             int maxQty = item.getQuantity() != null ? Math.min(item.getQuantity(), 99) : 1;
-            final int[] qty = {1};
+            final int[] qty = { 1 };
 
             tvName.setText(item.getName());
             tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
-            tvAvailQty.setText(getString(R.string.items_label_available, (item.getQuantity() != null ? NumberUtils.format(requireContext(), item.getQuantity()) : "0")));
+            tvAvailQty.setText(getString(R.string.items_label_available,
+                    (item.getQuantity() != null ? NumberUtils.format(requireContext(), item.getQuantity()) : "0")));
 
             Glide.with(this)
                     .load(item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "")
@@ -1294,16 +1478,26 @@ public class CollectionFragment extends Fragment {
             });
 
             etQty.addTextChangedListener(new android.text.TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
                 @Override
                 public void afterTextChanged(android.text.Editable s) {
-                    if (s.length() == 0) return;
+                    if (s.length() == 0)
+                        return;
                     try {
                         int val = Integer.parseInt(s.toString());
-                        if (val < 1) qty[0] = 1;
-                        else if (val > maxQty) qty[0] = maxQty;
-                        else qty[0] = val;
+                        if (val < 1)
+                            qty[0] = 1;
+                        else if (val > maxQty)
+                            qty[0] = maxQty;
+                        else
+                            qty[0] = val;
                     } catch (Exception e) {
                         qty[0] = 1;
                     }
@@ -1324,12 +1518,15 @@ public class CollectionFragment extends Fragment {
 
         private void loadInventory() {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-            if (userId == null) return;
+            if (userId == null)
+                return;
 
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
             apiService.getUserItems(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserItem>>() {
                 @Override
-                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserItem>> call, retrofit2.Response<List<com.vn.jet.mosco.model.UserItem>> response) {
+                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserItem>> call,
+                        retrofit2.Response<List<com.vn.jet.mosco.model.UserItem>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         originalItems = response.body();
                         applyFilters();
@@ -1344,37 +1541,48 @@ public class CollectionFragment extends Fragment {
         }
 
         private void applyFilters() {
-            if (originalItems == null || !isAdded()) return;
+            if (originalItems == null || !isAdded())
+                return;
             List<com.vn.jet.mosco.model.UserItem> filtered = new ArrayList<>();
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_items) : null;
-            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+            String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
+            boolean isAsc = (filterBar != null) && filterBar.isAscending();
 
             for (com.vn.jet.mosco.model.UserItem item : originalItems) {
-                if (item.getName() == null || item.getName().isEmpty() || item.getName().equalsIgnoreCase("Unknown")) continue;
-                
+                if (item.getName() == null || item.getName().isEmpty() || item.getName().equalsIgnoreCase("Unknown"))
+                    continue;
+
                 if (itemsFilter.isEmpty()) {
                     filtered.add(item);
                 } else {
                     String type = item.getType() != null ? item.getType().toUpperCase() : "";
                     boolean match = false;
                     for (String f : itemsFilter) {
-                        if (f.equalsIgnoreCase(type)) match = true;
+                        if (f.equalsIgnoreCase(type))
+                            match = true;
                         // Map internal type to UI type labels if needed
-                        if (f.equalsIgnoreCase("Materials") && type.equals("MATERIAL")) match = true;
-                        if (f.equalsIgnoreCase("Consumables") && (type.equals("BUFF") || type.equals("CONSUMABLE"))) match = true;
+                        if (f.equalsIgnoreCase("Materials") && type.equals("MATERIAL"))
+                            match = true;
+                        if (f.equalsIgnoreCase("Consumables") && (type.equals("BUFF") || type.equals("CONSUMABLE")))
+                            match = true;
                     }
-                    if (match) filtered.add(item);
+                    if (match)
+                        filtered.add(item);
                 }
             }
 
             filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort)) return b.getId().compareTo(a.getId());
-                if ("Lowest No.".equals(currentSort)) return Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0, b.getQuantity() != null ? b.getQuantity() : 0);
-                if ("Highest No.".equals(currentSort)) return Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0, a.getQuantity() != null ? a.getQuantity() : 0);
-                return a.getId().compareTo(b.getId());
+                int res = 0;
+                if ("Lowest No.".equals(currentSort) || "Highest No.".equals(currentSort)) {
+                    res = Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
+                            b.getQuantity() != null ? b.getQuantity() : 0);
+                } else {
+                    res = a.getId().compareTo(b.getId());
+                }
+                return isAsc ? res : -res;
             });
 
-            if (adapter != null) adapter.updateData(filtered);
+            if (adapter != null)
+                adapter.updateData(filtered);
         }
     }
 
@@ -1391,7 +1599,7 @@ public class CollectionFragment extends Fragment {
             this.list = list;
             this.listener = listener;
         }
-        
+
         public void updateData(List<com.vn.jet.mosco.model.UserItem> newList) {
             this.list = newList;
             notifyDataSetChanged();
@@ -1400,7 +1608,8 @@ public class CollectionFragment extends Fragment {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inventory_item, parent, false));
+            return new ViewHolder(
+                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inventory_item, parent, false));
         }
 
         @Override
@@ -1408,24 +1617,28 @@ public class CollectionFragment extends Fragment {
             com.vn.jet.mosco.model.UserItem item = list.get(position);
             holder.tvName.setText(item.getName());
             holder.tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
-            holder.tvQty.setText("x" + NumberUtils.format(holder.itemView.getContext(), item.getQuantity() != null ? item.getQuantity() : 0));
-            
-            Glide.with(holder.itemView.getContext())
-                    .load(item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "")
-                    .placeholder(R.drawable.item_shop_demo)
-                    .into(holder.ivImage);
+            holder.tvQty.setText("x" + NumberUtils.format(holder.itemView.getContext(),
+                    item.getQuantity() != null ? item.getQuantity() : 0));
+
+            // Sử dụng GlideBindingAdapter đã có Local-First
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(holder.ivImage,
+                    item.getImageUri() != null && !item.getImageUri().isEmpty() ? item.getImageUri() : "", true);
 
             holder.itemView.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(item);
+                if (listener != null)
+                    listener.onItemClick(item);
             });
         }
 
         @Override
-        public int getItemCount() { return list.size(); }
+        public int getItemCount() {
+            return list.size();
+        }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivImage;
             TextView tvName, tvDesc, tvQty;
+
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 ivImage = itemView.findViewById(R.id.iv_item_image);
@@ -1441,18 +1654,24 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class AlbumFragment extends Fragment {
         private final Set<String> albumFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = {"Newest", "Oldest", "Highest OVR", "Lowest OVR", "Highest Level", "Lowest Level", "Highest Badge", "Lowest Badge"};
+        private final String[] SORT_OPTIONS = { "Newest", "Badge", "Level", "Artist (A-Z)", "Class", "Season",
+                "Status" };
+        private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvAlbum;
         private com.vn.jet.mosco.adapter.CollectionBookAdapter adapter;
         private TextView tvProgress, tvCount;
         private android.widget.ProgressBar progressBar;
         private List<com.vn.jet.mosco.model.CollectionEntry> originalEntries = new ArrayList<>();
+        private List<com.vn.jet.mosco.model.CollectionEntry> currentFilteredList = new ArrayList<>();
+        private int currentLimit = 60;
+        private boolean isPagingLoading = false;
         private int totalCards = 0;
         private int ownedCount = 0;
 
         @Nullable
         @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_collection_album, container, false);
         }
 
@@ -1464,23 +1683,73 @@ public class CollectionFragment extends Fragment {
             tvCount = view.findViewById(R.id.tv_album_count);
             progressBar = view.findViewById(R.id.progress_album);
 
-            // Sort
-            View sortBtn = view.findViewById(R.id.btn_sort_album);
+            // Standardized Filter Bar Integration
+            filterBar = view.findViewById(R.id.filter_bar_album);
             LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_album);
-            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+            if (filterBar != null && dropdown != null) {
+                filterBar.setSortOptions(SORT_OPTIONS);
+                filterBar.attachDropdown(dropdown);
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
 
-            // Filter
-            view.findViewById(R.id.btn_filter_album).setOnClickListener(v ->
-                showFilterBottomSheet(this, buildAlbumCategories(requireContext()), 0, albumFilter, this::applyFilters));
+                    @Override
+                    public void onFilterRequested() {
+                        showFilterBottomSheet(AlbumFragment.this, buildAlbumCategories(requireContext()), 0,
+                                albumFilter, AlbumFragment.this::applyFilters);
+                    }
+                });
+            }
 
             // RecyclerView
             rvAlbum = view.findViewById(R.id.rv_album);
             rvAlbum.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+            rvAlbum.setHasFixedSize(true);
+            rvAlbum.setItemViewCacheSize(20);
+            rvAlbum.setDrawingCacheEnabled(true);
+            rvAlbum.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+            // [QUIET LUXURY] Áp dụng phanh ABS
+            com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvAlbum);
 
             adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
             rvAlbum.setAdapter(adapter);
 
+            rvAlbum.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    if (dy > 0 && !isPagingLoading) {
+                        GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+                        if (layoutManager != null
+                                && layoutManager.findLastVisibleItemPosition() >= adapter.getItemCount() - 3) {
+                            loadNextPage();
+                        }
+                    }
+                }
+            });
+
             loadCollectionBook();
+        }
+
+        private void loadNextPage() {
+            if (currentLimit >= currentFilteredList.size() || isPagingLoading)
+                return;
+
+            isPagingLoading = true;
+            if (adapter != null)
+                adapter.setPagingLoading(true);
+
+            // [PERFORMANCE TEST] Xóa bỏ delay 400ms và load sạch data
+            currentLimit = currentFilteredList.size();
+            int maxLimit = currentFilteredList.size();
+
+            if (adapter != null) {
+                adapter.setPagingLoading(false);
+                adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+            }
+            isPagingLoading = false;
         }
 
         /**
@@ -1498,53 +1767,60 @@ public class CollectionFragment extends Fragment {
          */
         private void loadCollectionBook() {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-            if (userId == null) return;
+            if (userId == null)
+                return;
 
             android.util.Log.d("AlbumFragment", "Loading collection book for user: " + userId);
 
-            com.vn.jet.mosco.network.GameApiService apiService = 
-                    com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext())
                     .create(com.vn.jet.mosco.network.GameApiService.class);
 
-            apiService.getCollectionBook(userId).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.CollectionBookResponse>() {
-                @Override
-                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call,
-                                      retrofit2.Response<com.vn.jet.mosco.model.CollectionBookResponse> response) {
-                    if (!isAdded()) return;
-                    if (response.isSuccessful() && response.body() != null) {
-                        com.vn.jet.mosco.model.CollectionBookResponse book = response.body();
-                        totalCards = book.getTotalCards();
-                        ownedCount = book.getOwnedCount();
-                        originalEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
+            apiService.getCollectionBook(userId)
+                    .enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.CollectionBookResponse>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call,
+                                retrofit2.Response<com.vn.jet.mosco.model.CollectionBookResponse> response) {
+                            if (!isAdded())
+                                return;
+                            if (response.isSuccessful() && response.body() != null) {
+                                com.vn.jet.mosco.model.CollectionBookResponse book = response.body();
+                                totalCards = book.getTotalCards();
+                                ownedCount = book.getOwnedCount();
+                                originalEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
 
-                        // Cập nhật tiến trình
-                        if (tvProgress != null) {
-                            tvProgress.setText(ownedCount + "/" + totalCards);
+                                // Cập nhật tiến trình
+                                if (tvProgress != null) {
+                                    tvProgress.setText(ownedCount + "/" + totalCards);
+                                }
+                                if (progressBar != null && totalCards > 0) {
+                                    int percent = (int) ((ownedCount * 100.0f) / totalCards);
+                                    progressBar.setProgress(percent);
+                                }
+
+                                // Cập nhật Milestones
+                                updateMilestones(ownedCount);
+
+                                applyFilters();
+                                android.util.Log.d("AlbumFragment",
+                                        "Loaded " + totalCards + " cards, owned: " + ownedCount);
+                            } else {
+                                android.util.Log.e("AlbumFragment", "Server error: " + response.code());
+                            }
                         }
-                        if (progressBar != null && totalCards > 0) {
-                            int percent = (int) ((ownedCount * 100.0f) / totalCards);
-                            progressBar.setProgress(percent);
+
+                        @Override
+                        public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call,
+                                Throwable t) {
+                            if (!isAdded())
+                                return;
+                            android.util.Log.e("AlbumFragment", "API Failure", t);
+                            if (requireContext() != null) {
+                                Toast.makeText(requireContext(), getString(R.string.collection_msg_error_album),
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        
-                        // Cập nhật Milestones
-                        updateMilestones(ownedCount);
-
-                        applyFilters();
-                        android.util.Log.d("AlbumFragment", "Loaded " + totalCards + " cards, owned: " + ownedCount);
-                    } else {
-                        android.util.Log.e("AlbumFragment", "Server error: " + response.code());
-                    }
-                }
-
-                @Override
-                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.CollectionBookResponse> call, Throwable t) {
-                    if (!isAdded()) return;
-                    android.util.Log.e("AlbumFragment", "API Failure", t);
-                    if (requireContext() != null) {
-                        Toast.makeText(requireContext(), getString(R.string.collection_msg_error_album), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+                    });
         }
 
         /**
@@ -1554,9 +1830,11 @@ public class CollectionFragment extends Fragment {
          * Cập nhật trạng thái các cột mốc phần thưởng (30%, 60%, 100%).
          */
         private void updateMilestones(int owned) {
-            if (getView() == null || totalCards <= 0) return;
+            if (getView() == null || totalCards <= 0)
+                return;
             Context ctx = requireContext();
-            if (ctx == null) return;
+            if (ctx == null)
+                return;
 
             // Tính toán ngưỡng theo %
             int m1 = (int) (totalCards * 30 / 100);
@@ -1571,24 +1849,28 @@ public class CollectionFragment extends Fragment {
 
         private void handleMilestoneState(int index, boolean achieved, int owned, int req) {
             View view = getView();
-            if (view == null) return;
+            if (view == null)
+                return;
 
             int iconId = (index == 1) ? R.id.iv_ms_1_icon : (index == 2) ? R.id.iv_ms_2_icon : R.id.iv_ms_3_icon;
-            int containerId = (index == 1) ? R.id.ms_1_container : (index == 2) ? R.id.ms_2_container : R.id.ms_3_container;
+            int containerId = (index == 1) ? R.id.ms_1_container
+                    : (index == 2) ? R.id.ms_2_container : R.id.ms_3_container;
             int textId = (index == 1) ? R.id.tv_ms_1_req : (index == 2) ? R.id.tv_ms_2_req : R.id.tv_ms_3_req;
 
             ImageView iv = view.findViewById(iconId);
             View container = view.findViewById(containerId);
             TextView tv = view.findViewById(textId);
 
-            if (iv == null || container == null || tv == null) return;
+            if (iv == null || container == null || tv == null)
+                return;
 
             // Kiểm tra trạng thái đã nhận quà
             com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(requireContext());
             Long userIdLong = session.getUserId();
             String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
-            
-            android.content.SharedPreferences prefs = requireContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE);
+
+            android.content.SharedPreferences prefs = requireContext().getSharedPreferences("MoscoCollection",
+                    Context.MODE_PRIVATE);
             boolean isClaimed = prefs.getBoolean("claimed_" + userId + "_ms_" + index, false);
 
             if (isClaimed) {
@@ -1598,17 +1880,18 @@ public class CollectionFragment extends Fragment {
                 tv.setTextColor(android.graphics.Color.GRAY);
                 tv.setText("COMPLETED");
                 container.clearAnimation();
-                container.setOnClickListener(v -> 
-                    android.widget.Toast.makeText(requireContext(), getString(R.string.collection_msg_reward_claimed), android.widget.Toast.LENGTH_SHORT).show());
+                container.setOnClickListener(v -> android.widget.Toast.makeText(requireContext(),
+                        getString(R.string.collection_msg_reward_claimed), android.widget.Toast.LENGTH_SHORT).show());
             } else if (achieved) {
                 // ĐÃ ĐẠT (CHƯA NHẬN): Hiệu ứng Pulse (Nhịp đập) mời gọi click
                 iv.setAlpha(1.0f);
-                iv.setColorFilter(null); 
+                iv.setColorFilter(null);
                 tv.setTextColor(android.graphics.Color.WHITE);
                 tv.setText("REWARD");
-                
+
                 if (container.getAnimation() == null) {
-                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils.loadAnimation(requireContext(), R.anim.pulse_milestone);
+                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils
+                            .loadAnimation(requireContext(), R.anim.pulse_milestone);
                     container.startAnimation(pulse);
                 }
 
@@ -1622,8 +1905,10 @@ public class CollectionFragment extends Fragment {
                 tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_white_40));
                 tv.setText(owned + "/" + req);
                 container.clearAnimation();
-                container.setOnClickListener(v -> 
-                    android.widget.Toast.makeText(requireContext(), getString(R.string.collection_format_reward_requirement, req), android.widget.Toast.LENGTH_SHORT).show());
+                container.setOnClickListener(v -> android.widget.Toast
+                        .makeText(requireContext(), getString(R.string.collection_format_reward_requirement, req),
+                                android.widget.Toast.LENGTH_SHORT)
+                        .show());
             }
         }
 
@@ -1631,31 +1916,32 @@ public class CollectionFragment extends Fragment {
             com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(requireContext());
             Long userIdLong = session.getUserId();
             String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
-            
-            String rewardName = (index == 1) ? "1,000 Coin" : (index == 2) ? "5,000 Coin & 1 Voucher" : "10,000 Coin & 1 Special Card";
+
+            String rewardName = (index == 1) ? "1,000 Coin"
+                    : (index == 2) ? "5,000 Coin & 1 Voucher" : "10,000 Coin & 1 Special Card";
 
             // Gọi Binder cao cấp để hiện hiệu ứng "Nổ quà"
-            com.vn.jet.mosco.utils.CollectionRewardBinder.showReward(requireContext(), 
-                    "Bạn đã đạt cột mốc " + req + " thẻ.\nPhần thưởng: " + rewardName, 
+            com.vn.jet.mosco.utils.CollectionRewardBinder.showReward(requireContext(),
+                    "Bạn đã đạt cột mốc " + req + " thẻ.\nPhần thưởng: " + rewardName,
                     () -> {
                         // Logic sau khi nhấn THU THẬP
                         requireContext().getSharedPreferences("MoscoCollection", Context.MODE_PRIVATE)
                                 .edit().putBoolean("claimed_" + userId + "_ms_" + index, true).apply();
-                        
+
                         updateMilestones(ownedCount);
-                    }
-            );
+                    });
         }
 
         /**
          * Áp dụng bộ lọc + sắp xếp cho danh sách entries.
          */
         private void applyFilters() {
-            if (originalEntries == null || !isAdded()) return;
+            if (originalEntries == null || !isAdded())
+                return;
 
             new Thread(() -> {
-                View sortBtnView = getView() != null ? getView().findViewById(R.id.btn_sort_album) : null;
-                String currentSortLabel = (sortBtnView instanceof TextView) ? ((TextView) sortBtnView).getText().toString() : "Newest";
+                String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
+                boolean isAsc = (filterBar != null) && filterBar.isAscending();
 
                 java.util.Set<String> selArtists = new java.util.HashSet<>();
                 java.util.Set<String> selClasses = new java.util.HashSet<>();
@@ -1663,28 +1949,38 @@ public class CollectionFragment extends Fragment {
                 java.util.Set<String> selStatus = new java.util.HashSet<>();
 
                 for (String f : albumFilter) {
-                    if (isStatus(f)) selStatus.add(f.toLowerCase());
-                    else if (isArtist(f)) selArtists.add(f.toLowerCase());
-                    else if (isClass(f)) selClasses.add(f.toLowerCase());
-                    else selSeasons.add(f.toLowerCase());
+                    if (isStatus(f))
+                        selStatus.add(f.toLowerCase());
+                    else if (isArtist(f))
+                        selArtists.add(f.toLowerCase());
+                    else if (isClass(f))
+                        selClasses.add(f.toLowerCase());
+                    else
+                        selSeasons.add(f.toLowerCase());
                 }
 
                 List<com.vn.jet.mosco.model.CollectionEntry> filtered = new ArrayList<>();
 
                 for (com.vn.jet.mosco.model.CollectionEntry entry : originalEntries) {
-                    boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all") || selStatus.contains("tất cả")
+                    boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all")
+                            || selStatus.contains("tất cả")
                             || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && entry.isOwned())
-                            || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu")) && !entry.isOwned());
+                            || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu"))
+                                    && !entry.isOwned());
 
                     String member = entry.getMember();
-                    boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+                    boolean matchArtist = selArtists.isEmpty()
+                            || (member != null && selArtists.contains(member.toLowerCase()));
 
                     String rawClass = entry.getCardClass();
                     String mappedClass = mapClassToTypeKey(rawClass);
-                    boolean matchClass = selClasses.isEmpty() || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
+                    boolean matchClass = selClasses.isEmpty()
+                            || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null
+                                    && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
 
                     String season = entry.getSeason();
-                    boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
+                    boolean matchSeason = selSeasons.isEmpty()
+                            || (season != null && selSeasons.contains(season.toLowerCase()));
 
                     if (matchStatus && matchArtist && matchClass && matchSeason) {
                         filtered.add(entry);
@@ -1692,22 +1988,40 @@ public class CollectionFragment extends Fragment {
                 }
 
                 filtered.sort((a, b) -> {
-                    if ("Newest".equals(currentSortLabel)) return compareNatural(b.getCollectionNo(), a.getCollectionNo());
-                    if ("Oldest".equals(currentSortLabel)) return compareNatural(a.getCollectionNo(), b.getCollectionNo());
-                    if ("Highest OVR".equals(currentSortLabel)) return Integer.compare(b.getOvr(), a.getOvr());
-                    if ("Lowest OVR".equals(currentSortLabel)) return Integer.compare(a.getOvr(), b.getOvr());
-                    if ("Highest Level".equals(currentSortLabel)) return Integer.compare(b.getLevel(), a.getLevel());
-                    if ("Lowest Level".equals(currentSortLabel)) return Integer.compare(a.getLevel(), b.getLevel());
-                    if ("Highest Badge".equals(currentSortLabel)) return Integer.compare(b.getUpgradeLevel(), a.getUpgradeLevel());
-                    if ("Lowest Badge".equals(currentSortLabel)) return Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                    if (a.isOwned() != b.isOwned()) return a.isOwned() ? -1 : 1;
-                    return compareNatural(b.getCollectionNo(), a.getCollectionNo());
+                    int res = 0;
+                    if ("Badge".equals(currentSort))
+                        res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                    else if ("Level".equals(currentSort))
+                        res = Integer.compare(a.getLevel(), b.getLevel());
+                    else if ("Status".equals(currentSort))
+                        res = Boolean.compare(a.isOwned(), b.isOwned());
+                    else if ("Artist (A-Z)".equals(currentSort)) {
+                        String m1 = a.getMember() != null ? a.getMember() : "";
+                        String m2 = b.getMember() != null ? b.getMember() : "";
+                        res = m1.compareToIgnoreCase(m2);
+                    } else if ("Class".equals(currentSort)) {
+                        int r1 = getCardClassRank(a.getCardClass());
+                        int r2 = getCardClassRank(b.getCardClass());
+                        res = Integer.compare(r1, r2);
+                    } else if ("Season".equals(currentSort)) {
+                        String s1 = a.getSeason() != null ? a.getSeason() : "";
+                        String s2 = b.getSeason() != null ? b.getSeason() : "";
+                        res = s1.compareToIgnoreCase(s2);
+                    } else
+                        res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
+
+                    return isAsc ? res : -res;
                 });
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        if (adapter != null) adapter.updateData(filtered);
-                        if (tvCount != null) tvCount.setText(filtered.size() + " Cards");
+                        currentFilteredList = filtered;
+                        currentLimit = 18;
+                        int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+                        if (adapter != null)
+                            adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+                        if (tvCount != null)
+                            tvCount.setText(currentFilteredList.size() + " Cards");
                     });
                 }
             }).start();
@@ -1715,30 +2029,38 @@ public class CollectionFragment extends Fragment {
     }
 
     private static boolean isStatus(String f) {
-        if (f == null) return false;
+        if (f == null)
+            return false;
         String lower = f.toLowerCase();
         return java.util.Arrays.asList("tất cả", "đã sở hữu", "chưa sở hữu", "all", "owned", "missing").contains(lower);
     }
 
     private static boolean isArtist(String f) {
-        if (f == null) return false;
-        return java.util.Arrays.asList("SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon").contains(f);
+        if (f == null)
+            return false;
+        return java.util.Arrays.asList("SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung",
+                "YuBin", "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", "Lynn", "JooBin",
+                "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon").contains(f);
     }
 
     private static boolean isClass(String f) {
-        if (f == null) return false;
+        if (f == null)
+            return false;
         return java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit").contains(f);
     }
 
     private static int compareNatural(String s1, String s2) {
-        if (s1 == null && s2 == null) return 0;
-        if (s1 == null) return -1;
-        if (s2 == null) return 1;
+        if (s1 == null && s2 == null)
+            return 0;
+        if (s1 == null)
+            return -1;
+        if (s2 == null)
+            return 1;
 
         // Tối ưu hóa: Trích xuất số bằng tay thay vì dùng Regex replaceAll
         long n1 = extractDigits(s1);
         long n2 = extractDigits(s2);
-        
+
         if (n1 != -1 && n2 != -1) {
             return Long.compare(n1, n2);
         }
@@ -1747,7 +2069,8 @@ public class CollectionFragment extends Fragment {
     }
 
     private static long extractDigits(String s) {
-        if (s == null || s.isEmpty()) return -1;
+        if (s == null || s.isEmpty())
+            return -1;
         long res = 0;
         boolean found = false;
         for (int i = 0; i < s.length(); i++) {
@@ -1755,29 +2078,60 @@ public class CollectionFragment extends Fragment {
             if (c >= '0' && c <= '9') {
                 res = res * 10 + (c - '0');
                 found = true;
-            } else if (found) break; // Chỉ lấy cụm số đầu tiên gặp được
+            } else if (found)
+                break; // Chỉ lấy cụm số đầu tiên gặp được
         }
         return found ? res : -1;
     }
 
-    /** Mapping class từ UI sang database key (Đã tách bạch Welcome/First, Special/Unit) */
-    private static String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "First";
+    /** Ranking class để sort (Premier > Special/Unit > Double > First/Welcome) */
+    public static int getCardClassRank(String cardClass) {
+        if (cardClass == null)
+            return 0;
+        String key = mapClassToTypeKey(cardClass).toLowerCase();
+        if (key.equals("premier"))
+            return 4;
+        if (key.equals("special") || key.equals("unit"))
+            return 3;
+        if (key.equals("double"))
+            return 2;
+        if (key.equals("first") || key.equals("welcome"))
+            return 1;
+        return 0;
+    }
+
+    /**
+     * Mapping class từ UI sang database key (Đã tách bạch Welcome/First,
+     * Special/Unit)
+     */
+    public static String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null)
+            return "First";
         String key = cardClass.trim();
-        
-        if (key.equalsIgnoreCase("Welcome")) return "Welcome";
-        if (key.equalsIgnoreCase("First")) return "First";
-        if (key.equalsIgnoreCase("Double")) return "Double";
-        if (key.equalsIgnoreCase("Premier")) return "Premier";
-        if (key.equalsIgnoreCase("Special")) return "Special";
-        if (key.equalsIgnoreCase("Unit")) return "Unit";
-        
+
+        if (key.equalsIgnoreCase("Welcome"))
+            return "Welcome";
+        if (key.equalsIgnoreCase("First"))
+            return "First";
+        if (key.equalsIgnoreCase("Double"))
+            return "Double";
+        if (key.equalsIgnoreCase("Premier"))
+            return "Premier";
+        if (key.equalsIgnoreCase("Special"))
+            return "Special";
+        if (key.equalsIgnoreCase("Unit"))
+            return "Unit";
+
         // Hỗ trợ hạ cấp các kiểu cũ (Legacy support)
-        if (key.contains("Welcome")) return "Welcome";
-        if (key.contains("Unit")) return "Unit";
-        if (key.equalsIgnoreCase("SpecialUnit")) return "Special";
-        if (key.equalsIgnoreCase("FirstWelcome")) return "First";
-        
+        if (key.contains("Welcome"))
+            return "Welcome";
+        if (key.contains("Unit"))
+            return "Unit";
+        if (key.equalsIgnoreCase("SpecialUnit"))
+            return "Special";
+        if (key.equalsIgnoreCase("FirstWelcome"))
+            return "First";
+
         return "First";
     }
 }

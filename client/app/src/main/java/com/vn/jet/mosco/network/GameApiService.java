@@ -223,4 +223,7 @@ public interface GameApiService {
 
     @GET("/api/config/db-download")
     Call<ResponseBody> downloadDatabase();
+
+    @GET("/api/v1/cards/sync")
+    Call<List<com.vn.jet.mosco.dto.CardSummaryDto>> getCardsSync(@Query("lastSyncTime") Long lastSyncTime);
 }

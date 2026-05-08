@@ -142,6 +142,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         ImageView ivBack = view.findViewById(R.id.iv_back);
         rvInventory = view.findViewById(R.id.rv_inventory);
+        // [QUIET LUXURY] Áp dụng phanh ABS
+        com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvInventory);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         View layoutActionButtons = view.findViewById(R.id.layout_action_buttons);
         btnConfirm = view.findViewById(R.id.btn_confirm);
@@ -153,6 +155,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         rvInventory.setHasFixedSize(true);
         rvInventory.setItemViewCacheSize(20);
+        rvInventory.setDrawingCacheEnabled(true);
+        rvInventory.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
         filterBar = view.findViewById(R.id.filter_bar);
@@ -208,7 +212,30 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     singleSelectListener.onObjetSelected(item);
                     dismiss();
                 } else {
-                    com.vn.jet.mosco.utils.ObjetDetailBinder.showObjetDetail(requireContext(), item);
+                    // Chuyển đổi sang CollectionEntry để dùng chung giao diện Premium (3D Flip, Showcase)
+                    com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
+                    entry.setCollectionId(item.getCollectionId());
+                    entry.setFrontImage(item.getImageUrl());
+                    entry.setOvr(item.getOvr());
+                    entry.setLevel(item.getCardLevel());
+                    entry.setUserCardId(item.getIdString());
+                    entry.setOwned(true);
+
+                    // Nạp thêm metadata từ database.json nếu có
+                    org.json.JSONObject meta = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), item.getCollectionId());
+                    if (meta != null) {
+                        entry.setMember(meta.optString("member"));
+                        entry.setSeason(meta.optString("season"));
+                        entry.setCardClass(meta.optString("class"));
+                        entry.setCollectionNo(meta.optString("collectionNo"));
+                    } else {
+                        entry.setMember(item.getMember());
+                        entry.setSeason(item.getSeason());
+                        entry.setCardClass(item.getTypeKey());
+                        entry.setCollectionNo(item.getCollectionNo());
+                    }
+                    
+                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), entry);
                 }
             }
         });
@@ -272,15 +299,15 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             adapter.updateData(originalObjets);
             layoutEmptyState.setVisibility(View.GONE);
             rvInventory.setVisibility(View.VISIBLE);
-            loaderLottie.setVisibility(View.GONE);
+            if (loaderLottie != null) loaderLottie.setVisibility(View.GONE);
             
             updateDisabledStates();
             // Chạy applyFilters ngầm sau khi đã hiện data thô
             rvInventory.post(this::applyFilters);
         } else {
-            loaderLottie.setVisibility(View.VISIBLE);
-            loaderLottie.playAnimation();
-            rvInventory.setVisibility(View.GONE);
+            adapter.setLoading(true);
+            rvInventory.setVisibility(View.VISIBLE);
+            if (loaderLottie != null) loaderLottie.setVisibility(View.GONE);
         }
 
         // BƯỚC 2: Gọi API ngầm Sync
@@ -311,8 +338,10 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
                         if (getActivity() != null && isAdded()) {
                             getActivity().runOnUiThread(() -> {
-                                loaderLottie.cancelAnimation();
-                                loaderLottie.setVisibility(View.GONE);
+                                if (loaderLottie != null) {
+                                    loaderLottie.cancelAnimation();
+                                    loaderLottie.setVisibility(View.GONE);
+                                }
                                 if (realObjets.isEmpty()) {
                                     rvInventory.setVisibility(View.GONE);
                                     layoutEmptyState.setVisibility(View.VISIBLE);
@@ -335,8 +364,11 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                         }
                     }).start();
                 } else {
-                    loaderLottie.cancelAnimation();
-                    loaderLottie.setVisibility(View.GONE);
+                    if (loaderLottie != null) {
+                        loaderLottie.cancelAnimation();
+                        loaderLottie.setVisibility(View.GONE);
+                    }
+                    if (adapter != null) adapter.setLoading(false);
                     rvInventory.setVisibility(View.GONE);
                     layoutEmptyState.setVisibility(View.VISIBLE);
                 }
@@ -344,8 +376,11 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
             @Override
             public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
-                loaderLottie.cancelAnimation();
-                loaderLottie.setVisibility(View.GONE);
+                if (loaderLottie != null) {
+                    loaderLottie.cancelAnimation();
+                    loaderLottie.setVisibility(View.GONE);
+                }
+                if (adapter != null) adapter.setLoading(false);
                 rvInventory.setVisibility(View.GONE);
                 layoutEmptyState.setVisibility(View.VISIBLE);
             }
@@ -370,82 +405,113 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     private void applyFilters() {
         if (originalObjets == null || !isAdded()) return;
-        List<Objet> filtered = new ArrayList<>();
-        View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_select) : null;
-        String currentSort = currentSortOption;
+        
+        // Show Skeleton during filter/sort processing
+        if (adapter != null) adapter.setLoading(true);
 
-        java.util.Set<String> artistsList = new java.util.HashSet<>(java.util.Arrays.asList(
-            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", 
-            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", 
-            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
-        ));
-        java.util.Set<String> classesList = new java.util.HashSet<>(java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit"));
+        new Thread(() -> {
+            // Artificial delay for "Quiet Luxury" shimmer feel
+            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
 
-        java.util.Set<String> selArtists = new java.util.HashSet<>();
-        java.util.Set<String> selClasses = new java.util.HashSet<>();
-        java.util.Set<String> selSeasons = new java.util.HashSet<>();
+            List<Objet> filtered = new ArrayList<>();
+            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_select) : null;
+            String currentSort = currentSortOption;
 
-        for (String f : objetFilter) {
-            boolean isArtist = false;
-            for (String a : artistsList) { if (a.equalsIgnoreCase(f)) { selArtists.add(f.toLowerCase()); isArtist = true; break; } }
-            if (isArtist) continue;
+            java.util.Set<String> artistsList = new java.util.HashSet<>(java.util.Arrays.asList(
+                "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", 
+                "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", 
+                "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
+            ));
+            java.util.Set<String> classesList = new java.util.HashSet<>(java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit"));
 
-            boolean isClass = false;
-            for (String c : classesList) { if (c.equalsIgnoreCase(f)) { selClasses.add(f.toLowerCase()); isClass = true; break; } }
-            if (isClass) continue;
+            java.util.Set<String> selArtists = new java.util.HashSet<>();
+            java.util.Set<String> selClasses = new java.util.HashSet<>();
+            java.util.Set<String> selSeasons = new java.util.HashSet<>();
 
-            selSeasons.add(f.toLowerCase());
-        }
+            for (String f : objetFilter) {
+                boolean isArtist = false;
+                for (String a : artistsList) { if (a.equalsIgnoreCase(f)) { selArtists.add(f.toLowerCase()); isArtist = true; break; } }
+                if (isArtist) continue;
 
-        for (Objet obj : originalObjets) {
-            if (objetFilter.isEmpty()) {
-                filtered.add(obj);
-                continue;
+                boolean isClass = false;
+                for (String c : classesList) { if (c.equalsIgnoreCase(f)) { selClasses.add(f.toLowerCase()); isClass = true; break; } }
+                if (isClass) continue;
+
+                selSeasons.add(f.toLowerCase());
             }
-            // For card member and season lookup
-            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-            String member = meta != null ? meta.optString("member", obj.getMember()) : obj.getMember();
-            String cardClass = obj.getTypeKey();
-            String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
-            String mappedClass = mapClassToTypeKey(cardClass);
-            
-            boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
-            boolean matchClass = selClasses.isEmpty() || (cardClass != null && selClasses.contains(cardClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase()));
-            boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
 
-            if (matchArtist && matchClass && matchSeason) {
-                filtered.add(obj);
-            }
-        }
+            for (Objet obj : originalObjets) {
+                if (objetFilter.isEmpty()) {
+                    filtered.add(obj);
+                    continue;
+                }
+                // For card member and season lookup
+                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+                String member = meta != null ? meta.optString("member", obj.getMember()) : obj.getMember();
+                String cardClass = obj.getTypeKey();
+                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+                String mappedClass = mapClassToTypeKey(cardClass);
+                
+                boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
+                boolean matchClass = selClasses.isEmpty() || (cardClass != null && selClasses.contains(cardClass.toLowerCase())) || (mappedClass != null && selClasses.contains(mappedClass.toLowerCase()));
+                boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
 
-        // Cache seasons to avoid DB lookups inside the sort loop
-        java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
-        for (Objet obj : filtered) {
-            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-            String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
-            seasonCache.put(obj.getId(), season != null ? season : "");
-        }
+                if (matchArtist && matchClass && matchSeason) {
+                    filtered.add(obj);
+                }
+            }
 
-        filtered.sort((a, b) -> {
-            int result = 0;
-            if ("Badge".equals(currentSort)) result = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-            else if ("Level".equals(currentSort)) result = Integer.compare(a.getLevel(), b.getLevel());
-            else if ("Artist (A-Z)".equals(currentSort)) {
-                String m1 = a.getMember() != null ? a.getMember() : "";
-                String m2 = b.getMember() != null ? b.getMember() : "";
-                result = m1.compareToIgnoreCase(m2);
+            // Cache seasons to avoid DB lookups inside the sort loop
+            java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
+            for (Objet obj : filtered) {
+                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+                seasonCache.put(obj.getId(), season != null ? season : "");
             }
-            else if ("Status".equals(currentSort)) {
-                boolean b1 = busyIds.contains(a.getId());
-                boolean b2 = busyIds.contains(b.getId());
-                result = Boolean.compare(b1, b2); // Available first by default
-            }
-            else if ("Class".equals(currentSort)) {
-                int rankA = getCardClassRank(a.getTypeKey());
-                int rankB = getCardClassRank(b.getTypeKey());
-                if (rankA != rankB) {
-                    result = Integer.compare(rankA, rankB);
-                } else {
+
+            filtered.sort((a, b) -> {
+                int result = 0;
+                if ("Badge".equals(currentSort)) result = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
+                else if ("Level".equals(currentSort)) result = Integer.compare(a.getLevel(), b.getLevel());
+                else if ("Artist (A-Z)".equals(currentSort)) {
+                    String m1 = a.getMember() != null ? a.getMember() : "";
+                    String m2 = b.getMember() != null ? b.getMember() : "";
+                    result = m1.compareToIgnoreCase(m2);
+                }
+                else if ("Status".equals(currentSort)) {
+                    boolean b1 = busyIds.contains(a.getId());
+                    boolean b2 = busyIds.contains(b.getId());
+                    result = Boolean.compare(b1, b2); // Available first by default
+                }
+                else if ("Class".equals(currentSort)) {
+                    int rankA = getCardClassRank(a.getTypeKey());
+                    int rankB = getCardClassRank(b.getTypeKey());
+                    if (rankA != rankB) {
+                        result = Integer.compare(rankA, rankB);
+                    } else {
+                        String s1 = seasonCache.get(a.getId());
+                        String s2 = seasonCache.get(b.getId());
+                        if (s1 == null) s1 = "";
+                        if (s2 == null) s2 = "";
+                        int seasonComp = s1.compareToIgnoreCase(s2);
+                        if (seasonComp != 0) {
+                            result = seasonComp;
+                        } else {
+                            int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
+                            if (ovrComp != 0) {
+                                result = ovrComp;
+                            } else {
+                                int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
+                                if (lvlComp != 0) {
+                                    result = lvlComp;
+                                } else {
+                                    result = Long.compare(a.getId(), b.getId());
+                                }
+                            }
+                        }
+                    }
+                }
+                else if ("Season".equals(currentSort)) {
                     String s1 = seasonCache.get(a.getId());
                     String s2 = seasonCache.get(b.getId());
                     if (s1 == null) s1 = "";
@@ -454,66 +520,48 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     if (seasonComp != 0) {
                         result = seasonComp;
                     } else {
-                        int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
-                        if (ovrComp != 0) {
-                            result = ovrComp;
+                        int rankA = getCardClassRank(a.getTypeKey());
+                        int rankB = getCardClassRank(b.getTypeKey());
+                        if (rankA != rankB) {
+                            result = Integer.compare(rankA, rankB);
                         } else {
-                            int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
-                            if (lvlComp != 0) {
-                                result = lvlComp;
+                            int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
+                            if (ovrComp != 0) {
+                                result = ovrComp;
                             } else {
-                                result = Long.compare(a.getId(), b.getId());
+                                int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
+                                if (lvlComp != 0) {
+                                    result = lvlComp;
+                                } else {
+                                    result = Long.compare(a.getId(), b.getId());
+                                }
                             }
                         }
                     }
                 }
-            }
-            else if ("Season".equals(currentSort)) {
-                String s1 = seasonCache.get(a.getId());
-                String s2 = seasonCache.get(b.getId());
-                if (s1 == null) s1 = "";
-                if (s2 == null) s2 = "";
-                int seasonComp = s1.compareToIgnoreCase(s2);
-                if (seasonComp != 0) {
-                    result = seasonComp;
-                } else {
-                    int rankA = getCardClassRank(a.getTypeKey());
-                    int rankB = getCardClassRank(b.getTypeKey());
-                    if (rankA != rankB) {
-                        result = Integer.compare(rankA, rankB);
-                    } else {
-                        int ovrComp = Integer.compare(a.getOvr(), b.getOvr());
-                        if (ovrComp != 0) {
-                            result = ovrComp;
-                        } else {
-                            int lvlComp = Integer.compare(a.getLevel(), b.getLevel());
-                            if (lvlComp != 0) {
-                                result = lvlComp;
-                            } else {
-                                result = Long.compare(a.getId(), b.getId());
-                            }
+                else result = Long.compare(a.getId(), b.getId()); // Default: Newest (ID)
+
+                return isAscending ? result : -result;
+            });
+
+            if (getActivity() != null && isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.updateData(filtered);
+                        if (isMultiSelect) {
+                            adapter.setSelectedIds(getSelectedIds());
+                            updateDisabledStates();
                         }
                     }
-                }
+                    updateItemCount(getView(), filtered.size());
+                    
+                    if (layoutEmptyState != null) {
+                        layoutEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+                        if (rvInventory != null) rvInventory.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                });
             }
-            else result = Long.compare(a.getId(), b.getId()); // Default: Newest (ID)
-
-            return isAscending ? result : -result;
-        });
-
-        if (adapter != null) {
-            adapter.updateData(filtered);
-            if (isMultiSelect) {
-                adapter.setSelectedIds(getSelectedIds());
-                updateDisabledStates();
-            }
-        }
-        updateItemCount(getView(), filtered.size());
-        
-        if (layoutEmptyState != null) {
-            layoutEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
-            if (rvInventory != null) rvInventory.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
-        }
+        }).start();
     }
 
     private String mapClassToTypeKey(String cardClass) {
@@ -586,69 +634,81 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private void quickPickTeam() {
         if (!isSquadMode || originalObjets == null) return;
         
-        selectedMaterials.clear();
-        List<Objet> pool = new ArrayList<>(originalObjets);
-        
-        // Cache seasons to avoid DB lookups inside the sort loop
-        java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
-        for (Objet obj : pool) {
-            org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-            String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
-            seasonCache.put(obj.getId(), season != null ? season : "");
-        }
+        // Show Skeleton for Luxury Feel
+        if (adapter != null) adapter.setLoading(true);
 
-        // Sort by Card Class desc, Season desc, OVR desc, Level desc, ID desc
-        pool.sort((a, b) -> {
-            int rankA = getCardClassRank(a.getTypeKey());
-            int rankB = getCardClassRank(b.getTypeKey());
-            if (rankA != rankB) return Integer.compare(rankB, rankA);
+        new Thread(() -> {
+            // Artificial delay to let user see the "thinking" process
+            try { Thread.sleep(400); } catch (InterruptedException ignored) {}
+
+            selectedMaterials.clear();
+            List<Objet> pool = new ArrayList<>(originalObjets);
             
-            String seasonA = seasonCache.get(a.getId());
-            String seasonB = seasonCache.get(b.getId());
-            if (seasonA != null && seasonB != null) {
-                int seasonComp = seasonB.compareToIgnoreCase(seasonA);
-                if (seasonComp != 0) return seasonComp;
+            // Cache seasons to avoid DB lookups inside the sort loop
+            java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
+            for (Objet obj : pool) {
+                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
+                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+                seasonCache.put(obj.getId(), season != null ? season : "");
             }
 
-            int ovrComp = Integer.compare(b.getOvr(), a.getOvr());
-            if (ovrComp != 0) return ovrComp;
+            // Sort by Card Class desc, Season desc, OVR desc, Level desc, ID desc
+            pool.sort((a, b) -> {
+                int rankA = getCardClassRank(a.getTypeKey());
+                int rankB = getCardClassRank(b.getTypeKey());
+                if (rankA != rankB) return Integer.compare(rankB, rankA);
+                
+                String seasonA = seasonCache.get(a.getId());
+                String seasonB = seasonCache.get(b.getId());
+                if (seasonA != null && seasonB != null) {
+                    int seasonComp = seasonB.compareToIgnoreCase(seasonA);
+                    if (seasonComp != 0) return seasonComp;
+                }
+
+                int ovrComp = Integer.compare(b.getOvr(), a.getOvr());
+                if (ovrComp != 0) return ovrComp;
+                
+                int lvlComp = Integer.compare(b.getLevel(), a.getLevel());
+                if (lvlComp != 0) return lvlComp;
+                
+                return Long.compare(b.getId(), a.getId());
+            });
             
-            int lvlComp = Integer.compare(b.getLevel(), a.getLevel());
-            if (lvlComp != 0) return lvlComp;
-            
-            return Long.compare(b.getId(), a.getId());
-        });
-        
-        for (Objet item : pool) {
-            if (selectedMaterials.size() >= maxSelectionCount) break;
-            
-            // Check if busy
-            if (busyIds.contains(item.getId())) continue;
-            
-            // Check artist collision
-            if (!isArtistCollision(item)) {
-                selectedMaterials.add(item);
+            for (Objet item : pool) {
+                if (selectedMaterials.size() >= maxSelectionCount) break;
+                
+                // Check if busy
+                if (busyIds.contains(item.getId())) continue;
+                
+                // Check artist collision
+                if (!isArtistCollision(item)) {
+                    selectedMaterials.add(item);
+                }
             }
-        }
-        
-        if (adapter != null) {
-            adapter.setSelectedIds(getSelectedIds());
-            updateDisabledStates();
-        }
-        
-        // Auto-scroll and sort to show the selected cards at the top
-        currentSortOption = "Class";
-        isAscending = false; // Descending (Best first)
-        if (filterBar != null) {
-            filterBar.setSortText("Class");
-            filterBar.setAscending(false);
-        }
-        applyFilters();
-        if (rvInventory != null) {
-            rvInventory.scrollToPosition(0);
-        }
-        
-        updateConfirmButtonText();
-        Toast.makeText(getContext(), R.string.inventory_msg_quick_pick_success, Toast.LENGTH_SHORT).show();
+
+            if (getActivity() != null && isAdded()) {
+                getActivity().runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.setSelectedIds(getSelectedIds());
+                        updateDisabledStates();
+                    }
+                    
+                    // Auto-scroll and sort to show the selected cards at the top
+                    currentSortOption = "Class";
+                    isAscending = false; // Descending (Best first)
+                    if (filterBar != null) {
+                        filterBar.setSortText("Class");
+                        filterBar.setAscending(false);
+                    }
+                    applyFilters();
+                    if (rvInventory != null) {
+                        rvInventory.scrollToPosition(0);
+                    }
+                    
+                    updateConfirmButtonText();
+                    Toast.makeText(getContext(), R.string.inventory_msg_quick_pick_success, Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
     }
 }

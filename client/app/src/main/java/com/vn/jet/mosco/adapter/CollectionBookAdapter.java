@@ -23,10 +23,14 @@ import java.util.List;
  * - Chưa sở hữu: Hình mờ grayscale, overlay tối, icon khóa
  * Không áp dụng hiệu ứng Glow/Shimmer/Floating cho Album.
  */
-public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAdapter.ViewHolder> {
+public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_SKELETON = 1;
 
     private List<CollectionEntry> list;
     private final OnBookCardClickListener listener;
+    private boolean isLoading = false;
+    private boolean isPagingLoading = false;
 
     /** Callback khi user click vào 1 thẻ trong Album */
     public interface OnBookCardClickListener {
@@ -38,94 +42,134 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAd
         this.listener = listener;
     }
 
-    /** Cập nhật dữ liệu mới (sau khi filter hoặc API trả về) */
+    public void setLoading(boolean loading) {
+        this.isLoading = loading;
+        notifyDataSetChanged();
+    }
+
     public void updateData(List<CollectionEntry> newList) {
         this.list = newList;
+        this.isLoading = false;
+        this.isPagingLoading = false;
         notifyDataSetChanged();
+    }
+
+    public void setPagingLoading(boolean loading) {
+        if (this.isPagingLoading == loading) return;
+        this.isPagingLoading = loading;
+        if (loading) {
+            notifyItemRangeInserted(list == null ? 0 : list.size(), 3);
+        } else {
+            notifyItemRangeRemoved(list == null ? 0 : list.size(), 3);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_collection_book_card, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CollectionEntry entry = list.get(position);
-        if (entry == null) return;
-        Context ctx = holder.itemView.getContext();
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ViewHolder) {
+            ViewHolder vh = (ViewHolder) holder;
 
-        // Load hình ảnh thẻ bài (Ưu tiên bộ nhớ Local)
-        String imageUrl = entry.getFrontImage();
-        java.io.File localFile = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(ctx, imageUrl);
-
-        Glide.with(ctx)
-                .load(localFile != null && localFile.exists() ? localFile : imageUrl)
-                .placeholder(R.drawable.item_shop_demo)
-                .into(holder.ivCardImage);
-
-        if (entry.isOwned()) {
-            // === TRẠNG THÁI: ĐÃ SỞ HỮU ===
-            holder.ivCardImage.setColorFilter(null);
-            holder.ivCardImage.setAlpha(1.0f);
-            holder.viewLockedOverlay.setVisibility(View.GONE);
-            holder.ivLockIcon.setVisibility(View.GONE);
-
-            // Hiện OVR badge
-            if (holder.tvOvr != null) {
-                holder.tvOvr.setText(String.valueOf(entry.getOvr()));
-                holder.tvOvr.setVisibility(View.GONE);
+            // Xử lý trạng thái Skeleton
+            if (isLoading || (list != null && position >= list.size())) {
+                if (vh.layoutSkeleton != null) vh.layoutSkeleton.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                if (vh.layoutSkeleton != null) vh.layoutSkeleton.setVisibility(View.GONE);
             }
 
-            // Hiện Level badge
-            if (holder.ivLevel != null) {
-                if (entry.getLevel() > 0) {
-                    String assetPath = "file:///android_asset/grade/" + entry.getLevel() + ".png";
-                    Glide.with(ctx).load(assetPath).into(holder.ivLevel);
-                    holder.ivLevel.setVisibility(View.VISIBLE);
-                } else {
-                    holder.ivLevel.setVisibility(View.GONE);
+            CollectionEntry entry = list.get(position);
+            if (entry == null) return;
+
+            // Bind Card Name (Instant Metadata) - Move to top for faster UX
+            if (vh.tvNameTag != null) {
+                // 1. Tên Member + [Prefix]No (Ví dụ: YeonJi D322A)
+                String classPrefix = "";
+                if (entry.getCardClass() != null && !entry.getCardClass().isEmpty()) {
+                    classPrefix = entry.getCardClass().substring(0, 1).toUpperCase();
+                }
+                String formattedName = (entry.getMember() != null ? entry.getMember() : "") + " " + classPrefix + (entry.getCollectionNo() != null ? entry.getCollectionNo() : "");
+                vh.tvNameTag.setText(formattedName);
+                vh.tvNameTag.setVisibility(View.VISIBLE);
+            }
+            Context ctx = vh.itemView.getContext();
+
+            // Load hình ảnh thẻ bài (Sử dụng GlideBindingAdapter đã chuẩn hóa)
+            String imageUrl = entry.getFrontImage();
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(vh.ivCardImage, imageUrl, true);
+
+            if (entry.isOwned()) {
+                // === TRẠNG THÁI: ĐÃ SỞ HỮU ===
+                vh.ivCardImage.setColorFilter(null);
+                vh.ivCardImage.setAlpha(1.0f);
+                vh.viewLockedOverlay.setVisibility(View.GONE);
+                vh.ivLockIcon.setVisibility(View.GONE);
+
+                // Hiện OVR badge
+                if (vh.tvOvr != null) {
+                    vh.tvOvr.setText(String.valueOf(entry.getOvr()));
+                    vh.tvOvr.setVisibility(View.GONE);
+                }
+
+                // Ẩn Level badge (Album không cần hiển thị cấp độ)
+                if (vh.ivLevel != null) {
+                    vh.ivLevel.setVisibility(View.GONE);
+                }
+
+                if (vh.cvCard != null) {
+                    vh.cvCard.setCardBackgroundColor(0xFF1A1C29);
+                }
+
+            } else {
+                // === TRẠNG THÁI: CHƯA SỞ HỮU ===
+                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                matrix.setSaturation(0f);
+                vh.ivCardImage.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                vh.ivCardImage.setAlpha(0.2f);
+
+                vh.viewLockedOverlay.setVisibility(View.VISIBLE);
+                vh.ivLockIcon.setVisibility(View.VISIBLE);
+
+                if (vh.tvOvr != null) vh.tvOvr.setVisibility(View.GONE);
+                if (vh.ivLevel != null) vh.ivLevel.setVisibility(View.GONE);
+
+                if (vh.cvCard != null) {
+                    vh.cvCard.setCardBackgroundColor(0xFF0D0F1A);
                 }
             }
 
-            if (holder.cvCard != null) {
-                holder.cvCard.setCardBackgroundColor(0xFF1A1C29);
-            }
 
-        } else {
-            // === TRẠNG THÁI: CHƯA SỞ HỮU ===
-            android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-            matrix.setSaturation(0f);
-            holder.ivCardImage.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-            holder.ivCardImage.setAlpha(0.2f);
-
-            holder.viewLockedOverlay.setVisibility(View.VISIBLE);
-            holder.ivLockIcon.setVisibility(View.VISIBLE);
-
-            if (holder.tvOvr != null) holder.tvOvr.setVisibility(View.GONE);
-            if (holder.ivLevel != null) holder.ivLevel.setVisibility(View.GONE);
-
-            if (holder.cvCard != null) {
-                holder.cvCard.setCardBackgroundColor(0xFF0D0F1A);
-            }
+            vh.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onCardClick(entry);
+            });
         }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onCardClick(entry);
-        });
     }
 
     @Override
-    public int getItemCount() { return list != null ? list.size() : 0; }
+    public int getItemCount() {
+        if (isLoading) return 12;
+        int count = list == null ? 0 : list.size();
+        if (isPagingLoading) count += 3;
+        return count;
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         androidx.cardview.widget.CardView cvCard;
         ImageView ivCardImage, ivLockIcon, ivLevel;
-        View viewLockedOverlay;
-        TextView tvOvr;
+        View viewLockedOverlay, layoutSkeleton;
+        TextView tvOvr, tvNameTag;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -135,6 +179,8 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<CollectionBookAd
             ivLevel = itemView.findViewById(R.id.card_iv_level);
             viewLockedOverlay = itemView.findViewById(R.id.view_locked_overlay);
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
+            tvNameTag = itemView.findViewById(R.id.tv_card_name);
+            layoutSkeleton = itemView.findViewById(R.id.layout_skeleton);
         }
     }
 }

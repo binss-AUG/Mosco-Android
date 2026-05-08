@@ -38,12 +38,12 @@ public class CardAssetManager {
     private static final String PREFS_NAME = "card_asset_prefs";
     private static final String KEY_TOTAL_EXPECTED = "total_expected";
 
-    // Mặc định cho WiFi (Turbo)
-    private static final ExecutorService networkExecutor = Executors.newFixedThreadPool(64);
-    private static final ExecutorService ioExecutor = Executors.newFixedThreadPool(16);
+    // Giảm số luồng để phù hợp với giả lập, tránh gây lag máy
+    private static final ExecutorService networkExecutor = Executors.newFixedThreadPool(8);
+    private static final ExecutorService ioExecutor = Executors.newFixedThreadPool(4);
     
-    // Semaphore điều tiết luồng (Sẽ được điều chỉnh dựa trên loại mạng)
-    private static Semaphore dynamicSemaphore = new Semaphore(80);
+    // Semaphore điều tiết luồng (Tối đa 12 yêu cầu đồng thời để đảm bảo độ mượt)
+    private static Semaphore dynamicSemaphore = new Semaphore(12);
 
     public interface DownloadProgressListener {
         void onProgress(int downloaded, int total, String currentFile);
@@ -136,8 +136,8 @@ public class CardAssetManager {
                 final int totalExpected = info.totalCount;
                 AtomicInteger processedCount = new AtomicInteger(totalExpected - info.pendingCount);
 
-                // Cấu hình động: WiFi 80 slots, Cellular 20 slots
-                int permitCount = isWifi ? 80 : 20;
+                // Cấu hình động: WiFi tối đa 12, Cellular tối đa 4 (Để mượt UI)
+                int permitCount = isWifi ? 12 : 4;
                 int priority = isWifi ? UrlRequest.Builder.REQUEST_PRIORITY_HIGHEST : UrlRequest.Builder.REQUEST_PRIORITY_MEDIUM;
                 
                 // Khởi tạo lại Semaphore nếu cần (Để đơn giản ta reset mỗi lần sync lớn)

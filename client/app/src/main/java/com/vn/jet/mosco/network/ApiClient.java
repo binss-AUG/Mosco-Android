@@ -61,6 +61,16 @@ public class ApiClient {
                                 
                                 return response;
                             })
+                            .addInterceptor(chain -> {
+                                Request request = chain.request();
+                                // Chỉ ép WebP cho domain Cloudflare
+                                if (request.url().host().contains("imagedelivery.net")) {
+                                    request = request.newBuilder()
+                                            .header("Accept", "image/webp")
+                                            .build();
+                                }
+                                return chain.proceed(request);
+                            })
                             .build();
 
                     retrofit = new Retrofit.Builder()

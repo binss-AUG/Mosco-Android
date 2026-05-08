@@ -1,52 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cv_book_card"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacing_xs"
-    app:cardBackgroundColor="@color/mosco_card_bg"
-    app:cardCornerRadius="@dimen/radius_lg"
-    app:cardElevation="@dimen/spacing_xs"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true">
+    android:padding="@dimen/spacing_xs">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Album Card Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_book_card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/mosco_card_bg"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="@dimen/spacing_xs"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Core Card Layout (Image, OVR, Badge) -->
-        <include layout="@layout/layout_core_card" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <!-- Overlay tối cho thẻ chưa sở hữu -->
-        <View
-            android:id="@+id/view_locked_overlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#CC0D0F1A"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@id/card_iv_image"
-            app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
-            app:layout_constraintStart_toStartOf="@id/card_iv_image"
-            app:layout_constraintEnd_toEndOf="@id/card_iv_image" />
+            <!-- Unified Card Content (Image + OVR + Badge) -->
+            <include
+                android:id="@+id/layout_core"
+                layout="@layout/layout_core_card" />
 
-        <!-- Icon khóa cho thẻ chưa sở hữu -->
-        <ImageView
-            android:id="@+id/iv_lock_icon"
-            android:layout_width="@dimen/spacing_28dp"
-            android:layout_height="@dimen/spacing_28dp"
-            android:src="@drawable/ic_lock"
-            android:visibility="gone"
-            app:tint="@color/mosco_white_30"
-            app:layout_constraintTop_toTopOf="@id/card_iv_image"
-            app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
-            app:layout_constraintStart_toStartOf="@id/card_iv_image"
-            app:layout_constraintEnd_toEndOf="@id/card_iv_image" />
+            <!-- Overlay tối cho thẻ chưa sở hữu -->
+            <View
+                android:id="@+id/view_locked_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="#CC0D0F1A"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Icon khóa cho thẻ chưa sở hữu -->
+            <ImageView
+                android:id="@+id/iv_lock_icon"
+                android:layout_width="@dimen/spacing_28dp"
+                android:layout_height="@dimen/spacing_28dp"
+                android:src="@drawable/ic_lock"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core"
+                app:tint="@color/mosco_white_30" />
 
-</androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
+    <!-- Card Name Tag (Outside CardView: Separate Bubble) -->
+    <TextView
+        android:id="@+id/tv_card_name"
+        style="@style/MoscoText.Luxury"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_10dp"
+        android:background="@drawable/bg_card_name_tag"
+        android:paddingHorizontal="@dimen/spacing_10dp"
+        android:paddingVertical="@dimen/spacing_2dp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_11sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="@dimen/name_tag_max_width_grid"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_book_card"
+        tools:text="SeoAh A2 316Z" />
+    <!-- Skeleton Loading State (Synchronized) -->
+    <include
+        android:id="@+id/layout_skeleton"
+        layout="@layout/item_objet_skeleton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-
+</androidx.constraintlayout.widget.ConstraintLayout>

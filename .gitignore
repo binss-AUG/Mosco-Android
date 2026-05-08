@@ -22,3 +22,9 @@ Thumbs.db
 .env
 server/.env
 **/.env
+
+# Server Runtime Data (ETL output — tự sinh bởi AssetManagementService)
+server/data/assets/
+server/mosco_db
+server/temp_starter_pack/
+server/test_starter.zip

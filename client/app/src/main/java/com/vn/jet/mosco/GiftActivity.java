@@ -165,6 +165,17 @@ public class GiftActivity extends AppCompatActivity {
 
         // Tab Nhận
         rvGiftReceived = findViewById(R.id.rv_gift_received);
+        rvGiftReceived.setHasFixedSize(true);
+        rvGiftReceived.setItemViewCacheSize(20);
+        rvGiftReceived.setDrawingCacheEnabled(true);
+        rvGiftReceived.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+        rvFriendSelect = findViewById(R.id.rv_friend_select);
+        rvFriendSelect.setHasFixedSize(true);
+        rvFriendSelect.setItemViewCacheSize(20);
+        rvFriendSelect.setDrawingCacheEnabled(true);
+        rvFriendSelect.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
         tvNoGifts = findViewById(R.id.tv_no_gifts);
     }
 
@@ -506,6 +517,12 @@ public class GiftActivity extends AppCompatActivity {
      * Load danh sách quà đã nhận từ API.
      */
     private void loadReceivedGifts() {
+        if (giftHistoryAdapter != null) {
+            giftHistoryAdapter.setLoading(true);
+            rvGiftReceived.setVisibility(View.VISIBLE);
+            tvNoGifts.setVisibility(View.GONE);
+        }
+
         apiService.getReceivedGifts().enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -534,12 +551,14 @@ public class GiftActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Lỗi load received gifts", e);
+                    if (giftHistoryAdapter != null) giftHistoryAdapter.setLoading(false);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Lỗi kết nối", t);
+                if (giftHistoryAdapter != null) giftHistoryAdapter.setLoading(false);
             }
         });
     }

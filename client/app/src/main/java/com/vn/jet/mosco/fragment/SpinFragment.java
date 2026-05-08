@@ -65,7 +65,7 @@ public class SpinFragment extends Fragment {
     private View btnAddObjet;
     private ImageView ivSelectedObjet;
     private AppCompatButton btnSpin;
-    private ImageView ivBgCard1, ivBgCard2, ivBgCard3;
+    private View ivBgCard1, ivBgCard2, ivBgCard3;
     private com.google.android.material.card.MaterialCardView cardCenterSlot;
     private View layoutSelectedFront;
     private VideoView videoSpinEffect;
@@ -585,6 +585,7 @@ public class SpinFragment extends Fragment {
                 Glide.with(this)
                         .load(url)
                         .thumbnail(thumbRequest)
+                        .priority(Priority.IMMEDIATE)
                         .placeholder(R.drawable.objet_back_spin)
                         // LOẠI BỎ CROSSFADE ĐỂ HIỆN NGAY LẬP TỨC (TRÁNH KHỰNG KHI XOAY 3D)
                         .dontAnimate()
@@ -1511,7 +1512,7 @@ public class SpinFragment extends Fragment {
     private void updateSelectedObjetUI(com.vn.jet.mosco.model.Objet selectedObj) {
         String imageUrl = selectedObj.getImageUrl();
         if (btnAddObjet != null) btnAddObjet.setVisibility(View.GONE);
-        com.airbnb.lottie.LottieAnimationView loader = getView() != null ? getView().findViewById(R.id.pb_card_loading) : null;
+        View loader = getView() != null ? getView().findViewById(R.id.layout_spin_loading_skeleton) : null;
 
         // Reset trạng thái flip trước khi hiển thị thẻ mới
         resetSacrificeFlip();
@@ -1522,14 +1523,12 @@ public class SpinFragment extends Fragment {
 
             if (loader != null) {
                 loader.setVisibility(View.VISIBLE);
-                loader.playAnimation();
             }
 
             // ⏳ TRỄ 0.4s: Để load ảnh 4x và tạo cảm giác app đang "xác thực" thẻ
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (isAdded() && ivSelectedObjet != null) {
                     if (loader != null) {
-                        loader.cancelAnimation();
                         loader.setVisibility(View.GONE);
                     }
                     if (layoutSelectedFront != null) layoutSelectedFront.setVisibility(View.VISIBLE);
@@ -1538,7 +1537,6 @@ public class SpinFragment extends Fragment {
 
                     Glide.with(this)
                             .load(imageUrl) // 4x nạp từ mạng
-                            .placeholder(R.drawable.objet_back_spin)
                             .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300))
                             .into(ivSelectedObjet);
 

@@ -39,12 +39,13 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_spin_ticket" />
 
         <!-- Các thẻ chạy nền -->
-        <ImageView
+        <!-- Đã đổi từ ảnh máy bay sang nền skeleton tĩnh để đồng bộ Luxury -->
+        <View
             android:id="@+id/iv_bg_card_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="0.2"
-            android:src="@drawable/objet_back_spin"
+            android:background="@drawable/bg_skeleton_rect_rounded"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
@@ -52,12 +53,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
 
-        <ImageView
+        <View
             android:id="@+id/iv_bg_card_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="0.2"
-            android:src="@drawable/objet_back_spin"
+            android:background="@drawable/bg_skeleton_rect_rounded"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
@@ -65,12 +66,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
 
-        <ImageView
+        <View
             android:id="@+id/iv_bg_card_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="0.2"
-            android:src="@drawable/objet_back_spin"
+            android:background="@drawable/bg_skeleton_rect_rounded"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
@@ -129,16 +130,13 @@
                         android:visibility="gone" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!-- ⏳ Lottie Loading thay cho ProgressBar khi nạp ảnh 4x -->
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/pb_card_loading"
-                    android:layout_width="@dimen/spacing_64dp"
-                    android:layout_height="@dimen/spacing_64dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    app:lottie_autoPlay="true"
-                    app:lottie_loop="true"
-                    app:lottie_rawRes="@raw/loading" />
+                <!-- ⏳ Skeleton Loading thay cho Lottie -->
+                <include
+                    layout="@layout/layout_objekt_card_skeleton"
+                    android:id="@+id/layout_spin_loading_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 

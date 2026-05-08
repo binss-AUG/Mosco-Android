@@ -1,69 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacing_6dp"
-    app:cardBackgroundColor="@color/mosco_card_bg"
-    app:cardCornerRadius="@dimen/radius_lg"
-    app:cardElevation="@dimen/spacing_xs">
+    android:padding="@dimen/spacing_xs">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Card Container (The Objet) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_card_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/mosco_card_bg"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="@dimen/spacing_xs"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Unified Card Content (Image + OVR + Badge) -->
-        <include layout="@layout/layout_core_card" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+            <!-- Unified Card Content (Image + OVR + Badge) -->
+            <include
+                android:id="@+id/layout_core"
+                layout="@layout/layout_core_card" />
 
+            <!-- Selected Overlay -->
+            <View
+                android:id="@+id/view_selected_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_card_selected_overlay"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
 
-        <!-- Selected Overlay (cho UpgradeBottomSheet multi-select) -->
-        <View
-            android:id="@+id/view_selected_overlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_card_selected_overlay"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Disabled Overlay -->
+            <View
+                android:id="@+id/view_disabled_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/mosco_black_70"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
 
-        <!-- Disabled Overlay (Dark glass tint) -->
-        <View
-            android:id="@+id/view_disabled_overlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/mosco_black_70"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Busy/Status Text -->
+            <TextView
+                android:id="@+id/tv_busy_status"
+                style="@style/MoscoText.Luxury"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacing_sm"
+                android:gravity="center"
+                android:letterSpacing="0.05"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_caption"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
 
-        <!-- Busy/Status Text -->
-        <TextView
-            android:id="@+id/tv_busy_status"
-            style="@style/MoscoText.Luxury"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_sm"
-            android:gravity="center"
-            android:letterSpacing="0.05"
-            android:lineSpacingExtra="@dimen/spacing_2dp"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_caption"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Card Name Tag (Outside CardView: Separate Bubble) -->
+    <TextView
+        android:id="@+id/tv_card_name"
+        style="@style/MoscoText.Luxury"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_10dp"
+        android:background="@drawable/bg_card_name_tag"
+        android:paddingHorizontal="@dimen/spacing_10dp"
+        android:paddingVertical="@dimen/spacing_2dp"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_11sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="@dimen/name_tag_max_width_grid"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_card_container"
+        tools:text="SeoAh A2 316Z" />
 
-</androidx.cardview.widget.CardView>
-
-
-
+</androidx.constraintlayout.widget.ConstraintLayout>

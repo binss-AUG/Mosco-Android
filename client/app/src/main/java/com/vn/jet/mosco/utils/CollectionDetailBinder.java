@@ -48,6 +48,8 @@ public class CollectionDetailBinder {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            // Thêm hiệu ứng Dim mờ nền sâu thẳm (Galactic Dark Dim)
+            dialog.getWindow().setDimAmount(AppConfig.DETAIL_DIALOG_DIM_AMOUNT);
         }
 
         // 1. Bind Hình ảnh thẻ bài (Sử dụng Local First)
@@ -80,7 +82,12 @@ public class CollectionDetailBinder {
             }
         }
 
-        // 3. Bind Metadata (Đã loại bỏ hoàn toàn theo yêu cầu minimalism)
+        // 3. Bind Metadata (Restored as Name Tag Bubble)
+        TextView tvDetailName = dialog.findViewById(R.id.tv_detail_card_name);
+        if (tvDetailName != null) {
+            String nameTag = entry.getMember() + " " + entry.getSeason() + " " + entry.getCollectionNo();
+            tvDetailName.setText(nameTag);
+        }
         
         // 4. Trạng thái chưa sở hữu (Locked Overlay vs Unlock UI)
         ImageView ivLock = dialog.findViewById(R.id.iv_detail_lock);

@@ -6,6 +6,8 @@ package com.vn.jet.mosco.utils;
  */
 public class AppConfig {
     // API Endpoints
+    // Lưu ý: Nếu dùng giả lập (Emulator), hãy dùng "http://10.0.2.2:8080/" 
+    // Nếu dùng máy thật cùng mạng WiFi, dùng IP LAN bên dưới.
     public static final String BASE_URL = "http://192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)
@@ -15,9 +17,10 @@ public class AppConfig {
     public static final String DISCORD_AUTH_URL_BASE = "https://discord.com/api/oauth2/authorize";
     public static final String DISCORD_SCOPE = "identify email";
 
-    // Gameplay Constants
-    public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
-    public static final long MS_PER_HOUR = 3600000L;
+    // Performance & UI Constants
+    public static final int MAX_FLING_VELOCITY = 8500;
+    public static final float DETAIL_DIALOG_DIM_AMOUNT = 0.8f;
+    public static final int INVENTORY_BATCH_SIZE_UNLEASHED = 99999;
 
     // Prevent instantiation
     private AppConfig() {

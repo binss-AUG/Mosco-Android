@@ -19,6 +19,19 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Doc Cloudflare ID tu local.properties
+        Properties properties = new Properties()
+        if (project.rootProject.file('local.properties').exists()) {
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        }
+        String cfId = properties.getProperty('cloudflare.account.id', 'qQuMkbHJ-0s6rwu8vup_5w')
+        buildConfigField "String", "CLOUDFLARE_ACCOUNT_ID", "\"${cfId}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+        dataBinding true
     }
 
     buildTypes {
