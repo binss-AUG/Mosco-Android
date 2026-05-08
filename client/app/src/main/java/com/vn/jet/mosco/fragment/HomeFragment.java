@@ -109,6 +109,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
     private Runnable rankingTimeoutRunnable;
     private boolean isRankLoading = false;
+    private static boolean sIsFirstLoad = true;
+    private static UserStats sCachedStats = null; // AAA: Cache để hiển thị tức thì khi chuyển tab
 
     // ── Services ──
     private SessionManager sessionManager;
@@ -119,11 +121,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         // Required empty public constructor
     }
 
-    @Nullable
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        skeletonStartTime = System.currentTimeMillis();
+        // AAA Strategy: Nếu đã load rồi thì bỏ qua thời gian chờ skeleton
+        skeletonStartTime = sIsFirstLoad ? System.currentTimeMillis() : (System.currentTimeMillis() - MIN_SKELETON_DURATION - 100);
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         initViews(view);
         initServices();
@@ -143,8 +144,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         startRankAutoScroll();
         startQuickToolAnimations(view);
         
-        // Bắt đầu Shimmer ngay khi mở fragment
-        if (shimmerHome != null) shimmerHome.startShimmer();
+        // Bắt đầu Shimmer ngay khi mở fragment (chỉ hiện nếu chưa có data)
+        if (shimmerHome != null && sIsFirstLoad) {
+            shimmerHome.startShimmer();
+        } else if (shimmerHome != null) {
+            shimmerHome.setVisibility(View.GONE);
+            if (clRealContent != null) clRealContent.setVisibility(View.VISIBLE);
+        }
         
         return view;
     }
@@ -378,7 +384,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 showRankingError();
             }
         };
-        timeoutHandler.postDelayed(rankingTimeoutRunnable, 5000);
+        timeoutHandler.postDelayed(rankingTimeoutRunnable, 10000); // Tăng lên 10s cho ổn định
     }
 
     private void stopRankingTimeout() {
@@ -437,17 +443,27 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                                 miniRankAdapter.notifyDataSetChanged();
                             }
                             
-                            // Coi như đã load xong Rank khi có ít nhất 1 loại dữ liệu về (để không bắt user đợi quá lâu)
                             isRankLoaded = true;
                             stopRankingTimeout();
                             checkAndShowContent();
                         }
+                    } else {
+                        // Response không thành công -> Hiện lỗi ngay
+                        showRankingError();
+                        stopRankingTimeout();
                     }
-                } catch (Exception e) { Log.e(TAG, "Mini rank error: " + type, e); }
+                } catch (Exception e) { 
+                    Log.e(TAG, "Mini rank error: " + type, e); 
+                    showRankingError();
+                    stopRankingTimeout();
+                }
             }
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) { 
-                // Không set isRankLoaded ở đây để timeout handler xử lý
+                if (isAdded()) {
+                    showRankingError();
+                    stopRankingTimeout();
+                }
             }
         });
     }
@@ -618,7 +634,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void loadUserData() {
-        isUserStatsLoaded = false;
+        // Nếu đã có data thì không reset để tránh hiện skeleton lại
+        if (sIsFirstLoad) isUserStatsLoaded = false;
         if (sessionManager == null || gameApiService == null) return;
         try {
             String displayName = sessionManager.getIngameName();
@@ -642,6 +659,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             Long userId = sessionManager.getUserId();
             if (userId == null) return;
             if (tvUserId != null) tvUserId.setText(getString(R.string.home_format_user_id, String.valueOf(10000000L + userId)));
+            
+            // AAA Strategy: Hiển thị data cũ ngay lập tức nếu có
+            if (sCachedStats != null) {
+                bindCurrency(sCachedStats.getCoins(), sCachedStats.getDiamonds(), sCachedStats.getStreak(), sCachedStats.getBestStreak(), sCachedStats.getStreakRestoresThisMonth(), sCachedStats.getLevel(), sCachedStats.getExp());
+                isUserStatsLoaded = true;
+                checkAndShowContent();
+            }
 
             gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
                 @Override
@@ -649,8 +673,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                     if (!isAdded() || requireContext() == null) return;
                     if (response.isSuccessful() && response.body() != null) {
                         UserStats stats = response.body();
+                        sCachedStats = stats; // Cập nhật cache
                         bindCurrency(stats.getCoins(), stats.getDiamonds(), stats.getStreak(), stats.getBestStreak(), stats.getStreakRestoresThisMonth(), stats.getLevel(), stats.getExp());
                         isUserStatsLoaded = true;
+                        sIsFirstLoad = false; // Đã xong lần đầu
                         checkAndShowContent();
                     }
                 }

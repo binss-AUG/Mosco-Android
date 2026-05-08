@@ -116,6 +116,15 @@ public class RankListFragment extends Fragment {
         }
     }
 
+    /**
+     * Ép buộc tải lại dữ liệu (Bỏ qua AAA Cache) — Dùng cho Pull Refresh.
+     */
+    public void refreshData() {
+        isDataLoaded = false;
+        lastUpdatedTime = 0;
+        loadRankData();
+    }
+
     private void showRankListWithAnimation() {
         if (rvRankList == null) return;
         
@@ -179,6 +188,12 @@ public class RankListFragment extends Fragment {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (lottieLoading != null) lottieLoading.setVisibility(View.GONE);
+                
+                // Stop Pull Refresh UI
+                if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
+                    ((com.vn.jet.mosco.RankActivity) getActivity()).stopRefresh();
+                }
+
                 try {
                     if (response.isSuccessful() && response.body() != null) {
                         String responseStr = response.body().string();
@@ -259,6 +274,12 @@ public class RankListFragment extends Fragment {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 if (lottieLoading != null) lottieLoading.setVisibility(View.GONE);
+                
+                // Stop Pull Refresh UI
+                if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
+                    ((com.vn.jet.mosco.RankActivity) getActivity()).stopRefresh();
+                }
+
                 Log.e(TAG, "Lỗi kết nối API rank: " + rankType, t);
                 if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
                 if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {

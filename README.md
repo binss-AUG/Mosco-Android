@@ -47,12 +47,17 @@ Toàn bộ ứng dụng đã được tái cấu trúc để không còn giá tr
 
 ## Hướng Dẫn Cài Đặt
 
+### Phía Cơ sở hạ tầng (Docker)
+1. Cài đặt Docker Desktop trên Windows.
+2. Mở terminal tại thư mục gốc và chạy: `docker-compose up -d`.
+   * Lệnh này sẽ khởi động MySQL (port 3306) và Redis (port 6379).
+
 ### Phía Backend
-1. Cấu hình thông số MySQL trong file application.properties.
-2. Chạy lệnh gradlew bootRun để khởi động server (mặc định port 8080).
+1. Cấu hình thông số MySQL trong file `application.properties` hoặc `.env`.
+2. Chạy lệnh `gradlew bootRun` để khởi động server (mặc định port 8080).
 
 ### Phía Client
-1. Cập nhật địa chỉ IP của server trong strings_config.xml.
+1. Cập nhật địa chỉ IP của server trong `strings_config.xml`.
 2. Build ứng dụng bằng Android Studio.
 
 ## Quy Tắc Phát Triển

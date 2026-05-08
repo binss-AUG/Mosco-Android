@@ -29,6 +29,19 @@ public class RankService {
     private static final String RANK_KEY_WEALTH = "rank:wealth";
     private static final String RANK_KEY_STREAK = "rank:streak";
 
+    @jakarta.annotation.PostConstruct
+    public void repairTotalDiamonds() {
+        log.info("Checking and repairing totalDiamonds for existing users...");
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getTotalDiamonds() == 0 && user.getDiamonds() > 0) {
+                user.setTotalDiamonds(user.getDiamonds());
+                userRepository.save(user);
+            }
+        }
+        log.info("TotalDiamonds repair completed.");
+    }
+
     /**
      * Cập nhật điểm số của User lên Redis ZSET.
      * Cần được gọi mỗi khi User thay đổi chỉ số (Level up, nạp coin, cào thẻ...).
@@ -40,12 +53,23 @@ public class RankService {
         zSet.add(RANK_KEY_LEVEL, userIdStr, user.getExp());
         zSet.add(RANK_KEY_OVR, userIdStr, maxOvr);
         zSet.add(RANK_KEY_COLLECTION, userIdStr, distinctCollection);
-        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getDiamonds());
+        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getTotalDiamonds());
         zSet.add(RANK_KEY_STREAK, userIdStr, user.getBestStreak());
     }
 
     public List<Map<String, Object>> getTopByLevel() {
-        return getTopFromRedis(RANK_KEY_LEVEL);
+        List<Map<String, Object>> result = getTopFromRedis(RANK_KEY_LEVEL);
+        if (result.isEmpty()) {
+            return userRepository.findTop10ByOrderByLevelDesc().stream().map(u -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("userId", u.getId());
+                m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                m.put("avatarId", u.getAvatarId());
+                m.put("value", u.getLevel());
+                return m;
+            }).collect(Collectors.toList());
+        }
+        return result;
     }
 
     public List<Map<String, Object>> getTopByOvr() {
@@ -53,42 +77,88 @@ public class RankService {
     }
 
     public List<Map<String, Object>> getTopByCollection() {
-        return getTopFromRedis(RANK_KEY_COLLECTION);
+        List<Map<String, Object>> result = getTopFromRedis(RANK_KEY_COLLECTION);
+        if (result.isEmpty()) {
+            return userRepository.findTop10ByCollectionCount().stream().map(u -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("userId", u.getId());
+                m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                m.put("avatarId", u.getAvatarId());
+                m.put("value", u.getUnlockedCollections().size());
+                return m;
+            }).collect(Collectors.toList());
+        }
+        return result;
     }
 
     public List<Map<String, Object>> getTopByWealth() {
-        return getTopFromRedis(RANK_KEY_WEALTH);
+        List<Map<String, Object>> result = getTopFromRedis(RANK_KEY_WEALTH);
+        if (result.isEmpty()) {
+            return userRepository.findTop10ByOrderByTotalDiamondsDesc().stream().map(u -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("userId", u.getId());
+                m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                m.put("avatarId", u.getAvatarId());
+                m.put("value", u.getTotalDiamonds());
+                return m;
+            }).collect(Collectors.toList());
+        }
+        return result;
     }
 
     public List<Map<String, Object>> getTopByStreak() {
-        return getTopFromRedis(RANK_KEY_STREAK);
+        List<Map<String, Object>> result = getTopFromRedis(RANK_KEY_STREAK);
+        if (result.isEmpty()) {
+            return userRepository.findTop10ByOrderByBestStreakDesc().stream().map(u -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("userId", u.getId());
+                m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                m.put("avatarId", u.getAvatarId());
+                m.put("value", u.getBestStreak());
+                return m;
+            }).collect(Collectors.toList());
+        }
+        return result;
     }
 
     private List<Map<String, Object>> getTopFromRedis(String key) {
-        Set<ZSetOperations.TypedTuple<String>> topEntries = redisTemplate.opsForZSet()
-                .reverseRangeWithScores(key, 0, 9);
+        try {
+            Set<ZSetOperations.TypedTuple<String>> topEntries = redisTemplate.opsForZSet()
+                    .reverseRangeWithScores(key, 0, 9);
 
-        if (topEntries == null || topEntries.isEmpty()) {
+            if (topEntries == null || topEntries.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            return topEntries.stream().map(tuple -> {
+                String value = tuple.getValue();
+                if (value == null) return new HashMap<String, Object>();
+                
+                try {
+                    Long userId = Long.valueOf(value);
+                    User user = userRepository.findById(userId).orElse(null);
+                    Map<String, Object> map = new HashMap<>();
+                    if (user != null) {
+                        map.put("userId", userId);
+                        map.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
+                        map.put("avatarId", user.getAvatarId());
+                        
+                        // Trả về giá trị điểm số (an toàn với null)
+                        if (key.equals(RANK_KEY_LEVEL)) {
+                            map.put("value", user.getLevel());
+                        } else {
+                            Double score = tuple.getScore();
+                            map.put("value", score != null ? score.intValue() : 0);
+                        }
+                    }
+                    return map;
+                } catch (NumberFormatException nfe) {
+                    return new HashMap<String, Object>();
+                }
+            }).filter(m -> !m.isEmpty()).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("CRITICAL: Redis connection or logic error for key {}: {}", key, e.getMessage());
             return Collections.emptyList();
         }
-
-        return topEntries.stream().map(tuple -> {
-            Long userId = Long.valueOf(tuple.getValue());
-            User user = userRepository.findById(userId).orElse(null);
-            Map<String, Object> map = new HashMap<>();
-            if (user != null) {
-                map.put("userId", userId);
-                map.put("ingameName", user.getIngameName() != null ? user.getIngameName() : user.getUsername());
-                map.put("avatarId", user.getAvatarId());
-                
-                // Trả về giá trị điểm số
-                if (key.equals(RANK_KEY_LEVEL)) {
-                    map.put("value", user.getLevel());
-                } else {
-                    map.put("value", tuple.getScore().intValue());
-                }
-            }
-            return map;
-        }).filter(m -> !m.isEmpty()).collect(Collectors.toList());
     }
 }

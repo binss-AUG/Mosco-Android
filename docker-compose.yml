@@ -1,0 +1,28 @@
+services:
+  # 🗄️ MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: mosco-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "31072006"
+      MYSQL_DATABASE: "mosco_db"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mosco_mysql_data:/var/lib/mysql
+
+  # ⚡ Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    container_name: mosco-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - mosco_redis_data:/data
+
+# 💾 Khai báo Volume để lưu dữ liệu vĩnh viễn trên Host
+volumes:
+  mosco_mysql_data:
+  mosco_redis_data:
