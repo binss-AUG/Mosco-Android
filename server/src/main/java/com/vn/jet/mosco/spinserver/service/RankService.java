@@ -40,7 +40,7 @@ public class RankService {
         zSet.add(RANK_KEY_LEVEL, userIdStr, user.getExp());
         zSet.add(RANK_KEY_OVR, userIdStr, maxOvr);
         zSet.add(RANK_KEY_COLLECTION, userIdStr, distinctCollection);
-        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getDiamonds());
+        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getTotalDiamonds());
         zSet.add(RANK_KEY_STREAK, userIdStr, user.getBestStreak());
     }
 
@@ -81,12 +81,12 @@ public class RankService {
     public List<Map<String, Object>> getTopByWealth() {
         List<Map<String, Object>> result = getTopFromRedis(RANK_KEY_WEALTH);
         if (result.isEmpty()) {
-            return userRepository.findTop10ByOrderByDiamondsDesc().stream().map(u -> {
+            return userRepository.findTop10ByOrderByTotalDiamondsDesc().stream().map(u -> {
                 Map<String, Object> m = new HashMap<>();
                 m.put("userId", u.getId());
                 m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
                 m.put("avatarId", u.getAvatarId());
-                m.put("value", u.getDiamonds());
+                m.put("value", u.getTotalDiamonds());
                 return m;
             }).collect(Collectors.toList());
         }

@@ -33,6 +33,10 @@ public class User {
     @Column(nullable = false)
     private Long diamonds = 0L;
 
+    // Tổng số Diamond đã từng sở hữu (tích lũy) — dùng cho Ranking Wealth
+    @Column(nullable = false)
+    private Long totalDiamonds = 0L;
+
     // Cấp độ người chơi — dùng cho Ranking
     @Column(nullable = false)
     private int level = 1;
@@ -99,6 +103,9 @@ public class User {
 
     public Long getDiamonds() { return diamonds; }
     public void setDiamonds(Long diamonds) { this.diamonds = diamonds; }
+
+    public Long getTotalDiamonds() { return totalDiamonds; }
+    public void setTotalDiamonds(Long totalDiamonds) { this.totalDiamonds = totalDiamonds; }
 
     public String getIngameName() { return ingameName; }
     public void setIngameName(String ingameName) { this.ingameName = ingameName; }

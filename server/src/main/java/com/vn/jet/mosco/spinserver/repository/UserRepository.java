@@ -16,7 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     // Ranking Fallbacks
     java.util.List<User> findTop10ByOrderByLevelDesc();
-    java.util.List<User> findTop10ByOrderByDiamondsDesc();
+    java.util.List<User> findTop10ByOrderByTotalDiamondsDesc();
     java.util.List<User> findTop10ByOrderByBestStreakDesc();
 
     @org.springframework.data.jpa.repository.Query(value = "SELECT u.* FROM users u LEFT JOIN (SELECT user_id, COUNT(*) as cnt FROM user_unlocked_collections GROUP BY user_id) as sub ON u.id = sub.user_id ORDER BY COALESCE(sub.cnt, 0) DESC LIMIT 10", nativeQuery = true)
