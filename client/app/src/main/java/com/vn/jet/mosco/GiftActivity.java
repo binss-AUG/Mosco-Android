@@ -165,6 +165,17 @@ public class GiftActivity extends AppCompatActivity {
 
         // Tab Nhận
         rvGiftReceived = findViewById(R.id.rv_gift_received);
+        rvGiftReceived.setHasFixedSize(true);
+        rvGiftReceived.setItemViewCacheSize(20);
+        rvGiftReceived.setDrawingCacheEnabled(true);
+        rvGiftReceived.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+        rvFriendSelect = findViewById(R.id.rv_friend_select);
+        rvFriendSelect.setHasFixedSize(true);
+        rvFriendSelect.setItemViewCacheSize(20);
+        rvFriendSelect.setDrawingCacheEnabled(true);
+        rvFriendSelect.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
         tvNoGifts = findViewById(R.id.tv_no_gifts);
     }
 

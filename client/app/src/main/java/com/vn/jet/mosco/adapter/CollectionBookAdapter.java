@@ -66,18 +66,12 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(int position) {
-        if (isLoading) return VIEW_TYPE_SKELETON;
-        if (list != null && position >= list.size()) return VIEW_TYPE_SKELETON;
-        return VIEW_TYPE_ITEM;
+        return 0;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_SKELETON) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_objet_skeleton, parent, false);
-            return new SkeletonViewHolder(v);
-        }
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_collection_book_card, parent, false);
         return new ViewHolder(view);
@@ -87,15 +81,28 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ViewHolder) {
             ViewHolder vh = (ViewHolder) holder;
+
+            // Xử lý trạng thái Skeleton
+            if (isLoading || (list != null && position >= list.size())) {
+                if (vh.layoutSkeleton != null) vh.layoutSkeleton.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                if (vh.layoutSkeleton != null) vh.layoutSkeleton.setVisibility(View.GONE);
+            }
+
             CollectionEntry entry = list.get(position);
             if (entry == null) return;
 
             // Bind Card Name (Instant Metadata) - Move to top for faster UX
             if (vh.tvNameTag != null) {
-                String name = (entry.getMember() != null ? entry.getMember() : "") + " " +
-                             (entry.getSeason() != null ? entry.getSeason() : "") + " " +
-                             (entry.getCollectionNo() != null ? entry.getCollectionNo() : "");
-                vh.tvNameTag.setText(name.trim());
+                // 1. Tên Member + [Prefix]No (Ví dụ: YeonJi D322A)
+                String classPrefix = "";
+                if (entry.getCardClass() != null && !entry.getCardClass().isEmpty()) {
+                    classPrefix = entry.getCardClass().substring(0, 1).toUpperCase();
+                }
+                String formattedName = (entry.getMember() != null ? entry.getMember() : "") + " " + classPrefix + (entry.getCollectionNo() != null ? entry.getCollectionNo() : "");
+                vh.tvNameTag.setText(formattedName);
+                vh.tvNameTag.setVisibility(View.VISIBLE);
             }
             Context ctx = vh.itemView.getContext();
 
@@ -161,7 +168,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     static class ViewHolder extends RecyclerView.ViewHolder {
         androidx.cardview.widget.CardView cvCard;
         ImageView ivCardImage, ivLockIcon, ivLevel;
-        View viewLockedOverlay;
+        View viewLockedOverlay, layoutSkeleton;
         TextView tvOvr, tvNameTag;
 
         ViewHolder(@NonNull View itemView) {
@@ -173,12 +180,7 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             viewLockedOverlay = itemView.findViewById(R.id.view_locked_overlay);
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
             tvNameTag = itemView.findViewById(R.id.tv_card_name);
-        }
-    }
-
-    static class SkeletonViewHolder extends RecyclerView.ViewHolder {
-        public SkeletonViewHolder(@NonNull View itemView) {
-            super(itemView);
+            layoutSkeleton = itemView.findViewById(R.id.layout_skeleton);
         }
     }
 }

@@ -15,18 +15,22 @@ Dự án sử dụng hệ thống phông chữ đa tầng để phân tách rõ 
 - Tải dữ liệu đa luồng: Sử dụng 32 luồng đồng thời để tải tài nguyên từ server ngay khi khởi động.
 - Caching Hybrid: Kết hợp lưu trữ tạm thời và bộ nhớ cục bộ để hiển thị hình ảnh tức thì, sau đó tự động cập nhật bản chất lượng cao.
 - Tối ưu hóa hiệu năng: Loại bỏ hoàn toàn hiện tượng lag khi cuộn danh sách thẻ bài lớn bằng cách xử lý sắp xếp và lọc ở luồng nền.
+- ABS Fling Brakes: Hệ thống giới hạn tốc độ cuộn (ViewUtils) giúp kiểm soát tốc độ lướt tối đa, tránh hiện tượng overload khi render hàng ngàn hình ảnh đồng thời. Tốc độ được quản lý tập trung qua AppConfig.
 
 ### 3. Quy chuẩn Zero-Hardcoding
 Toàn bộ ứng dụng đã được tái cấu trúc để không còn giá trị cứng (hardcoded) trong mã nguồn:
 - Strings: 100% văn bản được quản lý tập trung trong hệ thống strings.xml để dễ dàng bản địa hóa.
 - Colors: Sử dụng hệ thống màu semantic (theo vai trò) giúp thay đổi giao diện toàn cục chỉ bằng cách cập nhật token màu.
 - Dimensions: Mọi khoảng cách và kích thước đều tuân thủ lưới Galactic Grid (8pt) để đảm bảo sự cân đối trên mọi thiết bị.
+- AppConfig: Các hằng số hiệu năng (MAX_FLING_VELOCITY, DETAIL_DIALOG_DIM_AMOUNT) được tập trung tại một file cấu hình duy nhất, loại bỏ hoàn toàn magic numbers trong toàn bộ codebase.
 
 ### 4. Tính năng Cao cấp
 - Hệ thống Gacha 3D: Hiệu ứng reveal thẻ bài 3D cho phép tương tác xoay thẻ quanh trục Y và xem mặt sau.
 - Mở Pack Hàng loạt: Hỗ trợ mở đến 36 packs trong một lần yêu cầu với hiệu ứng chuyển cảnh mang tính điện ảnh.
 - Đội hình Cộng hưởng (Passive Synergy): Hệ thống tự động tính toán điểm thưởng dựa trên sự kết hợp giữa các nghệ sĩ trong đội hình.
 - Album Sưu tầm: Chế độ hiển thị bóng đen (Silhouette) cho thẻ chưa sở hữu và hiệu ứng kim loại (Metallic) cho thẻ hiếm.
+- Smart Name Tag: Hệ thống hiển thị tên thẻ thông minh theo format "Artist [Prefix]No" (ví dụ: SeoAh D322A), tối ưu cho không gian hiển thị Grid mà vẫn đảm bảo đầy đủ thông tin định danh.
+- Shimmer Skeleton đồng bộ: Hiệu ứng loading skeleton được chuẩn hóa và đồng bộ xuyên suốt tất cả các module (Inventory, Collection Objets, Album).
 
 ## Công nghệ Sử dụng
 

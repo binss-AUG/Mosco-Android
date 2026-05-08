@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Premium Galactic Dark Bubble (Standardized Token) -->
-    <solid android:color="@color/mosco_black_70" /> 
+    <!-- Premium Galactic Dark Bubble (Semantic Token) -->
+    <solid android:color="@color/mosco_tag_bg" /> 
     <corners android:radius="@dimen/spacing_20dp" />
 </shape>

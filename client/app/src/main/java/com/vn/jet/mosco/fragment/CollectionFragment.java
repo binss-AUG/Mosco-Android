@@ -1111,6 +1111,8 @@ public class CollectionFragment extends Fragment {
             // RecyclerView — load REAL data from server
             rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+            // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
+            com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvObjets);
 
             rvObjets.setAdapter(new com.vn.jet.mosco.adapter.BaseInventoryAdapter(new ArrayList<>(), rvObjets, item -> {
                 Context ctx = requireContext();
@@ -1708,6 +1710,8 @@ public class CollectionFragment extends Fragment {
             rvAlbum.setItemViewCacheSize(20);
             rvAlbum.setDrawingCacheEnabled(true);
             rvAlbum.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+            // [QUIET LUXURY] Áp dụng phanh ABS
+            com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvAlbum);
 
             adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
             rvAlbum.setAdapter(adapter);
@@ -1737,18 +1741,15 @@ public class CollectionFragment extends Fragment {
             if (adapter != null)
                 adapter.setPagingLoading(true);
 
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                if (!isAdded())
-                    return;
-                currentLimit += 60;
-                int maxLimit = Math.min(currentLimit, currentFilteredList.size());
+            // [PERFORMANCE TEST] Xóa bỏ delay 400ms và load sạch data
+            currentLimit = currentFilteredList.size();
+            int maxLimit = currentFilteredList.size();
 
-                if (adapter != null) {
-                    adapter.setPagingLoading(false);
-                    adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
-                }
-                isPagingLoading = false;
-            }, 400); // Khựng 1 nhịp 400ms để tạo cảm giác load
+            if (adapter != null) {
+                adapter.setPagingLoading(false);
+                adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+            }
+            isPagingLoading = false;
         }
 
         /**

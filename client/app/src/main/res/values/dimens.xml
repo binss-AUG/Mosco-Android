@@ -65,4 +65,8 @@
     <dimen name="elevation_m">4dp</dimen>
     <dimen name="elevation_l">8dp</dimen>
     <dimen name="elevation_xl">12dp</dimen>
+
+    <!-- Component Specific Tokens -->
+    <dimen name="card_detail_margin_horizontal">60dp</dimen>
+    <dimen name="name_tag_max_width_grid">150dp</dimen>
 </resources>

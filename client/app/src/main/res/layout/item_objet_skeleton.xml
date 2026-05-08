@@ -1,57 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/shimmer_view_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:shimmer_auto_start="true"
-    app:shimmer_base_alpha="0.3"
-    app:shimmer_highlight_alpha="0.6"
-    app:shimmer_duration="1200"
-    app:shimmer_direction="left_to_right"
-    app:shimmer_shape="linear">
+    android:padding="@dimen/spacing_xs">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Card Container Skeleton -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_skeleton_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="2dp">
+        app:cardBackgroundColor="@color/mosco_card_bg"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="@dimen/spacing_xs"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Main Card Body -->
-        <View
-            android:id="@+id/sk_objet_body"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_skeleton_rect_rounded"
-            app:layout_constraintDimensionRatio="1:1.54"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_view_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:shimmer_auto_start="true"
+            app:shimmer_base_alpha="0.3"
+            app:shimmer_highlight_alpha="0.6"
+            app:shimmer_duration="1200"
+            app:shimmer_direction="left_to_right"
+            app:shimmer_shape="linear">
 
-        <!-- Vertical Line Accent (Right Edge) -->
-        <View
-            android:id="@+id/sk_objet_line"
-            android:layout_width="20dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_skeleton_rect"
-            android:alpha="0.7"
-            app:layout_constraintTop_toTopOf="@id/sk_objet_body"
-            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
-            app:layout_constraintEnd_toEndOf="@id/sk_objet_body" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <!-- Signature Badge (Bottom Left) -->
-        <View
-            android:id="@+id/sk_objet_badge"
-            android:layout_width="32dp"
-            android:layout_height="24dp"
-            android:background="@drawable/bg_skeleton_rect_rounded_sm"
-            android:alpha="0.8"
-            app:layout_constraintStart_toStartOf="@id/sk_objet_body"
-            app:layout_constraintBottom_toBottomOf="@id/sk_objet_body" />
+                <!-- Main Card Body -->
+                <View
+                    android:id="@+id/sk_objet_body"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@drawable/bg_skeleton_rect_rounded"
+                    app:layout_constraintDimensionRatio="1:1.54"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- Vertical Line Accent -->
+                <View
+                    android:id="@+id/sk_objet_line"
+                    android:layout_width="20dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_skeleton_rect"
+                    android:alpha="0.7"
+                    app:layout_constraintTop_toTopOf="@id/sk_objet_body"
+                    app:layout_constraintBottom_toBottomOf="@id/sk_objet_body"
+                    app:layout_constraintEnd_toEndOf="@id/sk_objet_body" />
 
-</com.facebook.shimmer.ShimmerFrameLayout>
+                <!-- Signature Badge -->
+                <View
+                    android:id="@+id/sk_objet_badge"
+                    android:layout_width="32dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/bg_skeleton_rect_rounded_sm"
+                    android:alpha="0.8"
+                    app:layout_constraintStart_toStartOf="@id/sk_objet_body"
+                    app:layout_constraintBottom_toBottomOf="@id/sk_objet_body" />
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.facebook.shimmer.ShimmerFrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Name Tag Skeleton Placeholder -->
+    <View
+        android:id="@+id/sk_name_tag"
+        android:layout_width="80dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="@dimen/spacing_10dp"
+        android:background="@drawable/bg_skeleton_rect_rounded"
+        android:alpha="0.5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_skeleton_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

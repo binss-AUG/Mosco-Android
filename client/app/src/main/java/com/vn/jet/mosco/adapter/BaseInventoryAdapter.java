@@ -189,7 +189,8 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (currentFilteredList == null || displayObjets == null) return;
         
         int startPos = displayObjets.size();
-        int endPos = Math.min(startPos + 60, currentFilteredList.size());
+        // [PERFORMANCE TEST] Thả xích: Load toàn bộ danh sách thay vì giới hạn 60 item
+        int endPos = currentFilteredList.size();
         
         if (startPos >= endPos) return;
 
@@ -245,12 +246,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             Objet item = displayObjets.get(position);
             if (item == null) return;
 
-            // Bind Card Name (Instant Metadata) - Move to top for faster UX
+            // Bind Card Name (Instant Metadata: Artist [Prefix]No format)
             if (itemHolder.tvNameTag != null) {
-                String name = (item.getMember() != null ? item.getMember() : "") + " " +
-                             (item.getSeason() != null ? item.getSeason() : "") + " " +
-                             (item.getCollectionNo() != null ? item.getCollectionNo() : "");
-                itemHolder.tvNameTag.setText(name.trim());
+                String classPrefix = "";
+                if (item.getTypeKey() != null && !item.getTypeKey().isEmpty()) {
+                    classPrefix = item.getTypeKey().substring(0, 1).toUpperCase();
+                }
+                String formattedName = (item.getMember() != null ? item.getMember() : "") + " " + classPrefix + (item.getCollectionNo() != null ? item.getCollectionNo() : "");
+                itemHolder.tvNameTag.setText(formattedName);
             }
 
             if (itemHolder.layoutSkeleton != null) {

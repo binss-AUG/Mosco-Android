@@ -53,18 +53,36 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Vùng chứa thẻ bài (Giảm kích thước 20% bằng cách tăng margin) -->
+        <!-- Name Tag Bubble (Top Position - Balanced Premium Style) -->
+        <TextView
+            android:id="@+id/tv_detail_card_name"
+            style="@style/MoscoText.Luxury"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:background="@drawable/bg_card_name_tag"
+            android:paddingHorizontal="@dimen/spacing_16dp"
+            android:paddingVertical="@dimen/spacing_4dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_16sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/btn_close_collection_detail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="SeoAh A2 316Z" />
+
+        <!-- Vùng chứa thẻ bài (Shrunk variant for Modern Look) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cv_album_card_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_md"
             android:layout_marginTop="@dimen/spacing_md"
-            android:layout_marginHorizontal="@dimen/spacing_xxl"
+            android:layout_marginHorizontal="@dimen/card_detail_margin_horizontal"
             android:clipChildren="false"
             android:clipToPadding="false"
             app:layout_constraintDimensionRatio="1:1.54"
-            app:layout_constraintTop_toBottomOf="@id/btn_close_collection_detail"
+            app:layout_constraintTop_toBottomOf="@id/tv_detail_card_name"
             app:layout_constraintBottom_toTopOf="@id/guide_notch"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -147,7 +165,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Divider vệt xé vé -->
         <View
             android:id="@+id/divider_ticket"
             android:layout_width="0dp"
@@ -167,6 +184,7 @@
             android:paddingHorizontal="@dimen/spacing_md"
             android:paddingTop="@dimen/spacing_sm"
             android:paddingBottom="@dimen/spacing_md"
+            android:gravity="center_horizontal"
             app:layout_constraintTop_toBottomOf="@id/guide_notch"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

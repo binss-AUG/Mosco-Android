@@ -142,6 +142,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         ImageView ivBack = view.findViewById(R.id.iv_back);
         rvInventory = view.findViewById(R.id.rv_inventory);
+        // [QUIET LUXURY] Áp dụng phanh ABS
+        com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvInventory);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         View layoutActionButtons = view.findViewById(R.id.layout_action_buttons);
         btnConfirm = view.findViewById(R.id.btn_confirm);

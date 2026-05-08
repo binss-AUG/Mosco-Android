@@ -60,51 +60,31 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Sort + Filter row -->
-            <RelativeLayout
+            <!-- Standardized Filter Bar -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:paddingHorizontal="@dimen/radius_lg"
                 android:paddingTop="@dimen/radius_lg"
                 android:paddingBottom="@dimen/spacing_sm">
 
-                <!-- Sort Button -->
-                <TextView
-                    android:id="@+id/btn_sort_objets"
-                    style="@style/FilterChipStyle"
-                    android:layout_width="110dp"
-                    android:layout_alignParentStart="true"
-                    android:text="@string/inventory_label_sort_newest"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    app:drawableEndCompat="@drawable/ic_arrow_down"
-                    android:drawablePadding="@dimen/spacing_xs"
-                    app:drawableTint="@color/selector_filter_chip_text" />
+                <com.vn.jet.mosco.view.InventoryFilterBar
+                    android:id="@+id/filter_bar_objets"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/inventory_filter_bar_height"
+                    android:layout_weight="1" />
 
-                <!-- Filter Button -->
-                <TextView
-                    android:id="@+id/btn_filter_objets"
-                    style="@style/FilterChipStyle"
-                    android:layout_toEndOf="@id/btn_sort_objets"
-                    android:layout_marginStart="@dimen/spacing_sm"
-                    android:text="@string/inventory_label_filter"
-                    app:drawableStartCompat="@drawable/ic_filter"
-                    android:drawablePadding="@dimen/spacing_6dp"
-                    app:drawableTint="@color/selector_filter_chip_text" />
-
-                <!-- Item Count -->
                 <TextView
                     android:id="@+id/tv_objet_types_count"
                     style="@style/MoscoText.Luxury.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginHorizontal="@dimen/spacing_6dp"
+                    android:layout_marginStart="@dimen/spacing_sm"
                     android:text="@string/inventory_format_items_count"
                     android:textSize="@dimen/text_size_body_sm" />
-
-            </RelativeLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
