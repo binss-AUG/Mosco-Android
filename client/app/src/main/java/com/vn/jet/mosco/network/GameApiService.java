@@ -57,7 +57,7 @@ public interface GameApiService {
     /**
      * Upgrade endpoint.
      */
-    @POST("/api/gacha/upgrade")
+    @POST("/api/v1/upgrade")
     Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UpgradeResponse>> upgradeCard(
             @Body com.vn.jet.mosco.model.UpgradeRequest request);
 

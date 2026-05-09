@@ -57,11 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/upgrade_header_title"
-                style="@style/MoscoText.Luxury.SubHeader"
-                android:textSize="@dimen/text_size_h3"
-                android:textStyle="bold"
-                android:fontWeight="900"
-                android:letterSpacing="0.1" />
+                style="@style/MoscoText.Luxury.Header" />
             
             <View
                 android:layout_width="@dimen/spacing_xl"
@@ -646,20 +642,13 @@
     <!-- ═══════════════════════════════════ -->
     <!-- Upgrade Button -->
     <!-- ═══════════════════════════════════ -->
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_upgrade"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="0.6"
-        android:background="@drawable/bg_upgrade_button_disabled"
         android:enabled="false"
-        style="@style/MoscoText.Luxury.Button"
+        style="@style/MoscoButton.Primary"
         android:text="@string/upgrade_btn_text"
-        android:textAllCaps="true"
-        android:textColor="@color/mosco_text_dim"
-        android:textSize="@dimen/text_size_body_lg"
-        android:textStyle="bold"
-        android:fontWeight="700"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

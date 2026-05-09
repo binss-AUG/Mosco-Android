@@ -1667,6 +1667,15 @@ public class CollectionFragment extends Fragment {
         private boolean isPagingLoading = false;
         private int totalCards = 0;
         private int ownedCount = 0;
+        
+        private final android.content.BroadcastReceiver inventoryUpdateReceiver = new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, android.content.Intent intent) {
+                if ("ACTION_INVENTORY_UPDATED".equals(intent.getAction())) {
+                    loadCollectionBook();
+                }
+            }
+        };
 
         @Nullable
         @Override
@@ -1731,6 +1740,24 @@ public class CollectionFragment extends Fragment {
             });
 
             loadCollectionBook();
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            if (getContext() != null) {
+                androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(getContext())
+                        .registerReceiver(inventoryUpdateReceiver, new android.content.IntentFilter("ACTION_INVENTORY_UPDATED"));
+            }
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            if (getContext() != null) {
+                androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(getContext())
+                        .unregisterReceiver(inventoryUpdateReceiver);
+            }
         }
 
         private void loadNextPage() {
