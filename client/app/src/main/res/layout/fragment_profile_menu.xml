@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mosco_screen_bg"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Galaxy Style Header (Synced with Daily Checkin) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_header_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:paddingTop="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/spacing_md">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="@dimen/spacing_xs"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/white" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/spacing_md"
+            app:layout_constraintStart_toEndOf="@id/btn_back"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CENTRAL HUB"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_h3"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
+            
+            <View
+                android:layout_width="@dimen/spacing_xl"
+                android:layout_height="2dp"
+                android:layout_marginTop="@dimen/spacing_xxs"
+                android:background="@color/mosco_primary" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg">
+
+            <!-- Header -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_account"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_h3"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/spacing_md" />
+
+            <!-- Account Actions -->
+            <include
+                android:id="@+id/menu_edit_profile"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_sm" />
+
+            <include
+                android:id="@+id/menu_forgot_password"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_sm" />
+
+            <include
+                android:id="@+id/menu_switch_account"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_lg" />
+
+            <!-- System Settings Header -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_system"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_h3"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/spacing_md" />
+
+            <include
+                android:id="@+id/menu_settings"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_sm" />
+
+            <include
+                android:id="@+id/menu_logout"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_xl" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

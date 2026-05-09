@@ -445,11 +445,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     filtered.add(obj);
                     continue;
                 }
-                // For card member and season lookup
-                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-                String member = meta != null ? meta.optString("member", obj.getMember()) : obj.getMember();
+                String member = obj.getMember();
                 String cardClass = obj.getTypeKey();
-                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
+                String season = obj.getSeason();
                 String mappedClass = mapClassToTypeKey(cardClass);
                 
                 boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
@@ -459,14 +457,6 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 if (matchArtist && matchClass && matchSeason) {
                     filtered.add(obj);
                 }
-            }
-
-            // Cache seasons to avoid DB lookups inside the sort loop
-            java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
-            for (Objet obj : filtered) {
-                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
-                seasonCache.put(obj.getId(), season != null ? season : "");
             }
 
             filtered.sort((a, b) -> {
@@ -489,10 +479,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     if (rankA != rankB) {
                         result = Integer.compare(rankA, rankB);
                     } else {
-                        String s1 = seasonCache.get(a.getId());
-                        String s2 = seasonCache.get(b.getId());
-                        if (s1 == null) s1 = "";
-                        if (s2 == null) s2 = "";
+                        String s1 = a.getSeason() != null ? a.getSeason() : "";
+                        String s2 = b.getSeason() != null ? b.getSeason() : "";
                         int seasonComp = s1.compareToIgnoreCase(s2);
                         if (seasonComp != 0) {
                             result = seasonComp;
@@ -512,10 +500,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     }
                 }
                 else if ("Season".equals(currentSort)) {
-                    String s1 = seasonCache.get(a.getId());
-                    String s2 = seasonCache.get(b.getId());
-                    if (s1 == null) s1 = "";
-                    if (s2 == null) s2 = "";
+                    String s1 = a.getSeason() != null ? a.getSeason() : "";
+                    String s2 = b.getSeason() != null ? b.getSeason() : "";
                     int seasonComp = s1.compareToIgnoreCase(s2);
                     if (seasonComp != 0) {
                         result = seasonComp;
