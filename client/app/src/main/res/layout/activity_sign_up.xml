@@ -270,33 +270,26 @@
                                 android:textCursorDrawable="@null" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <androidx.appcompat.widget.AppCompatButton
+                        <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_send_code"
-                            style="@style/MoscoText.Luxury.Label"
                             android:layout_width="@dimen/spacing_100dp"
-                            android:layout_height="@dimen/spacing_52dp"
-                            android:background="@drawable/bg_shop_buy_btn"
-                            android:stateListAnimator="@animator/btn_scale_anim"
+                            android:layout_height="wrap_content"
+                            app:moscoStyle="primary"
+                            app:moscoSize="large"
                             android:text="@string/auth_action_send_code"
-                            android:textAllCaps="false"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/text_size_body"
-                            app:elevation="0dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->
-                    <androidx.appcompat.widget.AppCompatButton
+                    <com.vn.jet.mosco.widget.MoscoButton
                         android:id="@+id/btn_signup"
-                        style="@style/MoscoText.Luxury.Button.Primary"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/spacing_56dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xl"
-                        android:background="@drawable/bg_btn_luxury_action"
-                        android:elevation="@dimen/spacing_xxs"
                         android:nextFocusForward="@id/tv_go_to_signin"
-                        android:stateListAnimator="@animator/luxury_button_state_animator"
+                        app:moscoStyle="primary"
+                        app:moscoSize="large"
                         android:text="@string/auth_action_sign_up" />
 
                     <!-- OR Divider -->

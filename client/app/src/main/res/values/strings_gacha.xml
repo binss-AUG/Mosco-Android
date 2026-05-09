@@ -34,7 +34,7 @@
     <string name="upgrade_header_title">UPGRADE</string>
     <string name="upgrade_label_materials">MATERIALS</string>
     <string name="upgrade_format_materials_count">%1$d / %2$d Selected</string>
-    <string name="upgrade_label_boost">UPGRADE BOOST</string>
+    <string name="upgrade_label_boost">UPGRADE RATE</string>
     <string name="upgrade_action_upgrading">UPGRADING…</string>
     <string name="upgrade_msg_select_main">Please select a main card first!</string>
     <string name="upgrade_msg_success">Upgrade Successful!</string>

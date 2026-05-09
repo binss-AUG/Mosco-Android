@@ -9,7 +9,7 @@ public class UpgradeAlgorithm {
     // Models đại diện cho dữ liệu từ JSON
     public static class Card {
         public String id;
-        public String typeKey; // Phải là: "FirstWelcome", "Double", "SpecialUnit", "Premier"
+        public String typeKey; // Phải là: "First", "Welcome", "Double", "SpecialUnit", "Premier"
         public int level; // 1 đến 10
         public int ovr; // Lấy từ cardOvr.json
     }
@@ -47,7 +47,13 @@ public class UpgradeAlgorithm {
         
         // 1. Lấy cấu hình nâng cấp từ DB / JSON
         Double maxSuccessRate = upgradeRates.get(targetNextLevel);
-        UpgradeConfig config = customUpgrades.get(targetNextLevel).get(target.typeKey);
+        UpgradeConfig config = null;
+        if (customUpgrades.get(targetNextLevel) != null) {
+            config = customUpgrades.get(targetNextLevel).get(target.typeKey);
+            if (config == null && !customUpgrades.get(targetNextLevel).isEmpty()) {
+                config = customUpgrades.get(targetNextLevel).values().iterator().next(); // Fallback
+            }
+        }
 
         if (maxSuccessRate == null || config == null) {
             throw new RuntimeException("Lỗi cấu hình dữ liệu thẻ");
@@ -103,8 +109,13 @@ public class UpgradeAlgorithm {
 
         int targetNextLevel = target.level + 1;
         Double maxSuccessRate = upgradeRates.get(targetNextLevel);
-        UpgradeConfig config = customUpgrades.get(targetNextLevel) != null 
-                ? customUpgrades.get(targetNextLevel).get(target.typeKey) : null;
+        UpgradeConfig config = null;
+        if (customUpgrades.get(targetNextLevel) != null) {
+            config = customUpgrades.get(targetNextLevel).get(target.typeKey);
+            if (config == null && !customUpgrades.get(targetNextLevel).isEmpty()) {
+                config = customUpgrades.get(targetNextLevel).values().iterator().next(); // Fallback
+            }
+        }
 
         if (maxSuccessRate == null || config == null) {
             return 0.0;

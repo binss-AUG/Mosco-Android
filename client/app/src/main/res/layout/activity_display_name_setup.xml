@@ -120,18 +120,14 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Rainbow Button -->
-                    <androidx.appcompat.widget.AppCompatButton
+                    <com.vn.jet.mosco.widget.MoscoButton
                         android:id="@+id/btn_enter_galaxy"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/spacing_56dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_lg"
-                        android:background="@drawable/bg_btn_rainbow"
                         android:text="@string/setup_btn_enter"
-                        style="@style/MoscoText.Luxury.Button"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/text_size_body_md"
-                        android:elevation="@dimen/spacing_xxs" />
+                        app:moscoStyle="primary"
+                        app:moscoSize="large" />
 
                 </LinearLayout>
 

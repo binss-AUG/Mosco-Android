@@ -113,4 +113,5 @@
     <!-- Content Descriptions -->
     <string name="cd_close">Close button</string>
     <string name="cd_back">Back button</string>
+    <string name="common_hint_search">Search...</string>
 </resources>

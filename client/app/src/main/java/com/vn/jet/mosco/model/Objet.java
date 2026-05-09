@@ -12,7 +12,7 @@ public class Objet {
     // Thuộc tính bổ sung cho chức năng Upgrade
     private int ovr;
     @com.google.gson.annotations.SerializedName("cardClass")
-    private String typeKey; // "FirstWelcome", "Double", "SpecialUnit", "Premier"
+    private String typeKey; // "First", "Welcome", "Double", "SpecialUnit", "Premier"
     
     // Metadata from Server (Replaces local JSON)
     private String backImageUrl;

@@ -140,22 +140,16 @@
             </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_spin"
             android:layout_width="0dp"
             android:layout_height="@dimen/spacing_56dp"
             android:layout_marginHorizontal="@dimen/spacing_20dp"
             android:layout_marginBottom="@dimen/spacing_20dp"
-            android:background="@drawable/bg_btn_rainbow"
-            android:backgroundTint="@color/mosco_btn_disabled"
+            app:moscoStyle="primary"
+            app:moscoSize="large"
             android:enabled="false"
             android:text="@string/spin_action_spin"
-            style="@style/MoscoText.Luxury.Button"
-            android:textAllCaps="false"
-            android:textColor="@color/mosco_text_disabled"
-            android:textSize="@dimen/text_size_body_md"
-            android:textStyle="bold"
-            android:fontWeight="700"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -195,21 +189,15 @@
             app:layout_constraintBottom_toTopOf="@+id/btn_confirm_select"
             tools:listitem="@layout/item_secret_card" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_confirm_select"
             android:layout_width="0dp"
             android:layout_height="@dimen/spacing_56dp"
             android:layout_marginHorizontal="@dimen/spacing_20dp"
-            android:background="@drawable/bg_btn_rainbow"
-            android:backgroundTint="@color/mosco_btn_disabled"
+            app:moscoStyle="primary"
+            app:moscoSize="large"
             android:enabled="false"
             android:text="@string/spin_action_confirm"
-            style="@style/MoscoText.Luxury.Button"
-            android:textAllCaps="false"
-            android:textColor="@color/mosco_text_disabled"
-            android:textSize="@dimen/text_size_body_md"
-            android:textStyle="bold"
-            android:fontWeight="700"
             app:layout_constraintTop_toBottomOf="@+id/rv_secret_grid"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -328,21 +316,15 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Nút Done -->
-        <androidx.appcompat.widget.AppCompatButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_collect"
             android:layout_width="0dp"
             android:layout_height="@dimen/spacing_56dp"
             android:layout_marginHorizontal="@dimen/spacing_20dp"
             android:layout_marginBottom="30dp"
-            android:background="@drawable/bg_btn_rainbow"
-            android:backgroundTint="@color/mosco_card_stroke"
+            app:moscoStyle="primary"
+            app:moscoSize="large"
             android:text="@string/spin_action_collect"
-            style="@style/MoscoText.Luxury.Button"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_body_md"
-            android:textStyle="bold"
-            android:fontWeight="700"
             android:alpha="0"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -404,20 +386,14 @@
             app:layout_constraintBottom_toTopOf="@+id/btn_try_again" />
 
         <!-- Nút Try Again — CÙNG constraint với btn_confirm_select -->
-        <androidx.appcompat.widget.AppCompatButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_try_again"
             android:layout_width="0dp"
             android:layout_height="@dimen/spacing_56dp"
             android:layout_marginHorizontal="@dimen/spacing_40dp"
-            android:background="@drawable/bg_btn_rainbow"
-            android:backgroundTint="@color/mosco_card_stroke"
+            app:moscoStyle="primary"
+            app:moscoSize="large"
             android:text="@string/spin_action_try_again"
-            style="@style/MoscoText.Luxury.Button"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_body_md"
-            android:textStyle="bold"
-            android:fontWeight="700"
             app:layout_constraintTop_toBottomOf="@+id/rv_reveal_result_grid"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

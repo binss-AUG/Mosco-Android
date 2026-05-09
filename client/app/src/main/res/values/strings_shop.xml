@@ -17,4 +17,6 @@
     <string name="shop_dialog_action_inventory">Inventory</string>
     <string name="shop_dialog_action_use_now">Use Now</string>
     <string name="shop_msg_insufficient_funds">Insufficient Galactic currency!</string>
+    <string name="shop_msg_purchase_success">Purchase Successful!</string>
+    <string name="shop_search_hint">Search in 20,000+ items...</string>
 </resources>

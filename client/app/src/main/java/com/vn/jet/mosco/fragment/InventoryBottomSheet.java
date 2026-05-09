@@ -565,12 +565,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     }
 
     private String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "FirstWelcome";
+        if (cardClass == null) return "First";
         String key = cardClass.replaceAll("\\s+", "");
         if (key.equalsIgnoreCase("Double")) return "Double";
         if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
         if (key.equalsIgnoreCase("Premier")) return "Premier";
-        return "FirstWelcome";
+        if (key.equalsIgnoreCase("Welcome")) return "Welcome";
+        return "First";
     }
 
     private double calculateCurrentProgress() {

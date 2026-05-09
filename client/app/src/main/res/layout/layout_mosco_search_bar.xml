@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@drawable/bg_glass_input"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/spacing_12dp">
+
+    <!-- Magnifying Glass Icon -->
+    <ImageView
+        android:layout_width="@dimen/spacing_20dp"
+        android:layout_height="@dimen/spacing_20dp"
+        android:src="@drawable/ic_search"
+        app:tint="@color/mosco_white_60" />
+
+    <!-- Search Input Area -->
+    <EditText
+        android:id="@+id/et_search"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@null"
+        android:hint="@string/common_hint_search"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:paddingHorizontal="@dimen/spacing_8dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/mosco_white_40"
+        android:textSize="14sp"
+        android:fontFamily="@font/pretendard" />
+
+    <!-- Clear Icon (Visible only when text is present) -->
+    <ImageView
+        android:id="@+id/iv_clear"
+        android:layout_width="@dimen/spacing_20dp"
+        android:layout_height="@dimen/spacing_20dp"
+        android:src="@drawable/ic_close"
+        android:visibility="gone"
+        app:tint="@color/mosco_white_60"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
+</LinearLayout>

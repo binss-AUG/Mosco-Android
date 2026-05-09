@@ -123,33 +123,22 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/spacing_xxl"
-                android:background="@android:color/transparent"
+                android:layout_height="wrap_content"
                 android:text="@string/action_cancel"
-                style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:textAllCaps="false"
-                android:textColor="@color/mosco_text_disabled"
-                android:textSize="@dimen/text_size_body_sm" />
+                app:moscoStyle="secondary"
+                app:moscoSize="medium" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_save"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/spacing_xxl"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/radius_lg"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_card_stroke"
                 android:text="@string/action_save"
-                style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="@dimen/spacing_20dp"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_body_sm"
-                android:textStyle="bold"
-                android:fontWeight="700" />
+                app:moscoStyle="primary"
+                app:moscoSize="medium" />
 
         </LinearLayout>
     </LinearLayout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. Tầng Shadow & Glow (Tỏa sáng bên ngoài) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/spacing_28dp" />
+            <solid android:color="#1A6C29FD" /> <!-- Tỏa sáng màu tím nhẹ -->
+        </shape>
+    </item>
+
+    <!-- 2. Tầng Nền Kính Lỏng (Liquid Glass Background) -->
+    <item android:left="2dp" android:top="2dp" android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/spacing_24dp" />
+            <!-- Gradient tạo hiệu ứng bề mặt chất lỏng sáng bóng -->
+            <gradient
+                android:angle="135"
+                android:startColor="#CC1E2033"
+                android:centerColor="#991A1C29"
+                android:endColor="#CC0D0E1A"
+                android:type="linear" />
+            
+            <!-- Viền Neon siêu mảnh chuẩn Luxury -->
+            <stroke
+                android:width="0.8dp"
+                android:color="#4DFFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 3. Tầng Phản chiếu ánh sáng (Specular Highlight) -->
+    <item android:left="10dp" android:top="2dp" android:right="10dp" android:bottom="40dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/spacing_24dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#1AFFFFFF"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+</layer-list>

@@ -1667,7 +1667,7 @@ public class CollectionFragment extends Fragment {
         private boolean isPagingLoading = false;
         private int totalCards = 0;
         private int ownedCount = 0;
-        
+
         private final android.content.BroadcastReceiver inventoryUpdateReceiver = new android.content.BroadcastReceiver() {
             @Override
             public void onReceive(Context context, android.content.Intent intent) {
@@ -1715,7 +1715,7 @@ public class CollectionFragment extends Fragment {
             // RecyclerView
             rvAlbum = view.findViewById(R.id.rv_album);
             rvAlbum.setLayoutManager(new GridLayoutManager(requireContext(), 3));
-            rvAlbum.setHasFixedSize(false);
+            rvAlbum.setHasFixedSize(true);
             rvAlbum.setItemViewCacheSize(20);
             rvAlbum.setDrawingCacheEnabled(true);
             rvAlbum.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
@@ -1747,7 +1747,8 @@ public class CollectionFragment extends Fragment {
             super.onResume();
             if (getContext() != null) {
                 androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(getContext())
-                        .registerReceiver(inventoryUpdateReceiver, new android.content.IntentFilter("ACTION_INVENTORY_UPDATED"));
+                        .registerReceiver(inventoryUpdateReceiver,
+                                new android.content.IntentFilter("ACTION_INVENTORY_UPDATED"));
             }
         }
 

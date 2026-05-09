@@ -26,6 +26,9 @@ import com.vn.jet.mosco.network.BuyRequest;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.widget.MoscoDialogManager;
+import com.vn.jet.mosco.widget.MoscoNotification;
+import com.vn.jet.mosco.widget.MoscoButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +118,7 @@ public class ShopFragment extends Fragment {
             }
             @Override
             public void onFailure(Call<List<ShopItem>> call, Throwable t) {
-                Toast.makeText(requireContext(), getString(R.string.shop_error_load), Toast.LENGTH_SHORT).show();
+                MoscoNotification.showError(requireActivity(), getString(R.string.shop_error_load));
             }
         });
     }
@@ -157,7 +160,8 @@ public class ShopFragment extends Fragment {
         String selectedCat = categories.get(Math.min(selectedChipIndex, categories.size() - 1));
         
         for (ShopItem item : allShopItems) {
-            if (selectedCat.equals("All") || item.getType().equalsIgnoreCase(selectedCat)) {
+            boolean matchesCategory = selectedCat.equals("All") || item.getType().equalsIgnoreCase(selectedCat);
+            if (matchesCategory) {
                 filteredList.add(item);
             }
         }
@@ -185,78 +189,95 @@ public class ShopFragment extends Fragment {
                     showSuccessDialog(item, quantity);
                     fetchUserResources(); // Refresh coins and diamonds
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.shop_msg_purchase_failed), Toast.LENGTH_SHORT).show();
+                    MoscoNotification.showError(requireActivity(), getString(R.string.shop_msg_purchase_failed));
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+                MoscoNotification.showError(requireActivity(), getString(R.string.common_error_network));
             }
         });
     }
 
     private void showSuccessDialog(ShopItem item, int quantity) {
-        android.app.Dialog dialog = new android.app.Dialog(requireContext());
-        dialog.setContentView(R.layout.dialog_shop_success);
-        
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
-            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_shop_success, null);
+        android.app.Dialog dialog = MoscoDialogManager.createLiquidDialog(requireContext(), view);
 
-        TextView tvMessage = dialog.findViewById(R.id.tv_success_message);
-        com.google.android.material.button.MaterialButton btnInventory = dialog.findViewById(R.id.btn_go_inventory);
-        com.google.android.material.button.MaterialButton btnUse = dialog.findViewById(R.id.btn_use_now);
-        com.google.android.material.button.MaterialButton btnOk = dialog.findViewById(R.id.btn_ok);
+        TextView tvMsg = view.findViewById(R.id.tv_success_message);
+        tvMsg.setText(getString(R.string.shop_format_buy_success, quantity, item.getName()));
 
-        tvMessage.setText(getString(R.string.shop_format_buy_success, quantity, item.getName()));
+        com.vn.jet.mosco.widget.MoscoButton btnInventory = view.findViewById(R.id.btn_go_inventory);
+        com.vn.jet.mosco.widget.MoscoButton btnUseNow = view.findViewById(R.id.btn_use_now);
+        com.vn.jet.mosco.widget.MoscoButton btnOk = view.findViewById(R.id.btn_ok);
 
-        String itemType = item.getType() != null ? item.getType().toUpperCase() : "";
-        boolean isResource = itemType.equals("RESOURCE");
-
-        if (isResource) {
-            // Resource items: just show OK
-            btnInventory.setVisibility(View.GONE);
-            btnUse.setVisibility(View.GONE);
+        // Nếu là tài nguyên (Resource), chỉ hiện nút OK
+        if (item.getType().equalsIgnoreCase("RESOURCE")) {
+            view.findViewById(R.id.ll_actions_standard).setVisibility(View.GONE);
             btnOk.setVisibility(View.VISIBLE);
             btnOk.setOnClickListener(v -> dialog.dismiss());
         } else {
-            // Pack/Objet/Buff: show Inventory + Use Now
-            btnInventory.setVisibility(View.VISIBLE);
-            btnUse.setVisibility(View.VISIBLE);
-            btnOk.setVisibility(View.GONE);
-
+            // Điều hướng về Inventory (Tab Collection → sub-tab Items)
             btnInventory.setOnClickListener(v -> {
                 dialog.dismiss();
                 if (getActivity() != null) {
+                    // Tạo CollectionFragment với default_tab = 3 (Items tab)
                     CollectionFragment collectionFragment = new CollectionFragment();
-                    android.os.Bundle args = new android.os.Bundle();
+                    Bundle args = new Bundle();
                     args.putInt("default_tab", 3);
                     collectionFragment.setArguments(args);
+
                     getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                             .replace(R.id.frame_layout, collectionFragment)
                             .commit();
+
+                    // Đồng bộ BottomNav highlight về tab Collection
+                    if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+                        android.widget.FrameLayout frame = getActivity().findViewById(R.id.frame_layout);
+                        com.google.android.material.bottomnavigation.BottomNavigationView nav =
+                                getActivity().findViewById(R.id.bottom_navigation);
+                        if (nav != null) nav.setSelectedItemId(R.id.nav_collect);
+                    }
                 }
             });
 
-            btnUse.setOnClickListener(v -> {
+            // Điều hướng: "Dùng ngay" — mở màn hình mở thẻ cho PACK, hoặc về Inventory cho loại khác
+            btnUseNow.setOnClickListener(v -> {
                 dialog.dismiss();
-                if (itemType.equals("PACK")) {
-                    // Chỉ PACK mới đi vào luồng open pack.
-                    if (getActivity() != null) {
-                        ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
-                                item.getName(), item.getDescription(),
-                                item.getImageUri(), quantity, item.getProductCode());
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.frame_layout, revealFragment)
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                } else if (itemType.equals("OBJET")) {
-                    Toast.makeText(requireContext(), getString(R.string.reveal_error_only_packs), Toast.LENGTH_SHORT).show();
+                if (getActivity() == null) return;
+
+                if (item.getType().equalsIgnoreCase("PACK")) {
+                    // Mở màn hình Open Pack (ItemRevealFragment)
+                    ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
+                            item.getName(),
+                            item.getDescription(),
+                            item.getImageUri() != null ? item.getImageUri() : "",
+                            quantity,
+                            item.getProductCode()
+                    );
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.frame_layout, revealFragment)
+                            .addToBackStack(null)
+                            .commit();
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.shop_format_used, quantity, item.getName()), Toast.LENGTH_SHORT).show();
+                    // BUFF/OBJET: chuyển về Collection → sub-tab Items để dùng
+                    CollectionFragment collectionFragment = new CollectionFragment();
+                    Bundle args = new Bundle();
+                    args.putInt("default_tab", 3);
+                    collectionFragment.setArguments(args);
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                            .replace(R.id.frame_layout, collectionFragment)
+                            .commit();
+
+                    if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+                        com.google.android.material.bottomnavigation.BottomNavigationView nav =
+                                getActivity().findViewById(R.id.bottom_navigation);
+                        if (nav != null) nav.setSelectedItemId(R.id.nav_collect);
+                    }
                 }
             });
         }
@@ -265,27 +286,21 @@ public class ShopFragment extends Fragment {
     }
 
     private void showBuyDialog(ShopItem item) {
-        android.app.Dialog dialog = new android.app.Dialog(requireContext());
-        dialog.setContentView(R.layout.dialog_shop_buy);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_shop_buy, null);
+        android.app.Dialog dialog = MoscoDialogManager.createLiquidDialog(requireContext(), dialogView);
         
-        // Ensure the dialog takes full width of the screen
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
-            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        ImageView ivImage = dialog.findViewById(R.id.iv_dialog_image);
-        TextView tvName = dialog.findViewById(R.id.tv_dialog_name);
-        TextView tvRarity = dialog.findViewById(R.id.tv_dialog_rarity);
-        TextView tvDesc = dialog.findViewById(R.id.tv_dialog_desc);
-        TextView tvTimer = dialog.findViewById(R.id.tv_dialog_timer);
-        TextView btnMinus = dialog.findViewById(R.id.btn_minus);
-        TextView btnPlus = dialog.findViewById(R.id.btn_plus);
-        android.widget.EditText etQuantity = dialog.findViewById(R.id.et_quantity);
-        ImageView ivTotalIcon = dialog.findViewById(R.id.iv_total_icon);
-        TextView tvTotalPrice = dialog.findViewById(R.id.tv_total_price);
-        com.google.android.material.button.MaterialButton btnConfirm = dialog.findViewById(R.id.btn_confirm_buy);
-        ImageView btnClose = dialog.findViewById(R.id.btn_dialog_close);
+        ImageView ivImage = dialogView.findViewById(R.id.iv_dialog_image);
+        TextView tvName = dialogView.findViewById(R.id.tv_dialog_name);
+        TextView tvRarity = dialogView.findViewById(R.id.tv_dialog_rarity);
+        TextView tvDesc = dialogView.findViewById(R.id.tv_dialog_desc);
+        TextView tvTimer = dialogView.findViewById(R.id.tv_dialog_timer);
+        TextView btnMinus = dialogView.findViewById(R.id.btn_minus);
+        TextView btnPlus = dialogView.findViewById(R.id.btn_plus);
+        android.widget.EditText etQuantity = dialogView.findViewById(R.id.et_quantity);
+        ImageView ivTotalIcon = dialogView.findViewById(R.id.iv_total_icon);
+        TextView tvTotalPrice = dialogView.findViewById(R.id.tv_total_price);
+        com.vn.jet.mosco.widget.MoscoButton btnConfirm = dialogView.findViewById(R.id.btn_confirm_buy);
+        ImageView btnClose = dialogView.findViewById(R.id.btn_dialog_close);
 
         final int[] qty = {1};
         final long priceC = item.getPriceCoins() != null ? item.getPriceCoins() : 0;
@@ -320,7 +335,7 @@ public class ShopFragment extends Fragment {
             long total = (priceD > 0 ? priceD : priceC) * qty[0];
             tvTotalPrice.setText(NumberUtils.format(requireContext(), total));
         };
-        updatePrice.run(); // Initial calculation
+        updatePrice.run(); 
 
         etQuantity.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -329,11 +344,7 @@ public class ShopFragment extends Fragment {
                 if (s.length() == 0) return;
                 try {
                     int val = Integer.parseInt(s.toString());
-                    if (val < 1) {
-                        qty[0] = 1;
-                    } else {
-                        qty[0] = val;
-                    }
+                    qty[0] = Math.max(1, val);
                 } catch (Exception e) {
                     qty[0] = 1;
                 }
@@ -351,15 +362,12 @@ public class ShopFragment extends Fragment {
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
         btnConfirm.setOnClickListener(v -> {
-            new android.app.AlertDialog.Builder(requireContext())
-                    .setTitle(getString(R.string.shop_dialog_buy_confirm_title))
-                    .setMessage(getString(R.string.shop_dialog_buy_confirm_msg, qty[0], item.getName(), tvTotalPrice.getText().toString()))
-                    .setPositiveButton(getString(R.string.action_buy), (dialogInterface, i) -> {
-                        dialog.dismiss();
-                        executePurchase(item, qty[0]);
-                    })
-                    .setNegativeButton(getString(R.string.action_cancel), null)
-                    .show();
+            dialog.dismiss();
+            MoscoDialogManager.showConfirm(requireContext(),
+                    getString(R.string.shop_dialog_buy_confirm_title),
+                    getString(R.string.shop_dialog_buy_confirm_msg, qty[0], item.getName(), tvTotalPrice.getText().toString()),
+                    getString(R.string.action_buy),
+                    () -> executePurchase(item, qty[0]));
         });
 
         dialog.show();
@@ -387,7 +395,6 @@ public class ShopFragment extends Fragment {
             h.tvName.setText(item.getName());
             h.tvDesc.setText(item.getDescription());
             
-            // Handle Limited Time display via separate TextView
             if (item.getEndTime() != null && item.getEndTime() != -1L) {
                 long timeLeftMs = item.getEndTime() - System.currentTimeMillis();
                 if (timeLeftMs > 0) {
@@ -403,15 +410,13 @@ public class ShopFragment extends Fragment {
                     h.tvTimer.setVisibility(View.INVISIBLE);
                 }
             } else {
-                h.tvTimer.setVisibility(View.INVISIBLE); // Keep layout height stable
+                h.tvTimer.setVisibility(View.INVISIBLE);
             }
             
-            // Format price string based on what it costs
             long price = (item.getPriceCoins() != null && item.getPriceCoins() > 0) ? item.getPriceCoins() : (item.getPriceDiamonds() != null ? item.getPriceDiamonds() : 0);
             h.tvPrice.setText(NumberUtils.format(h.itemView.getContext(), price));
             h.tvRarity.setText(item.getType());
             
-            // Set currency icon
             if (item.getPriceDiamonds() != null && item.getPriceDiamonds() > 0) {
                 h.ivPriceIcon.setImageResource(R.drawable.ic_item_diamond);
             } else {
@@ -424,7 +429,6 @@ public class ShopFragment extends Fragment {
                     .into(h.ivImage);
 
             h.itemView.setOnClickListener(v -> showBuyDialog(item));
-
             h.btnBuy.setOnClickListener(v -> showBuyDialog(item));
         }
 
@@ -439,7 +443,7 @@ public class ShopFragment extends Fragment {
             final TextView  tvTimer;
             final TextView  tvPrice;
             final TextView  tvRarity;
-            final TextView  btnBuy;
+            final com.vn.jet.mosco.widget.MoscoButton btnBuy;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);

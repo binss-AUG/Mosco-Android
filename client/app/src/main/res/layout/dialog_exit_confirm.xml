@@ -1,92 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="340dp"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/bg_glass_exit"
-    android:padding="@dimen/spacing_2dp">
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/spacing_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_28dp">
+        android:orientation="vertical">
 
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_md"
             android:src="@drawable/ic_close"
             app:tint="@color/mosco_error" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/radius_lg"
-            android:text="@string/dialog_exit_title"
-            style="@style/MoscoText.Luxury.Header"
+            style="@style/MoscoText.Luxury.SubHeader"
             android:textAlignment="center"
-            android:textSize="22sp"
+            android:text="@string/dialog_exit_title"
+            android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
-            android:fontWeight="700"
-            android:letterSpacing="0.05" />
+            android:fontWeight="700" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/dialog_exit_msg"
+            android:layout_marginTop="@dimen/radius_lg"
             style="@style/MoscoText.Luxury.Body"
             android:textAlignment="center"
-            android:textColor="@color/palette_gray_300"
-            android:textSize="@dimen/text_size_body_md"
-            android:alpha="0.8"
-            android:lineSpacingExtra="5dp" />
+            android:text="@string/dialog_exit_msg"
+            android:textColor="@color/mosco_text_disabled"
+            android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_36dp"
-            android:gravity="center"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_56dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:text="@string/dialog_btn_stay"
-                style="@style/MoscoText.Luxury.Button"
-                android:textAllCaps="true"
-                android:textColor="@color/mosco_text_disabled"
-                android:textSize="@dimen/text_size_body_sm"
-                android:textStyle="bold"
-                android:fontWeight="700"
-                android:letterSpacing="0.15" />
+                app:moscoStyle="ghost"
+                app:moscoSize="large"
+                android:text="@string/dialog_btn_stay" />
 
-            <!-- Using the premium button background -->
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_exit"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_56dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="@dimen/spacing_20dp"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_error"
-                android:text="@string/dialog_btn_exit"
-                style="@style/MoscoText.Luxury.Button"
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_body_sm"
-                android:textStyle="bold"
-                android:fontWeight="700"
-                android:letterSpacing="0.15" />
+                android:layout_marginStart="@dimen/spacing_12dp"
+                app:moscoStyle="destructive"
+                app:moscoSize="large"
+                android:text="@string/dialog_btn_exit" />
 
         </LinearLayout>
     </LinearLayout>
-</FrameLayout>
-
-
-
+</androidx.constraintlayout.widget.ConstraintLayout>
