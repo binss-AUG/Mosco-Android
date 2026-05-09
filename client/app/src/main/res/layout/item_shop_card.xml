@@ -144,16 +144,13 @@
                 tools:text="250" />
 
             <!-- Buy Button -->
-            <TextView
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_buy"
-                style="@style/MoscoText.Luxury.Badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_shop_buy_btn"
-                android:paddingHorizontal="30dp"
-                android:paddingVertical="@dimen/spacing_6dp"
-                android:text="@string/shop_action_buy"
-                android:textColor="@color/mosco_on_surface" />
+                app:moscoStyle="primary"
+                app:moscoSize="small"
+                android:text="@string/shop_action_buy" />
 
         </LinearLayout>
 

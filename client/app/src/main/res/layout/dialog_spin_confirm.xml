@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    app:cardBackgroundColor="@color/mosco_card_bg"
-    app:cardCornerRadius="@dimen/spacing_md"
-    app:cardElevation="@dimen/spacing_sm">
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/spacing_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_lg">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
@@ -36,39 +34,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_lg"
-            android:gravity="end"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/spacing_xxl"
-                android:background="@android:color/transparent"
-                style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:text="@string/action_cancel"
-                android:textAllCaps="false"
-                android:textColor="@color/mosco_text_disabled"
-                android:textSize="@dimen/text_size_body_sm" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:moscoStyle="ghost"
+                app:moscoSize="large"
+                android:text="@string/action_cancel" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_confirm"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/spacing_xxl"
-                android:layout_marginStart="@dimen/radius_lg"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_card_stroke"
-                style="@style/MoscoText.Luxury.Button"
-                android:paddingHorizontal="@dimen/spacing_20dp"
-                android:text="@string/spin_dialog_action_spin"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_body_sm"
-                android:textStyle="bold"
-                android:fontWeight="700" />
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/spacing_12dp"
+                app:moscoStyle="primary"
+                app:moscoSize="large"
+                android:text="@string/spin_dialog_action_spin" />
 
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
-
-
+</androidx.constraintlayout.widget.ConstraintLayout>

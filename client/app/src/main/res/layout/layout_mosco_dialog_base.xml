@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/spacing_24dp"
+    android:gravity="center">
+
+    <LinearLayout
+        android:id="@+id/dialog_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_surface_solid"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_24dp"
+        android:elevation="@dimen/spacing_10dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Tiêu đề"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:fontFamily="@font/pretendard_bold" />
+
+        <!-- Body / Content Placeholder -->
+        <FrameLayout
+            android:id="@+id/fl_dialog_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_16dp">
+            
+            <TextView
+                android:id="@+id/tv_dialog_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Nội dung thông báo chi tiết xuất hiện ở đây."
+                android:textColor="@color/mosco_white_80"
+                android:textSize="14sp"
+                android:fontFamily="@font/pretendard" />
+        </FrameLayout>
+
+        <!-- Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_24dp"
+            android:orientation="horizontal">
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_negative"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:moscoStyle="ghost"
+                app:moscoSize="large"
+                android:text="Hủy" />
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_positive"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/spacing_12dp"
+                app:moscoStyle="primary"
+                app:moscoSize="large"
+                android:text="Xác nhận" />
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>

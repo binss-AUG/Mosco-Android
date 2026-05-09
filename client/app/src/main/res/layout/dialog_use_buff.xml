@@ -1,175 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacing_lg"
-    app:cardBackgroundColor="@color/mosco_surface_container"
-    app:cardCornerRadius="@dimen/spacing_md"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/mosco_outline_variant"
-    app:strokeWidth="@dimen/stroke_thin">
+    android:layout_gravity="center"
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/spacing_lg">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Close button -->
+    <ImageView
+        android:id="@+id/btn_dialog_close"
+        android:layout_width="@dimen/spacing_28dp"
+        android:layout_height="@dimen/spacing_28dp"
+        android:src="@drawable/ic_close"
+        app:tint="@color/mosco_on_surface_variant"
+        android:padding="@dimen/spacing_xs"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Item Image -->
+    <ImageView
+        android:id="@+id/iv_buff_image"
+        android:layout_width="@dimen/spacing_80dp"
+        android:layout_height="@dimen/spacing_80dp"
+        android:scaleType="centerInside"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:src="@drawable/item_shop_demo" />
+
+    <!-- Item Name -->
+    <TextView
+        android:id="@+id/tv_buff_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:gravity="center"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textColor="@color/mosco_on_surface"
+        android:textSize="@dimen/text_size_body_md"
+        android:textStyle="bold"
+        android:fontWeight="700"
+        tools:text="XP Boost"
+        app:layout_constraintTop_toBottomOf="@id/iv_buff_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Item Description -->
+    <TextView
+        android:id="@+id/tv_buff_desc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:gravity="center"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_on_surface_variant"
+        android:textSize="@dimen/text_size_body_xs"
+        tools:text="Doubles your XP gain for 30 minutes."
+        app:layout_constraintTop_toBottomOf="@id/tv_buff_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Quantity section -->
+    <TextView
+        android:id="@+id/tv_qty_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_20dp"
+        android:text="@string/label_quantity"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_on_surface_variant"
+        android:textSize="@dimen/text_size_body_xs"
+        app:layout_constraintTop_toBottomOf="@id/tv_buff_desc"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_available_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_20dp"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_on_surface_variant"
+        android:textSize="@dimen/text_size_body_xs"
+        tools:text="Available: 12"
+        app:layout_constraintTop_toBottomOf="@id/tv_buff_desc"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Quantity Controls -->
+    <LinearLayout
+        android:id="@+id/ll_qty_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/spacing_lg">
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tv_qty_label">
 
-        <!-- Close button -->
-        <ImageView
-            android:id="@+id/btn_dialog_close"
-            android:layout_width="@dimen/spacing_28dp"
-            android:layout_height="@dimen/spacing_28dp"
-            android:src="@drawable/ic_close"
-            app:tint="@color/mosco_on_surface_variant"
-            android:padding="@dimen/spacing_xs"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Item Image -->
-        <ImageView
-            android:id="@+id/iv_buff_image"
-            android:layout_width="@dimen/spacing_80dp"
-            android:layout_height="@dimen/spacing_80dp"
-            android:scaleType="centerInside"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:src="@drawable/item_shop_demo" />
-
-        <!-- Item Name -->
         <TextView
-            android:id="@+id/tv_buff_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
+            android:id="@+id/btn_minus"
+            android:layout_width="@dimen/spacing_xxl"
+            android:layout_height="@dimen/spacing_xxl"
+            android:background="@drawable/bg_filter_chip"
             android:gravity="center"
-            style="@style/MoscoText.Luxury.SubHeader"
+            android:text="−"
             android:textColor="@color/mosco_on_surface"
-            android:textSize="@dimen/text_size_body_md"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:fontWeight="700"
-            tools:text="XP Boost"
-            app:layout_constraintTop_toBottomOf="@id/iv_buff_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:clickable="true"
+            android:focusable="true" />
 
-        <!-- Item Description -->
-        <TextView
-            android:id="@+id/tv_buff_desc"
+        <android.widget.EditText
+            android:id="@+id/et_quantity"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_height="@dimen/spacing_xxl"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_weight="1"
+            android:background="@drawable/bg_filter_chip"
             android:gravity="center"
-            style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="@dimen/text_size_body_xs"
-            tools:text="Doubles your XP gain for 30 minutes."
-            app:layout_constraintTop_toBottomOf="@id/tv_buff_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Quantity section -->
-        <TextView
-            android:id="@+id/tv_qty_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_20dp"
-            android:text="@string/label_quantity"
-            style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="@dimen/text_size_body_xs"
-            app:layout_constraintTop_toBottomOf="@id/tv_buff_desc"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:inputType="number"
+            android:maxLength="2"
+            android:text="1"
+            android:textColor="@color/mosco_on_surface"
+            android:textSize="@dimen/text_size_subtitle"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_available_qty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_20dp"
-            style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="@dimen/text_size_body_xs"
-            tools:text="Available: 12"
-            app:layout_constraintTop_toBottomOf="@id/tv_buff_desc"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Quantity Controls -->
-        <LinearLayout
-            android:id="@+id/ll_qty_controls"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/tv_qty_label">
-
-            <TextView
-                android:id="@+id/btn_minus"
-                android:layout_width="@dimen/spacing_xxl"
-                android:layout_height="@dimen/spacing_xxl"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_surface_variant"
-                android:gravity="center"
-                android:text="−"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <android.widget.EditText
-                android:id="@+id/et_quantity"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_xxl"
-                android:layout_marginHorizontal="@dimen/spacing_sm"
-                android:layout_weight="1"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_surface_container_high"
-                android:gravity="center"
-                android:inputType="number"
-                android:maxLength="2"
-                android:text="1"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="@dimen/text_size_subtitle"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_plus"
-                android:layout_width="@dimen/spacing_xxl"
-                android:layout_height="@dimen/spacing_xxl"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_surface_variant"
-                android:gravity="center"
-                android:text="+"
-                android:textColor="@color/mosco_on_surface"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
-
-        </LinearLayout>
-
-        <!-- Use Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_use"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/spacing_56dp"
-            android:layout_marginTop="@dimen/spacing_20dp"
-            android:text="@string/action_use"
-            style="@style/MoscoText.Luxury.Button"
-            android:textSize="@dimen/text_size_body_md"
+            android:id="@+id/btn_plus"
+            android:layout_width="@dimen/spacing_xxl"
+            android:layout_height="@dimen/spacing_xxl"
+            android:background="@drawable/bg_filter_chip"
+            android:gravity="center"
+            android:text="+"
+            android:textColor="@color/mosco_on_surface"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:fontWeight="700"
-            app:cornerRadius="@dimen/radius_lg"
-            app:backgroundTint="@color/mosco_primary"
-            app:layout_constraintTop_toBottomOf="@id/ll_qty_controls" />
+            android:clickable="true"
+            android:focusable="true" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+    <!-- Use Button -->
+    <com.vn.jet.mosco.widget.MoscoButton
+        android:id="@+id/btn_use"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_20dp"
+        app:moscoStyle="primary"
+        app:moscoSize="large"
+        android:text="@string/action_use"
+        app:layout_constraintTop_toBottomOf="@id/ll_qty_controls" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

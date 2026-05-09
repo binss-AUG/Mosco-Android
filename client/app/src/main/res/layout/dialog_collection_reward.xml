@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="@dimen/spacing_lg"
-    android:background="@drawable/bg_dialog_galactic"
+    android:background="@drawable/bg_surface_solid"
     android:padding="@dimen/spacing_lg">
 
     <!-- Hiệu ứng nổ Lottie -->
@@ -73,17 +73,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_reward_title" />
 
-    <com.google.android.material.button.MaterialButton
+    <com.vn.jet.mosco.widget.MoscoButton
         android:id="@+id/btn_claim_reward"
-        style="@style/MoscoButton.IconGlass"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/spacing_56dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_xl"
         android:layout_marginHorizontal="@dimen/spacing_20dp"
-        android:textAppearance="@style/MoscoText.Luxury.Button"
+        app:moscoStyle="primary"
+        app:moscoSize="large"
         android:text="@string/action_collect"
-        android:textColor="@color/white"
-        app:cornerRadius="@dimen/radius_lg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_reward_desc" />
 

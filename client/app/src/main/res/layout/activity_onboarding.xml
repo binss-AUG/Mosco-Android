@@ -26,19 +26,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.vn.jet.mosco.widget.MoscoButton
         android:id="@+id/btn_next"
-        style="@style/MoscoText.Luxury.Button"
         android:layout_width="0dp"
-        android:layout_height="@dimen/spacing_56dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/spacing_xl"
         android:layout_marginEnd="@dimen/spacing_xl"
         android:layout_marginBottom="@dimen/spacing_xl"
-        android:background="@drawable/bg_btn_rainbow"
-        android:elevation="@dimen/spacing_xs"
+        app:moscoStyle="primary"
+        app:moscoSize="large"
         android:text="@string/action_get_started"
-        android:textAllCaps="false"
-                app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

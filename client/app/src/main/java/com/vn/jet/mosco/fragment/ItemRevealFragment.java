@@ -161,9 +161,9 @@ public class ItemRevealFragment extends Fragment {
         TextView tvItemQty = view.findViewById(R.id.tv_item_qty);
         ImageView ivItemImage = view.findViewById(R.id.iv_item_image);
         MaterialCardView cardItem = view.findViewById(R.id.card_item);
-        MaterialButton btnOpenOne = view.findViewById(R.id.btn_open_one);
-        MaterialButton btnOpenAll = view.findViewById(R.id.btn_open_all);
-        MaterialButton btnDone = view.findViewById(R.id.btn_done);
+        com.vn.jet.mosco.widget.MoscoButton btnOpenOne = view.findViewById(R.id.btn_open_one);
+        com.vn.jet.mosco.widget.MoscoButton btnOpenAll = view.findViewById(R.id.btn_open_all);
+        com.vn.jet.mosco.widget.MoscoButton btnDone = view.findViewById(R.id.btn_done);
         
         packFlashOverlay = view.findViewById(R.id.view_pack_flash_overlay);
 
@@ -729,7 +729,7 @@ public class ItemRevealFragment extends Fragment {
     private void showBulkSummaryResult(List<Map<String, Object>> bulkCards, JSONObject topCardJson) {
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
         TextView tvTitle = getView().findViewById(R.id.tv_item_name);
-        MaterialButton btnDone = getView().findViewById(R.id.btn_done);
+        com.vn.jet.mosco.widget.MoscoButton btnDone = getView().findViewById(R.id.btn_done);
         LinearLayout llButtons = getView().findViewById(R.id.ll_buttons);
 
         // --- 1. Micro-lift card: giữ near-center, tránh jump theo trục Y ---
@@ -910,9 +910,7 @@ public class ItemRevealFragment extends Fragment {
         if (btnOpenAll != null) btnOpenAll.setVisibility(View.GONE);
         btnDone.setVisibility(View.VISIBLE);
         btnDone.setText(getString(R.string.reveal_action_collect_all, bulkCards.size()));
-        btnDone.setBackgroundTintList(ColorStateList.valueOf(
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary)));
-        btnDone.setCornerRadius((int) getResources().getDimension(R.dimen.reveal_button_corner_radius_summary)); 
+        // MoscoButton tự quản lý style/radius qua XML attrs (moscoStyle="primary")
         btnDone.setAlpha(getPercent(R.integer.reveal_overlay_alpha_hidden_percent));
         btnDone.animate().alpha(getPercent(R.integer.reveal_alpha_visible_percent)).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms)).start();
         

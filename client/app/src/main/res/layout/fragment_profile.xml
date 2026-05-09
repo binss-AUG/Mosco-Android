@@ -207,20 +207,13 @@
                     android:textSize="@dimen/text_size_profile_section"
                     android:letterSpacing="0.1" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.vn.jet.mosco.widget.MoscoButton
                     android:id="@+id/btn_edit_profile"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_nav_height"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_16dp"
-                    android:text="@string/profile_action_edit"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/pretendard"
-                    android:fontWeight="200"
-                    android:textSize="@dimen/text_size_profile_nav"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="wrap_content"
+                    app:moscoStyle="ghost"
+                    app:moscoSize="medium"
+                    android:text="@string/profile_action_edit" />
 
                 <View
                     android:layout_width="match_parent"
@@ -228,20 +221,13 @@
                     android:layout_marginHorizontal="@dimen/spacing_16dp"
                     android:background="@color/white_10" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.vn.jet.mosco.widget.MoscoButton
                     android:id="@+id/btn_inventory"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_nav_height"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_16dp"
-                    android:text="@string/profile_action_inventory"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/pretendard"
-                    android:fontWeight="200"
-                    android:textSize="@dimen/text_size_profile_nav"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="wrap_content"
+                    app:moscoStyle="ghost"
+                    app:moscoSize="medium"
+                    android:text="@string/profile_action_inventory" />
 
                 <View
                     android:layout_width="match_parent"
@@ -249,20 +235,13 @@
                     android:layout_marginHorizontal="@dimen/spacing_16dp"
                     android:background="@color/white_10" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.vn.jet.mosco.widget.MoscoButton
                     android:id="@+id/btn_change_password"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_nav_height"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_16dp"
-                    android:text="@string/profile_action_change_password"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/pretendard"
-                    android:fontWeight="200"
-                    android:textSize="@dimen/text_size_profile_nav"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="wrap_content"
+                    app:moscoStyle="ghost"
+                    app:moscoSize="medium"
+                    android:text="@string/profile_action_change_password" />
 
                 <!-- SECTION SPACING -->
                 <View
@@ -281,20 +260,13 @@
                     android:textSize="@dimen/text_size_profile_section"
                     android:letterSpacing="0.1" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.vn.jet.mosco.widget.MoscoButton
                     android:id="@+id/btn_settings"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_nav_height"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_16dp"
-                    android:text="@string/profile_action_settings"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/pretendard"
-                    android:fontWeight="200"
-                    android:textSize="@dimen/text_size_profile_nav"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="wrap_content"
+                    app:moscoStyle="ghost"
+                    app:moscoSize="medium"
+                    android:text="@string/profile_action_settings" />
 
                 <View
                     android:layout_width="match_parent"
@@ -302,20 +274,13 @@
                     android:layout_marginHorizontal="@dimen/spacing_16dp"
                     android:background="@color/white_10" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.vn.jet.mosco.widget.MoscoButton
                     android:id="@+id/btn_logout"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/profile_nav_height"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_16dp"
-                    android:text="@string/profile_action_logout"
-                    android:textAllCaps="false"
-                    android:textColor="@color/stat_atk"
-                    android:fontFamily="@font/pretendard"
-                    android:fontWeight="200"
-                    android:textSize="@dimen/text_size_profile_nav"
-                    android:letterSpacing="0.02" />
+                    android:layout_height="wrap_content"
+                    app:moscoStyle="destructive"
+                    app:moscoSize="medium"
+                    android:text="@string/profile_action_logout" />
 
                 <!-- 4. Footer Section -->
                 <View

@@ -228,33 +228,19 @@
                         app:layout_constraintEnd_toEndOf="parent" />
 
                     <!-- Next Button -->
-                    <com.google.android.material.card.MaterialCardView
+                    <com.vn.jet.mosco.widget.MoscoButton
                         android:id="@+id/btn_step1_next"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/spacing_lg"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
-                        app:cardCornerRadius="@dimen/radius_lg"
-                        app:cardElevation="@dimen/spacing_xs"
-                        app:cardBackgroundColor="@color/mosco_primary"
-                        android:clickable="true"
-                        android:focusable="true"
+                        android:text="@string/action_next"
+                        app:moscoStyle="primary"
+                        app:moscoSize="large"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/action_next"
-                            style="@style/MoscoText.Luxury.Button"
-                            android:textSize="@dimen/text_size_body_md"
-                            android:textStyle="bold"
-                            android:fontWeight="700"
-                            android:textAlignment="center"
-                            android:paddingVertical="@dimen/spacing_14dp" />
-                    </com.google.android.material.card.MaterialCardView>
+                        app:layout_constraintEnd_toEndOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <!-- STEP 2: Chọn Bạn bè -->
@@ -340,57 +326,27 @@
                         android:orientation="horizontal">
 
                         <!-- Previous -->
-                        <com.google.android.material.card.MaterialCardView
+                        <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_step2_prev"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="@dimen/spacing_sm"
-                            app:cardCornerRadius="@dimen/radius_lg"
-                            app:cardElevation="@dimen/spacing_2dp"
-                            app:cardBackgroundColor="@color/mosco_card_bg_variant"
-                            app:strokeColor="@color/palette_obsidian_300"
-                            app:strokeWidth="@dimen/stroke_thin"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/action_previous"
-                                style="@style/MoscoText.Luxury.Button"
-                                android:textColor="@color/mosco_text_disabled"
-                                android:textSize="@dimen/text_size_body_sm"
-                                android:textStyle="bold"
-                                android:fontWeight="700"
-                                android:textAlignment="center"
-                                android:paddingVertical="@dimen/spacing_14dp" />
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/action_previous"
+                            app:moscoStyle="secondary"
+                            app:moscoSize="large" />
 
                         <!-- Next Button -->
-                        <com.google.android.material.card.MaterialCardView
+                        <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_step2_next"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="@dimen/spacing_sm"
-                            app:cardCornerRadius="@dimen/radius_lg"
-                            app:cardElevation="@dimen/spacing_xs"
-                            app:cardBackgroundColor="@color/mosco_primary"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:alpha="0.5">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/action_next"
-                                style="@style/MoscoText.Luxury.Button"
-                                android:textSize="@dimen/text_size_body_md"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:paddingVertical="@dimen/spacing_14dp" />
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/action_next"
+                            app:moscoStyle="primary"
+                            app:moscoSize="large"
+                            android:alpha="0.5" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -586,81 +542,39 @@
                         android:orientation="horizontal">
 
                         <!-- Cancel -->
-                        <com.google.android.material.card.MaterialCardView
+                        <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_confirm_cancel"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="@dimen/spacing_sm"
-                            app:cardCornerRadius="@dimen/radius_lg"
-                            app:cardElevation="@dimen/spacing_2dp"
-                            app:cardBackgroundColor="@color/mosco_card_bg_variant"
-                            app:strokeColor="@color/palette_obsidian_300"
-                            app:strokeWidth="@dimen/stroke_thin"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/action_previous"
-                                style="@style/MoscoText.Luxury.Button"
-                                android:textColor="@color/mosco_text_disabled"
-                                android:textSize="@dimen/text_size_body_sm"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:paddingVertical="@dimen/spacing_14dp" />
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/action_previous"
+                            app:moscoStyle="secondary"
+                            app:moscoSize="large" />
 
                         <!-- Send Button -->
-                        <com.google.android.material.card.MaterialCardView
+                        <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_confirm_send"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="@dimen/spacing_sm"
-                            app:cardCornerRadius="@dimen/radius_lg"
-                            app:cardElevation="@dimen/spacing_xs"
-                            app:cardBackgroundColor="@color/mosco_primary"
-                            android:clickable="true"
-                            android:focusable="true">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/gift_action_send"
-                                style="@style/MoscoText.Luxury.Button"
-                                android:textSize="@dimen/text_size_body_md"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:paddingVertical="@dimen/spacing_14dp" />
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/gift_action_send"
+                            app:moscoStyle="primary"
+                            app:moscoSize="large" />
                     </LinearLayout>
 
                     <!-- DONE Button (Hidden until success) -->
-                    <com.google.android.material.card.MaterialCardView
+                    <com.vn.jet.mosco.widget.MoscoButton
                         android:id="@+id/btn_confirm_done"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/spacing_lg"
                         android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
-                        app:cardCornerRadius="@dimen/radius_lg"
-                        app:cardElevation="@dimen/spacing_xs"
-                        app:cardBackgroundColor="@color/mosco_primary"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/action_done"
-                            style="@style/MoscoText.Luxury.Button"
-                            android:textSize="@dimen/text_size_body_md"
-                            android:textStyle="bold"
-                            android:textAlignment="center"
-                            android:paddingVertical="@dimen/spacing_14dp" />
-                    </com.google.android.material.card.MaterialCardView>
+                        android:text="@string/action_done"
+                        app:moscoStyle="primary"
+                        app:moscoSize="large"
+                        android:visibility="gone" />
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>

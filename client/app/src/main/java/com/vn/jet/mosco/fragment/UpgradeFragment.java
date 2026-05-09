@@ -48,6 +48,7 @@ import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.UpgradeAlgorithm;
 import com.vn.jet.mosco.view.SpriteSheetView;
 import com.vn.jet.mosco.view.UpgradeSceneView;
+import com.vn.jet.mosco.widget.MoscoButton;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -529,18 +530,13 @@ public class UpgradeFragment extends Fragment {
         }
 
         // Nút DONE
-        androidx.appcompat.widget.AppCompatButton btnDone = new androidx.appcompat.widget.AppCompatButton(
-                requireContext());
+        MoscoButton btnDone = new MoscoButton(requireContext());
         btnDone.setText(getString(R.string.action_done));
-        btnDone.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        btnDone.setBackgroundResource(R.drawable.bg_upgrade_button_active);
         btnDone.setVisibility(View.GONE);
         btnDone.setAlpha(0f);
-        btnDone.setTextSize(16f);
-        btnDone.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
 
         int btnWidth = screenWidth - (int) (48 * getResources().getDisplayMetrics().density);
-        int btnHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.07f);
+        int btnHeight = (int) getResources().getDimension(R.dimen.spacing_56dp);
         FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(btnWidth, btnHeight);
         btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
         btnParams.bottomMargin = (int) (DONE_BUTTON_BOTTOM_MARGIN_DP * getResources().getDisplayMetrics().density);
@@ -917,10 +913,23 @@ public class UpgradeFragment extends Fragment {
             return;
         viewProgressFill.post(() -> {
             ViewGroup parent = (ViewGroup) viewProgressFill.getParent();
-            int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
-            ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
-            params.width = fillWidth;
-            viewProgressFill.setLayoutParams(params);
+            if (parent.getWidth() == 0) {
+                parent.getViewTreeObserver().addOnGlobalLayoutListener(new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
+                        ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
+                        params.width = fillWidth;
+                        viewProgressFill.setLayoutParams(params);
+                    }
+                });
+            } else {
+                int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
+                ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
+                params.width = fillWidth;
+                viewProgressFill.setLayoutParams(params);
+            }
         });
     }
 
@@ -991,11 +1000,6 @@ public class UpgradeFragment extends Fragment {
         }
         boolean canUpgrade = mainCard != null && hasMaterials && mainCard.getCardLevel() < 10;
         btnUpgrade.setEnabled(canUpgrade);
-        btnUpgrade.setAlpha(canUpgrade ? 1.0f : 0.6f);
-        btnUpgrade.setBackgroundResource(
-                canUpgrade ? R.drawable.bg_upgrade_button_active : R.drawable.bg_upgrade_button_disabled);
-        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
-        btnUpgrade.setTextColor(canUpgrade ? Color.WHITE : disabledColor);
     }
 
     private UpgradeAlgorithm.Card createAlgoCard(Objet card) {

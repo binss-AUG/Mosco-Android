@@ -64,7 +64,7 @@ public class SpinFragment extends Fragment {
 
     private View btnAddObjet;
     private ImageView ivSelectedObjet;
-    private AppCompatButton btnSpin;
+    private com.vn.jet.mosco.widget.MoscoButton btnSpin;
     private View ivBgCard1, ivBgCard2, ivBgCard3;
     private com.google.android.material.card.MaterialCardView cardCenterSlot;
     private View layoutSelectedFront;
@@ -75,7 +75,7 @@ public class SpinFragment extends Fragment {
     private View layoutSpinMain;
     private View layoutRevealGrid;
     private RecyclerView rvSecretGrid;
-    private AppCompatButton btnConfirmSelect;
+    private com.vn.jet.mosco.widget.MoscoButton btnConfirmSelect;
     private SecretCardAdapter secretAdapter;
     private int selectedPosition = -1;
     private int secretCardHeight = 0;
@@ -87,7 +87,7 @@ public class SpinFragment extends Fragment {
     private ImageView ivResultImage;
     private ImageView ivResultBack;
     private View viewNeonGlow;
-    private AppCompatButton btnCollect;
+    private com.vn.jet.mosco.widget.MoscoButton btnCollect;
     private TextView tvRevealUnchosen;
     private TextView tvResultTitle;
     private TextView tvResultSubtitle;
@@ -95,7 +95,7 @@ public class SpinFragment extends Fragment {
     // Reveal Result Grid UI
     private View layoutRevealResultGrid;
     private RecyclerView rvRevealResultGrid;
-    private AppCompatButton btnTryAgain;
+    private com.vn.jet.mosco.widget.MoscoButton btnTryAgain;
     private ImageView ivRevealBack;
     private RevealResultAdapter revealResultAdapter;
     private int revealCardHeight = 0;
@@ -249,7 +249,7 @@ public class SpinFragment extends Fragment {
         }
         dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
-            AppCompatButton btnC = (AppCompatButton) v;
+            com.vn.jet.mosco.widget.MoscoButton btnC = (com.vn.jet.mosco.widget.MoscoButton) v;
             btnC.setEnabled(false);
             btnC.setText(getString(R.string.spin_action_charging));
 

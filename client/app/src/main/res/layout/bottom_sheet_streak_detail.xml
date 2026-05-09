@@ -157,16 +157,14 @@
                 android:alpha="0.6"
                 android:layout_marginTop="@dimen/spacing_xxs" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_restore_streak"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/item_reveal_result_button_height"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_md"
                 android:text="@string/streak_action_restore"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                app:cornerRadius="@dimen/radius_m"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/galactic_accent_purple" />
+                app:moscoStyle="primary"
+                app:moscoSize="medium" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

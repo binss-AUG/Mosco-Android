@@ -176,16 +176,14 @@
                             android:textSize="@dimen/text_size_body_xs" />
                     </RelativeLayout>
 
-                    <androidx.appcompat.widget.AppCompatButton
+                    <com.vn.jet.mosco.widget.MoscoButton
                         android:id="@+id/btn_signin"
-                        style="@style/MoscoText.Luxury.Button.Primary"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/spacing_56dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_lg"
-                        android:background="@drawable/bg_btn_luxury_action"
-                        android:elevation="@dimen/spacing_xxs"
                         android:nextFocusForward="@id/tv_forgot_password"
-                        android:stateListAnimator="@animator/luxury_button_state_animator"
+                        app:moscoStyle="primary"
+                        app:moscoSize="large"
                         android:text="@string/auth_action_sign_in" />
 
                     <!-- OR Divider -->

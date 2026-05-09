@@ -121,7 +121,7 @@
         android:textSize="@dimen/text_size_body_sm"
         android:gravity="center"
         android:paddingHorizontal="@dimen/spacing_40dp"
-        tools:text="Rates: 80% FirstWelcome, 15% Double"
+        tools:text="Rates: 80% First, Welcome, 15% Double"
         app:layout_constraintTop_toBottomOf="@id/tv_item_qty"
         app:layout_constraintBottom_toTopOf="@id/ll_buttons"
         app:layout_constraintStart_toStartOf="parent"
@@ -139,35 +139,38 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <!-- Open x1 -->
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_open_one"
-            style="@style/MoscoButton.RevealPrimary"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_sm"
-            android:text="@string/reveal_action_open_x1"
-            android:textSize="@dimen/text_size_subtitle" />
+            app:moscoStyle="primary"
+            app:moscoSize="large"
+            android:text="@string/reveal_action_open_x1" />
 
         <!-- Open All (only visible when qty > 1) -->
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_open_all"
-            style="@style/MoscoButton.RevealOutlined"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="@dimen/spacing_sm"
+            app:moscoStyle="secondary"
+            app:moscoSize="large"
             android:text="@string/reveal_action_open_all"
-            android:textSize="@dimen/text_size_body_md"
             android:maxLines="1"
             android:ellipsize="end"
             android:visibility="gone" />
 
         <!-- Done Button (visible when qty == 0) -->
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_done"
-            style="@style/MoscoButton.RevealPrimary"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:moscoStyle="primary"
+            app:moscoSize="large"
             android:text="@string/action_confirm"
-            android:textSize="@dimen/text_size_title"
             android:visibility="gone" />
 
     </LinearLayout>
