@@ -253,7 +253,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                     classPrefix = item.getTypeKey().substring(0, 1).toUpperCase();
                 }
                 String formattedName = (item.getMember() != null ? item.getMember() : "") + " " + classPrefix + (item.getCollectionNo() != null ? item.getCollectionNo() : "");
-                itemHolder.tvNameTag.setText(formattedName);
+                formattedName = formattedName.trim();
+                
+                if (formattedName.isEmpty()) {
+                    itemHolder.tvNameTag.setVisibility(View.INVISIBLE);
+                } else {
+                    itemHolder.tvNameTag.setText(formattedName);
+                    itemHolder.tvNameTag.setVisibility(View.VISIBLE);
+                }
             }
 
             if (itemHolder.layoutSkeleton != null) {

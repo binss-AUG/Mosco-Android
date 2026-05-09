@@ -93,14 +93,25 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             CollectionEntry entry = list.get(position);
             if (entry == null) return;
 
-            // Bind Card Name (Instant Metadata) - Move to top for faster UX
+            // Bind Card Name (Quick ID) - [Tên] [ClassPrefix][Số] để đồng bộ hệ thống
             if (vh.tvNameTag != null) {
-                // 1. Tên Member + [Prefix]No (Ví dụ: YeonJi D322A)
-                String classPrefix = "";
-                if (entry.getCardClass() != null && !entry.getCardClass().isEmpty()) {
-                    classPrefix = entry.getCardClass().substring(0, 1).toUpperCase();
+                String member = entry.getMember() != null ? entry.getMember() : "";
+                String colNo = entry.getCollectionNo() != null ? entry.getCollectionNo() : "";
+                String cardClass = entry.getCardClass() != null ? entry.getCardClass() : "";
+                
+                // Thuật toán: [Tên] [Class Prefix][Số]
+                // Ví dụ: JiYeon + First + 503Z -> JiYeon F503Z
+                String cPrefix = cardClass.isEmpty() ? "" : cardClass.substring(0, 1).toUpperCase();
+                
+                String metaSuffix = (cPrefix + colNo).trim();
+                
+                String formattedName;
+                if (member.isEmpty() && metaSuffix.isEmpty()) {
+                    formattedName = "Unknown";
+                } else {
+                    formattedName = (member + " " + metaSuffix).trim();
                 }
-                String formattedName = (entry.getMember() != null ? entry.getMember() : "") + " " + classPrefix + (entry.getCollectionNo() != null ? entry.getCollectionNo() : "");
+                
                 vh.tvNameTag.setText(formattedName);
                 vh.tvNameTag.setVisibility(View.VISIBLE);
             }
@@ -148,6 +159,12 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 if (vh.cvCard != null) {
                     vh.cvCard.setCardBackgroundColor(0xFF0D0F1A);
                 }
+            }
+            
+            // Đảm bảo Name Tag luôn hiển thị và nằm trên cùng (Fix bug mất nhãn ở cột 2)
+            if (vh.tvNameTag != null) {
+                vh.tvNameTag.setVisibility(View.VISIBLE);
+                vh.tvNameTag.bringToFront();
             }
 
 

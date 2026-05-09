@@ -1715,7 +1715,7 @@ public class CollectionFragment extends Fragment {
             // RecyclerView
             rvAlbum = view.findViewById(R.id.rv_album);
             rvAlbum.setLayoutManager(new GridLayoutManager(requireContext(), 3));
-            rvAlbum.setHasFixedSize(true);
+            rvAlbum.setHasFixedSize(false);
             rvAlbum.setItemViewCacheSize(20);
             rvAlbum.setDrawingCacheEnabled(true);
             rvAlbum.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
