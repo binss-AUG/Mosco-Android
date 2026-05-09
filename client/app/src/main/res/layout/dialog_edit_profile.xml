@@ -1,25 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    app:cardBackgroundColor="@color/mosco_card_bg"
-    app:cardCornerRadius="@dimen/spacing_md"
-    app:cardElevation="@dimen/spacing_sm">
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/spacing_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_lg">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/profile_edit_title"
             style="@style/MoscoText.Luxury.SubHeader"
-            android:textSize="@dimen/text_size_body_lg"
+            android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700" />
 
@@ -58,7 +55,7 @@
             android:id="@+id/til_edit_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/radius_lg"
+            android:layout_marginTop="@dimen/spacing_sm"
             app:boxBackgroundMode="none"
             app:hintEnabled="false">
 
@@ -86,7 +83,7 @@
             android:id="@+id/til_edit_display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/radius_lg"
+            android:layout_marginTop="@dimen/spacing_sm"
             app:boxBackgroundMode="none"
             app:hintEnabled="false"
             app:errorEnabled="true"
@@ -120,28 +117,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_lg"
-            android:gravity="end"
             android:orientation="horizontal">
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/action_cancel"
-                app:moscoStyle="secondary"
-                app:moscoSize="medium" />
+                app:moscoStyle="ghost"
+                app:moscoSize="large" />
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/radius_lg"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/spacing_12dp"
                 android:text="@string/action_save"
                 app:moscoStyle="primary"
-                app:moscoSize="medium" />
+                app:moscoSize="large" />
 
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 

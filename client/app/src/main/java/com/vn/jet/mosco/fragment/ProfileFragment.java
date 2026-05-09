@@ -49,6 +49,8 @@ import retrofit2.Response;
  */
 public class ProfileFragment extends Fragment implements AvatarSelectorBottomSheet.OnAvatarSelectedListener {
 
+    private static final long MENU_DEBOUNCE_MS = 500;
+
     private TextView tvUsername, tvEmail, tvLevel;
     private ImageView ivAvatar;
     private View avatarCard, btnEditAvatar, btnMenu;
@@ -59,8 +61,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private String lastImageUrl; // URL ảnh gốc trước khi crop để quay lại
     private Uri lastCroppedUri; // URI ảnh sau khi crop để confirm
+    private long lastMenuClickTime = 0;
 
     public ProfileFragment() {
+        // Constructor mặc định cho Fragment
     }
 
     @Override
@@ -106,8 +110,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void loadAvatar() {
-        // [PHASE 2] Ưu tiên load ảnh đã crop thủ công từ cache
-        File croppedFile = new File(requireContext().getCacheDir(), "avatar_crop.webp");
+        // [PHASE 2] Ưu tiên load ảnh đã crop thủ công từ cache để tối ưu tốc độ và hỗ trợ offline
+        File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
         if (croppedFile.exists()) {
             Glide.with(this)
                     .load(croppedFile)
@@ -120,7 +124,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         String avatarId = sessionManager.getAvatarId();
         if (avatarId == null)
-            avatarId = "1"; // Fallback default
+            avatarId = "1"; // Mặc định là Objet ID 1 nếu chưa có
 
         org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
         if (card != null) {
@@ -155,10 +159,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
     }
 
-    private long lastMenuClickTime = 0;
-
     private void openProfileMenu() {
-        if (android.os.SystemClock.elapsedRealtime() - lastMenuClickTime < 500) {
+        // Chống spam click nút Menu để tránh mở nhiều instance gây lỗi UI
+        if (android.os.SystemClock.elapsedRealtime() - lastMenuClickTime < MENU_DEBOUNCE_MS) {
             return;
         }
         lastMenuClickTime = android.os.SystemClock.elapsedRealtime();
@@ -347,6 +350,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         dialog.show();
     }
 
+    /**
+     * Mở màn hình chọn Objet từ kho đồ để làm phôi cho Avatar
+     */
     private void openAvatarPicker() {
         InventoryBottomSheet inventorySheet = new InventoryBottomSheet();
         inventorySheet.setOnObjetSelectedListener(objet -> {
@@ -357,13 +363,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         inventorySheet.show(getChildFragmentManager(), "InventoryBottomSheet");
     }
 
+    /**
+     * Khởi tạo trình cắt ảnh uCrop với cấu hình đồng bộ Galactic Style
+     */
     private void startManualCrop(String imageUrl, String collectionId) {
         // Lưu tạm collectionId để sau khi crop xong thì update lên server
         sessionManager.setAvatarId(collectionId);
-        this.lastImageUrl = imageUrl; // Lưu lại để quay lại nếu cần
+        this.lastImageUrl = imageUrl; // Lưu lại để quay lại bước này nếu người dùng hủy Preview
 
         Uri sourceUri = Uri.parse(imageUrl);
-        File destinationFile = new File(requireContext().getCacheDir(), "avatar_crop.webp");
+        File destinationFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
         Uri destinationUri = Uri.fromFile(destinationFile);
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
@@ -373,13 +382,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         options.setToolbarWidgetColor(android.graphics.Color.WHITE);
         options.setActiveControlsWidgetColor(getResources().getColor(R.color.mosco_primary));
         
-        // [PHASE 6] Làm header nổi bật hơn và lớp dim mờ kiểu Galactic
+        // [PHASE 6] Làm header nổi bật và sử dụng lớp phủ tối mờ kiểu không gian
         options.setDimmedLayerColor(getResources().getColor(R.color.mosco_black_80)); 
         options.setToolbarCancelDrawable(R.drawable.ic_close);
         options.setToolbarCropDrawable(R.drawable.ic_check);
-        options.setToolbarTitle("IDENTITY CALIBRATION");
+        options.setToolbarTitle(getString(R.string.profile_crop_title));
 
-        // [PHASE 3] Cắt khung tròn
+        // [PHASE 3] Cắt khung tròn để phù hợp với UI profile dạng Avatar Circle
         options.setCircleDimmedLayer(true);
         options.setShowCropFrame(false);
         options.setShowCropGrid(false);
@@ -418,19 +427,22 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
     }
 
+    /**
+     * Kích hoạt chế độ duyệt thử (Inline Preview) sau khi crop ảnh thành công
+     */
     private void enterConfirmationMode(Uri croppedUri) {
         this.lastCroppedUri = croppedUri;
         
-        // Hiện Header xác nhận và chặn tương tác phía dưới
+        // Hiện Header xác nhận và chặn tương tác phía dưới để người dùng tập trung duyệt ảnh
         if (previewHeader != null) previewHeader.setVisibility(View.VISIBLE);
         if (blockingOverlay != null) blockingOverlay.setVisibility(View.VISIBLE);
         
-        // [FIX] Vô hiệu hóa các nút điều hướng chính để tránh "spam"
+        // [FIX] Vô hiệu hóa các nút điều hướng chính để tránh hiện tượng spam/chạm xuyên thấu
         if (btnMenu != null) btnMenu.setEnabled(false);
         if (btnEditAvatar != null) btnEditAvatar.setEnabled(false);
         if (avatarCard != null) avatarCard.setEnabled(false);
         
-        // Cập nhật Avatar preview ngay trên Profile
+        // Cập nhật Avatar preview ngay trên Profile để người dùng thấy diện mạo tổng thể
         Glide.with(this)
                 .load(croppedUri)
                 .skipMemoryCache(true)
@@ -438,8 +450,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 .circleCrop()
                 .into(ivAvatar);
         
-        // Thông báo cho người dùng
-        Toast.makeText(requireContext(), "PREVIEW MODE: Confirm or Recalibrate", Toast.LENGTH_SHORT).show();
+        // Thông báo cho người dùng về trạng thái hiện tại
+        Toast.makeText(requireContext(), getString(R.string.profile_preview_confirm_msg), Toast.LENGTH_SHORT).show();
     }
 
     private void exitConfirmationMode() {
@@ -530,7 +542,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     /**
-     * Parse message lỗi từ Server response body.
+     * Phân tích và trích xuất thông báo lỗi từ Server để hiển thị thân thiện với người dùng
      */
     private String parseServerError(Response<ResponseBody> response) {
         try {
@@ -543,6 +555,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             }
         } catch (Exception ignored) {
         }
-        return "An error occurred. Please try again.";
+        return getString(R.string.profile_error_unknown);
     }
 }

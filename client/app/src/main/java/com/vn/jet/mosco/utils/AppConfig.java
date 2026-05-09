@@ -26,6 +26,9 @@ public class AppConfig {
     public static final long MS_PER_HOUR = 3600000L;
     public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
 
+    // File & Cache Constants
+    public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
+
     // Prevent instantiation
     private AppConfig() {
     }

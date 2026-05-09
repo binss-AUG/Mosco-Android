@@ -44,9 +44,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private java.util.Set<Long> busyIds = new java.util.HashSet<>();
 
     public static final java.util.Set<String> objetFilter = new java.util.LinkedHashSet<>();
-    public static String currentSortOption = "Newest";
+    public static String currentSortOption = "Newest"; 
     private boolean isAscending = false;
-    private final String[] SORT_OPTIONS = {"Newest", "Badge", "Level", "Artist (A-Z)", "Status"};
+    private String[] SORT_OPTIONS;
     private List<Objet> originalObjets = new ArrayList<>();
     private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
 
@@ -139,6 +139,12 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        // Khởi tạo danh sách tùy chọn sắp xếp từ tài nguyên hệ thống để đảm bảo tính nhất quán
+        SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
+        if (currentSortOption == null || currentSortOption.isEmpty()) {
+            currentSortOption = SORT_OPTIONS[0]; // Mặc định là 'Newest'
+        }
 
         ImageView ivBack = view.findViewById(R.id.iv_back);
         rvInventory = view.findViewById(R.id.rv_inventory);
@@ -188,7 +194,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 btnQuickBottom.setOnClickListener(v -> quickPickTeam());
             }
 
-            if (tvTitle != null) tvTitle.setText(isSquadMode ? getString(R.string.stage_squad_title) : getString(R.string.inventory_title));
+            if (tvTitle != null) {
+                tvTitle.setText(isSquadMode ? getString(R.string.stage_squad_title) : getString(R.string.inventory_title));
+            }
             btnConfirm.setOnClickListener(v -> {
                 if (multiSelectListener != null) {
                     multiSelectListener.onMaterialsSelected(selectedMaterials);
@@ -291,6 +299,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
                 Objet obj = Objet.fromCacheItem(item);
                 realObjets.add(obj);
+                // Trạng thái 'AVAILABLE' được coi là sẵn sàng, các trạng thái khác (BUSY, SQUAD, v.v.) sẽ bị khóa
                 if (obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
                     busyIds.add(obj.getId());
                 }
@@ -448,6 +457,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 String member = obj.getMember();
                 String cardClass = obj.getTypeKey();
                 String season = obj.getSeason();
+                
+                // Chuẩn hóa Class Key để khớp với logic lọc của hệ thống
                 String mappedClass = mapClassToTypeKey(cardClass);
                 
                 boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
@@ -468,10 +479,10 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     String m2 = b.getMember() != null ? b.getMember() : "";
                     result = m1.compareToIgnoreCase(m2);
                 }
-                else if ("Status".equals(currentSort)) {
+                else if (SORT_OPTIONS[4].equals(currentSort)) { // Status
                     boolean b1 = busyIds.contains(a.getId());
                     boolean b2 = busyIds.contains(b.getId());
-                    result = Boolean.compare(b1, b2); // Available first by default
+                    result = Boolean.compare(b1, b2); // Thẻ rảnh (Available) hiện lên trước
                 }
                 else if ("Class".equals(currentSort)) {
                     int rankA = getCardClassRank(a.getTypeKey());
@@ -581,9 +592,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         return upgradeAlgorithm.calculateFillPercent(target, algoMaterials);
     }
 
+    /**
+     * Cập nhật văn bản hiển thị trên nút Xác nhận (Confirm) kèm theo tiến độ hoặc số lượng
+     */
     private void updateConfirmButtonText() {
         if (btnConfirm == null) return;
         if (isSquadMode) {
+            // Hiển thị số lượng thẻ đã chọn trong chế độ lập đội hình
             btnConfirm.setText(String.format("Confirm (%d/%d)", selectedMaterials.size(), maxSelectionCount));
             return;
         }
@@ -591,6 +606,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         if (selectedMaterials.isEmpty()) {
             btnConfirm.setText(getString(R.string.action_confirm));
         } else {
+            // Hiển thị phần trăm tỉ lệ thành công khi đập thẻ
             btnConfirm.setText(String.format("Confirm (%.1f%%)", percent));
         }
     }
