@@ -118,6 +118,15 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
                 holder.itemView.setBackgroundResource(R.drawable.bg_header_glass_v2);
             }
 
+            // Click Avatar hoặc Tên để mở Profile (Bridge Bridge)
+            View.OnClickListener profileClick = v -> {
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) context, userId);
+                }
+            };
+            holder.ivAvatar.setOnClickListener(profileClick);
+            holder.tvName.setOnClickListener(profileClick);
+
         } catch (Exception e) {
             // Null-safety
         }

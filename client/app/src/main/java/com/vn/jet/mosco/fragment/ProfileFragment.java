@@ -31,6 +31,10 @@ import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.ProfileViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.Transformations;
+import android.view.ViewStub;
 
 import org.json.JSONObject;
 
@@ -50,15 +54,22 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment implements AvatarSelectorBottomSheet.OnAvatarSelectedListener {
 
     private static final long MENU_DEBOUNCE_MS = 500;
+    public static final String ARG_TARGET_USER_ID = "target_user_id";
 
     private TextView tvUsername, tvEmail, tvLevel;
     private ImageView ivAvatar;
-    private View avatarCard, btnEditAvatar, btnMenu;
+    private View avatarCard, btnEditAvatar, btnMenu, btnBack;
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
+    private View layoutProfileContent;
+    private ViewStub stubShimmer;
+    private View inflatedShimmer;
     private SessionManager sessionManager;
     private GameApiService gameApiService;
+    private ProfileViewModel viewModel;
 
+    private Long targetUserId;
+    private boolean isOwner;
     private String lastImageUrl; // URL ảnh gốc trước khi crop để quay lại
     private Uri lastCroppedUri; // URI ảnh sau khi crop để confirm
     private long lastMenuClickTime = 0;
@@ -71,11 +82,118 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        
+        sessionManager = new SessionManager(requireContext());
+        handleArguments();
+        
         initViews(view);
-        setupSession();
+        setupViewModel();
+        setupProfileRouting(view);
+        
+        if (isOwner) {
+            setupSession();
+        }
+        
         setupListeners();
-        fetchUserStats();
+        
         return view;
+    }
+
+    private void handleArguments() {
+        if (getArguments() != null) {
+            targetUserId = getArguments().getLong(ARG_TARGET_USER_ID, -1L);
+            if (targetUserId == -1L) targetUserId = null;
+        }
+
+        Long currentUserId = sessionManager.getUserId();
+        
+        // Nếu không truyền ID hoặc ID khớp với User hiện tại -> Là Owner
+        isOwner = (targetUserId == null || targetUserId.equals(currentUserId));
+        
+        if (targetUserId == null) {
+            targetUserId = currentUserId;
+        }
+
+        // Kiểm tra Null Safety nghiêm ngặt theo đặc tả
+        if (targetUserId == null) {
+            Log.e("ProfileFragment", "TARGET_USER_ID is null and no session found");
+            // Hiển thị thông báo hoặc đóng fragment nếu cần
+            Toast.makeText(requireContext(), "Không tìm thấy người dùng", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        viewModel.setUserId(targetUserId);
+
+        // Hiển thị Shimmer mặc định nếu chưa có dữ liệu trong cache
+        showShimmer(true);
+
+        // Quan sát dữ liệu Profile với cơ chế Local-First
+        Transformations.distinctUntilChanged(viewModel.getUserStats()).observe(getViewLifecycleOwner(), stats -> {
+            if (stats != null) {
+                showShimmer(false);
+                renderProfileData(stats);
+            }
+        });
+    }
+
+    private void showShimmer(boolean show) {
+        if (show) {
+            if (layoutProfileContent != null) layoutProfileContent.setVisibility(View.GONE);
+            if (inflatedShimmer == null && stubShimmer != null) {
+                inflatedShimmer = stubShimmer.inflate();
+            }
+            if (inflatedShimmer != null) inflatedShimmer.setVisibility(View.VISIBLE);
+        } else {
+            if (inflatedShimmer != null) inflatedShimmer.setVisibility(View.GONE);
+            if (layoutProfileContent != null) layoutProfileContent.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setupProfileRouting(View view) {
+        if (isOwner) {
+            ViewStub stub = view.findViewById(R.id.stub_owner_actions);
+            if (stub != null) {
+                View inflated = stub.inflate();
+                setupOwnerListeners(inflated);
+            }
+            if (btnMenu != null) btnMenu.setVisibility(View.VISIBLE);
+            if (btnEditAvatar != null) btnEditAvatar.setVisibility(View.VISIBLE);
+        } else {
+            ViewStub stub = view.findViewById(R.id.stub_guest_actions);
+            if (stub != null) {
+                View inflated = stub.inflate();
+                setupGuestListeners(inflated);
+            }
+            // Guest không được sửa avatar hay mở menu hệ thống
+            if (btnMenu != null) btnMenu.setVisibility(View.GONE);
+            if (btnEditAvatar != null) btnEditAvatar.setVisibility(View.GONE);
+        }
+    }
+
+    private void renderProfileData(com.vn.jet.mosco.model.UserStats stats) {
+        tvUsername.setText(stats.getIngameName() != null ? stats.getIngameName() : stats.getUsername());
+        tvEmail.setText(isOwner ? stats.getEmail() : getString(R.string.profile_email_placeholder)); // Ẩn email nếu là Guest
+        tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
+        
+        // Load avatar từ URL trong stats nếu có
+        if (stats.getAvatarId() != null) {
+             loadAvatarById(stats.getAvatarId());
+        }
+    }
+
+    private void loadAvatarById(String avatarId) {
+        org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
+        if (card != null) {
+            String imageUrl = card.optString("frontImage");
+            Glide.with(this)
+                    .load(imageUrl)
+                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
+                    .placeholder(R.drawable.ic_user)
+                    .error(R.drawable.ic_user)
+                    .into(ivAvatar);
+        }
     }
 
     private void initViews(View v) {
@@ -86,12 +204,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         ivAvatar = v.findViewById(R.id.iv_avatar);
         avatarCard = v.findViewById(R.id.avatar_card);
         btnEditAvatar = v.findViewById(R.id.btn_edit_avatar);
+        btnBack = v.findViewById(R.id.btn_back);
 
         // [PHASE 5] Preview Views
         previewHeader = v.findViewById(R.id.layout_preview_header);
         blockingOverlay = v.findViewById(R.id.view_blocking_overlay);
         btnPreviewCancel = v.findViewById(R.id.btn_preview_cancel);
         btnPreviewConfirm = v.findViewById(R.id.btn_preview_confirm);
+        layoutProfileContent = v.findViewById(R.id.layout_profile_content);
+        stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
     }
 
     private void setupSession() {
@@ -110,21 +231,23 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void loadAvatar() {
-        // [PHASE 2] Ưu tiên load ảnh đã crop thủ công từ cache để tối ưu tốc độ và hỗ trợ offline
-        File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
-        if (croppedFile.exists()) {
-            Glide.with(this)
-                    .load(croppedFile)
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
-                    .circleCrop()
-                    .into(ivAvatar);
-            return;
+        if (isOwner) {
+            // [PHASE 2] Chỉ Owner mới dùng ảnh đã crop thủ công từ cache
+            File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
+            if (croppedFile.exists()) {
+                Glide.with(this)
+                        .load(croppedFile)
+                        .skipMemoryCache(true)
+                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                        .circleCrop()
+                        .into(ivAvatar);
+                return;
+            }
         }
 
         String avatarId = sessionManager.getAvatarId();
         if (avatarId == null)
-            avatarId = "1"; // Mặc định là Objet ID 1 nếu chưa có
+            avatarId = com.vn.jet.mosco.utils.AppConfig.DEFAULT_AVATAR_ID; // Mặc định từ AppConfig
 
         org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
         if (card != null) {
@@ -145,11 +268,14 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (btnMenu != null) {
             btnMenu.setOnClickListener(v -> openProfileMenu());
         }
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> handleBackAction());
+        }
         avatarCard.setOnClickListener(v -> showAvatarZoomDialog());
         if (btnEditAvatar != null) {
             btnEditAvatar.setOnClickListener(v -> openAvatarPicker());
         }
-
+        
         // [PHASE 5] Inline Preview Listeners
         if (btnPreviewCancel != null) {
             btnPreviewCancel.setOnClickListener(v -> cancelAvatarPreview());
@@ -157,6 +283,45 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (btnPreviewConfirm != null) {
             btnPreviewConfirm.setOnClickListener(v -> confirmAvatarPreview());
         }
+    }
+
+    private void handleBackAction() {
+        if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+            getParentFragmentManager().popBackStack();
+            com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
+        } else {
+            // Nếu không có backstack (ví dụ mở từ tab), quay về Home
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).selectTab(R.id.nav_home);
+            }
+        }
+    }
+
+    private void setupOwnerListeners(View v) {
+        v.findViewById(R.id.btn_edit_profile).setOnClickListener(view -> showEditProfileDialog());
+        v.findViewById(R.id.btn_settings).setOnClickListener(view -> {
+             new SettingsBottomSheet().show(getChildFragmentManager(), "SettingsBottomSheet");
+        });
+        v.findViewById(R.id.btn_resource_management).setOnClickListener(view -> {
+            // Chuyển sang màn hình quản lý kho đồ
+             Toast.makeText(requireContext(), "Coming Soon: Resource Management", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupGuestListeners(View v) {
+        // Áp dụng Click Debounce 500ms theo yêu cầu Tech Lead
+        v.findViewById(R.id.btn_follow).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+            Toast.makeText(requireContext(), getString(R.string.profile_msg_followed), Toast.LENGTH_SHORT).show();
+            // Optimistic UI: Đổi nút sang "Following" (Ví dụ)
+        }));
+        
+        v.findViewById(R.id.btn_add_friend).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+            Toast.makeText(requireContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT).show();
+        }));
+
+        v.findViewById(R.id.btn_direct_message).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+             Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
+        }));
     }
 
     private void openProfileMenu() {
@@ -299,26 +464,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void fetchUserStats() {
-        Long userId = sessionManager.getUserId();
-        if (userId == null)
-            return;
-
-        gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
-            @Override
-            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserStats stats = response.body();
-                    if (tvLevel != null) {
-                        tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserStats> call, Throwable t) {
-                Log.e("ProfileFragment", "Error fetching stats", t);
-            }
-        });
+        // Logic này đã được chuyển vào ProfileViewModel
     }
 
     private void showLogoutConfirmationDialog() {

@@ -34,6 +34,7 @@ import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.ClickDebounce;
 import com.vn.jet.mosco.utils.DatabaseLoader;
+import com.vn.jet.mosco.utils.NavigationUtils;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
 
@@ -358,7 +359,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
         
         if (btnFullRank != null) {
-            btnFullRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
+            btnFullRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
         }
 
         if (vpMiniRanking != null) {
@@ -520,7 +521,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         }
-        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
+        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
         if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FriendActivity.class)));
         if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
         if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
@@ -528,7 +529,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (flAvatarGroup != null) {
             flAvatarGroup.setOnClickListener(new ClickDebounce() {
                 @Override
-                public void onDebouncedClick(View v) { navigateToTab(R.id.nav_profile); }
+                public void onDebouncedClick(View v) { 
+                    NavigationUtils.openProfile(getActivity(), null); 
+                }
             });
         }
 
@@ -1022,6 +1025,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 .placeholder(R.drawable.ic_user)
                 .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
                 .into(holder.ivAvatar);
+
+            // Bridge Bridge: Nhấn vào item mở profile
+            long userId = item.optLong("userId", -1L);
+            holder.itemView.setOnClickListener(v -> {
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile(getActivity(), userId);
+                }
+            });
         }
         @Override public int getItemCount() { return items.size(); }
         class VH extends RecyclerView.ViewHolder {

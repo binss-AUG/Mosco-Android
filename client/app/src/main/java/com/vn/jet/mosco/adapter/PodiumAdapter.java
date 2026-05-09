@@ -145,6 +145,14 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
             .placeholder(R.drawable.ic_user)
             .transform(new SmartFaceCropTransformation())
             .into(ivAvatar);
+
+        // Bridge Bridge: Nhấn avatar mở profile
+        long userId = user.optLong("userId", -1L);
+        ivAvatar.setOnClickListener(v -> {
+            if (userId != -1L) {
+                com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) context, userId);
+            }
+        });
     }
 
     private void runEntranceAnimation(PodiumViewHolder holder) {

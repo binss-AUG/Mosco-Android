@@ -139,6 +139,8 @@ public class RankListFragment extends Fragment {
         // Update footer immediately
         if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
             ((com.vn.jet.mosco.RankActivity) getActivity()).updateMyRank(myRankData, rankType);
+        } else if (getParentFragment() instanceof RankFragment) {
+            ((RankFragment) getParentFragment()).updateMyRank(myRankData, rankType);
         }
     }
 
@@ -153,6 +155,8 @@ public class RankListFragment extends Fragment {
         
         if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
             ((com.vn.jet.mosco.RankActivity) getActivity()).hideMyRank();
+        } else if (getParentFragment() instanceof RankFragment) {
+            // Có thể thêm hideMyRank vào RankFragment nếu cần
         }
     }
 
@@ -192,6 +196,8 @@ public class RankListFragment extends Fragment {
                 // Stop Pull Refresh UI
                 if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
                     ((com.vn.jet.mosco.RankActivity) getActivity()).stopRefresh();
+                } else if (getParentFragment() instanceof RankFragment) {
+                    ((RankFragment) getParentFragment()).stopRefresh();
                 }
 
                 try {
@@ -278,12 +284,16 @@ public class RankListFragment extends Fragment {
                 // Stop Pull Refresh UI
                 if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
                     ((com.vn.jet.mosco.RankActivity) getActivity()).stopRefresh();
+                } else if (getParentFragment() instanceof RankFragment) {
+                    ((RankFragment) getParentFragment()).stopRefresh();
                 }
 
                 Log.e(TAG, "Lỗi kết nối API rank: " + rankType, t);
                 if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
                 if (getActivity() instanceof com.vn.jet.mosco.RankActivity) {
                     ((com.vn.jet.mosco.RankActivity) getActivity()).updateMyRank(null, rankType);
+                } else if (getParentFragment() instanceof RankFragment) {
+                    ((RankFragment) getParentFragment()).updateMyRank(null, rankType);
                 }
             }
         });

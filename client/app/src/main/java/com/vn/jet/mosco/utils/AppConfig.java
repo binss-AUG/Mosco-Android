@@ -28,6 +28,7 @@ public class AppConfig {
 
     // File & Cache Constants
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
+    public static final String DEFAULT_AVATAR_ID = "1";
 
     // Prevent instantiation
     private AppConfig() {

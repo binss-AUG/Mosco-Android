@@ -80,6 +80,14 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                 if (listener != null) listener.onAccept(friendshipId);
             });
 
+            // Bridge Bridge: Nhấn vào avatar mở profile xem info trước khi accept
+            holder.ivAvatar.setOnClickListener(v -> {
+                long userId = entry.optLong("userId", -1L);
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) holder.itemView.getContext(), userId);
+                }
+            });
+
             // Reject button
             holder.btnReject.setOnClickListener(v -> {
                 if (listener != null) listener.onReject(friendshipId);

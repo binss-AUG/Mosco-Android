@@ -92,4 +92,16 @@
     <string name="social_msg_no_requests">No pending requests</string>
     <string name="social_error_accept">Failed to accept</string>
     <string name="social_error_decline">Failed to decline</string>
+
+    <!-- Profile Action Buttons -->
+    <string name="profile_btn_edit">EDIT PROFILE</string>
+    <string name="profile_btn_settings">SETTINGS</string>
+    <string name="profile_btn_resource_mgmt">RESOURCES</string>
+    <string name="profile_btn_follow">FOLLOW</string>
+    <string name="profile_btn_add_friend">ADD FRIEND</string>
+    <string name="profile_btn_message">MESSAGE</string>
+    <string name="profile_email_placeholder">••••••••@••••.com</string>
+    <string name="profile_msg_followed">Followed!</string>
+    <string name="profile_msg_friend_request_sent">Friend request sent!</string>
+    <string name="profile_msg_chat_coming_soon_toast">Chat coming soon!</string>
 </resources>

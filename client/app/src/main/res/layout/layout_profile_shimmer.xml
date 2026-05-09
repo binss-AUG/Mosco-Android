@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shimmer_view_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:shimmer_auto_start="true"
+    app:shimmer_duration="1200">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_20dp"
+        android:gravity="center_horizontal">
+
+        <!-- Skeleton Avatar -->
+        <View
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="@dimen/spacing_40dp"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:background="@drawable/bg_skeleton_circle" />
+
+        <!-- Skeleton Username -->
+        <View
+            android:layout_width="180dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:background="@color/mosco_surface_container_high" />
+
+        <!-- Skeleton Email -->
+        <View
+            android:layout_width="220dp"
+            android:layout_height="16dp"
+            android:alpha="0.5"
+            android:background="@color/mosco_surface_container_high" />
+
+        <!-- Skeleton Stats Blocks -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:background="@color/mosco_surface_container_high" />
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:background="@color/mosco_surface_container_high" />
+
+            <View
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:background="@color/mosco_surface_container_high" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.facebook.shimmer.ShimmerFrameLayout>

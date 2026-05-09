@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/mosco_surface"
     tools:context=".fragment.ProfileFragment">
 
 
@@ -21,12 +22,30 @@
             android:padding="@dimen/spacing_20dp"
             android:gravity="center_horizontal">
 
-            <!-- 1. Avatar & Profile Header -->
-            <RelativeLayout
-                android:layout_width="wrap_content"
+            <!-- Skeleton Shimmer Loading (Hiển thị khi cache trống) -->
+            <ViewStub
+                android:id="@+id/stub_profile_shimmer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_40dp"
-                android:layout_marginBottom="@dimen/spacing_lg">
+                android:layout="@layout/layout_profile_shimmer"
+                android:inflatedId="@+id/layout_profile_shimmer"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/layout_profile_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <!-- 1. Avatar & Profile Header -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_40dp"
+                    android:layout_marginBottom="@dimen/spacing_lg">
+                    <!-- ... existing content ... -->
+
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/avatar_card"
@@ -100,6 +119,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_commander" />
 
+
             <TextView
                 android:id="@+id/tv_email"
                 style="@style/MoscoText.Luxury.Body"
@@ -108,6 +128,25 @@
                 android:alpha="0.7"
                 android:text="@string/auth_prompt_email" />
 
+            <!-- Module Chức năng Chủ sở hữu (Sửa, Cài đặt, Tài nguyên) -->
+            <ViewStub
+                android:id="@+id/stub_owner_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/layout_owner_actions"
+                android:inflatedId="@+id/layout_owner_actions"
+                android:visibility="gone" />
+
+            <!-- Module Chức năng Khách (Kết bạn, Theo dõi, Nhắn tin) -->
+            <ViewStub
+                android:id="@+id/stub_guest_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout="@layout/layout_guest_actions"
+                android:inflatedId="@+id/layout_guest_actions"
+                android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -125,12 +164,24 @@
         app:tint="@color/white"
         android:padding="@dimen/spacing_xs" />
 
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="@dimen/spacing_20dp"
+        android:layout_marginStart="@dimen/spacing_20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back_arrow"
+        app:tint="@color/white"
+        android:padding="@dimen/spacing_xs" />
+
     <!-- [PHASE 5] Inline Confirmation UI -->
     <View
         android:id="@+id/view_blocking_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000"
+        android:background="@color/mosco_black_50"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true" />

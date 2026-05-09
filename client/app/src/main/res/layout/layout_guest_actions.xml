@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/spacing_lg"
+    android:gravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/spacing_md">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_follow"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:text="@string/profile_btn_follow"
+            android:backgroundTint="@color/mosco_primary"
+            android:textColor="@color/white"
+            app:cornerRadius="@dimen/radius_md"
+            app:icon="@drawable/ic_lightning"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_friend"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/profile_btn_add_friend"
+            android:textColor="@color/white"
+            app:strokeColor="@color/mosco_outline"
+            app:cornerRadius="@dimen/radius_md"
+            app:icon="@drawable/ic_user"
+            app:iconTint="@color/white" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_direct_message"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_btn_message"
+        android:textColor="@color/mosco_tertiary"
+        app:strokeColor="@color/mosco_tertiary"
+        app:cornerRadius="@dimen/radius_md"
+        app:icon="@drawable/ic_mailbox"
+        app:iconTint="@color/mosco_tertiary" />
+
+</LinearLayout>

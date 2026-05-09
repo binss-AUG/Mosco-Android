@@ -9,8 +9,8 @@ import androidx.room.PrimaryKey;
  * Sử dụng kỹ thuật Denormalization để tối ưu tốc độ render UI.
  */
 @Entity(tableName = "cards", indices = {
-        @androidx.room.Index(value = {"memberName"}),
-        @androidx.room.Index(value = {"seasonName"})
+        @androidx.room.Index(value = {"seasonName"}, name = "idx_season"),
+        @androidx.room.Index(value = {"memberName"}, name = "idx_member")
 })
 public class CardEntity {
     @PrimaryKey
@@ -21,8 +21,8 @@ public class CardEntity {
     private String rarityClass;
     private String frontImageId;
     private String backImageId;
-    private int baseOvr;
-    private int upgradeLevel;
+    private Integer baseOvr;
+    private Integer upgradeLevel;
 
     public CardEntity() {}
 
@@ -45,9 +45,9 @@ public class CardEntity {
     public String getBackImageId() { return backImageId; }
     public void setBackImageId(String backImageId) { this.backImageId = backImageId; }
 
-    public int getBaseOvr() { return baseOvr; }
-    public void setBaseOvr(int baseOvr) { this.baseOvr = baseOvr; }
+    public Integer getBaseOvr() { return baseOvr; }
+    public void setBaseOvr(Integer baseOvr) { this.baseOvr = baseOvr; }
 
-    public int getUpgradeLevel() { return upgradeLevel; }
-    public void setUpgradeLevel(int upgradeLevel) { this.upgradeLevel = upgradeLevel; }
+    public Integer getUpgradeLevel() { return upgradeLevel; }
+    public void setUpgradeLevel(Integer upgradeLevel) { this.upgradeLevel = upgradeLevel; }
 }

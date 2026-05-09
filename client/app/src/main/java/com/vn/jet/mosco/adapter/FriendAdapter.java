@@ -99,10 +99,11 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
                 holder.ivAvatar.setImageResource(R.drawable.ic_user);
             }
 
-            // Click listener cho cả item để hiện Profile Preview
+            // Bridge Bridge: Nhấn vào item mở profile thay vì popup cũ
             holder.itemView.setOnClickListener(v -> {
-                if (holder.itemView.getContext() instanceof com.vn.jet.mosco.FriendActivity) {
-                    ((com.vn.jet.mosco.FriendActivity) holder.itemView.getContext()).showUserProfile(entry);
+                long userId = entry.optLong("userId", -1L);
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) holder.itemView.getContext(), userId);
                 }
             });
 

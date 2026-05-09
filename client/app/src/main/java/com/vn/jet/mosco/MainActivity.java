@@ -117,7 +117,12 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                showExitConfirmationDialog();
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
+                    com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
+                } else {
+                    showExitConfirmationDialog();
+                }
             }
         });
     }
