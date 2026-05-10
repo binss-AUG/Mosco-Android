@@ -36,25 +36,20 @@ public class NavigationUtils {
         SessionManager sessionManager = new SessionManager(activity);
         Long currentUserId = sessionManager.getUserId();
 
-        // Nếu là chính mình (targetUserId null hoặc khớp ID hiện tại), chuyển sang Tab Profile (Tab thứ 5)
-        if (activity instanceof com.vn.jet.mosco.MainActivity && (targetUserId == null || (currentUserId != null && currentUserId.equals(targetUserId)))) {
-            ((com.vn.jet.mosco.MainActivity) activity).selectTab(R.id.nav_profile);
-            return;
-        }
+        // Bỏ logic ép về Tab Profile để giữ nguyên Backstack khi bấm vào Avatar của chính mình từ các màn hình khác
+        // (Giúp nút Back hoạt động đúng, quay về "vị trí đã tương tác" thay vì về Home)
 
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         String tag = "Profile_" + (targetUserId != null ? targetUserId : "Owner") + "_" + System.currentTimeMillis();
 
-        // Kiểm tra nếu đạt giới hạn stack
+        // [Quyết định của Tech Lead] Khi số lượng chuẩn bị đạt 6 (tức size >= 5),
+        // tiến hành tìm Fragment cũ nhất theo Tag và gọi lệnh .remove() để giải phóng RAM triệt để
         if (profileStackTags.size() >= MAX_PROFILE_STACK) {
             String oldestTag = profileStackTags.removeFirst();
             Fragment oldestFragment = fragmentManager.findFragmentByTag(oldestTag);
             if (oldestFragment != null) {
                 Log.d(TAG, "Evicting oldest profile fragment: " + oldestTag);
-                // Loại bỏ fragment cũ nhất để giải phóng bộ nhớ
                 fragmentManager.beginTransaction().remove(oldestFragment).commitAllowingStateLoss();
-                // Lưu ý: Việc remove khỏi backstack thực sự của FragmentManager phức tạp hơn,
-                // nhưng việc remove fragment instance là bước quan trọng nhất để cứu RAM.
             }
         }
 

@@ -39,6 +39,8 @@
     <string name="profile_preview_confirm_label">CONFIRM IDENTITY</string>
     <string name="profile_menu_central_hub">CENTRAL HUB</string>
     <string name="profile_error_unknown">An error occurred. Please try again.</string>
+    <string name="profile_total_rolls">Total Rolls: %d</string>
+    <string name="profile_title_default">Tân Binh</string>
 
     <!-- Profile Preview -->
     <string name="profile_preview_default_name">GALACTIC TRAVELER</string>

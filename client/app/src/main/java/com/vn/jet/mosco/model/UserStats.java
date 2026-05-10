@@ -4,6 +4,8 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Collections;
+import java.util.List;
 @Entity(tableName = "user_stats")
 public class UserStats {
     @PrimaryKey
@@ -43,6 +45,16 @@ public class UserStats {
     @SerializedName("streakRestoresThisMonth")
     private int streakRestoresThisMonth;
 
+    // Các trường mới cho Profile V2 kèm Fallback an toàn (Defensive Programming)
+    @SerializedName("currentTitle")
+    private String currentTitle = "";
+
+    @SerializedName("totalRolls")
+    private int totalRolls = 0;
+
+    @SerializedName("showcaseCardIds")
+    private List<String> showcaseCardIds = Collections.emptyList();
+
     // Getters
     public Long getId() { return id; }
     public String getUsername() { return username; }
@@ -56,6 +68,9 @@ public class UserStats {
     public int getStreak() { return streak; }
     public int getBestStreak() { return bestStreak; }
     public int getStreakRestoresThisMonth() { return streakRestoresThisMonth; }
+    public String getCurrentTitle() { return currentTitle; }
+    public int getTotalRolls() { return totalRolls; }
+    public List<String> getShowcaseCardIds() { return showcaseCardIds; }
 
     // Setters (Bắt buộc cho Room)
     public void setId(Long id) { this.id = id; }
@@ -70,4 +85,7 @@ public class UserStats {
     public void setStreak(int streak) { this.streak = streak; }
     public void setBestStreak(int bestStreak) { this.bestStreak = bestStreak; }
     public void setStreakRestoresThisMonth(int streakRestoresThisMonth) { this.streakRestoresThisMonth = streakRestoresThisMonth; }
+    public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
+    public void setTotalRolls(int totalRolls) { this.totalRolls = totalRolls; }
+    public void setShowcaseCardIds(List<String> showcaseCardIds) { this.showcaseCardIds = showcaseCardIds; }
 }

@@ -64,6 +64,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View layoutProfileContent;
     private ViewStub stubShimmer;
     private View inflatedShimmer;
+    private TextView tvCurrentTitle, tvTotalRolls;
+    private android.widget.GridLayout layoutShowcaseGrid;
     private SessionManager sessionManager;
     private GameApiService gameApiService;
     private ProfileViewModel viewModel;
@@ -177,9 +179,60 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         tvEmail.setText(isOwner ? stats.getEmail() : getString(R.string.profile_email_placeholder)); // Ẩn email nếu là Guest
         tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
         
+        tvCurrentTitle.setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle() : getString(R.string.profile_title_default));
+        tvTotalRolls.setText(getString(R.string.profile_total_rolls, stats.getTotalRolls()));
+
+        // Render Showcase
+        renderShowcaseZone(stats.getShowcaseCardIds());
+
         // Load avatar từ URL trong stats nếu có
         if (stats.getAvatarId() != null) {
              loadAvatarById(stats.getAvatarId());
+        }
+    }
+
+    private void renderShowcaseZone(java.util.List<String> showcaseCardIds) {
+        if (layoutShowcaseGrid == null || getContext() == null) return;
+        layoutShowcaseGrid.removeAllViews();
+
+        int displayWidth = getResources().getDisplayMetrics().widthPixels;
+        int padding = getResources().getDimensionPixelSize(R.dimen.spacing_md) * 3; // Lề trái, phải và khoảng trống ở giữa
+        int cardWidth = (displayWidth - padding) / 2;
+
+        for (int i = 0; i < 4; i++) {
+            View cardView = LayoutInflater.from(getContext()).inflate(R.layout.item_inventory_card, layoutShowcaseGrid, false);
+            
+            android.widget.GridLayout.LayoutParams params = new android.widget.GridLayout.LayoutParams();
+            params.width = cardWidth;
+            params.height = android.widget.GridLayout.LayoutParams.WRAP_CONTENT;
+            int margin = getResources().getDimensionPixelSize(R.dimen.spacing_xs);
+            params.setMargins(margin, margin, margin, margin);
+            cardView.setLayoutParams(params);
+
+            ImageView ivImage = cardView.findViewById(R.id.card_iv_image);
+            TextView tvName = cardView.findViewById(R.id.tv_card_name);
+            
+            if (showcaseCardIds != null && i < showcaseCardIds.size()) {
+                String cardId = showcaseCardIds.get(i);
+                org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), cardId);
+                if (card != null) {
+                    tvName.setText(card.optString("name", "Unknown"));
+                    Glide.with(this)
+                            .load(card.optString("frontImage"))
+                            .placeholder(R.drawable.ic_user)
+                            .into(ivImage);
+                } else {
+                    tvName.setText("[+]");
+                    ivImage.setImageResource(R.drawable.ic_user);
+                    cardView.setAlpha(0.5f);
+                }
+            } else {
+                tvName.setText("[+]");
+                ivImage.setImageResource(R.drawable.ic_user);
+                cardView.setAlpha(0.5f);
+            }
+            
+            layoutShowcaseGrid.addView(cardView);
         }
     }
 
@@ -213,6 +266,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         btnPreviewConfirm = v.findViewById(R.id.btn_preview_confirm);
         layoutProfileContent = v.findViewById(R.id.layout_profile_content);
         stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
+        tvCurrentTitle = v.findViewById(R.id.tv_current_title);
+        tvTotalRolls = v.findViewById(R.id.tv_total_rolls);
+        layoutShowcaseGrid = v.findViewById(R.id.layout_showcase_grid);
     }
 
     private void setupSession() {

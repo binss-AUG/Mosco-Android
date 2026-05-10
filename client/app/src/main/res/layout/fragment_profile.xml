@@ -113,6 +113,15 @@
             </RelativeLayout>
 
             <TextView
+                android:id="@+id/tv_current_title"
+                style="@style/MoscoText.Luxury.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_xs"
+                android:textColor="@color/mosco_tertiary"
+                tools:text="Tân Binh" />
+
+            <TextView
                 android:id="@+id/tv_username"
                 style="@style/MoscoText.Luxury.Header"
                 android:layout_width="wrap_content"
@@ -127,6 +136,15 @@
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
                 android:text="@string/auth_prompt_email" />
+
+            <TextView
+                android:id="@+id/tv_total_rolls"
+                style="@style/MoscoText.Luxury.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:alpha="0.7"
+                tools:text="Tổng số Roll: 0" />
 
             <!-- Module Chức năng Chủ sở hữu (Sửa, Cài đặt, Tài nguyên) -->
             <ViewStub
@@ -145,6 +163,28 @@
                 android:layout="@layout/layout_guest_actions"
                 android:inflatedId="@+id/layout_guest_actions"
                 android:visibility="gone" />
+
+            <!-- Khu vực trưng bày thẻ (Showcase Zone) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:text="SHOWCASE"
+                android:gravity="center"
+                style="@style/MoscoText.Luxury.Header"
+                android:textSize="@dimen/text_size_body"
+                android:letterSpacing="0.2" />
+
+            <GridLayout
+                android:id="@+id/layout_showcase_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/spacing_md"
+                android:columnCount="2"
+                android:rowCount="2"
+                android:alignmentMode="alignMargins"
+                android:columnOrderPreserved="true" />
 
             </LinearLayout>
 
