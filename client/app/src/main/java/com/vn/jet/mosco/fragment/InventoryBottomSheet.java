@@ -41,6 +41,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private UpgradeAlgorithm upgradeAlgorithm;
     private int maxSelectionCount = 5; // Default for upgrade
     private boolean isSquadMode = false;
+    private boolean isShowcaseMode = false;
     private java.util.Set<Long> busyIds = new java.util.HashSet<>();
 
     public static final java.util.Set<String> objetFilter = new java.util.LinkedHashSet<>();
@@ -88,6 +89,10 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         this.maxSelectionCount = maxSelect;
         this.multiSelectListener = listener;
         this.selectedMaterials = new ArrayList<>();
+    }
+
+    public void setShowcaseMode(boolean showcaseMode) {
+        this.isShowcaseMode = showcaseMode;
     }
     
     // Logic kiểm tra xem một Objet có bị trùng Artist với các Objet đã chọn không
@@ -299,8 +304,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
                 Objet obj = Objet.fromCacheItem(item);
                 realObjets.add(obj);
-                // Trạng thái 'AVAILABLE' được coi là sẵn sàng, các trạng thái khác (BUSY, SQUAD, v.v.) sẽ bị khóa
-                if (obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
+                // [SHOWCASE FIX] Nếu là chế độ trưng bày, không khóa thẻ BUSY (đang tham gia Stage)
+                if (!isShowcaseMode && obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
                     busyIds.add(obj.getId());
                 }
             }
@@ -362,7 +367,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
                                     busyIds.clear();
                                     for (Objet obj : realObjets) {
-                                        if (obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
+                                        if (!isShowcaseMode && obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
                                             busyIds.add(obj.getId());
                                         }
                                     }

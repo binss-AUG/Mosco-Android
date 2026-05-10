@@ -37,6 +37,7 @@ import androidx.lifecycle.Transformations;
 import android.view.ViewStub;
 
 import org.json.JSONObject;
+import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
 
 import java.io.File;
 import java.util.HashMap;
@@ -53,28 +54,38 @@ import retrofit2.Response;
  */
 public class ProfileFragment extends Fragment implements AvatarSelectorBottomSheet.OnAvatarSelectedListener {
 
+    private static final String TAG = "ProfileFragment";
     private static final long MENU_DEBOUNCE_MS = 500;
     public static final String ARG_TARGET_USER_ID = "target_user_id";
 
-    private TextView tvUsername, tvEmail, tvLevel;
+    private TextView tvUsername, tvLevel;
     private ImageView ivAvatar;
-    private View avatarCard, btnEditAvatar, btnMenu, btnBack;
+    private View avatarCard, btnMenu, btnBack;
+    private View btnEditMode, viewAvatarDim;
+    private ImageView ivAvatarEditIcon;
+    private TextView tvPreviewHeaderLabel;
+    private boolean isEditMode = false;
+    public boolean isEditMode() { return isEditMode; }
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
     private View layoutProfileContent;
     private ViewStub stubShimmer;
     private View inflatedShimmer;
-    private TextView tvCurrentTitle, tvTotalRolls;
-    private android.widget.GridLayout layoutShowcaseGrid;
+    private TextView tvCurrentTitle;
+    private View tabSlidingThumb;
+    private com.google.android.material.tabs.TabLayout tabLayout;
+    private androidx.viewpager2.widget.ViewPager2 viewPager;
     private SessionManager sessionManager;
     private GameApiService gameApiService;
     private ProfileViewModel viewModel;
 
     private Long targetUserId;
     private boolean isOwner;
-    private String lastImageUrl; // URL ảnh gốc trước khi crop để quay lại
-    private Uri lastCroppedUri; // URI ảnh sau khi crop để confirm
+    private String lastImageUrl;
+    private Uri lastCroppedUri;
     private long lastMenuClickTime = 0;
+    // Lưu trạng thái avatar gốc để rollback khi Discard
+    private String savedAvatarIdBeforeEdit;
 
     public ProfileFragment() {
         // Constructor mặc định cho Fragment
@@ -102,26 +113,29 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void handleArguments() {
-        if (getArguments() != null) {
-            targetUserId = getArguments().getLong(ARG_TARGET_USER_ID, -1L);
-            if (targetUserId == -1L) targetUserId = null;
+        Bundle args = getArguments();
+        Long currentUserId = sessionManager != null ? sessionManager.getUserId() : null;
+        
+        if (args != null) {
+            if (args.containsKey(ARG_TARGET_USER_ID)) {
+                long rawId = args.getLong(ARG_TARGET_USER_ID, -1L);
+                if (rawId != -1L) {
+                    targetUserId = rawId;
+                }
+            }
         }
 
-        Long currentUserId = sessionManager.getUserId();
-        
-        // Nếu không truyền ID hoặc ID khớp với User hiện tại -> Là Owner
-        isOwner = (targetUserId == null || targetUserId.equals(currentUserId));
-        
+        // Nếu targetUserId vẫn null, xem như là chính mình
         if (targetUserId == null) {
             targetUserId = currentUserId;
         }
 
-        // Kiểm tra Null Safety nghiêm ngặt theo đặc tả
         if (targetUserId == null) {
-            Log.e("ProfileFragment", "TARGET_USER_ID is null and no session found");
-            // Hiển thị thông báo hoặc đóng fragment nếu cần
-            Toast.makeText(requireContext(), "Không tìm thấy người dùng", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Root Cause Error: currentUserId and targetUserId are both null!");
         }
+        
+        // Nếu không truyền ID hoặc ID khớp với User hiện tại -> Là Owner
+        isOwner = (targetUserId != null && targetUserId.equals(currentUserId));
     }
 
     private void setupViewModel() {
@@ -155,35 +169,25 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private void setupProfileRouting(View view) {
         if (isOwner) {
-            ViewStub stub = view.findViewById(R.id.stub_owner_actions);
-            if (stub != null) {
-                View inflated = stub.inflate();
-                setupOwnerListeners(inflated);
-            }
             if (btnMenu != null) btnMenu.setVisibility(View.VISIBLE);
-            if (btnEditAvatar != null) btnEditAvatar.setVisibility(View.VISIBLE);
+            if (btnEditMode != null) btnEditMode.setVisibility(View.VISIBLE);
         } else {
             ViewStub stub = view.findViewById(R.id.stub_guest_actions);
             if (stub != null) {
                 View inflated = stub.inflate();
                 setupGuestListeners(inflated);
             }
-            // Guest không được sửa avatar hay mở menu hệ thống
+            // Guest không được mở menu hệ thống hoặc chỉnh sửa
             if (btnMenu != null) btnMenu.setVisibility(View.GONE);
-            if (btnEditAvatar != null) btnEditAvatar.setVisibility(View.GONE);
+            if (btnEditMode != null) btnEditMode.setVisibility(View.GONE);
         }
     }
 
     private void renderProfileData(com.vn.jet.mosco.model.UserStats stats) {
         tvUsername.setText(stats.getIngameName() != null ? stats.getIngameName() : stats.getUsername());
-        tvEmail.setText(isOwner ? stats.getEmail() : getString(R.string.profile_email_placeholder)); // Ẩn email nếu là Guest
         tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
         
         tvCurrentTitle.setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle() : getString(R.string.profile_title_default));
-        tvTotalRolls.setText(getString(R.string.profile_total_rolls, stats.getTotalRolls()));
-
-        // Render Showcase
-        renderShowcaseZone(stats.getShowcaseCardIds());
 
         // Load avatar từ URL trong stats nếu có
         if (stats.getAvatarId() != null) {
@@ -191,84 +195,142 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
     }
 
-    private void renderShowcaseZone(java.util.List<String> showcaseCardIds) {
-        if (layoutShowcaseGrid == null || getContext() == null) return;
-        layoutShowcaseGrid.removeAllViews();
-
-        int displayWidth = getResources().getDisplayMetrics().widthPixels;
-        int padding = getResources().getDimensionPixelSize(R.dimen.spacing_md) * 3; // Lề trái, phải và khoảng trống ở giữa
-        int cardWidth = (displayWidth - padding) / 2;
-
-        for (int i = 0; i < 4; i++) {
-            View cardView = LayoutInflater.from(getContext()).inflate(R.layout.item_inventory_card, layoutShowcaseGrid, false);
-            
-            android.widget.GridLayout.LayoutParams params = new android.widget.GridLayout.LayoutParams();
-            params.width = cardWidth;
-            params.height = android.widget.GridLayout.LayoutParams.WRAP_CONTENT;
-            int margin = getResources().getDimensionPixelSize(R.dimen.spacing_xs);
-            params.setMargins(margin, margin, margin, margin);
-            cardView.setLayoutParams(params);
-
-            ImageView ivImage = cardView.findViewById(R.id.card_iv_image);
-            TextView tvName = cardView.findViewById(R.id.tv_card_name);
-            
-            if (showcaseCardIds != null && i < showcaseCardIds.size()) {
-                String cardId = showcaseCardIds.get(i);
-                org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), cardId);
-                if (card != null) {
-                    tvName.setText(card.optString("name", "Unknown"));
-                    Glide.with(this)
-                            .load(card.optString("frontImage"))
-                            .placeholder(R.drawable.ic_user)
-                            .into(ivImage);
-                } else {
-                    tvName.setText("[+]");
-                    ivImage.setImageResource(R.drawable.ic_user);
-                    cardView.setAlpha(0.5f);
-                }
-            } else {
-                tvName.setText("[+]");
-                ivImage.setImageResource(R.drawable.ic_user);
-                cardView.setAlpha(0.5f);
-            }
-            
-            layoutShowcaseGrid.addView(cardView);
-        }
-    }
-
     private void loadAvatarById(String avatarId) {
-        org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
+        if (getContext() == null || avatarId == null || avatarId.isEmpty()) {
+            ivAvatar.setImageResource(R.drawable.ic_user);
+            return;
+        }
+
+        JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(getContext(), avatarId);
         if (card != null) {
-            String imageUrl = card.optString("frontImage");
+            String imgUrl = card.optString("frontImage", "");
+            if (imgUrl.contains("/original") || imgUrl.contains("/thumbnail")) {
+                // Đã là URL đầy đủ
+            } else {
+                // Cần convert (nếu card chỉ chứa ID)
+                imgUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(imgUrl, false);
+            }
+
             Glide.with(this)
-                    .load(imageUrl)
-                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
+                    .load(imgUrl)
+                    .transform(new SmartFaceCropTransformation())
                     .placeholder(R.drawable.ic_user)
                     .error(R.drawable.ic_user)
                     .into(ivAvatar);
+        } else {
+            ivAvatar.setImageResource(R.drawable.ic_user);
         }
     }
 
     private void initViews(View v) {
         tvUsername = v.findViewById(R.id.tv_username);
-        tvEmail = v.findViewById(R.id.tv_email);
         tvLevel = v.findViewById(R.id.tv_level);
         btnMenu = v.findViewById(R.id.btn_menu);
         ivAvatar = v.findViewById(R.id.iv_avatar);
         avatarCard = v.findViewById(R.id.avatar_card);
-        btnEditAvatar = v.findViewById(R.id.btn_edit_avatar);
         btnBack = v.findViewById(R.id.btn_back);
 
-        // [PHASE 5] Preview Views
+        // Edit Mode Views
+        btnEditMode = v.findViewById(R.id.btn_edit_mode);
+        viewAvatarDim = v.findViewById(R.id.view_avatar_dim);
+        ivAvatarEditIcon = v.findViewById(R.id.iv_avatar_edit_icon);
+
+        // [PHASE 5] Preview / Edit Mode Header
         previewHeader = v.findViewById(R.id.layout_preview_header);
         blockingOverlay = v.findViewById(R.id.view_blocking_overlay);
         btnPreviewCancel = v.findViewById(R.id.btn_preview_cancel);
         btnPreviewConfirm = v.findViewById(R.id.btn_preview_confirm);
+        tvPreviewHeaderLabel = v.findViewById(R.id.tv_preview_header_label);
         layoutProfileContent = v.findViewById(R.id.layout_profile_content);
         stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
         tvCurrentTitle = v.findViewById(R.id.tv_current_title);
-        tvTotalRolls = v.findViewById(R.id.tv_total_rolls);
-        layoutShowcaseGrid = v.findViewById(R.id.layout_showcase_grid);
+        tabSlidingThumb = v.findViewById(R.id.tab_sliding_thumb);
+        tabLayout = v.findViewById(R.id.tab_layout);
+        viewPager = v.findViewById(R.id.view_pager);
+
+        setupViewPager();
+    }
+
+    private void setupViewPager() {
+        if (viewPager == null || tabLayout == null) return;
+        
+        // Lazy Loading mặc định (chỉ giữ 1 tab bên cạnh)
+        viewPager.setOffscreenPageLimit(androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+        
+        com.vn.jet.mosco.adapter.ProfileViewPagerAdapter adapter = new com.vn.jet.mosco.adapter.ProfileViewPagerAdapter(this);
+        viewPager.setAdapter(adapter);
+        
+        // [FIX] Tắt vuốt ngang ở ViewPager2 gốc để tránh xung đột thao tác vuốt với ViewPager2 con (Exhibit Pager)
+        viewPager.setUserInputEnabled(false);
+
+        new com.google.android.material.tabs.TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> {
+                    switch (position) {
+                        case 0:
+                            tab.setText(R.string.profile_tab_general);
+                            break;
+                        case 1:
+                            tab.setText(R.string.profile_tab_trophy);
+                            break;
+                        case 2:
+                            tab.setText(R.string.profile_tab_exhibit);
+                            break;
+                    }
+                }
+        ).attach();
+
+        // Thiết lập sliding thumb cho Tab (giống Duration chip ở Stage)
+        setupTabThumb();
+    }
+
+    /**
+     * Đồng bộ indicator dạng pill cho TabLayout, di chuyển mượt mà giữa các tab.
+     * Sử dụng View độc lập trong XML để tránh phá vỡ hierarchy của TabLayout.
+     */
+    private void setupTabThumb() {
+        if (tabLayout == null || tabSlidingThumb == null) return;
+
+        // [TIPS] Đợi layout sẵn sàng để lấy kích thước tab chính xác (tránh giá trị 0)
+        tabLayout.post(() -> {
+            updateTabThumb(0, false);
+        });
+
+        tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                updateTabThumb(tab.getPosition(), true);
+            }
+            @Override
+            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            @Override
+            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+        });
+    }
+
+    private void updateTabThumb(int position, boolean animate) {
+        if (tabLayout == null || tabLayout.getTabCount() == 0 || tabSlidingThumb == null) return;
+        com.google.android.material.tabs.TabLayout.Tab tab = tabLayout.getTabAt(position);
+        if (tab == null || tab.view == null) return;
+
+        int tabLeft = tab.view.getLeft();
+        int tabWidth = tab.view.getWidth();
+
+        // Cập nhật chiều rộng thumb khớp với tab hiện tại
+        android.view.ViewGroup.LayoutParams lp = tabSlidingThumb.getLayoutParams();
+        if (lp != null) {
+            lp.width = tabWidth;
+            tabSlidingThumb.setLayoutParams(lp);
+        }
+
+        if (animate) {
+            tabSlidingThumb.animate()
+                .translationX(tabLeft)
+                .setDuration(250) // 250ms thời gian vàng
+                .setInterpolator(new androidx.interpolator.view.animation.FastOutSlowInInterpolator())
+                .start();
+        } else {
+            tabSlidingThumb.setTranslationX(tabLeft);
+        }
     }
 
     private void setupSession() {
@@ -281,7 +343,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             displayName = sessionManager.getUsername();
         }
         tvUsername.setText(displayName);
-        tvEmail.setText(sessionManager.getEmail());
 
         loadAvatar();
     }
@@ -304,20 +365,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         String avatarId = sessionManager.getAvatarId();
         if (avatarId == null)
             avatarId = com.vn.jet.mosco.utils.AppConfig.DEFAULT_AVATAR_ID; // Mặc định từ AppConfig
-
-        org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
-        if (card != null) {
-            String imageUrl = card.optString("frontImage");
-            Glide.with(this)
-                    .load(imageUrl)
-                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
-                    .placeholder(R.drawable.ic_user)
-                    .error(R.drawable.ic_user)
-                    .into(ivAvatar);
-        } else {
-            // Fallback nếu không tìm thấy Objet trong JSON
-            ivAvatar.setImageResource(R.drawable.ic_user);
-        }
+            
+        loadAvatarById(avatarId);
     }
 
     private void setupListeners() {
@@ -327,17 +376,35 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> handleBackAction());
         }
-        avatarCard.setOnClickListener(v -> showAvatarZoomDialog());
-        if (btnEditAvatar != null) {
-            btnEditAvatar.setOnClickListener(v -> openAvatarPicker());
+        avatarCard.setOnClickListener(v -> {
+            // Khi đang ở Edit Mode, nhấn avatar sẽ mở chọn avatar mới
+            if (isEditMode) {
+                openAvatarPicker();
+            } else {
+                showAvatarZoomDialog();
+            }
+        });
+
+        // Nút cây viết: kích hoạt Edit Mode
+        if (btnEditMode != null) {
+            btnEditMode.setOnClickListener(v -> enterEditMode());
         }
-        
-        // [PHASE 5] Inline Preview Listeners
+
+        // Nút X: nếu đang Edit Mode thì hiện dialog Discard
         if (btnPreviewCancel != null) {
-            btnPreviewCancel.setOnClickListener(v -> cancelAvatarPreview());
+            btnPreviewCancel.setOnClickListener(v -> {
+                if (isEditMode) {
+                    showDiscardDialog();
+                }
+            });
         }
+        // Nút Tick: lưu thay đổi
         if (btnPreviewConfirm != null) {
-            btnPreviewConfirm.setOnClickListener(v -> confirmAvatarPreview());
+            btnPreviewConfirm.setOnClickListener(v -> {
+                if (isEditMode) {
+                    saveEditChanges();
+                }
+            });
         }
     }
 
@@ -353,16 +420,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
     }
 
-    private void setupOwnerListeners(View v) {
-        v.findViewById(R.id.btn_edit_profile).setOnClickListener(view -> showEditProfileDialog());
-        v.findViewById(R.id.btn_settings).setOnClickListener(view -> {
-             new SettingsBottomSheet().show(getChildFragmentManager(), "SettingsBottomSheet");
-        });
-        v.findViewById(R.id.btn_resource_management).setOnClickListener(view -> {
-            // Chuyển sang màn hình quản lý kho đồ
-             Toast.makeText(requireContext(), "Coming Soon: Resource Management", Toast.LENGTH_SHORT).show();
-        });
-    }
 
     private void setupGuestListeners(View v) {
         // Áp dụng Click Debounce 500ms theo yêu cầu Tech Lead
@@ -389,10 +446,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         ProfileMenuFragment menuFragment = new ProfileMenuFragment();
         menuFragment.setOnMenuActionListener(new ProfileMenuFragment.OnMenuActionListener() {
-            @Override
-            public void onEditProfile() {
-                showEditProfileDialog();
-            }
+
 
             @Override
             public void onForgotPassword() {
@@ -427,96 +481,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // EDIT PROFILE DIALOG
     // ════════════════════════════════════════════════════════════════
 
+    // [DEPRECATED PHASE 3 Dialog]
     private void showEditProfileDialog() {
-        if (requireContext() == null)
-            return;
-
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_profile, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        // Bind fields
-        TextInputEditText edtUsername = dialogView.findViewById(R.id.edt_edit_username);
-        TextInputEditText edtEmail = dialogView.findViewById(R.id.edt_edit_email);
-        TextInputEditText edtDisplayName = dialogView.findViewById(R.id.edt_edit_display_name);
-        TextInputLayout tilUsername = dialogView.findViewById(R.id.til_edit_username);
-        TextInputLayout tilDisplayName = dialogView.findViewById(R.id.til_edit_display_name);
-
-        // Pre-fill dữ liệu hiện tại
-        edtUsername.setText(sessionManager.getUsername());
-        edtEmail.setText(sessionManager.getEmail());
-        String currentIngame = sessionManager.getIngameName();
-        if (currentIngame != null) {
-            edtDisplayName.setText(currentIngame);
-        }
-
-        // Cancel
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-
-        // Save — gọi API update-profile
-        dialogView.findViewById(R.id.btn_save).setOnClickListener(v -> {
-            String newUsername = edtUsername.getText() != null ? edtUsername.getText().toString().trim() : "";
-            String newDisplayName = edtDisplayName.getText() != null ? edtDisplayName.getText().toString().trim() : "";
-
-            // Validate client-side (Server vẫn validate lại)
-            tilUsername.setError(null);
-            tilDisplayName.setError(null);
-
-            if (newUsername.isEmpty()) {
-                tilUsername.setError(getString(R.string.auth_error_empty_field));
-                return;
-            }
-            if (newDisplayName.isEmpty()) {
-                tilDisplayName.setError(getString(R.string.auth_error_empty_field));
-                return;
-            }
-            if (newDisplayName.length() < 2 || newDisplayName.length() > 16) {
-                tilDisplayName.setError(getString(R.string.setup_error_display_name_length));
-                return;
-            }
-
-            // Gọi API
-            Map<String, String> body = new HashMap<>();
-            body.put("username", newUsername);
-            body.put("ingameName", newDisplayName);
-
-            gameApiService.updateProfile(body).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        // Cập nhật Session local
-                        sessionManager.setIngameName(newDisplayName);
-                        // Cập nhật UI
-                        tvUsername.setText(newDisplayName);
-                        Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT)
-                                .show();
-                        dialog.dismiss();
-                    } else {
-                        // Parse lỗi từ Server
-                        String errorMsg = parseServerError(response);
-                        // Hiển thị lỗi vào field phù hợp
-                        if (errorMsg.toLowerCase().contains("username")) {
-                            tilUsername.setError(errorMsg);
-                        } else {
-                            tilDisplayName.setError(errorMsg);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT)
-                            .show();
-                }
-            });
-        });
-
-        dialog.show();
+        // Redundant - functionality merged into inline Edit Mode (saveEditChanges)
     }
 
     private void fetchUserStats() {
@@ -553,16 +520,31 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     /**
-     * Mở màn hình chọn Objet từ kho đồ để làm phôi cho Avatar
+     * Mở danh sách Objet để chọn avatar mới.
+     * Tự động chuyển đổi sang URL variant "original" để đảm bảo chất lượng crop đạt chuẩn (không dùng thumbnail).
      */
     private void openAvatarPicker() {
         InventoryBottomSheet inventorySheet = new InventoryBottomSheet();
         inventorySheet.setOnObjetSelectedListener(objet -> {
             if (objet != null && objet.getImageUrl() != null) {
-                startManualCrop(objet.getImageUrl(), objet.getCollectionId());
+                // Đảm bảo dùng ảnh gốc để crop đạt chuẩn chất lượng cao
+                String originalUrl = convertToOriginalUrl(objet.getImageUrl());
+                startManualCrop(originalUrl, objet.getCollectionId());
             }
         });
         inventorySheet.show(getChildFragmentManager(), "InventoryBottomSheet");
+    }
+
+    private String convertToOriginalUrl(String url) {
+        if (url == null) return null;
+        if (url.contains("/thumbnail")) {
+            return url.replace("/thumbnail", "/original");
+        }
+        if (url.contains("/1x") || url.contains("/2x")) {
+            // Regex hoặc replace đơn giản cho các variant khác
+            return url.replaceAll("/(1x|2x)$", "/original");
+        }
+        return url;
     }
 
     /**
@@ -616,11 +598,17 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (resultCode == android.app.Activity.RESULT_OK && data != null) {
                 Uri resultUri = com.yalantis.ucrop.UCrop.getOutput(data);
                 if (resultUri != null) {
-                    // [PHASE 5] Chuyển sang chế độ xác nhận Inline thay vì Dialog
-                    enterConfirmationMode(resultUri);
+                    // Áp dụng avatar mới trực tiếp lên preview, không cần header xác nhận
+                    this.lastCroppedUri = resultUri;
+                    Glide.with(this)
+                            .load(resultUri)
+                            .skipMemoryCache(true)
+                            .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                            .circleCrop()
+                            .into(ivAvatar);
                 }
             } else if (resultCode == android.app.Activity.RESULT_CANCELED) {
-                // [PHASE 3] Nếu hủy, quay lại màn hình chọn Objet (Bottom Sheet)
+                // Nếu hủy crop, quay lại màn hình chọn Objet
                 openAvatarPicker();
             } else if (resultCode == com.yalantis.ucrop.UCrop.RESULT_ERROR && data != null) {
                 Throwable cropError = com.yalantis.ucrop.UCrop.getError(data);
@@ -630,40 +618,197 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     /**
-     * Kích hoạt chế độ duyệt thử (Inline Preview) sau khi crop ảnh thành công
+     * Bật chế độ chỉnh sửa: hiện header X/Tick, phủ mờ avatar + icon cây viết
      */
-    private void enterConfirmationMode(Uri croppedUri) {
-        this.lastCroppedUri = croppedUri;
-        
-        // Hiện Header xác nhận và chặn tương tác phía dưới để người dùng tập trung duyệt ảnh
+    private void enterEditMode() {
+        isEditMode = true;
+        // Lưu trạng thái avatar gốc để rollback
+        savedAvatarIdBeforeEdit = sessionManager.getAvatarId();
+        lastCroppedUri = null;
+
+        // Hiện header và đổi label sang EDIT PROFILE
+        if (tvPreviewHeaderLabel != null) tvPreviewHeaderLabel.setText(getString(R.string.profile_edit_mode_label));
         if (previewHeader != null) previewHeader.setVisibility(View.VISIBLE);
-        if (blockingOverlay != null) blockingOverlay.setVisibility(View.VISIBLE);
+
+        // Phủ mờ avatar và hiện icon chỉnh sửa
+        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.VISIBLE);
+        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.VISIBLE);
+
+        // Ẩn nút edit mode để tránh bấm trùng
+        if (btnEditMode != null) btnEditMode.setVisibility(View.GONE);
+
+        // Thông báo các tab hiện các trường edit
+        notifyTabsEditMode(true);
+    }
+
+    /**
+     * Thoát chế độ chỉnh sửa và hủy mọi thay đổi
+     */
+    private void discardEditMode() {
+        isEditMode = false;
+        if (previewHeader != null) previewHeader.setVisibility(View.GONE);
+
+        // Khôi phục avatar về trạng thái gốc
+        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.GONE);
+        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.GONE);
+        lastCroppedUri = null;
+
+        // Rollback avatar về ảnh cũ
+        if (savedAvatarIdBeforeEdit != null) {
+            sessionManager.setAvatarId(savedAvatarIdBeforeEdit);
+        }
+        // Xóa file crop tạm để loadAvatar lấy lại ảnh gốc
+        File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
+        if (croppedFile.exists()) croppedFile.delete();
+        loadAvatar();
+
+        // Hiện lại nút edit
+        if (btnEditMode != null && isOwner) btnEditMode.setVisibility(View.VISIBLE);
+
+        // Ẩn các trường edit trong các tab
+        notifyTabsEditMode(false);
+    }
+
+    /**
+     * Hiện dialog xác nhận hủy thay đổi (đồng bộ style với dialog_logout_confirm)
+     */
+    private void showDiscardDialog() {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_discard_changes, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_discard).setOnClickListener(v -> {
+            dialog.dismiss();
+            discardEditMode();
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Lưu các thay đổi từ Edit Mode: avatar + username + display name
+     */
+    private void saveEditChanges() {
+        // Thu thập dữ liệu từ tab General
+        ProfileGeneralFragment generalFrag = getGeneralFragment();
+        String newDisplayName = generalFrag != null ? generalFrag.getEditedDisplayName() : null;
+        String newUsername = generalFrag != null ? generalFrag.getEditedUsername() : null;
+        String newBio = generalFrag != null ? generalFrag.getEditedBio() : null;
+
+        // Validate cơ bản
+        if (newDisplayName != null && (newDisplayName.length() < 2 || newDisplayName.length() > 16)) {
+            Toast.makeText(requireContext(), getString(R.string.setup_error_display_name_length), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi API update profile nếu có thay đổi
+        com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
+        if (newUsername != null && !newUsername.isEmpty()) request.setUsername(newUsername);
+        if (newDisplayName != null && !newDisplayName.isEmpty()) request.setIngameName(newDisplayName);
+        if (newBio != null) request.setBio(newBio);
+
+        // Đồng bộ avatarId nếu đã thay đổi
+        String currentAvatarId = sessionManager.getAvatarId();
+        if (currentAvatarId != null) request.setAvatarId(currentAvatarId);
+
+        if (gameApiService != null) {
+            gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
+                @Override
+                public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        // Cập nhật Session local
+                        if (newDisplayName != null && !newDisplayName.isEmpty()) {
+                            sessionManager.setIngameName(newDisplayName);
+                            tvUsername.setText(newDisplayName);
+                        }
+                        if (newUsername != null && !newUsername.isEmpty()) {
+                            sessionManager.setUsername(newUsername);
+                        }
+                        
+                        // [CRITICAL] Đồng bộ ViewModel và Local DB
+                        if (viewModel != null && targetUserId != null) {
+                            if (response.body().getData() != null) {
+                                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                                    com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext())
+                                            .userStatsDao().insertUserStats(response.body().getData());
+                                });
+                            }
+                            viewModel.refreshUserStats(targetUserId);
+                        }
+                        
+                        Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Throwable t) {
+                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        // Thoát Edit Mode (giữ lại thay đổi)
+        isEditMode = false;
+        if (previewHeader != null) previewHeader.setVisibility(View.GONE);
+        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.GONE);
+        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.GONE);
+        if (btnEditMode != null && isOwner) btnEditMode.setVisibility(View.VISIBLE);
+        notifyTabsEditMode(false);
+    }
+
+    /**
+     * Thông báo các tab về trạng thái Edit Mode
+     */
+    private void notifyTabsEditMode(boolean editMode) {
+        ProfileGeneralFragment general = getGeneralFragment();
+        if (general != null) general.setEditMode(editMode);
         
-        // [FIX] Vô hiệu hóa các nút điều hướng chính để tránh hiện tượng spam/chạm xuyên thấu
-        if (btnMenu != null) btnMenu.setEnabled(false);
-        if (btnEditAvatar != null) btnEditAvatar.setEnabled(false);
-        if (avatarCard != null) avatarCard.setEnabled(false);
-        
-        // Cập nhật Avatar preview ngay trên Profile để người dùng thấy diện mạo tổng thể
-        Glide.with(this)
-                .load(croppedUri)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
-                .circleCrop()
-                .into(ivAvatar);
-        
-        // Thông báo cho người dùng về trạng thái hiện tại
-        Toast.makeText(requireContext(), getString(R.string.profile_preview_confirm_msg), Toast.LENGTH_SHORT).show();
+        ProfileExhibitFragment exhibit = getExhibitFragment();
+        if (exhibit != null) exhibit.setEditMode(editMode);
+    }
+
+    /**
+     * Lấy instance của ProfileGeneralFragment từ ViewPager
+     */
+    @Nullable
+    private ProfileGeneralFragment getGeneralFragment() {
+        if (viewPager == null || viewPager.getAdapter() == null) return null;
+        // Tab General là position 0. Trong ViewPager2, tag của fragment là "f" + position
+        Fragment frag = getChildFragmentManager().findFragmentByTag("f0");
+        if (frag instanceof ProfileGeneralFragment) {
+            return (ProfileGeneralFragment) frag;
+        }
+        return null;
+    }
+
+    @Nullable
+    private ProfileExhibitFragment getExhibitFragment() {
+        if (viewPager == null || viewPager.getAdapter() == null) return null;
+        // Tab Exhibit là position 2
+        Fragment frag = getChildFragmentManager().findFragmentByTag("f2");
+        if (frag instanceof ProfileExhibitFragment) {
+            return (ProfileExhibitFragment) frag;
+        }
+        return null;
+    }
+
+    private void enterConfirmationMode(Uri croppedUri) {
+        // Không còn dùng nữa - avatar được áp dụng trực tiếp trong onActivityResult
     }
 
     private void exitConfirmationMode() {
-        // Ẩn UI xác nhận
         if (previewHeader != null) previewHeader.setVisibility(View.GONE);
         if (blockingOverlay != null) blockingOverlay.setVisibility(View.GONE);
         
-        // Khôi phục tương tác
         if (btnMenu != null) btnMenu.setEnabled(true);
-        if (btnEditAvatar != null) btnEditAvatar.setEnabled(true);
         if (avatarCard != null) avatarCard.setEnabled(true);
     }
 
@@ -695,19 +840,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void syncAvatarToServer(String avatarId) {
-        Map<String, String> body = new HashMap<>();
-        body.put("avatarId", avatarId);
+        com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
+        request.setAvatarId(avatarId);
 
-        gameApiService.updateProfile(body).enqueue(new Callback<ResponseBody>() {
+        gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
                 if (response.isSuccessful()) {
                     Log.d("ProfileFragment", "Avatar ID synced to server");
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Throwable t) {
                 Log.e("ProfileFragment", "Failed to sync avatar ID", t);
             }
         });

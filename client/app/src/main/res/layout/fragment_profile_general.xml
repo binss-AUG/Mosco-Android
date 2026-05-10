@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_md">
+
+        <!-- 1. Bio -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_biography"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/profile_input_height"
+                android:orientation="vertical"
+                android:background="@drawable/bg_glass_input"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_sm">
+
+                <EditText
+                    android:id="@+id/edt_bio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:minLines="2"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white_40"
+                    android:gravity="top"
+                    tools:text="xin chào mọi người cho xin 1 tym và 1 follow nhé." />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 2. Joined -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_joined_galaxy"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_input_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="@dimen/spacing_md">
+
+                <TextView
+                    android:id="@+id/tv_joined_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/MoscoText.Luxury.Body"
+                    tools:text="DD/MM/YYYY" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 3. UID -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_galactic_id"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_input_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="@dimen/spacing_md">
+
+                <TextView
+                    android:id="@+id/tv_uid"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/MoscoText.Luxury.Body"
+                    tools:text="100000001" />
+
+                <ImageButton
+                    android:id="@+id/btn_copy_uid"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_copy"
+                    app:tint="@color/white_50" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 4. Email -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_email"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_input_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="@dimen/spacing_md">
+
+                <TextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/MoscoText.Luxury.Body"
+                    tools:text="abcd@gmail.com" />
+
+                <ImageButton
+                    android:id="@+id/btn_copy_email"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_copy"
+                    app:tint="@color/white_50" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 5. Display Name (Chỉ Owner mới thấy, chỉ sửa được trong Edit Mode) -->
+        <LinearLayout
+            android:id="@+id/layout_display_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_display_name"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_input_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="@dimen/spacing_md">
+
+                <EditText
+                    android:id="@+id/edt_display_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white_40"
+                    android:inputType="text"
+                    android:maxLength="16"
+                    android:singleLine="true"
+                    style="@style/MoscoText.Luxury.Body" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 6. Username (Chỉ Owner mới thấy, Guest không nhìn được) -->
+        <LinearLayout
+            android:id="@+id/layout_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_username"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/profile_input_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="@dimen/spacing_md">
+
+                <EditText
+                    android:id="@+id/edt_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:enabled="false"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white_40"
+                    android:inputType="text"
+                    android:maxLength="32"
+                    android:singleLine="true"
+                    style="@style/MoscoText.Luxury.Body" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

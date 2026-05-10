@@ -66,4 +66,39 @@ public class ProfileViewModel extends AndroidViewModel {
             }
         });
     }
+
+    /**
+     * Cập nhật danh sách Objet trưng bày (Showcase)
+     */
+    public void updateShowcase(java.util.List<String> newIds) {
+        UserStats stats = userStats.getValue();
+        if (stats == null) return;
+
+        // 1. Cập nhật Local DB ngay lập tức (Optimistic UI)
+        stats.setShowcaseCardIds(newIds);
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            userStatsDao.insertUserStats(stats);
+        });
+
+        // 2. Đồng bộ lên Server với DTO chuẩn
+        com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
+        request.setShowcaseCardIds(newIds);
+
+        gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<UserStats>>() {
+            @Override
+            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    // [STORAGE FIX] Lưu dữ liệu "Sự thật từ Server" vào Local DB
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        userStatsDao.insertUserStats(response.body().getData());
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Throwable t) {
+                // Rollback hoặc thông báo lỗi nếu cần
+            }
+        });
+    }
 }

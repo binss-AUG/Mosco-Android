@@ -107,4 +107,5 @@
     <string name="items_label_available">Available: %s</string>
     <string name="collection_label_completed">COMPLETED</string>
     <string name="collection_label_reward">REWARD</string>
+    <string name="showcase_msg_duplicate">Thẻ này đã được trưng bày ở vị trí khác!</string>
 </resources>

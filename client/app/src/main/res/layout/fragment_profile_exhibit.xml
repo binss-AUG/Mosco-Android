@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/spacing_sm"
+    android:paddingBottom="@dimen/spacing_20dp">
+
+    <!-- Showcase Zone: Pager Only (View2Paper style) -->
+    <FrameLayout
+        android:id="@+id/layout_showcase_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:visibility="visible">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_showcase"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="45dp" />
+
+        <!-- Left Arrow -->
+        <ImageView
+            android:id="@+id/btn_showcase_prev"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="@dimen/spacing_xs"
+            android:background="@drawable/bg_circle_dark"
+            android:padding="12dp"
+            android:src="@drawable/ic_back_arrow"
+            android:alpha="0.6"
+            app:tint="@color/white" />
+
+        <!-- Right Arrow -->
+        <ImageView
+            android:id="@+id/btn_showcase_next"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            android:background="@drawable/bg_circle_dark"
+            android:padding="12dp"
+            android:src="@drawable/ic_forward_arrow"
+            android:alpha="0.6"
+            app:tint="@color/white" />
+        
+    </FrameLayout>
+            
+</LinearLayout>

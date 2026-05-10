@@ -5,19 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/mosco_surface"
+    android:clickable="true"
+    android:focusable="true"
+    android:importantForAccessibility="no"
     tools:context=".fragment.ProfileFragment">
 
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <LinearLayout
+        android:id="@+id/layout_main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="none">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="@dimen/spacing_20dp"
             android:gravity="center_horizontal">
@@ -44,8 +46,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_40dp"
                     android:layout_marginBottom="@dimen/spacing_lg">
-                    <!-- ... existing content ... -->
-
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/avatar_card"
@@ -56,39 +56,41 @@
                     app:strokeColor="@color/mosco_outline"
                     app:strokeWidth="3dp">
 
-                    <ImageView
-                        android:id="@+id/iv_avatar"
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_user"
-                        android:padding="@dimen/spacing_md"
-                        android:background="@color/mosco_surface_container" />
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/iv_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_user"
+                            android:padding="@dimen/spacing_md"
+                            android:background="@color/mosco_surface_container" />
+
+                        <!-- Lớp phủ mờ khi bật Edit Mode -->
+                        <View
+                            android:id="@+id/view_avatar_dim"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/mosco_black_50"
+                            android:visibility="gone" />
+
+                        <!-- Icon chỉnh sửa avatar, hiện khi Edit Mode bật -->
+                        <ImageView
+                            android:id="@+id/iv_avatar_edit_icon"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_edit_pen"
+                            app:tint="@color/white"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btn_edit_avatar"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_alignBottom="@id/avatar_card"
-                    android:layout_alignEnd="@id/avatar_card"
-                    android:layout_marginBottom="@dimen/spacing_xs"
-                    android:layout_marginEnd="@dimen/spacing_xs"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/mosco_primary"
-                    app:cardCornerRadius="21dp"
-                    app:cardElevation="@dimen/radius_lg"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="@dimen/spacing_2dp">
-                    <ImageView
-                        android:layout_width="@dimen/spacing_20dp"
-                        android:layout_height="@dimen/spacing_20dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_edit_pen"
-                        app:tint="@color/white" />
-                </com.google.android.material.card.MaterialCardView>
-
+                <!-- Level Badge -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -110,6 +112,31 @@
                         android:paddingVertical="@dimen/spacing_2dp"
                         android:text="@string/placeholder_empty" />
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Nút cây viết góc phải dưới Avatar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_edit_mode"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_alignBottom="@id/avatar_card"
+                    android:layout_alignEnd="@id/avatar_card"
+                    android:layout_marginBottom="@dimen/spacing_xs"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/mosco_primary"
+                    app:cardCornerRadius="21dp"
+                    app:cardElevation="@dimen/radius_lg"
+                    app:strokeColor="@color/white"
+                    app:strokeWidth="@dimen/spacing_2dp">
+                    <ImageView
+                        android:layout_width="@dimen/spacing_20dp"
+                        android:layout_height="@dimen/spacing_20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_edit_pen"
+                        app:tint="@color/white" />
+                </com.google.android.material.card.MaterialCardView>
+
             </RelativeLayout>
 
             <TextView
@@ -118,7 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_xs"
-                android:textColor="@color/mosco_tertiary"
+                android:textColor="@color/white_60"
                 tools:text="Tân Binh" />
 
             <TextView
@@ -127,33 +154,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_commander" />
-
-
-            <TextView
-                android:id="@+id/tv_email"
-                style="@style/MoscoText.Luxury.Body"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.7"
-                android:text="@string/auth_prompt_email" />
-
-            <TextView
-                android:id="@+id/tv_total_rolls"
-                style="@style/MoscoText.Luxury.Body"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xs"
-                android:alpha="0.7"
-                tools:text="Tổng số Roll: 0" />
-
-            <!-- Module Chức năng Chủ sở hữu (Sửa, Cài đặt, Tài nguyên) -->
-            <ViewStub
-                android:id="@+id/stub_owner_actions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout="@layout/layout_owner_actions"
-                android:inflatedId="@+id/layout_owner_actions"
-                android:visibility="gone" />
 
             <!-- Module Chức năng Khách (Kết bạn, Theo dõi, Nhắn tin) -->
             <ViewStub
@@ -164,33 +164,55 @@
                 android:inflatedId="@+id/layout_guest_actions"
                 android:visibility="gone" />
 
-            <!-- Khu vực trưng bày thẻ (Showcase Zone) -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xl"
-                android:layout_marginBottom="@dimen/spacing_md"
-                android:text="SHOWCASE"
-                android:gravity="center"
-                style="@style/MoscoText.Luxury.Header"
-                android:textSize="@dimen/text_size_body"
-                android:letterSpacing="0.2" />
-
-            <GridLayout
-                android:id="@+id/layout_showcase_grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/spacing_md"
-                android:columnCount="2"
-                android:rowCount="2"
-                android:alignmentMode="alignMargins"
-                android:columnOrderPreserved="true" />
-
             </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
+            <!-- Hệ thống Tab Navigation (Pill style, bọc trong FrameLayout để tránh Crash khi addView) -->
+            <FrameLayout
+                android:id="@+id/layout_tab_container"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginBottom="@dimen/spacing_xs"
+                android:background="@drawable/bg_profile_tab_container"
+                android:padding="@dimen/spacing_xxs">
 
+                <!-- Thumb trượt (Nằm dưới TabLayout) -->
+                <View
+                    android:id="@+id/tab_sliding_thumb"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_profile_tab_indicator" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMode="fixed"
+                    app:tabGravity="fill"
+                    app:tabRippleColor="@null"
+                    app:tabPaddingStart="0dp"
+                    app:tabPaddingEnd="0dp"
+                    app:tabPaddingTop="0dp"
+                    app:tabPaddingBottom="0dp"
+                    app:tabMinWidth="0dp"
+                    app:tabSelectedTextColor="@color/white"
+                    app:tabTextColor="@color/white_50"
+                    app:tabTextAppearance="@style/MoscoTabTextAppearance" />
+            </FrameLayout>
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </LinearLayout>
     <!-- Nút Menu 3 gạch (Ghost Menu Entry) -->
     <ImageButton
         android:id="@+id/btn_menu"
@@ -226,6 +248,7 @@
         android:clickable="true"
         android:focusable="true" />
 
+    <!-- Header Edit Mode / Confirm Avatar -->
     <LinearLayout
         android:id="@+id/layout_preview_header"
         android:layout_width="wrap_content"
@@ -249,6 +272,7 @@
             app:tint="@color/white" />
 
         <TextView
+            android:id="@+id/tv_preview_header_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_md"

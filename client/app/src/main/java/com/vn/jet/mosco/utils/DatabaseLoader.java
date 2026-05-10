@@ -88,9 +88,13 @@ public class DatabaseLoader {
          * Chuyển đổi từ UserCard DTO sang Cache Item
          */
         public static UserInventoryItem fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
+            // [UUID FIX] Ưu tiên dùng UUID từ Server, fallback về collectionId
+            String bestId = userCard.getUuid() != null && !userCard.getUuid().isEmpty() ? 
+                    userCard.getUuid() : userCard.getCollectionId();
+            
             return new UserInventoryItem(
                     userCard.getId(),
-                    userCard.getCollectionId(),
+                    bestId,
                     userCard.getFrontImage(),
                     userCard.getBackImage(),
                     userCard.getLevel(),
@@ -177,11 +181,16 @@ public class DatabaseLoader {
                     for (int i = 0; i < len; i++) {
                         JSONObject card = cardsArray.optJSONObject(i);
                         if (card != null) {
-                            String id = card.optString("id");
-                            if (id.isEmpty())
-                                id = card.optString("collectionId");
-                            if (!id.isEmpty())
-                                tempMasterMap.put(id, card);
+                            String uuid = card.optString("id");
+                            String readableId = card.optString("collectionId");
+                            
+                            // [FIX DATA BINDING] Index bằng cả UUID và Readable ID để chắc chắn Client tìm thấy Metadata
+                            if (!uuid.isEmpty()) {
+                                tempMasterMap.put(uuid, card);
+                            }
+                            if (!readableId.isEmpty()) {
+                                tempMasterMap.put(readableId, card);
+                            }
                         }
                     }
                     cachedMasterMap = tempMasterMap;
@@ -522,7 +531,9 @@ public class DatabaseLoader {
             obj.put("class", item.cardClass);
             obj.put("member", item.member);
             obj.put("season", item.season);
+            obj.put("name", item.member); // Fallback to member name
             obj.put("collectionNo", item.collectionNo);
+            obj.put("upgradeLevel", item.upgradeLevel);
             obj.put("slug", item.slug);
             obj.put("backgroundColor", item.backgroundColor);
             obj.put("textColor", item.textColor);

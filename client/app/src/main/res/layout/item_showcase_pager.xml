@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="@dimen/spacing_md">
+
+    <!-- Card Container (The Objet) -->
+    <!-- Sử dụng 0dp + ratio để thẻ tự động scale vừa vặn với mọi màn hình, đảm bảo Name Tag không bị cắt -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_card_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/palette_obsidian_950"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="@dimen/spacing_xs"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/mosco_white_10"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tv_card_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.75"
+        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintDimensionRatio="1:1.54">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <!-- Unified Card Content (Image + OVR + Badge) -->
+            <!-- Mặt sau thẻ (Cho hiệu ứng lật 3D) -->
+            <ImageView
+                android:id="@+id/card_iv_back"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/objet_back_spin"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/layout_core"
+                layout="@layout/layout_core_card" />
+
+
+            <!-- Selected Overlay -->
+            <View
+                android:id="@+id/view_selected_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_card_selected_overlay"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
+
+            <!-- Disabled Overlay -->
+            <View
+                android:id="@+id/view_disabled_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@color/mosco_black_70"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/layout_core"
+                app:layout_constraintEnd_toEndOf="@id/layout_core"
+                app:layout_constraintStart_toStartOf="@id/layout_core"
+                app:layout_constraintTop_toTopOf="@id/layout_core" />
+
+            <!-- Placeholder (Empty Slot) - Glass Style -->
+            <FrameLayout
+                android:id="@+id/layout_empty_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/mosco_white_10"
+                android:visibility="gone">
+                <FrameLayout
+                    android:id="@+id/layout_add_objet_plus"
+                    android:layout_width="@dimen/spacing_60dp"
+                    android:layout_height="@dimen/spacing_60dp"
+                    android:background="@drawable/bg_circle_dark"
+                    android:layout_gravity="center"
+                    android:visibility="visible"> <!-- Luôn hiện + trong placeholder -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_h1_xl"
+                        android:textStyle="bold" />
+                </FrameLayout>
+            </FrameLayout>
+
+            <!-- [UX] Un-equip Button (X) - Increased touch area (48dp) -->
+            <ImageView
+                android:id="@+id/btn_unequip"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_margin="@dimen/spacing_xs"
+                android:background="@drawable/bg_circle_dark"
+                android:padding="12dp"
+                android:src="@drawable/ic_close"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Card Name Tag (Outside CardView: Separate Bubble) -->
+    <TextView
+        android:id="@+id/tv_card_name"
+        style="@style/MoscoText.Luxury"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/bg_card_name_tag"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="@dimen/spacing_xs"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_14sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="280dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="SeoAh A2 316Z" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
