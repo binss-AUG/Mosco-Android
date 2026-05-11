@@ -28,19 +28,26 @@ public class UserCard {
     @Column(nullable = false)
     private int upgradeLevel = 1;
 
-    @Column(nullable = false)
-    private String status = "AVAILABLE";
+    @Column(nullable = true)
+    private String uuid;
 
     public UserCard() {}
 
     public UserCard(User user, String collectionId, int level, int exp, int upgradeLevel) {
         this.user = user;
         this.collectionId = collectionId;
+        this.uuid = collectionId; // Fallback: collectionId thường chứa UUID từ PackService
         this.level = level;
         this.exp = exp;
         this.upgradeLevel = upgradeLevel;
         this.status = "AVAILABLE";
     }
+
+    @Column(nullable = false)
+    private String status = "AVAILABLE";
+
+    public String getUuid() { return uuid; }
+    public void setUuid(String uuid) { this.uuid = uuid; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

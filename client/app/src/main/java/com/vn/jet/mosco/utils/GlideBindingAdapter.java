@@ -39,13 +39,7 @@ public class GlideBindingAdapter {
             skeleton.setVisibility(View.VISIBLE);
         }
 
-        String finalUrl;
-        if (imageIdOrUrl.startsWith("http")) {
-            finalUrl = imageIdOrUrl;
-        } else {
-            String variant = isThumbnail ? "thumbnail" : "original";
-            finalUrl = BASE_URL + BuildConfig.CLOUDFLARE_ACCOUNT_ID + "/" + imageIdOrUrl + "/" + variant;
-        }
+        String finalUrl = convertImageIdToUrl(imageIdOrUrl, isThumbnail);
 
         // 🚀 LOCAL FIRST: Check if the asset exists locally (2x or original)
         java.io.File localFile = CardAssetManager.getLocalFile(context, finalUrl);
@@ -95,5 +89,16 @@ public class GlideBindingAdapter {
     @BindingAdapter("imageUrlThumbnail")
     public static void loadImageThumbnail(ImageView view, String imageId) {
         loadImage(view, imageId, true);
+    }
+
+    /**
+     * Helper to convert an image ID (from Cloudflare) into a full URL.
+     */
+    public static String convertImageIdToUrl(String imageIdOrUrl, boolean isThumbnail) {
+        if (imageIdOrUrl == null || imageIdOrUrl.isEmpty()) return "";
+        if (imageIdOrUrl.startsWith("http")) return imageIdOrUrl;
+        
+        String variant = isThumbnail ? "thumbnail" : "original";
+        return BASE_URL + com.vn.jet.mosco.BuildConfig.CLOUDFLARE_ACCOUNT_ID + "/" + imageIdOrUrl + "/" + variant;
     }
 }

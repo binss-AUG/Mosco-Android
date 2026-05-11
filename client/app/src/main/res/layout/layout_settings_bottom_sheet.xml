@@ -161,17 +161,13 @@
                 android:textColor="@color/mosco_on_surface_variant"
                 android:textSize="@dimen/text_size_mini" />
         </LinearLayout>
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_clear_cache"
-            style="@style/MoscoText.Luxury.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_action_clear_cache"
-            android:textColor="@color/stat_atk"
-            android:textSize="@dimen/text_size_badge"
-            android:textStyle="bold"
-            android:fontWeight="700"
-            app:backgroundTint="@android:color/transparent" />
+            app:moscoStyle="ghost"
+            app:moscoSize="small"
+            android:text="@string/settings_action_clear_cache" />
     </LinearLayout>
 
     <!-- Version Info -->

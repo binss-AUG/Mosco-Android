@@ -65,7 +65,7 @@ public class SpinFragment extends Fragment {
     private View btnAddObjet;
     private ImageView ivSelectedObjet;
     private com.vn.jet.mosco.widget.MoscoButton btnSpin;
-    private View ivBgCard1, ivBgCard2, ivBgCard3;
+    private FrameLayout bgCardsContainer;
     private com.google.android.material.card.MaterialCardView cardCenterSlot;
     private View layoutSelectedFront;
     private VideoView videoSpinEffect;
@@ -98,6 +98,59 @@ public class SpinFragment extends Fragment {
     private com.vn.jet.mosco.widget.MoscoButton btnTryAgain;
     private ImageView ivRevealBack;
     private RevealResultAdapter revealResultAdapter;
+    private final java.util.List<BackgroundCardState> bgCardStates = new java.util.ArrayList<>();
+    private ValueAnimator masterBgAnimator;
+
+    private static class BackgroundCardState {
+        final ImageView view;
+        final long duration, startTimeOffset;
+        final float beamWidth, cardBaseScale, zMax;
+        final int lightBase, lightRange;
+        
+        BackgroundCardState(ImageView view, long duration, long startTimeOffset, 
+                            float beamWidth, float cardBaseScale, float zMax,
+                            int lightBase, int lightRange) {
+            this.view = view;
+            this.duration = duration;
+            this.startTimeOffset = startTimeOffset;
+            this.beamWidth = beamWidth;
+            this.cardBaseScale = cardBaseScale;
+            this.zMax = zMax;
+            this.lightBase = lightBase;
+            this.lightRange = lightRange;
+        }
+
+        void update(long currentTimeMillis, int screenWidth) {
+            long elapsed = (currentTimeMillis + startTimeOffset) % duration;
+            float fraction = (float) elapsed / duration;
+            
+            // Di chuyển ngang từ trái sang phải (Linear Slideshow)
+            float startX = -screenWidth * 0.8f;
+            float endX = screenWidth * 0.8f;
+            float tx = startX + (endX - startX) * fraction;
+            
+            view.setTranslationX(tx);
+            view.setTranslationY(0); 
+            
+            // TƯƠNG TÁC ÁNH SÁNG (Light Interaction at Center)
+            float distToCenter = Math.abs(tx);
+            float lightIntensity = 0f;
+            if (distToCenter < beamWidth) {
+                lightIntensity = 1f - (distToCenter / beamWidth);
+                lightIntensity = (float) Math.pow(lightIntensity, 0.6); 
+            }
+
+            // Điều chỉnh độ sáng qua ColorFilter (Multiply)
+            int colorVal = (int) (lightBase + lightRange * lightIntensity); 
+            view.setColorFilter(android.graphics.Color.rgb(colorVal, colorVal, colorVal), android.graphics.PorterDuff.Mode.MULTIPLY);
+            
+            view.setScaleX(cardBaseScale);
+            view.setScaleY(cardBaseScale);
+            view.setAlpha(1.0f);
+            view.setTranslationZ(lightIntensity * zMax);
+        }
+    }
+    private FrameLayout layoutDustContainer;
     private int revealCardHeight = 0;
 
     private GachaRepository gachaRepository;
@@ -116,7 +169,7 @@ public class SpinFragment extends Fragment {
     private ImageView ivSacrificeBack;
     private boolean isSacrificeFlipped = false;
     private boolean isSacrificeFlipAnimating = false;
-    private String sacrificeBackImageUrl = null;
+    private String sacrificeBackImageUrl = "";
     private GestureDetectorCompat sacrificeGestureDetector;
 
     @Override
@@ -162,6 +215,12 @@ public class SpinFragment extends Fragment {
             layoutResultReveal.setVisibility(View.VISIBLE);
         });
 
+        // Header info button
+        ImageView ivInfo = view.findViewById(R.id.iv_spin_info);
+        if (ivInfo != null) {
+            ivInfo.setOnClickListener(v -> showSpinInfoDialog());
+        }
+
         // Try again → reset to spin main
         btnTryAgain.setOnClickListener(v -> {
             layoutRevealResultGrid.setVisibility(View.GONE);
@@ -174,17 +233,16 @@ public class SpinFragment extends Fragment {
         ivSelectedObjet = view.findViewById(R.id.card_iv_image);
         ivSacrificeBack = view.findViewById(R.id.iv_sacrifice_back);
         btnSpin = view.findViewById(R.id.btn_spin);
-        ivBgCard1 = view.findViewById(R.id.iv_bg_card_1);
-        ivBgCard2 = view.findViewById(R.id.iv_bg_card_2);
-        ivBgCard3 = view.findViewById(R.id.iv_bg_card_3);
+        bgCardsContainer = view.findViewById(R.id.layout_bg_cards_container);
         videoSpinEffect = view.findViewById(R.id.video_spin_effect);
-        videoContainer = (FrameLayout) view.findViewById(R.id.video_container);
+        videoContainer = view.findViewById(R.id.video_container);
+        layoutDustContainer = view.findViewById(R.id.layout_dust_container);
 
         view.setBackgroundColor(Color.BLACK);
-        view.post(this::startBackgroundAnimation);
-
-        // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
-        initSacrificeFlipGesture();
+        view.post(() -> {
+            startBackgroundAnimation();
+            startDustEffect();
+        });
 
         // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
         initSacrificeFlipGesture();
@@ -975,6 +1033,15 @@ public class SpinFragment extends Fragment {
         }
     }
 
+    private void showSpinInfoDialog() {
+        if (getContext() == null) return;
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.GalacticDialogTheme)
+            .setTitle(R.string.spin_info_title)
+            .setMessage(R.string.spin_info_msg)
+            .setPositiveButton(R.string.action_confirm, null)
+            .show();
+    }
+
     // ========================
     // Shine Effect Logic
     // ========================
@@ -1027,6 +1094,70 @@ public class SpinFragment extends Fragment {
             shineHandler.postDelayed(this, delayMs);
         }
     };
+
+    // ========================
+    // Sparkling Dust Effect
+    // ========================
+    private void startDustEffect() {
+        if (layoutDustContainer == null) return;
+        
+        int particleCount = 25;
+        java.util.Random random = new java.util.Random();
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+
+        for (int i = 0; i < particleCount; i++) {
+            ImageView particle = new ImageView(requireContext());
+            int size = (int) (random.nextFloat() * 4 + 2) * (int) getResources().getDisplayMetrics().density;
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+            particle.setLayoutParams(lp);
+            particle.setBackgroundResource(R.drawable.bg_circle_white);
+            particle.setAlpha(random.nextFloat() * 0.4f + 0.1f);
+            
+            layoutDustContainer.addView(particle);
+
+            // Random start position
+            particle.setTranslationX(random.nextInt(screenWidth));
+            particle.setTranslationY(random.nextInt(screenHeight));
+
+            animateParticle(particle, random, screenWidth, screenHeight);
+        }
+    }
+
+    private void animateParticle(View particle, java.util.Random random, int sw, int sh) {
+        long duration = 4000 + random.nextInt(6000);
+        float targetX = random.nextInt(sw);
+        float targetY = random.nextInt(sh);
+
+        particle.animate()
+                .translationX(targetX)
+                .translationY(targetY)
+                .alpha(random.nextFloat() * 0.5f + 0.1f)
+                .setDuration(duration)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (isAdded() && layoutDustContainer != null) {
+                            animateParticle(particle, random, sw, sh);
+                        }
+                    }
+                })
+                .start();
+
+        // Thêm hiệu ứng nhấp nháy (Twinkle)
+        ObjectAnimator twinkle = ObjectAnimator.ofFloat(particle, "scaleX", 0.5f, 1.2f, 0.5f);
+        twinkle.setDuration(2000 + random.nextInt(3000));
+        twinkle.setRepeatCount(ValueAnimator.INFINITE);
+        twinkle.setRepeatMode(ValueAnimator.REVERSE);
+        twinkle.start();
+        
+        ObjectAnimator twinkleY = ObjectAnimator.ofFloat(particle, "scaleY", 0.5f, 1.2f, 0.5f);
+        twinkleY.setDuration(twinkle.getDuration());
+        twinkleY.setRepeatCount(ValueAnimator.INFINITE);
+        twinkleY.setRepeatMode(ValueAnimator.REVERSE);
+        twinkleY.start();
+    }
 
     @Override
     public void onDestroyView() {
@@ -1480,24 +1611,77 @@ public class SpinFragment extends Fragment {
             ivSacrificeBack.setImageResource(R.drawable.objet_back_spin);
         }
         if (ivSelectedObjet != null) ivSelectedObjet.setVisibility(View.VISIBLE);
-
-        // Reset Glow rotation
-        View pseudoGlow = cardCenterSlot != null ? (View) cardCenterSlot.getTag(R.id.view_progress_fill) : null;
-        if (pseudoGlow != null) pseudoGlow.setRotationY(0f);
     }
 
     private void startBackgroundAnimation() {
-        if (getView() == null) return;
+        if (getView() == null || bgCardsContainer == null) return;
+        
+        if (masterBgAnimator != null) masterBgAnimator.cancel();
+        bgCardsContainer.removeAllViews();
+        bgCardStates.clear();
+
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        float cardWidth = (ivBgCard1 != null) ? ivBgCard1.getWidth() : 0;
-        if (cardWidth == 0) return;
-        long duration = 36000;
-        animateCard(ivBgCard1, -cardWidth, screenWidth, duration, 0);
-        animateCard(ivBgCard2, -cardWidth, screenWidth, duration, duration / 3);
-        animateCard(ivBgCard3, -cardWidth, screenWidth, duration, 2 * duration / 3);
+
+        // Tải hằng số 1 lần duy nhất để tối ưu frame rate
+        int numCards = getResources().getInteger(R.integer.spin_slideshow_card_count);
+        long duration = getResources().getInteger(R.integer.spin_slideshow_duration_ms);
+        int lightBase = getResources().getInteger(R.integer.spin_light_color_base);
+        int lightRange = getResources().getInteger(R.integer.spin_light_color_range);
+        float zMax = getResources().getDimension(R.dimen.spin_z_elevation_max);
+
+        android.util.TypedValue beamRatioVal = new android.util.TypedValue();
+        getResources().getValue(R.dimen.spin_beam_width_ratio, beamRatioVal, true);
+        float beamWidth = screenWidth * beamRatioVal.getFloat();
+
+        android.util.TypedValue scaleVal = new android.util.TypedValue();
+        getResources().getValue(R.dimen.spin_card_base_scale, scaleVal, true);
+        float cardBaseScale = scaleVal.getFloat();
+
+        android.util.TypedValue widthRatioVal = new android.util.TypedValue();
+        getResources().getValue(R.dimen.spin_card_width_ratio, widthRatioVal, true);
+        float widthRatio = widthRatioVal.getFloat();
+
+        for (int i = 0; i < numCards; i++) {
+            ImageView iv = new ImageView(requireContext());
+            iv.setImageResource(R.drawable.objet_back_spin);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            
+            int cardW = (int) (screenWidth * widthRatio);
+            int cardH = (int) (cardW * 1.54f);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(cardW, cardH);
+            lp.gravity = Gravity.CENTER;
+            iv.setLayoutParams(lp);
+            iv.setAlpha(1.0f); 
+            iv.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            
+            bgCardsContainer.addView(iv);
+
+            // Phân bổ thời gian bắt đầu đều nhau để tạo chuỗi slideshow lặp lại
+            long startTimeOffset = (duration / numCards) * i;
+
+            bgCardStates.add(new BackgroundCardState(iv, duration, startTimeOffset, 
+                    beamWidth, cardBaseScale, zMax, lightBase, lightRange));
+        }
+
+        masterBgAnimator = ValueAnimator.ofFloat(0f, 1f);
+        masterBgAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        masterBgAnimator.setDuration(1000);
+        masterBgAnimator.addUpdateListener(animation -> {
+            if (!isAdded()) return;
+            long currentTime = System.currentTimeMillis();
+            for (BackgroundCardState state : bgCardStates) {
+                state.update(currentTime, screenWidth);
+            }
+        });
+        masterBgAnimator.start();
+    }
+
+    private void animateOrbitalCard(View target, float rx, float ry, long duration, long initialPlayTime, float ox, float oy) {
+        // Hàm này không còn dùng nữa vì đã gộp vào Master Animator
     }
 
     private void animateCard(View target, float startX, float endX, long duration, long initialPlayTime) {
+        // Giữ lại hàm cũ để tránh lỗi compile nếu có chỗ khác gọi, nhưng logic orbital đã thay thế chính
         if (target == null) return;
         target.setVisibility(View.VISIBLE);
         ObjectAnimator animator = ObjectAnimator.ofFloat(target, "translationX", startX, endX);

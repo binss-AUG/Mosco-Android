@@ -50,6 +50,7 @@ public class FriendActivity extends AppCompatActivity {
         setContentView(R.layout.activity_friend);
 
         apiService = ApiClient.getClient(this).create(GameApiService.class);
+        com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(this);
 
         // Nút back & Title
         findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
@@ -76,6 +77,16 @@ public class FriendActivity extends AppCompatActivity {
 
         // Setup QR Code Button
         findViewById(R.id.btn_friend_qr).setOnClickListener(v -> showGalacticIdDialog());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**

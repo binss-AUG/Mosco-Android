@@ -65,21 +65,9 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             holder.tvPosition.setText(String.valueOf(rank));
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
 
-            String avatarUrl = entry.optString("avatarUrl", null);
             String avatarId = entry.optString("avatarId", "1");
-            
-            if (avatarUrl == null || avatarUrl.isEmpty() || "null".equals(avatarUrl)) {
-                JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
-                if (card != null) {
-                    avatarUrl = card.optString("frontImage", null);
-                }
-            }
-
-            Glide.with(holder.itemView.getContext())
-                .load(avatarUrl)
-                .placeholder(R.drawable.ic_user)
-                .transform(new SmartFaceCropTransformation())
-                .into(holder.ivAvatar);
+            long userId = entry.optLong("userId", -1L);
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
 
             int value = entry.optInt("value", 0);
             android.content.Context context = holder.itemView.getContext();
@@ -90,7 +78,7 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
                     holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
                 case "wealth": 
-                    holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value));
+                    holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value)); 
                     holder.ivTypeIcon.setImageResource(R.drawable.ic_item_diamond);
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
@@ -111,12 +99,20 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
                     break;
             }
 
-            long userId = entry.optLong("userId", -1L);
             if (currentUserId != null && userId == currentUserId) {
                 holder.itemView.setBackgroundResource(R.drawable.bg_rank_item_highlight);
             } else {
                 holder.itemView.setBackgroundResource(R.drawable.bg_header_glass_v2);
             }
+
+            // Click Avatar hoặc Tên để mở Profile (Bridge Bridge)
+            View.OnClickListener profileClick = v -> {
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) context, userId);
+                }
+            };
+            holder.ivAvatar.setOnClickListener(profileClick);
+            holder.tvName.setOnClickListener(profileClick);
 
         } catch (Exception e) {
             // Null-safety

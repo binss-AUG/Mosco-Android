@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nền container cho cụm Tab Profile, dùng cùng mã màu với Duration chip unselected nhưng bo tròn Pill -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/mosco_white_05" />
+    <corners android:radius="@dimen/spacing_100dp" />
+</shape>

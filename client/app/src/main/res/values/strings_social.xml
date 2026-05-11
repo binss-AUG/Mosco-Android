@@ -34,6 +34,37 @@
     <string name="profile_action_logout">Logout</string>
     <string name="profile_footer_version">App version %s</string>
     <string name="profile_edit_title">Edit Profile</string>
+    <string name="profile_crop_title">IDENTITY CALIBRATION</string>
+    <string name="profile_preview_confirm_msg">PREVIEW MODE: Confirm or Recalibrate</string>
+    <string name="profile_preview_confirm_label">CONFIRM IDENTITY</string>
+    <string name="profile_menu_central_hub">CENTRAL HUB</string>
+    <string name="profile_error_unknown">An error occurred. Please try again.</string>
+    <string name="profile_total_rolls">Total Rolls: %d</string>
+    <string name="profile_title_default">Tân Binh</string>
+
+    <!-- Profile V2 Navigation -->
+    <string name="profile_tab_general">GENERAL</string>
+    <string name="profile_tab_trophy">TROPHY</string>
+    <string name="profile_tab_exhibit">EXHIBIT</string>
+    <string name="profile_label_galactic_id">GALACTIC ID</string>
+    <string name="profile_label_biography">BIOGRAPHY</string>
+    <string name="profile_label_joined_dated">JOINED DATED</string>
+    <string name="profile_msg_copied_uid">Copied Galactic ID</string>
+    <string name="profile_fallback_bio">Exploring the Galactic Universe...</string>
+    <string name="profile_fallback_joined_date">Unknown Era</string>
+    <string name="profile_label_gacha_stats">GACHA STATS</string>
+    <string name="profile_label_total_rolls">TOTAL ROLLS</string>
+    <string name="profile_label_collection">COLLECTION</string>
+    <string name="profile_label_honor_badges">HONOR BADGES</string>
+    <string name="profile_msg_no_badges">Archive is silent...</string>
+    <string name="profile_label_email">EMAIL</string>
+    <string name="profile_msg_copied_email">Copied Email</string>
+    <string name="profile_edit_mode_label">EDIT PROFILE</string>
+    <string name="profile_edit_discard_title">Discard Changes?</string>
+    <string name="profile_edit_discard_msg">All unsaved changes including avatar will be lost.</string>
+    <string name="profile_edit_discard_action">Discard</string>
+    <string name="profile_label_username">USERNAME</string>
+    <string name="profile_label_display_name">DISPLAY NAME</string>
 
     <!-- Profile Preview -->
     <string name="profile_preview_default_name">GALACTIC TRAVELER</string>
@@ -87,4 +118,23 @@
     <string name="social_msg_no_requests">No pending requests</string>
     <string name="social_error_accept">Failed to accept</string>
     <string name="social_error_decline">Failed to decline</string>
+
+    <!-- Profile Action Buttons -->
+    <string name="profile_btn_edit">EDIT PROFILE</string>
+    <string name="profile_btn_settings">SETTINGS</string>
+    <string name="profile_btn_resource_mgmt">RESOURCES</string>
+    <string name="profile_btn_like">LIKE</string>
+    <string name="profile_btn_liked">LIKED</string>
+    <string name="profile_btn_add_friend">ADD FRIEND</string>
+    <string name="profile_btn_pending">PENDING</string>
+    <string name="profile_btn_friends">FRIENDS</string>
+    <string name="profile_btn_message">MESSAGE</string>
+    <string name="profile_email_placeholder">••••••••@••••.com</string>
+    <string name="profile_msg_followed">Followed!</string>
+    <string name="profile_msg_friend_request_sent">Friend request sent!</string>
+    <string name="profile_msg_chat_coming_soon_toast">Coming soon!</string>
+    <string name="profile_label_likes">Likes</string>
+    <string name="profile_label_friends">Friends</string>
+    <string name="showcase_empty_slot">EMPTY SLOT</string>
+    <string name="showcase_unknown_card">OBJ#%s</string>
 </resources>

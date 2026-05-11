@@ -74,7 +74,7 @@ public interface GameApiService {
     Call<ResponseBody> claimMail(@Path("mailId") Long mailId);
 
     @retrofit2.http.PUT("/api/user/update-profile")
-    Call<ResponseBody> updateProfile(@Body java.util.Map<String, String> body);
+    Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> updateProfile(@Body UpdateProfileRequest body);
 
     @POST("/api/user/streak/restore")
     Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> restoreStreak();

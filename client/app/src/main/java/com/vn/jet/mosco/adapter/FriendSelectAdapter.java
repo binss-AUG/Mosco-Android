@@ -68,19 +68,9 @@ public class FriendSelectAdapter extends RecyclerView.Adapter<FriendSelectAdapte
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
             holder.tvLevel.setText(holder.itemView.getContext().getString(R.string.format_level_short, entry.optInt("level", 1)));
 
-            // Avatar — load từ avatarId giống FriendAdapter
+            long userId = entry.optLong("userId", -1L);
             String avatarId = entry.optString("avatarId", "1");
-            JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
-            if (card != null) {
-                String imgUrl = card.optString("frontImage", "");
-                Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user)
-                        .into(holder.ivAvatar);
-            } else {
-                holder.ivAvatar.setImageResource(R.drawable.ic_user);
-            }
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
 
             // Hiệu ứng chọn: Highlight toàn bộ card thay vì dùng chấm tròn
             boolean isSelected = (position == selectedPosition);

@@ -99,6 +99,10 @@ public class SessionManager {
         return prefs.getString(KEY_USERNAME, null);
     }
 
+    public void setUsername(String username) {
+        prefs.edit().putString(KEY_USERNAME, username).apply();
+    }
+
     public boolean isLoggedIn() {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
     }

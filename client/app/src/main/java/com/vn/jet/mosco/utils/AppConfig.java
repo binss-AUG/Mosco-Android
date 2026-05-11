@@ -17,14 +17,9 @@ public class AppConfig {
     public static final String DISCORD_AUTH_URL_BASE = "https://discord.com/api/oauth2/authorize";
     public static final String DISCORD_SCOPE = "identify email";
 
-    // Performance & UI Constants
-    public static final int MAX_FLING_VELOCITY = 8500;
-    public static final float DETAIL_DIALOG_DIM_AMOUNT = 0.8f;
-    public static final int INVENTORY_BATCH_SIZE_UNLEASHED = 99999;
-    
-    // AFK Stage Constants
-    public static final long MS_PER_HOUR = 3600000L;
-    public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
+    // File & Cache Constants
+    public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
+    public static final String DEFAULT_AVATAR_ID = "1";
 
     // Prevent instantiation
     private AppConfig() {

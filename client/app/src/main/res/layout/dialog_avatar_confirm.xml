@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog_galactic"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/spacing_xl"
+        android:paddingBottom="@dimen/spacing_xl"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:gravity="center_horizontal">
+
+        <TextView
+            style="@style/MoscoText.Luxury.Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CONFIRM IDENTITY"
+            android:textSize="@dimen/text_size_h3"
+            android:letterSpacing="0.1" />
+
+        <TextView
+            style="@style/MoscoText.Luxury.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do you wish to authorize this visual identity?"
+            android:alpha="0.6"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:gravity="center" />
+
+        <!-- Preview Profile Card Style -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_hud_menu_glass"
+            android:padding="@dimen/spacing_lg"
+            android:layout_marginBottom="@dimen/spacing_lg">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/avatar_container"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_centerHorizontal="true"
+                app:cardCornerRadius="60dp"
+                app:strokeColor="@color/mosco_primary"
+                app:strokeWidth="2dp"
+                app:cardElevation="4dp">
+                <ImageView
+                    android:id="@+id/iv_confirm_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_preview_name"
+                style="@style/MoscoText.Luxury.Header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/avatar_container"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="Commander"
+                android:textSize="@dimen/text_size_body" />
+
+        </RelativeLayout>
+
+        <com.vn.jet.mosco.widget.MoscoButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:moscoStyle="ghost"
+            android:text="RECALIBRATE" />
+
+    </LinearLayout>
+
+    <!-- Top Right Action: Tick -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/btn_confirm_wrap"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-12dp"
+        android:layout_marginEnd="-12dp"
+        app:cardBackgroundColor="@color/mosco_primary"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="12dp"
+        app:strokeColor="@color/white"
+        app:strokeWidth="2dp"
+        android:clickable="true"
+        android:focusable="true">
+        <ImageView
+            android:id="@+id/btn_confirm"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check"
+            app:tint="@color/white" />
+    </com.google.android.material.card.MaterialCardView>
+
+</FrameLayout>

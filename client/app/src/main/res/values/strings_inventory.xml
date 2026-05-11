@@ -10,15 +10,17 @@
     <string name="inventory_loading_more">Loading more items…</string>
     <string name="inventory_label_filter">Filter</string>
     <string name="inventory_label_sort_newest">Newest</string>
-    <string name="inventory_label_sort_oldest">Oldest</string>
-    <string name="inventory_label_sort_lowest_no">Lowest No.</string>
-    <string name="inventory_label_sort_highest_no">Highest No.</string>
+    <string name="inventory_label_sort_badge">Badge</string>
+    <string name="inventory_label_sort_level">Level</string>
+    <string name="inventory_label_sort_artist">Artist (A-Z)</string>
+    <string name="inventory_label_sort_status">Status</string>
 
     <string-array name="inventory_sort_options">
         <item>@string/inventory_label_sort_newest</item>
-        <item>@string/inventory_label_sort_oldest</item>
-        <item>@string/inventory_label_sort_lowest_no</item>
-        <item>@string/inventory_label_sort_highest_no</item>
+        <item>@string/inventory_label_sort_badge</item>
+        <item>@string/inventory_label_sort_level</item>
+        <item>@string/inventory_label_sort_artist</item>
+        <item>@string/inventory_label_sort_status</item>
     </string-array>
 
     <!-- Collection & Album -->
@@ -105,4 +107,5 @@
     <string name="items_label_available">Available: %s</string>
     <string name="collection_label_completed">COMPLETED</string>
     <string name="collection_label_reward">REWARD</string>
+    <string name="showcase_msg_duplicate">Thẻ này đã được trưng bày ở vị trí khác!</string>
 </resources>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <!-- Nền Obsidian cực tối -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#020202" />
+        </shape>
+    </item>
+    
+    <!-- Lớp sương mù ánh sáng toàn cảnh (Atmospheric Fog) -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="50%"
+                android:centerY="-30%"
+                android:gradientRadius="300%p"
+                android:startColor="#14FFFFFF"
+                android:centerColor="#02FFFFFF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- HỆ THỐNG CỘT SÁNG HÌNH NÓN (Conical Beams) -->
+    <!-- Cột trung tâm (Trapezoid với Blur giả lập bằng stacking) -->
+    <item android:top="-100dp">
+        <vector
+            android:width="400dp"
+            android:height="1000dp"
+            android:viewportWidth="400"
+            android:viewportHeight="1000">
+            
+            <!-- Lớp sương sáng rộng nhất (Core blur) -->
+            <path android:pathData="M160,0 L240,0 L600,1000 L-200,1000 Z">
+                <aapt:attr name="android:fillColor">
+                    <gradient
+                        android:type="linear"
+                        android:startX="200"
+                        android:startY="0"
+                        android:endX="200"
+                        android:endY="1000">
+                        <item android:offset="0.0" android:color="#08FFFFFF" />
+                        <item android:offset="1.0" android:color="#00000000" />
+                    </gradient>
+                </aapt:attr>
+            </path>
+
+            <!-- Chùm sáng chính (Main Cone) -->
+            <path android:pathData="M180,0 L220,0 L450,1000 L-50,1000 Z">
+                <aapt:attr name="android:fillColor">
+                    <gradient
+                        android:type="linear"
+                        android:startX="200"
+                        android:startY="0"
+                        android:endX="200"
+                        android:endY="1000">
+                        <item android:offset="0.0" android:color="#12FFFFFF" />
+                        <item android:offset="0.7" android:color="#05FFFFFF" />
+                        <item android:offset="1.0" android:color="#00000000" />
+                    </gradient>
+                </aapt:attr>
+            </path>
+            
+            <!-- Điểm nhấn sáng gắt ở đỉnh -->
+            <path android:pathData="M195,0 L205,0 L250,300 L150,300 Z">
+                <aapt:attr name="android:fillColor">
+                    <gradient
+                        android:type="linear"
+                        android:startX="200"
+                        android:startY="0"
+                        android:endX="200"
+                        android:endY="300">
+                        <item android:offset="0.0" android:color="#1AFFFFFF" />
+                        <item android:offset="1.0" android:color="#00000000" />
+                    </gradient>
+                </aapt:attr>
+            </path>
+        </vector>
+    </item>
+
+    <!-- Obsidian Platform (3D Geometric Floor) -->
+    <item android:gravity="bottom" android:bottom="-40dp">
+        <vector
+            android:width="400dp"
+            android:height="250dp"
+            android:viewportWidth="400"
+            android:viewportHeight="250">
+            <path
+                android:pathData="M60,40 L340,40 L400,100 L0,100 Z"
+                android:fillColor="#0D0D0D" />
+            <path
+                android:pathData="M0,100 L400,100 L400,250 L0,250 Z"
+                android:fillColor="#050505" />
+            <path
+                android:pathData="M60,40 L340,40"
+                android:strokeWidth="0.8"
+                android:strokeColor="#1AFFFFFF" />
+            <path
+                android:pathData="M0,100 L400,100"
+                android:strokeWidth="1.2"
+                android:strokeColor="#26FFFFFF" />
+            <path
+                android:pathData="M60,40 L0,100"
+                android:strokeWidth="0.8"
+                android:strokeColor="#1AFFFFFF" />
+            <path
+                android:pathData="M340,40 L400,100"
+                android:strokeWidth="0.8"
+                android:strokeColor="#1AFFFFFF" />
+        </vector>
+    </item>
+    
+    <!-- Điểm nhấn sáng xanh mờ ảo trên mặt platform -->
+    <item android:gravity="bottom" android:bottom="40dp">
+        <shape android:shape="oval">
+            <size android:height="100dp" android:width="350dp" />
+            <gradient
+                android:type="radial"
+                android:centerX="50%"
+                android:centerY="50%"
+                android:gradientRadius="80%p"
+                android:startColor="#1A5AB9FF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

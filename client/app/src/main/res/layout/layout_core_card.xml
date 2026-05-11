@@ -53,7 +53,7 @@
 
     </FrameLayout>
 
-    <!-- OVR Text on card -->
+    <!-- OVR Text on card (Permanently Hidden as per request) -->
     <com.vn.jet.mosco.utils.StrokedTextView
         android:id="@+id/card_tv_ovr"
         android:layout_width="0dp"
@@ -94,5 +94,27 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintVertical_bias="1"
         android:visibility="gone" />
+
+    <!-- [+] Placeholder overlay for empty slots (Spin Style) -->
+    <FrameLayout
+        android:id="@+id/layout_add_objet_plus"
+        android:layout_width="@dimen/spacing_40dp"
+        android:layout_height="@dimen/spacing_40dp"
+        android:background="@drawable/bg_circle_dark"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/card_iv_image"
+        app:layout_constraintBottom_toBottomOf="@id/card_iv_image"
+        app:layout_constraintStart_toStartOf="@id/card_iv_image"
+        app:layout_constraintEnd_toEndOf="@id/card_iv_image">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="+"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_headline"
+            android:textStyle="bold" />
+    </FrameLayout>
 </merge>
 

@@ -34,6 +34,7 @@ import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.ClickDebounce;
 import com.vn.jet.mosco.utils.DatabaseLoader;
+import com.vn.jet.mosco.utils.NavigationUtils;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
 
@@ -358,7 +359,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
         
         if (btnFullRank != null) {
-            btnFullRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
+            btnFullRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
         }
 
         if (vpMiniRanking != null) {
@@ -520,7 +521,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         }
-        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.RankActivity.class)));
+        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
         if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FriendActivity.class)));
         if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
         if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
@@ -528,7 +529,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (flAvatarGroup != null) {
             flAvatarGroup.setOnClickListener(new ClickDebounce() {
                 @Override
-                public void onDebouncedClick(View v) { navigateToTab(R.id.nav_profile); }
+                public void onDebouncedClick(View v) { 
+                    NavigationUtils.openProfile(getActivity(), null); 
+                }
             });
         }
 
@@ -645,18 +648,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 tvUsername.setSelected(true);
             }
 
+            Long userId = sessionManager.getUserId();
             String avatarId = sessionManager.getAvatarId();
             if (avatarId == null) avatarId = "1";
-            JSONObject card = DatabaseLoader.findByCollectionId(requireContext(), avatarId);
-            if (card != null) {
-                String imgUrl = card.optString("frontImage");
-                Glide.with(this).load(imgUrl).transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user).error(R.drawable.ic_user).into(ivHomeAvatar);
-                Glide.with(this).load(imgUrl).transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user).error(R.drawable.ic_user).into(ivChatAvatar);
-            }
-
-            Long userId = sessionManager.getUserId();
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivHomeAvatar, userId, avatarId);
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivChatAvatar, userId, avatarId);
             if (userId == null) return;
             if (tvUserId != null) tvUserId.setText(getString(R.string.home_format_user_id, String.valueOf(10000000L + userId)));
             
@@ -1010,18 +1006,16 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
             holder.tvVal.setText(valStr);
 
-            String avatarUrl = item.optString("avatarUrl", null);
+            long userId = item.optLong("userId", -1L);
             String avatarId = item.optString("avatarId", "1");
-            if (avatarUrl == null || avatarUrl.isEmpty() || "null".equals(avatarUrl)) {
-                JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
-                if (card != null) avatarUrl = card.optString("frontImage", null);
-            }
-            
-            com.bumptech.glide.Glide.with(HomeFragment.this)
-                .load(avatarUrl)
-                .placeholder(R.drawable.ic_user)
-                .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
-                .into(holder.ivAvatar);
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(context, holder.ivAvatar, userId, avatarId);
+
+            // Bridge Bridge: Nhấn vào item mở profile
+            holder.itemView.setOnClickListener(v -> {
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile(getActivity(), userId);
+                }
+            });
         }
         @Override public int getItemCount() { return items.size(); }
         class VH extends RecyclerView.ViewHolder {

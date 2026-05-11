@@ -50,7 +50,16 @@ public class User {
     private String avatarId = "1";
 
     @Column(length = 255)
+    private String bio;
+
+    @Column(length = 255)
     private String activeFormation = "null,null,null,null,null,null";
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_showcase", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "card_id")
+    @OrderColumn(name = "slot_index")
+    private java.util.List<String> showcaseCardIds = new java.util.ArrayList<>(java.util.Arrays.asList(null, null, null, null));
 
     @Column(length = 800)
     private String activeToken;
@@ -70,6 +79,12 @@ public class User {
 
     @Column
     private java.time.LocalDateTime lastLoginAt;
+
+    @Column(nullable = false)
+    private int likesCount = 0;
+
+    @Column(nullable = false)
+    private int friendsCount = 0;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_unlocked_collections", 
@@ -122,8 +137,14 @@ public class User {
     public String getAvatarId() { return avatarId; }
     public void setAvatarId(String avatarId) { this.avatarId = avatarId; }
 
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+
     public String getActiveFormation() { return activeFormation; }
     public void setActiveFormation(String activeFormation) { this.activeFormation = activeFormation; }
+
+    public java.util.List<String> getShowcaseCardIds() { return showcaseCardIds; }
+    public void setShowcaseCardIds(java.util.List<String> showcaseCardIds) { this.showcaseCardIds = showcaseCardIds; }
 
     public String getActiveToken() { return activeToken; }
     public void setActiveToken(String activeToken) { this.activeToken = activeToken; }
@@ -158,4 +179,10 @@ public class User {
 
     public java.time.LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(java.time.LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
+
+    public int getLikesCount() { return likesCount; }
+    public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+
+    public int getFriendsCount() { return friendsCount; }
+    public void setFriendsCount(int friendsCount) { this.friendsCount = friendsCount; }
 }

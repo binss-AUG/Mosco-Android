@@ -61,7 +61,13 @@ public class UserCard {
     @SerializedName("status")
     private String status;
 
+    @SerializedName("uuid")
+    private String uuid;
+
     public UserCard() {}
+
+    public String getUuid() { return uuid; }
+    public void setUuid(String uuid) { this.uuid = uuid; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

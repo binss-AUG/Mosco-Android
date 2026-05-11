@@ -5,29 +5,48 @@ import android.view.View;
 
 /**
  * ClickDebounce - Ngăn chặn click quá nhanh gây spam hoặc thực hiện thao tác nhiều lần.
- * Giải pháp "3 Nhất": Ngắn nhất, An toàn nhất và Dễ scale nhất cho dự án Mosco.
+ * Phiên bản nâng cấp: Hỗ trợ tùy chỉnh interval và tích hợp Listener lambda.
  */
-public abstract class ClickDebounce implements View.OnClickListener {
-    private static final long MIN_CLICK_INTERVAL = 1000; // 1 giây (có thể điều chỉnh tùy ý)
+public class ClickDebounce implements View.OnClickListener {
+    private final long minClickInterval;
     private long lastClickTime = 0;
+    private View.OnClickListener listener;
+
+    public ClickDebounce(long minClickInterval, View.OnClickListener listener) {
+        this.minClickInterval = minClickInterval;
+        this.listener = listener;
+    }
+
+    public ClickDebounce(View.OnClickListener listener) {
+        this(1000, listener);
+    }
+
+    public ClickDebounce(long minClickInterval) {
+        this.minClickInterval = minClickInterval;
+    }
+
+    public ClickDebounce() {
+        this(1000);
+    }
+
+    public void onDebouncedClick(View v) {
+        // Có thể override trong anonymous class
+    }
 
     @Override
     public final void onClick(View v) {
         long currentClickTime = SystemClock.uptimeMillis();
         long elapsedTime = currentClickTime - lastClickTime;
         
-        // Chỉ thực hiện click nếu thời gian trôi qua lớn hơn mức tối thiểu cho phép
-        if (elapsedTime <= MIN_CLICK_INTERVAL) {
+        if (elapsedTime <= minClickInterval) {
             return;
         }
         
         lastClickTime = currentClickTime;
-        onDebouncedClick(v);
+        if (listener != null) {
+            listener.onClick(v);
+        } else {
+            onDebouncedClick(v);
+        }
     }
-
-    /**
-     * Phương thức này sẽ được gọi thay thế cho onClick thông thường.
-     * @param v View được click.
-     */
-    public abstract void onDebouncedClick(View v);
 }

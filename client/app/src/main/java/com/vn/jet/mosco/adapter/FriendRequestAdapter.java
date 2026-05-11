@@ -61,23 +61,20 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
             holder.tvLevel.setText(holder.itemView.getContext().getString(R.string.format_level_short, entry.optInt("level", 1)));
 
-            // --- 🎭 SYNC AVATAR LOGIC ---
+            long userId = entry.optLong("userId", -1L);
             String avatarId = entry.optString("avatarId", "1");
-            JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
-            if (card != null) {
-                String imgUrl = card.optString("frontImage", "");
-                Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user)
-                        .into(holder.ivAvatar);
-            } else {
-                holder.ivAvatar.setImageResource(R.drawable.ic_user);
-            }
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
 
             // Accept button
             holder.btnAccept.setOnClickListener(v -> {
                 if (listener != null) listener.onAccept(friendshipId);
+            });
+
+            // Bridge Bridge: Nhấn vào avatar mở profile xem info trước khi accept
+            holder.ivAvatar.setOnClickListener(v -> {
+                if (userId != -1L) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) holder.itemView.getContext(), userId);
+                }
             });
 
             // Reject button

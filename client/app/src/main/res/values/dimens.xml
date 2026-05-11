@@ -69,4 +69,19 @@
     <!-- Component Specific Tokens -->
     <dimen name="card_detail_margin_horizontal">60dp</dimen>
     <dimen name="name_tag_max_width_grid">150dp</dimen>
+
+    <!-- Spin Slideshow Ratios & Dimensions -->
+    <item name="spin_card_width_ratio" format="float" type="dimen">0.58</item>
+    <item name="spin_beam_width_ratio" format="float" type="dimen">0.3</item>
+    <item name="spin_card_base_scale" format="float" type="dimen">0.82</item>
+    <dimen name="spin_z_elevation_max">10dp</dimen>
+
+    <!-- Generic Aesthetic Constants -->
+    <item name="detail_dialog_dim_amount" format="float" type="dimen">0.8</item>
+    <item name="card_aspect_ratio" format="float" type="dimen">1.54</item>
+    <item name="flip_camera_distance_factor" format="float" type="dimen">8000</item>
+    <item name="carousel_scale_min" format="float" type="dimen">0.85</item>
+    <item name="carousel_scale_range" format="float" type="dimen">0.15</item>
+    <item name="carousel_alpha_min" format="float" type="dimen">0.6</item>
+    <item name="carousel_alpha_range" format="float" type="dimen">0.4</item>
 </resources>
