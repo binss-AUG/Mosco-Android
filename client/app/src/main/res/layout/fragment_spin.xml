@@ -40,12 +40,13 @@
 
         <!-- Các thẻ chạy nền -->
         <!-- Đã đổi từ ảnh máy bay sang nền skeleton tĩnh để đồng bộ Luxury -->
-        <View
+        <ImageView
             android:id="@+id/iv_bg_card_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha="0.2"
-            android:background="@drawable/bg_skeleton_rect_rounded"
+            android:alpha="0.45"
+            android:src="@drawable/objet_back_spin"
+            android:scaleType="centerCrop"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
@@ -53,12 +54,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
 
-        <View
+        <ImageView
             android:id="@+id/iv_bg_card_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha="0.2"
-            android:background="@drawable/bg_skeleton_rect_rounded"
+            android:alpha="0.45"
+            android:src="@drawable/objet_back_spin"
+            android:scaleType="centerCrop"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
@@ -66,12 +68,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/card_center_slot" />
 
-        <View
+        <ImageView
             android:id="@+id/iv_bg_card_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha="0.2"
-            android:background="@drawable/bg_skeleton_rect_rounded"
+            android:alpha="0.45"
+            android:src="@drawable/objet_back_spin"
+            android:scaleType="centerCrop"
             android:visibility="invisible"
             app:layout_constraintDimensionRatio="H,1:1.54"
             app:layout_constraintWidth_percent="0.41"
