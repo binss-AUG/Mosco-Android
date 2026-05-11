@@ -131,8 +131,35 @@ public class ProfileExhibitFragment extends Fragment {
 
     private void renderData(UserStats stats) {
         if (stats == null) return;
-        this.currentShowcaseIds = stats.getShowcaseCardIds() != null ? stats.getShowcaseCardIds() : new ArrayList<>();
+        List<String> validIds = new ArrayList<>();
+        boolean needsUpdate = false;
+        
+        List<String> ids = stats.getShowcaseCardIds() != null ? stats.getShowcaseCardIds() : new ArrayList<>();
+        
+        // [FIX] Nếu là Owner đang xem profile chính mình, kiểm tra xem thẻ còn trong Inventory không
+        if (stats.getId() != null && stats.getId().equals(DatabaseLoader.cachedInventoryUserId)) {
+            for (String id : ids) {
+                if (id == null || id.trim().isEmpty() || id.equals("null")) {
+                    validIds.add("");
+                } else if (DatabaseLoader.cachedCollectionMap != null && DatabaseLoader.cachedCollectionMap.containsKey(id)) {
+                    validIds.add(id);
+                } else {
+                    // Thẻ này không còn trong kho (đã gửi hoặc spin) -> tự động tháo
+                    validIds.add("");
+                    needsUpdate = true;
+                }
+            }
+        } else {
+            validIds.addAll(ids);
+        }
+        
+        this.currentShowcaseIds = validIds;
         renderShowcaseZone(currentShowcaseIds);
+        
+        // Nếu phát hiện thẻ ma, báo ViewModel tự động dọn dẹp trên Server
+        if (needsUpdate && viewModel != null) {
+            viewModel.updateShowcase(validIds);
+        }
     }
 
     private void renderShowcaseZone(List<String> showcaseCardIds) {

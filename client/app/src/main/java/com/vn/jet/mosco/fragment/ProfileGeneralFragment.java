@@ -97,9 +97,9 @@ public class ProfileGeneralFragment extends Fragment {
             btnCopyEmail.setVisibility(isOwner ? View.VISIBLE : View.GONE);
         }
 
-        // Visibility handling
-        if (layoutDisplayName != null) layoutDisplayName.setVisibility(View.VISIBLE); // Public
-        if (layoutUsername != null) layoutUsername.setVisibility(isOwner ? View.VISIBLE : View.GONE); // Owner only
+        // Visibility handling: Only show Display Name and Username to the Owner
+        if (layoutDisplayName != null) layoutDisplayName.setVisibility(isOwner ? View.VISIBLE : View.GONE);
+        if (layoutUsername != null) layoutUsername.setVisibility(isOwner ? View.VISIBLE : View.GONE);
 
         // Pre-fill edit fields
         if (edtDisplayName != null) {

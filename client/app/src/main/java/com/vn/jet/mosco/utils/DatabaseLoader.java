@@ -31,7 +31,7 @@ public class DatabaseLoader {
 
     // Fast O(1) lookup maps
     private static java.util.Map<String, JSONObject> cachedMasterMap = null; // Map chứa TẤT CẢ thẻ từ database.json
-    private static java.util.Map<String, JSONObject> cachedCollectionMap = null; // Map chứa thẻ người dùng đang có
+    public static java.util.Map<String, JSONObject> cachedCollectionMap = null; // Map chứa thẻ người dùng đang có
     private static boolean isMasterDataLoading = false;
     private static boolean isMasterDataLoaded = false;
 

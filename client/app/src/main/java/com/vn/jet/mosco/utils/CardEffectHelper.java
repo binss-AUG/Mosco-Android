@@ -154,7 +154,11 @@ public class CardEffectHelper {
 
             int dynamicStrokeWidth = (int) (w * 0.00f); 
             cardView.setStrokeWidth(dynamicStrokeWidth);
-            float cornerRadius = cardView.getRadius();
+            
+            // [FIX LỖI GLOW VUÔNG]: Đảm bảo radius luôn có giá trị hợp lệ (tối thiểu 12dp)
+            float cardRadius = cardView.getRadius();
+            float minRadius = dpToPx(context, 12f);
+            float cornerRadius = Math.max(cardRadius, minRadius);
 
             Glide.with(context)
                     .asBitmap()

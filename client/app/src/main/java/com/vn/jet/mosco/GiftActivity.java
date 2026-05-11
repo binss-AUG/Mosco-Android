@@ -93,6 +93,7 @@ public class GiftActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gift);
 
         apiService = ApiClient.getClient(this).create(GameApiService.class);
+        com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(this);
 
         initViews();
         setupTabs();
@@ -421,13 +422,10 @@ public class GiftActivity extends AppCompatActivity {
         // Load personal avatar
         String myAvatarId = session.getAvatarId();
         JSONObject myAvatarCard = DatabaseLoader.findByCollectionId(this, myAvatarId);
+        Long myUserId = session.getUserId();
         ImageView ivSenderAvatar = findViewById(R.id.iv_sender_avatar_img);
-        if (myAvatarCard != null) {
-            Glide.with(this)
-                    .load(myAvatarCard.optString("frontImage", ""))
-                    .transform(new SmartFaceCropTransformation())
-                    .placeholder(R.drawable.ic_user)
-                    .into(ivSenderAvatar);
+        if (ivSenderAvatar != null) {
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(this, ivSenderAvatar, myUserId, myAvatarId);
         }
 
         // Friend info
@@ -435,13 +433,9 @@ public class GiftActivity extends AppCompatActivity {
 
         // Avatar bạn bè
         String avatarId = selectedFriend.optString("avatarId", "1");
-        JSONObject card = DatabaseLoader.findByCollectionId(this, avatarId);
-        if (card != null) {
-            Glide.with(this)
-                    .load(card.optString("frontImage", ""))
-                    .transform(new SmartFaceCropTransformation())
-                    .placeholder(R.drawable.ic_user)
-                    .into(ivConfirmFriendAvatar);
+        long friendUserId = selectedFriend.optLong("userId", -1L);
+        if (ivConfirmFriendAvatar != null) {
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(this, ivConfirmFriendAvatar, friendUserId, avatarId);
         }
     }
 

@@ -86,6 +86,14 @@
         <item name="android:textSize">@dimen/text_size_body_sm</item>
         <item name="android:textColor">@color/mosco_text_disabled</item>
         <item name="android:letterSpacing">0.1</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Tab Appearance for centered alignment -->
+    <style name="MoscoTabTextAppearance" parent="MoscoText.Luxury.Label">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_size_body_sm</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <!-- Luxury Price: Bold and Authority -->

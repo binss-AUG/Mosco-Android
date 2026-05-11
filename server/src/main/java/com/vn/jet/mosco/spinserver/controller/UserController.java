@@ -163,6 +163,25 @@ public class UserController {
             user.setAvatarId(body.getAvatarId());
         }
 
+        // --- 🖋️ BIO UPDATE LOGIC ---
+        if (body.getBio() != null) {
+            user.setBio(body.getBio());
+        }
+
+        // --- 🖼️ SHOWCASE UPDATE LOGIC ---
+        if (body.getShowcaseCardIds() != null) {
+            user.getShowcaseCardIds().clear();
+            user.getShowcaseCardIds().addAll(body.getShowcaseCardIds());
+        }
+
+        // --- 📊 STATS UPDATE LOGIC ---
+        if (body.getLikesCount() != null) {
+            user.setLikesCount(body.getLikesCount());
+        }
+        if (body.getFriendsCount() != null) {
+            user.setFriendsCount(body.getFriendsCount());
+        }
+
         userRepository.save(user);
         logger.info("Profile updated: userId={}", userId);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", user));

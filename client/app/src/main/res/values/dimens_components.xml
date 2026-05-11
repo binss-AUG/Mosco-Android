@@ -143,6 +143,7 @@
     <dimen name="text_size_profile_nav">@dimen/text_size_h3</dimen>
     <dimen name="text_size_profile_footer">@dimen/text_size_body_sm</dimen>
     <dimen name="profile_section_spacing">24dp</dimen>
+    <dimen name="profile_input_height">64dp</dimen>
     <dimen name="friend_stats_height">72dp</dimen>
 
     <!-- Stage & Battle -->

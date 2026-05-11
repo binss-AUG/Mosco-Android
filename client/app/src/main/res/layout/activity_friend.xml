@@ -105,6 +105,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tab_layout_friend" />
 
+    <!-- Fragment Container for Profile Navigation (Overlay) -->
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="10dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

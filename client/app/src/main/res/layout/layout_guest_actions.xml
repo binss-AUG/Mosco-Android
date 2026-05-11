@@ -12,46 +12,45 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/spacing_md">
+        android:layout_marginHorizontal="@dimen/spacing_xl"
+        android:layout_marginBottom="@dimen/spacing_sm">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_follow"
+            android:id="@+id/btn_like"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height_large"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xs"
-            android:text="@string/profile_btn_follow"
+            android:text="@string/profile_btn_like"
             android:backgroundTint="@color/mosco_primary"
             android:textColor="@color/white"
             app:cornerRadius="@dimen/radius_md"
-            app:icon="@drawable/ic_lightning"
-            app:iconTint="@color/white" />
+            app:icon="@null" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_add_friend"
+            android:id="@+id/btn_direct_message"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height_large"
             android:layout_weight="1"
-            android:text="@string/profile_btn_add_friend"
-            android:textColor="@color/white"
-            app:strokeColor="@color/mosco_outline"
+            android:text="@string/profile_btn_message"
+            android:textColor="@color/mosco_white_70"
+            app:strokeColor="@color/mosco_white_40"
             app:cornerRadius="@dimen/radius_md"
-            app:icon="@drawable/ic_user"
-            app:iconTint="@color/white" />
+            app:icon="@null" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_direct_message"
+        android:id="@+id/btn_add_friend"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/profile_btn_message"
-        android:textColor="@color/mosco_tertiary"
-        app:strokeColor="@color/mosco_tertiary"
+        android:layout_height="@dimen/button_height_large"
+        android:layout_marginHorizontal="@dimen/spacing_xl"
+        android:text="@string/profile_btn_add_friend"
+        android:textColor="@color/white"
+        app:strokeColor="@color/mosco_outline"
         app:cornerRadius="@dimen/radius_md"
-        app:icon="@drawable/ic_mailbox"
-        app:iconTint="@color/mosco_tertiary" />
+        app:icon="@null" />
 
 </LinearLayout>

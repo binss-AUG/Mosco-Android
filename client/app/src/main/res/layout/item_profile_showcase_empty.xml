@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:alpha="0.4"
+    android:padding="@dimen/spacing_xs">
+
+    <!-- Card Container (Empty Slot) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_card_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:cardBackgroundColor="@color/mosco_card_bg"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="0dp"
+        app:layout_constraintDimensionRatio="1:1.54"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_skeleton_rect_rounded">
+
+            <!-- The Spin-style Circular Plus Button -->
+            <FrameLayout
+                android:layout_width="@dimen/spacing_60dp"
+                android:layout_height="@dimen/spacing_60dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle_dark">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="+"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_h1_xl"
+                    android:includeFontPadding="false" />
+            </FrameLayout>
+
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Placeholder Tag at bottom for height consistency -->
+    <TextView
+        android:id="@+id/tv_card_name"
+        style="@style/MoscoText.Luxury"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_10dp"
+        android:background="@drawable/bg_card_name_tag"
+        android:paddingHorizontal="@dimen/spacing_10dp"
+        android:paddingVertical="@dimen/spacing_2dp"
+        android:text="[+]"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_11sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_card_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

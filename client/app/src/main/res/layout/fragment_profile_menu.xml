@@ -78,13 +78,7 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="@dimen/spacing_md" />
 
-            <!-- Account Actions -->
-            <include
-                android:id="@+id/menu_edit_profile"
-                layout="@layout/item_ghost_menu"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:layout_marginBottom="@dimen/spacing_sm" />
+
 
             <include
                 android:id="@+id/menu_forgot_password"

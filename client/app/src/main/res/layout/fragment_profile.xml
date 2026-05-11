@@ -66,7 +66,6 @@
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_user"
-                            android:padding="@dimen/spacing_md"
                             android:background="@color/mosco_surface_container" />
 
                         <!-- Lớp phủ mờ khi bật Edit Mode -->
@@ -139,21 +138,75 @@
 
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tv_current_title"
-                style="@style/MoscoText.Luxury.Label"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_xs"
-                android:textColor="@color/white_60"
-                tools:text="Tân Binh" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/spacing_xs">
 
-            <TextView
-                android:id="@+id/tv_username"
-                style="@style/MoscoText.Luxury.Header"
+                <TextView
+                    android:id="@+id/tv_username"
+                    style="@style/MoscoText.Luxury.Header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_commander"
+                    android:textSize="@dimen/text_size_h3" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    style="@style/MoscoText.Luxury.Label"
+                    android:textColor="@color/white_40"
+                    android:textSize="@dimen/text_size_h3"
+                    android:layout_marginHorizontal="@dimen/spacing_xxs" />
+
+                <TextView
+                    android:id="@+id/tv_current_title"
+                    style="@style/MoscoText.Luxury.Header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/mosco_white_70"
+                    android:textSize="@dimen/text_size_h4"
+                    android:textStyle="normal"
+                    android:alpha="0.5"
+                    tools:text="Tân Binh" />
+            </LinearLayout>
+
+            <!-- Profile Stats: Likes & Friends -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder_commander" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:alpha="0.7">
+
+                <TextView
+                    android:id="@+id/tv_stat_likes"
+                    style="@style/MoscoText.Luxury.Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/mosco_white_80"
+                    tools:text="1.2K Likes" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" | "
+                    style="@style/MoscoText.Luxury.Label"
+                    android:textColor="@color/white_20"
+                    android:layout_marginHorizontal="@dimen/spacing_xs" />
+
+                <TextView
+                    android:id="@+id/tv_stat_friends"
+                    style="@style/MoscoText.Luxury.Label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/mosco_white_80"
+                    tools:text="450 Friends" />
+            </LinearLayout>
 
             <!-- Module Chức năng Khách (Kết bạn, Theo dõi, Nhắn tin) -->
             <ViewStub

@@ -17,6 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
             <TextView
@@ -25,70 +27,87 @@
                 android:text="@string/profile_label_biography"
                 style="@style/MoscoText.Luxury.Label"
                 android:textColor="@color/white_40"
-                android:layout_marginBottom="@dimen/spacing_xs" />
+                android:layout_marginBottom="@dimen/spacing_sm" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/edt_bio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/profile_input_height"
-                android:orientation="vertical"
-                android:background="@drawable/bg_glass_input"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:paddingVertical="@dimen/spacing_sm">
-
-                <EditText
-                    android:id="@+id/edt_bio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/MoscoText.Luxury.Body"
-                    android:minLines="2"
-                    android:background="@android:color/transparent"
-                    android:enabled="false"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/white_40"
-                    android:gravity="top"
-                    tools:text="xin chào mọi người cho xin 1 tym và 1 follow nhé." />
-            </LinearLayout>
+                style="@style/MoscoText.Luxury.Body"
+                android:minLines="3"
+                android:maxLines="4"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_40"
+                android:gravity="top"
+                tools:text="xin chào mọi người cho xin 1 tym và 1 follow nhé." />
         </LinearLayout>
 
-        <!-- 2. Joined -->
+        <!-- 2. Display Name -->
         <LinearLayout
+            android:id="@+id/layout_display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/profile_label_joined_galaxy"
+                android:text="@string/profile_label_display_name"
                 style="@style/MoscoText.Luxury.Label"
                 android:textColor="@color/white_40"
                 android:layout_marginBottom="@dimen/spacing_xs" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/edt_display_name"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/profile_input_height"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
-                android:paddingHorizontal="@dimen/spacing_md">
-
-                <TextView
-                    android:id="@+id/tv_joined_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/MoscoText.Luxury.Body"
-                    tools:text="DD/MM/YYYY" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_40"
+                android:inputType="text"
+                android:maxLength="16"
+                android:singleLine="true"
+                style="@style/MoscoText.Luxury.Body" />
         </LinearLayout>
 
-        <!-- 3. UID -->
+        <!-- 3. Joined Date -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
+            android:layout_marginBottom="@dimen/spacing_md">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_label_joined_dated"
+                style="@style/MoscoText.Luxury.Label"
+                android:textColor="@color/white_40"
+                android:layout_marginBottom="@dimen/spacing_xs" />
+
+            <TextView
+                android:id="@+id/tv_joined_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/MoscoText.Luxury.Body"
+                tools:text="DD/MM/YYYY" />
+        </LinearLayout>
+
+        <!-- 4. UID -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
             <TextView
@@ -101,11 +120,9 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/profile_input_height"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
-                android:paddingHorizontal="@dimen/spacing_md">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/tv_uid"
@@ -117,19 +134,21 @@
 
                 <ImageButton
                     android:id="@+id/btn_copy_uid"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_copy"
                     app:tint="@color/white_50" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 4. Email -->
+        <!-- 5. Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
             <TextView
@@ -142,11 +161,9 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/profile_input_height"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
-                android:paddingHorizontal="@dimen/spacing_md">
+                android:gravity="center_vertical">
 
                 <TextView
                     android:id="@+id/tv_email"
@@ -158,60 +175,22 @@
 
                 <ImageButton
                     android:id="@+id/btn_copy_email"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_copy"
                     app:tint="@color/white_50" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 5. Display Name (Chỉ Owner mới thấy, chỉ sửa được trong Edit Mode) -->
-        <LinearLayout
-            android:id="@+id/layout_display_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="@dimen/spacing_md"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_label_display_name"
-                style="@style/MoscoText.Luxury.Label"
-                android:textColor="@color/white_40"
-                android:layout_marginBottom="@dimen/spacing_xs" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/profile_input_height"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
-                android:paddingHorizontal="@dimen/spacing_md">
-
-                <EditText
-                    android:id="@+id/edt_display_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:enabled="false"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/white_40"
-                    android:inputType="text"
-                    android:maxLength="16"
-                    android:singleLine="true"
-                    style="@style/MoscoText.Luxury.Body" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 6. Username (Chỉ Owner mới thấy, Guest không nhìn được) -->
+        <!-- Username (Owner only) -->
         <LinearLayout
             android:id="@+id/layout_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_glass_input"
+            android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md"
             android:visibility="gone">
 
@@ -223,27 +202,18 @@
                 android:textColor="@color/white_40"
                 android:layout_marginBottom="@dimen/spacing_xs" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/edt_username"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/profile_input_height"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
-                android:paddingHorizontal="@dimen/spacing_md">
-
-                <EditText
-                    android:id="@+id/edt_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:enabled="false"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/white_40"
-                    android:inputType="text"
-                    android:maxLength="32"
-                    android:singleLine="true"
-                    style="@style/MoscoText.Luxury.Body" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_40"
+                android:inputType="text"
+                android:maxLength="32"
+                android:singleLine="true"
+                style="@style/MoscoText.Luxury.Body" />
         </LinearLayout>
 
     </LinearLayout>

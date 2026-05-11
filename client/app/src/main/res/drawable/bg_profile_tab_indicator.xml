@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Indicator cho Tab được chọn, dùng cùng mã màu với Duration chip selected nhưng bo tròn Pill -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/mosco_white_20" />
+    <stroke
+        android:width="0.5dp"
+        android:color="@color/mosco_white_40" />
+    <corners android:radius="96dp" />
+</shape>

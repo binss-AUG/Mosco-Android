@@ -130,24 +130,11 @@ public class PodiumAdapter extends RecyclerView.Adapter<PodiumAdapter.PodiumView
                 break;
         }
 
-        String avatarUrl = user.optString("avatarUrl", null);
         String avatarId = user.optString("avatarId", "1");
-        
-        if (avatarUrl == null || avatarUrl.isEmpty() || "null".equals(avatarUrl)) {
-            JSONObject card = DatabaseLoader.findByCollectionId(context, avatarId);
-            if (card != null) {
-                avatarUrl = card.optString("frontImage", null);
-            }
-        }
-
-        Glide.with(context)
-            .load(avatarUrl)
-            .placeholder(R.drawable.ic_user)
-            .transform(new SmartFaceCropTransformation())
-            .into(ivAvatar);
+        long userId = user.optLong("userId", -1L);
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(context, ivAvatar, userId, avatarId);
 
         // Bridge Bridge: Nhấn avatar mở profile
-        long userId = user.optLong("userId", -1L);
         ivAvatar.setOnClickListener(v -> {
             if (userId != -1L) {
                 com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) context, userId);

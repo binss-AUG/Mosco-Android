@@ -71,7 +71,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View layoutProfileContent;
     private ViewStub stubShimmer;
     private View inflatedShimmer;
-    private TextView tvCurrentTitle;
+    private TextView tvCurrentTitle, tvStatLikes, tvStatFriends;
     private View tabSlidingThumb;
     private com.google.android.material.tabs.TabLayout tabLayout;
     private androidx.viewpager2.widget.ViewPager2 viewPager;
@@ -158,6 +158,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (show) {
             if (layoutProfileContent != null) layoutProfileContent.setVisibility(View.GONE);
             if (inflatedShimmer == null && stubShimmer != null) {
+                // [FIX] Đổi layout skeleton dựa trên vai trò (Owner vs Guest)
+                if (!isOwner) {
+                    stubShimmer.setLayoutResource(R.layout.layout_profile_guest_shimmer);
+                }
                 inflatedShimmer = stubShimmer.inflate();
             }
             if (inflatedShimmer != null) inflatedShimmer.setVisibility(View.VISIBLE);
@@ -189,37 +193,24 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         
         tvCurrentTitle.setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle() : getString(R.string.profile_title_default));
 
+        // [PHASE 7] Update Profile Stats
+        if (isAdded() && tvStatLikes != null && getContext() != null) {
+            String likesStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getLikesCount()) + " " + getString(R.string.profile_label_likes);
+            tvStatLikes.setText(likesStr);
+        }
+        if (isAdded() && tvStatFriends != null && getContext() != null) {
+            String friendsStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getFriendsCount()) + " " + getString(R.string.profile_label_friends);
+            tvStatFriends.setText(friendsStr);
+        }
+
         // Load avatar từ URL trong stats nếu có
         if (stats.getAvatarId() != null) {
-             loadAvatarById(stats.getAvatarId());
+             loadAvatar();
         }
     }
 
     private void loadAvatarById(String avatarId) {
-        if (getContext() == null || avatarId == null || avatarId.isEmpty()) {
-            ivAvatar.setImageResource(R.drawable.ic_user);
-            return;
-        }
-
-        JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(getContext(), avatarId);
-        if (card != null) {
-            String imgUrl = card.optString("frontImage", "");
-            if (imgUrl.contains("/original") || imgUrl.contains("/thumbnail")) {
-                // Đã là URL đầy đủ
-            } else {
-                // Cần convert (nếu card chỉ chứa ID)
-                imgUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(imgUrl, false);
-            }
-
-            Glide.with(this)
-                    .load(imgUrl)
-                    .transform(new SmartFaceCropTransformation())
-                    .placeholder(R.drawable.ic_user)
-                    .error(R.drawable.ic_user)
-                    .into(ivAvatar);
-        } else {
-            ivAvatar.setImageResource(R.drawable.ic_user);
-        }
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId);
     }
 
     private void initViews(View v) {
@@ -244,6 +235,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         layoutProfileContent = v.findViewById(R.id.layout_profile_content);
         stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
         tvCurrentTitle = v.findViewById(R.id.tv_current_title);
+        tvStatLikes = v.findViewById(R.id.tv_stat_likes);
+        tvStatFriends = v.findViewById(R.id.tv_stat_friends);
         tabSlidingThumb = v.findViewById(R.id.tab_sliding_thumb);
         tabLayout = v.findViewById(R.id.tab_layout);
         viewPager = v.findViewById(R.id.view_pager);
@@ -260,8 +253,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         com.vn.jet.mosco.adapter.ProfileViewPagerAdapter adapter = new com.vn.jet.mosco.adapter.ProfileViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
         
-        // [FIX] Tắt vuốt ngang ở ViewPager2 gốc để tránh xung đột thao tác vuốt với ViewPager2 con (Exhibit Pager)
-        viewPager.setUserInputEnabled(false);
+        // [UX] Cho phép vuốt ngang ở ViewPager2 chính theo yêu cầu người dùng
+        viewPager.setUserInputEnabled(true);
 
         new com.google.android.material.tabs.TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {
@@ -348,25 +341,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void loadAvatar() {
-        if (isOwner) {
-            // [PHASE 2] Chỉ Owner mới dùng ảnh đã crop thủ công từ cache
-            File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
-            if (croppedFile.exists()) {
-                Glide.with(this)
-                        .load(croppedFile)
-                        .skipMemoryCache(true)
-                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
-                        .circleCrop()
-                        .into(ivAvatar);
-                return;
-            }
-        }
-
         String avatarId = sessionManager.getAvatarId();
         if (avatarId == null)
-            avatarId = com.vn.jet.mosco.utils.AppConfig.DEFAULT_AVATAR_ID; // Mặc định từ AppConfig
+            avatarId = com.vn.jet.mosco.utils.AppConfig.DEFAULT_AVATAR_ID;
             
-        loadAvatarById(avatarId);
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId);
     }
 
     private void setupListeners() {
@@ -422,19 +401,147 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
 
     private void setupGuestListeners(View v) {
-        // Áp dụng Click Debounce 500ms theo yêu cầu Tech Lead
-        v.findViewById(R.id.btn_follow).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            Toast.makeText(requireContext(), getString(R.string.profile_msg_followed), Toast.LENGTH_SHORT).show();
-            // Optimistic UI: Đổi nút sang "Following" (Ví dụ)
+        com.google.android.material.button.MaterialButton btnLike = v.findViewById(R.id.btn_like);
+        com.google.android.material.button.MaterialButton btnFriend = v.findViewById(R.id.btn_add_friend);
+        com.google.android.material.button.MaterialButton btnMsg = v.findViewById(R.id.btn_direct_message);
+
+        // Quan sát dữ liệu để cập nhật trạng thái nút
+        viewModel.getUserStats().observe(getViewLifecycleOwner(), stats -> {
+            if (stats == null) return;
+
+            // Update Like Button
+            if (isAdded() && getContext() != null) {
+                if (stats.isLiked()) {
+                    btnLike.setText(R.string.profile_btn_liked);
+                    btnLike.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                } else {
+                    btnLike.setText(R.string.profile_btn_like);
+                    btnLike.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
+                }
+            }
+
+            // Update Friend Button
+            if (isAdded() && getContext() != null) {
+                switch (stats.getFriendshipStatus()) {
+                    case 1: // Pending
+                        btnFriend.setText(R.string.profile_btn_pending);
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.palette_gold)));
+                        break;
+                    case 2: // Friends
+                        btnFriend.setText(R.string.profile_btn_friends);
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_success)));
+                        break;
+                    default: // None
+                        btnFriend.setText(R.string.profile_btn_add_friend);
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_outline)));
+                        break;
+                }
+            }
+        });
+
+        btnLike.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+            UserStats stats = viewModel.getUserStats().getValue();
+            if (stats != null && getContext() != null) {
+                // Toggle Like locally for Optimistic UI
+                stats.setLiked(!stats.isLiked());
+                stats.setLikesCount(stats.isLiked() ? stats.getLikesCount() + 1 : stats.getLikesCount() - 1);
+                
+                // Update Local DB to trigger observer
+                android.content.Context appContext = getContext().getApplicationContext();
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                            .userStatsDao().insertUserStats(stats);
+                });
+                
+                // [SYNC] Gửi lên Server để lưu trữ vĩnh viễn
+                syncStatsToServer(stats.getLikesCount(), stats.getFriendsCount());
+                // TODO: Gọi API Like chuyên sâu nếu cần phân biệt ai like ai
+            }
         }));
         
-        v.findViewById(R.id.btn_add_friend).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            Toast.makeText(requireContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT).show();
+        btnFriend.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+            UserStats stats = viewModel.getUserStats().getValue();
+            if (stats == null || getContext() == null) return;
+
+            if (stats.getFriendshipStatus() == 2) {
+                showUnfriendDialog();
+            } else if (stats.getFriendshipStatus() == 1) {
+                showCancelRequestDialog();
+            } else {
+                // Send Request
+                stats.setFriendshipStatus(1);
+                android.content.Context appContext = getContext().getApplicationContext();
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                            .userStatsDao().insertUserStats(stats);
+                });
+                Toast.makeText(getContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT).show();
+                
+                // [SYNC] Gửi yêu cầu kết bạn lên Server
+                // TODO: Gọi API /api/friends/add
+                syncStatsToServer(null, stats.getFriendsCount());
+            }
         }));
 
-        v.findViewById(R.id.btn_direct_message).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+        btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
              Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
         }));
+    }
+
+    private void showUnfriendDialog() {
+        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?", () -> {
+            UserStats stats = viewModel.getUserStats().getValue();
+            if (stats != null && getContext() != null) {
+                stats.setFriendshipStatus(0);
+                stats.setFriendsCount(Math.max(0, stats.getFriendsCount() - 1));
+                
+                android.content.Context appContext = getContext().getApplicationContext();
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                            .userStatsDao().insertUserStats(stats);
+                });
+                
+                // [SYNC] Cập nhật số bạn bè lên Server
+                syncStatsToServer(null, stats.getFriendsCount());
+                // TODO: Gọi API /api/friends/remove
+            }
+        });
+    }
+
+    private void showCancelRequestDialog() {
+        showFriendActionDialog("Cancel Request?", "Do you want to cancel your friend request?", () -> {
+            UserStats stats = viewModel.getUserStats().getValue();
+            if (stats != null && getContext() != null) {
+                stats.setFriendshipStatus(0);
+                
+                android.content.Context appContext = getContext().getApplicationContext();
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                            .userStatsDao().insertUserStats(stats);
+                });
+                
+                // [SYNC] Đồng bộ trạng thái hủy yêu cầu
+                syncStatsToServer(null, stats.getFriendsCount());
+                // TODO: Gọi API hủy kết bạn chuyên sâu
+            }
+        });
+    }
+
+    private void showFriendActionDialog(String title, String msg, Runnable onConfirm) {
+        if (getContext() == null) return;
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_friend_confirm, null);
+        ((TextView)dialogView.findViewById(R.id.tv_dialog_title)).setText(title);
+        ((TextView)dialogView.findViewById(R.id.tv_dialog_msg)).setText(msg);
+        
+        AlertDialog dialog = new AlertDialog.Builder(getContext()).setView(dialogView).create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        
+        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
+            onConfirm.run();
+            dialog.dismiss();
+        });
+        dialog.show();
     }
 
     private void openProfileMenu() {
@@ -598,13 +705,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (resultCode == android.app.Activity.RESULT_OK && data != null) {
                 Uri resultUri = com.yalantis.ucrop.UCrop.getOutput(data);
                 if (resultUri != null) {
-                    // Áp dụng avatar mới trực tiếp lên preview, không cần header xác nhận
+                    // Áp dụng avatar mới trực tiếp lên preview
                     this.lastCroppedUri = resultUri;
                     Glide.with(this)
                             .load(resultUri)
                             .skipMemoryCache(true)
                             .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
-                            .circleCrop()
+                            .circleCrop() // [FIX] Đảm bảo hiển thị dạng tròn ngay khi crop xong
                             .into(ivAvatar);
                 }
             } else if (resultCode == android.app.Activity.RESULT_CANCELED) {
@@ -862,15 +969,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      * Hiển thị Dialog phóng to Avatar với nền mờ Glassmorphism.
      */
     private void showAvatarZoomDialog() {
-        String avatarId = sessionManager.getAvatarId();
-        org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
+        if (getContext() == null) return;
+        UserStats stats = viewModel.getUserStats().getValue();
+        if (stats == null) return;
+        
+        String avatarId = stats.getAvatarId();
+        org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(getContext(), avatarId);
         if (card == null)
             return;
 
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_avatar_zoom, null);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_avatar_zoom, null);
         ImageView ivZoom = dialogView.findViewById(R.id.iv_avatar_zoom);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 
@@ -886,6 +997,29 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         dialogView.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+
+    /**
+     * Đồng bộ các chỉ số tương tác (Like/Friends) lên Server.
+     */
+    private void syncStatsToServer(Integer likes, Integer friends) {
+        com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
+        if (likes != null) request.setLikesCount(likes);
+        if (friends != null) request.setFriendsCount(friends);
+
+        gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<UserStats>>() {
+            @Override
+            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Stats synced to server successfully");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Throwable t) {
+                Log.e(TAG, "Failed to sync stats to server", t);
+            }
+        });
     }
 
     /**

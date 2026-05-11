@@ -16,7 +16,6 @@ import com.vn.jet.mosco.R;
 public class ProfileMenuFragment extends Fragment {
 
     public interface OnMenuActionListener {
-        void onEditProfile();
         void onForgotPassword();
         void onSwitchAccount();
         void onSettings();
@@ -46,10 +45,7 @@ public class ProfileMenuFragment extends Fragment {
             }
         });
 
-        setupMenuItem(view.findViewById(R.id.menu_edit_profile), 
-            getString(R.string.profile_action_edit), 
-            "Update your personal information", 
-            v -> { if(listener != null) listener.onEditProfile(); });
+
 
         setupMenuItem(view.findViewById(R.id.menu_forgot_password), 
             getString(R.string.auth_title_recovery), 

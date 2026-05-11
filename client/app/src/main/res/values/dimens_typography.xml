@@ -10,6 +10,7 @@
     <dimen name="text_size_body_md">15sp</dimen>
     <dimen name="text_size_body_lg">17sp</dimen>
     
+    <dimen name="text_size_h4">18sp</dimen>
     <dimen name="text_size_h3">20sp</dimen>
     <dimen name="text_size_h2">24sp</dimen>
     <dimen name="text_size_h1">28sp</dimen>

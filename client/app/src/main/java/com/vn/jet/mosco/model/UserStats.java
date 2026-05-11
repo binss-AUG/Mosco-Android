@@ -55,6 +55,30 @@ public class UserStats {
     @SerializedName("showcaseCardIds")
     private List<String> showcaseCardIds = Collections.emptyList();
 
+    @SerializedName("bio")
+    private String bio = "";
+
+    @SerializedName("joinedDate")
+    private String joinedDate = "";
+
+    @SerializedName("collectionProgress")
+    private int collectionProgress = 0;
+
+    @SerializedName("badges")
+    private List<String> badges = Collections.emptyList();
+
+    @SerializedName("likesCount")
+    private int likesCount = 0;
+
+    @SerializedName("friendsCount")
+    private int friendsCount = 0;
+
+    @SerializedName("liked")
+    private boolean liked = false;
+
+    @SerializedName("friendshipStatus")
+    private int friendshipStatus = 0; // 0: None, 1: Pending, 2: Friends
+
     // Getters
     public Long getId() { return id; }
     public String getUsername() { return username; }
@@ -71,6 +95,10 @@ public class UserStats {
     public String getCurrentTitle() { return currentTitle; }
     public int getTotalRolls() { return totalRolls; }
     public List<String> getShowcaseCardIds() { return showcaseCardIds; }
+    public String getBio() { return bio; }
+    public String getJoinedDate() { return joinedDate; }
+    public int getCollectionProgress() { return collectionProgress; }
+    public List<String> getBadges() { return badges; }
 
     // Setters (Bắt buộc cho Room)
     public void setId(Long id) { this.id = id; }
@@ -88,4 +116,16 @@ public class UserStats {
     public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
     public void setTotalRolls(int totalRolls) { this.totalRolls = totalRolls; }
     public void setShowcaseCardIds(List<String> showcaseCardIds) { this.showcaseCardIds = showcaseCardIds; }
+    public void setBio(String bio) { this.bio = bio; }
+    public void setJoinedDate(String joinedDate) { this.joinedDate = joinedDate; }
+    public void setCollectionProgress(int collectionProgress) { this.collectionProgress = collectionProgress; }
+    public void setBadges(List<String> badges) { this.badges = badges; }
+    public int getLikesCount() { return likesCount; }
+    public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+    public int getFriendsCount() { return friendsCount; }
+    public void setFriendsCount(int friendsCount) { this.friendsCount = friendsCount; }
+    public boolean isLiked() { return liked; }
+    public void setLiked(boolean liked) { this.liked = liked; }
+    public int getFriendshipStatus() { return friendshipStatus; }
+    public void setFriendshipStatus(int friendshipStatus) { this.friendshipStatus = friendshipStatus; }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.facebook.shimmer.ShimmerFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/shimmer_view_container"
+    android:id="@+id/shimmer_view_container_guest"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:shimmer_auto_start="true"
@@ -72,6 +72,41 @@
                 android:background="@drawable/bg_skeleton_rect_rounded" />
         </LinearLayout>
 
+        <!-- SKELETON GUEST ACTIONS (LIKE | MESSAGE, ADD FRIEND) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="@dimen/spacing_xl"
+            android:layout_marginTop="@dimen/spacing_sm">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/spacing_sm">
+                
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height_large"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_xs"
+                    android:background="@drawable/bg_skeleton_rect_rounded" />
+                    
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/button_height_large"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_skeleton_rect_rounded" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height_large"
+                android:background="@drawable/bg_skeleton_rect_rounded" />
+                
+        </LinearLayout>
+
         <!-- Skeleton Navigation Menu (Tabs) -->
         <View
             android:layout_width="match_parent"
@@ -135,13 +170,6 @@
                     android:layout_height="16dp"
                     android:background="@drawable/bg_skeleton_rect_rounded" />
             </LinearLayout>
-                
-            <!-- Item 4: General Info Style -->
-            <View
-                android:layout_width=" match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="@dimen/spacing_md"
-                android:background="@drawable/bg_skeleton_rect_rounded" />
 
         </LinearLayout>
 

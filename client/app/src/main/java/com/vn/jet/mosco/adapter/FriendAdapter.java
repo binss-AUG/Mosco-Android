@@ -85,25 +85,17 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             boolean isOnline = entry.optBoolean("online", false); 
             holder.viewStatus.setVisibility(isOnline ? View.VISIBLE : View.GONE);
 
-            // --- 🎭 SYNC AVATAR LOGIC ---
             String avatarId = entry.optString("avatarId", "1");
-            JSONObject card = DatabaseLoader.findByCollectionId(holder.itemView.getContext(), avatarId);
-            if (card != null) {
-                String imgUrl = card.optString("frontImage", "");
-                Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .transform(new SmartFaceCropTransformation())
-                        .placeholder(R.drawable.ic_user)
-                        .into(holder.ivAvatar);
-            } else {
-                holder.ivAvatar.setImageResource(R.drawable.ic_user);
-            }
+            long userId = entry.optLong("userId", -1L);
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
 
             // Bridge Bridge: Nhấn vào item mở profile thay vì popup cũ
             holder.itemView.setOnClickListener(v -> {
-                long userId = entry.optLong("userId", -1L);
                 if (userId != -1L) {
-                    com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) holder.itemView.getContext(), userId);
+                    androidx.fragment.app.FragmentActivity activity = getActivity(holder.itemView.getContext());
+                    if (activity != null) {
+                        com.vn.jet.mosco.utils.NavigationUtils.openProfile(activity, userId);
+                    }
                 }
             });
 
@@ -112,6 +104,19 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
 
     @Override
     public int getItemCount() { return data != null ? data.size() : 0; }
+
+    /**
+     * Helper method to safely find a FragmentActivity from any Context.
+     */
+    private androidx.fragment.app.FragmentActivity getActivity(android.content.Context context) {
+        while (context instanceof android.content.ContextWrapper) {
+            if (context instanceof androidx.fragment.app.FragmentActivity) {
+                return (androidx.fragment.app.FragmentActivity) context;
+            }
+            context = ((android.content.ContextWrapper) context).getBaseContext();
+        }
+        return null;
+    }
 
     static class FriendViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvLevel;
