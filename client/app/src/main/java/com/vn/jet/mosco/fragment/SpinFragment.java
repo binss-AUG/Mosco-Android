@@ -235,6 +235,7 @@ public class SpinFragment extends Fragment {
         btnSpin = view.findViewById(R.id.btn_spin);
         bgCardsContainer = view.findViewById(R.id.layout_bg_cards_container);
         videoSpinEffect = view.findViewById(R.id.video_spin_effect);
+        videoContainer = view.findViewById(R.id.video_container);
         layoutDustContainer = view.findViewById(R.id.layout_dust_container);
 
         view.setBackgroundColor(Color.BLACK);
@@ -242,9 +243,6 @@ public class SpinFragment extends Fragment {
             startBackgroundAnimation();
             startDustEffect();
         });
-
-        // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
-        initSacrificeFlipGesture();
 
         // Khởi tạo Gesture Detector cho cơ chế 3D Flip thẻ hi sinh
         initSacrificeFlipGesture();
