@@ -35,13 +35,15 @@ import com.vn.jet.mosco.model.Objet;
 /**
  * Trình Xử Lý Hiệu Ứng Cao Cấp Cho Thẻ (Core Card).
  */
+// ANTIGRAVITY_MARKER
 public class CardEffectHelper {
 
     private static int dpToPx(Context context, float dp) {
         return (int) (dp * context.getResources().getDisplayMetrics().density);
     }
 
-    // Helper class tạo Outer Glow liền mạch, không kẽ hở viền, tỷ lệ tán sắc mượt mà
+    // Helper class tạo Outer Glow liền mạch, không kẽ hở viền, tỷ lệ tán sắc mượt
+    // mà
     private static class OuterGlowView extends View {
         private Paint paint;
         private RectF rect;
@@ -64,10 +66,10 @@ public class CardEffectHelper {
             if (cachedBitmap == null && getWidth() > 0 && getHeight() > 0) {
                 cachedBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
                 Canvas cacheCanvas = new Canvas(cachedBitmap);
-                
+
                 cacheCanvas.save();
                 float inset = dpToPx(getContext(), 1.5f);
-                
+
                 Path path = new Path();
                 float leftStrut = extraPadding + inset;
                 float topStrut = extraPadding + inset;
@@ -75,7 +77,7 @@ public class CardEffectHelper {
                 float bottomStrut = getHeight() - extraPadding - inset;
                 rect.set(leftStrut, topStrut, rightStrut, bottomStrut);
                 path.addRoundRect(rect, cornerRadius, cornerRadius, Path.Direction.CW);
-                
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     cacheCanvas.clipOutPath(path);
                 } else {
@@ -83,18 +85,19 @@ public class CardEffectHelper {
                 }
 
                 paint.setColor(color);
-                
+
                 paint.setShadowLayer(glowRadius * 0.45f, 0, 0, color);
                 cacheCanvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
-                
+
                 int mAlpha = Color.alpha(color);
-                int fadedColor = Color.argb((int)(mAlpha * 0.35f), Color.red(color), Color.green(color), Color.blue(color));
+                int fadedColor = Color.argb((int) (mAlpha * 0.35f), Color.red(color), Color.green(color),
+                        Color.blue(color));
                 paint.setShadowLayer(glowRadius, 0, 0, fadedColor);
                 cacheCanvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint);
 
                 cacheCanvas.restore();
             }
-            
+
             if (cachedBitmap != null) {
                 canvas.drawBitmap(cachedBitmap, 0, 0, null);
             }
@@ -104,24 +107,31 @@ public class CardEffectHelper {
     /**
      * Áp dụng hiệu ứng cho thẻ thống nhất (CardDisplayItem).
      */
-    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating) {
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item,
+            boolean applyFloating) {
         apply(cardView, shimmer, item, applyFloating, true);
     }
 
-    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating, boolean applyGlow) {
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item,
+            boolean applyFloating, boolean applyGlow) {
         apply(cardView, shimmer, item, applyFloating, applyGlow, null);
     }
 
-    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
-        if (cardView == null || item == null) return;
-        applyInternal(cardView, shimmer, String.valueOf(item.getId()), item.getFrontImage(), applyFloating, applyGlow, forcedGlowColor);
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item,
+            boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
+        if (cardView == null || item == null)
+            return;
+        applyInternal(cardView, shimmer, String.valueOf(item.getId()), item.getFrontImage(), applyFloating, applyGlow,
+                forcedGlowColor);
     }
 
     /**
      * Áp dụng hiệu ứng cho thẻ trong Album (CollectionEntry).
      */
-    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CollectionEntry entry, boolean applyFloating) {
-        if (cardView == null || entry == null) return;
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CollectionEntry entry,
+            boolean applyFloating) {
+        if (cardView == null || entry == null)
+            return;
         applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true, null);
     }
 
@@ -129,27 +139,34 @@ public class CardEffectHelper {
         apply(cardView, shimmer, card, applyFloating, true);
     }
 
-    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating, boolean applyGlow) {
+    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating,
+            boolean applyGlow) {
         apply(cardView, shimmer, card, applyFloating, applyGlow, null);
     }
 
-    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
-        if (cardView == null || card == null) return;
-        applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow, forcedGlowColor);
+    public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating,
+            boolean applyGlow, Integer forcedGlowColor) {
+        if (cardView == null || card == null)
+            return;
+        applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow,
+                forcedGlowColor);
     }
 
     /**
      * Logic chung để xử lý hiệu ứng Hào quang, Shimmer và Lơ lửng.
      */
-    private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
+    private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl,
+            boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
         Context context = cardView.getContext();
 
         String currentCardId = (String) cardView.getTag(R.id.card_main);
-        if (id != null && id.equals(currentCardId)) return;
+        if (id != null && id.equals(currentCardId))
+            return;
 
         remove(cardView, shimmer);
 
-        // THIẾT LẬP MẶT NẠ CHỐNG XUYÊN THẤU CHO SHIMMER ==========================================
+        // THIẾT LẬP MẶT NẠ CHỐNG XUYÊN THẤU CHO SHIMMER
+        // ==========================================
         View shimmerContainer = cardView.findViewById(R.id.layout_shimmer_container);
         android.widget.ImageView triplesBorder = cardView.findViewById(R.id.card_iv_triplesborder);
         if (shimmerContainer != null && triplesBorder != null) {
@@ -157,7 +174,7 @@ public class CardEffectHelper {
             Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             maskPaint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT));
             triplesBorder.setLayerType(View.LAYER_TYPE_HARDWARE, maskPaint);
-            triplesBorder.setVisibility(View.VISIBLE); 
+            triplesBorder.setVisibility(View.VISIBLE);
         }
         // =========================================================================================
 
@@ -166,11 +183,12 @@ public class CardEffectHelper {
         cardView.post(() -> {
             int w = cardView.getWidth();
             int h = cardView.getHeight();
-            if (w <= 0 || h <= 0) return;
+            if (w <= 0 || h <= 0)
+                return;
 
-            int dynamicStrokeWidth = (int) (w * 0.00f); 
+            int dynamicStrokeWidth = (int) (w * 0.00f);
             cardView.setStrokeWidth(dynamicStrokeWidth);
-            
+
             // [FIX LỖI GLOW VUÔNG]: Đảm bảo radius luôn có giá trị hợp lệ (tối thiểu 12dp)
             float cardRadius = cardView.getRadius();
             float minRadius = dpToPx(context, 12f);
@@ -184,14 +202,15 @@ public class CardEffectHelper {
                     .load(colorSourceUrl)
                     .into(new CustomTarget<Bitmap>() {
                         @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        public void onResourceReady(@NonNull Bitmap resource,
+                                @Nullable Transition<? super Bitmap> transition) {
                             int bw = resource.getWidth();
                             int bh = resource.getHeight();
                             if (bw > 0 && bh > 0) {
                                 int pixelX = Math.max(0, bw - 2);
                                 int pixelY = bh / 2;
                                 int extractedColor = resource.getPixel(pixelX, pixelY);
-                                
+
                                 float[] hsv = new float[3];
                                 Color.colorToHSV(extractedColor, hsv);
                                 hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
@@ -204,45 +223,55 @@ public class CardEffectHelper {
                                     parent.setClipChildren(false);
                                     parent.setClipToPadding(false);
 
-                                    float glowRadius = w * 0.20f; 
-                                    float extraPadding = glowRadius * 2.5f;
+                                    float glowRadius = w * 0.12f; // Tinh tế hơn (Quiet Luxury)
+                                    float extraPadding = glowRadius * 2.0f;
 
                                     View pseudoGlow = null;
                                     if (applyGlow) {
-                                        pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
+                                        pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius,
+                                                extraPadding);
+                                        // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
+                                        float density = context.getResources().getDisplayMetrics().density;
+                                        pseudoGlow.setCameraDistance(8000 * density);
+                                        
+                                        pseudoGlow.setRotationX(cardView.getRotationX());
+                                        pseudoGlow.setRotationY(cardView.getRotationY());
+                                        pseudoGlow.setTranslationX(cardView.getTranslationX());
+                                        pseudoGlow.setTranslationY(cardView.getTranslationY());
+                                        pseudoGlow.setScaleX(cardView.getScaleX());
+                                        pseudoGlow.setScaleY(cardView.getScaleY());
+                                        
                                         parent.addView(pseudoGlow, parent.indexOfChild(cardView));
                                         cardView.setTag(R.id.view_progress_fill, pseudoGlow);
                                     }
 
                                     ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
                                     if (rawParams instanceof ConstraintLayout.LayoutParams) {
-                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(
-                                                (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
-                                        
+                                        // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
+                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0, 0);
                                         glowParams.topToTop = cardView.getId();
                                         glowParams.bottomToBottom = cardView.getId();
                                         glowParams.startToStart = cardView.getId();
                                         glowParams.endToEnd = cardView.getId();
                                         
+                                        int p = (int)extraPadding;
+                                        glowParams.setMargins(-p, -p, -p, -p);
                                         if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
                                     } else if (rawParams instanceof FrameLayout.LayoutParams) {
                                         FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
-                                                (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
+                                                (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
                                         glowParams.gravity = android.view.Gravity.CENTER;
-                                        if (pseudoGlow != null) {
-                                            pseudoGlow.setTranslationY(cardView.getTranslationY());
-                                            pseudoGlow.setLayoutParams(glowParams);
-                                        }
+                                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
                                     }
                                 }
                             }
                         }
+
                         @Override
-                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {}
+                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
+                        }
                     });
         });
-
-
 
         // c) Shimmer Overlay (Reflective animation)
         if (shimmer != null) {
@@ -251,14 +280,13 @@ public class CardEffectHelper {
             // 1. Tạo "Vệt sáng" bằng Gradient
             android.graphics.drawable.GradientDrawable shimmerBg = new android.graphics.drawable.GradientDrawable(
                     android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
-                    new int[]{0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF}
-            );
+                    new int[] { 0x00FFFFFF, 0x00FFFFFF, 0x66FFFFFF, 0x00FFFFFF, 0x00FFFFFF });
             shimmer.setBackground(shimmerBg);
 
             // 2. Thiết lập hình dáng ban đầu
             shimmer.setRotation(10f); // Nghiêng vệt sáng 10 độ
             shimmer.setScaleX(1.0f);
-            shimmer.setScaleY(1.5f);  // Kéo dài theo chiều dọc để đảm bảo phủ hết thẻ khi nghiêng
+            shimmer.setScaleY(1.5f); // Kéo dài theo chiều dọc để đảm bảo phủ hết thẻ khi nghiêng
 
             // [FIX LỖI KHỰNG]: Ép vệt sáng văng ra ngoài mép trái ngay lập tức chờ tới lượt
             shimmer.post(() -> {
@@ -271,7 +299,7 @@ public class CardEffectHelper {
             shimmerAnim.setInterpolator(new android.view.animation.LinearInterpolator());
 
             // Biểu tượng an toàn: Cờ đánh dấu Animation bị hủy để không lặp thừa
-            final boolean[] isCancelled = {false};
+            final boolean[] isCancelled = { false };
 
             Runnable delayRunnable = new Runnable() {
                 @Override
@@ -297,7 +325,8 @@ public class CardEffectHelper {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (isCancelled[0]) return;
+                    if (isCancelled[0])
+                        return;
 
                     // Random từ 1000ms (1s) đến 3000ms (3s)
                     long randomDelay = 1000 + new java.util.Random().nextInt(2001);
@@ -307,7 +336,8 @@ public class CardEffectHelper {
                 }
             });
 
-            // Kích hoạt lần chạy đầu tiên (Ngẫu nhiên chênh lệch để các thẻ không giống hệt nhau)
+            // Kích hoạt lần chạy đầu tiên (Ngẫu nhiên chênh lệch để các thẻ không giống hệt
+            // nhau)
             shimmer.postDelayed(delayRunnable, new java.util.Random().nextInt(1500));
 
             shimmer.setTag(R.id.view_card_shimmer, shimmerAnim);
@@ -316,12 +346,12 @@ public class CardEffectHelper {
 
         // MẶC ĐỊNH LÀ LUÔN NỔI LÊN XUỐNG DẬP DỀNH (KHÔNG PHỤ THUỘC VÀO BOOLEAN)
         ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
-        
+
         floatingAnim.setEvaluator(new TypeEvaluator<Float>() {
             @Override
             public Float evaluate(float fraction, Float startValue, Float endValue) {
                 float val = startValue + fraction * (endValue - startValue);
-                return (float) Math.round(val); 
+                return (float) Math.round(val);
             }
         });
 
@@ -333,44 +363,47 @@ public class CardEffectHelper {
         });
 
         floatingAnim.setDuration(2400); // 2.4s base
-        floatingAnim.setStartDelay((long)(Math.random() * 1000)); // Gợn sóng bất đồng bộ
+        floatingAnim.setStartDelay((long) (Math.random() * 1000)); // Gợn sóng bất đồng bộ
         floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
         floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
         floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
-        
+
         cardView.setTag(floatingAnim);
         floatingAnim.start();
     }
 
     /**
-     * Tạo hiệu ứng Glow "Placeholder" nhạt màu dành cho trạng thái chưa có thẻ (No Objets Yet).
+     * Tạo hiệu ứng Glow "Placeholder" nhạt màu dành cho trạng thái chưa có thẻ (No
+     * Objets Yet).
      * Giúp UX rõ ràng hơn (nhận biết vị trí đặt thẻ).
      */
     public static void applyEmptyStateGlow(MaterialCardView cardView, boolean applyFloating) {
-        if (cardView == null) return;
+        if (cardView == null)
+            return;
         Context context = cardView.getContext();
 
         remove(cardView, null); // Clear old effects
-        
+
         cardView.setTag(R.id.card_main, "empty_state_glow");
 
         cardView.post(() -> {
             int w = cardView.getWidth();
             int h = cardView.getHeight();
-            if (w <= 0 || h <= 0) return;
+            if (w <= 0 || h <= 0)
+                return;
 
             cardView.setStrokeWidth(0);
             float cornerRadius = cardView.getRadius();
 
             // Màu glow tím nhạtặc định của hệ thống Mosco
-            int glowColor = Color.parseColor("#336c29fd"); 
+            int glowColor = Color.parseColor("#336c29fd");
 
             ViewGroup parent = (ViewGroup) cardView.getParent();
             if (parent != null) {
                 parent.setClipChildren(false);
                 parent.setClipToPadding(false);
 
-                float glowRadius = w * 0.15f; 
+                float glowRadius = w * 0.15f;
                 float extraPadding = glowRadius * 2.5f;
 
                 View pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
@@ -380,56 +413,57 @@ public class CardEffectHelper {
                 ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
                 if (rawParams instanceof ConstraintLayout.LayoutParams) {
                     ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(
-                            (int)(w + extraPadding * 2), (int)(h + extraPadding * 2));
-                    
+                            (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
+
                     glowParams.topToTop = cardView.getId();
                     glowParams.bottomToBottom = cardView.getId();
                     glowParams.startToStart = cardView.getId();
                     glowParams.endToEnd = cardView.getId();
-                    
+
                     pseudoGlow.setLayoutParams(glowParams);
                 }
             }
         });
 
         if (applyFloating) {
-            ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
+            ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f),
+                    0f);
             floatingAnim.setDuration(3000);
             floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
             floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
             floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
-            
+
             floatingAnim.addUpdateListener(animation -> {
                 View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
                 if (pseudoGlow != null) {
                     pseudoGlow.setTranslationY((float) animation.getAnimatedValue());
                 }
             });
-            
+
             cardView.setTag(floatingAnim);
             floatingAnim.start();
         }
     }
 
     public static void remove(MaterialCardView cardView, View shimmer) {
-        if (cardView == null) return;
+        if (cardView == null)
+            return;
         cardView.setStrokeWidth(0);
         cardView.setCardElevation(0);
         cardView.setTranslationY(0f);
         cardView.setTag(R.id.card_main, null);
-        
+
         View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
         if (pseudoGlow != null && pseudoGlow.getParent() != null) {
             ((ViewGroup) pseudoGlow.getParent()).removeView(pseudoGlow);
             cardView.setTag(R.id.view_progress_fill, null);
         }
-        
+
         Object tag = cardView.getTag();
         if (tag instanceof Animator) {
             ((Animator) tag).cancel();
             cardView.setTag(null);
         }
-        
 
         if (shimmer != null) {
             shimmer.setVisibility(View.GONE);
@@ -444,7 +478,7 @@ public class CardEffectHelper {
                 shimmer.setTag(R.id.tv_materials_label, null);
             }
         }
-        
+
         android.widget.ImageView triplesBorder = cardView.findViewById(R.id.card_iv_triplesborder);
         if (triplesBorder != null) {
             triplesBorder.setVisibility(View.INVISIBLE);
