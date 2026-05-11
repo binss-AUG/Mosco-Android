@@ -28,6 +28,9 @@ public class UpdateProfileRequest {
     @SerializedName("friendsCount")
     private Integer friendsCount;
 
+    @SerializedName("avatarCropParams")
+    private String avatarCropParams;
+
     public UpdateProfileRequest() {}
 
     public String getUsername() { return username; }
@@ -50,4 +53,7 @@ public class UpdateProfileRequest {
 
     public Integer getFriendsCount() { return friendsCount; }
     public void setFriendsCount(Integer friendsCount) { this.friendsCount = friendsCount; }
+
+    public String getAvatarCropParams() { return avatarCropParams; }
+    public void setAvatarCropParams(String avatarCropParams) { this.avatarCropParams = avatarCropParams; }
 }

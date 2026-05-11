@@ -181,6 +181,9 @@ public class UserController {
         if (body.getFriendsCount() != null) {
             user.setFriendsCount(body.getFriendsCount());
         }
+        if (body.getAvatarCropParams() != null) {
+            user.setAvatarCropParams(body.getAvatarCropParams());
+        }
 
         userRepository.save(user);
         logger.info("Profile updated: userId={}", userId);

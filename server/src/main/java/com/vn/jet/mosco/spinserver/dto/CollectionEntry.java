@@ -12,6 +12,7 @@ public class CollectionEntry {
     private String cardClass;      // Class (First Welcome, Double, Premier...)
     private String collectionNo;   // Số thẻ (e.g. "357Z")
     private String frontImage;     // URL hình mặt trước
+    private String backImage;      // URL hình mặt sau
     private String backgroundColor;
 
     // Trạng thái sở hữu
@@ -42,6 +43,9 @@ public class CollectionEntry {
 
     public String getFrontImage() { return frontImage; }
     public void setFrontImage(String frontImage) { this.frontImage = frontImage; }
+
+    public String getBackImage() { return backImage; }
+    public void setBackImage(String backImage) { this.backImage = backImage; }
 
     public String getBackgroundColor() { return backgroundColor; }
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }

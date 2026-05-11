@@ -25,6 +25,7 @@ public class SessionManager {
     private static final String KEY_INGAME_NAME = "ingame_name";
     private static final String KEY_AVATAR_ID = "avatar_id";
     private static final String KEY_SELECTED_SHOWCASE_ID = "selected_showcase_id"; 
+    private static final String KEY_AVATAR_CROP_PARAMS = "avatar_crop_params"; 
     
     // --- SETTINGS KEYS ---
     private static final String KEY_DARK_MODE = "dark_mode";
@@ -129,6 +130,14 @@ public class SessionManager {
 
     public void setAvatarId(String avatarId) {
         prefs.edit().putString(KEY_AVATAR_ID, avatarId).apply();
+    }
+
+    public String getAvatarCropParams() {
+        return prefs.getString(KEY_AVATAR_CROP_PARAMS, null);
+    }
+
+    public void setAvatarCropParams(String params) {
+        prefs.edit().putString(KEY_AVATAR_CROP_PARAMS, params).apply();
     }
 
     /**

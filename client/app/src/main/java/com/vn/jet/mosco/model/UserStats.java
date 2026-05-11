@@ -79,6 +79,9 @@ public class UserStats {
     @SerializedName("friendshipStatus")
     private int friendshipStatus = 0; // 0: None, 1: Pending, 2: Friends
 
+    @SerializedName("avatarCropParams")
+    private String avatarCropParams = ""; // Metadata to re-apply crop if local file is missing
+
     // Getters
     public Long getId() { return id; }
     public String getUsername() { return username; }
@@ -128,4 +131,7 @@ public class UserStats {
     public void setLiked(boolean liked) { this.liked = liked; }
     public int getFriendshipStatus() { return friendshipStatus; }
     public void setFriendshipStatus(int friendshipStatus) { this.friendshipStatus = friendshipStatus; }
+
+    public String getAvatarCropParams() { return avatarCropParams; }
+    public void setAvatarCropParams(String avatarCropParams) { this.avatarCropParams = avatarCropParams; }
 }

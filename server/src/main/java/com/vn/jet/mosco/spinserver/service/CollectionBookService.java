@@ -101,6 +101,7 @@ public class CollectionBookService {
             ce.setCardClass(meta.has("class") ? meta.get("class").asText() : "");
             ce.setCollectionNo(meta.has("collectionNo") ? meta.get("collectionNo").asText() : "");
             ce.setFrontImage(meta.has("frontImage") ? meta.get("frontImage").asText() : "");
+            ce.setBackImage(meta.has("backImage") ? meta.get("backImage").asText() : "");
             ce.setBackgroundColor(meta.has("backgroundColor") ? meta.get("backgroundColor").asText() : "#FFFFFF");
 
             // Logic Ever Owned: Kiểm tra user.unlockedCollections

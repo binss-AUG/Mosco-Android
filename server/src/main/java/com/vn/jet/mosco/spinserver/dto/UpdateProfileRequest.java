@@ -12,6 +12,7 @@ public class UpdateProfileRequest {
     private java.util.List<String> showcaseCardIds;
     private Integer likesCount;
     private Integer friendsCount;
+    private String avatarCropParams;
 
     public UpdateProfileRequest() {}
 
@@ -35,4 +36,7 @@ public class UpdateProfileRequest {
 
     public Integer getFriendsCount() { return friendsCount; }
     public void setFriendsCount(Integer friendsCount) { this.friendsCount = friendsCount; }
+
+    public String getAvatarCropParams() { return avatarCropParams; }
+    public void setAvatarCropParams(String avatarCropParams) { this.avatarCropParams = avatarCropParams; }
 }

@@ -820,9 +820,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (newDisplayName != null && !newDisplayName.isEmpty()) request.setIngameName(newDisplayName);
         if (newBio != null) request.setBio(newBio);
 
-        // Đồng bộ avatarId nếu đã thay đổi
+        // Đồng bộ avatarId + cropParams nếu đã thay đổi
         String currentAvatarId = sessionManager.getAvatarId();
         if (currentAvatarId != null) request.setAvatarId(currentAvatarId);
+        
+        String cropParams = sessionManager.getAvatarCropParams();
+        if (cropParams != null) request.setAvatarCropParams(cropParams);
 
         if (gameApiService != null) {
             gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
@@ -837,8 +840,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         if (newUsername != null && !newUsername.isEmpty()) {
                             sessionManager.setUsername(newUsername);
                         }
-                        
-                        // [CRITICAL] Đồng bộ ViewModel và Local DB
+
+                        // [NEW] Lưu metadata crop từ server trả về
+                        if (response.body().getData() != null) {
+                            sessionManager.setAvatarCropParams(response.body().getData().getAvatarCropParams());
+                        }
                         if (viewModel != null && targetUserId != null) {
                             if (response.body().getData() != null) {
                                 com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {

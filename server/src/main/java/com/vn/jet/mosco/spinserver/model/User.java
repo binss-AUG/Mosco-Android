@@ -53,6 +53,9 @@ public class User {
     private String bio;
 
     @Column(length = 255)
+    private String avatarCropParams; // Metadata cho việc crop avatar (Survive Reinstall)
+
+    @Column(length = 255)
     private String activeFormation = "null,null,null,null,null,null";
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -185,4 +188,7 @@ public class User {
 
     public int getFriendsCount() { return friendsCount; }
     public void setFriendsCount(int friendsCount) { this.friendsCount = friendsCount; }
+
+    public String getAvatarCropParams() { return avatarCropParams; }
+    public void setAvatarCropParams(String avatarCropParams) { this.avatarCropParams = avatarCropParams; }
 }

@@ -68,6 +68,11 @@ public class AvatarUtils {
     public static void loadAvatarById(Context context, ImageView imageView, String avatarId, boolean isThumbnail) {
         if (context == null || imageView == null) return;
 
+        // Lấy cropParams từ Session (đã được server trả về sau khi đăng nhập)
+        SessionManager sessionManager = new SessionManager(context);
+        String cropParams = sessionManager.getAvatarCropParams();
+        boolean hasCropParams = cropParams != null && !cropParams.isEmpty() && !cropParams.equals("auto");
+
         if (avatarId == null || avatarId.isEmpty() || avatarId.equals("null")) {
             imageView.setImageResource(R.drawable.ic_user);
             return;
@@ -86,11 +91,19 @@ public class AvatarUtils {
                 imgUrl = GlideBindingAdapter.convertImageIdToUrl(imgUrl, isThumbnail);
             }
 
+            com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
+                    .placeholder(R.drawable.ic_user)
+                    .error(R.drawable.ic_user);
+
+            if (hasCropParams) {
+                options = options.transform(new AvatarCropTransformation(cropParams));
+            } else {
+                options = options.transform(new SmartFaceCropTransformation());
+            }
+
             Glide.with(context)
                     .load(imgUrl)
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_user)
-                    .error(R.drawable.ic_user)
+                    .apply(options)
                     .into(imageView);
         } else {
             imageView.setImageResource(R.drawable.ic_user);
