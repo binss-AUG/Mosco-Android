@@ -126,6 +126,7 @@
     <color name="mosco_primary_alpha_10">#1A6C29FD</color>
     <color name="mosco_primary_alpha_12">#206C29FD</color>
     <color name="mosco_primary_alpha_60">#996B2FD4</color>
+    <color name="mosco_primary_alpha_20">#336C29FD</color>
     <color name="mosco_outline_variant_20">#338A2BE2</color>
     <color name="mosco_tertiary_alpha_10">#1A80FFB4</color>
     <color name="mosco_surface_alpha_20">#33262626</color>

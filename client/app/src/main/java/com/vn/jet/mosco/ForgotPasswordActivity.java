@@ -40,6 +40,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private Button btnSendCode, btnResetPassword;
     private LottieAnimationView loadingProgress;
     private AuthApiService apiService;
+    private ImageView btnBack;
     
 
     @Override
@@ -59,7 +60,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnSendCode = findViewById(R.id.btn_send_code);
         btnResetPassword = findViewById(R.id.btn_reset_password);
         loadingProgress = findViewById(R.id.loading_progress);
-        
+        btnBack = findViewById(R.id.btn_back);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         apiService = ApiClient.getClient(this).create(AuthApiService.class);
 

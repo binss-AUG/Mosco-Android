@@ -336,6 +336,9 @@ public class SignInActivity extends AppCompatActivity {
                     if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         handleGoogleSignInResult(task);
+                    } else {
+                        setLoading(false);
+                        Toast.makeText(this, getString(R.string.auth_error_sign_in_cancelled), Toast.LENGTH_SHORT).show();
                     }
                 }
         );

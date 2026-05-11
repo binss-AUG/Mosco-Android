@@ -142,8 +142,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/bg_gradient_transparent_black"
-        android:paddingTop="@dimen/inventory_action_padding_top"
-        android:paddingBottom="@dimen/inventory_action_padding_bottom"
+        android:paddingTop="@dimen/spacing_16dp"
+        android:paddingBottom="@dimen/spacing_24dp"
         android:paddingHorizontal="@dimen/inventory_action_padding_horizontal"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent">

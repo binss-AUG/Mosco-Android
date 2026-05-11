@@ -305,13 +305,22 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class FilterCategory {
         public final String tabName;
-        public final List<String> items;
-        public final boolean isArtistGrid; // shows avatar circle grid
+        public final List<String> items; // For simple text lists (Season, Class)
+        public final List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> memberItems; // For Artist Grid
+        public final boolean isArtistGrid;
 
         public FilterCategory(String tabName, List<String> items, boolean isArtistGrid) {
             this.tabName = tabName;
             this.items = items;
+            this.memberItems = null;
             this.isArtistGrid = isArtistGrid;
+        }
+
+        public FilterCategory(String tabName, List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> memberItems) {
+            this.tabName = tabName;
+            this.items = null;
+            this.memberItems = memberItems;
+            this.isArtistGrid = true;
         }
     }
 
@@ -537,7 +546,7 @@ public class CollectionFragment extends Fragment {
         FilterCategory cat = categories.get(tabIndex);
 
         if (cat.isArtistGrid) {
-            buildArtistGrid(ctx, fl, cat.items, workingSet, renderChips);
+            buildArtistGrid(ctx, fl, cat.memberItems, workingSet, renderChips);
         } else {
             buildTwoColumnList(ctx, fl, cat.items, workingSet, renderChips);
         }
@@ -545,7 +554,7 @@ public class CollectionFragment extends Fragment {
 
     /** Artist grid: 3-column circles */
     private static void buildArtistGrid(Context ctx, android.widget.FrameLayout fl,
-            List<String> items, Set<String> workingSet, Runnable renderChips) {
+            List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> items, Set<String> workingSet, Runnable renderChips) {
         ScrollView sv = new ScrollView(ctx);
         sv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -556,21 +565,24 @@ public class CollectionFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         grid.setColumnCount(3);
 
-        for (String name : items) {
-            View cell = buildArtistCell(ctx, name, workingSet, renderChips);
-            GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-            lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            lp.width = 0;
-            lp.setMargins(dpToPx(ctx, 4), dpToPx(ctx, 8), dpToPx(ctx, 4), dpToPx(ctx, 8));
-            cell.setLayoutParams(lp);
-            grid.addView(cell);
+        if (items != null) {
+            for (com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item : items) {
+                View cell = buildArtistCell(ctx, item, workingSet, renderChips);
+                GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+                lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                lp.width = 0;
+                lp.setMargins(dpToPx(ctx, 4), dpToPx(ctx, 8), dpToPx(ctx, 4), dpToPx(ctx, 8));
+                cell.setLayoutParams(lp);
+                grid.addView(cell);
+            }
         }
 
         sv.addView(grid);
         fl.addView(sv);
     }
 
-    private static View buildArtistCell(Context ctx, String name, Set<String> workingSet, Runnable renderChips) {
+    private static View buildArtistCell(Context ctx, com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item, Set<String> workingSet, Runnable renderChips) {
+        String name = item.name;
         LinearLayout cell = new LinearLayout(ctx);
         cell.setOrientation(LinearLayout.VERTICAL);
         cell.setGravity(Gravity.CENTER);
@@ -593,7 +605,21 @@ public class CollectionFragment extends Fragment {
         iv.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        iv.setImageResource(R.drawable.item_shop_demo); // placeholder: replace with actual resource
+
+        // [QUIET LUXURY] Load real member avatar from latest card image
+        String finalUrl = item.imageUrl;
+        if (finalUrl != null && !finalUrl.isEmpty()) {
+            // Apply smartcrop for better look in circles
+            if (finalUrl.contains("/original")) {
+                finalUrl = finalUrl.replace("/original", "/smartcrop");
+            }
+            Glide.with(ctx)
+                    .load(finalUrl)
+                    .placeholder(R.drawable.item_shop_demo)
+                    .into(iv);
+        } else {
+            iv.setImageResource(R.drawable.item_shop_demo);
+        }
         card.addView(iv);
 
         // Name label
@@ -727,25 +753,12 @@ public class CollectionFragment extends Fragment {
     // DEMO DATA
     // ==========================================
     public static List<FilterCategory> buildObjetCategories(Context context) {
-        List<String> artists = java.util.Arrays.asList(
-                "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
-                "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
-                "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
-
-        List<org.json.JSONObject> cards = com.vn.jet.mosco.utils.DatabaseLoader.loadAllCards(context);
-        java.util.Set<String> seasonsSet = new java.util.LinkedHashSet<>();
-        for (org.json.JSONObject card : cards) {
-            String season = card.optString("season", "");
-            if (!season.isEmpty())
-                seasonsSet.add(season);
-        }
-
-        List<String> seasons = new ArrayList<>(seasonsSet);
-        // Tách biệt các class thẻ bài theo yêu cầu mới
-        List<String> classes = java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "Unit");
+        List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> artists = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueMembers(context);
+        List<String> seasons = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueSeasons(context);
+        List<String> classes = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueClasses(context);
 
         List<FilterCategory> cats = new ArrayList<>();
-        cats.add(new FilterCategory("Artist", artists, true));
+        cats.add(new FilterCategory("Artist", artists));
         cats.add(new FilterCategory("Season", seasons, false));
         cats.add(new FilterCategory("Class", classes, false));
         return cats;
@@ -1499,7 +1512,7 @@ public class CollectionFragment extends Fragment {
 
                 @Override
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserItem>> call, Throwable t) {
-                    Toast.makeText(requireContext(), "Failed to load inventory", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_inventory), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -1839,7 +1852,7 @@ public class CollectionFragment extends Fragment {
                 iv.setColorFilter(null);
                 iv.setAlpha(0.3f);
                 tv.setTextColor(android.graphics.Color.GRAY);
-                tv.setText("COMPLETED");
+                tv.setText(getString(R.string.collection_label_completed));
                 container.clearAnimation();
                 container.setOnClickListener(v -> android.widget.Toast.makeText(requireContext(),
                         getString(R.string.collection_msg_reward_claimed), android.widget.Toast.LENGTH_SHORT).show());
@@ -1848,7 +1861,7 @@ public class CollectionFragment extends Fragment {
                 iv.setAlpha(1.0f);
                 iv.setColorFilter(null);
                 tv.setTextColor(android.graphics.Color.WHITE);
-                tv.setText("REWARD");
+                tv.setText(getString(R.string.collection_label_reward));
 
                 if (container.getAnimation() == null) {
                     android.view.animation.Animation pulse = android.view.animation.AnimationUtils

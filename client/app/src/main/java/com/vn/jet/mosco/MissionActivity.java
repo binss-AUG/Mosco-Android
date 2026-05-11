@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * Event screen — Currently locked (COMING SOON).
  * Placeholder until Event system is fully designed.
  */
-public class MissionActivity extends AppCompatActivity {
+public class MissionActivity extends MoscoBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

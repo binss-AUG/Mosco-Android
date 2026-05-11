@@ -32,62 +32,6 @@
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- 🌐 AAA HUD: REAL-TIME NETWORK MONITOR BANNER -->
-    <LinearLayout
-        android:id="@+id/ll_network_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_marginTop="@dimen/spacing_56dp"
-        android:elevation="1000dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
 
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_network_banner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/spacing_lg"
-            app:cardCornerRadius="@dimen/spacing_14dp"
-            app:cardElevation="@dimen/radius_lg"
-            app:cardBackgroundColor="@color/transparent"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:id="@+id/ll_network_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_20dp"
-                android:paddingVertical="@dimen/spacing_10dp"
-                android:background="@drawable/bg_network_lost_glass">
-
-                <ImageView
-                    android:id="@+id/iv_network_icon"
-                    android:layout_width="@dimen/spacing_md"
-                    android:layout_height="@dimen/spacing_md"
-                    android:src="@drawable/ic_close"
-                    app:tint="@color/white" />
-
-                <TextView
-                    android:id="@+id/tv_network_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/radius_lg"
-                    android:text="@string/common_msg_connection_lost"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_mini"
-                    style="@style/MoscoText.Luxury.Badge"
-                    android:textStyle="bold"
-                    android:fontWeight="700"
-                    android:letterSpacing="0.1" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

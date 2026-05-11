@@ -226,4 +226,14 @@ public interface GameApiService {
 
     @GET("/api/v1/cards/sync")
     Call<List<com.vn.jet.mosco.dto.CardSummaryDto>> getCardsSync(@Query("lastSyncTime") Long lastSyncTime);
+
+    // ══════════════════════════════════════════════════════════════
+    //  ASSET SYNC — Đồng bộ Metadata mới nhất
+    // ══════════════════════════════════════════════════════════════
+
+    @GET("/api/assets/manifest")
+    Call<okhttp3.ResponseBody> getAssetManifest();
+
+    @GET("/api/assets/database")
+    Call<okhttp3.ResponseBody> getFullDatabase();
 }

@@ -151,7 +151,7 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
         pulse.start();
 
         btnRestore.setOnClickListener(v -> {
-            android.widget.Toast.makeText(context, "Streak Shield Activated! (Feature Coming Soon)", android.widget.Toast.LENGTH_SHORT).show();
+            android.widget.Toast.makeText(context, context.getString(R.string.msg_feature_coming_soon), android.widget.Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
 

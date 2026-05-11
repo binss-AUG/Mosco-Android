@@ -4,7 +4,7 @@
     <string name="auth_title_sign_in">Welcome Back</string>
     <string name="auth_subtitle_sign_in">Login to your account below</string>
     <string name="auth_title_sign_up">Create Account</string>
-    <string name="auth_subtitle_sign_up">Join the Mosco Galaxy today</string>
+    <string name="auth_subtitle_sign_up">Join Mosco today</string>
     <string name="auth_label_email">Email Address</string>
     <string name="auth_prompt_email">user@example.com</string>
     <string name="auth_label_password">Password</string>
@@ -22,7 +22,7 @@
     <string name="auth_action_resend">Resend</string>
     <string name="auth_action_forgot_password">Forgot Password?</string>
     <string name="auth_title_recovery">Account Recovery</string>
-    <string name="auth_subtitle_recovery">Restore your connection to the galaxy</string>
+    <string name="auth_subtitle_recovery">Restore access to your account</string>
     <string name="auth_label_new_password">New Password</string>
     <string name="auth_action_reset_password">Reset Password</string>
     <string name="auth_msg_new_user">Don\'t have an account? Sign Up</string>
@@ -47,12 +47,12 @@
     <!-- Display Name Setup -->
     <string name="setup_title">CHOOSE YOUR NAME</string>
     <string name="setup_subtitle">This is how other players will know you</string>
-    <string name="setup_btn_enter">ENTER THE GALAXY</string>
+    <string name="setup_btn_enter">START PLAYING</string>
     <string name="setup_welcome">Welcome, %s!</string>
     <string name="setup_prompt_display_name">Display Name</string>
     <string name="setup_error_display_name_length">Display name must be 2–16 characters</string>
     <string name="auth_error_google_token_null">Google Token is null. Check Web Client ID.</string>
     <string name="auth_error_google_general">Google Error: %1$s</string>
     <string name="auth_error_discord_general">Discord Error: %1$s</string>
-    <string name="auth_msg_welcome_galaxy">Welcome to Mosco Galaxy!</string>
+    <string name="auth_msg_welcome_galaxy">Welcome to Mosco!</string>
 </resources>

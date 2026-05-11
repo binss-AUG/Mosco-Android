@@ -42,7 +42,6 @@ import java.util.List;
 public class ProfileExhibitFragment extends Fragment {
 
     private ViewPager2 vpShowcase;
-    private View layoutShowcasePager;
     private View btnPrev, btnNext;
     private ProfileViewModel viewModel;
     private ShowcasePagerAdapter pagerAdapter;
@@ -62,7 +61,6 @@ public class ProfileExhibitFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         vpShowcase = view.findViewById(R.id.vp_showcase);
-        layoutShowcasePager = view.findViewById(R.id.layout_showcase_pager);
         btnPrev = view.findViewById(R.id.btn_showcase_prev);
         btnNext = view.findViewById(R.id.btn_showcase_next);
         
@@ -175,9 +173,8 @@ public class ProfileExhibitFragment extends Fragment {
     }
 
     private void renderShowcaseZone(List<String> showcaseCardIds) {
-        if (vpShowcase == null || layoutShowcasePager == null) return;
+        if (vpShowcase == null) return;
         
-        layoutShowcasePager.setVisibility(View.VISIBLE);
         if (pagerAdapter != null) {
             pagerAdapter.updateIds(showcaseCardIds);
         }

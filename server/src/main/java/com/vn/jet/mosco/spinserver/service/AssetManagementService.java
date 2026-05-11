@@ -38,6 +38,11 @@ public class AssetManagementService {
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+    // Danh sách các Class thẻ bài được phép (Whitelist)
+    private static final java.util.Set<String> WHITELIST_CLASSES = java.util.Set.of(
+            "First", "Welcome", "Double", "Special", "Premier"
+    );
+
     private volatile String syncStatus = "IDLE";
     private volatile String syncDetail = "";
 
@@ -95,13 +100,23 @@ public class AssetManagementService {
                 return;
             }
 
-            List<JsonObject> sortedCollections = parseAndSort(jsonContent);
-            log.info("✅ Đã cào xong {} Objet. Cập nhật file database.json...", sortedCollections.size());
+            List<JsonObject> allCollections = parseAndSort(jsonContent);
+            
+            // Thực hiện lọc theo Whitelist
+            List<JsonObject> filteredCollections = allCollections.stream()
+                    .filter(obj -> {
+                        String cardClass = obj.has("class") ? obj.get("class").getAsString() : "";
+                        return WHITELIST_CLASSES.contains(cardClass);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
 
-            saveSortedDatabase(jsonContent, sortedCollections);
+            log.info("📊 Thống kê: Tổng cào: {} | Sau khi lọc: {}. Cập nhật file database.json...", 
+                    allCollections.size(), filteredCollections.size());
 
-            // Cập nhật Manifest cơ bản (chỉ chứa metadata info)
-            generateManifest(sortedCollections.size());
+            saveSortedDatabase(jsonContent, filteredCollections);
+
+            // Cập nhật Manifest cơ bản với số lượng đã lọc
+            generateManifest(filteredCollections.size());
 
             // Kích hoạt ETL để nạp dữ liệu từ JSON vừa tải vào MySQL
             etlService.runEtlJob();

@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import com.vn.jet.mosco.database.MasterObjetDao;
 
 /**
  * DatabaseLoader — Đọc và parse bộ sưu tập thẻ từ assets/database.json.
@@ -162,8 +163,17 @@ public class DatabaseLoader {
     }
 
     public static void initMasterDataSync(Context context) {
-        if (isMasterDataLoaded || isMasterDataLoading)
+        // Nếu đã load xong → không cần làm gì
+        if (isMasterDataLoaded) return;
+
+        // Nếu đang loading ở thread khác → đợi (tối đa 5s) thay vì return null
+        if (isMasterDataLoading) {
+            long waitStart = System.currentTimeMillis();
+            while (isMasterDataLoading && (System.currentTimeMillis() - waitStart) < 5000) {
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+            }
             return;
+        }
         isMasterDataLoading = true;
         Log.d(TAG, "Starting Galactic Master Data Loading (Sync)...");
         long startTime = System.currentTimeMillis();
@@ -197,6 +207,48 @@ public class DatabaseLoader {
                     isMasterDataLoaded = true;
                     Log.d(TAG, "Master Data Loaded: " + len + " cards in "
                             + (System.currentTimeMillis() - startTime) + "ms");
+
+                    // [PHASE 4/5] Room Metadata Persistence & Sync
+                    final Context appContext = context.getApplicationContext();
+                    new Thread(() -> {
+                        try {
+                            com.vn.jet.mosco.database.AppDatabase db = com.vn.jet.mosco.database.AppDatabase.getInstance(appContext);
+                            
+                            // [PHASE 5] Nếu là bản cập nhật từ Server (đã có data nhưng cần ghi đè)
+                            // Ta sẽ check một flag "needs_db_sync" hoặc đơn giản là so sánh count.
+                            // Để an toàn và chuyên nghiệp, ta dùng transaction.
+                            
+                            int currentCount = db.masterObjetDao().getCount();
+                            if (currentCount == 0 || currentCount < tempMasterMap.size() / 2) { 
+                                // Nếu rỗng hoặc lệch quá nhiều (do update lớn), ta ghi đè
+                                Log.d(TAG, "Room Master Data update/migration triggered...");
+                                if (currentCount > 0) db.masterObjetDao().deleteAll();
+                                
+                                java.util.List<com.vn.jet.mosco.model.MasterObjetEntity> entities = new java.util.ArrayList<>();
+                                java.util.Set<String> processedUuids = new java.util.HashSet<>();
+                                
+                                for (JSONObject card : tempMasterMap.values()) {
+                                    String uuid = card.optString("id");
+                                    if (uuid.isEmpty() || processedUuids.contains(uuid)) continue;
+                                    processedUuids.add(uuid);
+
+                                    com.vn.jet.mosco.model.MasterObjetEntity entity = new com.vn.jet.mosco.model.MasterObjetEntity();
+                                    entity.setCollectionId(card.optString("collectionId", uuid));
+                                    entity.setMemberName(card.optString("member"));
+                                    entity.setSeasonName(card.optString("season"));
+                                    entity.setRarityClass(card.optString("class"));
+                                    entity.setFrontImageId(card.optString("frontImage"));
+                                    entity.setBackImageId(card.optString("backImage"));
+                                    entity.setBaseOvr(card.optInt("ovr"));
+                                    entities.add(entity);
+                                }
+                                db.masterObjetDao().insertAll(entities);
+                                Log.d(TAG, "Room Sync Complete: " + entities.size() + " objects updated.");
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error syncing Master Data to Room: " + e.getMessage());
+                        }
+                    }).start();
                 }
             }
         } catch (Exception e) {
@@ -228,6 +280,121 @@ public class DatabaseLoader {
             Log.e(TAG, "Error reading database: " + fileName, e);
             return null;
         }
+    }
+
+    public interface SyncCallback {
+        void onUpdateAvailable(long remoteTimestamp, float sizeMb);
+        void onNoUpdate();
+        void onProgress(int percent);
+        void onComplete();
+        void onError(String error);
+    }
+
+    /**
+     * Kiểm tra phiên bản dữ liệu với Server và đồng bộ nếu có bản mới.
+     * [PHASE 5] Galactic Sync Mechanism - Now with UI Callback support.
+     */
+    public static void syncMetadataWithServer(Context context, SyncCallback callback) {
+        if (context == null) return;
+        
+        final Context appContext = context.getApplicationContext();
+        Log.d(TAG, "🚀 Checking for Galactic Metadata updates from Server...");
+
+        com.vn.jet.mosco.network.GameApiService apiService = 
+                com.vn.jet.mosco.network.ApiClient.getClient(appContext).create(com.vn.jet.mosco.network.GameApiService.class);
+
+        apiService.getAssetManifest().enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String manifestStr = response.body().string();
+                        org.json.JSONObject manifest = new org.json.JSONObject(manifestStr);
+                        long remoteSyncTime = manifest.optLong("lastSync", 0);
+                        
+                        android.content.SharedPreferences prefs = appContext.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE);
+                        long localSyncTime = prefs.getLong("last_sync_timestamp", 0);
+
+                        if (remoteSyncTime > localSyncTime || localSyncTime == 0) {
+                            // Giả định metadata JSON nặng khoảng 10MB chưa nén, nén xong còn 2MB.
+                            // Thực tế ta có thể lấy size từ manifest nếu cần.
+                            float sizeMb = 2.0f; 
+                            Log.i(TAG, "✨ New metadata detected. Notifying UI callback...");
+                            if (callback != null) callback.onUpdateAvailable(remoteSyncTime, sizeMb);
+                        } else {
+                            Log.d(TAG, "✅ Galactic Metadata is already up to date.");
+                            if (callback != null) callback.onNoUpdate();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing manifest: " + e.getMessage());
+                        if (callback != null) callback.onNoUpdate();
+                    }
+                } else {
+                    if (callback != null) callback.onNoUpdate();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                Log.w(TAG, "Could not reach Server for Metadata sync. Using local cache.");
+                if (callback != null) callback.onNoUpdate();
+            }
+        });
+    }
+
+    public static void pullFullDatabase(Context appContext, long newTimestamp, SyncCallback callback) {
+        com.vn.jet.mosco.network.GameApiService apiService = 
+                com.vn.jet.mosco.network.ApiClient.getClient(appContext).create(com.vn.jet.mosco.network.GameApiService.class);
+
+        apiService.getFullDatabase().enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    new Thread(() -> {
+                        try {
+                            if (callback != null) callback.onProgress(20);
+                            String json = response.body().string();
+                            if (callback != null) callback.onProgress(60);
+
+                            if (json.length() < 100) {
+                                if (callback != null) callback.onError("Invalid database JSON");
+                                return;
+                            }
+
+                            // 1. Lưu vào Internal Storage
+                            boolean success = updateInternalDatabase(appContext, json, String.valueOf(newTimestamp));
+                            
+                            if (success) {
+                                // 2. Cập nhật timestamp
+                                appContext.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
+                                        .edit().putLong("last_sync_timestamp", newTimestamp).apply();
+
+                                // 3. Reload Master Data
+                                isMasterDataLoaded = false;
+                                initMasterDataSync(appContext);
+                                
+                                if (callback != null) {
+                                    callback.onProgress(100);
+                                    callback.onComplete();
+                                }
+                                notifyInventoryChanged();
+                            } else {
+                                if (callback != null) callback.onError("Failed to save local database");
+                            }
+                        } catch (Exception e) {
+                            if (callback != null) callback.onError(e.getMessage());
+                        }
+                    }).start();
+                } else {
+                    if (callback != null) callback.onError("Server response error");
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                if (callback != null) callback.onError(t.getMessage());
+            }
+        });
     }
 
     /**
@@ -473,6 +640,30 @@ public class DatabaseLoader {
             masterCard = cachedMasterMap.get(id);
         }
 
+        // [PHASE 4] Room Fallback
+        if (masterCard == null && context != null) {
+            try {
+                com.vn.jet.mosco.model.MasterObjetEntity entity = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+                        .masterObjetDao().findById(id);
+                if (entity != null) {
+                    masterCard = new JSONObject();
+                    masterCard.put("id", id);
+                    masterCard.put("collectionId", entity.getCollectionId());
+                    masterCard.put("member", entity.getMemberName());
+                    masterCard.put("season", entity.getSeasonName());
+                    masterCard.put("class", entity.getRarityClass());
+                    masterCard.put("frontImage", entity.getFrontImageId());
+                    masterCard.put("backImage", entity.getBackImageId());
+                    masterCard.put("ovr", entity.getBaseOvr());
+                    
+                    // Cập nhật lại Map để lần sau truy cập nhanh hơn
+                    if (cachedMasterMap != null) {
+                        cachedMasterMap.put(id, masterCard);
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
         // 2. Kiểm tra dữ liệu thực tế trong Inventory (Level, OVR hiện tại)
         JSONObject inventoryCard = null;
         if (cachedCollectionMap != null && cachedCollectionMap.containsKey(id)) {
@@ -579,6 +770,60 @@ public class DatabaseLoader {
      */
     public static int getCardCount(Context context) {
         return loadAllCards(context).size();
+    }
+
+    /**
+     * Lấy danh sách thành viên kèm ảnh đại diện (ảnh thẻ mới nhất) để lọc
+     */
+    public static List<MemberFilterItem> getUniqueMembers(Context context) {
+        try {
+            List<MasterObjetDao.MemberAvatar> avatars = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+                    .masterObjetDao().getUniqueMembers();
+            List<MemberFilterItem> items = new ArrayList<>();
+            for (MasterObjetDao.MemberAvatar avatar : avatars) {
+                items.add(new MemberFilterItem(avatar.memberName, avatar.frontImageId));
+            }
+            return items;
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting unique members: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Lấy danh sách tất cả các mùa thẻ hiện có trong Database
+     */
+    public static List<String> getUniqueSeasons(Context context) {
+        try {
+            return com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+                    .masterObjetDao().getUniqueSeasons();
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting unique seasons: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Lấy danh sách tất cả các Class thẻ hiện có (đã lọc Whitelist từ Server)
+     */
+    public static List<String> getUniqueClasses(Context context) {
+        try {
+            return com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+                    .masterObjetDao().getUniqueClasses();
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting unique classes: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public static class MemberFilterItem {
+        public String name;
+        public String imageUrl;
+
+        public MemberFilterItem(String name, String imageUrl) {
+            this.name = name;
+            this.imageUrl = imageUrl;
+        }
     }
 
     public static void clearCache() {

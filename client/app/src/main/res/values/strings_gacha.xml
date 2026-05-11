@@ -6,21 +6,21 @@
     <string name="reveal_summary_title_collapse">Hide Summary</string>
     <string name="reveal_headline_rewards">Rewards Unlocked</string>
     <string name="reveal_msg_congrats">Congratulations! You opened %d cards!</string>
-    <string name="reveal_summary_footer_marker">--- END OF TRANSMISSION ---</string>
+    <string name="reveal_summary_footer_marker">--- END OF SUMMARY ---</string>
     <string name="reveal_summary_headline">REVEAL SUMMARY</string>
     <string name="reveal_summary_subtitle">You have successfully collected %d cards</string>
     <string name="reveal_subtitle_rewards">Your rewards are listed below</string>
-    <string name="reveal_default_info">Analyzing galactic transmission…</string>
-    <string name="reveal_error_format">Transmission error: %s</string>
+    <string name="reveal_default_info">Analyzing data...</string>
+    <string name="reveal_error_format">System error: %s</string>
     <string name="reveal_action_awesome">Awesome!</string>
     <string name="reveal_action_collect_all">COLLECT ALL (%d)</string>
     <string name="reveal_format_amazing_reveal">AMAZING REVEAL\n%s</string>
     <string name="reveal_action_open_x1">Open x1</string>
     <string name="reveal_action_open_all">Open All (%d packs)</string>
     <string name="reveal_msg_limit_hint">Open All limit: max %d packs per roll</string>
-    <string name="reveal_msg_loading">Opening to reveal a surprise…</string>
+    <string name="reveal_msg_loading">Opening to reveal a surprise...</string>
     <string name="reveal_error_only_packs">Only PACK items can be opened here.</string>
-    <string name="reveal_default_item_name">Unknown Objekt</string>
+    <string name="reveal_default_item_name">Unknown Card</string>
 
     <!-- Card Refresh -->
     <string name="dialog_refresh_title">Refresh Card</string>
@@ -35,7 +35,7 @@
     <string name="upgrade_label_materials">MATERIALS</string>
     <string name="upgrade_format_materials_count">%1$d / %2$d Selected</string>
     <string name="upgrade_label_boost">UPGRADE RATE</string>
-    <string name="upgrade_action_upgrading">UPGRADING…</string>
+    <string name="upgrade_action_upgrading">UPGRADING...</string>
     <string name="upgrade_msg_select_main">Please select a main card first!</string>
     <string name="upgrade_msg_success">Upgrade Successful!</string>
     <string name="upgrade_msg_failed">Upgrade Failed!</string>
@@ -49,7 +49,7 @@
     <string name="spin_label_grid_title">Select a card to reveal</string>
     <string name="spin_action_confirm">Confirm Selection</string>
     <string name="spin_msg_success">Spin was successful!</string>
-    <string name="spin_action_reveal_unchosen">Reveal unchosen Objekts  ></string>
+    <string name="spin_action_reveal_unchosen">Reveal unchosen Cards  ></string>
     <string name="spin_msg_result_grid">Spin Result</string>
     <string name="spin_action_try_again">Try again</string>
     <string name="spin_action_spin">Spin</string>
@@ -57,6 +57,6 @@
 
     <!-- Spin Dialogs -->
     <string name="spin_dialog_confirm_title">Spin Confirmation</string>
-    <string name="spin_dialog_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this Objekt?</string>
+    <string name="spin_dialog_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this Card?</string>
     <string name="spin_dialog_action_spin">Spin Now</string>
 </resources>

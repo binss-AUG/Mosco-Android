@@ -37,7 +37,7 @@
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700"
-            android:text="Item Name" />
+            android:text="@string/common_label_item_name" />
 
         <TextView
             android:id="@+id/dialogItemDesc"
@@ -48,7 +48,7 @@
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_sm"
             android:textColor="@color/mosco_on_surface_variant"
-            android:text="Item Description" />
+            android:text="@string/common_label_item_desc" />
 
         <TextView
             android:id="@+id/dialogItemQuantity"
@@ -57,7 +57,7 @@
             android:layout_marginTop="@dimen/spacing_sm"
             style="@style/MoscoText.Luxury.Label"
             android:textColor="@color/mosco_primary_dim"
-            android:text="Owned: 0" />
+            android:text="@string/common_label_owned_format" />
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btnUseItem"

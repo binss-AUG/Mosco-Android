@@ -164,7 +164,7 @@ public class PackService {
         switch (rank) {
             case 1: return rnd.nextBoolean() ? "First" : "Welcome";
             case 2: return "Double";
-            case 3: return rnd.nextBoolean() ? "Special" : "Unit";
+            case 3: return rnd.nextBoolean() ? "Special" : "SpecialUnit";
             case 4: return "Premier";
             default: return "First";
         }

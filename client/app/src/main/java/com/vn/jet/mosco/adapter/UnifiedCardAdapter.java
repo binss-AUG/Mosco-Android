@@ -483,6 +483,16 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         if (vh.cvCard != null) {
             vh.cvCard.setCardBackgroundColor(cardBgColor);
+            // Hiệu ứng viền glow neon khi thẻ được chọn
+            if (vh.cvCard instanceof com.google.android.material.card.MaterialCardView) {
+                com.google.android.material.card.MaterialCardView mcv = (com.google.android.material.card.MaterialCardView) vh.cvCard;
+                if (isSelected) {
+                    mcv.setStrokeWidth(mContext.getResources().getDimensionPixelSize(R.dimen.spacing_2dp));
+                    mcv.setStrokeColor(ContextCompat.getColor(mContext, R.color.mosco_primary));
+                } else {
+                    mcv.setStrokeWidth(0);
+                }
+            }
         }
     }
 

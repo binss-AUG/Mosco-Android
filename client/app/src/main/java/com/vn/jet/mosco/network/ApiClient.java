@@ -46,18 +46,26 @@ public class ApiClient {
 
                                 okhttp3.Response response = chain.proceed(builder.build());
                                 
-                                // TẠM THỜI VÔ HIỆU HÓA REDIRECT 401 ĐỂ NỘP BÀI (Tránh bị văng ra khi Server local chưa sync kịp)
-                                /*
+                                // [PHASE 2] Session Expired / Dual Login Kick / Server Offline — 401 Interceptor
                                 if (response.code() == 401 && !original.url().encodedPath().contains("/api/auth/")) {
-                                    sessionManager.clearSession();
-                                    
-                                    // Bắn intent đá thẳng màn hình về SignInActivity
-                                    android.content.Intent intent = new android.content.Intent(appContext, com.vn.jet.mosco.SignInActivity.class);
-                                    // Force new task vì gọi từ appContext
-                                    intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    appContext.startActivity(intent);
+                                    // Đọc message từ server để phân biệt loại lỗi (JWT hết hạn vs Login trùng)
+                                    String errorMsg = null;
+                                    okhttp3.ResponseBody peekBody = response.peekBody(2048);
+                                    if (peekBody != null) {
+                                        try {
+                                            org.json.JSONObject errJson = new org.json.JSONObject(peekBody.string());
+                                            errorMsg = errJson.optString("message", null);
+                                        } catch (Exception ignored) {}
+                                    }
+
+                                    // Broadcast sự kiện SessionExpired để Activity đang hiển thị bắt và show Dialog
+                                    android.content.Intent expiredIntent = new android.content.Intent("com.vn.jet.mosco.SESSION_EXPIRED");
+                                    if (errorMsg != null) {
+                                        expiredIntent.putExtra("message", errorMsg);
+                                    }
+                                    androidx.localbroadcastmanager.content.LocalBroadcastManager
+                                            .getInstance(appContext).sendBroadcast(expiredIntent);
                                 }
-                                */
                                 
                                 return response;
                             })

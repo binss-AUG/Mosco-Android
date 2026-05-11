@@ -82,16 +82,21 @@ public class AvatarCropTransformation extends BitmapTransformation {
 
     @Override
     public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-        messageDigest.update((ID + cropParams).getBytes(Key.CHARSET));
+        // Null-safe: tránh NPE khi cropParams chưa được gán
+        String key = ID + (cropParams != null ? cropParams : "auto");
+        messageDigest.update(key.getBytes(Key.CHARSET));
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof AvatarCropTransformation && ((AvatarCropTransformation) o).cropParams.equals(cropParams);
+        if (!(o instanceof AvatarCropTransformation)) return false;
+        String otherParams = ((AvatarCropTransformation) o).cropParams;
+        if (cropParams == null) return otherParams == null;
+        return cropParams.equals(otherParams);
     }
 
     @Override
     public int hashCode() {
-        return ID.hashCode() + cropParams.hashCode();
+        return ID.hashCode() + (cropParams != null ? cropParams.hashCode() : 0);
     }
 }

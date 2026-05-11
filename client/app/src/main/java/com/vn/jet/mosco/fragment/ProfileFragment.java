@@ -65,7 +65,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private ImageView ivAvatarEditIcon;
     private TextView tvPreviewHeaderLabel;
     private boolean isEditMode = false;
-    public boolean isEditMode() { return isEditMode; }
+
+    public boolean isEditMode() {
+        return isEditMode;
+    }
+
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
     private View layoutProfileContent;
@@ -95,27 +99,27 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        
+
         sessionManager = new SessionManager(requireContext());
         handleArguments();
-        
+
         initViews(view);
         setupViewModel();
         setupProfileRouting(view);
-        
+
         if (isOwner) {
             setupSession();
         }
-        
+
         setupListeners();
-        
+
         return view;
     }
 
     private void handleArguments() {
         Bundle args = getArguments();
         Long currentUserId = sessionManager != null ? sessionManager.getUserId() : null;
-        
+
         if (args != null) {
             if (args.containsKey(ARG_TARGET_USER_ID)) {
                 long rawId = args.getLong(ARG_TARGET_USER_ID, -1L);
@@ -133,7 +137,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (targetUserId == null) {
             Log.e(TAG, "Root Cause Error: currentUserId and targetUserId are both null!");
         }
-        
+
         // Nếu không truyền ID hoặc ID khớp với User hiện tại -> Là Owner
         isOwner = (targetUserId != null && targetUserId.equals(currentUserId));
     }
@@ -156,25 +160,45 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private void showShimmer(boolean show) {
         if (show) {
-            if (layoutProfileContent != null) layoutProfileContent.setVisibility(View.GONE);
+            if (layoutProfileContent != null)
+                layoutProfileContent.setVisibility(View.GONE);
+            if (btnMenu != null)
+                btnMenu.setVisibility(View.GONE);
+            if (btnBack != null)
+                btnBack.setVisibility(View.GONE);
+            if (btnEditMode != null)
+                btnEditMode.setVisibility(View.GONE);
+
             if (inflatedShimmer == null && stubShimmer != null) {
-                // [FIX] Đổi layout skeleton dựa trên vai trò (Owner vs Guest)
                 if (!isOwner) {
                     stubShimmer.setLayoutResource(R.layout.layout_profile_guest_shimmer);
                 }
                 inflatedShimmer = stubShimmer.inflate();
             }
-            if (inflatedShimmer != null) inflatedShimmer.setVisibility(View.VISIBLE);
+            if (inflatedShimmer != null)
+                inflatedShimmer.setVisibility(View.VISIBLE);
         } else {
-            if (inflatedShimmer != null) inflatedShimmer.setVisibility(View.GONE);
-            if (layoutProfileContent != null) layoutProfileContent.setVisibility(View.VISIBLE);
+            if (inflatedShimmer != null)
+                inflatedShimmer.setVisibility(View.GONE);
+            if (layoutProfileContent != null)
+                layoutProfileContent.setVisibility(View.VISIBLE);
+
+            // Hiện lại nút điều hướng
+            if (isOwner && btnMenu != null)
+                btnMenu.setVisibility(View.VISIBLE);
+            if (btnBack != null)
+                btnBack.setVisibility(View.VISIBLE);
+            if (isOwner && btnEditMode != null)
+                btnEditMode.setVisibility(View.VISIBLE);
         }
     }
 
     private void setupProfileRouting(View view) {
         if (isOwner) {
-            if (btnMenu != null) btnMenu.setVisibility(View.VISIBLE);
-            if (btnEditMode != null) btnEditMode.setVisibility(View.VISIBLE);
+            if (btnMenu != null)
+                btnMenu.setVisibility(View.VISIBLE);
+            if (btnEditMode != null)
+                btnEditMode.setVisibility(View.VISIBLE);
         } else {
             ViewStub stub = view.findViewById(R.id.stub_guest_actions);
             if (stub != null) {
@@ -182,30 +206,36 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 setupGuestListeners(inflated);
             }
             // Guest không được mở menu hệ thống hoặc chỉnh sửa
-            if (btnMenu != null) btnMenu.setVisibility(View.GONE);
-            if (btnEditMode != null) btnEditMode.setVisibility(View.GONE);
+            if (btnMenu != null)
+                btnMenu.setVisibility(View.GONE);
+            if (btnEditMode != null)
+                btnEditMode.setVisibility(View.GONE);
         }
     }
 
     private void renderProfileData(com.vn.jet.mosco.model.UserStats stats) {
         tvUsername.setText(stats.getIngameName() != null ? stats.getIngameName() : stats.getUsername());
         tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
-        
-        tvCurrentTitle.setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle() : getString(R.string.profile_title_default));
+
+        tvCurrentTitle
+                .setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle()
+                        : getString(R.string.profile_title_default));
 
         // [PHASE 7] Update Profile Stats
         if (isAdded() && tvStatLikes != null && getContext() != null) {
-            String likesStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getLikesCount()) + " " + getString(R.string.profile_label_likes);
+            String likesStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getLikesCount()) + " "
+                    + getString(R.string.profile_label_likes);
             tvStatLikes.setText(likesStr);
         }
         if (isAdded() && tvStatFriends != null && getContext() != null) {
-            String friendsStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getFriendsCount()) + " " + getString(R.string.profile_label_friends);
+            String friendsStr = com.vn.jet.mosco.utils.NumberUtils.format(getContext(), stats.getFriendsCount()) + " "
+                    + getString(R.string.profile_label_friends);
             tvStatFriends.setText(friendsStr);
         }
 
         // Load avatar từ URL trong stats nếu có
         if (stats.getAvatarId() != null) {
-             loadAvatar();
+            loadAvatar(stats.getAvatarId(), stats.getAvatarCropParams());
         }
     }
 
@@ -245,14 +275,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void setupViewPager() {
-        if (viewPager == null || tabLayout == null) return;
-        
+        if (viewPager == null || tabLayout == null)
+            return;
+
         // Lazy Loading mặc định (chỉ giữ 1 tab bên cạnh)
         viewPager.setOffscreenPageLimit(androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
-        
-        com.vn.jet.mosco.adapter.ProfileViewPagerAdapter adapter = new com.vn.jet.mosco.adapter.ProfileViewPagerAdapter(this);
+
+        com.vn.jet.mosco.adapter.ProfileViewPagerAdapter adapter = new com.vn.jet.mosco.adapter.ProfileViewPagerAdapter(
+                this);
         viewPager.setAdapter(adapter);
-        
+
         // [UX] Cho phép vuốt ngang ở ViewPager2 chính theo yêu cầu người dùng
         viewPager.setUserInputEnabled(true);
 
@@ -269,8 +301,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             tab.setText(R.string.profile_tab_exhibit);
                             break;
                     }
-                }
-        ).attach();
+                }).attach();
 
         // Thiết lập sliding thumb cho Tab (giống Duration chip ở Stage)
         setupTabThumb();
@@ -281,7 +312,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      * Sử dụng View độc lập trong XML để tránh phá vỡ hierarchy của TabLayout.
      */
     private void setupTabThumb() {
-        if (tabLayout == null || tabSlidingThumb == null) return;
+        if (tabLayout == null || tabSlidingThumb == null)
+            return;
 
         // [TIPS] Đợi layout sẵn sàng để lấy kích thước tab chính xác (tránh giá trị 0)
         tabLayout.post(() -> {
@@ -293,17 +325,23 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
                 updateTabThumb(tab.getPosition(), true);
             }
+
             @Override
-            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {
+            }
+
             @Override
-            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {
+            }
         });
     }
 
     private void updateTabThumb(int position, boolean animate) {
-        if (tabLayout == null || tabLayout.getTabCount() == 0 || tabSlidingThumb == null) return;
+        if (tabLayout == null || tabLayout.getTabCount() == 0 || tabSlidingThumb == null)
+            return;
         com.google.android.material.tabs.TabLayout.Tab tab = tabLayout.getTabAt(position);
-        if (tab == null || tab.view == null) return;
+        if (tab == null || tab.view == null)
+            return;
 
         int tabLeft = tab.view.getLeft();
         int tabWidth = tab.view.getWidth();
@@ -317,17 +355,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         if (animate) {
             tabSlidingThumb.animate()
-                .translationX(tabLeft)
-                .setDuration(250) // 250ms thời gian vàng
-                .setInterpolator(new androidx.interpolator.view.animation.FastOutSlowInInterpolator())
-                .start();
+                    .translationX(tabLeft)
+                    .setDuration(250) // 250ms thời gian vàng
+                    .setInterpolator(new androidx.interpolator.view.animation.FastOutSlowInInterpolator())
+                    .start();
         } else {
             tabSlidingThumb.setTranslationX(tabLeft);
         }
     }
 
     private void setupSession() {
-        sessionManager = new SessionManager(requireContext());
+        // Không tái khởi tạo sessionManager — đã init ở onCreateView
+        if (getContext() == null)
+            return;
         gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
         // Ưu tiên hiển thị Display Name, fallback về username
@@ -341,11 +381,20 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void loadAvatar() {
-        String avatarId = sessionManager.getAvatarId();
-        if (avatarId == null)
+        if (sessionManager == null)
+            return;
+        loadAvatar(sessionManager.getAvatarId(), sessionManager.getAvatarCropParams());
+    }
+
+    private void loadAvatar(String avatarId, String cropParams) {
+        // Null-safe: tránh NPE khi Fragment chưa attach hoặc đã bị detach
+        if (!isAdded() || getContext() == null || ivAvatar == null)
+            return;
+
+        if (avatarId == null) {
             avatarId = getString(R.string.default_avatar_id);
-            
-        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId);
+        }
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId, cropParams);
     }
 
     private void setupListeners() {
@@ -399,7 +448,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
     }
 
-
     private void setupGuestListeners(View v) {
         com.google.android.material.button.MaterialButton btnLike = v.findViewById(R.id.btn_like);
         com.google.android.material.button.MaterialButton btnFriend = v.findViewById(R.id.btn_add_friend);
@@ -407,16 +455,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         // Quan sát dữ liệu để cập nhật trạng thái nút
         viewModel.getUserStats().observe(getViewLifecycleOwner(), stats -> {
-            if (stats == null) return;
+            if (stats == null)
+                return;
 
             // Update Like Button
             if (isAdded() && getContext() != null) {
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
-                    btnLike.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                    btnLike.setBackgroundTintList(android.content.res.ColorStateList
+                            .valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
-                    btnLike.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
+                    btnLike.setBackgroundTintList(
+                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
                 }
             }
 
@@ -425,15 +476,18 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 switch (stats.getFriendshipStatus()) {
                     case 1: // Pending
                         btnFriend.setText(R.string.profile_btn_pending);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.palette_gold)));
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList
+                                .valueOf(getResources().getColor(R.color.palette_gold)));
                         break;
                     case 2: // Friends
                         btnFriend.setText(R.string.profile_btn_friends);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_success)));
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList
+                                .valueOf(getResources().getColor(R.color.mosco_success)));
                         break;
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_outline)));
+                        btnFriend.setStrokeColor(android.content.res.ColorStateList
+                                .valueOf(getResources().getColor(R.color.mosco_outline)));
                         break;
                 }
             }
@@ -445,23 +499,24 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 // Toggle Like locally for Optimistic UI
                 stats.setLiked(!stats.isLiked());
                 stats.setLikesCount(stats.isLiked() ? stats.getLikesCount() + 1 : stats.getLikesCount() - 1);
-                
+
                 // Update Local DB to trigger observer
                 android.content.Context appContext = getContext().getApplicationContext();
                 com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
                     com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
                             .userStatsDao().insertUserStats(stats);
                 });
-                
+
                 // [SYNC] Gửi lên Server để lưu trữ vĩnh viễn
                 syncStatsToServer(stats.getLikesCount(), stats.getFriendsCount());
                 // TODO: Gọi API Like chuyên sâu nếu cần phân biệt ai like ai
             }
         }));
-        
+
         btnFriend.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
             UserStats stats = viewModel.getUserStats().getValue();
-            if (stats == null || getContext() == null) return;
+            if (stats == null || getContext() == null)
+                return;
 
             if (stats.getFriendshipStatus() == 2) {
                 showUnfriendDialog();
@@ -475,8 +530,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
                             .userStatsDao().insertUserStats(stats);
                 });
-                Toast.makeText(getContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT).show();
-                
+                Toast.makeText(getContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT)
+                        .show();
+
                 // [SYNC] Gửi yêu cầu kết bạn lên Server
                 // TODO: Gọi API /api/friends/add
                 syncStatsToServer(null, stats.getFriendsCount());
@@ -484,28 +540,30 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }));
 
         btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-             Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT)
+                    .show();
         }));
     }
 
     private void showUnfriendDialog() {
-        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?", () -> {
-            UserStats stats = viewModel.getUserStats().getValue();
-            if (stats != null && getContext() != null) {
-                stats.setFriendshipStatus(0);
-                stats.setFriendsCount(Math.max(0, stats.getFriendsCount() - 1));
-                
-                android.content.Context appContext = getContext().getApplicationContext();
-                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
-                            .userStatsDao().insertUserStats(stats);
+        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?",
+                () -> {
+                    UserStats stats = viewModel.getUserStats().getValue();
+                    if (stats != null && getContext() != null) {
+                        stats.setFriendshipStatus(0);
+                        stats.setFriendsCount(Math.max(0, stats.getFriendsCount() - 1));
+
+                        android.content.Context appContext = getContext().getApplicationContext();
+                        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                            com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                    .userStatsDao().insertUserStats(stats);
+                        });
+
+                        // [SYNC] Cập nhật số bạn bè lên Server
+                        syncStatsToServer(null, stats.getFriendsCount());
+                        // TODO: Gọi API /api/friends/remove
+                    }
                 });
-                
-                // [SYNC] Cập nhật số bạn bè lên Server
-                syncStatsToServer(null, stats.getFriendsCount());
-                // TODO: Gọi API /api/friends/remove
-            }
-        });
     }
 
     private void showCancelRequestDialog() {
@@ -513,13 +571,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             UserStats stats = viewModel.getUserStats().getValue();
             if (stats != null && getContext() != null) {
                 stats.setFriendshipStatus(0);
-                
+
                 android.content.Context appContext = getContext().getApplicationContext();
                 com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
                     com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
                             .userStatsDao().insertUserStats(stats);
                 });
-                
+
                 // [SYNC] Đồng bộ trạng thái hủy yêu cầu
                 syncStatsToServer(null, stats.getFriendsCount());
                 // TODO: Gọi API hủy kết bạn chuyên sâu
@@ -528,20 +586,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void showFriendActionDialog(String title, String msg, Runnable onConfirm) {
-        if (getContext() == null) return;
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_friend_confirm, null);
-        ((TextView)dialogView.findViewById(R.id.tv_dialog_title)).setText(title);
-        ((TextView)dialogView.findViewById(R.id.tv_dialog_msg)).setText(msg);
-        
-        AlertDialog dialog = new AlertDialog.Builder(getContext()).setView(dialogView).create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
-            onConfirm.run();
-            dialog.dismiss();
-        });
-        dialog.show();
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(getActivity(), title, msg, "Confirm", "Cancel",
+                new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                    @Override
+                    public void onPositive() {
+                        onConfirm.run();
+                    }
+                });
     }
 
     private void openProfileMenu() {
@@ -553,7 +604,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         ProfileMenuFragment menuFragment = new ProfileMenuFragment();
         menuFragment.setOnMenuActionListener(new ProfileMenuFragment.OnMenuActionListener() {
-
 
             @Override
             public void onForgotPassword() {
@@ -588,47 +638,45 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // EDIT PROFILE DIALOG
     // ════════════════════════════════════════════════════════════════
 
-    // [DEPRECATED PHASE 3 Dialog]
-    private void showEditProfileDialog() {
-        // Redundant - functionality merged into inline Edit Mode (saveEditChanges)
+    private void showLogoutConfirmationDialog() {
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showLogoutDialog(getActivity(),
+                new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                    @Override
+                    public void onPositive() {
+                        sessionManager.clearSession();
+                        android.content.Intent intent = new android.content.Intent(getActivity(),
+                                com.vn.jet.mosco.SignInActivity.class);
+                        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        if (getActivity() != null)
+                            getActivity().finish();
+                    }
+                });
+    }
+
+    private void showDiscardDialog() {
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(getActivity(),
+                "Discard Changes?",
+                "Are you sure you want to discard your profile changes?",
+                "Discard",
+                "Cancel",
+                new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                    @Override
+                    public void onPositive() {
+                        exitConfirmationMode();
+                    }
+                });
     }
 
     private void fetchUserStats() {
         // Logic này đã được chuyển vào ProfileViewModel
     }
 
-    private void showLogoutConfirmationDialog() {
-        if (requireContext() == null)
-            return;
-
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout_confirm, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btn_logout).setOnClickListener(v -> {
-            dialog.dismiss();
-            sessionManager.clearSession();
-            Intent intent = new Intent(getActivity(), SignInActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            if (getActivity() != null) {
-                getActivity().finish();
-                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        });
-
-        dialog.show();
-    }
-
     /**
      * Mở danh sách Objet để chọn avatar mới.
-     * Tự động chuyển đổi sang URL variant "original" để đảm bảo chất lượng crop đạt chuẩn (không dùng thumbnail).
+     * Tự động chuyển đổi sang URL variant "original" để đảm bảo chất lượng crop đạt
+     * chuẩn (không dùng thumbnail).
      */
     private void openAvatarPicker() {
         InventoryBottomSheet inventorySheet = new InventoryBottomSheet();
@@ -643,7 +691,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private String convertToOriginalUrl(String url) {
-        if (url == null) return null;
+        if (url == null)
+            return null;
         if (url.contains("/thumbnail")) {
             return url.replace("/thumbnail", "/original");
         }
@@ -672,9 +721,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         options.setStatusBarColor(getResources().getColor(R.color.mosco_screen_bg));
         options.setToolbarWidgetColor(android.graphics.Color.WHITE);
         options.setActiveControlsWidgetColor(getResources().getColor(R.color.mosco_primary));
-        
+
         // [PHASE 6] Làm header nổi bật và sử dụng lớp phủ tối mờ kiểu không gian
-        options.setDimmedLayerColor(getResources().getColor(R.color.mosco_black_80)); 
+        options.setDimmedLayerColor(getResources().getColor(R.color.mosco_black_80));
         options.setToolbarCancelDrawable(R.drawable.ic_close);
         options.setToolbarCropDrawable(R.drawable.ic_check);
         options.setToolbarTitle(getString(R.string.profile_crop_title));
@@ -734,15 +783,20 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         lastCroppedUri = null;
 
         // Hiện header và đổi label sang EDIT PROFILE
-        if (tvPreviewHeaderLabel != null) tvPreviewHeaderLabel.setText(getString(R.string.profile_edit_mode_label));
-        if (previewHeader != null) previewHeader.setVisibility(View.VISIBLE);
+        if (tvPreviewHeaderLabel != null)
+            tvPreviewHeaderLabel.setText(getString(R.string.profile_edit_mode_label));
+        if (previewHeader != null)
+            previewHeader.setVisibility(View.VISIBLE);
 
         // Phủ mờ avatar và hiện icon chỉnh sửa
-        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.VISIBLE);
-        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.VISIBLE);
+        if (viewAvatarDim != null)
+            viewAvatarDim.setVisibility(View.VISIBLE);
+        if (ivAvatarEditIcon != null)
+            ivAvatarEditIcon.setVisibility(View.VISIBLE);
 
         // Ẩn nút edit mode để tránh bấm trùng
-        if (btnEditMode != null) btnEditMode.setVisibility(View.GONE);
+        if (btnEditMode != null)
+            btnEditMode.setVisibility(View.GONE);
 
         // Thông báo các tab hiện các trường edit
         notifyTabsEditMode(true);
@@ -753,24 +807,31 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      */
     private void discardEditMode() {
         isEditMode = false;
-        if (previewHeader != null) previewHeader.setVisibility(View.GONE);
+        if (previewHeader != null)
+            previewHeader.setVisibility(View.GONE);
 
         // Khôi phục avatar về trạng thái gốc
-        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.GONE);
-        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.GONE);
+        if (viewAvatarDim != null)
+            viewAvatarDim.setVisibility(View.GONE);
+        if (ivAvatarEditIcon != null)
+            ivAvatarEditIcon.setVisibility(View.GONE);
         lastCroppedUri = null;
 
         // Rollback avatar về ảnh cũ
-        if (savedAvatarIdBeforeEdit != null) {
+        if (savedAvatarIdBeforeEdit != null && sessionManager != null) {
             sessionManager.setAvatarId(savedAvatarIdBeforeEdit);
         }
         // Xóa file crop để loadAvatar lấy lại ảnh gốc từ server/local card
-        File croppedFile = new File(requireContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
-        if (croppedFile.exists()) croppedFile.delete();
+        if (isAdded() && getContext() != null) {
+            File croppedFile = new File(getContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
+            if (croppedFile.exists())
+                croppedFile.delete();
+        }
         loadAvatar();
 
         // Hiện lại nút edit
-        if (btnEditMode != null && isOwner) btnEditMode.setVisibility(View.VISIBLE);
+        if (btnEditMode != null && isOwner)
+            btnEditMode.setVisibility(View.VISIBLE);
 
         // Ẩn các trường edit trong các tab
         notifyTabsEditMode(false);
@@ -779,24 +840,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     /**
      * Hiện dialog xác nhận hủy thay đổi (đồng bộ style với dialog_logout_confirm)
      */
-    private void showDiscardDialog() {
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_discard_changes, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
-        }
-
-        dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btn_discard).setOnClickListener(v -> {
-            dialog.dismiss();
-            discardEditMode();
-        });
-
-        dialog.show();
-    }
 
     /**
      * Lưu các thay đổi từ Edit Mode: avatar + username + display name
@@ -810,70 +853,98 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         // Validate cơ bản
         if (newDisplayName != null && (newDisplayName.length() < 2 || newDisplayName.length() > 16)) {
-            Toast.makeText(requireContext(), getString(R.string.setup_error_display_name_length), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.setup_error_display_name_length), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         // Gọi API update profile nếu có thay đổi
         com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
-        if (newUsername != null && !newUsername.isEmpty()) request.setUsername(newUsername);
-        if (newDisplayName != null && !newDisplayName.isEmpty()) request.setIngameName(newDisplayName);
-        if (newBio != null) request.setBio(newBio);
+        if (newUsername != null && !newUsername.isEmpty())
+            request.setUsername(newUsername);
+        if (newDisplayName != null && !newDisplayName.isEmpty())
+            request.setIngameName(newDisplayName);
+        if (newBio != null)
+            request.setBio(newBio);
 
         // Đồng bộ avatarId + cropParams nếu đã thay đổi
         String currentAvatarId = sessionManager.getAvatarId();
-        if (currentAvatarId != null) request.setAvatarId(currentAvatarId);
-        
+        if (currentAvatarId != null)
+            request.setAvatarId(currentAvatarId);
+
         String cropParams = sessionManager.getAvatarCropParams();
-        if (cropParams != null) request.setAvatarCropParams(cropParams);
+        if (cropParams != null)
+            request.setAvatarCropParams(cropParams);
 
-        if (gameApiService != null) {
-            gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
-                @Override
-                public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        // Cập nhật Session local
-                        if (newDisplayName != null && !newDisplayName.isEmpty()) {
-                            sessionManager.setIngameName(newDisplayName);
-                            tvUsername.setText(newDisplayName);
-                        }
-                        if (newUsername != null && !newUsername.isEmpty()) {
-                            sessionManager.setUsername(newUsername);
-                        }
+        if (gameApiService != null && getContext() != null) {
+            // Capture ApplicationContext trước khi gửi vào callback bất đồng bộ — tránh NPE
+            // khi Fragment bị detach
+            final android.content.Context appCtx = getContext().getApplicationContext();
+            gameApiService.updateProfile(request)
+                    .enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
+                        @Override
+                        public void onResponse(
+                                Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
+                                Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                // Cập nhật Session local
+                                if (newDisplayName != null && !newDisplayName.isEmpty()) {
+                                    sessionManager.setIngameName(newDisplayName);
+                                    if (isAdded() && tvUsername != null)
+                                        tvUsername.setText(newDisplayName);
+                                }
+                                if (newUsername != null && !newUsername.isEmpty()) {
+                                    sessionManager.setUsername(newUsername);
+                                }
 
-                        // [NEW] Lưu metadata crop từ server trả về
-                        if (response.body().getData() != null) {
-                            sessionManager.setAvatarCropParams(response.body().getData().getAvatarCropParams());
-                        }
-                        if (viewModel != null && targetUserId != null) {
-                            if (response.body().getData() != null) {
-                                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                                    com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext())
-                                            .userStatsDao().insertUserStats(response.body().getData());
-                                });
+                                // [NEW] Lưu metadata crop từ server trả về
+                                if (response.body().getData() != null) {
+                                    sessionManager.setAvatarCropParams(response.body().getData().getAvatarCropParams());
+                                }
+                                if (viewModel != null && targetUserId != null) {
+                                    if (response.body().getData() != null) {
+                                        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                                            com.vn.jet.mosco.database.AppDatabase.getInstance(appCtx)
+                                                    .userStatsDao().insertUserStats(response.body().getData());
+                                        });
+                                    }
+                                    viewModel.refreshUserStats(targetUserId);
+                                }
+
+                                if (isAdded() && getContext() != null) {
+                                    Toast.makeText(getContext(), getString(R.string.common_msg_success),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                if (isAdded() && getContext() != null) {
+                                    Toast.makeText(getContext(), getString(R.string.common_error_network),
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             }
-                            viewModel.refreshUserStats(targetUserId);
                         }
-                        
-                        Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
-                    }
-                }
 
-                @Override
-                public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Throwable t) {
-                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
-                }
-            });
+                        @Override
+                        public void onFailure(
+                                Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
+                                Throwable t) {
+                            if (isAdded() && getContext() != null) {
+                                Toast.makeText(getContext(), getString(R.string.common_error_network),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
         }
 
         // Thoát Edit Mode (giữ lại thay đổi)
         isEditMode = false;
-        if (previewHeader != null) previewHeader.setVisibility(View.GONE);
-        if (viewAvatarDim != null) viewAvatarDim.setVisibility(View.GONE);
-        if (ivAvatarEditIcon != null) ivAvatarEditIcon.setVisibility(View.GONE);
-        if (btnEditMode != null && isOwner) btnEditMode.setVisibility(View.VISIBLE);
+        if (previewHeader != null)
+            previewHeader.setVisibility(View.GONE);
+        if (viewAvatarDim != null)
+            viewAvatarDim.setVisibility(View.GONE);
+        if (ivAvatarEditIcon != null)
+            ivAvatarEditIcon.setVisibility(View.GONE);
+        if (btnEditMode != null && isOwner)
+            btnEditMode.setVisibility(View.VISIBLE);
         notifyTabsEditMode(false);
     }
 
@@ -882,10 +953,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      */
     private void notifyTabsEditMode(boolean editMode) {
         ProfileGeneralFragment general = getGeneralFragment();
-        if (general != null) general.setEditMode(editMode);
-        
+        if (general != null)
+            general.setEditMode(editMode);
+
         ProfileExhibitFragment exhibit = getExhibitFragment();
-        if (exhibit != null) exhibit.setEditMode(editMode);
+        if (exhibit != null)
+            exhibit.setEditMode(editMode);
     }
 
     /**
@@ -893,8 +966,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      */
     @Nullable
     private ProfileGeneralFragment getGeneralFragment() {
-        if (viewPager == null || viewPager.getAdapter() == null) return null;
-        // Tab General là position 0. Trong ViewPager2, tag của fragment là "f" + position
+        if (viewPager == null || viewPager.getAdapter() == null)
+            return null;
+        // Tab General là position 0. Trong ViewPager2, tag của fragment là "f" +
+        // position
         Fragment frag = getChildFragmentManager().findFragmentByTag("f0");
         if (frag instanceof ProfileGeneralFragment) {
             return (ProfileGeneralFragment) frag;
@@ -904,7 +979,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     @Nullable
     private ProfileExhibitFragment getExhibitFragment() {
-        if (viewPager == null || viewPager.getAdapter() == null) return null;
+        if (viewPager == null || viewPager.getAdapter() == null)
+            return null;
         // Tab Exhibit là position 2
         Fragment frag = getChildFragmentManager().findFragmentByTag("f2");
         if (frag instanceof ProfileExhibitFragment) {
@@ -918,19 +994,23 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void exitConfirmationMode() {
-        if (previewHeader != null) previewHeader.setVisibility(View.GONE);
-        if (blockingOverlay != null) blockingOverlay.setVisibility(View.GONE);
-        
-        if (btnMenu != null) btnMenu.setEnabled(true);
-        if (avatarCard != null) avatarCard.setEnabled(true);
+        if (previewHeader != null)
+            previewHeader.setVisibility(View.GONE);
+        if (blockingOverlay != null)
+            blockingOverlay.setVisibility(View.GONE);
+
+        if (btnMenu != null)
+            btnMenu.setEnabled(true);
+        if (avatarCard != null)
+            avatarCard.setEnabled(true);
     }
 
     private void cancelAvatarPreview() {
         exitConfirmationMode();
-        
+
         // Reset về ảnh cũ
-        loadAvatar(); 
-        
+        loadAvatar();
+
         // Quay lại bước Crop
         if (lastImageUrl != null) {
             startManualCrop(lastImageUrl, sessionManager.getAvatarId());
@@ -939,11 +1019,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private void confirmAvatarPreview() {
         exitConfirmationMode();
-        
+
         // Đồng bộ lên Server
         String avatarId = sessionManager.getAvatarId();
         syncAvatarToServer(avatarId);
-        
+
         Toast.makeText(requireContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
     }
 
@@ -956,29 +1036,36 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
         request.setAvatarId(avatarId);
 
-        gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
-            @Override
-            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
-                if (response.isSuccessful()) {
-                    Log.d("ProfileFragment", "Avatar ID synced to server");
-                }
-            }
+        gameApiService.updateProfile(request)
+                .enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
+                    @Override
+                    public void onResponse(
+                            Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
+                            Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("ProfileFragment", "Avatar ID synced to server");
+                        }
+                    }
 
-            @Override
-            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Throwable t) {
-                Log.e("ProfileFragment", "Failed to sync avatar ID", t);
-            }
-        });
+                    @Override
+                    public void onFailure(
+                            Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
+                            Throwable t) {
+                        Log.e("ProfileFragment", "Failed to sync avatar ID", t);
+                    }
+                });
     }
 
     /**
      * Hiển thị Dialog phóng to Avatar với nền mờ Glassmorphism.
      */
     private void showAvatarZoomDialog() {
-        if (getContext() == null) return;
+        if (getContext() == null)
+            return;
         UserStats stats = viewModel.getUserStats().getValue();
-        if (stats == null) return;
-        
+        if (stats == null)
+            return;
+
         String avatarId = stats.getAvatarId();
         org.json.JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(getContext(), avatarId);
         if (card == null)
@@ -1010,12 +1097,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      */
     private void syncStatsToServer(Integer likes, Integer friends) {
         com.vn.jet.mosco.network.UpdateProfileRequest request = new com.vn.jet.mosco.network.UpdateProfileRequest();
-        if (likes != null) request.setLikesCount(likes);
-        if (friends != null) request.setFriendsCount(friends);
+        if (likes != null)
+            request.setLikesCount(likes);
+        if (friends != null)
+            request.setFriendsCount(friends);
 
         gameApiService.updateProfile(request).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<UserStats>>() {
             @Override
-            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
+            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call,
+                    Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "Stats synced to server successfully");
                 }
@@ -1029,7 +1119,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     /**
-     * Phân tích và trích xuất thông báo lỗi từ Server để hiển thị thân thiện với người dùng
+     * Phân tích và trích xuất thông báo lỗi từ Server để hiển thị thân thiện với
+     * người dùng
      */
     private String parseServerError(Response<ResponseBody> response) {
         try {

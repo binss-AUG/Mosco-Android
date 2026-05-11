@@ -27,7 +27,7 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout;
  * 3 Tab: LEVEL, OVR, COLLECTION.
  * Sử dụng TabLayout + ViewPager2 + FragmentStateAdapter + TabLayoutMediator.
  */
-public class RankActivity extends AppCompatActivity {
+public class RankActivity extends MoscoBaseActivity {
 
     private static final String TAG = "RankActivity";
     private TabLayout tabLayout;

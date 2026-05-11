@@ -34,7 +34,7 @@ import retrofit2.Response;
  * Sử dụng ViewPager2 với PageTransformer 3D và chuyển đổi màu nền động.
  * Đã khử Hardcode và thêm ảnh Demo.
  */
-public class DailyCheckinActivity extends AppCompatActivity {
+public class DailyCheckinActivity extends MoscoBaseActivity {
 
     private static final String TAG = "DailyCheckinActivity";
     private GameApiService apiService;

@@ -7,6 +7,20 @@
 
     <include layout="@layout/layout_auth_background" />
 
+    <!-- Back Button (Quay về Sign In) -->
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="@dimen/spacing_48dp"
+        android:layout_height="@dimen/spacing_48dp"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/cd_back"
+        android:padding="@dimen/spacing_12dp"
+        android:src="@drawable/ic_back_arrow"
+        android:elevation="@dimen/spacing_xs"
+        app:tint="@color/white" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -272,13 +286,16 @@
 
                         <com.vn.jet.mosco.widget.MoscoButton
                             android:id="@+id/btn_send_code"
-                            android:layout_width="@dimen/spacing_100dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:moscoStyle="primary"
-                            app:moscoSize="large"
+                            android:minWidth="@dimen/spacing_100dp"
+                            app:moscoStyle="secondary"
+                            app:moscoSize="medium"
                             android:text="@string/auth_action_send_code"
+                            app:layout_constraintBottom_toBottomOf="@+id/til_verification_code"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="@+id/til_verification_code"
+                            app:layout_constraintVertical_bias="0.0" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->

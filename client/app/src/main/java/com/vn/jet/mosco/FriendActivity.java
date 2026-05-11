@@ -39,7 +39,7 @@ import retrofit2.Response;
  * 2 Tab: FRIENDS (danh sách bạn), REQUESTS (lời mời đang chờ).
  * Search bar cho phép tìm và gửi lời mời kết bạn.
  */
-public class FriendActivity extends AppCompatActivity {
+public class FriendActivity extends MoscoBaseActivity {
 
     private static final String TAG = "FriendActivity";
     private GameApiService apiService;

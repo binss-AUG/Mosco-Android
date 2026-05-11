@@ -23,10 +23,10 @@
         app:layout_constraintBottom_toTopOf="@id/tv_card_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.75"
-        app:layout_constraintDimensionRatio="1:1.54"
-        app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true">
+        app:layout_constraintWidth_percent="0.65"
+        app:layout_constraintDimensionRatio="1:1.5"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constrainedHeight="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -121,7 +121,7 @@
         style="@style/MoscoText.Luxury"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/bg_card_name_tag"
         android:paddingHorizontal="@dimen/spacing_md"
         android:paddingVertical="@dimen/spacing_xs"

@@ -44,6 +44,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextInputEditText edtPassword, edtConfirmPassword;
     private TextInputLayout tilUsername, tilEmail, tilVerificationCode, tilPassword, tilConfirmPassword;
     private Button btnSendCode, btnSignUp;
+    private ImageView btnBack;
     private com.airbnb.lottie.LottieAnimationView loadingProgress;
     private TextView tvGoToSignIn;
 
@@ -73,8 +74,13 @@ public class SignUpActivity extends AppCompatActivity {
         tilVerificationCode = findViewById(R.id.til_verification_code);
         btnSendCode = findViewById(R.id.btn_send_code);
         btnSignUp = findViewById(R.id.btn_signup);
+        btnBack = findViewById(R.id.btn_back);
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
         loadingProgress = findViewById(R.id.loading_progress);
+        
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
         
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
@@ -395,6 +401,9 @@ public class SignUpActivity extends AppCompatActivity {
                     if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         handleGoogleSignInResult(task);
+                    } else {
+                        // [BUG 3] Fallback: User cancelled or failed
+                        setLoading(false);
                     }
                 }
         );

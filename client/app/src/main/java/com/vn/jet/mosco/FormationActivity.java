@@ -34,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FormationActivity extends AppCompatActivity {
+public class FormationActivity extends MoscoBaseActivity {
 
     private RecyclerView rvStage, rvSynergies;
     private TextView tvTotalOvr;

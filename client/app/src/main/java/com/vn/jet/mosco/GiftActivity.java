@@ -46,7 +46,7 @@ import retrofit2.Response;
  * Phí gửi: 36,000 Coin + 36 Diamond. Giới hạn: 5 lần/ngày.
  * Thẻ trong Formation không cho gửi.
  */
-public class GiftActivity extends AppCompatActivity {
+public class GiftActivity extends MoscoBaseActivity {
 
     private static final String TAG = "GiftActivity";
 

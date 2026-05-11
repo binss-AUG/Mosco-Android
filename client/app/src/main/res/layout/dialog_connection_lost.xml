@@ -16,36 +16,41 @@
         android:padding="@dimen/spacing_24dp"
         android:elevation="@dimen/spacing_10dp">
 
+        <!-- Lottie Animation (No Connection) -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie_no_connection"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/spacing_md"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loading" />
+
         <!-- Title -->
         <TextView
             android:id="@+id/tv_dialog_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/common_label_title"
+            android:text="@string/dialog_connection_lost_title"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:fontFamily="@font/pretendard_bold" />
 
-        <!-- Body / Content Placeholder -->
-        <FrameLayout
-            android:id="@+id/fl_dialog_content"
+        <!-- Message -->
+        <TextView
+            android:id="@+id/tv_dialog_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_16dp">
-            
-            <TextView
-                android:id="@+id/tv_dialog_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/common_msg_dialog_placeholder"
-                android:textColor="@color/mosco_white_80"
-                android:textSize="14sp"
-                android:fontFamily="@font/pretendard" />
-        </FrameLayout>
+            android:layout_marginTop="@dimen/spacing_16dp"
+            android:gravity="center"
+            android:text="@string/dialog_connection_lost_msg"
+            android:textColor="@color/mosco_white_80"
+            android:textSize="14sp"
+            android:fontFamily="@font/pretendard" />
 
-        <!-- Actions -->
+        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,23 +58,24 @@
             android:orientation="horizontal">
 
             <com.vn.jet.mosco.widget.MoscoButton
-                android:id="@+id/btn_negative"
+                android:id="@+id/btn_exit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 app:moscoStyle="ghost"
                 app:moscoSize="large"
-                android:text="@string/common_action_cancel" />
+                android:text="@string/dialog_btn_exit" />
 
             <com.vn.jet.mosco.widget.MoscoButton
-                android:id="@+id/btn_positive"
+                android:id="@+id/btn_retry"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/spacing_12dp"
                 app:moscoStyle="primary"
                 app:moscoSize="large"
-                android:text="@string/common_action_confirm" />
+                android:text="@string/dialog_connection_lost_btn_retry" />
+
         </LinearLayout>
 
     </LinearLayout>

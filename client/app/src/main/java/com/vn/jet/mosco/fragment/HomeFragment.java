@@ -176,16 +176,16 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (root == null) return;
         
         View[] tools = {
-            btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickRank,
-            btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift
+            btnQuickDaily, btnQuickUpgrade, btnQuickRank,
+            btnQuickShop, btnQuickFriends, btnQuickGift
         };
         View[] bubbles = {
-            vBubbleDaily, vBubbleEvent, vBubbleUpgrade, vBubbleRank,
-            vBubbleShop, vBubbleFriends, vBubbleFormation, vBubbleGift
+            vBubbleDaily, vBubbleUpgrade, vBubbleRank,
+            vBubbleShop, vBubbleFriends, vBubbleGift
         };
         View[] icons = {
-            ivQuickDaily, ivQuickEvent, ivQuickUpgrade, ivQuickRank,
-            ivQuickShop, ivQuickFriends, ivQuickFormation, ivQuickGift
+            ivQuickDaily, ivQuickUpgrade, ivQuickRank,
+            ivQuickShop, ivQuickFriends, ivQuickGift
         };
 
         // Lấy density an toàn từ root view
@@ -510,7 +510,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     private void setupQuickToolActions() {
         if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class)));
-        if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.MissionActivity.class)));
+        // if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.MissionActivity.class)));
         if (btnQuickUpgrade != null) {
             btnQuickUpgrade.setOnClickListener(v -> {
                 if (getActivity() != null) {
@@ -523,7 +523,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
         if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
         if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FriendActivity.class)));
-        if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
+        // if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
         if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
         
         if (flAvatarGroup != null) {

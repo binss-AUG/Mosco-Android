@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#A6000000" /> <!-- Dimming effect -->
-    <stroke android:width="3dp" android:color="#2D72D9" /> <!-- Blue border -->
-    <corners android:radius="@dimen/radius_lg" />
-</shape>
+<!-- Glow highlight cho thẻ đang được chọn (Selected) trong BottomSheet / Grid -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Viền glow neon xanh dương (Primary) -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="2dp"
+                android:color="@color/mosco_primary" />
+            <corners android:radius="@dimen/radius_lg" />
+            <solid android:color="@color/mosco_primary_alpha_20" />
+        </shape>
+    </item>
+
+</layer-list>

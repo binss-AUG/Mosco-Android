@@ -28,10 +28,18 @@ public class AvatarUtils {
      * @param avatarId     ID của thẻ bài đang được chọn làm Avatar
      */
     public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId) {
-        loadAvatar(context, imageView, targetUserId, avatarId, false);
+        loadAvatar(context, imageView, targetUserId, avatarId, null, false);
     }
 
     public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId, boolean isThumbnail) {
+        loadAvatar(context, imageView, targetUserId, avatarId, null, isThumbnail);
+    }
+
+    public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId, String cropParams) {
+        loadAvatar(context, imageView, targetUserId, avatarId, cropParams, false);
+    }
+
+    public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId, String cropParams, boolean isThumbnail) {
         if (context == null || imageView == null) return;
 
         // 1. Kiểm tra xem targetUserId có phải là người dùng hiện tại không
@@ -56,22 +64,21 @@ public class AvatarUtils {
         }
 
         // [PHASE 2] Fallback: Load từ AvatarId (Circle Crop) cho người khác hoặc khi chưa crop
-        loadAvatarById(context, imageView, avatarId, isThumbnail);
+        loadAvatarById(context, imageView, avatarId, cropParams, isThumbnail);
     }
 
     public static void loadAvatarById(Context context, ImageView imageView, String avatarId) {
-        loadAvatarById(context, imageView, avatarId, false);
+        loadAvatarById(context, imageView, avatarId, null, false);
     }
 
-    /**
-     * Logic load Avatar từ database theo ID thẻ bài (Dùng Circle Crop)
-     */
-    public static void loadAvatarById(Context context, ImageView imageView, String avatarId, boolean isThumbnail) {
+    public static void loadAvatarById(Context context, ImageView imageView, String avatarId, String cropParams, boolean isThumbnail) {
         if (context == null || imageView == null) return;
 
-        // Lấy cropParams từ Session (đã được server trả về sau khi đăng nhập)
-        SessionManager sessionManager = new SessionManager(context);
-        String cropParams = sessionManager.getAvatarCropParams();
+        // Lấy cropParams từ Session nếu không có cropParams truyền vào
+        if (cropParams == null || cropParams.isEmpty()) {
+            SessionManager sessionManager = new SessionManager(context);
+            cropParams = sessionManager.getAvatarCropParams();
+        }
         boolean hasCropParams = cropParams != null && !cropParams.isEmpty() && !cropParams.equals("auto");
 
         if (avatarId == null || avatarId.isEmpty() || avatarId.equals("null")) {

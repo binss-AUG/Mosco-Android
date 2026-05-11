@@ -28,16 +28,9 @@ import com.vn.jet.mosco.fragment.UpgradeFragment;
  * Manages BottomNavigationView and Fragment switching.
  * Standardized English comments and removed parallax effects (bithw).
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends MoscoBaseActivity {
     private long lastNavClickTime = 0;
     
-    // UI Elements for Network HUD
-    private View llNetworkStatus;
-    private View llNetworkContainer;
-    private ImageView ivNetworkIcon;
-    private TextView tvNetworkMessage;
-    private android.view.animation.Animation pulseAnim;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-
-        // --- 🌐 NETWORK MONITOR SETUP ---
-        setupNetworkMonitor();
 
         // 1. Initial configuration: Show HomeFragment by default
         if (savedInstanceState == null) {
@@ -147,57 +137,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /**
-     * Tích hợp hệ thống giám sát kết nối thời gian thực.
-     */
-    private void setupNetworkMonitor() {
-        llNetworkStatus = findViewById(R.id.ll_network_status);
-        llNetworkContainer = findViewById(R.id.ll_network_container);
-        ivNetworkIcon = findViewById(R.id.iv_network_icon);
-        tvNetworkMessage = findViewById(R.id.tv_network_message);
-        pulseAnim = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.anim_pulse_warning);
 
-        com.vn.jet.mosco.utils.NetworkMonitor.getInstance(this).getIsConnected()
-                .observe(this, isConnected -> {
-            if (isConnected) {
-                showOnlineStatus();
-            } else {
-                showOfflineStatus();
-            }
-        });
-    }
-
-    private void showOfflineStatus() {
-        if (llNetworkStatus == null) return;
-        
-        llNetworkStatus.setVisibility(View.VISIBLE);
-        llNetworkContainer.setBackgroundResource(R.drawable.bg_network_lost_glass);
-        ivNetworkIcon.setImageResource(R.drawable.ic_close);
-        tvNetworkMessage.setText(R.string.common_msg_connection_lost);
-        tvNetworkMessage.startAnimation(pulseAnim);
-    }
-
-    private void showOnlineStatus() {
-        if (llNetworkStatus == null || llNetworkStatus.getVisibility() == View.GONE) return;
-
-        // Xóa hiệu ứng cảnh báo và đổi sang màu xanh thành công
-        tvNetworkMessage.clearAnimation();
-        llNetworkContainer.setBackgroundResource(R.drawable.bg_network_back_online_glass);
-        ivNetworkIcon.setImageResource(R.drawable.ic_check);
-        tvNetworkMessage.setText(R.string.common_msg_back_online);
-
-        // Biến mất sau 2.5 giây để người dùng kịp nhìn thấy trạng thái đã khôi phục
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            llNetworkStatus.animate()
-                    .alpha(0f)
-                    .setDuration(500)
-                    .withEndAction(() -> {
-                        llNetworkStatus.setVisibility(View.GONE);
-                        llNetworkStatus.setAlpha(1f); // Reset alpha cho lần sau
-                    })
-                    .start();
-        }, 2500);
-    }
 
     /**
      * Cho phép các Fragment gọi chuyển tab (ví dụ: click Avatar -> Profile)
@@ -238,6 +178,21 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             android.util.Log.e("MainActivity", "Error making Spin tab prominent", e);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Nếu không có Fragment nào trong backstack (chỉ còn Home), hiện Dialog thoát app
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            com.vn.jet.mosco.utils.MoscoDialogHelper.showExitDialog(this, new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                @Override
+                public void onPositive() {
+                    finish();
+                }
+            });
+        } else {
+            super.onBackPressed();
         }
     }
 }

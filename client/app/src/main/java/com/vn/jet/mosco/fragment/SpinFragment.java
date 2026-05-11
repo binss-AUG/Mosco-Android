@@ -1399,7 +1399,7 @@ public class SpinFragment extends Fragment {
 
                 ViewGroup parent = (ViewGroup) parentView;
                 tvGetBadge = new TextView(parent.getContext());
-                tvGetBadge.setText("Get");
+                tvGetBadge.setText(getString(R.string.action_get));
                 tvGetBadge.setTextColor(Color.WHITE);
                 tvGetBadge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
                 tvGetBadge.setTypeface(null, Typeface.BOLD);

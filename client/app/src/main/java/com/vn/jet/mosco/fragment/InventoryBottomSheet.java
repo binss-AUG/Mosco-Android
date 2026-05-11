@@ -51,6 +51,10 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private String[] SORT_OPTIONS;
     private List<CardDisplayItem> originalObjets = new ArrayList<>();
     private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
+    private boolean isApplyingFilter = false;
+    private final android.os.Handler filterHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable filterRunnable = this::executeApplyFilters;
+    private final java.util.concurrent.ExecutorService filterExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
 
     private androidx.appcompat.widget.AppCompatButton btnConfirm;
     private UnifiedCardAdapter adapter;
@@ -179,7 +183,10 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 public void onFilterChanged(String sortOption, boolean ascending) {
                     currentSortOption = sortOption;
                     isAscending = ascending;
-                    applyFilters();
+                    
+                    // [BUG 10] Debounce spam click sorting
+                    filterHandler.removeCallbacks(filterRunnable);
+                    filterHandler.postDelayed(filterRunnable, 150);
                 }
 
                 @Override
@@ -388,43 +395,59 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
-    private void applyFilters() {
+    public void applyFilters() {
+        filterHandler.removeCallbacks(filterRunnable);
+        filterHandler.postDelayed(filterRunnable, 150);
+    }
+
+    private void executeApplyFilters() {
         if (originalObjets == null || !isAdded()) return;
         
         // Show Skeleton during filter/sort processing
         if (adapter != null) adapter.setLoading(true);
 
-        new Thread(() -> {
+        filterExecutor.execute(() -> {
             // Artificial delay for "Quiet Luxury" shimmer feel
             try { Thread.sleep(200); } catch (InterruptedException ignored) {}
 
-            List<CardDisplayItem> filtered = new ArrayList<>();
-            String currentSort = currentSortOption;
-
-            java.util.Set<String> artistsList = new java.util.HashSet<>(java.util.Arrays.asList(
-                "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin", 
-                "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", 
-                "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
-            ));
-            java.util.Set<String> classesList = new java.util.HashSet<>(java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit"));
-
-            java.util.Set<String> selArtists = new java.util.HashSet<>();
-            java.util.Set<String> selClasses = new java.util.HashSet<>();
-            java.util.Set<String> selSeasons = new java.util.HashSet<>();
-
-            for (String f : objetFilter) {
-                boolean isArtist = false;
-                for (String a : artistsList) { if (a.equalsIgnoreCase(f)) { selArtists.add(f.toLowerCase()); isArtist = true; break; } }
-                if (isArtist) continue;
-
-                boolean isClass = false;
-                for (String c : classesList) { if (c.equalsIgnoreCase(f)) { selClasses.add(f.toLowerCase()); isClass = true; break; } }
-                if (isClass) continue;
-
-                selSeasons.add(f.toLowerCase());
+            if (!isAdded()) {
+                isApplyingFilter = false;
+                return;
             }
+            
+            List<CardDisplayItem> filtered = new ArrayList<>();
+            if (originalObjets == null || originalObjets.isEmpty()) {
+                filtered.addAll(new ArrayList<>());
+            } else {
+                String currentSort = currentSortOption;
+                
+                // [DYNAMIC FILTER] Lấy danh sách Artist và Class thực tế từ DB để phân loại Filter Tags
+                java.util.Set<String> artistsList = new java.util.HashSet<>();
+                for (com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem m : com.vn.jet.mosco.utils.DatabaseLoader.getUniqueMembers(requireContext())) {
+                    artistsList.add(m.name.toLowerCase());
+                }
+                
+                java.util.Set<String> classesList = new java.util.HashSet<>();
+                for (String c : com.vn.jet.mosco.utils.DatabaseLoader.getUniqueClasses(requireContext())) {
+                    classesList.add(c.toLowerCase());
+                }
 
-            for (CardDisplayItem item : originalObjets) {
+                java.util.Set<String> selArtists = new java.util.HashSet<>();
+                java.util.Set<String> selClasses = new java.util.HashSet<>();
+                java.util.Set<String> selSeasons = new java.util.HashSet<>();
+
+                for (String f : objetFilter) {
+                    String lowerF = f.toLowerCase();
+                    if (artistsList.contains(lowerF)) {
+                        selArtists.add(lowerF);
+                    } else if (classesList.contains(lowerF)) {
+                        selClasses.add(lowerF);
+                    } else {
+                        selSeasons.add(lowerF);
+                    }
+                }
+
+                for (CardDisplayItem item : originalObjets) {
                 if (objetFilter.isEmpty()) {
                     filtered.add(item);
                     continue;
@@ -515,6 +538,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
                 return isAscending ? result : -result;
             });
+        }
 
             if (getActivity() != null && isAdded()) {
                 getActivity().runOnUiThread(() -> {
@@ -528,12 +552,14 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     updateItemCount(getView(), filtered.size());
                     
                     if (layoutEmptyState != null) {
-                        layoutEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
                         if (rvInventory != null) rvInventory.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
                     }
+                    isApplyingFilter = false;
                 });
+            } else {
+                isApplyingFilter = false;
             }
-        }).start();
+        });
     }
 
     private String mapClassToTypeKey(String cardClass) {
@@ -679,4 +705,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             }
         }).start();
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (filterExecutor != null) {
+            filterExecutor.shutdownNow();
+        }
+    }
 }
+
