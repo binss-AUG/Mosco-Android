@@ -297,12 +297,8 @@ public class FormationActivity extends AppCompatActivity {
                 com.vn.jet.mosco.utils.CardEffectHelper.apply(cvShowcaseCard, viewCardShimmer, objet, true);
             }
             
-            if (ivCard != null) {
-                // Luồng tải ưu tiên: Grid Formation dùng bản Thumbnail để tiết kiệm RAM
-                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCard, objet.getFrontImage(), true);
-            } else {
-                if (ivCard != null) ivCard.setImageDrawable(null);
-            }
+            // Luồng tải ưu tiên: Grid Formation dùng bản Thumbnail để tiết kiệm RAM
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCard, objet.getFrontImage(), true);
             
             if (tvOvr != null) {
                 tvOvr.setVisibility(View.GONE);
@@ -323,6 +319,7 @@ public class FormationActivity extends AppCompatActivity {
         } else {
             emptyView.setVisibility(View.VISIBLE);
             cardView.setVisibility(View.GONE);
+            if (ivCard != null) ivCard.setImageDrawable(null);
             if (tvOvr != null) tvOvr.setVisibility(View.GONE);
             if (ivLevel != null) ivLevel.setVisibility(View.GONE);
             if (cvShowcaseCard != null) {

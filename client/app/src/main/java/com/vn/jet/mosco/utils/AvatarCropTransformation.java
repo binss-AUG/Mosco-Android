@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.bumptech.glide.load.Key;
 
 import java.security.MessageDigest;
 
@@ -81,7 +82,7 @@ public class AvatarCropTransformation extends BitmapTransformation {
 
     @Override
     public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-        messageDigest.update((ID + cropParams).getBytes(CHARSET));
+        messageDigest.update((ID + cropParams).getBytes(Key.CHARSET));
     }
 
     @Override

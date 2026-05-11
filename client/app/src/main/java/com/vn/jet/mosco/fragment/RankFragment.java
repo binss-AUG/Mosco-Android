@@ -111,8 +111,7 @@ public class RankFragment extends Fragment {
                 tvValue.setText(getString(R.string.placeholder_empty));
                 
                 // Luồng tải ưu tiên: Avatar của mình ở footer dùng bản thumbnail
-                String myAvatarId = session.getAvatarId();
-                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivAvatar, session.getUserId(), myAvatarId, true);
+                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivAvatar, session.getUserId(), session.getAvatarId(), true);
                 return;
             }
 
