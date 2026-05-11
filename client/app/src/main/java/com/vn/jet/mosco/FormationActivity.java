@@ -297,11 +297,12 @@ public class FormationActivity extends AppCompatActivity {
                 com.vn.jet.mosco.utils.CardEffectHelper.apply(cvShowcaseCard, viewCardShimmer, objet, true);
             }
             
-            // Luồng tải ưu tiên: Grid Formation dùng bản Thumbnail để tiết kiệm RAM
-            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCard, objet.getFrontImage(), true);
-        } else {
-            ivCard.setImageDrawable(null);
-        }
+            if (ivCard != null) {
+                // Luồng tải ưu tiên: Grid Formation dùng bản Thumbnail để tiết kiệm RAM
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCard, objet.getFrontImage(), true);
+            } else {
+                if (ivCard != null) ivCard.setImageDrawable(null);
+            }
             
             if (tvOvr != null) {
                 tvOvr.setVisibility(View.GONE);

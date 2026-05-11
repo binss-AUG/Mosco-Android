@@ -146,19 +146,22 @@ public class ProfileExhibitFragment extends Fragment {
         List<String> ids = stats.getShowcaseCardIds() != null ? stats.getShowcaseCardIds() : new ArrayList<>();
         
         // [FIX] Nếu là Owner đang xem profile chính mình, kiểm tra xem thẻ còn trong Inventory không
-        if (stats.getId() != null && stats.getId().equals(DatabaseLoader.cachedInventoryUserId)) {
+        // [FIX] Chỉ dọn dẹp "thẻ ma" nếu Inventory Cache đã sẵn sàng.
+        // Tránh race condition khi Profile load nhanh hơn Inventory dẫn đến bị xóa sạch showcase.
+        if (stats.getId() != null && stats.getId().equals(DatabaseLoader.cachedInventoryUserId) && DatabaseLoader.cachedCollectionMap != null) {
             for (String id : ids) {
                 if (id == null || id.trim().isEmpty() || id.equals("null")) {
                     validIds.add("");
-                } else if (DatabaseLoader.cachedCollectionMap != null && DatabaseLoader.cachedCollectionMap.containsKey(id)) {
+                } else if (DatabaseLoader.cachedCollectionMap.containsKey(id)) {
                     validIds.add(id);
                 } else {
-                    // Thẻ này không còn trong kho (đã gửi hoặc spin) -> tự động tháo
+                    // Thẻ này thực sự không còn trong kho -> tự động tháo
                     validIds.add("");
                     needsUpdate = true;
                 }
             }
         } else {
+            // Nếu cache chưa có hoặc đang xem profile người khác, cứ dùng data từ server
             validIds.addAll(ids);
         }
         
