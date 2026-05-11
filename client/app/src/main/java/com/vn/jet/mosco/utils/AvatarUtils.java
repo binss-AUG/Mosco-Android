@@ -39,8 +39,8 @@ public class AvatarUtils {
         boolean isOwner = targetUserId != null && targetUserId.equals(currentUserId);
 
         if (isOwner) {
-            // [PHASE 1] Nếu là chính chủ, ưu tiên dùng ảnh đã crop thủ công trong cache (Internal Storage)
-            File croppedFile = new File(context.getCacheDir(), context.getString(R.string.avatar_crop_cache_name));
+            // [PHASE 1] Nếu là chính chủ, ưu tiên dùng ảnh đã crop thủ công trong bộ nhớ trong (Survive Cache Clear)
+            File croppedFile = new File(context.getFilesDir(), context.getString(R.string.avatar_crop_cache_name));
             if (croppedFile.exists()) {
                 Glide.with(context)
                         .load(croppedFile)

@@ -663,7 +663,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         this.lastImageUrl = imageUrl; // Lưu lại để quay lại bước này nếu người dùng hủy Preview
 
         Uri sourceUri = Uri.parse(imageUrl);
-        File destinationFile = new File(requireContext().getCacheDir(), getString(R.string.avatar_crop_cache_name));
+        File destinationFile = new File(requireContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
         Uri destinationUri = Uri.fromFile(destinationFile);
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
@@ -764,8 +764,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (savedAvatarIdBeforeEdit != null) {
             sessionManager.setAvatarId(savedAvatarIdBeforeEdit);
         }
-        // Xóa file crop tạm để loadAvatar lấy lại ảnh gốc
-        File croppedFile = new File(requireContext().getCacheDir(), getString(R.string.avatar_crop_cache_name));
+        // Xóa file crop để loadAvatar lấy lại ảnh gốc từ server/local card
+        File croppedFile = new File(requireContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
         if (croppedFile.exists()) croppedFile.delete();
         loadAvatar();
 
