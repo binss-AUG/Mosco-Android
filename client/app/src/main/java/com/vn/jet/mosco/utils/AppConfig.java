@@ -17,31 +17,6 @@ public class AppConfig {
     public static final String DISCORD_AUTH_URL_BASE = "https://discord.com/api/oauth2/authorize";
     public static final String DISCORD_SCOPE = "identify email";
 
-    // Performance & UI Constants
-    public static final int MAX_FLING_VELOCITY = 8500;
-    public static final float DETAIL_DIALOG_DIM_AMOUNT = 0.8f;
-    public static final int INVENTORY_BATCH_SIZE_UNLEASHED = 99999;
-    
-    // Aesthetic Ratios
-    public static final float CARD_ASPECT_RATIO = 1.54f;
-
-    // Asset Paths (DRY — dùng chung cho tất cả module hiển thị Level Badge)
-    public static final String ASSET_GRADE_PATH = "file:///android_asset/grade/";
-
-    // 3D Flip Animation Constants
-    public static final int FLIP_DURATION_MS = 500;
-    public static final float FLIP_CAMERA_DISTANCE_FACTOR = 8000f;
-
-    // Carousel Transformer Constants (Showcase / Exhibit)
-    public static final float CAROUSEL_SCALE_MIN = 0.85f;
-    public static final float CAROUSEL_SCALE_RANGE = 0.15f;
-    public static final float CAROUSEL_ALPHA_MIN = 0.6f;
-    public static final float CAROUSEL_ALPHA_RANGE = 0.4f;
-    
-    // AFK Stage Constants
-    public static final long MS_PER_HOUR = 3600000L;
-    public static final int STAGE_SPEED_UP_COST_PER_HOUR = 10;
-
     // File & Cache Constants
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
     public static final String DEFAULT_AVATAR_ID = "1";

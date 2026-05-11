@@ -151,7 +151,8 @@ public class StageFragment extends Fragment {
     }
 
     private void updateTimerUI(MapViewHolder holder, com.vn.jet.mosco.dto.StageSessionResponse session) {
-        long totalMs = session.getDurationHours() * 3600000L;
+        long msPerHour = getResources().getInteger(R.integer.ms_per_hour);
+        long totalMs = session.getDurationHours() * msPerHour;
         long elapsedMs = System.currentTimeMillis() - session.getStartTimeMillis();
         long remainingMs = session.getEndTimeMillis() - System.currentTimeMillis();
 
@@ -482,8 +483,11 @@ public class StageFragment extends Fragment {
 
     private void showSpeedUpConfirmation(com.vn.jet.mosco.dto.StageSessionResponse session) {
         long remainingMs = session.getEndTimeMillis() - System.currentTimeMillis();
-        long hoursLeft = (remainingMs / AppConfig.MS_PER_HOUR) + 1;
-        int cost = (int) (hoursLeft * AppConfig.STAGE_SPEED_UP_COST_PER_HOUR);
+        long msPerHour = getResources().getInteger(R.integer.ms_per_hour);
+        int speedUpCost = getResources().getInteger(R.integer.stage_speed_up_cost_per_hour);
+        
+        long hoursLeft = (remainingMs / msPerHour) + 1;
+        int cost = (int) (hoursLeft * speedUpCost);
 
         new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.GalacticDialogTheme)
             .setTitle(R.string.stage_dialog_speedup_title)

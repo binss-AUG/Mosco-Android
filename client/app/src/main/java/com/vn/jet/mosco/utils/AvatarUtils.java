@@ -12,9 +12,9 @@ import org.json.JSONObject;
 import java.io.File;
 
 /**
- * AvatarUtils - Tiện ích nạp Avatar thông minh cho toàn hệ thống Mosco.
+ * AvatarUtils - Tiện ích nạp Avatar cho toàn hệ thống Mosco.
  * Ưu tiên nạp ảnh đã Crop thủ công nếu là chính chủ (Current User).
- * Fallback về SmartFaceCrop (ML Kit) cho người dùng khác hoặc khi chưa có ảnh Crop.
+ * Fallback về nạp ảnh gốc (Circle Crop) cho người dùng khác hoặc khi chưa có ảnh Crop.
  */
 public class AvatarUtils {
 
@@ -36,7 +36,7 @@ public class AvatarUtils {
 
         if (isOwner) {
             // [PHASE 1] Nếu là chính chủ, ưu tiên dùng ảnh đã crop thủ công trong cache (Internal Storage)
-            File croppedFile = new File(context.getCacheDir(), AppConfig.AVATAR_CROP_CACHE_NAME);
+            File croppedFile = new File(context.getCacheDir(), context.getString(R.string.avatar_crop_cache_name));
             if (croppedFile.exists()) {
                 Glide.with(context)
                         .load(croppedFile)
@@ -50,12 +50,12 @@ public class AvatarUtils {
             }
         }
 
-        // [PHASE 2] Fallback: Load từ AvatarId (dùng SmartFaceCrop cho người khác hoặc khi chưa crop)
+        // [PHASE 2] Fallback: Load từ AvatarId (Circle Crop) cho người khác hoặc khi chưa crop
         loadAvatarById(context, imageView, avatarId);
     }
 
     /**
-     * Logic load Avatar từ database theo ID thẻ bài (Dùng SmartFaceCrop)
+     * Logic load Avatar từ database theo ID thẻ bài (Dùng Circle Crop)
      */
     public static void loadAvatarById(Context context, ImageView imageView, String avatarId) {
         if (context == null || imageView == null) return;
@@ -80,7 +80,7 @@ public class AvatarUtils {
 
             Glide.with(context)
                     .load(imgUrl)
-                    .transform(new SmartFaceCropTransformation())
+                    .circleCrop()
                     .placeholder(R.drawable.ic_user)
                     .error(R.drawable.ic_user)
                     .into(imageView);

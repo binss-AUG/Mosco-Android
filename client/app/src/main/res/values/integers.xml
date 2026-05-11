@@ -72,4 +72,19 @@
     <integer name="reveal_particle_initial_speed_percent">12</integer>
     <integer name="reveal_particle_spread_pull_permille">26</integer>
     <integer name="reveal_particle_spread_swirl_percent">70</integer>
+    
+    <!-- Spin Slideshow Constants -->
+    <integer name="spin_slideshow_card_count">3</integer>
+    <integer name="spin_slideshow_duration_ms">14000</integer>
+    <integer name="spin_light_color_base">130</integer>
+    <integer name="spin_light_color_range">125</integer>
+
+    <!-- AFK Stage Constants -->
+    <integer name="ms_per_hour">3600000</integer>
+    <integer name="stage_speed_up_cost_per_hour">10</integer>
+
+    <!-- Generic UI Constants -->
+    <integer name="max_fling_velocity">8500</integer>
+    <integer name="inventory_batch_size_unleashed">99999</integer>
+    <integer name="flip_duration_ms">500</integer>
 </resources>

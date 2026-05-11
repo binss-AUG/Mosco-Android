@@ -49,7 +49,9 @@ public class CollectionDetailBinder {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             // Thêm hiệu ứng Dim mờ nền sâu thẳm (Galactic Dark Dim)
-            dialog.getWindow().setDimAmount(AppConfig.DETAIL_DIALOG_DIM_AMOUNT);
+            android.util.TypedValue dimVal = new android.util.TypedValue();
+            context.getResources().getValue(R.dimen.detail_dialog_dim_amount, dimVal, true);
+            dialog.getWindow().setDimAmount(dimVal.getFloat());
         }
 
         // 1. Bind Hình ảnh thẻ bài (Sử dụng Local First)
@@ -74,7 +76,7 @@ public class CollectionDetailBinder {
         int entryLevel = entry.getLevel();
         if (ivLevel != null) {
             if (entryLevel > 0) {
-                String assetPath = "file:///android_asset/grade/" + entryLevel + ".png";
+                String assetPath = context.getString(R.string.asset_grade_path) + entryLevel + ".png";
                 Glide.with(context).load(assetPath).into(ivLevel);
                 ivLevel.setVisibility(View.VISIBLE);
             } else {
@@ -262,7 +264,9 @@ public class CollectionDetailBinder {
                                               ImageView ivFront, ImageView ivBack,
                                               ImageView ivLevel, int upgradeLevel) {
         float density = context.getResources().getDisplayMetrics().density;
-        cvCard.setCameraDistance(8000 * density);
+        android.util.TypedValue distVal = new android.util.TypedValue();
+        context.getResources().getValue(R.dimen.flip_camera_distance_factor, distVal, true);
+        cvCard.setCameraDistance(distVal.getFloat() * density);
 
         // Đọc cấu hình độ nhạy xoay từ resource (không hardcode)
         final int flipSensitivity = context.getResources().getInteger(R.integer.card_flip_sensitivity);
@@ -277,7 +281,11 @@ public class CollectionDetailBinder {
         cvCard.setOnTouchListener((v, event) -> {
             // Đọc glow ĐỘNG trên mỗi touch (vì CardEffectHelper tạo async qua Glide callback)
             View glow = (View) cvCard.getTag(R.id.view_progress_fill);
-            if (glow != null) glow.setCameraDistance(8000 * density);
+            if (glow != null) {
+                android.util.TypedValue gDistVal = new android.util.TypedValue();
+                context.getResources().getValue(R.dimen.flip_camera_distance_factor, gDistVal, true);
+                glow.setCameraDistance(gDistVal.getFloat() * density);
+            }
 
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
@@ -339,13 +347,16 @@ public class CollectionDetailBinder {
                         nearestAngle = Math.round((curRot - 180f) / 360f) * 360f + 180f;
                     }
 
+                    int flipDuration = context.getResources().getInteger(R.integer.flip_duration_ms);
                     snapAnim[0] = ObjectAnimator.ofFloat(cvCard, "rotationY", curRot, nearestAngle);
-                    snapAnim[0].setDuration(250);
+                    snapAnim[0].setDuration(flipDuration);
                     snapAnim[0].setInterpolator(new OvershootInterpolator(1.2f));
                     // Đồng bộ glow xoay theo snap animation (đọc lại vì có thể đã tạo)
                     View snapGlow = (View) cvCard.getTag(R.id.view_progress_fill);
                     if (snapGlow != null) {
-                        snapGlow.setCameraDistance(8000 * density);
+                        android.util.TypedValue sgDistVal = new android.util.TypedValue();
+                        context.getResources().getValue(R.dimen.flip_camera_distance_factor, sgDistVal, true);
+                        snapGlow.setCameraDistance(sgDistVal.getFloat() * density);
                         snapAnim[0].addUpdateListener(animation -> 
                             snapGlow.setRotationY((float) animation.getAnimatedValue()));
                     }

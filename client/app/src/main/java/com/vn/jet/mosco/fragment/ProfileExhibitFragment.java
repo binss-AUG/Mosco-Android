@@ -120,11 +120,20 @@ public class ProfileExhibitFragment extends Fragment {
         transformer.addTransformer(new MarginPageTransformer(getResources().getDimensionPixelSize(R.dimen.spacing_md)));
         transformer.addTransformer((page, position) -> {
             float r = 1 - Math.abs(position);
-            // [DRY] Scale và Alpha lấy từ AppConfig để tránh magic numbers
-            float scale = com.vn.jet.mosco.utils.AppConfig.CAROUSEL_SCALE_MIN + r * com.vn.jet.mosco.utils.AppConfig.CAROUSEL_SCALE_RANGE; 
+            
+            android.util.TypedValue scaleMinVal = new android.util.TypedValue();
+            getResources().getValue(R.dimen.carousel_scale_min, scaleMinVal, true);
+            android.util.TypedValue scaleRangeVal = new android.util.TypedValue();
+            getResources().getValue(R.dimen.carousel_scale_range, scaleRangeVal, true);
+            float scale = scaleMinVal.getFloat() + r * scaleRangeVal.getFloat(); 
             page.setScaleY(scale);
             page.setScaleX(scale);
-            page.setAlpha(com.vn.jet.mosco.utils.AppConfig.CAROUSEL_ALPHA_MIN + r * com.vn.jet.mosco.utils.AppConfig.CAROUSEL_ALPHA_RANGE);
+            
+            android.util.TypedValue alphaMinVal = new android.util.TypedValue();
+            getResources().getValue(R.dimen.carousel_alpha_min, alphaMinVal, true);
+            android.util.TypedValue alphaRangeVal = new android.util.TypedValue();
+            getResources().getValue(R.dimen.carousel_alpha_range, alphaRangeVal, true);
+            page.setAlpha(alphaMinVal.getFloat() + r * alphaRangeVal.getFloat());
         });
         vpShowcase.setPageTransformer(transformer);
     }
@@ -347,7 +356,7 @@ public class ProfileExhibitFragment extends Fragment {
                 int level = cardData.optInt("upgradeLevel", 0);
                 if (level > 0) {
                     ivLevel.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(com.vn.jet.mosco.utils.AppConfig.ASSET_GRADE_PATH + level + ".png").into(ivLevel);
+                    Glide.with(this).load(getString(R.string.asset_grade_path) + level + ".png").into(ivLevel);
                     LevelBadgeEffectHelper.apply(ivLevel, level);
                 } else {
                     ivLevel.setVisibility(View.GONE);

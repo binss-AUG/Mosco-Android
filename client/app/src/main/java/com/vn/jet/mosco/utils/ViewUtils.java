@@ -19,7 +19,7 @@ public class ViewUtils {
             @Override
             public boolean onFling(int velocityX, int velocityY) {
                 // Lấy tốc độ tối đa mong muốn (Tối ưu cho cảm giác lướt nhanh nhưng không loạn)
-                int maxVelocity = AppConfig.MAX_FLING_VELOCITY;
+                int maxVelocity = recyclerView.getContext().getResources().getInteger(com.vn.jet.mosco.R.integer.max_fling_velocity);
 
                 int newVelocityX = velocityX;
                 int newVelocityY = velocityY;

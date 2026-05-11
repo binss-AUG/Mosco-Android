@@ -343,7 +343,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private void loadAvatar() {
         String avatarId = sessionManager.getAvatarId();
         if (avatarId == null)
-            avatarId = com.vn.jet.mosco.utils.AppConfig.DEFAULT_AVATAR_ID;
+            avatarId = getString(R.string.default_avatar_id);
             
         com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId);
     }
@@ -663,7 +663,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         this.lastImageUrl = imageUrl; // Lưu lại để quay lại bước này nếu người dùng hủy Preview
 
         Uri sourceUri = Uri.parse(imageUrl);
-        File destinationFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
+        File destinationFile = new File(requireContext().getCacheDir(), getString(R.string.avatar_crop_cache_name));
         Uri destinationUri = Uri.fromFile(destinationFile);
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
@@ -765,7 +765,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             sessionManager.setAvatarId(savedAvatarIdBeforeEdit);
         }
         // Xóa file crop tạm để loadAvatar lấy lại ảnh gốc
-        File croppedFile = new File(requireContext().getCacheDir(), com.vn.jet.mosco.utils.AppConfig.AVATAR_CROP_CACHE_NAME);
+        File croppedFile = new File(requireContext().getCacheDir(), getString(R.string.avatar_crop_cache_name));
         if (croppedFile.exists()) croppedFile.delete();
         loadAvatar();
 
