@@ -30,6 +30,9 @@ public class CollectionEntry {
     @SerializedName("backgroundColor")
     private String backgroundColor;
 
+    @SerializedName("backImage")
+    private String backImage;
+
     @SerializedName("owned")
     private boolean owned;
 
@@ -70,6 +73,9 @@ public class CollectionEntry {
 
     public String getBackgroundColor() { return backgroundColor; }
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
+
+    public String getBackImage() { return backImage; }
+    public void setBackImage(String backImage) { this.backImage = backImage; }
 
     public boolean isOwned() { return owned; }
     public void setOwned(boolean owned) { this.owned = owned; }

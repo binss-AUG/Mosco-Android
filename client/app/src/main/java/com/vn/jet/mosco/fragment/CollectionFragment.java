@@ -1050,7 +1050,8 @@ public class CollectionFragment extends Fragment {
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvObjets;
         private TextView tvCount;
-        private List<com.vn.jet.mosco.model.Objet> originalObjets = new ArrayList<>();
+        private com.vn.jet.mosco.adapter.UnifiedCardAdapter adapter;
+        private List<com.vn.jet.mosco.model.CardDisplayItem> originalObjets = new ArrayList<>();
 
         @Nullable
         @Override
@@ -1114,39 +1115,17 @@ public class CollectionFragment extends Fragment {
             // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
             com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvObjets);
 
-            rvObjets.setAdapter(new com.vn.jet.mosco.adapter.BaseInventoryAdapter(new ArrayList<>(), rvObjets, item -> {
-                Context ctx = requireContext();
-                if (ctx == null)
-                    return;
+            adapter = new com.vn.jet.mosco.adapter.UnifiedCardAdapter(
+                    new ArrayList<>(), rvObjets,
+                    com.vn.jet.mosco.adapter.UnifiedCardAdapter.DisplayMode.INVENTORY,
+                    item -> {
+                        Context ctx = requireContext();
+                        if (ctx == null) return;
 
-                org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(ctx,
-                        item.getCollectionId());
-
-                // Áp dụng chung logic hiển thị Detail của Album (sử dụng
-                // CollectionDetailBinder) cho phần Tab Objets để có hiệu ứng 3D Flip & Showcase
-                com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
-                entry.setCollectionId(item.getCollectionId());
-                entry.setFrontImage(item.getImageUrl());
-                entry.setOvr(item.getOvr());
-                entry.setLevel(item.getCardLevel());
-                entry.setUserCardId(item.getIdString());
-                entry.setOwned(true);
-
-                // Nạp metadata từ cardJson nếu có, hoặc dùng từ item (local cache)
-                if (cardJson != null) {
-                    entry.setMember(cardJson.optString("member"));
-                    entry.setSeason(cardJson.optString("season"));
-                    entry.setCardClass(cardJson.optString("class"));
-                    entry.setCollectionNo(cardJson.optString("collectionNo"));
-                } else {
-                    entry.setMember(item.getMember());
-                    entry.setSeason(item.getSeason());
-                    entry.setCardClass(item.getTypeKey());
-                    entry.setCollectionNo(item.getCollectionNo());
-                }
-
-                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, entry);
-            }));
+                        // Dùng trực tiếp CardDisplayItem — không cần chuyển đổi qua CollectionEntry nữa
+                        com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, item);
+                    });
+            rvObjets.setAdapter(adapter);
 
             loadObjets(false);
         }
@@ -1169,9 +1148,8 @@ public class CollectionFragment extends Fragment {
             // Hiển thị Skeleton nếu chưa có cache
             List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
             if (forceFromServer || cache == null || cache.isEmpty()) {
-                if (rvObjets != null
-                        && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                    ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+                if (adapter != null) {
+                    adapter.setLoading(true);
                 }
             }
 
@@ -1209,10 +1187,8 @@ public class CollectionFragment extends Fragment {
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserCard>> call, Throwable t) {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
-                            if (rvObjets != null
-                                    && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter())
-                                        .setLoading(false);
+                            if (adapter != null) {
+                                adapter.setLoading(false);
                             }
                         });
                     }
@@ -1227,28 +1203,18 @@ public class CollectionFragment extends Fragment {
             if (items == null)
                 return;
             new Thread(() -> {
-                List<com.vn.jet.mosco.model.Objet> realObjets = new ArrayList<>();
+                // Chuyển đổi trực tiếp sang CardDisplayItem — bỏ bước trung gian qua Objet
+                List<com.vn.jet.mosco.model.CardDisplayItem> displayItems = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
-                    com.vn.jet.mosco.model.Objet objet = new com.vn.jet.mosco.model.Objet(
-                            uc.id.intValue(), uc.collectionId, uc.frontImage, uc.level, uc.exp, uc.upgradeLevel);
-                    objet.setOvr(uc.ovr);
-                    objet.setMember(uc.member);
-                    objet.setSeason(uc.season);
-
-                    objet.setTypeKey(mapClassToTypeKey(uc.cardClass));
-                    objet.setBackImageUrl(uc.backImage);
-                    objet.setCollectionNo(uc.collectionNo);
-                    objet.setSlug(uc.slug);
-                    objet.setBackgroundColor(uc.backgroundColor);
-                    objet.setTextColor(uc.textColor);
-                    objet.setAvailableTags(uc.availableTags);
-                    objet.setDimension(uc.dimension);
-                    realObjets.add(objet);
+                    com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem.fromCacheItem(uc);
+                    // Chuẩn hóa cardClass qua mapping hệ thống
+                    displayItem.setCardClass(mapClassToTypeKey(uc.cardClass));
+                    displayItems.add(displayItem);
                 }
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        originalObjets = realObjets;
+                        originalObjets = displayItems;
                         applyFilters();
                     });
                 }
@@ -1257,8 +1223,8 @@ public class CollectionFragment extends Fragment {
 
         private void applyFilters() {
             // Hiển thị Skeleton ngay lập tức (Luxury Feel)
-            if (rvObjets != null && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter()).setLoading(true);
+            if (adapter != null) {
+                adapter.setLoading(true);
             }
 
             new Thread(() -> {
@@ -1268,7 +1234,7 @@ public class CollectionFragment extends Fragment {
                 } catch (InterruptedException ignored) {
                 }
 
-                List<com.vn.jet.mosco.model.Objet> filtered = new ArrayList<>();
+                List<com.vn.jet.mosco.model.CardDisplayItem> filtered = new ArrayList<>();
                 String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
                 boolean isAsc = (filterBar != null) && filterBar.isAscending();
 
@@ -1285,15 +1251,15 @@ public class CollectionFragment extends Fragment {
                         selSeasons.add(f.toLowerCase());
                 }
 
-                for (com.vn.jet.mosco.model.Objet obj : originalObjets) {
+                for (com.vn.jet.mosco.model.CardDisplayItem item : originalObjets) {
                     if (objetFilter.isEmpty()) {
-                        filtered.add(obj);
+                        filtered.add(item);
                         continue;
                     }
 
-                    String member = obj.getMember();
-                    String season = obj.getSeason();
-                    String rawClass = obj.getTypeKey();
+                    String member = item.getMember();
+                    String season = item.getSeason();
+                    String rawClass = item.getCardClass();
                     String mappedClass = mapClassToTypeKey(rawClass);
 
                     boolean matchArtist = selArtists.isEmpty()
@@ -1305,7 +1271,7 @@ public class CollectionFragment extends Fragment {
                             || (season != null && selSeasons.contains(season.toLowerCase()));
 
                     if (matchArtist && matchClass && matchSeason) {
-                        filtered.add(obj);
+                        filtered.add(item);
                     }
                 }
 
@@ -1320,8 +1286,8 @@ public class CollectionFragment extends Fragment {
                         String m2 = b.getMember() != null ? b.getMember() : "";
                         res = m1.compareToIgnoreCase(m2);
                     } else if ("Class".equals(currentSort)) {
-                        int r1 = getCardClassRank(a.getTypeKey());
-                        int r2 = getCardClassRank(b.getTypeKey());
+                        int r1 = getCardClassRank(a.getCardClass());
+                        int r2 = getCardClassRank(b.getCardClass());
                         res = Integer.compare(r1, r2);
                     } else if ("Season".equals(currentSort)) {
                         String s1 = a.getSeason() != null ? a.getSeason() : "";
@@ -1335,10 +1301,8 @@ public class CollectionFragment extends Fragment {
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        if (rvObjets != null
-                                && rvObjets.getAdapter() instanceof com.vn.jet.mosco.adapter.BaseInventoryAdapter) {
-                            ((com.vn.jet.mosco.adapter.BaseInventoryAdapter) rvObjets.getAdapter())
-                                    .updateData(filtered);
+                        if (adapter != null) {
+                            adapter.updateData(filtered);
                         }
                         if (tvCount != null)
                             tvCount.setText(getString(R.string.inventory_format_items_count, filtered.size()));
@@ -1658,13 +1622,10 @@ public class CollectionFragment extends Fragment {
                 "Status" };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvAlbum;
-        private com.vn.jet.mosco.adapter.CollectionBookAdapter adapter;
+        private com.vn.jet.mosco.adapter.UnifiedCardAdapter adapter;
         private TextView tvProgress, tvCount;
         private android.widget.ProgressBar progressBar;
-        private List<com.vn.jet.mosco.model.CollectionEntry> originalEntries = new ArrayList<>();
-        private List<com.vn.jet.mosco.model.CollectionEntry> currentFilteredList = new ArrayList<>();
-        private int currentLimit = 60;
-        private boolean isPagingLoading = false;
+        private List<com.vn.jet.mosco.model.CardDisplayItem> originalEntries = new ArrayList<>();
         private int totalCards = 0;
         private int ownedCount = 0;
 
@@ -1715,29 +1676,14 @@ public class CollectionFragment extends Fragment {
             // RecyclerView
             rvAlbum = view.findViewById(R.id.rv_album);
             rvAlbum.setLayoutManager(new GridLayoutManager(requireContext(), 3));
-            rvAlbum.setHasFixedSize(true);
-            rvAlbum.setItemViewCacheSize(20);
-            rvAlbum.setDrawingCacheEnabled(true);
-            rvAlbum.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
             // [QUIET LUXURY] Áp dụng phanh ABS
             com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvAlbum);
 
-            adapter = new com.vn.jet.mosco.adapter.CollectionBookAdapter(new ArrayList<>(), this::onBookCardClicked);
+            adapter = new com.vn.jet.mosco.adapter.UnifiedCardAdapter(
+                    new ArrayList<>(), rvAlbum,
+                    com.vn.jet.mosco.adapter.UnifiedCardAdapter.DisplayMode.ALBUM,
+                    this::onBookCardClicked);
             rvAlbum.setAdapter(adapter);
-
-            rvAlbum.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    if (dy > 0 && !isPagingLoading) {
-                        GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-                        if (layoutManager != null
-                                && layoutManager.findLastVisibleItemPosition() >= adapter.getItemCount() - 3) {
-                            loadNextPage();
-                        }
-                    }
-                }
-            });
 
             loadCollectionBook();
         }
@@ -1761,32 +1707,13 @@ public class CollectionFragment extends Fragment {
             }
         }
 
-        private void loadNextPage() {
-            if (currentLimit >= currentFilteredList.size() || isPagingLoading)
-                return;
-
-            isPagingLoading = true;
-            if (adapter != null)
-                adapter.setPagingLoading(true);
-
-            // [PERFORMANCE TEST] Xóa bỏ delay 400ms và load sạch data
-            currentLimit = currentFilteredList.size();
-            int maxLimit = currentFilteredList.size();
-
-            if (adapter != null) {
-                adapter.setPagingLoading(false);
-                adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
-            }
-            isPagingLoading = false;
-        }
-
         /**
          * Xử lý click thẻ trong Album.
          * Luôn mở Dialog chi tiết thẻ (hỗ trợ cả thẻ chưa sở hữu với icon ổ khóa).
          */
-        private void onBookCardClicked(com.vn.jet.mosco.model.CollectionEntry entry) {
-            if (requireContext() != null && entry != null) {
-                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), entry);
+        private void onBookCardClicked(com.vn.jet.mosco.model.CardDisplayItem item) {
+            if (requireContext() != null && item != null) {
+                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), item);
             }
         }
 
@@ -1815,7 +1742,13 @@ public class CollectionFragment extends Fragment {
                                 com.vn.jet.mosco.model.CollectionBookResponse book = response.body();
                                 totalCards = book.getTotalCards();
                                 ownedCount = book.getOwnedCount();
-                                originalEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
+
+                                // Chuyển đổi CollectionEntry -> CardDisplayItem (Unified Model)
+                                List<com.vn.jet.mosco.model.CollectionEntry> rawEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
+                                originalEntries = new ArrayList<>();
+                                for (com.vn.jet.mosco.model.CollectionEntry entry : rawEntries) {
+                                    originalEntries.add(com.vn.jet.mosco.model.CardDisplayItem.fromCollectionEntry(entry));
+                                }
 
                                 // Cập nhật tiến trình
                                 if (tvProgress != null) {
@@ -1987,31 +1920,31 @@ public class CollectionFragment extends Fragment {
                         selSeasons.add(f.toLowerCase());
                 }
 
-                List<com.vn.jet.mosco.model.CollectionEntry> filtered = new ArrayList<>();
+                List<com.vn.jet.mosco.model.CardDisplayItem> filtered = new ArrayList<>();
 
-                for (com.vn.jet.mosco.model.CollectionEntry entry : originalEntries) {
+                for (com.vn.jet.mosco.model.CardDisplayItem item : originalEntries) {
                     boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all")
                             || selStatus.contains("tất cả")
-                            || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && entry.isOwned())
+                            || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && item.isOwned())
                             || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu"))
-                                    && !entry.isOwned());
+                                    && !item.isOwned());
 
-                    String member = entry.getMember();
+                    String member = item.getMember();
                     boolean matchArtist = selArtists.isEmpty()
                             || (member != null && selArtists.contains(member.toLowerCase()));
 
-                    String rawClass = entry.getCardClass();
+                    String rawClass = item.getCardClass();
                     String mappedClass = mapClassToTypeKey(rawClass);
                     boolean matchClass = selClasses.isEmpty()
                             || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null
                                     && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
 
-                    String season = entry.getSeason();
+                    String season = item.getSeason();
                     boolean matchSeason = selSeasons.isEmpty()
                             || (season != null && selSeasons.contains(season.toLowerCase()));
 
                     if (matchStatus && matchArtist && matchClass && matchSeason) {
-                        filtered.add(entry);
+                        filtered.add(item);
                     }
                 }
 
@@ -2043,13 +1976,10 @@ public class CollectionFragment extends Fragment {
 
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
-                        currentFilteredList = filtered;
-                        currentLimit = 18;
-                        int maxLimit = Math.min(currentLimit, currentFilteredList.size());
                         if (adapter != null)
-                            adapter.updateData(new ArrayList<>(currentFilteredList.subList(0, maxLimit)));
+                            adapter.updateData(filtered);
                         if (tvCount != null)
-                            tvCount.setText(currentFilteredList.size() + " Cards");
+                            tvCount.setText(filtered.size() + " Cards");
                     });
                 }
             }).start();

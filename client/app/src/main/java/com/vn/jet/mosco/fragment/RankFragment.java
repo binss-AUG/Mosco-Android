@@ -110,15 +110,8 @@ public class RankFragment extends Fragment {
                 tvName.setText(session.getIngameName() != null ? session.getIngameName() : getString(R.string.profile_preview_default_name));
                 tvValue.setText(getString(R.string.placeholder_empty));
                 
-                String avatarId = session.getAvatarId();
-                String avatarUrl = session.getAvatar();
-                if (avatarUrl == null || avatarUrl.isEmpty()) {
-                    JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
-                    if (card != null) avatarUrl = card.optString("frontImage", null);
-                }
-                
-                Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_user)
-                    .transform(new SmartFaceCropTransformation()).into(ivAvatar);
+                // Luồng tải ưu tiên: Avatar của mình ở footer dùng bản thumbnail
+                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivAvatar, session.getUserId(), avatarId, true);
                 return;
             }
 
@@ -160,15 +153,9 @@ public class RankFragment extends Fragment {
                     break;
             }
 
-            String avatarUrl = userRankData.optString("avatarUrl", null);
             String avatarId = userRankData.optString("avatarId", "1");
-            if (avatarUrl == null || avatarUrl.isEmpty() || "null".equals(avatarUrl)) {
-                JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(requireContext(), avatarId);
-                if (card != null) avatarUrl = card.optString("frontImage", null);
-            }
-
-            Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_user)
-                .transform(new SmartFaceCropTransformation()).into(ivAvatar);
+            // Luồng tải ưu tiên: Avatar của mình ở footer dùng bản thumbnail
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivAvatar, userRankData.optLong("userId"), avatarId, true);
 
         } catch (Exception e) {
             Log.e(TAG, "Error updating my rank footer", e);

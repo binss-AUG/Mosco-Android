@@ -21,6 +21,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.vn.jet.mosco.R;
+import com.vn.jet.mosco.model.CardDisplayItem;
 
 /**
  * ObjetDetailBinder — Xử lý giao diện động cho hộp thoại chi tiết Thẻ bài (Objet).
@@ -361,7 +362,7 @@ public class ObjetDetailBinder {
                         androidx.appcompat.app.AppCompatActivity activity = (androidx.appcompat.app.AppCompatActivity) context;
                         com.vn.jet.mosco.fragment.UpgradeFragment upgradeFragment = com.vn.jet.mosco.fragment.UpgradeFragment.newInstance();
                         if (objet != null) {
-                            upgradeFragment.setMainCard(objet);
+                            upgradeFragment.setMainCard(CardDisplayItem.fromObjet(objet));
                             activity.getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.frame_layout, upgradeFragment)
                                     .addToBackStack(null)

@@ -102,6 +102,22 @@ public class CardEffectHelper {
     }
 
     /**
+     * Áp dụng hiệu ứng cho thẻ thống nhất (CardDisplayItem).
+     */
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating) {
+        apply(cardView, shimmer, item, applyFloating, true);
+    }
+
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating, boolean applyGlow) {
+        apply(cardView, shimmer, item, applyFloating, applyGlow, null);
+    }
+
+    public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CardDisplayItem item, boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
+        if (cardView == null || item == null) return;
+        applyInternal(cardView, shimmer, String.valueOf(item.getId()), item.getFrontImage(), applyFloating, applyGlow, forcedGlowColor);
+    }
+
+    /**
      * Áp dụng hiệu ứng cho thẻ trong Album (CollectionEntry).
      */
     public static void apply(MaterialCardView cardView, View shimmer, com.vn.jet.mosco.model.CollectionEntry entry, boolean applyFloating) {
@@ -160,9 +176,12 @@ public class CardEffectHelper {
             float minRadius = dpToPx(context, 12f);
             float cornerRadius = Math.max(cardRadius, minRadius);
 
+            // Tối ưu: Lấy màu từ bản Thumbnail để tiết kiệm RAM và tăng tốc độ xử lý
+            String colorSourceUrl = CardAssetManager.convertToVariant(imageUrl, "thumbnail");
+
             Glide.with(context)
                     .asBitmap()
-                    .load(imageUrl)
+                    .load(colorSourceUrl)
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

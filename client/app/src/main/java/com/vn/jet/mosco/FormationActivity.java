@@ -18,6 +18,7 @@ import android.view.DragEvent;
 import com.vn.jet.mosco.adapter.SynergyDashboardAdapter;
 import com.vn.jet.mosco.dto.BattleRequest;
 import com.vn.jet.mosco.dto.BattleResponse;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.network.ApiClient;
@@ -46,7 +47,7 @@ public class FormationActivity extends AppCompatActivity {
     private View stageContainer;
     
     private final View[] slotViews = new View[6];
-    private final List<Objet> formation = new ArrayList<>(Collections.nCopies(6, null));
+    private final List<CardDisplayItem> formation = new ArrayList<>(Collections.nCopies(6, null));
     private int currentOvr = 0;
 
     @Override
@@ -239,10 +240,10 @@ public class FormationActivity extends AppCompatActivity {
         }
 
         com.vn.jet.mosco.fragment.InventoryBottomSheet bottomSheet = new com.vn.jet.mosco.fragment.InventoryBottomSheet();
-        bottomSheet.setOnObjetSelectedListener(objet -> {
+        bottomSheet.setOnCardSelectedListener(card -> {
             // Kiểm tra xem thẻ đã có trên sân chưa
             for (int i = 0; i < formation.size(); i++) {
-                if (formation.get(i) != null && formation.get(i).getId() == objet.getId()) {
+                if (formation.get(i) != null && formation.get(i).getId() == card.getId()) {
                     if (i == position) return;
                     Collections.swap(formation, position, i);
                     bindSlotView(position);
@@ -254,7 +255,7 @@ public class FormationActivity extends AppCompatActivity {
             }
 
             // Chặn duplicate Artist
-            String newArtist = objet.getMember();
+            String newArtist = card.getMember();
             if (newArtist != null) {
                 for (int i = 0; i < formation.size(); i++) {
                     if (i == position) continue; // Bỏ qua chính thẻ hiện đang xét thay thế
@@ -265,7 +266,7 @@ public class FormationActivity extends AppCompatActivity {
                 }
             }
 
-            formation.set(position, objet);
+            formation.set(position, card);
             bindSlotView(position);
             fetchBattlePreview();
             saveFormationState();
@@ -275,7 +276,7 @@ public class FormationActivity extends AppCompatActivity {
 
     private void bindSlotView(int index) {
         View slotView = slotViews[index];
-        Objet objet = formation.get(index);
+        CardDisplayItem objet = formation.get(index);
         
         View emptyView = slotView.findViewById(R.id.empty_slot_view);
         View cardView = slotView.findViewById(R.id.card_slot_view);
@@ -296,16 +297,11 @@ public class FormationActivity extends AppCompatActivity {
                 com.vn.jet.mosco.utils.CardEffectHelper.apply(cvShowcaseCard, viewCardShimmer, objet, true);
             }
             
-            if (objet.getImageUrl() != null && !objet.getImageUrl().isEmpty()) {
-                java.io.File localFile = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(this, objet.getImageUrl());
-                if (localFile != null && localFile.exists()) {
-                    com.bumptech.glide.Glide.with(this).load(localFile).into(ivCard);
-                } else {
-                    com.bumptech.glide.Glide.with(this).load(objet.getImageUrl()).into(ivCard);
-                }
-            } else {
-                ivCard.setImageDrawable(null);
-            }
+            // Luồng tải ưu tiên: Grid Formation dùng bản Thumbnail để tiết kiệm RAM
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCard, objet.getFrontImage(), true);
+        } else {
+            ivCard.setImageDrawable(null);
+        }
             
             if (tvOvr != null) {
                 tvOvr.setVisibility(View.GONE);
@@ -313,11 +309,11 @@ public class FormationActivity extends AppCompatActivity {
             }
 
             if (ivLevel != null) {
-                if (objet.getUpgradeLevel() > 0) {
-                    String assetPath = "file:///android_asset/grade/" + objet.getUpgradeLevel() + ".png";
+                if (objet.getLevel() > 0) {
+                    String assetPath = "file:///android_asset/grade/" + objet.getLevel() + ".png";
                     com.bumptech.glide.Glide.with(this).load(assetPath).into(ivLevel);
                     ivLevel.setVisibility(View.VISIBLE);
-                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, objet.getUpgradeLevel());
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, objet.getLevel());
                 } else {
                     ivLevel.setVisibility(View.GONE);
                     com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
@@ -337,10 +333,10 @@ public class FormationActivity extends AppCompatActivity {
     private void fetchBattlePreview() {
         BattleRequest request = new BattleRequest();
         List<BattleRequest.FormationSlot> slots = new ArrayList<>();
-        for (Objet obj : formation) {
+        for (CardDisplayItem obj : formation) {
             if (obj != null) {
                 BattleRequest.FormationSlot slot = new BattleRequest.FormationSlot();
-                slot.setUserCardId((long) obj.getId());
+                slot.setUserCardId(obj.getId());
                 slots.add(slot);
             }
         }
@@ -373,7 +369,7 @@ public class FormationActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Objet> fetched = response.body();
                     for (int i = 0; i < Math.min(6, fetched.size()); i++) {
-                        formation.set(i, fetched.get(i));
+                        formation.set(i, CardDisplayItem.fromObjet(fetched.get(i)));
                         bindSlotView(i);
                     }
                     fetchBattlePreview();
@@ -392,8 +388,8 @@ public class FormationActivity extends AppCompatActivity {
         if (userId == null) return;
 
         List<Long> slotIds = new ArrayList<>();
-        for (Objet obj : formation) {
-            slotIds.add(obj != null ? (long) obj.getId() : null);
+        for (CardDisplayItem obj : formation) {
+            slotIds.add(obj != null ? obj.getId() : null);
         }
 
         GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
@@ -434,14 +430,14 @@ public class FormationActivity extends AppCompatActivity {
 
     private void updateDynamicSlotStats(Map<Long, Integer> cardOvrMap) {
         for (int i = 0; i < 6; i++) {
-            Objet obj = formation.get(i);
+            CardDisplayItem obj = formation.get(i);
             if (obj == null) continue;
 
             TextView tvOvr = slotViews[i].findViewById(R.id.card_tv_ovr);
             if (tvOvr == null) continue;
 
             int baseOvr = obj.getOvr();
-            int newOvr = cardOvrMap.getOrDefault((long) obj.getId(), baseOvr);
+            int newOvr = cardOvrMap.getOrDefault(obj.getId(), baseOvr);
 
             if (newOvr > baseOvr) {
                 tvOvr.setText(String.valueOf(newOvr));
@@ -508,13 +504,13 @@ public class FormationActivity extends AppCompatActivity {
         String cleanSynergyName = synergyName.replaceAll("\\s*\\(\\d+\\)$", "").trim();
 
         for (int i = 0; i < formation.size(); i++) {
-            Objet objet = formation.get(i);
+            CardDisplayItem objet = formation.get(i);
             View itemView = slotViews[i];
             if (itemView == null || objet == null) continue;
 
             // Null checks for safety
             java.util.List<String> tags = objet.getAvailableTags();
-            String typeKey = objet.getTypeKey() != null ? objet.getTypeKey() : "";
+            String typeKey = objet.getCardClass() != null ? objet.getCardClass() : "";
             String dimension = objet.getDimension() != null ? objet.getDimension() : "";
 
             boolean isRelated = false;
@@ -537,7 +533,7 @@ public class FormationActivity extends AppCompatActivity {
             }
 
             if (!isRelated && cleanSynergyName.toUpperCase().contains("HARMONY")) {
-                int level = objet.getUpgradeLevel();
+                int level = objet.getLevel();
                 String tier = getString(R.string.synergy_tier_bronze);
                 
                 int goldMin = getResources().getInteger(R.integer.synergy_tier_gold_min_level);

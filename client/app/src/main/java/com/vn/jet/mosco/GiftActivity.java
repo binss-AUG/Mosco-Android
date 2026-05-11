@@ -17,7 +17,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.vn.jet.mosco.adapter.FriendSelectAdapter;
 import com.vn.jet.mosco.adapter.GiftHistoryAdapter;
 import com.vn.jet.mosco.fragment.InventoryBottomSheet;
-import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.DatabaseLoader;
@@ -82,7 +82,7 @@ public class GiftActivity extends AppCompatActivity {
     private GiftHistoryAdapter giftHistoryAdapter;
 
     // ── State ──
-    private Objet selectedObjet = null;
+    private CardDisplayItem selectedObjet = null;
     private JSONObject selectedFriend = null;
     private int currentStep = 1;
     private List<JSONObject> allFriendsList = new ArrayList<>();
@@ -109,7 +109,7 @@ public class GiftActivity extends AppCompatActivity {
         if (cardId != null && !cardId.isEmpty() && DatabaseLoader.cachedUserInventory != null) {
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
                 if (item.collectionId.equals(cardId)) {
-                    selectedObjet = Objet.fromCacheItem(item);
+                    selectedObjet = CardDisplayItem.fromCacheItem(item);
                     bindSelectedCard();
                     goToStep(2);
                     loadFriendList();
@@ -235,7 +235,7 @@ public class GiftActivity extends AppCompatActivity {
      */
     private void openCardSelector() {
         InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
-        bottomSheet.setOnObjetSelectedListener(card -> {
+        bottomSheet.setOnCardSelectedListener(card -> {
             if (card != null) {
                 selectedObjet = card;
                 bindSelectedCard();
@@ -260,11 +260,9 @@ public class GiftActivity extends AppCompatActivity {
         TextView tvCardOvr = cvSelectedCard.findViewById(R.id.card_tv_ovr);
         ImageView ivCardLevel = cvSelectedCard.findViewById(R.id.card_iv_level);
         View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
-
-        Glide.with(this)
-                .load(selectedObjet.getImageUrl())
-                .placeholder(R.drawable.objet_back_spin)
-                .into(ivCardImage);
+        
+        // Luồng tải ưu tiên: Thẻ đang chọn gửi quà dùng bản Original chất lượng cao
+        com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCardImage, selectedObjet.getFrontImage(), false);
 
         // HIỆU ỨNG SHOWCASE CAO CẤP (Bê nguyên từ HomeFragment)
         if (tvCardOvr != null) {
@@ -272,13 +270,13 @@ public class GiftActivity extends AppCompatActivity {
         }
 
         if (ivCardLevel != null) {
-            if (selectedObjet.getUpgradeLevel() > 0) {
-                String assetPath = "file:///android_asset/grade/" + selectedObjet.getUpgradeLevel() + ".png";
+            if (selectedObjet.getLevel() > 0) {
+                String assetPath = "file:///android_asset/grade/" + selectedObjet.getLevel() + ".png";
                 Glide.with(this).load(assetPath).into(ivCardLevel);
                 ivCardLevel.setVisibility(View.VISIBLE);
                 
                 // Hiệu ứng Glow cho Badge
-                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevel, selectedObjet.getUpgradeLevel());
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivCardLevel, selectedObjet.getLevel());
             } else {
                 ivCardLevel.setVisibility(View.GONE);
                 com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivCardLevel);
@@ -448,7 +446,7 @@ public class GiftActivity extends AppCompatActivity {
         // Disable nút gửi để chống double-tap
         btnConfirmSend.setEnabled(false);
 
-        Long cardId = (long) selectedObjet.getId();
+        Long cardId = selectedObjet.getId();
         Long receiverId = selectedFriend.optLong("userId");
 
         Map<String, Long> body = new HashMap<>();

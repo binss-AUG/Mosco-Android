@@ -205,9 +205,9 @@ public class ProfileExhibitFragment extends Fragment {
 
         InventoryBottomSheet sheet = new InventoryBottomSheet();
         sheet.setShowcaseMode(true); // Cho phép chọn cả thẻ đang BUSY (Stage)
-        sheet.setOnObjetSelectedListener(objet -> {
-            if (objet != null) {
-                updateShowcase(index, objet.getCollectionId());
+        sheet.setOnCardSelectedListener(card -> {
+            if (card != null) {
+                updateShowcase(index, card.getCollectionId());
             }
         });
         sheet.show(getChildFragmentManager(), PICKER_TAG);
@@ -333,10 +333,8 @@ public class ProfileExhibitFragment extends Fragment {
                 ivImage.setAlpha(1.0f);
                 ivImage.setVisibility(View.VISIBLE);
                 String frontImage = cardData.optString("frontImage");
-                Glide.with(this)
-                        .load(frontImage)
-                        .placeholder(R.drawable.bg_skeleton_rect_rounded)
-                        .into(ivImage);
+                // Luồng tải ưu tiên: Showcase Pager dùng bản Original để đạt độ nét tối đa (Quiet Luxury)
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivImage, frontImage, false);
             }
 
             if (ivBack != null) {

@@ -27,6 +27,10 @@ public class AvatarUtils {
      * @param avatarId     ID của thẻ bài đang được chọn làm Avatar
      */
     public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId) {
+        loadAvatar(context, imageView, targetUserId, avatarId, false);
+    }
+
+    public static void loadAvatar(Context context, ImageView imageView, Long targetUserId, String avatarId, boolean isThumbnail) {
         if (context == null || imageView == null) return;
 
         // 1. Kiểm tra xem targetUserId có phải là người dùng hiện tại không
@@ -51,13 +55,17 @@ public class AvatarUtils {
         }
 
         // [PHASE 2] Fallback: Load từ AvatarId (Circle Crop) cho người khác hoặc khi chưa crop
-        loadAvatarById(context, imageView, avatarId);
+        loadAvatarById(context, imageView, avatarId, isThumbnail);
+    }
+
+    public static void loadAvatarById(Context context, ImageView imageView, String avatarId) {
+        loadAvatarById(context, imageView, avatarId, false);
     }
 
     /**
      * Logic load Avatar từ database theo ID thẻ bài (Dùng Circle Crop)
      */
-    public static void loadAvatarById(Context context, ImageView imageView, String avatarId) {
+    public static void loadAvatarById(Context context, ImageView imageView, String avatarId, boolean isThumbnail) {
         if (context == null || imageView == null) return;
 
         if (avatarId == null || avatarId.isEmpty() || avatarId.equals("null")) {
@@ -75,7 +83,7 @@ public class AvatarUtils {
 
             // Đảm bảo URL đầy đủ (Cloudflare / Firebase)
             if (!imgUrl.contains("/original") && !imgUrl.contains("/thumbnail") && !imgUrl.startsWith("http")) {
-                imgUrl = GlideBindingAdapter.convertImageIdToUrl(imgUrl, false);
+                imgUrl = GlideBindingAdapter.convertImageIdToUrl(imgUrl, isThumbnail);
             }
 
             Glide.with(context)

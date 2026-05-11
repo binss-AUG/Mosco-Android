@@ -36,7 +36,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.ApiResponse;
-import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.UpgradeRequest;
 import com.vn.jet.mosco.model.UpgradeResponse;
 import com.vn.jet.mosco.network.ApiClient;
@@ -106,8 +106,8 @@ public class UpgradeFragment extends Fragment {
     private View btnBack;
 
     // Dữ liệu logic
-    private Objet mainCard = null;
-    private Objet[] materialCards = new Objet[5];
+    private CardDisplayItem mainCard = null;
+    private CardDisplayItem[] materialCards = new CardDisplayItem[5];
     private int currentMaterialSlot = -1;
 
     private UpgradeAlgorithm upgradeAlgorithm;
@@ -156,7 +156,7 @@ public class UpgradeFragment extends Fragment {
         }
     }
 
-    public void setMainCard(Objet card) {
+    public void setMainCard(CardDisplayItem card) {
         this.mainCard = card;
         if (rootView != null) {
             updateUI();
@@ -304,7 +304,7 @@ public class UpgradeFragment extends Fragment {
         currentMaterialSlot = slotIndex;
         InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
         if (slotIndex != -1) {
-            List<Objet> currentSelected = new ArrayList<>();
+            List<CardDisplayItem> currentSelected = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 if (materialCards[i] != null)
                     currentSelected.add(materialCards[i]);
@@ -319,7 +319,7 @@ public class UpgradeFragment extends Fragment {
                 updateUI();
             });
         } else {
-            bottomSheet.setOnObjetSelectedListener(card -> {
+            bottomSheet.setOnCardSelectedListener(card -> {
                 if (currentMaterialSlot == -1) {
                     mainCard = card;
                     for (int i = 0; i < 5; i++)
@@ -362,9 +362,9 @@ public class UpgradeFragment extends Fragment {
         if (mainCard == null)
             return;
         List<Long> materialIds = new ArrayList<>();
-        for (Objet mc : materialCards) {
+        for (CardDisplayItem mc : materialCards) {
             if (mc != null)
-                materialIds.add((long) mc.getId());
+                materialIds.add(mc.getId());
         }
         if (materialIds.isEmpty())
             return;
@@ -374,7 +374,7 @@ public class UpgradeFragment extends Fragment {
         btnUpgrade.setText(getString(R.string.upgrade_action_upgrading));
 
         Long userId = new SessionManager(requireContext()).getUserId();
-        UpgradeRequest request = new UpgradeRequest(userId, (long) mainCard.getId(), materialIds);
+        UpgradeRequest request = new UpgradeRequest(userId, mainCard.getId(), materialIds);
 
         GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
         apiService.upgradeCard(request).enqueue(new Callback<ApiResponse<UpgradeResponse>>() {
@@ -519,13 +519,13 @@ public class UpgradeFragment extends Fragment {
         ImageView ivResultLevel = cardContainer.findViewById(R.id.card_iv_level);
         View shimmer = cardContainer.findViewById(R.id.view_card_shimmer);
 
-        // Load ảnh thẻ CŨ lên card (sẽ swap sang data mới sau)
-        Glide.with(requireContext()).load(mainCard.getImageUrl()).into(ivResultImage);
+        // Load ảnh thẻ CŨ lên card (Sử dụng Priority Flow - Original)
+        com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivResultImage, mainCard.getFrontImage(), false);
         tvResultOvr.setVisibility(View.GONE);
         tvResultOvr.setText(String.valueOf(mainCard.getOvr()));
-        if (mainCard.getCardLevel() > 0) {
+        if (mainCard.getLevel() > 0) {
             ivResultLevel.setVisibility(View.VISIBLE);
-            String gradePath = "file:///android_asset/grade/" + Math.min(mainCard.getCardLevel(), 10) + ".png";
+            String gradePath = "file:///android_asset/grade/" + Math.min(mainCard.getLevel(), 10) + ".png";
             Glide.with(requireContext()).load(gradePath).into(ivResultLevel);
         }
 
@@ -613,11 +613,15 @@ public class UpgradeFragment extends Fragment {
                                 } else {
                                     ivResultLevel.setVisibility(View.GONE);
                                 }
-                                Objet t = new Objet(mainCard.getId(), mainCard.getCollectionId(),
-                                        mainCard.getImageUrl(), result.getNewLevel(), 0, result.getNewLevel());
-                                t.setOvr(result.getNewOvr());
-                                // Tắt Outer Glow nếu nâng cấp thất bại (result.isSuccess() == false)
-                                CardEffectHelper.apply(resultCard, shimmer, t, true, result.isSuccess());
+                                
+                                // Tạo một CardDisplayItem giả để apply hiệu ứng
+                                CardDisplayItem tempItem = new CardDisplayItem();
+                                tempItem.setOvr(result.getNewOvr());
+                                tempItem.setLevel(result.getNewLevel());
+                                tempItem.setFrontImage(mainCard.getFrontImage());
+                                tempItem.setOwned(true);
+                                
+                                CardEffectHelper.apply(resultCard, shimmer, tempItem, true, result.isSuccess());
 
                                 if (!result.isSuccess()) {
                                     android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
@@ -763,7 +767,7 @@ public class UpgradeFragment extends Fragment {
     }
 
     private void finalizeData(UpgradeResponse result) {
-        mainCard.setCardLevel(result.getNewLevel());
+        mainCard.setLevel(result.getNewLevel());
         mainCard.setOvr(result.getNewOvr());
         for (int i = 0; i < 5; i++)
             materialCards[i] = null;
@@ -810,30 +814,15 @@ public class UpgradeFragment extends Fragment {
             ivMainCardImage.setVisibility(View.VISIBLE);
             viewCardBg.setBackgroundResource(R.drawable.bg_card_filled);
             
-            if (skeleton != null) skeleton.setVisibility(View.VISIBLE);
-            Glide.with(this)
-                    .load(mainCard.getImageUrl())
-                    .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                            if (skeleton != null) skeleton.setVisibility(View.GONE);
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                            if (skeleton != null) skeleton.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .into(ivMainCardImage);
+            // Luồng tải ưu tiên: Thẻ chính dùng bản Original
+            com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
             tvCardOvr.setVisibility(View.GONE);
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
-            if (mainCard.getCardLevel() > 0) {
+            if (mainCard.getLevel() > 0) {
                 ivCardLevelBadge.setVisibility(View.VISIBLE);
-                String path = "file:///android_asset/grade/" + Math.min(mainCard.getCardLevel(), 10) + ".png";
+                String path = "file:///android_asset/grade/" + Math.min(mainCard.getLevel(), 10) + ".png";
                 Glide.with(this).load(path).into(ivCardLevelBadge);
-                LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getCardLevel());
+                LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getLevel());
             } else {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 LevelBadgeEffectHelper.remove(ivCardLevelBadge);
@@ -853,7 +842,7 @@ public class UpgradeFragment extends Fragment {
             tvOvrCurrentSmall.setVisibility(View.GONE);
         } else {
             layoutRightStats.setAlpha(1.0f);
-            tvOvrAfter.setText("+" + Math.min(mainCard.getCardLevel() + 1, 10));
+            tvOvrAfter.setText("+" + Math.min(mainCard.getLevel() + 1, 10));
             tvOvrCurrentSmall.setVisibility(View.GONE); // Hidden per OVR requirement
         }
     }
@@ -867,7 +856,7 @@ public class UpgradeFragment extends Fragment {
             ivLevelNext.setVisibility(View.GONE);
         } else {
             layoutLevelIndicator.setAlpha(1.0f);
-            int currentLevel = mainCard.getCardLevel();
+            int currentLevel = mainCard.getLevel();
             int nextLevel = Math.min(currentLevel + 1, 10);
             if (currentLevel > 0) {
                 tvLevelCurrent.setVisibility(View.GONE);
@@ -896,7 +885,7 @@ public class UpgradeFragment extends Fragment {
             return;
         }
         List<UpgradeAlgorithm.Card> materials = new ArrayList<>();
-        for (Objet mc : materialCards) {
+        for (CardDisplayItem mc : materialCards) {
             if (mc != null)
                 materials.add(createAlgoCard(mc));
         }
@@ -944,30 +933,15 @@ public class UpgradeFragment extends Fragment {
                 ivMaterials[i].setVisibility(View.VISIBLE);
                 tvMaterialPlus[i].setVisibility(View.GONE);
                 
-                if (skeleton != null) skeleton.setVisibility(View.VISIBLE);
-                Glide.with(this)
-                        .load(materialCards[i].getImageUrl())
-                        .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                                if (skeleton != null) skeleton.setVisibility(View.GONE);
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                                if (skeleton != null) skeleton.setVisibility(View.GONE);
-                                return false;
-                            }
-                        })
-                        .into(ivMaterials[i]);
+                // Luồng tải ưu tiên: Card nguyên liệu dùng bản Thumbnail
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMaterials[i], materialCards[i].getFrontImage(), true);
                 tvMaterialOvr[i].setVisibility(View.GONE); // Luôn ẩn OVR trên card trong màn hình này
-                if (materialCards[i].getCardLevel() > 0) {
+                if (materialCards[i].getLevel() > 0) {
                     ivMaterialLevel[i].setVisibility(View.VISIBLE);
                     Glide.with(this).load(
-                            "file:///android_asset/grade/" + Math.min(materialCards[i].getCardLevel(), 10) + ".png")
+                            "file:///android_asset/grade/" + Math.min(materialCards[i].getLevel(), 10) + ".png")
                             .into(ivMaterialLevel[i]);
-                    LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getCardLevel());
+                    LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getLevel());
                 } else {
                     ivMaterialLevel[i].setVisibility(View.GONE);
                     LevelBadgeEffectHelper.remove(ivMaterialLevel[i]);
@@ -992,21 +966,21 @@ public class UpgradeFragment extends Fragment {
 
     private void updateUpgradeButtonUI() {
         boolean hasMaterials = false;
-        for (Objet mc : materialCards) {
+        for (CardDisplayItem mc : materialCards) {
             if (mc != null) {
                 hasMaterials = true;
                 break;
             }
         }
-        boolean canUpgrade = mainCard != null && hasMaterials && mainCard.getCardLevel() < 10;
+        boolean canUpgrade = mainCard != null && hasMaterials && mainCard.getLevel() < 10;
         btnUpgrade.setEnabled(canUpgrade);
     }
 
-    private UpgradeAlgorithm.Card createAlgoCard(Objet card) {
+    private UpgradeAlgorithm.Card createAlgoCard(CardDisplayItem card) {
         UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-        c.id = card.getIdString();
-        c.typeKey = card.getTypeKey();
-        c.level = card.getCardLevel();
+        c.id = String.valueOf(card.getId());
+        c.typeKey = card.getCardClass();
+        c.level = card.getLevel();
         c.ovr = card.getOvr();
         return c;
     }

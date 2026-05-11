@@ -67,7 +67,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
             String avatarId = entry.optString("avatarId", "1");
             long userId = entry.optLong("userId", -1L);
-            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
+            // Luồng tải ưu tiên: Avatar trong danh sách Rank dùng bản thumbnail
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId, true);
 
             int value = entry.optInt("value", 0);
             android.content.Context context = holder.itemView.getContext();

@@ -23,6 +23,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.dto.StartStageRequest;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.UserCard;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
@@ -464,8 +465,8 @@ public class StageFragment extends Fragment {
         InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
         bottomSheet.setSquadSelectMode(6, materials -> {
             List<Long> ids = new ArrayList<>();
-            for (com.vn.jet.mosco.model.Objet obj : materials) {
-                ids.add((long) obj.getId());
+            for (com.vn.jet.mosco.model.CardDisplayItem mc : materials) {
+                ids.add(mc.getId());
             }
             startStage(mapId, ids);
         });

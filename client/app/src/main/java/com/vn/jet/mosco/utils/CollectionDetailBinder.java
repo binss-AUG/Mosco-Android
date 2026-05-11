@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.CollectionEntry;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.MainActivity;
 import com.vn.jet.mosco.fragment.ShopFragment;
 import com.vn.jet.mosco.GiftActivity;
@@ -34,6 +35,32 @@ import androidx.fragment.app.Fragment;
  * Hỗ trợ lật thẻ vật lý (Interactive Drag-to-Flip) với cơ chế Elastic Snap.
  */
 public class CollectionDetailBinder {
+
+    /**
+     * Overload: Nhận CardDisplayItem (Unified Model) và chuyển sang CollectionEntry
+     * để tương thích với logic hiện tại.
+     */
+    public static void showDetail(Context context, CardDisplayItem item) {
+        if (context == null || item == null) return;
+
+        // Chuyển đổi sang CollectionEntry để tái sử dụng logic cũ
+        CollectionEntry entry = new CollectionEntry();
+        entry.setCollectionId(item.getCollectionId());
+        entry.setFrontImage(item.getFrontImage());
+        entry.setBackImage(item.getBackImage());
+        entry.setOvr(item.getOvr());
+        entry.setLevel(item.getLevel());
+        entry.setUpgradeLevel(item.getUpgradeLevel());
+        entry.setMember(item.getMember());
+        entry.setSeason(item.getSeason());
+        entry.setCardClass(item.getCardClass());
+        entry.setCollectionNo(item.getCollectionNo());
+        entry.setBackgroundColor(item.getBackgroundColor());
+        entry.setOwned(item.isOwned());
+        entry.setUserCardId(item.getUserCardId() != null ? item.getUserCardId() : -1L);
+
+        showDetail(context, entry);
+    }
 
     /**
      * Hiển thị hộp thoại chi tiết Thẻ bài trong Collection Book (Album).
@@ -54,15 +81,12 @@ public class CollectionDetailBinder {
             dialog.getWindow().setDimAmount(dimVal.getFloat());
         }
 
-        // 1. Bind Hình ảnh thẻ bài (Sử dụng Local First)
+        // 1. Bind Hình ảnh thẻ bài (Sử dụng Priority Loading Flow - Original)
         ImageView ivCard = dialog.findViewById(R.id.card_iv_image);
         if (ivCard != null) {
             String imageUrl = entry.getFrontImage();
-            java.io.File localFile = CardAssetManager.getLocalFile(context, imageUrl);
-            Glide.with(context)
-                    .load(localFile != null && localFile.exists() ? localFile : imageUrl)
-                    .placeholder(R.drawable.item_shop_demo)
-                    .into(ivCard);
+            // Load bản Original chất lượng cao cho màn hình chi tiết
+            GlideBindingAdapter.loadImage(ivCard, imageUrl, false);
         }
 
         // 2. Bind OVR & Grade Badge
@@ -145,7 +169,7 @@ public class CollectionDetailBinder {
                 setupGhostButton(btnPhoto,
                     context.getString(R.string.btn_photo_title),
                     context.getString(R.string.btn_photo_desc),
-                    v -> Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show());
+                    v -> Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show());
 
                 // Logic cho "Get more" (Chỉ hiện khi ĐÃ TỪNG CÓ nhưng HIỆN KHÔNG CÒN)
                 View layoutGetMore = dialog.findViewById(R.id.layout_get_more_expandable);
@@ -207,19 +231,18 @@ public class CollectionDetailBinder {
 
             // Hiệu ứng lật thẻ vật lý
             ImageView ivBack = dialog.findViewById(R.id.iv_collection_back);
-            String backImageUrl = "";
-            if (entry.getCollectionId() != null) {
+            // Sử dụng backImage trực tiếp từ model thống nhất — không cần gọi DatabaseLoader.findById() nữa
+            String backImageUrl = entry.getBackImage() != null ? entry.getBackImage() : "";
+            // Fallback: Nếu server chưa trả backImage, tìm từ local JSON cache
+            if (backImageUrl.isEmpty() && entry.getCollectionId() != null) {
                 org.json.JSONObject cardJson = DatabaseLoader.findById(context, entry.getCollectionId());
                 if (cardJson != null) {
                     backImageUrl = cardJson.optString("backImage", "");
                 }
             }
             if (ivBack != null && !backImageUrl.isEmpty()) {
-                java.io.File localBack = CardAssetManager.getLocalFile(context, backImageUrl);
-                Glide.with(context)
-                        .load(localBack != null && localBack.exists() ? localBack : backImageUrl)
-                        .placeholder(R.drawable.objet_back_spin)
-                        .into(ivBack);
+                // Load bản Original mặt sau cho hiệu ứng lật 3D
+                GlideBindingAdapter.loadImage(ivBack, backImageUrl, false);
             }
 
             if (cvCard != null) {

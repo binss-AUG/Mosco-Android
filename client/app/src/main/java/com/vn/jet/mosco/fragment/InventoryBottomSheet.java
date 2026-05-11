@@ -20,7 +20,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.adapter.BaseInventoryAdapter;
+import com.vn.jet.mosco.adapter.UnifiedCardAdapter;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.utils.DatabaseLoader;
 import com.vn.jet.mosco.utils.UpgradeAlgorithm;
@@ -32,12 +33,12 @@ import java.util.Set;
 
 public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
-    private OnObjetSelectedListener singleSelectListener;
-    private OnMultiObjetsSelectedListener multiSelectListener;
+    private OnCardSelectedListener singleSelectListener;
+    private OnMultiCardsSelectedListener multiSelectListener;
 
     private boolean isMultiSelect = false;
-    private List<Objet> selectedMaterials = new ArrayList<>();
-    private Objet mainCard;
+    private List<CardDisplayItem> selectedMaterials = new ArrayList<>();
+    private CardDisplayItem mainCard;
     private UpgradeAlgorithm upgradeAlgorithm;
     private int maxSelectionCount = 5; // Default for upgrade
     private boolean isSquadMode = false;
@@ -48,28 +49,28 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     public static String currentSortOption = "Newest"; 
     private boolean isAscending = false;
     private String[] SORT_OPTIONS;
-    private List<Objet> originalObjets = new ArrayList<>();
+    private List<CardDisplayItem> originalObjets = new ArrayList<>();
     private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
 
     private androidx.appcompat.widget.AppCompatButton btnConfirm;
-    private BaseInventoryAdapter adapter;
+    private UnifiedCardAdapter adapter;
     private RecyclerView rvInventory;
     private LinearLayout layoutEmptyState;
     private com.airbnb.lottie.LottieAnimationView loaderLottie;
 
-    public interface OnObjetSelectedListener {
-        void onObjetSelected(Objet objet);
+    public interface OnCardSelectedListener {
+        void onCardSelected(CardDisplayItem item);
     }
 
-    public interface OnMultiObjetsSelectedListener {
-        void onMaterialsSelected(List<Objet> materials);
+    public interface OnMultiCardsSelectedListener {
+        void onMaterialsSelected(List<CardDisplayItem> materials);
     }
 
-    public void setOnObjetSelectedListener(OnObjetSelectedListener listener) {
+    public void setOnCardSelectedListener(OnCardSelectedListener listener) {
         this.singleSelectListener = listener;
     }
 
-    public void setMultiSelectMode(Objet mainCard, UpgradeAlgorithm algorithm, List<Objet> preSelected, OnMultiObjetsSelectedListener listener) {
+    public void setMultiSelectMode(CardDisplayItem mainCard, UpgradeAlgorithm algorithm, List<CardDisplayItem> preSelected, OnMultiCardsSelectedListener listener) {
         this.isMultiSelect = true;
         this.isSquadMode = false;
         this.maxSelectionCount = 5;
@@ -77,13 +78,11 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         this.upgradeAlgorithm = algorithm;
         this.multiSelectListener = listener;
         if (preSelected != null) {
-            for (Objet c : preSelected) {
-                if (c != null) this.selectedMaterials.add(c);
-            }
+            this.selectedMaterials.addAll(preSelected);
         }
     }
 
-    public void setSquadSelectMode(int maxSelect, OnMultiObjetsSelectedListener listener) {
+    public void setSquadSelectMode(int maxSelect, OnMultiCardsSelectedListener listener) {
         this.isMultiSelect = true;
         this.isSquadMode = true;
         this.maxSelectionCount = maxSelect;
@@ -95,13 +94,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         this.isShowcaseMode = showcaseMode;
     }
     
-    // Logic kiểm tra xem một Objet có bị trùng Artist với các Objet đã chọn không
-    private boolean isArtistCollision(Objet newItem) {
+    // Logic kiểm tra xem một Card có bị trùng Artist với các Card đã chọn không
+    private boolean isArtistCollision(CardDisplayItem newItem) {
         if (!isSquadMode || newItem == null) return false;
         String newMember = newItem.getMember();
         if (newMember == null) return false;
         
-        for (Objet selected : selectedMaterials) {
+        for (CardDisplayItem selected : selectedMaterials) {
             if (newMember.equalsIgnoreCase(selected.getMember())) {
                 return true;
             }
@@ -166,8 +165,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         rvInventory.setHasFixedSize(true);
         rvInventory.setItemViewCacheSize(20);
-        rvInventory.setDrawingCacheEnabled(true);
-        rvInventory.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        // [QUIET LUXURY] ĐÃ GỠ BỎ Drawing Cache (Nguyên nhân gây OOM/Crash khi lướt nhanh)
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
         filterBar = view.findViewById(R.id.filter_bar);
@@ -219,36 +217,14 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private void loadRealInventory() {
         if (getContext() == null) return;
 
-        adapter = new BaseInventoryAdapter(new ArrayList<>(), rvInventory, item -> {
+        adapter = new UnifiedCardAdapter(new ArrayList<>(), rvInventory, UnifiedCardAdapter.DisplayMode.INVENTORY, item -> {
             if (!isMultiSelect) {
                 if (singleSelectListener != null) {
-                    singleSelectListener.onObjetSelected(item);
+                    singleSelectListener.onCardSelected(item);
                     dismiss();
                 } else {
-                    // Chuyển đổi sang CollectionEntry để dùng chung giao diện Premium (3D Flip, Showcase)
-                    com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
-                    entry.setCollectionId(item.getCollectionId());
-                    entry.setFrontImage(item.getImageUrl());
-                    entry.setOvr(item.getOvr());
-                    entry.setLevel(item.getCardLevel());
-                    entry.setUserCardId(item.getIdString());
-                    entry.setOwned(true);
-
-                    // Nạp thêm metadata từ database.json nếu có
-                    org.json.JSONObject meta = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), item.getCollectionId());
-                    if (meta != null) {
-                        entry.setMember(meta.optString("member"));
-                        entry.setSeason(meta.optString("season"));
-                        entry.setCardClass(meta.optString("class"));
-                        entry.setCollectionNo(meta.optString("collectionNo"));
-                    } else {
-                        entry.setMember(item.getMember());
-                        entry.setSeason(item.getSeason());
-                        entry.setCardClass(item.getTypeKey());
-                        entry.setCollectionNo(item.getCollectionNo());
-                    }
-                    
-                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), entry);
+                    // Sử dụng trực tiếp CardDisplayItem cho Detail Binder (Đã đồng bộ)
+                    com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), item);
                 }
             }
         });
@@ -299,24 +275,23 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         // BƯỚC 1: Hiển thị từ Cache NGAY LẬP TỨC
         if (DatabaseLoader.cachedUserInventory != null && !DatabaseLoader.cachedUserInventory.isEmpty()) {
-            List<Objet> realObjets = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
+            List<CardDisplayItem> displayItems = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
             busyIds.clear();
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
-                Objet obj = Objet.fromCacheItem(item);
-                realObjets.add(obj);
-                // [SHOWCASE FIX] Nếu là chế độ trưng bày, không khóa thẻ BUSY (đang tham gia Stage)
-                if (!isShowcaseMode && obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
-                    busyIds.add(obj.getId());
+                CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
+                displayItems.add(displayItem);
+                // [SHOWCASE FIX] Nếu là chế độ trưng bày, không khóa thẻ BUSY
+                if (!isShowcaseMode && displayItem.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(displayItem.getStatus())) {
+                    busyIds.add(displayItem.getId());
                 }
             }
-            originalObjets = realObjets;
+            originalObjets = displayItems;
             adapter.updateData(originalObjets);
             layoutEmptyState.setVisibility(View.GONE);
             rvInventory.setVisibility(View.VISIBLE);
             if (loaderLottie != null) loaderLottie.setVisibility(View.GONE);
             
             updateDisabledStates();
-            // Chạy applyFilters ngầm sau khi đã hiện data thô
             rvInventory.post(this::applyFilters);
         } else {
             adapter.setLoading(true);
@@ -336,16 +311,12 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     List<com.vn.jet.mosco.model.UserCard> responseCards = response.body();
                     new Thread(() -> {
                         int capacity = responseCards.size();
-                        List<Objet> realObjets = new ArrayList<>(capacity);
+                        List<CardDisplayItem> displayItems = new ArrayList<>(capacity);
                         List<DatabaseLoader.UserInventoryItem> cachedList = new ArrayList<>(capacity);
-                        
-                        android.content.Context ctx = getContext();
-                        if (ctx == null) return;
                         
                         for (com.vn.jet.mosco.model.UserCard userCard : responseCards) {
                             DatabaseLoader.UserInventoryItem cachedItem = DatabaseLoader.UserInventoryItem.fromUserCard(userCard);
-                            Objet obj = Objet.fromCacheItem(cachedItem);
-                            realObjets.add(obj);
+                            displayItems.add(CardDisplayItem.fromCacheItem(cachedItem));
                             cachedList.add(cachedItem);
                         }
                         DatabaseLoader.cachedUserInventory = cachedList;
@@ -356,19 +327,19 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                                     loaderLottie.cancelAnimation();
                                     loaderLottie.setVisibility(View.GONE);
                                 }
-                                if (realObjets.isEmpty()) {
+                                if (displayItems.isEmpty()) {
                                     rvInventory.setVisibility(View.GONE);
                                     layoutEmptyState.setVisibility(View.VISIBLE);
                                     originalObjets = new ArrayList<>();
                                 } else {
                                     rvInventory.setVisibility(View.VISIBLE);
                                     layoutEmptyState.setVisibility(View.GONE);
-                                    originalObjets = realObjets;
+                                    originalObjets = displayItems;
 
                                     busyIds.clear();
-                                    for (Objet obj : realObjets) {
-                                        if (!isShowcaseMode && obj.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(obj.getStatus())) {
-                                            busyIds.add(obj.getId());
+                                    for (CardDisplayItem item : displayItems) {
+                                        if (!isShowcaseMode && item.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(item.getStatus())) {
+                                            busyIds.add(item.getId());
                                         }
                                     }
                                 }
@@ -403,8 +374,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     private Set<Long> getSelectedIds() {
         Set<Long> ids = new HashSet<>();
-        for (Objet obj : selectedMaterials) {
-            ids.add(obj.getId());
+        for (CardDisplayItem item : selectedMaterials) {
+            ids.add(item.getId());
         }
         return ids;
     }
@@ -427,8 +398,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             // Artificial delay for "Quiet Luxury" shimmer feel
             try { Thread.sleep(200); } catch (InterruptedException ignored) {}
 
-            List<Objet> filtered = new ArrayList<>();
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_select) : null;
+            List<CardDisplayItem> filtered = new ArrayList<>();
             String currentSort = currentSortOption;
 
             java.util.Set<String> artistsList = new java.util.HashSet<>(java.util.Arrays.asList(
@@ -454,16 +424,16 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 selSeasons.add(f.toLowerCase());
             }
 
-            for (Objet obj : originalObjets) {
+            for (CardDisplayItem item : originalObjets) {
                 if (objetFilter.isEmpty()) {
-                    filtered.add(obj);
+                    filtered.add(item);
                     continue;
                 }
-                String member = obj.getMember();
-                String cardClass = obj.getTypeKey();
-                String season = obj.getSeason();
+                String member = item.getMember();
+                String cardClass = item.getCardClass();
+                String season = item.getSeason();
                 
-                // Chuẩn hóa Class Key để khớp với logic lọc của hệ thống
+                // Chuẩn hóa Class Key
                 String mappedClass = mapClassToTypeKey(cardClass);
                 
                 boolean matchArtist = selArtists.isEmpty() || (member != null && selArtists.contains(member.toLowerCase()));
@@ -471,7 +441,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 boolean matchSeason = selSeasons.isEmpty() || (season != null && selSeasons.contains(season.toLowerCase()));
 
                 if (matchArtist && matchClass && matchSeason) {
-                    filtered.add(obj);
+                    filtered.add(item);
                 }
             }
 
@@ -490,8 +460,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     result = Boolean.compare(b1, b2); // Thẻ rảnh (Available) hiện lên trước
                 }
                 else if ("Class".equals(currentSort)) {
-                    int rankA = getCardClassRank(a.getTypeKey());
-                    int rankB = getCardClassRank(b.getTypeKey());
+                    int rankA = getCardClassRank(a.getCardClass());
+                    int rankB = getCardClassRank(b.getCardClass());
                     if (rankA != rankB) {
                         result = Integer.compare(rankA, rankB);
                     } else {
@@ -522,8 +492,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     if (seasonComp != 0) {
                         result = seasonComp;
                     } else {
-                        int rankA = getCardClassRank(a.getTypeKey());
-                        int rankB = getCardClassRank(b.getTypeKey());
+                        int rankA = getCardClassRank(a.getCardClass());
+                        int rankB = getCardClassRank(b.getCardClass());
                         if (rankA != rankB) {
                             result = Integer.compare(rankA, rankB);
                         } else {
@@ -579,19 +549,19 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private double calculateCurrentProgress() {
         if (!isMultiSelect || mainCard == null || upgradeAlgorithm == null) return 0.0;
         List<UpgradeAlgorithm.Card> algoMaterials = new ArrayList<>();
-        for (Objet mc : selectedMaterials) {
+        for (CardDisplayItem mc : selectedMaterials) {
             UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
-            c.id = mc.getIdString();
-            c.typeKey = mapClassToTypeKey(mc.getTypeKey());
-            c.level = mc.getCardLevel();
+            c.id = String.valueOf(mc.getId());
+            c.typeKey = mapClassToTypeKey(mc.getCardClass());
+            c.level = mc.getLevel();
             c.ovr = mc.getOvr();
             algoMaterials.add(c);
         }
 
         UpgradeAlgorithm.Card target = new UpgradeAlgorithm.Card();
-        target.id = mainCard.getIdString();
-        target.typeKey = mapClassToTypeKey(mainCard.getTypeKey());
-        target.level = mainCard.getCardLevel();
+        target.id = String.valueOf(mainCard.getId());
+        target.typeKey = mapClassToTypeKey(mainCard.getCardClass());
+        target.level = mainCard.getLevel();
         target.ovr = mainCard.getOvr();
 
         return upgradeAlgorithm.calculateFillPercent(target, algoMaterials);
@@ -620,9 +590,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         if (adapter == null) return;
         java.util.Set<String> disabledMembers = new java.util.HashSet<>();
         if (isSquadMode) {
-            for (Objet obj : selectedMaterials) {
-                if (obj.getMember() != null) {
-                    disabledMembers.add(obj.getMember().trim().toLowerCase());
+            for (CardDisplayItem item : selectedMaterials) {
+                if (item.getMember() != null) {
+                    disabledMembers.add(item.getMember().trim().toLowerCase());
                 }
             }
         }
@@ -650,28 +620,18 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             try { Thread.sleep(400); } catch (InterruptedException ignored) {}
 
             selectedMaterials.clear();
-            List<Objet> pool = new ArrayList<>(originalObjets);
+            List<CardDisplayItem> pool = new ArrayList<>(originalObjets);
             
-            // Cache seasons to avoid DB lookups inside the sort loop
-            java.util.Map<Long, String> seasonCache = new java.util.HashMap<>();
-            for (Objet obj : pool) {
-                org.json.JSONObject meta = DatabaseLoader.findById(requireContext(), obj.getCollectionId());
-                String season = meta != null ? meta.optString("season", obj.getSeason()) : obj.getSeason();
-                seasonCache.put(obj.getId(), season != null ? season : "");
-            }
-
             // Sort by Card Class desc, Season desc, OVR desc, Level desc, ID desc
             pool.sort((a, b) -> {
-                int rankA = getCardClassRank(a.getTypeKey());
-                int rankB = getCardClassRank(b.getTypeKey());
+                int rankA = getCardClassRank(a.getCardClass());
+                int rankB = getCardClassRank(b.getCardClass());
                 if (rankA != rankB) return Integer.compare(rankB, rankA);
                 
-                String seasonA = seasonCache.get(a.getId());
-                String seasonB = seasonCache.get(b.getId());
-                if (seasonA != null && seasonB != null) {
-                    int seasonComp = seasonB.compareToIgnoreCase(seasonA);
-                    if (seasonComp != 0) return seasonComp;
-                }
+                String seasonA = a.getSeason() != null ? a.getSeason() : "";
+                String seasonB = b.getSeason() != null ? b.getSeason() : "";
+                int seasonComp = seasonB.compareToIgnoreCase(seasonA);
+                if (seasonComp != 0) return seasonComp;
 
                 int ovrComp = Integer.compare(b.getOvr(), a.getOvr());
                 if (ovrComp != 0) return ovrComp;
@@ -682,7 +642,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 return Long.compare(b.getId(), a.getId());
             });
             
-            for (Objet item : pool) {
+            for (CardDisplayItem item : pool) {
                 if (selectedMaterials.size() >= maxSelectionCount) break;
                 
                 // Check if busy

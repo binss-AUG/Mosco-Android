@@ -632,11 +632,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
      */
     private void openAvatarPicker() {
         InventoryBottomSheet inventorySheet = new InventoryBottomSheet();
-        inventorySheet.setOnObjetSelectedListener(objet -> {
-            if (objet != null && objet.getImageUrl() != null) {
+        inventorySheet.setOnCardSelectedListener(card -> {
+            if (card != null && card.getFrontImage() != null) {
                 // Đảm bảo dùng ảnh gốc để crop đạt chuẩn chất lượng cao
-                String originalUrl = convertToOriginalUrl(objet.getImageUrl());
-                startManualCrop(originalUrl, objet.getCollectionId());
+                String originalUrl = convertToOriginalUrl(card.getFrontImage());
+                startManualCrop(originalUrl, card.getCollectionId());
             }
         });
         inventorySheet.show(getChildFragmentManager(), "InventoryBottomSheet");

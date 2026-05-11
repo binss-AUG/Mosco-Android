@@ -47,6 +47,7 @@ import com.google.android.material.card.MaterialCardView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.vn.jet.mosco.model.CardDisplayItem;
 import com.google.gson.JsonObject;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.network.GachaRepository;
@@ -576,8 +577,8 @@ public class SpinFragment extends Fragment {
                     if (frontUrl == null || frontUrl.equalsIgnoreCase("null") || frontUrl.isEmpty()) {
                         // Rác mặc định, không cần tải mạng
                     } else {
-                        if (frontUrl.endsWith("/4x")) frontUrl = frontUrl.substring(0, frontUrl.length() - 3) + "/1x";
-                        else if (frontUrl.endsWith("/original")) frontUrl = frontUrl.substring(0, frontUrl.length() - 9) + "/1x";
+                        if (frontUrl.endsWith("/4x")) frontUrl = frontUrl.substring(0, frontUrl.length() - 3) + "/thumbnail";
+                        else if (frontUrl.endsWith("/original")) frontUrl = frontUrl.substring(0, frontUrl.length() - 9) + "/thumbnail";
                         normalUrls.add(frontUrl);
                     }
                 }
@@ -632,22 +633,8 @@ public class SpinFragment extends Fragment {
                 imageView.setImageResource(R.drawable.trash_objet);
                 imageView.setAlpha(0.6f);
             } else {
-                // 💎 LOCAL FIRST THUMBNAIL TRICK:
-                // Dùng bản 2x từ máy làm ảnh chờ cho các loại hiển thị 4x/1x từ mạng tại màn Spin
-                java.io.File localFile = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(requireContext(), url);
-                com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> thumbRequest = null;
-                if (localFile != null && localFile.exists()) {
-                    thumbRequest = Glide.with(this).load(localFile);
-                }
-
-                Glide.with(this)
-                        .load(url)
-                        .thumbnail(thumbRequest)
-                        .priority(Priority.IMMEDIATE)
-                        .placeholder(R.drawable.objet_back_spin)
-                        // LOẠI BỎ CROSSFADE ĐỂ HIỆN NGAY LẬP TỨC (TRÁNH KHỰNG KHI XOAY 3D)
-                        .dontAnimate()
-                        .into(imageView);
+                // Luồng tải ưu tiên: Thẻ đang load trong Spin Grid dùng bản Thumbnail (isThumbnail=true)
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(imageView, url, true);
             }
         } catch (Exception e) {
             android.util.Log.e("SpinFragment", "Error loading card image: " + e.getMessage());
@@ -1456,9 +1443,9 @@ public class SpinFragment extends Fragment {
                     public boolean onSingleTapConfirmed(MotionEvent e) {
                         // Tap → mở chọn thẻ hi sinh mới bằng InventoryBottomSheet chung
                         InventoryBottomSheet bottomSheet = new InventoryBottomSheet();
-                        bottomSheet.setOnObjetSelectedListener(selectedObj -> {
-                            selectedSacrificeId = selectedObj.getIdString();
-                            updateSelectedObjetUI(selectedObj);
+                        bottomSheet.setOnCardSelectedListener(selectedItem -> {
+                            selectedSacrificeId = String.valueOf(selectedItem.getId());
+                            updateSelectedObjetUI(selectedItem);
                         });
                         bottomSheet.show(getParentFragmentManager(), "SelectObjet");
                         return true;
@@ -1693,8 +1680,8 @@ public class SpinFragment extends Fragment {
         animator.setCurrentPlayTime(initialPlayTime);
     }
 
-    private void updateSelectedObjetUI(com.vn.jet.mosco.model.Objet selectedObj) {
-        String imageUrl = selectedObj.getImageUrl();
+    private void updateSelectedObjetUI(com.vn.jet.mosco.model.CardDisplayItem selectedObj) {
+        String imageUrl = selectedObj.getFrontImage();
         if (btnAddObjet != null) btnAddObjet.setVisibility(View.GONE);
         View loader = getView() != null ? getView().findViewById(R.id.layout_spin_loading_skeleton) : null;
 
@@ -1719,10 +1706,8 @@ public class SpinFragment extends Fragment {
                     ivSelectedObjet.setVisibility(View.VISIBLE);
                     ivSelectedObjet.setAlpha(0f);
 
-                    Glide.with(this)
-                            .load(imageUrl) // 4x nạp từ mạng
-                            .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300))
-                            .into(ivSelectedObjet);
+                    // Luồng tải ưu tiên: Thẻ đang chọn hy sinh dùng bản Original chất lượng cao
+                    com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSelectedObjet, imageUrl, false);
 
                     ivSelectedObjet.animate().alpha(1f).setDuration(300).start();
 
@@ -1735,11 +1720,11 @@ public class SpinFragment extends Fragment {
 
                     android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
                     if (ivLevelBadge != null) {
-                        if (selectedObj.getUpgradeLevel() > 0) {
-                            com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getUpgradeLevel() + ".png").into(ivLevelBadge);
+                        if (selectedObj.getLevel() > 0) {
+                            com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getLevel() + ".png").into(ivLevelBadge);
                             ivLevelBadge.setVisibility(View.VISIBLE);
                             ivLevelBadge.setTag("has_badge"); // Đánh dấu để swapSacrificeFaces biết nên hiện lại
-                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getUpgradeLevel());
+                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getLevel());
                         } else {
                             ivLevelBadge.setVisibility(View.GONE);
                             ivLevelBadge.setTag(null);
@@ -1752,28 +1737,11 @@ public class SpinFragment extends Fragment {
                         com.vn.jet.mosco.utils.CardEffectHelper.apply(cardCenterSlot, shimmer, selectedObj, true);
                     }
 
-                    // 💎 Load ảnh mặt sau (backImage) từ database.json cho Flip 3D
-                    if (requireContext() != null && selectedObj.getCollectionId() != null) {
-                        org.json.JSONObject cardJson = com.vn.jet.mosco.utils.DatabaseLoader.findById(
-                                requireContext(), selectedObj.getCollectionId());
-                        if (cardJson != null) {
-                            sacrificeBackImageUrl = cardJson.optString("backImage", "");
-                            if (ivSacrificeBack != null && !sacrificeBackImageUrl.isEmpty()) {
-                                java.io.File localBackThumb = com.vn.jet.mosco.utils.CardAssetManager.getLocalFile(
-                                        requireContext(), sacrificeBackImageUrl);
-                                com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> backThumb = null;
-                                if (localBackThumb != null && localBackThumb.exists()) {
-                                    backThumb = Glide.with(this).load(localBackThumb);
-                                }
-                                Glide.with(this)
-                                        .load(sacrificeBackImageUrl)
-                                        .thumbnail(backThumb)
-                                        .placeholder(R.drawable.objet_back_spin)
-                                        .error(R.drawable.objet_back_spin)
-                                        .dontAnimate()
-                                        .into(ivSacrificeBack);
-                            }
-                        }
+                    // 💎 Load ảnh mặt sau (backImage) - Hiện đã được nạp trực tiếp trong Unified Model
+                    sacrificeBackImageUrl = selectedObj.getBackImage();
+                    if (ivSacrificeBack != null && sacrificeBackImageUrl != null && !sacrificeBackImageUrl.isEmpty()) {
+                        // Luồng tải ưu tiên: Mặt sau thẻ hy sinh cũng dùng bản Original
+                        com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSacrificeBack, sacrificeBackImageUrl, false);
                     }
                 }
             }, 400);

@@ -121,6 +121,10 @@
     <dimen name="inventory_action_btn_spacing">12dp</dimen>
     <dimen name="inventory_action_corner">12dp</dimen>
 
+    <!-- Card Grid (Thumbnail scale-down size) -->
+    <dimen name="card_grid_width">150dp</dimen>
+    <dimen name="card_grid_height">231dp</dimen>
+
     <!-- Social & Profile -->
     <dimen name="profile_nav_height">64dp</dimen>
     <dimen name="profile_preview_min_height">550dp</dimen>

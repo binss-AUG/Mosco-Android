@@ -109,6 +109,8 @@
     
     <!-- UI Components -->
     <color name="mosco_tag_bg">#B3444444</color>
+    <color name="mosco_card_bg_owned">#FF1A1C29</color>
+    <color name="mosco_card_bg_locked">#FF0D0F1A</color>
 
     <!-- Hardcoded Fixes (Mapping them to semantic roles) -->
     <color name="mosco_card_bg">@color/palette_space_blue_800</color>
