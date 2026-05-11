@@ -21,10 +21,14 @@ public class CollectionEntry {
     private int ovr;               // OVR (nếu đã có)
     private int upgradeLevel;      // Cấp cường hóa (nếu đã có)
     private int level;             // Level (nếu đã có)
+    private String createdAt;      // Thời điểm nhận thẻ
 
     public CollectionEntry() {}
 
     // === Getters & Setters ===
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
     public String getCollectionId() { return collectionId; }
     public void setCollectionId(String collectionId) { this.collectionId = collectionId; }

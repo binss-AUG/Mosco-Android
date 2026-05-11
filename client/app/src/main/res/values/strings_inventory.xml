@@ -14,6 +14,10 @@
     <string name="inventory_label_sort_level">Level</string>
     <string name="inventory_label_sort_artist">Artist (A-Z)</string>
     <string name="inventory_label_sort_status">Status</string>
+    <string name="filter_tab_status">Status</string>
+    <string name="filter_tab_artist">Artist</string>
+    <string name="filter_tab_season">Season</string>
+    <string name="filter_tab_class">Class</string>
 
     <string-array name="inventory_sort_options">
         <item>@string/inventory_label_sort_newest</item>

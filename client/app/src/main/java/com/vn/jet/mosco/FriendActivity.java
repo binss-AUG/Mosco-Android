@@ -285,7 +285,8 @@ public class FriendActivity extends MoscoBaseActivity {
             String imgUrl = card.optString("frontImage", "");
             com.bumptech.glide.Glide.with(this)
                     .load(imgUrl)
-                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(imgUrl))
                     .placeholder(R.drawable.ic_user)
                     .into(ivAvatar);
         }

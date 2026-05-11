@@ -29,8 +29,12 @@ public class UserCardDTO {
     private String textColor;
     private String status;
     private Object rarityColor; // Mã màu hex hoặc mảng màu cho gradient
+    private String createdAt;
 
     public UserCardDTO() {}
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
     public UserCardDTO(Long id, String collectionId, int level, int exp, int upgradeLevel, int ovr, String cardClass) {
         this.id = id;

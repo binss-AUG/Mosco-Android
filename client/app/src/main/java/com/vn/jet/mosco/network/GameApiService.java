@@ -234,6 +234,6 @@ public interface GameApiService {
     @GET("/api/assets/manifest")
     Call<okhttp3.ResponseBody> getAssetManifest();
 
-    @GET("/api/assets/database")
-    Call<okhttp3.ResponseBody> getFullDatabase();
+    @GET("api/v1/assets/database")
+    retrofit2.Call<okhttp3.ResponseBody> getFullDatabase(@retrofit2.http.Query("t") String timestamp);
 }

@@ -106,11 +106,12 @@ public class AvatarUtils {
             if (hasCropParams) {
                 options = options.transform(new AvatarCropTransformation(cropParams));
             } else {
-                options = options.transform(new SmartFaceCropTransformation());
+                options = options.transform(new SmartFaceCropTransformation(imgUrl));
             }
 
             Glide.with(context)
                     .load(imgUrl)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                     .apply(options)
                     .into(imageView);
         } else {

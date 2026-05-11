@@ -606,16 +606,14 @@ public class CollectionFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        // [QUIET LUXURY] Load real member avatar from latest card image
+        // [QUIET LUXURY] Load real member avatar with SmartFaceCrop for perfect circle center
         String finalUrl = item.imageUrl;
         if (finalUrl != null && !finalUrl.isEmpty()) {
-            // Apply smartcrop for better look in circles
-            if (finalUrl.contains("/original")) {
-                finalUrl = finalUrl.replace("/original", "/smartcrop");
-            }
             Glide.with(ctx)
                     .load(finalUrl)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.item_shop_demo)
+                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(finalUrl))
                     .into(iv);
         } else {
             iv.setImageResource(R.drawable.item_shop_demo);
@@ -757,17 +755,22 @@ public class CollectionFragment extends Fragment {
         List<String> seasons = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueSeasons(context);
         List<String> classes = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueClasses(context);
 
+        // [LUXURY CHECK] Nếu dữ liệu rỗng (do đang sync), báo cho người dùng biết thay vì hiện tab trống
+        if (artists.isEmpty() && seasons.isEmpty() && classes.isEmpty()) {
+            android.util.Log.w("CollectionFragment", "Filter categories are empty, Room sync might be in progress.");
+        }
+
         List<FilterCategory> cats = new ArrayList<>();
-        cats.add(new FilterCategory("Artist", artists));
-        cats.add(new FilterCategory("Season", seasons, false));
-        cats.add(new FilterCategory("Class", classes, false));
+        cats.add(new FilterCategory(context.getString(R.string.filter_tab_artist), artists));
+        cats.add(new FilterCategory(context.getString(R.string.filter_tab_season), seasons, false));
+        cats.add(new FilterCategory(context.getString(R.string.filter_tab_class), classes, false));
         return cats;
     }
 
     public static List<FilterCategory> buildAlbumCategories(Context context) {
         List<FilterCategory> cats = buildObjetCategories(context);
         List<String> statuses = java.util.Arrays.asList("All", "Owned", "Missing");
-        cats.add(0, new FilterCategory("Status", statuses, false));
+        cats.add(0, new FilterCategory(context.getString(R.string.filter_tab_status), statuses, false));
         return cats;
     }
 
@@ -1059,7 +1062,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ObjetsFragment extends Fragment {
         private final Set<String> objetFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = { "Newest", "Badge", "Level", "Artist (A-Z)", "Class", "Season" };
+        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Badge", "Level", "Artist (A-Z)", "Class", "Season" };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvObjets;
         private TextView tvCount;
@@ -1116,8 +1119,16 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        showFilterBottomSheet(ObjetsFragment.this, buildObjetCategories(requireContext()), 0,
-                                objetFilter, ObjetsFragment.this::applyFilters);
+                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main Thread blockade
+                        new Thread(() -> {
+                            List<FilterCategory> categories = buildObjetCategories(requireContext());
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    showFilterBottomSheet(ObjetsFragment.this, categories, 0,
+                                            objetFilter, ObjetsFragment.this::applyFilters);
+                                });
+                            }
+                        }).start();
                     }
                 });
             }
@@ -1290,7 +1301,19 @@ public class CollectionFragment extends Fragment {
 
                 filtered.sort((a, b) -> {
                     int res = 0;
-                    if ("Badge".equals(currentSort))
+                    if ("Newest".equals(currentSort) || "Oldest".equals(currentSort)) {
+                        String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
+                        String t2 = b.getCreatedAt() != null ? b.getCreatedAt() : "";
+                        if (!t1.isEmpty() && !t2.isEmpty()) {
+                            res = t1.compareTo(t2);
+                        }
+                        if (res == 0) {
+                            res = Long.compare(a.getId(), b.getId());
+                        }
+                        if (res == 0) {
+                            res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
+                        }
+                    } else if ("Badge".equals(currentSort))
                         res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
                     else if ("Level".equals(currentSort))
                         res = Integer.compare(a.getLevel(), b.getLevel());
@@ -1631,7 +1654,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class AlbumFragment extends Fragment {
         private final Set<String> albumFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = { "Newest", "Badge", "Level", "Artist (A-Z)", "Class", "Season",
+        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Badge", "Level", "Artist (A-Z)", "Class", "Season",
                 "Status" };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvAlbum;
@@ -1680,8 +1703,16 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        showFilterBottomSheet(AlbumFragment.this, buildAlbumCategories(requireContext()), 0,
-                                albumFilter, AlbumFragment.this::applyFilters);
+                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main Thread blockade
+                        new Thread(() -> {
+                            List<FilterCategory> categories = buildAlbumCategories(requireContext());
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    showFilterBottomSheet(AlbumFragment.this, categories, 0,
+                                            albumFilter, AlbumFragment.this::applyFilters);
+                                });
+                            }
+                        }).start();
                     }
                 });
             }
@@ -1963,7 +1994,23 @@ public class CollectionFragment extends Fragment {
 
                 filtered.sort((a, b) -> {
                     int res = 0;
-                    if ("Badge".equals(currentSort))
+                    if ("Newest".equals(currentSort) || "Oldest".equals(currentSort)) {
+                        String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
+                        String t2 = b.getCreatedAt() != null ? b.getCreatedAt() : "";
+                        
+                        if (!t1.isEmpty() && !t2.isEmpty()) {
+                            res = t1.compareTo(t2);
+                        }
+                        
+                        if (res == 0) {
+                            res = Long.compare(a.getUserCardId() != null ? a.getUserCardId() : -1, 
+                                             b.getUserCardId() != null ? b.getUserCardId() : -1);
+                        }
+                        
+                        if (res == 0) {
+                            res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
+                        }
+                    } else if ("Badge".equals(currentSort))
                         res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
                     else if ("Level".equals(currentSort))
                         res = Integer.compare(a.getLevel(), b.getLevel());
@@ -2009,9 +2056,7 @@ public class CollectionFragment extends Fragment {
     private static boolean isArtist(String f) {
         if (f == null)
             return false;
-        return java.util.Arrays.asList("SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung",
-                "YuBin", "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu", "Lynn", "JooBin",
-                "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon").contains(f);
+        return com.vn.jet.mosco.utils.AppConfig.OFFICIAL_ARTISTS.contains(f);
     }
 
     private static boolean isClass(String f) {

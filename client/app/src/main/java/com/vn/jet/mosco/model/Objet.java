@@ -25,6 +25,7 @@ public class Objet {
     private java.util.List<String> availableTags;
     private String dimension;
     private String status;
+    private String createdAt;
 
     public Objet(long id, String collectionId, String imageUrl, int level, int exp, int upgradeLevel) {
         this.id = id;
@@ -54,26 +55,7 @@ public class Objet {
         obj.setAvailableTags(item.availableTags);
         obj.setDimension(item.dimension);
         obj.setStatus(item.status);
-        return obj;
-    }
-
-    /**
-     * Chuyển đổi từ UserCard DTO sang Objet Model dùng cho UI
-     */
-    public static Objet fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
-        Objet obj = new Objet(userCard.getId(), userCard.getCollectionId(), userCard.getFrontImage(), userCard.getLevel(), userCard.getExp(), userCard.getUpgradeLevel());
-        obj.setOvr(userCard.getOvr());
-        obj.setTypeKey(userCard.getCardClass());
-        obj.setBackImageUrl(userCard.getBackImage());
-        obj.setMember(userCard.getMember());
-        obj.setSeason(userCard.getSeason());
-        obj.setCollectionNo(userCard.getCollectionNo());
-        obj.setSlug(userCard.getSlug());
-        obj.setBackgroundColor(userCard.getBackgroundColor());
-        obj.setTextColor(userCard.getTextColor());
-        obj.setAvailableTags(userCard.getAvailableTags());
-        obj.setDimension(userCard.getDimension());
-        obj.setStatus(userCard.getStatus());
+        obj.setCreatedAt(item.createdAt);
         return obj;
     }
 
@@ -122,4 +104,7 @@ public class Objet {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }

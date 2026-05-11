@@ -29,6 +29,7 @@ public class AssetManagementService {
     private static final Logger log = LoggerFactory.getLogger(AssetManagementService.class);
     private final OkHttpClient client;
     private final EtlService etlService;
+    private final CardDataService cardDataService;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private final String dataDir;
@@ -43,15 +44,24 @@ public class AssetManagementService {
             "First", "Welcome", "Double", "Special", "Premier"
     );
 
+    // [VIP] Danh sách 24 thành viên chính thức (S1-S24) - Loại bỏ thành viên "giả"
+    private static final java.util.Set<String> WHITELIST_ARTISTS = java.util.Set.of(
+            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
+            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
+            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
+    );
+
     private volatile String syncStatus = "IDLE";
     private volatile String syncDetail = "";
 
     public AssetManagementService(
             EtlService etlService,
+            CardDataService cardDataService,
             @org.springframework.beans.factory.annotation.Value("${ASSET_DATA_DIR:data/assets/}") String dataDir,
             @org.springframework.beans.factory.annotation.Value("${OBJEKT_API_URL:https://objekt.top/api/collection?artist=tripleS&limit=20000}") String apiUrl) {
 
         this.etlService = etlService;
+        this.cardDataService = cardDataService;
         this.dataDir = dataDir;
         this.databaseJson = dataDir + "database.json";
         this.manifestJson = dataDir + "manifest.json";
@@ -102,7 +112,7 @@ public class AssetManagementService {
 
             List<JsonObject> allCollections = parseAndSort(jsonContent);
             
-            // Thực hiện lọc theo Whitelist
+            // Thực hiện lọc theo Whitelist (Chỉ lọc Class, giữ lại Artist để làm Easter Eggs)
             List<JsonObject> filteredCollections = allCollections.stream()
                     .filter(obj -> {
                         String cardClass = obj.has("class") ? obj.get("class").getAsString() : "";
@@ -113,18 +123,27 @@ public class AssetManagementService {
             log.info("📊 Thống kê: Tổng cào: {} | Sau khi lọc: {}. Cập nhật file database.json...", 
                     allCollections.size(), filteredCollections.size());
 
-            saveSortedDatabase(jsonContent, filteredCollections);
+            long oldSize = 0;
+            File dbFile = new File(databaseJson);
+            if (dbFile.exists()) oldSize = dbFile.length();
 
-            // Cập nhật Manifest cơ bản với số lượng đã lọc
-            generateManifest(filteredCollections.size());
+            saveSortedDatabase(jsonContent, filteredCollections);
+            long newSize = new File(databaseJson).length();
+
+            // Cập nhật Manifest cơ bản với số lượng đã lọc (chỉ khi có sự thay đổi thực tế)
+            if (oldSize != newSize) {
+                generateManifest(filteredCollections.size());
+            }
 
             // Kích hoạt ETL để nạp dữ liệu từ JSON vừa tải vào MySQL
             etlService.runEtlJob();
 
+            // Làm mới cache trong CardDataService để CollectionBook trả về đúng số lượng đã lọc
+            cardDataService.reload();
+
             syncStatus = "IDLE";
             syncDetail = "Cập nhật Metadata hoàn tất lúc " + java.time.LocalDateTime.now().toString();
-            log.info("🎉 Cập nhật Metadata thành công!");
-
+            log.info("🎉 Cập nhật Metadata thành công! Tổng số: {}", filteredCollections.size());
         } catch (Exception e) {
             log.error("❌ Lỗi trong quá trình đồng bộ: {}", e.getMessage());
             syncStatus = "IDLE";

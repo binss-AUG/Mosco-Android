@@ -52,11 +52,23 @@ public class CardDataService {
         cardMetadataCache = new HashMap<>();
         try {
             ObjectMapper mapper = new ObjectMapper();
-            InputStream is = new ClassPathResource("database.json").getInputStream();
+            InputStream is;
+            java.io.File externalFile = new java.io.File("data/assets/database.json");
+            
+            if (externalFile.exists()) {
+                logger.info("CardDataService: Loading filtered database from external storage: {}", externalFile.getAbsolutePath());
+                is = new java.io.FileInputStream(externalFile);
+            } else {
+                logger.info("CardDataService: External filtered database not found, falling back to classpath resource");
+                is = new ClassPathResource("database.json").getInputStream();
+            }
+            
             JsonNode root = mapper.readTree(is);
             JsonNode collections = root.get("collections");
 
+            int totalInJson = 0;
             if (collections != null && collections.isArray()) {
+                totalInJson = collections.size();
                 for (JsonNode card : collections) {
                     String id = card.has("id") ? card.get("id").asText() : null;
                     if (id != null) {
@@ -64,7 +76,10 @@ public class CardDataService {
                     }
                 }
             }
-            logger.info("CardDataService: Loaded {} cards from database.json", cardMetadataCache.size());
+            logger.info("CardDataService: Load complete. JSON entries: {}, Unique Cache: {}", totalInJson, cardMetadataCache.size());
+            if (cardMetadataCache.size() != 9660) {
+                logger.warn("CardDataService: [ALERT] Card count mismatch! Expected 9660, got {}", cardMetadataCache.size());
+            }
         } catch (Exception e) {
             logger.error("CardDataService: Failed to load database.json", e);
         }
@@ -203,6 +218,9 @@ public class CardDataService {
         dto.setAvailableTags(availableTags);
         dto.setDimension(dimension);
         dto.setStatus(card.getStatus());
+        if (card.getCreatedAt() != null) {
+            dto.setCreatedAt(card.getCreatedAt().toString());
+        }
         return dto;
     }
 
@@ -227,5 +245,14 @@ public class CardDataService {
             }
         }
         return "FirstWelcome";
+    }
+
+    /**
+     * Làm mới cache metadata — gọi sau khi AssetManagementService hoàn tất ETL/Sync.
+     */
+    public void reload() {
+        logger.info("CardDataService: Reloading metadata cache...");
+        loadDatabaseJson();
+        logger.info("CardDataService: Reload complete. New cache size: {}", cardMetadataCache.size());
     }
 }

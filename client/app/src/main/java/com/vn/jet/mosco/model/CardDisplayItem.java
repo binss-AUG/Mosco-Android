@@ -38,6 +38,7 @@ public class CardDisplayItem {
     private List<String> availableTags;
     private String dimension;
     private String status;              // "AVAILABLE", "BUSY_AFK_1", etc.
+    private String createdAt;           // Acquisition date
 
     // === Display State (Album mode) ===
     private boolean owned;              // User đã từng sở hữu chưa (Ever Owned)
@@ -73,6 +74,7 @@ public class CardDisplayItem {
         item.availableTags = obj.getAvailableTags();
         item.dimension = obj.getDimension();
         item.status = obj.getStatus();
+        item.createdAt = obj.getCreatedAt();
         item.owned = true;
         item.userCardId = obj.getId();
         return item;
@@ -104,6 +106,7 @@ public class CardDisplayItem {
         item.status = null;
         item.owned = entry.isOwned();
         item.userCardId = entry.getUserCardId();
+        item.createdAt = entry.getCreatedAt();
         return item;
     }
 
@@ -130,6 +133,7 @@ public class CardDisplayItem {
         item.availableTags = cache.availableTags;
         item.dimension = cache.dimension;
         item.status = cache.status;
+        item.createdAt = cache.createdAt;
         item.owned = true;
         item.userCardId = cache.id;
         return item;
@@ -213,6 +217,9 @@ public class CardDisplayItem {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
     public boolean isOwned() { return owned; }
     public void setOwned(boolean owned) { this.owned = owned; }

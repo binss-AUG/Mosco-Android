@@ -104,12 +104,10 @@ public class CollectionBookService {
             ce.setBackImage(meta.has("backImage") ? meta.get("backImage").asText() : "");
             ce.setBackgroundColor(meta.has("backgroundColor") ? meta.get("backgroundColor").asText() : "#FFFFFF");
 
-            // Logic Ever Owned: Kiểm tra user.unlockedCollections
             if (unlocked.contains(collectionId)) {
                 ce.setOwned(true);
                 ownedCount++;
                 
-                // Nếu ĐANG có trong kho: show chỉ số thẻ đang có
                 if (currentOwnedMap.containsKey(collectionId)) {
                     UserCard uc = currentOwnedMap.get(collectionId);
                     ce.setUserCardId(uc.getId());
@@ -117,7 +115,6 @@ public class CollectionBookService {
                     ce.setUpgradeLevel(uc.getUpgradeLevel());
                     ce.setLevel(uc.getLevel());
                 } else {
-                    // Đã từng có nhưng đem đi craft/quay mất -> Hiển thị base OVR
                     ce.setUserCardId(-1L);
                     ce.setOvr(cardDataService.getOvr(collectionId, 1));
                     ce.setUpgradeLevel(1);
@@ -125,6 +122,9 @@ public class CollectionBookService {
                 }
             } else {
                 ce.setOwned(false);
+            }
+            if (meta.has("createdAt")) {
+                ce.setCreatedAt(meta.get("createdAt").asText());
             }
 
             entries.add(ce);

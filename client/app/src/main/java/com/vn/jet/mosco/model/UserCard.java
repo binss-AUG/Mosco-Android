@@ -64,6 +64,9 @@ public class UserCard {
     @SerializedName("uuid")
     private String uuid;
 
+    @SerializedName("createdAt")
+    private String createdAt; // ISO string from server
+
     public UserCard() {}
 
     public String getUuid() { return uuid; }
@@ -132,4 +135,7 @@ public class UserCard {
 
     public String getCardClass() { return cardClass; }
     public void setCardClass(String cardClass) { this.cardClass = cardClass; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }

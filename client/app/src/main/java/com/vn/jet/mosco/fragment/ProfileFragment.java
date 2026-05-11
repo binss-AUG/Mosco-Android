@@ -1083,9 +1083,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             dialog.getWindow().setDimAmount(0.85f);
         }
 
+        String finalUrl = card.optString("frontImage");
         Glide.with(this)
-                .load(card.optString("frontImage"))
-                .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation())
+                .load(finalUrl)
+                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(finalUrl))
                 .into(ivZoom);
 
         dialogView.setOnClickListener(v -> dialog.dismiss());

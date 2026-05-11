@@ -31,6 +31,10 @@ public class UserCard {
     @Column(nullable = true)
     private String uuid;
 
+    @Column(name = "created_at", nullable = true, updatable = false)
+    @org.hibernate.annotations.CreationTimestamp
+    private java.time.LocalDateTime createdAt;
+
     public UserCard() {}
 
     public UserCard(User user, String collectionId, int level, int exp, int upgradeLevel) {
@@ -69,4 +73,6 @@ public class UserCard {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public java.time.LocalDateTime getCreatedAt() { return createdAt; }
 }

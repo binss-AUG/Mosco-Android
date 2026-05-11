@@ -100,4 +100,10 @@ public class CollectionEntry {
 
     public int getLevel() { return level; }
     public void setLevel(int level) { this.level = level; }
+
+    @SerializedName("createdAt")
+    private String createdAt;
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }

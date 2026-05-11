@@ -1,72 +1,51 @@
 package com.vn.jet.mosco.spinserver.controller;
 
-import com.vn.jet.mosco.spinserver.service.AssetManagementService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
-import java.util.Map;
 
 /**
- * Controller phục vụ Metadata (Lean Version).
- * Đã loại bỏ các endpoint liên quan đến Bundles/Zips.
+ * Controller phục vụ các file Metadata động (database.json, manifest.json)
+ * từ thư mục dữ liệu bên ngoài thay vì classpath.
  */
 @RestController
-@RequestMapping("/api/assets")
+@RequestMapping("/api")
 public class AssetController {
 
-    @Autowired
-    private AssetManagementService assetService;
+    private final String dataDir;
 
-    /**
-     * Kích hoạt đồng bộ Metadata thủ công
-     */
-    @PostMapping("/sync")
-    public ResponseEntity<String> triggerSync() {
-        new Thread(() -> assetService.fullSyncProcess()).start();
-        return ResponseEntity.ok("Đã bắt đầu quá trình cập nhật Metadata. Vui lòng kiểm tra /api/assets/status để theo dõi.");
+    public AssetController(@Value("${ASSET_DATA_DIR:data/assets/}") String dataDir) {
+        this.dataDir = dataDir;
     }
 
-    /**
-     * Trạng thái đồng bộ hiện tại
-     */
-    @GetMapping("/status")
-    public ResponseEntity<Map<String, String>> getStatus() {
-        return ResponseEntity.ok(Map.of(
-                "status", assetService.getSyncStatus(),
-                "detail", assetService.getSyncDetail()
-        ));
-    }
-
-    /**
-     * Tải file manifest.json (Dùng để check version)
-     */
-    @GetMapping("/manifest")
-    public ResponseEntity<Resource> downloadManifest() {
-        File file = new File(assetService.getManifestPath());
+    @GetMapping("/assets/manifest")
+    public ResponseEntity<Resource> getManifest() {
+        File file = new File(dataDir, "manifest.json");
         if (!file.exists()) return ResponseEntity.notFound().build();
-
+        
         Resource resource = new FileSystemResource(file);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(resource);
     }
 
-    /**
-     * Tải file database.json mới nhất (Dùng cho Initial Sync - Tự động nén Gzip)
-     */
-    @GetMapping("/database")
-    public ResponseEntity<Resource> downloadDatabase() {
-        File file = new File(assetService.getJsonPath());
+    @GetMapping("/v1/assets/database")
+    public ResponseEntity<Resource> getDatabase() {
+        File file = new File(dataDir, "database.json");
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         Resource resource = new FileSystemResource(file);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"database.json\"")
                 .body(resource);
     }
 }

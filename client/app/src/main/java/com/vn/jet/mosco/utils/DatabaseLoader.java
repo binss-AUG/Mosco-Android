@@ -21,7 +21,6 @@ public class DatabaseLoader {
 
     private static final String TAG = "DatabaseLoader";
     private static final String FILE_NAME = "database.json";
-    private static final String INTERNAL_DB_NAME = "database_sync.json";
     private static final String PREF_DB_VERSION = "db_version_hash";
 
     // Cached list to avoid re-reading the 7MB file every time
@@ -33,8 +32,9 @@ public class DatabaseLoader {
     // Fast O(1) lookup maps
     private static java.util.Map<String, JSONObject> cachedMasterMap = null; // Map chứa TẤT CẢ thẻ từ database.json
     public static java.util.Map<String, JSONObject> cachedCollectionMap = null; // Map chứa thẻ người dùng đang có
-    private static boolean isMasterDataLoading = false;
-    private static boolean isMasterDataLoaded = false;
+    private static volatile boolean isMasterDataLoading = false;
+    private static volatile boolean isMasterDataLoaded = false;
+    private static volatile boolean isRoomSyncing = false;
 
     // The Global Cache for User's actual cards (To perform Instant Load on views)
     public static class UserInventoryItem {
@@ -56,6 +56,7 @@ public class DatabaseLoader {
         public List<String> availableTags;
         public String dimension;
         public String status;
+        public String createdAt;
 
         public UserInventoryItem() {
         }
@@ -64,7 +65,7 @@ public class DatabaseLoader {
                 int upgradeLevel, int ovr,
                 String cardClass, String member, String season, String collectionNo, String slug,
                 String backgroundColor, String textColor,
-                List<String> availableTags, String dimension, String status) {
+                List<String> availableTags, String dimension, String status, String createdAt) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
@@ -83,6 +84,7 @@ public class DatabaseLoader {
             this.availableTags = availableTags;
             this.dimension = dimension;
             this.status = status;
+            this.createdAt = createdAt;
         }
 
         /**
@@ -111,7 +113,8 @@ public class DatabaseLoader {
                     userCard.getTextColor(),
                     userCard.getAvailableTags(),
                     userCard.getDimension(),
-                    userCard.getStatus());
+                    userCard.getStatus(),
+                    userCard.getCreatedAt());
         }
     }
 
@@ -188,71 +191,79 @@ public class DatabaseLoader {
                 if (cardsArray != null) {
                     int len = cardsArray.length();
                     java.util.Map<String, JSONObject> tempMasterMap = new java.util.HashMap<>(len);
+                    java.util.Set<String> uniqueUuids = new java.util.HashSet<>(len);
+
                     for (int i = 0; i < len; i++) {
                         JSONObject card = cardsArray.optJSONObject(i);
                         if (card != null) {
                             String uuid = card.optString("id");
                             String readableId = card.optString("collectionId");
                             
-                            // [FIX DATA BINDING] Index bằng cả UUID và Readable ID để chắc chắn Client tìm thấy Metadata
                             if (!uuid.isEmpty()) {
                                 tempMasterMap.put(uuid, card);
+                                uniqueUuids.add(uuid);
                             }
                             if (!readableId.isEmpty()) {
                                 tempMasterMap.put(readableId, card);
                             }
                         }
                     }
+                    // [FIX] Chỉ đánh dấu hoàn tất nạp Map sau khi đã xử lý xong list
                     cachedMasterMap = tempMasterMap;
                     isMasterDataLoaded = true;
-                    Log.d(TAG, "Master Data Loaded: " + len + " cards in "
+                    Log.d(TAG, "Master Data Loaded: " + len + " cards indexed in "
                             + (System.currentTimeMillis() - startTime) + "ms");
 
                     // [PHASE 4/5] Room Metadata Persistence & Sync
-                    final Context appContext = context.getApplicationContext();
-                    new Thread(() -> {
-                        try {
-                            com.vn.jet.mosco.database.AppDatabase db = com.vn.jet.mosco.database.AppDatabase.getInstance(appContext);
-                            
-                            // [PHASE 5] Nếu là bản cập nhật từ Server (đã có data nhưng cần ghi đè)
-                            // Ta sẽ check một flag "needs_db_sync" hoặc đơn giản là so sánh count.
-                            // Để an toàn và chuyên nghiệp, ta dùng transaction.
-                            
-                            int currentCount = db.masterObjetDao().getCount();
-                            if (currentCount == 0 || currentCount < tempMasterMap.size() / 2) { 
-                                // Nếu rỗng hoặc lệch quá nhiều (do update lớn), ta ghi đè
-                                Log.d(TAG, "Room Master Data update/migration triggered...");
-                                if (currentCount > 0) db.masterObjetDao().deleteAll();
-                                
-                                java.util.List<com.vn.jet.mosco.model.MasterObjetEntity> entities = new java.util.ArrayList<>();
-                                java.util.Set<String> processedUuids = new java.util.HashSet<>();
-                                
-                                for (JSONObject card : tempMasterMap.values()) {
-                                    String uuid = card.optString("id");
-                                    if (uuid.isEmpty() || processedUuids.contains(uuid)) continue;
-                                    processedUuids.add(uuid);
+                    com.vn.jet.mosco.database.AppDatabase db = com.vn.jet.mosco.database.AppDatabase.getInstance(context.getApplicationContext());
+                    
+                    // [OPTIMIZE] Tính toán jsonCount từ list duy nhất thay vì duyệt Map values (tránh lặp)
+                    int jsonCount = uniqueUuids.size();
+                    int currentCount = db.masterObjetDao().getCount();
+                    
+                    Log.d(TAG, "Sync Check: Room=" + currentCount + ", JSON=" + jsonCount);
 
-                                    com.vn.jet.mosco.model.MasterObjetEntity entity = new com.vn.jet.mosco.model.MasterObjetEntity();
-                                    entity.setCollectionId(card.optString("collectionId", uuid));
-                                    entity.setMemberName(card.optString("member"));
-                                    entity.setSeasonName(card.optString("season"));
-                                    entity.setRarityClass(card.optString("class"));
-                                    entity.setFrontImageId(card.optString("frontImage"));
-                                    entity.setBackImageId(card.optString("backImage"));
-                                    entity.setBaseOvr(card.optInt("ovr"));
-                                    entities.add(entity);
-                                }
-                                db.masterObjetDao().insertAll(entities);
-                                Log.d(TAG, "Room Sync Complete: " + entities.size() + " objects updated.");
+                    // [RELIABILITY] Nếu Room trống hoặc lệch số lượng, ép đồng bộ lại
+                    if (currentCount == 0 || currentCount != jsonCount) { 
+                        isRoomSyncing = true;
+                        Log.i(TAG, "🌀 Starting Room Database Sync (" + currentCount + " -> " + jsonCount + ")...");
+                        try {
+                            db.masterObjetDao().deleteAll();
+                            
+                            java.util.List<com.vn.jet.mosco.model.MasterObjetEntity> entities = new java.util.ArrayList<>();
+                            for (String uuid : uniqueUuids) {
+                                JSONObject card = tempMasterMap.get(uuid);
+                                if (card == null) continue;
+
+                                com.vn.jet.mosco.model.MasterObjetEntity entity = new com.vn.jet.mosco.model.MasterObjetEntity();
+                                // Ưu tiên dùng id (UUID) làm định danh chính nếu có thể, hoặc dùng collectionId
+                                String colId = card.optString("collectionId");
+                                if (colId.isEmpty()) colId = uuid;
+                                
+                                entity.setCollectionId(colId);
+                                entity.setMemberName(card.optString("member"));
+                                entity.setSeasonName(card.optString("season"));
+                                entity.setRarityClass(card.optString("class"));
+                                entity.setFrontImageId(card.optString("frontImage"));
+                                entity.setBackImageId(card.optString("backImage"));
+                                entity.setBaseOvr(card.optInt("ovr"));
+                                entities.add(entity);
                             }
+                            db.masterObjetDao().insertAll(entities);
+                            Log.d(TAG, "✅ Room Sync Complete: " + entities.size() + " objects saved.");
                         } catch (Exception e) {
-                            Log.e(TAG, "Error syncing Master Data to Room: " + e.getMessage());
+                            Log.e(TAG, "❌ Error syncing Master Data to Room: " + e.getMessage());
+                        } finally {
+                            isRoomSyncing = false;
                         }
-                    }).start();
+                    } else {
+                        Log.d(TAG, "✅ Room Database is already in sync with JSON.");
+                    }
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, "Lỗi nạp Master Data: " + e.getMessage());
+            isMasterDataLoaded = false; // Reset nếu lỗi nặng
         } finally {
             isMasterDataLoading = false;
         }
@@ -261,7 +272,7 @@ public class DatabaseLoader {
     private static String loadJSONFromAsset(Context context, String fileName) {
         try {
             InputStream is;
-            File internalFile = new File(context.getFilesDir(), INTERNAL_DB_NAME);
+            File internalFile = new File(context.getFilesDir(), FILE_NAME);
 
             if (internalFile.exists() && internalFile.length() > 0) {
                 Log.d(TAG, "Loading Galactic Database from Internal Storage (Dynamic Sync)");
@@ -346,7 +357,9 @@ public class DatabaseLoader {
         com.vn.jet.mosco.network.GameApiService apiService = 
                 com.vn.jet.mosco.network.ApiClient.getClient(appContext).create(com.vn.jet.mosco.network.GameApiService.class);
 
-        apiService.getFullDatabase().enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+        // [CACHE BUSTER] Thêm timestamp vào query để ép tải bản mới nhất từ Cloudflare/Server
+        String cacheBuster = "t=" + System.currentTimeMillis();
+        apiService.getFullDatabase(cacheBuster).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
             @Override
             public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -365,19 +378,30 @@ public class DatabaseLoader {
                             boolean success = updateInternalDatabase(appContext, json, String.valueOf(newTimestamp));
                             
                             if (success) {
-                                // 2. Cập nhật timestamp
-                                appContext.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
-                                        .edit().putLong("last_sync_timestamp", newTimestamp).apply();
-
-                                // 3. Reload Master Data
+                                // 2. Reload Master Data Cache (IMPORTANT: Clear cache before reload)
+                                clearCache();
                                 isMasterDataLoaded = false;
-                                initMasterDataSync(appContext);
                                 
-                                if (callback != null) {
-                                    callback.onProgress(100);
-                                    callback.onComplete();
-                                }
-                                notifyInventoryChanged();
+                                // [CRITICAL] Chờ Room Sync hoàn tất trước khi báo Complete
+                                new Thread(() -> {
+                                    initMasterDataSync(appContext);
+                                    long waitStart = System.currentTimeMillis();
+                                    while (isRoomSyncing && (System.currentTimeMillis() - waitStart) < 10000) {
+                                        try { Thread.sleep(200); } catch (Exception ignored) {}
+                                    }
+                                    
+                                    // 3. Cập nhật timestamp (Lưu sau khi đã load xong data mới để đảm bảo tính nhất quán)
+                                    appContext.getSharedPreferences("mosco_db_prefs", Context.MODE_PRIVATE)
+                                            .edit().putLong("last_sync_timestamp", newTimestamp).apply();
+
+                                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                                        if (callback != null) {
+                                            callback.onProgress(100);
+                                            callback.onComplete();
+                                        }
+                                        notifyInventoryChanged();
+                                    });
+                                }).start();
                             } else {
                                 if (callback != null) callback.onError("Failed to save local database");
                             }
@@ -402,7 +426,7 @@ public class DatabaseLoader {
      */
     public static boolean updateInternalDatabase(Context context, String json, String versionHash) {
         try {
-            File internalFile = new File(context.getFilesDir(), INTERNAL_DB_NAME);
+            File internalFile = new File(context.getFilesDir(), FILE_NAME);
             java.io.FileOutputStream fos = new java.io.FileOutputStream(internalFile);
             fos.write(json.getBytes(StandardCharsets.UTF_8));
             fos.close();
@@ -569,7 +593,8 @@ public class DatabaseLoader {
                         obj.optString("textColor", "#000000"),
                         tags,
                         obj.optString("dimension", ""),
-                        obj.optString("status", "AVAILABLE")));
+                        obj.optString("status", "AVAILABLE"),
+                        obj.optString("createdAt", "")));
             }
             cachedUserInventory = items;
             cachedInventoryUserId = userId;
@@ -729,6 +754,8 @@ public class DatabaseLoader {
             obj.put("backgroundColor", item.backgroundColor);
             obj.put("textColor", item.textColor);
             obj.put("dimension", item.dimension);
+            obj.put("status", item.status);
+            obj.put("createdAt", item.createdAt);
             if (item.availableTags != null) {
                 obj.put("availableTags", new JSONArray(item.availableTags));
             }
@@ -776,13 +803,38 @@ public class DatabaseLoader {
      * Lấy danh sách thành viên kèm ảnh đại diện (ảnh thẻ mới nhất) để lọc
      */
     public static List<MemberFilterItem> getUniqueMembers(Context context) {
+        // [WAIT] Nếu đang đồng bộ DB thì đợi một chút (max 10s)
+        if (isRoomSyncing) {
+            Log.d(TAG, "getUniqueMembers: Waiting for Room Sync...");
+            long waitStart = System.currentTimeMillis();
+            while (isRoomSyncing && (System.currentTimeMillis() - waitStart) < 10000) {
+                try { Thread.sleep(200); } catch (Exception ignored) {}
+            }
+        }
         try {
             List<MasterObjetDao.MemberAvatar> avatars = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueMembers();
+            
+            // [FALLBACK] Nếu DB rỗng, có thể Master Data nạp Map xong nhưng chưa kịp sync xong Room
+            if (avatars == null || avatars.isEmpty()) {
+                Log.w(TAG, "getUniqueMembers: Room is empty, forcing initMasterData...");
+                initMasterData(context);
+            }
+
             List<MemberFilterItem> items = new ArrayList<>();
             for (MasterObjetDao.MemberAvatar avatar : avatars) {
-                items.add(new MemberFilterItem(avatar.memberName, avatar.frontImageId));
+                if (AppConfig.OFFICIAL_ARTISTS.contains(avatar.memberName)) {
+                    items.add(new MemberFilterItem(avatar.memberName, avatar.frontImageId));
+                }
             }
+
+            // [SORT] Sắp xếp theo thứ tự S1-S24 định nghĩa trong AppConfig
+            java.util.Collections.sort(items, (o1, o2) -> {
+                int index1 = AppConfig.OFFICIAL_ARTISTS.indexOf(o1.name);
+                int index2 = AppConfig.OFFICIAL_ARTISTS.indexOf(o2.name);
+                return Integer.compare(index1, index2);
+            });
+
             return items;
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique members: " + e.getMessage());
@@ -794,9 +846,22 @@ public class DatabaseLoader {
      * Lấy danh sách tất cả các mùa thẻ hiện có trong Database
      */
     public static List<String> getUniqueSeasons(Context context) {
+        if (isRoomSyncing) {
+            Log.d(TAG, "getUniqueSeasons: Waiting for Room Sync...");
+            long waitStart = System.currentTimeMillis();
+            while (isRoomSyncing && (System.currentTimeMillis() - waitStart) < 10000) {
+                try { Thread.sleep(200); } catch (Exception ignored) {}
+            }
+        }
         try {
-            return com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+            List<String> results = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueSeasons();
+            
+            if (results == null || results.isEmpty()) {
+                Log.w(TAG, "getUniqueSeasons: Room is empty, forcing initMasterData...");
+                initMasterData(context);
+            }
+            return results;
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique seasons: " + e.getMessage());
             return new ArrayList<>();
@@ -807,9 +872,22 @@ public class DatabaseLoader {
      * Lấy danh sách tất cả các Class thẻ hiện có (đã lọc Whitelist từ Server)
      */
     public static List<String> getUniqueClasses(Context context) {
+        if (isRoomSyncing) {
+            Log.d(TAG, "getUniqueClasses: Waiting for Room Sync...");
+            long waitStart = System.currentTimeMillis();
+            while (isRoomSyncing && (System.currentTimeMillis() - waitStart) < 10000) {
+                try { Thread.sleep(200); } catch (Exception ignored) {}
+            }
+        }
         try {
-            return com.vn.jet.mosco.database.AppDatabase.getInstance(context)
+            List<String> results = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueClasses();
+            
+            if (results == null || results.isEmpty()) {
+                Log.w(TAG, "getUniqueClasses: Room is empty, forcing initMasterData...");
+                initMasterData(context);
+            }
+            return results;
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique classes: " + e.getMessage());
             return new ArrayList<>();

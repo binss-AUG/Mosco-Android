@@ -21,6 +21,13 @@ public class AppConfig {
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
     public static final String DEFAULT_AVATAR_ID = "1";
 
+    // [VIP] Danh sách 24 thành viên chính thức (S1-S24) - Dùng để lọc UI Filter Tabs
+    public static final java.util.List<String> OFFICIAL_ARTISTS = java.util.Arrays.asList(
+            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
+            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
+            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
+    );
+
     // Prevent instantiation
     private AppConfig() {
     }

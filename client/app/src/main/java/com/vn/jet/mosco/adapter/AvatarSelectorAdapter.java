@@ -44,7 +44,8 @@ public class AvatarSelectorAdapter extends RecyclerView.Adapter<AvatarSelectorAd
         // Load image with LeftOffsetCrop
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
-                .transform(new SmartFaceCropTransformation())
+                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                .transform(new SmartFaceCropTransformation(imageUrl))
                 .into(holder.ivAvatar);
 
         // Highlight if selected
