@@ -53,9 +53,16 @@ public class EtlService {
             java.util.Map<String, Season> seasonMap = new java.util.HashMap<>();
             java.util.Map<String, CardClass> classMap = new java.util.HashMap<>();
 
-            // 1. Đọc file JSON từ resources
-            ClassPathResource resource = new ClassPathResource("database.json");
-            InputStream inputStream = resource.getInputStream();
+            // 1. Đọc file JSON từ thư mục data/assets/ (Dữ liệu động đã cào)
+            java.io.File dbFile = new java.io.File("data/assets/database.json");
+            InputStream inputStream;
+            if (!dbFile.exists()) {
+                log.warn("Không tìm thấy file database.json động. Thử dùng file tĩnh trong resources...");
+                ClassPathResource resource = new ClassPathResource("database.json");
+                inputStream = resource.getInputStream();
+            } else {
+                inputStream = new java.io.FileInputStream(dbFile);
+            }
             DatabaseJsonWrapper wrapper = objectMapper.readValue(inputStream, DatabaseJsonWrapper.class);
             List<CardJsonDto> collections = wrapper.getCollections();
 
@@ -65,11 +72,14 @@ public class EtlService {
             }
 
             log.info("Tìm thấy {} thẻ bài cần xử lý.", collections.size());
-
+            java.util.Set<String> processedIds = new java.util.HashSet<>();
             List<Card> batchCards = new ArrayList<>();
             int count = 0;
 
             for (CardJsonDto dto : collections) {
+                if (dto.getId() == null || processedIds.contains(dto.getId())) continue;
+                processedIds.add(dto.getId());
+
                 // 2. Xử lý Dictionary Tables (Auto-create với Cache)
                 Member member = memberMap.computeIfAbsent(dto.getMember(), this::getOrCreateMember);
                 Season season = seasonMap.computeIfAbsent(dto.getSeason(), this::getOrCreateSeason);

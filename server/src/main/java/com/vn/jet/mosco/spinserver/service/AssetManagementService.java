@@ -28,6 +28,7 @@ public class AssetManagementService {
 
     private static final Logger log = LoggerFactory.getLogger(AssetManagementService.class);
     private final OkHttpClient client;
+    private final EtlService etlService;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private final String dataDir;
@@ -41,9 +42,11 @@ public class AssetManagementService {
     private volatile String syncDetail = "";
 
     public AssetManagementService(
+            EtlService etlService,
             @org.springframework.beans.factory.annotation.Value("${ASSET_DATA_DIR:data/assets/}") String dataDir,
-            @org.springframework.beans.factory.annotation.Value("${OBJEKT_API_URL:https://objekt.top/api/collection?artist=tripleS}") String apiUrl) {
+            @org.springframework.beans.factory.annotation.Value("${OBJEKT_API_URL:https://objekt.top/api/collection?artist=tripleS&limit=20000}") String apiUrl) {
 
+        this.etlService = etlService;
         this.dataDir = dataDir;
         this.databaseJson = dataDir + "database.json";
         this.manifestJson = dataDir + "manifest.json";
@@ -99,6 +102,9 @@ public class AssetManagementService {
 
             // Cập nhật Manifest cơ bản (chỉ chứa metadata info)
             generateManifest(sortedCollections.size());
+
+            // Kích hoạt ETL để nạp dữ liệu từ JSON vừa tải vào MySQL
+            etlService.runEtlJob();
 
             syncStatus = "IDLE";
             syncDetail = "Cập nhật Metadata hoàn tất lúc " + java.time.LocalDateTime.now().toString();
