@@ -96,6 +96,12 @@ public class SplashActivity extends AppCompatActivity {
         tvDownloadStatus.setVisibility(View.VISIBLE);
         tvDownloadStatus.setText(R.string.splash_status_connecting);
 
+        // [BUG 6] Logo Professional Animation
+        if (lottieSplash != null) {
+            lottieSplash.setAlpha(0f);
+            lottieSplash.animate().alpha(1f).setDuration(1200).start();
+        }
+
         btnRetryConnection.setOnClickListener(v -> {
             isCheckStarted = false;
             layoutRetryConnection.setVisibility(View.GONE);
@@ -108,7 +114,7 @@ public class SplashActivity extends AppCompatActivity {
 
         mainHandler.postDelayed(() -> {
             new Thread(this::checkAndLoadResources).start();
-        }, 500);
+        }, 800);
     }
 
     private void setupNetworkMonitoring() {
@@ -174,42 +180,126 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void continueLoading() {
-        GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
-        
-        // 2. Master Data (Blocking on this background thread)
+        // 1. Master Data (Blocking on this background thread)
         DatabaseLoader.initMasterDataSync(getApplicationContext());
         
-        // 3. Pre-fetch Session & Assets concurrently
+        // 2. Pre-fetch Session (Concurrent)
+        GameApiService apiService = ApiClient.getClient(this).create(GameApiService.class);
         preFetchUserSession(apiService);
-        syncAssets();
         
-        // 4. Delta Sync (Background)
-        com.vn.jet.mosco.utils.SyncManager.startDeltaSync(this);
+        // 3. Galactic Metadata Sync (Priority)
+        mainHandler.post(() -> {
+            tvDownloadStatus.setText(R.string.splash_status_checking);
+            
+            DatabaseLoader.syncMetadataWithServer(this, new DatabaseLoader.SyncCallback() {
+                @Override
+                public void onUpdateAvailable(long remoteTimestamp, float sizeMb) {
+                    showUpdateConfirmationDialog(remoteTimestamp, sizeMb);
+                }
+
+                @Override
+                public void onNoUpdate() {
+                    // Tiếp tục tải asset ảnh nếu cần
+                    syncAssets();
+                }
+
+                @Override
+                public void onProgress(int percent) {
+                    mainHandler.post(() -> {
+                        layoutDownloadProgress.setVisibility(View.VISIBLE);
+                        pbDownload.setProgress(percent);
+                    });
+                }
+
+                @Override
+                public void onComplete() {
+                    mainHandler.post(() -> {
+                        tvDownloadStatus.setText(R.string.splash_status_loading);
+                        syncAssets();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    Log.e(TAG, "Sync Error: " + error);
+                    syncAssets(); // Vẫn cho vào app bằng data cũ
+                }
+            });
+        });
+    }
+
+    private void showUpdateConfirmationDialog(long timestamp, float sizeMb) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_update_metadata, null);
+        android.app.Dialog dialog = new android.app.Dialog(this);
+        dialog.setContentView(dialogView);
+        
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            // Làm mờ nền phía sau
+            dialog.getWindow().setDimAmount(0.8f);
+        }
+
+        TextView tvMsg = dialogView.findViewById(R.id.tv_dialog_message);
+        TextView tvSize = dialogView.findViewById(R.id.tv_update_size);
+        com.vn.jet.mosco.widget.MoscoButton btnExit = dialogView.findViewById(R.id.btn_exit);
+        com.vn.jet.mosco.widget.MoscoButton btnUpdate = dialogView.findViewById(R.id.btn_update_now);
+
+        tvMsg.setText(R.string.splash_dialog_update_msg_premium); 
+        tvSize.setText(String.format(getString(R.string.splash_dialog_update_size_format), sizeMb));
+
+        btnExit.setOnClickListener(v -> {
+            dialog.dismiss();
+            finishAffinity();
+            System.exit(0);
+        });
+
+        btnUpdate.setOnClickListener(v -> {
+            dialog.dismiss();
+            mainHandler.post(() -> {
+                tvDownloadStatus.setText(R.string.splash_status_downloading);
+                layoutDownloadProgress.setVisibility(View.VISIBLE);
+            });
+            DatabaseLoader.pullFullDatabase(getApplicationContext(), timestamp, new DatabaseLoader.SyncCallback() {
+                @Override public void onUpdateAvailable(long t, float s) {}
+                @Override public void onNoUpdate() {}
+                @Override public void onProgress(int p) { mainHandler.post(() -> pbDownload.setProgress(p)); }
+                @Override public void onComplete() { 
+                    mainHandler.post(() -> {
+                        tvDownloadStatus.setText(R.string.splash_status_loading);
+                        syncAssets(); 
+                    });
+                }
+                @Override public void onError(String e) { syncAssets(); }
+            });
+        });
+
+        dialog.setCancelable(false);
+        dialog.show();
+
+        // ÉP CHIỀU NGANG: Quan trọng để tránh lỗi "cây tăm"
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
     }
 
     private void syncAssets() {
         mainHandler.post(() -> tvDownloadStatus.setText(R.string.splash_status_preparing));
-        if (!isNetworkAvailable()) {
-            showConnectionError();
-            return;
-        }
-
+        // Tải ảnh ngầm (không block UI nữa)
         CardAssetManager.DownloadInfo info = CardAssetManager.getPendingDownloadInfo(this);
-        if (info.pendingCount == 0) {
-            mainHandler.post(() -> {
-                tvDownloadStatus.setText(R.string.splash_status_loading);
-                layoutDownloadProgress.setVisibility(View.GONE);
-                isResourceLoadFinished = true;
-                navigateToNextScreen();
-            });
-            return;
+        if (info.pendingCount > 0) {
+            // Chỉ chạy ngầm, không hiện dialog cellular ở đây để tránh phiền
+            // Glide sẽ lo việc nạp ảnh khi cần.
+            new Thread(() -> CardAssetManager.startDownloadWithInfo(this, info, isWifiConnected(), null)).start();
         }
-
-        if (isWifiConnected()) {
-            startActualDownload(info, true);
-        } else {
-            showCellularConfirmationDialog(info);
-        }
+        
+        mainHandler.post(() -> {
+            tvDownloadStatus.setText(R.string.splash_status_loading);
+            isResourceLoadFinished = true;
+            navigateToNextScreen();
+        });
     }
 
     private void startActualDownload(CardAssetManager.DownloadInfo info, boolean isWifi) {
