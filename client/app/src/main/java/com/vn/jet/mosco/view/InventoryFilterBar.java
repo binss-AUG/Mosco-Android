@@ -23,8 +23,16 @@ public class InventoryFilterBar extends LinearLayout {
     private LinearLayout dropdownSort;
 
     private boolean isAscending = false;
-    private String currentSort = "Newest";
-    private String[] SORT_OPTIONS = {"Newest", "Badge", "Level", "Artist (A-Z)", "Status", "Class", "Season"};
+    private String currentSort = CollectionFragment.SORT_NEWEST;
+    private String[] SORT_OPTIONS = {
+            CollectionFragment.SORT_NEWEST,
+            CollectionFragment.SORT_BADGE,
+            CollectionFragment.SORT_LEVEL,
+            CollectionFragment.SORT_ARTIST,
+            CollectionFragment.SORT_STATUS,
+            CollectionFragment.SORT_CLASS,
+            CollectionFragment.SORT_SEASON
+    };
 
     private OnFilterChangeListener listener;
 

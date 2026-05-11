@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.SubHeader"
-            android:text="Unfriend?"
+            android:text="@string/profile_preview_unfriend_title"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700" />
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/radius_lg"
             style="@style/MoscoText.Luxury.Body"
-            android:text="Are you sure you want to remove this person from your friends list?"
+            android:text="@string/profile_preview_unfriend_msg"
             android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_sm" />
 

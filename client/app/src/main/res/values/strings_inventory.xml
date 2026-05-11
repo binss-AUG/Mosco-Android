@@ -14,6 +14,10 @@
     <string name="inventory_label_sort_level">Level</string>
     <string name="inventory_label_sort_artist">Artist (A-Z)</string>
     <string name="inventory_label_sort_status">Status</string>
+    <string name="inventory_label_sort_class">Class</string>
+    <string name="inventory_label_sort_season">Season</string>
+    <string name="inventory_label_sort_lowest_no">Lowest No.</string>
+    <string name="inventory_label_sort_highest_no">Highest No.</string>
     <string name="filter_tab_status">Status</string>
     <string name="filter_tab_artist">Artist</string>
     <string name="filter_tab_season">Season</string>
@@ -25,6 +29,13 @@
         <item>@string/inventory_label_sort_level</item>
         <item>@string/inventory_label_sort_artist</item>
         <item>@string/inventory_label_sort_status</item>
+    </string-array>
+
+    <string-array name="album_sort_options">
+        <item>@string/inventory_label_sort_newest</item>
+        <item>@string/inventory_label_sort_artist</item>
+        <item>@string/inventory_label_sort_class</item>
+        <item>@string/inventory_label_sort_season</item>
     </string-array>
 
     <!-- Collection & Album -->
@@ -65,6 +76,7 @@
     <string name="card_action_shop_desc">Browse exclusive deals and card packs</string>
     <string name="card_action_capture_title">CAPTURE SCREEN</string>
     <string name="card_action_capture_desc">Capture a high-quality snap of your card</string>
+    <string name="card_action_level_up_title">LEVEL UP</string>
     <string name="card_action_send_title">SEND GIFT</string>
     <string name="card_action_send_desc">Share this collectible with your friends</string>
     <string name="card_action_upgrade_title">UPGRADE</string>
@@ -111,6 +123,7 @@
     <string name="items_label_available">Available: %s</string>
     <string name="collection_label_completed">COMPLETED</string>
     <string name="collection_label_reward">REWARD</string>
+    <string name="collection_reward_msg">You received %s!</string>
     <string name="showcase_msg_duplicate">This card is already showcased in another slot.</string>
     <string name="card_name_unknown">Unknown</string>
 </resources>

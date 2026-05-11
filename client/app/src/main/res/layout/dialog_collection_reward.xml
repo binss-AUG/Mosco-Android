@@ -67,7 +67,7 @@
         android:layout_marginTop="@dimen/spacing_sm"
         style="@style/MoscoText.Luxury.Body"
         android:gravity="center"
-        android:text="You received 1,000 Coin!"
+        android:text="@string/collection_reward_msg"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -249,7 +249,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             style="@style/MoscoText.Luxury.Body"
-            android:text="Received the Atom02 SoHyun 104Z Objekt."
+            android:text="@string/spin_format_received_objet"
             android:textColor="@color/mosco_text_disabled"
             android:textSize="@dimen/text_size_body_sm"
             app:layout_constraintEnd_toEndOf="parent"

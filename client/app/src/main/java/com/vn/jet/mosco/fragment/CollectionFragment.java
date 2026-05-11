@@ -51,6 +51,17 @@ public class CollectionFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
 
+    // [QUIET LUXURY] Constants for Sorting to avoid magic strings
+    public static final String SORT_NEWEST = "Newest";
+    public static final String SORT_BADGE = "Badge";
+    public static final String SORT_LEVEL = "Level";
+    public static final String SORT_STATUS = "Status";
+    public static final String SORT_ARTIST = "Artist (A-Z)";
+    public static final String SORT_CLASS = "Class";
+    public static final String SORT_SEASON = "Season";
+    public static final String SORT_LOWEST_NO = "Lowest No.";
+    public static final String SORT_HIGHEST_NO = "Highest No.";
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -976,15 +987,17 @@ public class CollectionFragment extends Fragment {
             }
 
             filtered.sort((a, b) -> {
-                if ("Oldest".equals(currentSort))
-                    return a.getId().compareTo(b.getId());
-                if ("Lowest No.".equals(currentSort))
-                    return Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
+                int res;
+                if (SORT_LOWEST_NO.equals(currentSort)) {
+                    res = Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
                             b.getQuantity() != null ? b.getQuantity() : 0);
-                if ("Highest No.".equals(currentSort))
-                    return Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0,
+                } else if (SORT_HIGHEST_NO.equals(currentSort)) {
+                    res = Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0,
                             a.getQuantity() != null ? a.getQuantity() : 0);
-                return b.getId().compareTo(a.getId());
+                } else {
+                    res = b.getId().compareTo(a.getId());
+                }
+                return res;
             });
 
             if (adapter != null)
@@ -1062,7 +1075,9 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ObjetsFragment extends Fragment {
         private final Set<String> objetFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Badge", "Level", "Artist (A-Z)", "Class", "Season" };
+        private final String[] SORT_OPTIONS = {
+                SORT_NEWEST, SORT_BADGE, SORT_LEVEL, SORT_ARTIST, SORT_CLASS, SORT_SEASON
+        };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvObjets;
         private TextView tvCount;
@@ -1301,7 +1316,7 @@ public class CollectionFragment extends Fragment {
 
                 filtered.sort((a, b) -> {
                     int res = 0;
-                    if ("Newest".equals(currentSort) || "Oldest".equals(currentSort)) {
+                    if (SORT_NEWEST.equals(currentSort)) {
                         String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
                         String t2 = b.getCreatedAt() != null ? b.getCreatedAt() : "";
                         if (!t1.isEmpty() && !t2.isEmpty()) {
@@ -1313,15 +1328,15 @@ public class CollectionFragment extends Fragment {
                         if (res == 0) {
                             res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
                         }
-                    } else if ("Badge".equals(currentSort))
+                    } else if (SORT_BADGE.equals(currentSort))
                         res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                    else if ("Level".equals(currentSort))
+                    else if (SORT_LEVEL.equals(currentSort))
                         res = Integer.compare(a.getLevel(), b.getLevel());
-                    else if ("Artist (A-Z)".equals(currentSort)) {
+                    else if (SORT_ARTIST.equals(currentSort)) {
                         String m1 = a.getMember() != null ? a.getMember() : "";
                         String m2 = b.getMember() != null ? b.getMember() : "";
                         res = m1.compareToIgnoreCase(m2);
-                    } else if ("Class".equals(currentSort)) {
+                    } else if (SORT_CLASS.equals(currentSort)) {
                         int r1 = getCardClassRank(a.getCardClass());
                         int r2 = getCardClassRank(b.getCardClass());
                         res = Integer.compare(r1, r2);
@@ -1353,7 +1368,7 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class ItemsFragment extends Fragment {
         private final Set<String> itemsFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Lowest No.", "Highest No." };
+        private final String[] SORT_OPTIONS = { SORT_NEWEST, SORT_LOWEST_NO, SORT_HIGHEST_NO };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvItems;
         private ItemsAdapter adapter;
@@ -1509,7 +1524,7 @@ public class CollectionFragment extends Fragment {
             btnUse.setOnClickListener(v -> {
                 dialog.dismiss();
                 Toast.makeText(requireContext(),
-                        "Used " + qty[0] + "x " + item.getName(), Toast.LENGTH_SHORT).show();
+                        getString(R.string.shop_format_used, qty[0], item.getName()), Toast.LENGTH_SHORT).show();
                 // TODO: Call API to use items, then refresh inventory
             });
 
@@ -1572,7 +1587,7 @@ public class CollectionFragment extends Fragment {
 
             filtered.sort((a, b) -> {
                 int res = 0;
-                if ("Lowest No.".equals(currentSort) || "Highest No.".equals(currentSort)) {
+                if (SORT_LOWEST_NO.equals(currentSort) || SORT_HIGHEST_NO.equals(currentSort)) {
                     res = Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
                             b.getQuantity() != null ? b.getQuantity() : 0);
                 } else {
@@ -1654,8 +1669,10 @@ public class CollectionFragment extends Fragment {
     // ==========================================
     public static class AlbumFragment extends Fragment {
         private final Set<String> albumFilter = new LinkedHashSet<>();
-        private final String[] SORT_OPTIONS = { "Newest", "Oldest", "Badge", "Level", "Artist (A-Z)", "Class", "Season",
-                "Status" };
+        private final String[] SORT_OPTIONS = {
+                SORT_NEWEST, SORT_BADGE, SORT_LEVEL, SORT_ARTIST, SORT_CLASS, SORT_SEASON,
+                SORT_STATUS
+        };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
         private RecyclerView rvAlbum;
         private com.vn.jet.mosco.adapter.UnifiedCardAdapter adapter;
@@ -1994,7 +2011,7 @@ public class CollectionFragment extends Fragment {
 
                 filtered.sort((a, b) -> {
                     int res = 0;
-                    if ("Newest".equals(currentSort) || "Oldest".equals(currentSort)) {
+                    if (SORT_NEWEST.equals(currentSort)) {
                         String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
                         String t2 = b.getCreatedAt() != null ? b.getCreatedAt() : "";
                         
@@ -2010,17 +2027,17 @@ public class CollectionFragment extends Fragment {
                         if (res == 0) {
                             res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
                         }
-                    } else if ("Badge".equals(currentSort))
+                    } else if (SORT_BADGE.equals(currentSort))
                         res = Integer.compare(a.getUpgradeLevel(), b.getUpgradeLevel());
-                    else if ("Level".equals(currentSort))
+                    else if (SORT_LEVEL.equals(currentSort))
                         res = Integer.compare(a.getLevel(), b.getLevel());
-                    else if ("Status".equals(currentSort))
+                    else if (SORT_STATUS.equals(currentSort))
                         res = Boolean.compare(a.isOwned(), b.isOwned());
-                    else if ("Artist (A-Z)".equals(currentSort)) {
+                    else if (SORT_ARTIST.equals(currentSort)) {
                         String m1 = a.getMember() != null ? a.getMember() : "";
                         String m2 = b.getMember() != null ? b.getMember() : "";
                         res = m1.compareToIgnoreCase(m2);
-                    } else if ("Class".equals(currentSort)) {
+                    } else if (SORT_CLASS.equals(currentSort)) {
                         int r1 = getCardClassRank(a.getCardClass());
                         int r2 = getCardClassRank(b.getCardClass());
                         res = Integer.compare(r1, r2);
