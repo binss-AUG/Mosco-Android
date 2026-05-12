@@ -1,4 +1,4 @@
-﻿package com.vn.jet.mosco.utils;
+package com.vn.jet.mosco.utils;
 
 /**
  * AppConfig - Centralized configuration for the Mosco app.
@@ -8,7 +8,7 @@ public class AppConfig {
     // API Endpoints
     // LÆ°u Ã½: Náº¿u dÃ¹ng giáº£ láº­p (Emulator), hÃ£y dÃ¹ng "http://10.0.2.2:8080/"
     // Náº¿u dÃ¹ng mÃ¡y tháº­t cÃ¹ng máº¡ng WiFi, dÃ¹ng IP LAN bÃªn dÆ°á»›i.
-    $1192.168.1.13:8080/";
+    public static final String BASE_URL = "http://192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)
     public static final String GOOGLE_WEB_CLIENT_ID = "241886304917-7ngj2t444l4avu4h3cv5oka4u6h67nc4.apps.googleusercontent.com";

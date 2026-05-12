@@ -147,7 +147,7 @@ if ($ipObj) {
     
     if (Test-Path $appConfigPath) {
         $content = Get-Content -Path $appConfigPath -Raw
-        $newContent = $content -replace '(public static final String BASE_URL\s*=\s*"http://)[^:]+(:8080/";)', ("`$1" + $currentIP + "`$2")
+        $newContent = $content -replace 'public static final String BASE_URL\s*=\s*"http://[^:]+:8080/";', ("public static final String BASE_URL = `"http://" + $currentIP + ":8080/`";")
         Set-Content -Path $appConfigPath -Value $newContent -Encoding UTF8
         Write-Host "-> Da cap nhat tu dong BASE_URL trong AppConfig.java thanh cong!" -ForegroundColor Green
     } else {
