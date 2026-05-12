@@ -52,8 +52,9 @@ if (-not $javaVersionOk) {
         Write-Host "-> Khong tim thay 'winget'. Chuyen sang tai truc tiep file MSI tu Microsoft..." -ForegroundColor Yellow
         $msiPath = Join-Path $ScriptDir "jdk21.msi"
         try {
+            $chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             $ProgressPreference = 'SilentlyContinue' # Tắt progress bar gây treo
-            Invoke-WebRequest -Uri "https://aka.ms/download-jdk/microsoft-jdk-21-windows-x64.msi" -OutFile $msiPath -UseBasicParsing
+            Invoke-WebRequest -Uri "https://aka.ms/download-jdk/microsoft-jdk-21-windows-x64.msi" -OutFile $msiPath -UserAgent $chromeAgent -UseBasicParsing
             $ProgressPreference = 'Continue'
             Write-Host "-> Tai file thanh cong. Dang cai dat ngam..." -ForegroundColor White
             Start-Process msiexec.exe -ArgumentList "/i `"$msiPath`" /qn" -Wait
@@ -89,8 +90,9 @@ if (-not $mysqlService) {
         Write-Host "-> Khong tim thay 'winget'. Chuyen sang tai truc tiep file MSI cua MySQL Server 8.0..." -ForegroundColor Yellow
         $mysqlMsi = Join-Path $ScriptDir "mysql8.msi"
         try {
+            $chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             $ProgressPreference = 'SilentlyContinue' # Tắt progress bar gây treo
-            Invoke-WebRequest -Uri "https://cdn.mysql.com//Downloads/MySQL-8.0/mysql-8.0.36-winx64.msi" -OutFile $mysqlMsi -UseBasicParsing
+            Invoke-WebRequest -Uri "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.36-winx64.msi" -OutFile $mysqlMsi -UserAgent $chromeAgent -UseBasicParsing
             $ProgressPreference = 'Continue'
             Write-Host "-> Tai file MySQL thanh cong. Dang cai dat ngam (co the mat 1-2 phut)..." -ForegroundColor White
             Start-Process msiexec.exe -ArgumentList "/i `"$mysqlMsi`" /qn" -Wait
