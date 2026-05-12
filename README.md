@@ -1,14 +1,16 @@
 # Mosco - Dự án Gacha Vũ trụ Cao cấp
 
 > [!IMPORTANT]
-> ## 🚀 HƯỚNG DẪN KHỞI CHẠY TỰ ĐỘNG (1-CLICK SETUP)
-> **Hệ thống đã được tích hợp kịch bản tự động hóa hoàn toàn trên Windows. Máy mới không cần cài đặt cấu hình thủ công!**
+> ## 🚀 HƯỚNG DẪN KHỞI CHẠY TỰ ĐỘNG (DOCKER COMPOSER 1-CLICK)
+> **Hệ thống đã được Container hóa toàn diện từ A đến Z. Dẹp bỏ hoàn toàn việc cài đặt thủ công Java hay MySQL trên máy khách!**
+> 
+> ### Yêu cầu duy nhất:
+> Máy tính cần cài sẵn và đang bật ứng dụng **Docker Desktop**.
 > 
 > ### Các bước thực hiện:
-> 1. Mở thư mục **`scripts/`**.
-> 2. Đảm bảo có sẵn 2 file dữ liệu tại đây: file database **`dump.sql`** và file server **`mosco-backend.jar`**.
-> 3. **Click đúp chuột** vào file **`run_setup.bat`**.
-> 4. Kịch bản sẽ tự động: Tải & cài ngầm **Java 21** + **MySQL 8.0** ➔ Nạp dữ liệu CSDL ➔ Tự động bóc tách **IPv4 LAN** thay vào file `AppConfig.java` của Android Client ➔ Khởi chạy Server Backend.
+> 1. Mở thư mục **`scripts/`**, đảm bảo có sẵn file dữ liệu **`dump.sql`** tại đây.
+> 2. **Click đúp chuột** vào file **`run_setup.bat`** (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
+> 3. Kịch bản sẽ tự động: Quét địa chỉ **IPv4 LAN** thực tế của Host để cấu hình kết nối API cho Android Client ➔ Tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
 
 Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu.
 

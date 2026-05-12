@@ -5,24 +5,34 @@ services:
     container_name: mosco-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "31072006"
+      MYSQL_ROOT_PASSWORD: "mosco_production_password_2026"
       MYSQL_DATABASE: "mosco_db"
     ports:
-      - "3306:3306"
+      # Chuyển cổng Host sang 3307 để tránh đụng độ với MySQL Service gốc của Windows
+      - "3307:3306"
     volumes:
       - mosco_mysql_data:/var/lib/mysql
+      # Tự động nạp tệp dump.sql vào CSDL ngay lần đầu khởi tạo
+      - ./scripts/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
-  # ⚡ Redis Cache Service
-  redis:
-    image: redis:7-alpine
-    container_name: mosco-redis
+  # 🚀 Spring Boot Backend Service
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: mosco-backend
     restart: always
     ports:
-      - "6379:6379"
-    volumes:
-      - mosco_redis_data:/data
+      - "8080:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=mosco_db
+      - DB_USER=root
+      - DB_PASS=mosco_production_password_2026
+    depends_on:
+      - mysql
 
-# 💾 Khai báo Volume để lưu dữ liệu vĩnh viễn trên Host
+# 💾 Khai báo Volume để lưu dữ liệu CSDL vĩnh viễn trên Host
 volumes:
   mosco_mysql_data:
-  mosco_redis_data:
