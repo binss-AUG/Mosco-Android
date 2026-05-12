@@ -1,4 +1,4 @@
-package com.vn.jet.mosco.utils;
+﻿package com.vn.jet.mosco.utils;
 
 /**
  * AppConfig - Centralized configuration for the Mosco app.
@@ -6,8 +6,8 @@ package com.vn.jet.mosco.utils;
  */
 public class AppConfig {
     // API Endpoints
-    // LÆ°u Ã½: Náº¿u dÃ¹ng giáº£ láº­p (Emulator), hÃ£y dÃ¹ng "http://10.0.2.2:8080/"
-    // Náº¿u dÃ¹ng mÃ¡y tháº­t cÃ¹ng máº¡ng WiFi, dÃ¹ng IP LAN bÃªn dÆ°á»›i.
+    // LÃ†Â°u ÃƒÂ½: NÃ¡ÂºÂ¿u dÃƒÂ¹ng giÃ¡ÂºÂ£ lÃ¡ÂºÂ­p (Emulator), hÃƒÂ£y dÃƒÂ¹ng "http://10.0.2.2:8080/"
+    // NÃ¡ÂºÂ¿u dÃƒÂ¹ng mÃƒÂ¡y thÃ¡ÂºÂ­t cÃƒÂ¹ng mÃ¡ÂºÂ¡ng WiFi, dÃƒÂ¹ng IP LAN bÃƒÂªn dÃ†Â°Ã¡Â»â€ºi.
     public static final String BASE_URL = "http://192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)
@@ -21,7 +21,7 @@ public class AppConfig {
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
     public static final String DEFAULT_AVATAR_ID = "1";
 
-    // [VIP] Danh sÃ¡ch 24 thÃ nh viÃªn chÃ­nh thá»©c (S1-S24) - DÃ¹ng Ä‘á»ƒ lá»c UI Filter Tabs
+    // [VIP] Danh sÃƒÂ¡ch 24 thÃƒÂ nh viÃƒÂªn chÃƒÂ­nh thÃ¡Â»Â©c (S1-S24) - DÃƒÂ¹ng Ã„â€˜Ã¡Â»Æ’ lÃ¡Â»Âc UI Filter Tabs
     public static final java.util.List<String> OFFICIAL_ARTISTS = java.util.Arrays.asList(
             "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
@@ -32,5 +32,6 @@ public class AppConfig {
     private AppConfig() {
     }
 }
+
 
 

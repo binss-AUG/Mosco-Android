@@ -35,7 +35,6 @@ import com.vn.jet.mosco.model.Objet;
 /**
  * Trình Xử Lý Hiệu Ứng Cao Cấp Cho Thẻ (Core Card).
  */
-// ANTIGRAVITY_MARKER
 public class CardEffectHelper {
 
     private static int dpToPx(Context context, float dp) {
@@ -233,14 +232,14 @@ public class CardEffectHelper {
                                         // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
                                         float density = context.getResources().getDisplayMetrics().density;
                                         pseudoGlow.setCameraDistance(8000 * density);
-                                        
+
                                         pseudoGlow.setRotationX(cardView.getRotationX());
                                         pseudoGlow.setRotationY(cardView.getRotationY());
                                         pseudoGlow.setTranslationX(cardView.getTranslationX());
                                         pseudoGlow.setTranslationY(cardView.getTranslationY());
                                         pseudoGlow.setScaleX(cardView.getScaleX());
                                         pseudoGlow.setScaleY(cardView.getScaleY());
-                                        
+
                                         parent.addView(pseudoGlow, parent.indexOfChild(cardView));
                                         cardView.setTag(R.id.view_progress_fill, pseudoGlow);
                                     }
@@ -248,20 +247,23 @@ public class CardEffectHelper {
                                     ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
                                     if (rawParams instanceof ConstraintLayout.LayoutParams) {
                                         // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
-                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0, 0);
+                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0,
+                                                0);
                                         glowParams.topToTop = cardView.getId();
                                         glowParams.bottomToBottom = cardView.getId();
                                         glowParams.startToStart = cardView.getId();
                                         glowParams.endToEnd = cardView.getId();
-                                        
-                                        int p = (int)extraPadding;
+
+                                        int p = (int) extraPadding;
                                         glowParams.setMargins(-p, -p, -p, -p);
-                                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
+                                        if (pseudoGlow != null)
+                                            pseudoGlow.setLayoutParams(glowParams);
                                     } else if (rawParams instanceof FrameLayout.LayoutParams) {
                                         FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
                                                 (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
                                         glowParams.gravity = android.view.Gravity.CENTER;
-                                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
+                                        if (pseudoGlow != null)
+                                            pseudoGlow.setLayoutParams(glowParams);
                                     }
                                 }
                             }
