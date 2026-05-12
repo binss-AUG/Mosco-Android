@@ -1,4 +1,4 @@
-package com.vn.jet.mosco.utils;
+﻿package com.vn.jet.mosco.utils;
 
 /**
  * AppConfig - Centralized configuration for the Mosco app.
@@ -6,9 +6,9 @@ package com.vn.jet.mosco.utils;
  */
 public class AppConfig {
     // API Endpoints
-    // Lưu ý: Nếu dùng giả lập (Emulator), hãy dùng "http://10.0.2.2:8080/"
-    // Nếu dùng máy thật cùng mạng WiFi, dùng IP LAN bên dưới.
-    public static final String BASE_URL = "http://192.168.1.13:8080/";
+    // LÆ°u Ã½: Náº¿u dÃ¹ng giáº£ láº­p (Emulator), hÃ£y dÃ¹ng "http://10.0.2.2:8080/"
+    // Náº¿u dÃ¹ng mÃ¡y tháº­t cÃ¹ng máº¡ng WiFi, dÃ¹ng IP LAN bÃªn dÆ°á»›i.
+    $1192.168.1.13:8080/";
 
     // Social Auth Config (Replace with real values from Firebase/Discord Console)
     public static final String GOOGLE_WEB_CLIENT_ID = "241886304917-7ngj2t444l4avu4h3cv5oka4u6h67nc4.apps.googleusercontent.com";
@@ -21,7 +21,7 @@ public class AppConfig {
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
     public static final String DEFAULT_AVATAR_ID = "1";
 
-    // [VIP] Danh sách 24 thành viên chính thức (S1-S24) - Dùng để lọc UI Filter Tabs
+    // [VIP] Danh sÃ¡ch 24 thÃ nh viÃªn chÃ­nh thá»©c (S1-S24) - DÃ¹ng Ä‘á»ƒ lá»c UI Filter Tabs
     public static final java.util.List<String> OFFICIAL_ARTISTS = java.util.Arrays.asList(
             "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
@@ -32,3 +32,5 @@ public class AppConfig {
     private AppConfig() {
     }
 }
+
+

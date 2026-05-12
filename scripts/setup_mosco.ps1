@@ -1,120 +1,128 @@
-# Script tự động cài đặt OpenJDK 21, MySQL Server, cập nhật IP Client và khởi chạy Backend
-# Yêu cầu: Đặt script này trong thư mục 'scripts' của dự án
+# Script tu dong cai dat OpenJDK 21, MySQL Server, cap nhat IP Client va khoi chay Backend
+# Yeu cau: Dat script nay trong thu muc 'scripts' cua du an
 
 param([switch]$Elevated)
 
-# Tự động xin quyền Administrator nếu chưa có
+# Tu dong xin quyen Administrator
 if (-not $Elevated -and -not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Start-Process powershell.exe -Verb RunAs -ArgumentList ("-noprofile -file `"{0}`" -Elevated" -f $PSCommandPath)
+    Start-Process powershell.exe -Verb RunAs -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"{0}`" -Elevated" -f $PSCommandPath)
     exit
 }
 
-# Lấy thư mục hiện tại của script làm chuẩn (thư mục 'scripts')
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$ScriptDir = $PSScriptRoot
 Set-Location -Path $ScriptDir
 
 Write-Host "=======================================================" -ForegroundColor Yellow
-Write-Host "      HỆ THỐNG TỰ ĐỘNG CÀI ĐẶT & KHỞI CHẠY MOSCO       " -ForegroundColor Yellow
+Write-Host "      HE THONG TU DONG CAI DAT & KHOI CHAY MOSCO       " -ForegroundColor Yellow
 Write-Host "=======================================================" -ForegroundColor Yellow
 
-# 1. Kiểm tra và cài đặt Java (OpenJDK 21)
-Write-Host "`n[1/5] Đang kiểm tra môi trường Java (OpenJDK 21)..." -ForegroundColor Cyan
+# 1. Kiem tra va cai dat Java (OpenJDK 21)
+Write-Host "`n[1/5] Dang kiem tra moi truong Java (OpenJDK 21)..." -ForegroundColor Cyan
 $java = Get-Command "java" -ErrorAction SilentlyContinue
 if (-not $java) {
-    Write-Host "-> Chưa có Java. Bắt đầu tải và cài đặt tự động..." -ForegroundColor White
+    Write-Host "-> Chua co Java. Bat dau tai va cai dat tu dong..." -ForegroundColor White
     winget install Microsoft.OpenJDK.21 --silent --accept-package-agreements --accept-source-agreements
     $env:Path += ";C:\Program Files\Microsoft\jdk-21.0.x\bin"
 } else {
-    Write-Host "-> Java đã được cài đặt sẵn." -ForegroundColor Green
+    Write-Host "-> Java da duoc cai dat san." -ForegroundColor Green
 }
 
-# 2. Kiểm tra và cài đặt MySQL Server
-Write-Host "`n[2/5] Đang kiểm tra MySQL Server..." -ForegroundColor Cyan
+# 2. Kiem tra va cai dat MySQL Server
+Write-Host "`n[2/5] Dang kiem tra MySQL Server..." -ForegroundColor Cyan
 $mysqlService = Get-Service "MySQL*" -ErrorAction SilentlyContinue
 if (-not $mysqlService) {
-    Write-Host "-> Chưa có MySQL. Bắt đầu tải và cài đặt tự động (chế độ ngầm)..." -ForegroundColor White
+    Write-Host "-> Chua co MySQL. Bat dau tai va cai dat tu dong (che do ngam)..." -ForegroundColor White
     winget install Oracle.MySQL --silent --accept-package-agreements --accept-source-agreements
-    Write-Host "-> Đang chờ dịch vụ MySQL khởi tạo..." -ForegroundColor Yellow
+    Write-Host "-> Dang cho dich vu MySQL khoi tao..." -ForegroundColor Yellow
     Start-Sleep -Seconds 15
 } else {
-    Write-Host "-> MySQL Server đã tồn tại." -ForegroundColor Green
+    Write-Host "-> MySQL Server da ton tai." -ForegroundColor Green
 }
 
-# 3. Khởi động MySQL và Nạp dữ liệu
-Write-Host "`n[3/5] Khởi động MySQL và chuẩn bị cơ sở dữ liệu..." -ForegroundColor Cyan
+# 3. Khoi dong MySQL va Nap du lieu
+Write-Host "`n[3/5] Khoi dong MySQL va chuan bi co so du lieu..." -ForegroundColor Cyan
 Start-Service "MySQL*" -ErrorAction SilentlyContinue
 
 $mysqlBin = "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
 if (-not (Test-Path $mysqlBin)) {
-    $mysqlBin = Get-ChildItem -Path "C:\Program Files\MySQL" -Recurse -Filter "mysql.exe" | Select-Object -First 1 -ExpandProperty FullName
+    $found = Get-ChildItem -Path "C:\Program Files\MySQL" -Recurse -Filter "mysql.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($found) { 
+        $mysqlBin = $found.FullName 
+    }
 }
 
-if ($mysqlBin -and (Test-Path $mysqlBin)) {
-    Write-Host "-> Đang tạo Database 'mosco_db' (nếu chưa có)..." -ForegroundColor White
-    & $mysqlBin -u root -e "CREATE DATABASE IF NOT EXISTS mosco_db;"
+if (Test-Path $mysqlBin) {
+    Write-Host "-> Dang ket noi MySQL de tao Database 'mosco_db'..." -ForegroundColor White
     
-    $dumpFile = Join-Path $ScriptDir "dump.sql"
-    if (Test-Path $dumpFile) {
-        Write-Host "-> Tìm thấy file dump.sql. Đang nạp dữ liệu thẻ bài vào hệ thống..." -ForegroundColor Yellow
-        cmd.exe /c "`"$mysqlBin`" -u root mosco_db < `"$dumpFile`""
-        Write-Host "-> Nạp dữ liệu thành công!" -ForegroundColor Green
+    # Su dung cu phap mang tham so an toan cho PowerShell
+    $argsCreate = @("-u", "root", "-e", "CREATE DATABASE IF NOT EXISTS mosco_db;")
+    $err = ""
+    & $mysqlBin $argsCreate 2>&1 | Out-String -OutVariable err
+    
+    if ($err -like "*Access denied*") {
+        Write-Host "-> Loi: Tai khoan root cua MySQL tren may nay co dat mat khau!" -ForegroundColor Red
+        Write-Host "-> Vui long tu import file dump.sql vao database 'mosco_db' bang cong cu cua ban." -ForegroundColor Yellow
     } else {
-        Write-Host "-> Chú ý: Không tìm thấy file dump.sql tại thư mục hiện tại." -ForegroundColor Magenta
+        if (Test-Path ".\dump.sql") {
+            Write-Host "-> Tim thay file dump.sql. Dang nap du lieu the bai vao he thong..." -ForegroundColor Yellow
+            # Tranh nhay kep long nhau gay loi CMD
+            $cmdString = "`"" + $mysqlBin + "`" -u root mosco_db < dump.sql"
+            cmd.exe /c $cmdString
+            Write-Host "-> Nap du lieu hoan tat!" -ForegroundColor Green
+        } else {
+            Write-Host "-> Chu y: Khong tim thay file dump.sql tai thu muc hien tai." -ForegroundColor Magenta
+        }
     }
 } else {
-    Write-Host "-> Không tìm thấy file chạy mysql.exe. Vui lòng kiểm tra lại quá trình cài đặt MySQL." -ForegroundColor Red
+    Write-Host "-> Khong tim thay file chay mysql.exe. Bo qua buoc nap tu dong." -ForegroundColor Yellow
 }
 
-# 4. Tự động phát hiện IPv4 LAN và Cập nhật file AppConfig.java của Client
-Write-Host "`n[4/5] Tự động cấu hình địa chỉ IP kết nối cho Android Client..." -ForegroundColor Cyan
+# 4. Tu dong phat hien IPv4 LAN va Cap nhat file AppConfig.java cua Client
+Write-Host "`n[4/5] Tu dong cau hinh dia chi IP ket noi cho Android Client..." -ForegroundColor Cyan
 
-# Ưu tiên lấy IP thực tế cấp qua DHCP (tránh các card mạng ảo của VMware/VirtualBox)
-$ipObj = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { 
+$ipObj = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { 
     $_.InterfaceAlias -notlike "*Loopback*" -and 
     $_.InterfaceAlias -notlike "*vEthernet*" -and 
     $_.IPAddress -notlike "169.254.*" -and 
     $_.PrefixOrigin -eq "Dhcp" 
 } | Select-Object -First 1
 
-# Nếu không có IP DHCP, lấy tạm IP nội bộ dải 192.168.* hoặc 10.*
 if (-not $ipObj) {
-    $ipObj = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { 
+    $ipObj = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { 
         $_.IPAddress -like "192.168.*" -or $_.IPAddress -like "10.*" 
     } | Select-Object -First 1
 }
 
 if ($ipObj) {
     $currentIP = $ipObj.IPAddress
-    Write-Host "-> Phát hiện địa chỉ IPv4 LAN của máy: $currentIP" -ForegroundColor Green
+    Write-Host "-> Phat hien dia chi IPv4 LAN cua may: $currentIP" -ForegroundColor Green
     
-    # Đường dẫn file AppConfig.java (từ thư mục scripts đi lùi lại 1 cấp)
     $appConfigPath = Join-Path $ScriptDir "..\client\app\src\main\java\com\vn\jet\mosco\utils\AppConfig.java"
     $appConfigPath = [System.IO.Path]::GetFullPath($appConfigPath)
     
     if (Test-Path $appConfigPath) {
         $content = Get-Content -Path $appConfigPath -Raw
-        # Thay thế IP trong chuỗi BASE_URL bằng Regex
         $newContent = $content -replace '(public static final String BASE_URL\s*=\s*"http://)[^:]+(:8080/";)', ("`$1" + $currentIP + "`$2")
-        
         Set-Content -Path $appConfigPath -Value $newContent -Encoding UTF8
-        Write-Host "-> Đã cập nhật tự động BASE_URL trong AppConfig.java thành công!" -ForegroundColor Green
+        Write-Host "-> Da cap nhat tu dong BASE_URL trong AppConfig.java thanh cong!" -ForegroundColor Green
     } else {
-        Write-Host "-> Không tìm thấy file AppConfig.java tại: $appConfigPath" -ForegroundColor Red
+        Write-Host "-> Khong tim thay file AppConfig.java tai: $appConfigPath" -ForegroundColor Red
     }
 } else {
-    Write-Host "-> Không thể tự động phát hiện địa chỉ IPv4 LAN. Vui lòng tự cấu hình file AppConfig.java." -ForegroundColor Yellow
+    Write-Host "-> Khong the tu dong phat hien dia chi IPv4 LAN." -ForegroundColor Yellow
 }
 
-# 5. Khởi chạy Backend Spring Boot
-Write-Host "`n[5/5] Khởi chạy Server Spring Boot..." -ForegroundColor Cyan
+# 5. Khoi chay Backend Spring Boot
+Write-Host "`n[5/5] Khoi chay Server Spring Boot..." -ForegroundColor Cyan
 $jarFile = Join-Path $ScriptDir "mosco-backend.jar"
 
 if (Test-Path $jarFile) {
-    Write-Host "-> Đang chạy ứng dụng Mosco Backend..." -ForegroundColor Green
+    Write-Host "-> Dang chay ung dung Mosco Backend..." -ForegroundColor Green
     Write-Host "=======================================================" -ForegroundColor Yellow
     java -jar "$jarFile"
+    Pause
 } else {
-    Write-Host "-> Lỗi: Không tìm thấy file thực thi '$jarFile'." -ForegroundColor Red
-    Write-Host "-> Vui lòng copy file .jar đã build vào cùng thư mục với script này!" -ForegroundColor Red
+    Write-Host "-> Loi: Khong tim thay file thuc thi '$jarFile'." -ForegroundColor Red
+    Write-Host "-> Vui long copy file .jar da build vao cung thu muc voi script nay!" -ForegroundColor Red
     Pause
 }

@@ -1,0 +1,3 @@
+# Bỏ qua các file nhị phân và dữ liệu lớn sinh ra cục bộ
+mosco-backend.jar
+dump.sql
