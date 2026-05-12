@@ -1,5 +1,15 @@
 # Mosco - Dự án Gacha Vũ trụ Cao cấp
 
+> [!IMPORTANT]
+> ## 🚀 HƯỚNG DẪN KHỞI CHẠY TỰ ĐỘNG (1-CLICK SETUP)
+> **Hệ thống đã được tích hợp kịch bản tự động hóa hoàn toàn trên Windows. Máy mới không cần cài đặt cấu hình thủ công!**
+> 
+> ### Các bước thực hiện:
+> 1. Mở thư mục **`scripts/`**.
+> 2. Đảm bảo có sẵn 2 file dữ liệu tại đây: file database **`dump.sql`** và file server **`mosco-backend.jar`**.
+> 3. **Click đúp chuột** vào file **`run_setup.bat`**.
+> 4. Kịch bản sẽ tự động: Tải & cài ngầm **Java 21** + **MySQL 8.0** ➔ Nạp dữ liệu CSDL ➔ Tự động bóc tách **IPv4 LAN** thay vào file `AppConfig.java` của Android Client ➔ Khởi chạy Server Backend.
+
 Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu.
 
 ## Điểm Nổi Bật của Dự án
