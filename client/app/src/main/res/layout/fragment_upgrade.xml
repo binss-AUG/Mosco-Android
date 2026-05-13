@@ -649,7 +649,7 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/spacing_56dp"
         android:layout_marginHorizontal="0dp"
-        android:layout_marginBottom="@dimen/spacing_20dp"
+        android:layout_marginBottom="@dimen/lg_content_bottom_clearance"
         android:enabled="false"
         android:text="@string/upgrade_btn_text"
         app:moscoStyle="primary"

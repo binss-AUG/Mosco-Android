@@ -125,7 +125,7 @@
         android:layout_marginTop="@dimen/spacing_10dp"
         android:layout_marginHorizontal="@dimen/spacing_10dp"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/lg_content_bottom_clearance"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

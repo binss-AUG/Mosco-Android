@@ -119,4 +119,8 @@
     <!-- LG: Header -->
     <dimen name="lg_header_height">56dp</dimen>
 
+    <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che -->
+    <!-- = nav_height(64) + nav_margin_bottom(10) + spacing(10) = 84dp -->
+    <dimen name="lg_content_bottom_clearance">84dp</dimen>
+
 </resources>

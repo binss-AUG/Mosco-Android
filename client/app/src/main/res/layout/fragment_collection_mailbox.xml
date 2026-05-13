@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface">
+    android:background="@color/lg_background">
 
     <!-- AppBarLayout is a DIRECT child of CoordinatorLayout -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_mailbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/mosco_surface"
+        android:background="@color/lg_background"
         app:liftOnScroll="false">
 
         <LinearLayout
@@ -132,7 +132,7 @@
         android:layout_height="@dimen/spacing_64dp"
         android:layout_gravity="bottom"
         android:layout_marginHorizontal="@dimen/spacing_20dp"
-        android:layout_marginBottom="@dimen/spacing_20dp"
+        android:layout_marginBottom="@dimen/lg_content_bottom_clearance"
         android:background="@drawable/bg_btn_rainbow"
         style="@style/MoscoText.Luxury.Button"
         android:text="@string/collection_action_receive_all"
