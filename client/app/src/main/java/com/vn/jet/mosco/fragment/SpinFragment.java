@@ -390,8 +390,9 @@ public class SpinFragment extends Fragment {
         String frontUrl = getCardImageUrl(selectedPosition, true);
         String backUrl = getCardImageUrl(selectedPosition, false);
 
-        loadCardImageInto(frontUrl, ivResultImage);
-        loadCardImageInto(backUrl, ivResultBack);
+        // 🎯 THẺ KẾT QUẢ: Nạp chất lượng cao (isHighQuality = true)
+        loadCardImageInto(frontUrl, ivResultImage, true);
+        loadCardImageInto(backUrl, ivResultBack, true);
 
         if (currentSpinResult.getCardData() != null) {
             String name = String.valueOf(currentSpinResult.getCardData().get("name"));
@@ -545,11 +546,21 @@ public class SpinFragment extends Fragment {
             }
 
             String url = String.valueOf(urlObj);
-            if (isFront && position != sessionResultIndex) {
-                if (url.endsWith("/4x"))
-                    url = url.substring(0, url.length() - 3) + "/1x";
-                else if (url.endsWith("/original"))
-                    url = url.substring(0, url.length() - 9) + "/1x";
+
+            // 🎯 INTELLIGENT URL VARIANT SELECTION (TC-01)
+            if (position == sessionResultIndex) {
+                // Bắt buộc lấy bản gốc cho thẻ trúng thưởng
+                if (url.endsWith("/1x")) url = url.substring(0, url.length() - 3) + "/original";
+                else if (url.endsWith("/thumbnail")) url = url.substring(0, url.length() - 10) + "/original";
+                else if (url.endsWith("/4x")) url = url.substring(0, url.length() - 3) + "/original";
+            } else {
+                // Thẻ rác: Ép về thumbnail/1x để tiết kiệm RAM
+                if (isFront) {
+                    if (url.endsWith("/4x"))
+                        url = url.substring(0, url.length() - 3) + "/1x";
+                    else if (url.endsWith("/original"))
+                        url = url.substring(0, url.length() - 9) + "/1x";
+                }
             }
             return url;
         }
@@ -595,13 +606,18 @@ public class SpinFragment extends Fragment {
                 return;
             }
 
-            // --- BƯỚC 1: TẢI ẢNH ƯU TIÊN (HÀNG KHỦNG 4X) ---
+            // --- BƯỚC 1: TẢI ẢNH ƯU TIÊN (HÀNG KHỦNG 4X - CẢ 2 MẶT) ---
             for (String u : priorityUrls) {
+                String finalUrl = u;
+                // Đảm bảo nạp bản original nếu là hàng ưu tiên
+                if (finalUrl.endsWith("/1x")) finalUrl = finalUrl.substring(0, finalUrl.length() - 3) + "/original";
+                else if (finalUrl.endsWith("/thumbnail")) finalUrl = finalUrl.substring(0, finalUrl.length() - 10) + "/original";
+
                 Glide.with(requireContext().getApplicationContext())
                         .asBitmap()
-                        .load(u)
-                        .priority(Priority.IMMEDIATE) // Đẩy lên đầu hàng đợi nạp CPU/Network
-                        .timeout(10000)
+                        .load(finalUrl)
+                        .priority(Priority.IMMEDIATE) // Đẩy lên đầu hàng đợi nạp CPU/Network (TC-02)
+                        .timeout(15000)
                         .submit();
                 if (finishedCount.incrementAndGet() >= totalToLoad) {
                     preloadComplete = true;
@@ -624,17 +640,21 @@ public class SpinFragment extends Fragment {
         }).start();
     }
 
-    private void loadCardImageInto(String url, ImageView imageView) {
+    private void loadCardImageInto(String url, ImageView imageView, boolean isHighQuality) {
         if (!isAdded() || url == null || url.isEmpty() || imageView == null) return;
         try {
             imageView.setAlpha(1.0f);
+            
+            // 🚀 HARDWARE ACCELERATION: Kích hoạt cho animation lật thẻ mượt mà (TC-03)
+            imageView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
             if (url.equals("dummy://trash_object")) {
                 // 🚀 TỐI ƯU CỰC ĐẠI: Dùng trực tiếp Resource để tránh Glide delay cho rác
                 imageView.setImageResource(R.drawable.trash_objet);
                 imageView.setAlpha(0.6f);
             } else {
-                // Luồng tải ưu tiên: Thẻ đang load trong Spin Grid dùng bản Thumbnail (isThumbnail=true)
-                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(imageView, url, true);
+                // Luồng tải: isHighQuality = true -> dùng bản Original, ngược lại dùng Thumbnail
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(imageView, url, !isHighQuality);
             }
         } catch (Exception e) {
             android.util.Log.e("SpinFragment", "Error loading card image: " + e.getMessage());
@@ -692,9 +712,9 @@ public class SpinFragment extends Fragment {
 
         // Load ảnh (đã được pre-load nên sẽ hiện tức thì)
         String frontUrl = getCardImageUrl(selectedPosition, true);
-        loadCardImageInto(frontUrl, ivResultImage);
+        loadCardImageInto(frontUrl, ivResultImage, true);
         String backUrl = getCardImageUrl(selectedPosition, false);
-        loadCardImageInto(backUrl, ivResultBack);
+        loadCardImageInto(backUrl, ivResultBack, true);
 
         // === Phase 1: Neon Glow Fade 100% → 0% trong 1000ms ===
         if (isWin) {
@@ -1315,7 +1335,9 @@ public class SpinFragment extends Fragment {
                 holder.ivCardBack.setImageResource(R.drawable.objet_back_spin);
 
                 String frontUrl = getCardImageUrl(position, true);
-                loadCardImageInto(frontUrl, holder.ivCardFront);
+                boolean isWinner = (position == winPosition);
+                // 🎯 REVEAL GRID: Chỉ thẻ trúng thưởng mới được nạp chất lượng cao (TC-01)
+                loadCardImageInto(frontUrl, holder.ivCardFront, isWinner);
 
                 // Set the shimmer background for metallic shine
                 // Smoother gradient for a "blurred/dreamy" effect

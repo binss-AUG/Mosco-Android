@@ -1,4 +1,4 @@
-﻿package com.vn.jet.mosco.utils;
+package com.vn.jet.mosco.utils;
 
 /**
  * AppConfig - Centralized configuration for the Mosco app.
@@ -19,8 +19,8 @@ public class AppConfig {
     public static final String AVATAR_CROP_CACHE_NAME = "avatar_crop.webp";
     public static final String DEFAULT_AVATAR_ID = "1";
 
-    // [VIP] Danh sÃƒÂ¡ch 24 thÃƒÂ nh viÃƒÂªn chÃƒÂ­nh thÃ¡Â»Â©c (S1-S24) - DÃƒÂ¹ng
-    // Ã„â€˜Ã¡Â»Æ’ lÃ¡Â»Âc UI Filter Tabs
+    // [VIP] Danh sách 24 thành viên chính thức (S1-S24) - Dùng để lọc UI Filter
+    // Tabs
     public static final java.util.List<String> OFFICIAL_ARTISTS = java.util.Arrays.asList(
             "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",

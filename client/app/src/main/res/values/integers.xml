@@ -87,4 +87,16 @@
     <integer name="max_fling_velocity">8500</integer>
     <integer name="inventory_batch_size_unleashed">99999</integer>
     <integer name="flip_duration_ms">500</integer>
+
+    <!-- Upgrade Animation Constants -->
+    <integer name="upgrade_anim_gather_duration">800</integer>
+    <integer name="upgrade_anim_neon_glow_duration">300</integer>
+    <integer name="upgrade_anim_cutscene_crossfade_duration">400</integer>
+    <integer name="upgrade_anim_result_reveal_duration">300</integer>
+    <integer name="upgrade_anim_video_climax_delay">2500</integer>
+    <integer name="upgrade_anim_camera_shake_duration">200</integer>
+    <integer name="upgrade_anim_reveal_overshoot_duration">500</integer>
+    <integer name="upgrade_anim_overlay_fade_duration">150</integer>
+    <integer name="upgrade_anim_video_fade_duration">150</integer>
+    <integer name="upgrade_anim_result_text_slide_duration">300</integer>
 </resources>

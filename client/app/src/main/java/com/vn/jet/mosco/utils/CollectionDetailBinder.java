@@ -97,10 +97,10 @@ public class CollectionDetailBinder {
         }
 
         ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
-        int entryLevel = entry.getLevel();
+        int upgradeGrade = entry.getUpgradeLevel();
         if (ivLevel != null) {
-            if (entryLevel > 0) {
-                String assetPath = context.getString(R.string.asset_grade_path) + entryLevel + ".png";
+            if (upgradeGrade > 0) {
+                String assetPath = context.getString(R.string.asset_grade_path) + upgradeGrade + ".png";
                 Glide.with(context).load(assetPath).into(ivLevel);
                 ivLevel.setVisibility(View.VISIBLE);
             } else {
@@ -246,7 +246,7 @@ public class CollectionDetailBinder {
             }
 
             if (cvCard != null) {
-                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getLevel());
+                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel());
             }
         } else {
             // Nếu chưa sở hữu: Ẩn Shimmer để hiện diện lớp xám Sad

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
@@ -23,37 +24,34 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * UpgradeSceneView for Mosco
- * Handles the high-intensity core animation (glitches, shakes, streaks) during the upgrade process.
+ * UpgradeSceneView for Mosco - Premium Cinematic Edition
+ * Optimized for 60 FPS on Android 9 Emulators.
  */
 public class UpgradeSceneView extends View {
 
     private Paint corePaint;
     private Paint glitch1Paint;
     private Paint glitch2Paint;
-    private Paint floorGlowPaint;
     private Paint streakPaint;
+    private Paint glowPaint;
+    private Paint floorGlowPaint;
 
     private RectF coreBounds = new RectF();
-
-    private float shakeOffsetY = 0f;
+    private float currentOffsetY = 0f;
     private float shakeOffsetX = 0f;
+    private float shakeOffsetY = 0f;
     private float glitch1OffsetX = 0f;
     private float glitch2OffsetX = 0f;
-
-    private float currentOffsetY = 0f;
     private float glitchAlphaMult = 0f;
 
     private long startTime;
     private ValueAnimator animator;
-
     private List<Streak> streaks = new ArrayList<>();
     private Random random = new Random();
 
-    private int coreColor = Color.WHITE;
-    private int coreGlowColor = 0; // Will be initialized in init()
-    private int glitch1Color = Color.argb((int)(0.4f * 255), 255, 0, 85);
-    private int glitch2Color = Color.argb((int)(0.4f * 255), 0, 255, 255);
+    private int coreGlowColor = 0;
+    private LinearGradient streakGradientPrototype;
+    private Matrix gradientMatrix = new Matrix();
 
     public UpgradeSceneView(Context context) {
         super(context);
@@ -69,60 +67,53 @@ public class UpgradeSceneView extends View {
         if (coreGlowColor == 0) {
             coreGlowColor = ContextCompat.getColor(getContext(), R.color.palette_cyan_accent);
         }
+        
+        // Sử dụng SOFTWARE để hỗ trợ ShadowLayer và Gradient mượt mà nhất trên emulator
         setLayerType(LAYER_TYPE_SOFTWARE, null);
 
         corePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        corePaint.setColor(coreColor);
+        corePaint.setColor(Color.WHITE);
         corePaint.setShadowLayer(50f, 0, 0, coreGlowColor);
 
         glitch1Paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         glitch1Paint.setColor(Color.WHITE);
-        glitch1Paint.setAlpha((int) (255 * 0.4f));
 
         glitch2Paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         glitch2Paint.setColor(Color.WHITE);
-        glitch2Paint.setAlpha((int) (255 * 0.4f));
-
-        floorGlowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        floorGlowPaint.setColor(coreGlowColor);
-        floorGlowPaint.setAlpha((int) (255 * 0.4f));
-        floorGlowPaint.setShadowLayer(40f, 0, 0, coreGlowColor);
 
         streakPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         streakPaint.setStyle(Paint.Style.STROKE);
         streakPaint.setStrokeCap(Paint.Cap.ROUND);
-        streakPaint.setShadowLayer(6f, 0, 0, Color.argb((int)(0.6f * 255), 0, 162, 255));
-    }
+        streakPaint.setColor(Color.WHITE);
+        
+        glowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        glowPaint.setStyle(Paint.Style.STROKE);
+        glowPaint.setStrokeCap(Paint.Cap.ROUND);
+        glowPaint.setColor(coreGlowColor);
 
-    public void setCoreGlowColor(int color) {
-        this.coreGlowColor = color;
-        corePaint.setShadowLayer(50f, 0, 0, color);
-        floorGlowPaint.setColor(color);
-        floorGlowPaint.setShadowLayer(40f, 0, 0, color);
-        postInvalidate();
+        floorGlowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        floorGlowPaint.setStyle(Paint.Style.FILL);
+
+        // Gradient cho tia sáng
+        streakGradientPrototype = new LinearGradient(
+                -250, 0, 0, 0,
+                new int[]{Color.TRANSPARENT, Color.argb(220, 0, 200, 255), Color.WHITE},
+                new float[]{0f, 0.5f, 1f},
+                Shader.TileMode.CLAMP
+        );
     }
 
     public void setCoreBounds(float left, float top, float right, float bottom) {
         coreBounds.set(left, top, right, bottom);
-        generateStreaks();
+        if (getWidth() > 0) generateStreaks();
         postInvalidate();
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (!coreBounds.isEmpty()) {
-            generateStreaks();
-        }
     }
 
     public void startAnimation() {
         startTime = System.currentTimeMillis();
-        generateStreaks();
+        if (getWidth() > 0) generateStreaks();
 
-        if (animator != null) {
-            animator.cancel();
-        }
+        if (animator != null) animator.cancel();
         animator = ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(10000);
         animator.setRepeatCount(ValueAnimator.INFINITE);
@@ -135,116 +126,82 @@ public class UpgradeSceneView extends View {
     }
 
     public void stopAnimation() {
-        if (animator != null) {
-            animator.cancel();
-        }
+        if (animator != null) animator.cancel();
     }
 
     private void updateValues() {
         long elapsed = System.currentTimeMillis() - startTime;
         float density = getResources().getDisplayMetrics().density;
         
-        // 1. Movement (0 -> 2000ms)
         float moveProgress = Math.min(1f, elapsed / 2000f);
-        moveProgress = moveProgress * moveProgress; // ease in
         float targetOffsetY = getHeight() * 0.15f - coreBounds.top;
-        currentOffsetY = targetOffsetY * moveProgress;
+        currentOffsetY = targetOffsetY * (moveProgress * moveProgress);
 
-        // 2. Shake (0 -> 2880ms)
         float shakeIntensity = Math.min(1f, Math.max(0f, elapsed / 2880f));
-        float currentMaxShake = density * (1f + 7f * shakeIntensity); // 1dp -> 8dp
+        float currentMaxShake = density * (1f + 8f * shakeIntensity);
         shakeOffsetX = (random.nextFloat() * 2f - 1f) * currentMaxShake;
         shakeOffsetY = (random.nextFloat() * 2f - 1f) * currentMaxShake;
 
-        // 3. Glitch Alpha (2000 -> 2880ms)
-        if (elapsed >= 2000) {
-            glitchAlphaMult = Math.min(1f, (elapsed - 2000) / 880f);
-        } else {
-            glitchAlphaMult = 0f;
-        }
-
-        // 4. Glitch offsets
+        glitchAlphaMult = elapsed >= 2000 ? Math.min(1f, (elapsed - 2000) / 880f) : 0f;
         if (glitchAlphaMult > 0) {
-            float g1Cycle = (elapsed % 300) / 300f;
-            glitch1OffsetX = getGlitch1Offset(g1Cycle) * density;
-            float g2Cycle = (elapsed % 400) / 400f;
-            glitch2OffsetX = getGlitch2Offset(g2Cycle) * density;
+            glitch1OffsetX = getGlitchOffset(elapsed, 300, -10, 5) * density;
+            glitch2OffsetX = getGlitchOffset(elapsed, 450, 12, -6) * density;
         }
     }
 
-    private float getGlitch1Offset(float t) {
-        if (t < 0.2f) return lerp(0, -8, t / 0.2f);
-        if (t < 0.4f) return lerp(-8, 4, (t - 0.2f) / 0.2f);
-        if (t < 0.6f) return lerp(4, -10, (t - 0.4f) / 0.2f);
-        if (t < 0.8f) return lerp(-10, 3, (t - 0.6f) / 0.2f);
-        return lerp(3, -5, (t - 0.8f) / 0.2f);
-    }
-
-    private float getGlitch2Offset(float t) {
-        if (t < 0.25f) return lerp(0, 9, t / 0.25f);
-        if (t < 0.5f) return lerp(9, -4, (t - 0.25f) / 0.25f);
-        if (t < 0.75f) return lerp(-4, 6, (t - 0.5f) / 0.25f);
-        return lerp(6, 10, (t - 0.75f) / 0.25f);
-    }
-
-    private float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
+    private float getGlitchOffset(long elapsed, int period, float min, float max) {
+        float t = (elapsed % period) / (float) period;
+        return min + (max - min) * t;
     }
 
     private void generateStreaks() {
         if (getWidth() == 0 || coreBounds.isEmpty()) return;
         streaks.clear();
-        int numStreaks = 120;
+        int numStreaks = 120; 
         int w = getWidth();
         int h = getHeight();
         
-        float bottomWidth = w * 0.9f;
-        float cardWidth = coreBounds.width();
-        
         for (int i = 0; i < numStreaks; i++) {
             float t = (float) i / (numStreaks - 1);
-            
-            float startX = (w / 2f) - (bottomWidth / 2f) + (t * bottomWidth);
-            float midX = coreBounds.centerX() - (cardWidth / 2f) + (t * cardWidth);
-            
-            float startY = h + 100;
-            float midY = coreBounds.centerY() + 90;
-            float endY = -100;
-            
-            float distY = startY - midY;
-            
-            float cp1X = startX + (midX - startX) * 0.3f;
-            float cp1Y = startY - distY * 0.15f;
-            
-            float cp2X = midX;
-            float cp2Y = midY + distY * 0.4f;
+            float startX = (w / 2f) - (w * 0.5f) + (t * w);
+            float midX = coreBounds.centerX() - (coreBounds.width() / 1.8f) + (t * coreBounds.width() * 1.1f);
+            float startY = h + 150;
+            float midY = coreBounds.centerY() + 100;
+            float endY = -200;
             
             Path path = new Path();
             path.moveTo(startX, startY);
-            path.cubicTo(cp1X, cp1Y, cp2X, cp2Y, midX, midY);
+            path.cubicTo(startX + (midX - startX) * 0.4f, startY - (startY - midY) * 0.2f, midX, midY + (startY - midY) * 0.5f, midX, midY);
             path.lineTo(midX, endY);
             
-            float length = 60f + random.nextFloat() * 80f;
-            float thickness = 1.5f + random.nextFloat() * 1.5f;
-            float duration = 0.5f + random.nextFloat() * 0.7f;
-            float delay = random.nextFloat() * 2f;
-            
-            streaks.add(new Streak(path, length, thickness, duration * 1000f, delay * 1000f));
+            streaks.add(new Streak(path, 
+                    100f + random.nextFloat() * 100f, 
+                    2.0f + random.nextFloat() * 2.5f, 
+                    (0.35f + random.nextFloat() * 0.55f) * 1000f, 
+                    random.nextFloat() * 2500f));
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        float density = getResources().getDisplayMetrics().density;
-        long elapsed = System.currentTimeMillis() - startTime;
-
         if (coreBounds.isEmpty()) return;
+        
+        if (streaks.isEmpty() && getWidth() > 0) {
+            generateStreaks();
+        }
+        if (streaks.isEmpty()) return;
 
+        long elapsed = System.currentTimeMillis() - startTime;
+        float density = getResources().getDisplayMetrics().density;
+
+        // Draw Floor Glow
+        drawFloorGlow(canvas, elapsed);
+
+        // Draw Streaks
         canvas.save();
         canvas.translate(0, currentOffsetY);
         for (Streak s : streaks) {
-            s.draw(canvas, streakPaint, elapsed);
+            s.draw(canvas, streakPaint, glowPaint, elapsed);
         }
         canvas.restore();
 
@@ -253,98 +210,102 @@ public class UpgradeSceneView extends View {
         canvas.translate(shakeOffsetX, currentOffsetY + shakeOffsetY);
 
         if (glitchAlphaMult > 0) {
-            canvas.save();
-            canvas.translate(glitch2OffsetX, 0);
-            glitch2Paint.setAlpha((int) (255 * 0.4f * glitchAlphaMult));
-            glitch2Paint.setShadowLayer(4f*density, -4f*density, 0, Color.argb((int)(0.8f * 255 * glitchAlphaMult), 0, 255, 255));
-            canvas.drawRoundRect(coreBounds, 12f*density, 12f*density, glitch2Paint);
-            canvas.restore();
-
-            canvas.save();
-            canvas.translate(glitch1OffsetX, 0);
-            glitch1Paint.setAlpha((int) (255 * 0.4f * glitchAlphaMult));
-            glitch1Paint.setShadowLayer(4f*density, 4f*density, 0, Color.argb((int)(0.8f * 255 * glitchAlphaMult), 255, 0, 85));
-            canvas.drawRoundRect(coreBounds, 12f*density, 12f*density, glitch1Paint);
-            canvas.restore();
+            drawGlitch(canvas, glitch2OffsetX, Color.CYAN, glitch2Paint);
+            drawGlitch(canvas, glitch1OffsetX, Color.MAGENTA, glitch1Paint);
         }
 
-        // Draw Core Card
-        float glowRadius = coreBounds.width() * 0.20f;
-        Paint exGlow = new Paint(Paint.ANTI_ALIAS_FLAG);
-        exGlow.setColor(Color.TRANSPARENT);
-        exGlow.setShadowLayer(glowRadius, 0, 0, coreGlowColor);
-        canvas.drawRoundRect(coreBounds, 12f*density, 12f*density, exGlow);
-        
-        Paint exGlow2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-        exGlow2.setColor(Color.TRANSPARENT);
-        exGlow2.setShadowLayer(glowRadius * 0.45f, 0, 0, coreGlowColor);
-        canvas.drawRoundRect(coreBounds, 12f*density, 12f*density, exGlow2);
-
+        // Core Card Glow
         canvas.drawRoundRect(coreBounds, 12f*density, 12f*density, corePaint);
         canvas.restore();
     }
 
-    private class Streak {
-        Path path;
-        PathMeasure pathMeasure;
-        float pathLength;
-        float length;
-        float thickness;
-        float durationMs;
-        float delayMs;
+    private void drawFloorGlow(Canvas canvas, long elapsed) {
+        int w = getWidth();
+        int h = getHeight();
+        float intensity = 0.3f + 0.2f * (float) Math.sin(elapsed / 150f);
+        intensity *= Math.min(1f, elapsed / 800f);
         
-        float[] pos = new float[2];
-        float[] tan = new float[2];
+        LinearGradient floorGrad = new LinearGradient(0, h, 0, h * 0.7f, 
+                new int[]{Color.argb((int)(255 * intensity), Color.red(coreGlowColor), Color.green(coreGlowColor), Color.blue(coreGlowColor)), Color.TRANSPARENT}, 
+                null, Shader.TileMode.CLAMP);
+        floorGlowPaint.setShader(floorGrad);
+        canvas.drawRect(0, h * 0.7f, w, h, floorGlowPaint);
+    }
 
-        Streak(Path p, float len, float thick, float dur, float del) {
-            path = p;
-            length = len;
-            thickness = thick;
-            durationMs = dur;
-            delayMs = del;
-            pathMeasure = new PathMeasure(path, false);
-            pathLength = pathMeasure.getLength();
+    private void drawGlitch(Canvas canvas, float offset, int color, Paint paint) {
+        canvas.save();
+        canvas.translate(offset, 0);
+        paint.setAlpha((int) (255 * 0.4f * glitchAlphaMult));
+        canvas.drawRoundRect(coreBounds, 12f*getResources().getDisplayMetrics().density, 12f*getResources().getDisplayMetrics().density, paint);
+        canvas.restore();
+    }
+
+    private class Streak {
+        private final float[] pointsX = new float[60];
+        private final float[] pointsY = new float[60];
+        private final float[] angles = new float[60];
+        private final float length;
+        private final float thickness;
+        private final float durationMs;
+        private final float delayMs;
+        private final float totalLength;
+
+        Streak(Path path, float len, float thick, float dur, float del) {
+            this.length = len;
+            this.thickness = thick;
+            this.durationMs = dur;
+            this.delayMs = del;
+            
+            PathMeasure pm = new PathMeasure(path, false);
+            this.totalLength = pm.getLength();
+            
+            float[] pos = new float[2];
+            float[] tan = new float[2];
+            for (int i = 0; i < 60; i++) {
+                pm.getPosTan(totalLength * (i / 59f), pos, tan);
+                pointsX[i] = pos[0];
+                pointsY[i] = pos[1];
+                angles[i] = (float) (Math.atan2(tan[1], tan[0]) * 180 / Math.PI);
+            }
         }
 
-        void draw(Canvas canvas, Paint basePaint, long elapsedMs) {
+        void draw(Canvas canvas, Paint basePaint, Paint glowPaint, long elapsedMs) {
             float rawT = elapsedMs - delayMs;
             if (rawT < 0) return;
             
-            float tTime = rawT - (float)Math.floor(rawT / durationMs) * durationMs;
-            float progress = tTime / durationMs; 
-            if (progress <= 0 || progress >= 1) return;
+            float progress = (rawT % durationMs) / durationMs;
+            int idx = (int) (progress * 59);
+            if (idx < 0 || idx >= 60) return;
 
-            float distance = progress * pathLength;
-            pathMeasure.getPosTan(distance, pos, tan);
-
-            float opacity = 1f;
-            if (progress < 0.1f) opacity = progress / 0.1f;
-            else if (progress > 0.8f) opacity = 1f - ((progress - 0.8f) / 0.2f);
+            float opacity = 1.0f;
+            if (progress < 0.15f) opacity = progress / 0.15f;
+            else if (progress > 0.75f) opacity = 1f - ((progress - 0.75f) / 0.25f);
             
-            float globalIntensity = Math.min(1f, Math.max(0.1f, elapsedMs / 2880f));
-            opacity *= globalIntensity;
+            float intensity = 0.5f + 0.5f * Math.min(1f, elapsedMs / 1000f);
+            opacity *= intensity;
 
-            if (opacity <= 0f) return;
+            if (opacity <= 0.02f) return;
 
             canvas.save();
-            canvas.translate(pos[0], pos[1]);
-            float angle = (float) (Math.atan2(tan[1], tan[0]) * 180 / Math.PI);
-            canvas.rotate(angle);
+            canvas.translate(pointsX[idx], pointsY[idx]);
+            canvas.rotate(angles[idx]);
 
+            // 1. Glow stroke
+            glowPaint.setStrokeWidth(thickness * 3.5f);
+            glowPaint.setAlpha((int) (255 * opacity * 0.45f));
+            canvas.drawLine(-length, 0, 0, 0, glowPaint);
+
+            // 2. Core white stroke
             basePaint.setStrokeWidth(thickness);
             basePaint.setAlpha((int) (255 * opacity));
             
-            LinearGradient grad = new LinearGradient(
-                    -length, 0, 0, 0,
-                    new int[]{Color.TRANSPARENT, ContextCompat.getColor(getContext(), R.color.mosco_primary_alpha_60), Color.WHITE},
-                    new float[]{0f, 0.4f, 1f},
-                    Shader.TileMode.CLAMP
-            );
-            basePaint.setShader(grad);
-
-            canvas.drawLine(-length, 0, 0, 0, basePaint);
+            gradientMatrix.setTranslate(0, 0); 
+            streakGradientPrototype.setLocalMatrix(gradientMatrix);
+            basePaint.setShader(streakGradientPrototype);
             
+            canvas.drawLine(-length, 0, 0, 0, basePaint);
             basePaint.setShader(null);
+            
             canvas.restore();
         }
     }

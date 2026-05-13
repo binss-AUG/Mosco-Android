@@ -2064,22 +2064,15 @@ public class CollectionFragment extends Fragment {
     }
 
     private static boolean isStatus(String f) {
-        if (f == null)
-            return false;
-        String lower = f.toLowerCase();
-        return java.util.Arrays.asList("tất cả", "đã sở hữu", "chưa sở hữu", "all", "owned", "missing").contains(lower);
+        return com.vn.jet.mosco.utils.DatabaseLoader.isStatus(f);
     }
 
     private static boolean isArtist(String f) {
-        if (f == null)
-            return false;
-        return com.vn.jet.mosco.utils.AppConfig.OFFICIAL_ARTISTS.contains(f);
+        return com.vn.jet.mosco.utils.DatabaseLoader.isArtist(f);
     }
 
     private static boolean isClass(String f) {
-        if (f == null)
-            return false;
-        return java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "SpecialUnit").contains(f);
+        return com.vn.jet.mosco.utils.DatabaseLoader.isClass(f);
     }
 
     private static int compareNatural(String s1, String s2) {
@@ -2117,20 +2110,8 @@ public class CollectionFragment extends Fragment {
         return found ? res : -1;
     }
 
-    /** Ranking class để sort (Premier > Special/Unit > Double > First/Welcome) */
     public static int getCardClassRank(String cardClass) {
-        if (cardClass == null)
-            return 0;
-        String key = mapClassToTypeKey(cardClass).toLowerCase();
-        if (key.equals("premier"))
-            return 4;
-        if (key.equals("special") || key.equals("unit"))
-            return 3;
-        if (key.equals("double"))
-            return 2;
-        if (key.equals("first") || key.equals("welcome"))
-            return 1;
-        return 0;
+        return com.vn.jet.mosco.utils.DatabaseLoader.getCardClassRank(cardClass);
     }
 
     /**
@@ -2138,33 +2119,6 @@ public class CollectionFragment extends Fragment {
      * Special/Unit)
      */
     public static String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null)
-            return "First";
-        String key = cardClass.trim();
-
-        if (key.equalsIgnoreCase("Welcome"))
-            return "Welcome";
-        if (key.equalsIgnoreCase("First"))
-            return "First";
-        if (key.equalsIgnoreCase("Double"))
-            return "Double";
-        if (key.equalsIgnoreCase("Premier"))
-            return "Premier";
-        if (key.equalsIgnoreCase("Special"))
-            return "Special";
-        if (key.equalsIgnoreCase("Unit"))
-            return "Unit";
-
-        // Hỗ trợ hạ cấp các kiểu cũ (Legacy support)
-        if (key.contains("Welcome"))
-            return "Welcome";
-        if (key.contains("Unit"))
-            return "Unit";
-        if (key.equalsIgnoreCase("SpecialUnit"))
-            return "Special";
-        if (key.equalsIgnoreCase("FirstWelcome"))
-            return "First";
-
-        return "First";
+        return com.vn.jet.mosco.utils.DatabaseLoader.mapClassToTypeKey(cardClass);
     }
 }

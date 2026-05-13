@@ -269,6 +269,63 @@ public class DatabaseLoader {
         }
     }
 
+    /**
+     * [QUIET LUXURY] Helper: Mapping class từ UI sang database key.
+     * Tránh lặp lại code ở Fragment.
+     */
+    public static String mapClassToTypeKey(String cardClass) {
+        if (cardClass == null) return "First";
+        String key = cardClass.trim();
+
+        if (key.equalsIgnoreCase("Welcome")) return "Welcome";
+        if (key.equalsIgnoreCase("First")) return "First";
+        if (key.equalsIgnoreCase("Double")) return "Double";
+        if (key.equalsIgnoreCase("Premier")) return "Premier";
+        if (key.equalsIgnoreCase("Special")) return "Special";
+        if (key.equalsIgnoreCase("Unit")) return "Unit";
+
+        // Hỗ trợ hạ cấp các kiểu cũ (Legacy support)
+        if (key.contains("Welcome")) return "Welcome";
+        if (key.contains("Unit")) return "Unit";
+        if (key.equalsIgnoreCase("SpecialUnit")) return "Special";
+        if (key.equalsIgnoreCase("FirstWelcome")) return "First";
+
+        return "First";
+    }
+
+    /**
+     * Ranking class để sort (Premier > Special/Unit > Double > First/Welcome)
+     */
+    public static int getCardClassRank(String cardClass) {
+        if (cardClass == null) return 0;
+        String key = mapClassToTypeKey(cardClass).toLowerCase();
+        if (key.equals("premier")) return 4;
+        if (key.equals("special") || key.equals("unit")) return 3;
+        if (key.equals("double")) return 2;
+        if (key.equals("first") || key.equals("welcome")) return 1;
+        return 0;
+    }
+
+    public static boolean isStatus(String f) {
+        if (f == null) return false;
+        String lower = f.toLowerCase();
+        return java.util.Arrays.asList("tất cả", "đã sở hữu", "chưa sở hữu", "all", "owned", "missing").contains(lower);
+    }
+
+    public static boolean isArtist(String f) {
+        if (f == null) return false;
+        // Kiểm tra xem f có nằm trong danh sách Artist chính thức không
+        for (String artist : AppConfig.OFFICIAL_ARTISTS) {
+            if (artist.equalsIgnoreCase(f)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isClass(String f) {
+        if (f == null) return false;
+        return java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "Unit", "SpecialUnit").contains(f);
+    }
+
     private static String loadJSONFromAsset(Context context, String fileName) {
         try {
             InputStream is;
@@ -803,6 +860,11 @@ public class DatabaseLoader {
      * Lấy danh sách thành viên kèm ảnh đại diện (ảnh thẻ mới nhất) để lọc
      */
     public static List<MemberFilterItem> getUniqueMembers(Context context) {
+        // [QUIET LUXURY] Đảm bảo Master Data đã được nạp trước khi lấy danh sách
+        if (!isMasterDataLoaded) {
+            initMasterDataSync(context);
+        }
+
         // [WAIT] Nếu đang đồng bộ DB thì đợi một chút (max 10s)
         if (isRoomSyncing) {
             Log.d(TAG, "getUniqueMembers: Waiting for Room Sync...");
@@ -811,34 +873,49 @@ public class DatabaseLoader {
                 try { Thread.sleep(200); } catch (Exception ignored) {}
             }
         }
+        
+        List<MemberFilterItem> items = new ArrayList<>();
         try {
             List<MasterObjetDao.MemberAvatar> avatars = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueMembers();
             
-            // [FALLBACK] Nếu DB rỗng, có thể Master Data nạp Map xong nhưng chưa kịp sync xong Room
-            if (avatars == null || avatars.isEmpty()) {
-                Log.w(TAG, "getUniqueMembers: Room is empty, forcing initMasterData...");
-                initMasterData(context);
-            }
-
-            List<MemberFilterItem> items = new ArrayList<>();
-            for (MasterObjetDao.MemberAvatar avatar : avatars) {
-                if (AppConfig.OFFICIAL_ARTISTS.contains(avatar.memberName)) {
-                    items.add(new MemberFilterItem(avatar.memberName, avatar.frontImageId));
+            // [FALLBACK 1] Nếu Room rỗng, lấy từ cachedMasterMap (Memory Truth)
+            if ((avatars == null || avatars.isEmpty()) && cachedMasterMap != null) {
+                Log.w(TAG, "getUniqueMembers: Room is empty, falling back to Master Map...");
+                java.util.Set<String> members = new java.util.HashSet<>();
+                // Lấy ra list card duy nhất để tránh duyệt trùng lặp gây chậm
+                java.util.Collection<JSONObject> allCards = cachedMasterMap.values();
+                for (JSONObject card : allCards) {
+                    String m = card.optString("member");
+                    if (!m.isEmpty() && members.add(m)) {
+                        // Chỉ thêm nếu là Artist chính thức (tránh rác từ database)
+                        if (isArtist(m)) {
+                            items.add(new MemberFilterItem(m, card.optString("frontImage")));
+                        }
+                    }
+                }
+            } else if (avatars != null) {
+                for (MasterObjetDao.MemberAvatar avatar : avatars) {
+                    if (isArtist(avatar.memberName)) {
+                        items.add(new MemberFilterItem(avatar.memberName, avatar.frontImageId));
+                    }
                 }
             }
 
             // [SORT] Sắp xếp theo thứ tự S1-S24 định nghĩa trong AppConfig
             java.util.Collections.sort(items, (o1, o2) -> {
-                int index1 = AppConfig.OFFICIAL_ARTISTS.indexOf(o1.name);
-                int index2 = AppConfig.OFFICIAL_ARTISTS.indexOf(o2.name);
+                int index1 = -1, index2 = -1;
+                for (int i = 0; i < AppConfig.OFFICIAL_ARTISTS.size(); i++) {
+                    if (AppConfig.OFFICIAL_ARTISTS.get(i).equalsIgnoreCase(o1.name)) index1 = i;
+                    if (AppConfig.OFFICIAL_ARTISTS.get(i).equalsIgnoreCase(o2.name)) index2 = i;
+                }
                 return Integer.compare(index1, index2);
             });
 
             return items;
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique members: " + e.getMessage());
-            return new ArrayList<>();
+            return items;
         }
     }
 
@@ -846,6 +923,10 @@ public class DatabaseLoader {
      * Lấy danh sách tất cả các mùa thẻ hiện có trong Database
      */
     public static List<String> getUniqueSeasons(Context context) {
+        if (!isMasterDataLoaded) {
+            initMasterDataSync(context);
+        }
+
         if (isRoomSyncing) {
             Log.d(TAG, "getUniqueSeasons: Waiting for Room Sync...");
             long waitStart = System.currentTimeMillis();
@@ -857,11 +938,16 @@ public class DatabaseLoader {
             List<String> results = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueSeasons();
             
-            if (results == null || results.isEmpty()) {
-                Log.w(TAG, "getUniqueSeasons: Room is empty, forcing initMasterData...");
-                initMasterData(context);
+            if ((results == null || results.isEmpty()) && cachedMasterMap != null) {
+                java.util.Set<String> seasons = new java.util.HashSet<>();
+                for (JSONObject card : cachedMasterMap.values()) {
+                    String s = card.optString("season");
+                    if (!s.isEmpty()) seasons.add(s);
+                }
+                results = new ArrayList<>(seasons);
             }
-            return results;
+            
+            return (results != null) ? results : new ArrayList<>();
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique seasons: " + e.getMessage());
             return new ArrayList<>();
@@ -872,6 +958,10 @@ public class DatabaseLoader {
      * Lấy danh sách tất cả các Class thẻ hiện có (đã lọc Whitelist từ Server)
      */
     public static List<String> getUniqueClasses(Context context) {
+        if (!isMasterDataLoaded) {
+            initMasterDataSync(context);
+        }
+
         if (isRoomSyncing) {
             Log.d(TAG, "getUniqueClasses: Waiting for Room Sync...");
             long waitStart = System.currentTimeMillis();
@@ -883,11 +973,16 @@ public class DatabaseLoader {
             List<String> results = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
                     .masterObjetDao().getUniqueClasses();
             
-            if (results == null || results.isEmpty()) {
-                Log.w(TAG, "getUniqueClasses: Room is empty, forcing initMasterData...");
-                initMasterData(context);
+            if ((results == null || results.isEmpty()) && cachedMasterMap != null) {
+                java.util.Set<String> classes = new java.util.HashSet<>();
+                for (JSONObject card : cachedMasterMap.values()) {
+                    String c = card.optString("class");
+                    if (!c.isEmpty()) classes.add(c);
+                }
+                results = new ArrayList<>(classes);
             }
-            return results;
+
+            return (results != null) ? results : new ArrayList<>();
         } catch (Exception e) {
             Log.e(TAG, "Error getting unique classes: " + e.getMessage());
             return new ArrayList<>();

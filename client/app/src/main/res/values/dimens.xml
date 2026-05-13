@@ -84,4 +84,12 @@
     <item name="carousel_scale_range" format="float" type="dimen">0.15</item>
     <item name="carousel_alpha_min" format="float" type="dimen">0.6</item>
     <item name="carousel_alpha_range" format="float" type="dimen">0.4</item>
+
+    <!-- Upgrade UI Dimensions (Fixed DP for Performance) -->
+    <dimen name="upgrade_title_slide_offset">80dp</dimen>
+    <dimen name="upgrade_success_video_top_margin">80dp</dimen>
+    <dimen name="upgrade_done_button_bottom_margin">64dp</dimen>
+    <dimen name="upgrade_result_card_width">200dp</dimen>
+    <dimen name="upgrade_result_card_height">308dp</dimen>
+    <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
 </resources>
