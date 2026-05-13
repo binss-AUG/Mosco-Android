@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Home header pill (giữ nguyên asymmetric radius cho avatar) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <corners
         android:topLeftRadius="@dimen/home_header_pill_radius_head"
         android:bottomLeftRadius="@dimen/home_header_pill_radius_head"
-        android:topRightRadius="@dimen/radius_m"
-        android:bottomRightRadius="@dimen/radius_m" />
+        android:topRightRadius="@dimen/lg_radius_panel"
+        android:bottomRightRadius="@dimen/lg_radius_panel" />
     
-    <solid android:color="@color/white_05" />
+    <solid android:color="@color/lg_glass_surface" />
     
     <stroke
-        android:width="@dimen/stroke_thin"
-        android:color="@color/white_10" />
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke_subtle" />
 </shape>

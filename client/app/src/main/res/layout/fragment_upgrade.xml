@@ -65,7 +65,7 @@
                 android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/reveal_summary_divider_height"
                 android:layout_marginTop="@dimen/reveal_summary_divider_height"
-                android:background="@color/galactic_accent_purple" />
+                android:background="@color/lg_accent_secondary" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="+"
-                    android:textColor="@color/mosco_primary"
+                    android:textColor="@color/lg_accent_primary"
                     android:textSize="@dimen/text_size_h1" />
             </FrameLayout>
 
@@ -339,7 +339,7 @@
             android:paddingVertical="3dp"
             android:text="@string/upgrade_label_boost"
             android:textAllCaps="true"
-            android:textColor="@color/mosco_primary"
+            android:textColor="@color/lg_accent_primary"
             android:textSize="@dimen/text_size_badge" />
 
         <!-- Progress Bar Container -->

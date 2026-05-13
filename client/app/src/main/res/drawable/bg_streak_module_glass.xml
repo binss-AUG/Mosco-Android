@@ -2,26 +2,25 @@
     <!-- Base Glass Background -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/radius_m" />
+            <corners android:radius="@dimen/lg_radius_card" />
             <gradient
                 android:angle="135"
-                android:endColor="@color/mosco_white_10"
-                android:startColor="@color/mosco_white_05" />
+                android:endColor="@color/lg_glass_surface_elevated"
+                android:startColor="@color/lg_glass_surface" />
             <stroke
-                android:width="@dimen/stroke_thin"
-                android:color="@color/mosco_white_10" />
+                android:width="@dimen/lg_stroke_hairline"
+                android:color="@color/lg_glass_stroke_subtle" />
         </shape>
     </item>
     
-    <!-- Subtle Inner Pattern (Simulated with a gradient) -->
+    <!-- Subtle Inner Pattern (Electric Blue accent glow) -->
     <item android:top="@dimen/spacing_20dp" android:left="@dimen/spacing_20dp">
         <shape android:shape="oval">
             <gradient
                 android:type="radial"
                 android:gradientRadius="@dimen/spacing_100dp"
-                android:startColor="#0800E5FF"
+                android:startColor="#083A86FF"
                 android:endColor="@android:color/transparent" />
         </shape>
     </item>
 </layer-list>
-

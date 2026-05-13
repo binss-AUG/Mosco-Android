@@ -50,7 +50,7 @@
                 android:layout_width="@dimen/spacing_xxl"
                 android:layout_height="@dimen/spacing_2dp"
                 android:layout_marginTop="@dimen/spacing_xs"
-                android:background="@color/mosco_primary" />
+                android:background="@color/lg_accent_primary" />
         </LinearLayout>
 
         <ImageView

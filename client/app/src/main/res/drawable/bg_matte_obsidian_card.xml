@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Matte panel card (Deep Space tone) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Nền Obsidian Matte sâu tích hợp Style 2026 -->
     <gradient
-        android:startColor="@color/mosco_bg_dark"
-        android:endColor="#CC141414"
+        android:startColor="@color/lg_background_mid"
+        android:endColor="@color/lg_background"
         android:angle="225" />
-    <corners android:radius="@dimen/radius_xxl" />
+    <corners android:radius="@dimen/lg_radius_panel" />
     <stroke
-        android:width="0.8dp"
-        android:color="@color/mosco_white_15" /> 
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke_subtle" />
 </shape>
-

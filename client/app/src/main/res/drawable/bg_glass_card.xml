@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Card glassmorphism surface -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Sophisticated Glassmorphism: Semi-transparent dark gradient -->
-    <gradient
-        android:startColor="#2A101010"
-        android:centerColor="#200A0A0A"
-        android:endColor="#2A101010"
-        android:angle="45" />
-    
-    <corners android:radius="@dimen/radius_lg" />
-    
-    <!-- Ultra-thin white stroke for glass edge effect -->
+    <solid android:color="@color/lg_glass_surface_elevated" />
+    <corners android:radius="@dimen/lg_radius_card" />
     <stroke
-        android:width="0.8dp"
-        android:color="@color/mosco_white_20" />
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke" />
 </shape>
-
