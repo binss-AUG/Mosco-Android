@@ -64,7 +64,7 @@
     <!-- ============================================= -->
 
     <!-- LG: Dialog Theme -->
-    <style name="LiquidGlass.DialogTheme" parent="Theme.Material3.DayNight.Dialog.Alert">
+    <style name="LiquidGlass_DialogTheme" parent="Theme.Material3.DayNight.Dialog.Alert">
         <item name="android:windowBackground">@drawable/lg_surface_modal</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/mosco_white_70</item>
@@ -73,15 +73,15 @@
     </style>
 
     <!-- LG: BottomSheet Dialog Theme -->
-    <style name="LiquidGlass.BottomSheetTheme" parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/LiquidGlass.BottomSheetStyle</item>
+    <style name="LiquidGlass_BottomSheetTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/LiquidGlass_BottomSheetStyle</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:backgroundDimAmount">0.6</item>
     </style>
 
-    <style name="LiquidGlass.BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+    <style name="LiquidGlass_BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
 

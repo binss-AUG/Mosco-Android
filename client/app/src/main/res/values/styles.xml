@@ -147,7 +147,7 @@
     <!-- ============================================= -->
 
     <!-- LG: Primary Button -->
-    <style name="LiquidGlass.Button" parent="Widget.MaterialComponents.Button">
+    <style name="LiquidGlass_Button" parent="Widget.MaterialComponents.Button">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">48dp</item>
         <item name="cornerRadius">@dimen/lg_radius_button</item>
@@ -162,7 +162,7 @@
     </style>
 
     <!-- LG: Glass/Ghost Button -->
-    <style name="LiquidGlass.Button.Glass" parent="Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="LiquidGlass_ButtonGhost" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">48dp</item>
         <item name="cornerRadius">@dimen/lg_radius_button</item>
@@ -176,7 +176,7 @@
     </style>
 
     <!-- LG: Filter Chip -->
-    <style name="LiquidGlass.Chip">
+    <style name="LiquidGlass_Chip">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/lg_surface_card</item>
