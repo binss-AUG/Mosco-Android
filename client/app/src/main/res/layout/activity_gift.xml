@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_global_gradient">
+    android:background="@drawable/lg_background_deep">
 
     <!-- ═══ HEADER ═══ -->
     <!-- Standard Galactic Header (Synced with Friend) -->
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="5/5"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_primary"
+            android:textColor="@color/lg_accent_primary"
             android:textSize="@dimen/text_size_body_md"
             android:textStyle="bold" />
     </LinearLayout>
@@ -56,10 +56,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_header_gift_container"
-        app:tabIndicatorColor="@color/mosco_primary"
+        app:tabIndicatorColor="@color/lg_accent_primary"
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
-        app:tabSelectedTextColor="@color/mosco_primary"
+        app:tabSelectedTextColor="@color/lg_accent_primary"
         app:tabTextColor="@color/mosco_text_disabled"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_1"
                     style="@style/MoscoText.Luxury.Badge"
-                    android:textColor="@color/mosco_primary"
+                    android:textColor="@color/lg_accent_primary"
                     android:textSize="@dimen/text_size_body_md"
                     android:textStyle="bold" />
 
@@ -163,7 +163,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:cardCornerRadius="@dimen/spacing_md"
                         app:cardElevation="@dimen/spacing_sm"
-                        app:cardBackgroundColor="@color/mosco_card_bg_variant"
+                        app:cardBackgroundColor="@color/lg_glass_surface_high"
                         app:strokeColor="@color/mosco_white_20"
                         app:strokeWidth="@dimen/stroke_thin"
                         android:visibility="gone">
@@ -188,7 +188,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:cardCornerRadius="@dimen/spacing_md"
                         app:cardElevation="@dimen/spacing_10dp"
-                        app:cardBackgroundColor="@color/mosco_card_bg"
+                        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
                         android:clickable="true"
                         android:focusable="true">
 
@@ -261,8 +261,8 @@
                         android:layout_marginHorizontal="@dimen/spacing_xs"
                         app:cardCornerRadius="@dimen/radius_lg"
                         app:cardElevation="@dimen/spacing_xs"
-                        app:cardBackgroundColor="@color/mosco_card_bg"
-                        app:strokeColor="@color/galactic_accent_purple"
+                        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
+                        app:strokeColor="@color/lg_accent_secondary"
                         app:strokeWidth="@dimen/stroke_thin">
 
                         <LinearLayout
@@ -276,7 +276,7 @@
                                 android:layout_width="@dimen/spacing_20dp"
                                 android:layout_height="@dimen/spacing_20dp"
                                 android:src="@drawable/ic_search"
-                                app:tint="@color/galactic_accent_purple" />
+                                app:tint="@color/lg_accent_secondary" />
 
                             <EditText
                                 android:id="@+id/et_gift_search_friend"
@@ -498,7 +498,7 @@
                                 android:layout_marginStart="@dimen/spacing_sm"
                                 android:text="36,000"
                                 style="@style/MoscoText.Luxury.Body"
-                                android:textColor="@color/mosco_primary"
+                                android:textColor="@color/lg_accent_primary"
                                 android:textSize="@dimen/text_size_body_md"
                                 android:textStyle="bold" />
 

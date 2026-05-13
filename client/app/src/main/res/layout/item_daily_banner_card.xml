@@ -27,7 +27,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/bg_global_gradient" />
+            android:src="@drawable/lg_background_deep" />
 
         <View
             android:layout_width="match_parent"
@@ -91,7 +91,7 @@
                 android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/stroke_thin"
                 android:layout_marginTop="@dimen/spacing_md"
-                android:background="@color/galactic_accent_purple" />
+                android:background="@color/lg_accent_secondary" />
 
             <!-- Rewards Panel (Compact Glass) -->
             <LinearLayout
@@ -159,7 +159,7 @@
                 android:layout_marginTop="@dimen/spacing_lg"
                 app:cardCornerRadius="@dimen/daily_button_corner"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/galactic_accent_purple">
+                app:cardBackgroundColor="@color/lg_accent_secondary">
                 
                 <TextView
                     android:id="@+id/tv_claim_text"

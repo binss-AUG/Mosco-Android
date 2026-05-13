@@ -5,7 +5,7 @@
     android:id="@+id/root_item_reveal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface">
+    android:background="@color/lg_background">
 
     <!-- Back Arrow (top left) -->
     <ImageView
@@ -194,7 +194,7 @@
             android:fontWeight="700"
             android:letterSpacing="0.2"
             android:alpha="0"
-            android:shadowColor="@color/mosco_primary"
+            android:shadowColor="@color/lg_accent_primary"
             android:shadowRadius="30"
             tools:text="2005" />
 

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_screen_bg">
+    android:background="@color/lg_background">
 
     <include layout="@layout/layout_auth_background" />
 
@@ -51,7 +51,7 @@
                     android:layout_height="@dimen/spacing_64dp"
                     android:layout_marginBottom="@dimen/spacing_20dp"
                     android:src="@drawable/ic_user"
-                    app:tint="@color/mosco_primary"
+                    app:tint="@color/lg_accent_primary"
                     android:contentDescription="@null" />
 
                 <!-- Title -->

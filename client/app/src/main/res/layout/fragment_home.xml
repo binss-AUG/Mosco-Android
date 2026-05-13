@@ -392,7 +392,7 @@
             android:layout_width="@dimen/home_chat_send_icon_size"
             android:layout_height="@dimen/home_chat_send_icon_size"
             android:src="@drawable/ic_send"
-            app:tint="@color/galactic_accent_cyan"
+            app:tint="@color/lg_accent_primary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />

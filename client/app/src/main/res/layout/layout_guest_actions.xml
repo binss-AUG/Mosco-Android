@@ -23,7 +23,7 @@
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:text="@string/profile_btn_like"
-            android:backgroundTint="@color/mosco_primary"
+            android:backgroundTint="@color/lg_accent_primary"
             android:textColor="@color/white"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@null" />

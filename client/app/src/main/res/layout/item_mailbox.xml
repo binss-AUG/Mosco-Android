@@ -111,7 +111,7 @@
             android:paddingVertical="@dimen/spacing_xs"
             style="@style/MoscoText.Luxury.SubHeader"
             tools:text="x2"
-            android:textColor="@color/mosco_primary_dim"
+            android:textColor="@color/lg_accent_primary_dim"
             android:textSize="@dimen/text_size_body_sm"
             android:textStyle="bold"
             android:fontWeight="700"

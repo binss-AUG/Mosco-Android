@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             style="@style/MoscoText.Luxury.Label"
-            android:textColor="@color/mosco_primary_dim"
+            android:textColor="@color/lg_accent_primary_dim"
             android:text="@string/common_label_owned_format" />
 
         <com.vn.jet.mosco.widget.MoscoButton

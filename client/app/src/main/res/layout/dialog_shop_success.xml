@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/spacing_md"
             android:src="@drawable/ic_check"
-            app:tint="@color/mosco_primary" />
+            app:tint="@color/lg_accent_primary" />
 
         <TextView
             android:layout_width="match_parent"

@@ -189,7 +189,7 @@
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_crit_dame" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_dmg" style="@style/MoscoText.Luxury.Body" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" />
-                    <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="200%" style="@style/MoscoText.Luxury.Price" android:textColor="@color/mosco_primary" android:textSize="@dimen/text_size_body_md" />
+                    <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="200%" style="@style/MoscoText.Luxury.Price" android:textColor="@color/lg_accent_primary" android:textSize="@dimen/text_size_body_md" />
                 </LinearLayout>
 
             </GridLayout>

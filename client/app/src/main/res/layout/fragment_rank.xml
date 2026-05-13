@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_global_gradient">
+    android:background="@drawable/lg_background_deep">
 
     <!-- Standard Galactic Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -51,7 +51,7 @@
                 android:layout_width="@dimen/spacing_40dp"
                 android:layout_height="@dimen/spacing_2dp"
                 android:layout_marginTop="@dimen/spacing_2dp"
-                android:background="@color/galactic_accent_purple" />
+                android:background="@color/lg_accent_secondary" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -64,10 +64,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_header_rank"
-        app:tabIndicatorColor="@color/mosco_card_stroke"
+        app:tabIndicatorColor="@color/lg_glass_stroke"
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
-        app:tabSelectedTextColor="@color/mosco_card_stroke"
+        app:tabSelectedTextColor="@color/lg_glass_stroke"
         app:tabTextColor="@color/mosco_text_disabled"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
@@ -100,8 +100,8 @@
         android:layout_margin="@dimen/spacing_md"
         app:cardCornerRadius="@dimen/radius_lg"
         app:cardElevation="@dimen/radius_lg"
-        app:cardBackgroundColor="@color/mosco_card_bg"
-        app:strokeColor="@color/galactic_accent_purple"
+        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
+        app:strokeColor="@color/lg_accent_secondary"
         app:strokeWidth="1.2dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent">

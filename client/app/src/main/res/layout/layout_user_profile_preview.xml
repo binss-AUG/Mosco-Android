@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface">
+    android:background="@color/lg_background">
 
     <!-- 1. Background Banner -->
     <ImageView
@@ -106,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/profile_v3_tab_info"
                 style="@style/MoscoText.Luxury.Nav"
-                android:textColor="@color/mosco_primary"
+                android:textColor="@color/lg_accent_primary"
                 android:textSize="@dimen/text_size_body_xs"
                 android:letterSpacing="0.2"
                 android:layout_marginBottom="@dimen/spacing_md" />

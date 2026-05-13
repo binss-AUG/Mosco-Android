@@ -49,9 +49,9 @@
         android:layout_height="wrap_content"
         android:text="@string/profile_btn_resource_mgmt"
         android:backgroundTint="@color/mosco_surface_container_high"
-        android:textColor="@color/mosco_primary"
+        android:textColor="@color/lg_accent_primary"
         app:cornerRadius="@dimen/radius_md"
         app:icon="@drawable/ic_items"
-        app:iconTint="@color/mosco_primary" />
+        app:iconTint="@color/lg_accent_primary" />
 
 </LinearLayout>

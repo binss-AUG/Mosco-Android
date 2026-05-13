@@ -242,6 +242,7 @@
     <color name="lg_accent_secondary">@color/palette_cyber_purple</color>
     <color name="lg_accent_primary_alpha_15">#263A86FF</color>
     <color name="lg_accent_primary_alpha_25">#403A86FF</color>
+    <color name="lg_accent_primary_dim">#B33A86FF</color>
     <color name="lg_accent_secondary_alpha_15">#268338EC</color>
 
     <!-- LG: Navigation -->

@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:thumbTint="@color/item_diamond"
-            app:trackTint="@color/mosco_primary" />
+            app:trackTint="@color/lg_accent_primary" />
     </LinearLayout>
 
     <View
@@ -90,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:thumbTint="@color/item_diamond"
-            app:trackTint="@color/mosco_primary" />
+            app:trackTint="@color/lg_accent_primary" />
     </LinearLayout>
 
     <View
@@ -124,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:thumbTint="@color/item_diamond"
-            app:trackTint="@color/mosco_primary" />
+            app:trackTint="@color/lg_accent_primary" />
     </LinearLayout>
 
     <View

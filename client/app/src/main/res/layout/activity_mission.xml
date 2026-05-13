@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_global_gradient">
+    android:background="@drawable/lg_background_deep">
 
     <!-- Header -->
     <LinearLayout
@@ -31,9 +31,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/radius_lg"
-            app:cardBackgroundColor="@color/mosco_card_bg"
+            app:cardBackgroundColor="@color/lg_glass_surface_elevated"
             app:cardCornerRadius="@dimen/spacing_sm"
-            app:strokeColor="@color/mosco_card_stroke"
+            app:strokeColor="@color/lg_glass_stroke"
             app:strokeWidth="@dimen/stroke_thin">
 
             <TextView

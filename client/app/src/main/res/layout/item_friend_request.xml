@@ -17,7 +17,7 @@
         android:layout_height="42dp"
         app:cardCornerRadius="@dimen/spacing_100dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/mosco_card_bg_variant"
+        app:cardBackgroundColor="@color/lg_glass_surface_high"
         app:strokeColor="@color/mosco_white_20"
         app:strokeWidth="0.8dp">
 
