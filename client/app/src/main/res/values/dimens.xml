@@ -92,4 +92,31 @@
     <dimen name="upgrade_result_card_width">200dp</dimen>
     <dimen name="upgrade_result_card_height">308dp</dimen>
     <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS DIMENSION TOKENS                 -->
+    <!-- ============================================= -->
+
+    <!-- LG: Corner Radius (iOS-inspired, lớn hơn hệ thống cũ) -->
+    <dimen name="lg_radius_panel">20dp</dimen>
+    <dimen name="lg_radius_card">16dp</dimen>
+    <dimen name="lg_radius_modal">28dp</dimen>
+    <dimen name="lg_radius_button">14dp</dimen>
+    <dimen name="lg_radius_nav">24dp</dimen>
+    <dimen name="lg_radius_chip">20dp</dimen>
+    <dimen name="lg_radius_input">14dp</dimen>
+
+    <!-- LG: Stroke -->
+    <dimen name="lg_stroke_hairline">0.8dp</dimen>
+    <dimen name="lg_stroke_thin">1dp</dimen>
+
+    <!-- LG: Navigation -->
+    <dimen name="lg_nav_height">64dp</dimen>
+    <dimen name="lg_nav_margin_horizontal">12dp</dimen>
+    <dimen name="lg_nav_margin_bottom">10dp</dimen>
+    <dimen name="lg_nav_icon_size">22dp</dimen>
+
+    <!-- LG: Header -->
+    <dimen name="lg_header_height">56dp</dimen>
+
 </resources>

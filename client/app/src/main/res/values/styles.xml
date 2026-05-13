@@ -141,4 +141,51 @@
     <style name="MoscoBottomNavText.Active">
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS COMPONENT STYLES                 -->
+    <!-- ============================================= -->
+
+    <!-- LG: Primary Button -->
+    <style name="LiquidGlass.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="cornerRadius">@dimen/lg_radius_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/lg_button_primary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- LG: Glass/Ghost Button -->
+    <style name="LiquidGlass.Button.Glass" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="cornerRadius">@dimen/lg_radius_button</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">500</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/lg_button_glass</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- LG: Filter Chip -->
+    <style name="LiquidGlass.Chip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/lg_surface_card</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:paddingVertical">8dp</item>
+        <item name="android:textColor">@color/mosco_white_70</item>
+        <item name="android:textSize">@dimen/text_size_body_xs</item>
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontWeight">400</item>
+    </style>
+
 </resources>

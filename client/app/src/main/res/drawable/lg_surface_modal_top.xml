@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Bottom Sheet surface - chỉ bo góc trên -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/lg_modal_surface" />
+    <corners
+        android:topLeftRadius="@dimen/lg_radius_modal"
+        android:topRightRadius="@dimen/lg_radius_modal"
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp" />
+    <stroke
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke_strong" />
+</shape>

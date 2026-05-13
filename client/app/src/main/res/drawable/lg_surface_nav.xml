@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Navigation bar surface (Floating style) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền kính mờ -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/lg_nav_surface" />
+            <corners android:radius="@dimen/lg_radius_nav" />
+        </shape>
+    </item>
+    <!-- Viền mảnh bắt sáng -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_nav" />
+            <stroke
+                android:width="@dimen/lg_stroke_hairline"
+                android:color="@color/lg_glass_stroke_subtle" />
+        </shape>
+    </item>
+</layer-list>

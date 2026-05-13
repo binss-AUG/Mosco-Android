@@ -8,23 +8,28 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Content: full-height để nội dung trượt dưới nav bar floating -->
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Liquid Glass: Floating Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         style="@style/Widget.MaterialComponents.BottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/mosco_surface_container"
-        app:itemIconTint="@color/nav_item_color"
-        app:itemTextColor="@color/nav_item_color"
-        app:itemRippleColor="@android:color/transparent"
-        app:itemIconSize="22dp"
+        android:layout_height="@dimen/lg_nav_height"
+        android:layout_marginHorizontal="@dimen/lg_nav_margin_horizontal"
+        android:layout_marginBottom="@dimen/lg_nav_margin_bottom"
+        android:background="@drawable/lg_surface_nav"
+        android:elevation="0dp"
+        app:itemIconTint="@color/lg_nav_item_color"
+        app:itemTextColor="@color/lg_nav_item_color"
+        app:itemRippleColor="@color/lg_accent_primary_alpha_15"
+        app:itemIconSize="@dimen/lg_nav_icon_size"
         app:itemIconPadding="6dp"
         app:itemTextAppearanceActive="@style/MoscoBottomNavText.Active"
         app:itemTextAppearanceInactive="@style/MoscoBottomNavText"

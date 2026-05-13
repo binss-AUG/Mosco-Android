@@ -10,7 +10,7 @@
     android:id="@+id/cl_home_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_home_space"
+    android:background="@drawable/lg_background_deep"
     android:clipChildren="false"
     android:clipToPadding="false"
     tools:context=".fragment.HomeFragment">

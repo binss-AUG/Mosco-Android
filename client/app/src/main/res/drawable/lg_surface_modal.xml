@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Modal surface (Layer 3) cho dialog, bottom sheet -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/lg_modal_surface" />
+    <corners android:radius="@dimen/lg_radius_modal" />
+    <stroke
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke_strong" />
+</shape>
