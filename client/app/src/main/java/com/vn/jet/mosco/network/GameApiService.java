@@ -93,6 +93,20 @@ public interface GameApiService {
     Call<ResponseBody> claimDaily();
 
     /**
+     * Lấy lịch sử chat private (Offline Sync) từ Server.
+     */
+    @GET("/api/chat/history")
+    Call<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> getChatHistory(
+            @Query("user1") Long user1, 
+            @Query("user2") Long user2);
+
+    /**
+     * Xác nhận đã đồng bộ Offline Chat thành công để Server xóa tin nhắn chờ.
+     */
+    @POST("/api/chat/ack")
+    Call<ResponseBody> ackMessages(@Body List<Long> messageIds);
+
+    /**
      * Preview OVR và Synergy cho đội hình (Passive Synergy Logic).
      */
     @POST("/api/battle/preview")
@@ -236,4 +250,14 @@ public interface GameApiService {
 
     @GET("api/v1/assets/database")
     retrofit2.Call<okhttp3.ResponseBody> getFullDatabase(@retrofit2.http.Query("t") String timestamp);
+    @retrofit2.http.Multipart
+    @POST("/api/backup/upload")
+    Call<com.vn.jet.mosco.model.ApiResponse<String>> uploadBackup(@retrofit2.http.Part okhttp3.MultipartBody.Part file);
+
+    @GET("/api/backup/list")
+    Call<com.vn.jet.mosco.model.ApiResponse<List<String>>> listCloudBackups();
+
+    @GET("/api/backup/download/{filename}")
+    @retrofit2.http.Streaming
+    Call<ResponseBody> downloadCloudBackup(@Path("filename") String filename);
 }

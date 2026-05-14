@@ -8,13 +8,13 @@ import java.util.List;
  * Dung de quan ly cac thong so mang va key bao mat.
  */
 public class AppConfig {
-    
+
     // 1. API Endpoints
     // Neu dung GIA LAP (Emulator), hay dung: "http://10.0.2.2:8080/"
     // Neu dung MAY THAT, hay dung IP LAN cua may tinh (vi du: 192.168.1.13)
     public static final String BASE_URL = "http://192.168.1.13:8080/";
-    
-    // WebSocket URL - Tu dong chuyen doi tu BASE_URL
+
+    // WebSocket URL - Tu dong chuyen doi tu BASE_URL (Khong duoc xoa)
     public static final String WS_URL = BASE_URL.replace("http", "ws") + "ws-mosco/websocket";
 
     // 2. Social Auth Config (Firebase, Discord)
@@ -32,8 +32,8 @@ public class AppConfig {
     public static final List<String> OFFICIAL_ARTISTS = Arrays.asList(
             "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
-            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
-    );
+            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
 
-    private AppConfig() {}
+    private AppConfig() {
+    }
 }

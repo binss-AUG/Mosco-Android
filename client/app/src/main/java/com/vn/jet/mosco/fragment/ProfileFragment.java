@@ -47,6 +47,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import com.vn.jet.mosco.utils.BackupManager;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,8 +99,60 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // Lưu trạng thái avatar gốc để rollback khi Discard
     private String savedAvatarIdBeforeEdit;
 
+    // Phase 2: Backup & Export Launchers
+    private ActivityResultLauncher<Intent> exportLauncher;
+    private ActivityResultLauncher<Intent> importLauncher;
+
     public ProfileFragment() {
         // Constructor mặc định cho Fragment
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Initialize Export Launcher
+        exportLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        boolean success = BackupManager.exportDatabase(requireContext(), uri);
+                        if (success) {
+                            Toast.makeText(requireContext(), "✅ Backup Created Successfully!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(requireContext(), "❌ Backup Failed. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+        );
+
+        // Initialize Import Launcher
+        importLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        boolean success = BackupManager.restoreDatabase(requireContext(), uri);
+                        if (success) {
+                            Toast.makeText(requireContext(), "✅ Restore Successful!", Toast.LENGTH_SHORT).show();
+                            com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
+                                getActivity(),
+                                "Restore Complete",
+                                "Data has been restored. The application will now restart.",
+                                "Restart App",
+                                () -> System.exit(0)
+                            );
+                        } else {
+                            Toast.makeText(requireContext(), "❌ Restore Failed. File might be corrupted.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            }
+        );
     }
 
     @Override
@@ -555,12 +611,21 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 ImageView ivHeaderAvatar = chatContainer.findViewById(R.id.iv_private_header_avatar);
                 TextView tvHeaderName = chatContainer.findViewById(R.id.tv_private_header_name);
                 
+                final io.reactivex.disposables.Disposable[] chatSubscription = {null};
+                
                 com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
                 String myId = String.valueOf(sessionManager.getUserId());
                 String partnerId = String.valueOf(targetUserId);
                 
                 chatAdapter.setCurrentUserId(myId);
                 rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
+                
+                // Disable soft keyboard on emulator to prevent unnecessary layout push up
+                boolean isEmulator = android.os.Build.FINGERPRINT.contains("generic") || android.os.Build.MODEL.contains("Emulator") || android.os.Build.MODEL.contains("sdk");
+                if (isEmulator) {
+                    etPrivate.setShowSoftInputOnFocus(false);
+                }
+                
                 rvPrivate.setAdapter(chatAdapter);
                 
                 // Fetch target user data for context
@@ -591,7 +656,101 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     }
                 });
                 
-                btnClose.setOnClickListener(v1 -> chatContainer.setVisibility(View.GONE));
+                // --- ☁️ SERVER-SYNC: Fetch missed messages from MySQL ---
+                com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+                    .create(com.vn.jet.mosco.network.GameApiService.class)
+                    .getChatHistory(Long.parseLong(myId), Long.parseLong(partnerId))
+                    .enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> response) {
+                            if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                                List<com.vn.jet.mosco.model.PrivateChatMessage> serverMsgs = response.body().getData();
+                                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                                    com.vn.jet.mosco.database.MessageDao dao = com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao();
+                                    List<com.vn.jet.mosco.model.PrivateChatMessage> localMsgs = dao.getChatHistory(myId, partnerId);
+                                    
+                                    List<Long> ackIds = new java.util.ArrayList<>();
+                                    boolean hasNewMsgs = false;
+                                    for (com.vn.jet.mosco.model.PrivateChatMessage sMsg : serverMsgs) {
+                                        boolean exists = false;
+                                        for (com.vn.jet.mosco.model.PrivateChatMessage lMsg : localMsgs) {
+                                            // Dùng Objects.equals và check cả timestamp lẫn content để tránh trùng lặp khi sync
+                                            if (lMsg.getTimestamp() == sMsg.getTimestamp() && 
+                                                java.util.Objects.equals(lMsg.getContent(), sMsg.getContent())) {
+                                                exists = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!exists) {
+                                            // Reset ID for Room DB auto-generation
+                                            long serverId = sMsg.getId();
+                                            if (serverId > 0) {
+                                                ackIds.add(serverId);
+                                            }
+                                            sMsg.setId(0); // Bắt buộc ID = 0 để Room tự tăng
+                                            
+                                            dao.insertMessage(sMsg);
+                                            hasNewMsgs = true;
+                                            if (isAdded()) {
+                                                requireActivity().runOnUiThread(() -> {
+                                                    chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(sMsg.getSenderId(), sMsg.getSenderName(), sMsg.getAvatarId(), sMsg.getContent()));
+                                                    rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+                                                });
+                                            }
+                                        } else {
+                                            // Vẫn thêm vào mảng ACK nếu đã có trong Local (do lần trước gửi ACK fail)
+                                            long serverId = sMsg.getId();
+                                            if (serverId > 0) {
+                                                ackIds.add(serverId);
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Báo cho Server biết đã nhận thành công để xóa tin nhắn chờ
+                                    if (!ackIds.isEmpty()) {
+                                        com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
+                                            .create(com.vn.jet.mosco.network.GameApiService.class)
+                                            .ackMessages(ackIds).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                                                @Override
+                                                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {}
+                                                @Override
+                                                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {}
+                                            });
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> call, Throwable t) {
+                            // Offline, ignore.
+                        }
+                    });
+                
+                // [SYNC] Subscribe to WebSocket for incoming Private Messages
+                chatSubscription[0] = com.vn.jet.mosco.network.WebSocketManager.getInstance()
+                    .subscribeToPrivateChat(myId, pm -> {
+                        // Bỏ qua tin nhắn do chính mình gửi từ tab khác (vì Local-First đã insert rồi)
+                        if (!pm.getSenderId().equals(myId) && pm.getSenderId().equals(partnerId)) {
+                            // Update UI
+                            chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
+                            rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+                            
+                            // Save to Room
+                            com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                                com.vn.jet.mosco.model.PrivateChatMessage localPm = new com.vn.jet.mosco.model.PrivateChatMessage(
+                                        pm.getSenderId(), pm.getReceiverId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp());
+                                com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao().insertMessage(localPm);
+                            });
+                        }
+                    });
+                
+                btnClose.setOnClickListener(v1 -> {
+                    chatContainer.setVisibility(View.GONE);
+                    if (chatSubscription[0] != null) {
+                        chatSubscription[0].dispose();
+                    }
+                });
                 
                 btnSend.setOnClickListener(v1 -> {
                     String msgText = etPrivate.getText().toString().trim();
@@ -611,6 +770,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
                             com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
                         });
+                        
+                        // 3. Send to Server (WebSocket Sync)
+                        com.vn.jet.mosco.model.PrivateChatMessage wsMessage = new com.vn.jet.mosco.model.PrivateChatMessage(myId, partnerId, myName, myAvatar, msgText);
+                        com.vn.jet.mosco.network.WebSocketManager.getInstance().sendPrivateMessage(wsMessage);
                     }
                 });
             } else {
@@ -678,20 +841,61 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         ProfileMenuFragment menuFragment = new ProfileMenuFragment();
         menuFragment.setOnMenuActionListener(new ProfileMenuFragment.OnMenuActionListener() {
-
-            @Override
-            public void onForgotPassword() {
-                startActivity(new Intent(getActivity(), com.vn.jet.mosco.ForgotPasswordActivity.class));
-            }
-
             @Override
             public void onSwitchAccount() {
                 showLogoutConfirmationDialog();
             }
 
             @Override
-            public void onSettings() {
-                new SettingsBottomSheet().show(getChildFragmentManager(), "SettingsBottomSheet");
+            public void onBackupData() {
+                // Perform backup to Internal Storage with UID support
+                long currentUid = sessionManager.getUserId();
+                String backupPath = BackupManager.performInternalBackup(requireContext(), currentUid);
+                if (backupPath != null) {
+                    Toast.makeText(requireContext(), "✅ Sao lưu thành công", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "❌ Internal Backup Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onRestoreData() {
+                String[] options = {"Restore from Local File", "Restore from Cloud"};
+                com.vn.jet.mosco.utils.MoscoDialogHelper.showSingleChoiceDialog(
+                        getActivity(),
+                        "Restore Data",
+                        options,
+                        which -> {
+                            if (which == 0) {
+                                // Local
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.setType("application/octet-stream");
+                                importLauncher.launch(intent);
+                            } else {
+                                // Cloud
+                                showCloudBackupPicker();
+                            }
+                        }
+                );
+            }
+
+            @Override
+            public void onCloudSync() {
+                long currentUid = sessionManager.getUserId();
+                Toast.makeText(requireContext(), "☁️ Syncing to Cloud...", Toast.LENGTH_SHORT).show();
+                
+                BackupManager.syncToCloud(requireContext(), currentUid, new BackupManager.SyncCallback() {
+                    @Override
+                    public void onSuccess(String message) {
+                        Toast.makeText(requireContext(), "✅ Cloud Sync Successful!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        Toast.makeText(requireContext(), "❌ Sync Failed: " + error, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
@@ -718,10 +922,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     @Override
                     public void onPositive() {
                         sessionManager.clearSession();
-                        android.content.Intent intent = new android.content.Intent(getActivity(),
-                                com.vn.jet.mosco.SignInActivity.class);
-                        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        android.content.Intent intent = new android.content.Intent(getActivity(), com.vn.jet.mosco.SignInActivity.class);
+                        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         if (getActivity() != null)
                             getActivity().finish();
@@ -1210,5 +1412,66 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         } catch (Exception ignored) {
         }
         return getString(R.string.profile_error_unknown);
+    }
+
+    private void showCloudBackupPicker() {
+        Toast.makeText(requireContext(), "Fetching backup list...", Toast.LENGTH_SHORT).show();
+        BackupManager.fetchCloudBackups(requireContext(), new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<List<String>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<String>>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<List<String>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<String> files = response.body().getData();
+                    if (files == null || files.isEmpty()) {
+                        Toast.makeText(requireContext(), "No cloud backups found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    String[] items = files.toArray(new String[0]);
+                    com.vn.jet.mosco.utils.MoscoDialogHelper.showSingleChoiceDialog(
+                            getActivity(),
+                            "Select Cloud Backup",
+                            items,
+                            which -> {
+                                String selectedFile = items[which];
+                                downloadAndRestoreCloud(selectedFile);
+                            }
+                    );
+                } else {
+                    Toast.makeText(requireContext(), "Failed to fetch list: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<String>>> call, Throwable t) {
+                Toast.makeText(requireContext(), "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void downloadAndRestoreCloud(String filename) {
+        Toast.makeText(requireContext(), "Downloading and Restoring...", Toast.LENGTH_LONG).show();
+        BackupManager.downloadAndRestoreCloudBackup(requireContext(), filename, new BackupManager.SyncCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Toast.makeText(requireContext(), "✅ Restore Successful!", Toast.LENGTH_SHORT).show();
+                com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
+                        getActivity(),
+                        "Restore Complete",
+                        "Data has been restored from the cloud. The application will now restart.",
+                        "Restart App",
+                        new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                            @Override
+                            public void onPositive() {
+                                System.exit(0);
+                            }
+                        }
+                );
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(requireContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

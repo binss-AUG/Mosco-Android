@@ -107,4 +107,44 @@ public class WebSocketManager {
     public interface OnMessageReceived {
         void onReceived(WorldChatMessage message);
     }
+
+    /**
+     * Subscribe to Private Chat topic.
+     * Topic format: /topic/private.{userId}
+     */
+    public Disposable subscribeToPrivateChat(String userId, OnPrivateMessageReceived listener) {
+        Log.d(TAG, "Subscribing to /topic/private." + userId + "...");
+        return stompClient.topic("/topic/private." + userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    Log.d(TAG, "Received private message: " + topicMessage.getPayload());
+                    try {
+                        com.vn.jet.mosco.model.PrivateChatMessage message = gson.fromJson(topicMessage.getPayload(), com.vn.jet.mosco.model.PrivateChatMessage.class);
+                        if (message != null) {
+                            listener.onReceived(message);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing private message", e);
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic /topic/private." + userId, throwable);
+                });
+    }
+
+    /**
+     * Send message to Private Chat.
+     */
+    public void sendPrivateMessage(com.vn.jet.mosco.model.PrivateChatMessage message) {
+        if (!stompClient.isConnected()) {
+            Log.w(TAG, "Cannot send private message: Stomp not connected");
+            return;
+        }
+        String json = gson.toJson(message);
+        stompClient.send("/app/chat.private", json).subscribe();
+    }
+
+    public interface OnPrivateMessageReceived {
+        void onReceived(com.vn.jet.mosco.model.PrivateChatMessage message);
+    }
 }

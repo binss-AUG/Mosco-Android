@@ -2,6 +2,7 @@ package com.vn.jet.mosco.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.Ignore;
 
 /**
  * Entity for Private Chat Messages (Local-First).
@@ -18,14 +19,22 @@ public class PrivateChatMessage {
     private String avatarId;
     private String content;
     private long timestamp;
+    
+    public PrivateChatMessage() {}
 
+    @Ignore
     public PrivateChatMessage(String senderId, String receiverId, String senderName, String avatarId, String content) {
+        this(senderId, receiverId, senderName, avatarId, content, System.currentTimeMillis());
+    }
+
+    @Ignore
+    public PrivateChatMessage(String senderId, String receiverId, String senderName, String avatarId, String content, long timestamp) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.senderName = senderName;
         this.avatarId = avatarId;
         this.content = content;
-        this.timestamp = System.currentTimeMillis();
+        this.timestamp = timestamp;
     }
 
     public long getId() { return id; }
