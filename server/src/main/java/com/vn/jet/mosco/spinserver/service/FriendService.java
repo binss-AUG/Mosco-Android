@@ -123,6 +123,19 @@ public class FriendService {
 
         f.setStatus(1);
         friendshipRepository.save(f);
+
+        // Tại sao: Tăng số lượng bạn bè (friendsCount) cho cả 2 người chơi để hiển thị chính xác trên Profile
+        User requester = userRepository.findById(f.getRequesterId()).orElse(null);
+        User addressee = userRepository.findById(f.getAddresseeId()).orElse(null);
+        if (requester != null) {
+            requester.setFriendsCount(requester.getFriendsCount() + 1);
+            userRepository.save(requester);
+        }
+        if (addressee != null) {
+            addressee.setFriendsCount(addressee.getFriendsCount() + 1);
+            userRepository.save(addressee);
+        }
+
         logger.info("Friend request accepted: friendshipId={}", friendshipId);
         return null;
     }
@@ -140,8 +153,94 @@ public class FriendService {
             return "Bạn không có quyền thao tác";
         }
 
+        boolean wasAccepted = f.getStatus() == 1;
         friendshipRepository.delete(f);
+
+        if (wasAccepted) {
+            // Tại sao: Giảm số lượng bạn bè nếu hai người đã từng là bạn bè
+            User requester = userRepository.findById(f.getRequesterId()).orElse(null);
+            User addressee = userRepository.findById(f.getAddresseeId()).orElse(null);
+            if (requester != null) {
+                requester.setFriendsCount(Math.max(0, requester.getFriendsCount() - 1));
+                userRepository.save(requester);
+            }
+            if (addressee != null) {
+                addressee.setFriendsCount(Math.max(0, addressee.getFriendsCount() - 1));
+                userRepository.save(addressee);
+            }
+        }
+
         logger.info("Friendship removed: friendshipId={}, by userId={}", friendshipId, userId);
+        return null;
+    }
+
+    /**
+     * Hủy kết bạn hoặc hủy lời mời kết bạn dựa trên ID người chơi được chọn.
+     * Tại sao: Khi ở màn hình Profile của người khác, Client chỉ biết targetUserId thay vì friendshipId,
+     * phương thức này giúp tra cứu và xóa đúng bản ghi quan hệ để đồng bộ chính xác.
+     */
+    @Transactional
+    public String removeFriendshipByTargetUser(Long currentUserId, Long targetUserId) {
+        Optional<Friendship> fOpt = friendshipRepository.findExistingFriendship(currentUserId, targetUserId);
+        if (fOpt.isEmpty()) {
+            return "Quan hệ không tồn tại";
+        }
+        Friendship f = fOpt.get();
+        boolean wasAccepted = f.getStatus() == 1;
+        friendshipRepository.delete(f);
+
+        if (wasAccepted) {
+            // Tại sao: Giảm số lượng bạn bè khi hủy kết bạn thành công
+            User requester = userRepository.findById(f.getRequesterId()).orElse(null);
+            User addressee = userRepository.findById(f.getAddresseeId()).orElse(null);
+            if (requester != null) {
+                requester.setFriendsCount(Math.max(0, requester.getFriendsCount() - 1));
+                userRepository.save(requester);
+            }
+            if (addressee != null) {
+                addressee.setFriendsCount(Math.max(0, addressee.getFriendsCount() - 1));
+                userRepository.save(addressee);
+            }
+        }
+
+        logger.info("Friendship removed between userId={} and targetUserId={}", currentUserId, targetUserId);
+        return null;
+    }
+
+    /**
+     * Chấp nhận lời mời kết bạn dựa trên ID người chơi được chọn.
+     * Tại sao: Cho phép Client chấp nhận lời mời ngay khi đang xem hồ sơ của người gửi mà không cần friendshipId.
+     */
+    @Transactional
+    public String acceptRequestByTargetUser(Long currentUserId, Long targetUserId) {
+        Optional<Friendship> fOpt = friendshipRepository.findExistingFriendship(currentUserId, targetUserId);
+        if (fOpt.isEmpty()) {
+            return "Lời mời không tồn tại";
+        }
+        Friendship f = fOpt.get();
+        // Chỉ addressee mới được chấp nhận
+        if (!f.getAddresseeId().equals(currentUserId)) {
+            return "Bạn không có quyền chấp nhận lời mời này";
+        }
+        if (f.getStatus() == 1) {
+            return "Đã là bạn bè rồi";
+        }
+        f.setStatus(1);
+        friendshipRepository.save(f);
+
+        // Tại sao: Tăng số lượng bạn bè khi chấp nhận kết bạn thành công
+        User requester = userRepository.findById(f.getRequesterId()).orElse(null);
+        User addressee = userRepository.findById(f.getAddresseeId()).orElse(null);
+        if (requester != null) {
+            requester.setFriendsCount(requester.getFriendsCount() + 1);
+            userRepository.save(requester);
+        }
+        if (addressee != null) {
+            addressee.setFriendsCount(addressee.getFriendsCount() + 1);
+            userRepository.save(addressee);
+        }
+
+        logger.info("Friend request accepted between userId={} and targetUserId={}", currentUserId, targetUserId);
         return null;
     }
 
@@ -174,6 +273,40 @@ public class FriendService {
                     if (u.getUsername() != null && u.getUsername().toLowerCase().contains(searchTermLower)) return true;
                     return false;
                 })
+                .limit(20)
+                .map(u -> {
+                    Map<String, Object> entry = new LinkedHashMap<>();
+                    entry.put("userId", u.getId());
+                    entry.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                    entry.put("level", u.getLevel());
+                    entry.put("avatarId", u.getAvatarId());
+                    return entry;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách tối đa 20 tài khoản ngẫu nhiên chưa có bất kỳ quan hệ bạn bè/lời mời nào với người chơi.
+     * Tại sao (WHY): Sử dụng giải pháp xáo trộn danh sách trực tiếp trên RAM (In-memory Shuffling) thay vì dùng lệnh SQL tốn kém ORDER BY RAND()
+     * nhằm bảo toàn triệt để hiệu năng cơ sở dữ liệu, cho phép người dùng ấn làm mới liên tục mà không gây thắt cổ chai hệ thống.
+     */
+    public List<Map<String, Object>> getExploreSuggestions(Long currentUserId) {
+        List<Friendship> allRels = friendshipRepository.findAllFriendshipsForUser(currentUserId);
+        Set<Long> excludedIds = new HashSet<>();
+        excludedIds.add(currentUserId); // Loại trừ chính mình
+
+        for (Friendship f : allRels) {
+            excludedIds.add(f.getRequesterId());
+            excludedIds.add(f.getAddresseeId());
+        }
+
+        List<User> candidates = userRepository.findAll().stream()
+                .filter(u -> !excludedIds.contains(u.getId()))
+                .collect(Collectors.toList());
+
+        Collections.shuffle(candidates);
+
+        return candidates.stream()
                 .limit(20)
                 .map(u -> {
                     Map<String, Object> entry = new LinkedHashMap<>();

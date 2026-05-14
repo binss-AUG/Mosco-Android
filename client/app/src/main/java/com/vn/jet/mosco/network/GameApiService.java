@@ -4,6 +4,7 @@ import com.vn.jet.mosco.model.ShopItem;
 import com.vn.jet.mosco.model.UserStats;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -12,7 +13,6 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import java.util.Map;
 
 public interface GameApiService {
 
@@ -78,6 +78,12 @@ public interface GameApiService {
 
     @POST("/api/user/streak/restore")
     Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> restoreStreak();
+
+    /**
+     * Thích hoặc bỏ thích hồ sơ người chơi khác.
+     */
+    @POST("/api/user/{targetUserId}/like")
+    Call<com.vn.jet.mosco.model.ApiResponse<java.util.Map<String, Object>>> likeProfile(@Path("targetUserId") Long targetUserId);
 
     // ══════════════════════════════════════════════════════════════
     //  DAILY CHECK-IN — Điểm danh hằng ngày
@@ -163,9 +169,24 @@ public interface GameApiService {
     @retrofit2.http.DELETE("/api/friends/remove/{friendshipId}")
     Call<ResponseBody> removeFriend(@Path("friendshipId") Long friendshipId);
 
+    /** Hủy kết bạn hoặc lời mời kết bạn trực tiếp theo ID người chơi. */
+    @retrofit2.http.DELETE("/api/friends/remove-by-user/{targetUserId}")
+    Call<com.vn.jet.mosco.model.ApiResponse<Void>> removeFriendByUser(@Path("targetUserId") Long targetUserId);
+
+    /** Chấp nhận lời mời kết bạn trực tiếp theo ID người chơi. */
+    @POST("/api/friends/accept-by-user/{targetUserId}")
+    Call<com.vn.jet.mosco.model.ApiResponse<Void>> acceptFriendByUser(@Path("targetUserId") Long targetUserId);
+
     /** Tìm kiếm user theo tên hoặc ID. */
     @GET("/api/friends/search")
     Call<ResponseBody> searchUsers(@Query("query") String query);
+
+    /**
+     * Lấy danh sách tối đa 20 người chơi gợi ý mới chưa kết bạn.
+     * Tại sao (WHY): Tách biệt truy vấn ngẫu nhiên khỏi truy vấn chuỗi tìm kiếm, cho phép giao diện tự động nạp danh sách tươi mới khi mở Tab Explore.
+     */
+    @GET("/api/friends/explore")
+    Call<ResponseBody> getExploreSuggestions();
 
     // ══════════════════════════════════════════════════════════════
     //  GIFT — Tặng Objet giữa các user

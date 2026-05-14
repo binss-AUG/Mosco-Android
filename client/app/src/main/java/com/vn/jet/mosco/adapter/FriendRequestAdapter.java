@@ -10,21 +10,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.vn.jet.mosco.R;
-import com.vn.jet.mosco.utils.DatabaseLoader;
-import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Adapter for friend requests — shows avatar, name, level, Accept + Reject buttons.
+ * Nâng cấp bổ sung cơ chế lọc thời gian thực (Real-time Filtering) đồng bộ luồng tra cứu trung tâm.
  */
 public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.RequestViewHolder> {
 
     private List<JSONObject> data;
+    private List<JSONObject> fullData;
     private final OnRequestActionListener listener;
 
     /**
@@ -36,12 +36,43 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     }
 
     public FriendRequestAdapter(List<JSONObject> data, OnRequestActionListener listener) {
-        this.data = data;
+        this.data = new ArrayList<>(data);
+        this.fullData = new ArrayList<>(data);
         this.listener = listener;
     }
 
     public void updateData(List<JSONObject> newData) {
-        this.data = newData;
+        this.data = new ArrayList<>(newData);
+        this.fullData = new ArrayList<>(newData);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Lọc danh sách lời mời kết bạn cục bộ theo từ khóa (Tên ingame hoặc ID định dạng).
+     * Lý do (WHY): Hỗ trợ tìm kiếm chớp nhoáng mà không cần gửi truy vấn lên máy chủ, tiết kiệm trọn vẹn băng thông.
+     */
+    public void filter(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            data = new ArrayList<>(fullData);
+        } else {
+            List<JSONObject> filtered = new ArrayList<>();
+            String lowerQuery = query.toLowerCase().trim();
+
+            for (JSONObject obj : fullData) {
+                String name = obj.optString("ingameName", "").toLowerCase();
+                String username = obj.optString("username", "").toLowerCase();
+                long rawId = obj.optLong("userId", -1);
+                String formattedId = String.valueOf(10000000 + rawId);
+
+                // Đối soát toàn diện trên Tên hiển thị, tài khoản hoặc định dạng ID tiêu chuẩn
+                if (name.contains(lowerQuery) ||
+                    username.contains(lowerQuery) ||
+                    formattedId.contains(lowerQuery)) {
+                    filtered.add(obj);
+                }
+            }
+            data = filtered;
+        }
         notifyDataSetChanged();
     }
 
@@ -65,19 +96,19 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
             String avatarId = entry.optString("avatarId", "1");
             com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId);
 
-            // Accept button
+            // Nút đồng ý lời mời (Accept)
             holder.btnAccept.setOnClickListener(v -> {
                 if (listener != null) listener.onAccept(friendshipId);
             });
 
-            // Bridge Bridge: Nhấn vào avatar mở profile xem info trước khi accept
+            // Nhấn vào avatar mở trang cá nhân xem thông tin chi tiết trước khi quyết định
             holder.ivAvatar.setOnClickListener(v -> {
                 if (userId != -1L) {
                     com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) holder.itemView.getContext(), userId);
                 }
             });
 
-            // Reject button
+            // Nút từ chối lời mời (Reject)
             holder.btnReject.setOnClickListener(v -> {
                 if (listener != null) listener.onReject(friendshipId);
             });

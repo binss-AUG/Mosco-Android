@@ -84,7 +84,7 @@ public class RankListFragment extends Fragment {
 
         rvRankList = view.findViewById(R.id.rv_rank_list);
         tvEmpty = view.findViewById(R.id.tv_rank_empty);
-        lottieLoading = view.findViewById(R.id.lottie_rank_loading);
+        lottieLoading = view.findViewById(R.id.shimmer_friend_skeleton);
 
         rvRankList.setLayoutManager(new LinearLayoutManager(requireContext()));
         podiumAdapter = new PodiumAdapter(new ArrayList<>(), rankType);
