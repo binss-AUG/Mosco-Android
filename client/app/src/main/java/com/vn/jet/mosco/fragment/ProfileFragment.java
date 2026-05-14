@@ -22,6 +22,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import androidx.recyclerview.widget.RecyclerView;
+import android.widget.EditText;
 import com.vn.jet.mosco.ForgotPasswordActivity;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.MainActivity;
@@ -540,8 +542,42 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }));
 
         btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT)
-                    .show();
+            View chatContainer = getView() != null ? getView().findViewById(R.id.layout_private_chat_container) : null;
+            if (chatContainer != null) {
+                chatContainer.setVisibility(View.VISIBLE);
+                
+                RecyclerView rvPrivate = chatContainer.findViewById(R.id.rv_private_chat);
+                EditText etPrivate = chatContainer.findViewById(R.id.et_private_chat);
+                ImageView btnSend = chatContainer.findViewById(R.id.btn_private_send);
+                ImageView btnClose = chatContainer.findViewById(R.id.btn_close_chat);
+                
+                com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
+                rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
+                rvPrivate.setAdapter(chatAdapter);
+                
+                // Fetch target user data for context
+                UserStats targetStats = viewModel.getUserStats().getValue();
+                String targetName = targetStats != null ? targetStats.getIngameName() : "Unknown";
+                String targetAvatar = targetStats != null ? targetStats.getAvatarId() : "1";
+                
+                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0", getString(R.string.chat_msg_system), targetAvatar, getString(R.string.chat_msg_secure_connection)));
+                
+                btnClose.setOnClickListener(v1 -> chatContainer.setVisibility(View.GONE));
+                
+                btnSend.setOnClickListener(v1 -> {
+                    String msgText = etPrivate.getText().toString().trim();
+                    if (!msgText.isEmpty()) {
+                        String myName = sessionManager.getIngameName();
+                        String myAvatar = sessionManager.getAvatarId();
+                        chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("me", getString(R.string.chat_msg_you), myAvatar, msgText));
+                        rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+                        etPrivate.setText("");
+                        v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+                    }
+                });
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
+            }
         }));
     }
 

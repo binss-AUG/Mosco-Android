@@ -38,7 +38,9 @@
             android:textColor="@color/mosco_white_70"
             app:strokeColor="@color/mosco_white_40"
             app:cornerRadius="@dimen/radius_md"
-            app:icon="@null" />
+            app:icon="@drawable/ic_mailbox"
+            app:iconGravity="textStart"
+            app:iconTint="@color/mosco_white_70" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

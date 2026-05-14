@@ -1,4 +1,4 @@
-﻿package com.vn.jet.mosco.utils;
+package com.vn.jet.mosco.utils;
 
 /**
  * AppConfig - Centralized configuration for the Mosco app.

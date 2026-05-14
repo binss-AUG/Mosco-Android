@@ -170,5 +170,77 @@
             android:scaleType="centerInside" />
     </LinearLayout>
 
+    <!-- 5. HIDDEN PRIVATE CHAT OVERLAY — Reusing same space -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_private_chat_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/mosco_surface"
+        android:visibility="gone"
+        android:elevation="5dp">
+
+        <include
+            android:id="@+id/layout_chat_header"
+            layout="@layout/layout_galactic_header"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/btn_close_chat"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
+            android:layout_marginStart="@dimen/spacing_lg"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="@dimen/spacing_xs"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/layout_chat_header"
+            app:layout_constraintBottom_toBottomOf="@id/layout_chat_header"
+            app:tint="@color/white" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_private_chat"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:padding="@dimen/spacing_md"
+            app:layout_constraintTop_toBottomOf="@id/layout_chat_header"
+            app:layout_constraintBottom_toTopOf="@id/layout_private_input" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_private_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_md"
+            android:background="@drawable/bg_glass_input"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_sm"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <EditText
+                android:id="@+id/et_private_chat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="@string/chat_hint_input"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_25"
+                android:textSize="@dimen/text_size_body_md"
+                android:maxLines="3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_private_send"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ImageView
+                android:id="@+id/btn_private_send"
+                android:layout_width="@dimen/spacing_32dp"
+                android:layout_height="@dimen/spacing_32dp"
+                android:src="@drawable/ic_send"
+                app:tint="@color/galactic_accent_cyan"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
