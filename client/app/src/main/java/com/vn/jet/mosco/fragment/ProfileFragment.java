@@ -42,7 +42,9 @@ import org.json.JSONObject;
 import com.vn.jet.mosco.utils.SmartFaceCropTransformation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -554,10 +556,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 TextView tvHeaderName = chatContainer.findViewById(R.id.tv_private_header_name);
                 
                 com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
-                if (sessionManager.getUserId() != null) {
-                    chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
-                }
+                String myId = String.valueOf(sessionManager.getUserId());
+                String partnerId = String.valueOf(targetUserId);
                 
+                chatAdapter.setCurrentUserId(myId);
                 rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
                 rvPrivate.setAdapter(chatAdapter);
                 
@@ -570,7 +572,24 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 tvHeaderName.setText(targetName);
                 com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, targetUserId, targetAvatar);
                 
-                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0", getString(R.string.chat_msg_system), targetAvatar, getString(R.string.chat_msg_secure_connection)));
+                // --- 📦 LOCAL-FIRST: Load History from Room ---
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    List<com.vn.jet.mosco.model.PrivateChatMessage> localMsgs = 
+                        com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao().getChatHistory(myId, partnerId);
+                    
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (localMsgs.isEmpty()) {
+                                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0", getString(R.string.chat_msg_system), targetAvatar, getString(R.string.chat_msg_secure_connection)));
+                            } else {
+                                for (com.vn.jet.mosco.model.PrivateChatMessage pm : localMsgs) {
+                                    chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
+                                }
+                                rvPrivate.scrollToPosition(chatAdapter.getItemCount() - 1);
+                            }
+                        });
+                    }
+                });
                 
                 btnClose.setOnClickListener(v1 -> chatContainer.setVisibility(View.GONE));
                 
@@ -579,11 +598,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     if (!msgText.isEmpty()) {
                         String myName = sessionManager.getIngameName();
                         String myAvatar = sessionManager.getAvatarId();
-                        String myId = String.valueOf(sessionManager.getUserId());
-                        chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(myId, myName, myAvatar, msgText));
+                        
+                        // 1. Update UI instantly
+                        com.vn.jet.mosco.model.WorldChatMessage displayMsg = new com.vn.jet.mosco.model.WorldChatMessage(myId, myName, myAvatar, msgText);
+                        chatAdapter.addMessage(displayMsg);
                         rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
                         etPrivate.setText("");
                         v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+                        
+                        // 2. Persist to Room DB (Local-First)
+                        com.vn.jet.mosco.model.PrivateChatMessage pm = new com.vn.jet.mosco.model.PrivateChatMessage(myId, partnerId, myName, myAvatar, msgText);
+                        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                            com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
+                        });
                     }
                 });
             } else {

@@ -131,6 +131,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private SessionManager sessionManager;
     private GameApiService gameApiService;
     private android.animation.ValueAnimator rgbAnimator;
+    
+    // --- WebSocket World Chat ---
+    private com.vn.jet.mosco.network.WebSocketManager wsManager;
+    private io.reactivex.disposables.Disposable chatDisposable;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -168,6 +172,20 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
         
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopBannerAutoScroll();
+        stopRankAutoScroll();
+        stopChatTicker();
+        if (rgbAnimator != null) rgbAnimator.cancel();
+        
+        // --- 🌐 WORLD CHAT: Cleanup WebSocket ---
+        if (chatDisposable != null && !chatDisposable.isDisposed()) {
+            chatDisposable.dispose();
+        }
     }
 
     @Override
@@ -557,21 +575,34 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
         }
 
+        // --- 🌐 WORLD CHAT: WebSocket Integration ---
+        wsManager = com.vn.jet.mosco.network.WebSocketManager.getInstance();
+        wsManager.connect();
+        
+        chatDisposable = wsManager.subscribeToWorldChat(message -> {
+            if (isAdded() && worldChatAdapter != null) {
+                worldChatAdapter.addMessage(message);
+                if (rvWorldChatExpanded != null) {
+                    rvWorldChatExpanded.smoothScrollToPosition(worldChatAdapter.getItemCount() - 1);
+                }
+            }
+        });
+
         if (btnHomeSend != null) {
             btnHomeSend.setOnClickListener(v -> {
                 String msg = etHomeChat.getText().toString().trim();
                 if (!msg.isEmpty()) {
                     String myName = sessionManager.getIngameName();
                     String myAvatar = sessionManager.getAvatarId();
-                    worldChatAdapter.addMessage(new WorldChatMessage(String.valueOf(sessionManager.getUserId()), myName, myAvatar, msg));
+                    String currentUserId = sessionManager.getUserId() != null ? String.valueOf(sessionManager.getUserId()) : "guest";
                     
-                    if (rvWorldChatExpanded != null) {
-                        rvWorldChatExpanded.smoothScrollToPosition(worldChatAdapter.getItemCount() - 1);
-                    }
+                    // Gửi qua WebSocket (Server sẽ broadcast lại cho mọi người)
+                    com.vn.jet.mosco.model.WorldChatMessage chatMsg = 
+                        new com.vn.jet.mosco.model.WorldChatMessage(currentUserId, myName, myAvatar, msg);
+                    wsManager.sendWorldMessage(chatMsg);
                     
                     v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
                     etHomeChat.setText("");
-                    // Keep open after send if in expanded mode
                 }
             });
         }

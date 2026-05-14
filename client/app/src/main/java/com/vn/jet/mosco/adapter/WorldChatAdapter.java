@@ -67,12 +67,22 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         WorldChatMessage msg = messages.get(position);
         if (holder instanceof SelfViewHolder) {
             SelfViewHolder selfHolder = (SelfViewHolder) holder;
-            selfHolder.tvContent.setText(msg.getContent());
+            // Giải mã HTML Entities cho tin nhắn của mình
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                selfHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                selfHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
+            }
             AvatarUtils.loadAvatar(selfHolder.itemView.getContext(), selfHolder.ivAvatar, null, msg.getAvatarId());
         } else if (holder instanceof OtherViewHolder) {
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
             otherHolder.tvName.setText(msg.getSenderName());
-            otherHolder.tvContent.setText(msg.getContent());
+            // Giải mã HTML Entities cho tin nhắn của người khác
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
+            }
             AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null, msg.getAvatarId());
         }
     }
