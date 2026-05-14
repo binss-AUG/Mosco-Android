@@ -549,16 +549,26 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 RecyclerView rvPrivate = chatContainer.findViewById(R.id.rv_private_chat);
                 EditText etPrivate = chatContainer.findViewById(R.id.et_private_chat);
                 ImageView btnSend = chatContainer.findViewById(R.id.btn_private_send);
-                ImageView btnClose = chatContainer.findViewById(R.id.btn_close_chat);
+                ImageView btnClose = chatContainer.findViewById(R.id.btn_close_private_chat);
+                ImageView ivHeaderAvatar = chatContainer.findViewById(R.id.iv_private_header_avatar);
+                TextView tvHeaderName = chatContainer.findViewById(R.id.tv_private_header_name);
                 
                 com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
+                if (sessionManager.getUserId() != null) {
+                    chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
+                }
+                
                 rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
                 rvPrivate.setAdapter(chatAdapter);
                 
                 // Fetch target user data for context
                 UserStats targetStats = viewModel.getUserStats().getValue();
-                String targetName = targetStats != null ? targetStats.getIngameName() : "Unknown";
+                String targetName = (targetStats != null && targetStats.getIngameName() != null) ? targetStats.getIngameName() : "Unknown";
                 String targetAvatar = targetStats != null ? targetStats.getAvatarId() : "1";
+                
+                // Populate Header with Target User info
+                tvHeaderName.setText(targetName);
+                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, targetUserId, targetAvatar);
                 
                 chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0", getString(R.string.chat_msg_system), targetAvatar, getString(R.string.chat_msg_secure_connection)));
                 
@@ -569,7 +579,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     if (!msgText.isEmpty()) {
                         String myName = sessionManager.getIngameName();
                         String myAvatar = sessionManager.getAvatarId();
-                        chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("me", getString(R.string.chat_msg_you), myAvatar, msgText));
+                        String myId = String.valueOf(sessionManager.getUserId());
+                        chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(myId, myName, myAvatar, msgText));
                         rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
                         etPrivate.setText("");
                         v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
