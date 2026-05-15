@@ -121,8 +121,6 @@
     <string name="format_level">Level %d</string>
     <string name="format_level_short">LV %d</string>
     <string name="format_level_plus">+%d</string>
-    <string name="settings_label_cache_usage">Current usage: %s</string>
-    <string name="settings_msg_clearing_cache">Clearing cache...</string>
     <string name="home_format_user_id">ID: %s</string>
 
     <!-- Content Descriptions -->

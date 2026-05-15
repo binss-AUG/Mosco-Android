@@ -11,7 +11,7 @@ import com.vn.jet.mosco.model.UserStats;
 
 import androidx.room.TypeConverters;
 
-@Database(entities = {CardEntity.class, UserStats.class, com.vn.jet.mosco.model.MasterObjetEntity.class}, version = 6, exportSchema = false)
+@Database(entities = {CardEntity.class, UserStats.class, com.vn.jet.mosco.model.MasterObjetEntity.class, com.vn.jet.mosco.model.PrivateChatMessage.class}, version = 7, exportSchema = false)
 @TypeConverters({ShowcaseConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
@@ -19,16 +19,17 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CardDao cardDao();
     public abstract UserStatsDao userStatsDao();
     public abstract MasterObjetDao masterObjetDao();
+    public abstract MessageDao messageDao();
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    // Nuclear Reset: Nếu nâng cấp lên Version 4, ta xóa DB cũ để tránh lỗi schema mismatch
+                    // Nuclear Reset: Nếu nâng cấp version, ta xóa DB cũ để tránh lỗi schema mismatch
                     android.content.SharedPreferences prefs = context.getSharedPreferences("db_prefs", Context.MODE_PRIVATE);
-                    if (prefs.getInt("db_ver", 0) < 6) {
+                    if (prefs.getInt("db_ver", 0) < 7) {
                         context.deleteDatabase("mosco_db");
-                        prefs.edit().putInt("db_ver", 6).apply();
+                        prefs.edit().putInt("db_ver", 7).apply();
                     }
 
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),

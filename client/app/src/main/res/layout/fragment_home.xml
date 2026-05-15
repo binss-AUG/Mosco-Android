@@ -345,6 +345,60 @@
 
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
+    <!--  WORLD CHAT LOG — Floating HUD Area  -->
+    <!-- CHAT EXPANDED OVERLAY (Partial overlay with solid background) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layout_world_chat_expanded"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/spacing_md"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/mosco_surface_container"
+        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardElevation="16dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/mosco_white_10"
+        app:layout_constraintHeight_percent="0.65"
+        app:layout_constraintBottom_toTopOf="@id/layout_home_chat">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include 
+                android:id="@+id/layout_chat_expanded_header"
+                layout="@layout/layout_galactic_header"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Close Button (X) placed in Right Slot or overlaid -->
+            <ImageView
+                android:id="@+id/btn_close_chat_x"
+                android:layout_width="@dimen/spacing_40dp"
+                android:layout_height="@dimen/spacing_40dp"
+                android:src="@drawable/ic_close"
+                android:padding="@dimen/spacing_xs"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@color/white_40"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_world_chat_expanded"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:clipToPadding="false"
+                android:paddingVertical="@dimen/spacing_sm"
+                app:layout_constraintTop_toBottomOf="@id/layout_chat_expanded_header"
+                app:layout_constraintBottom_toBottomOf="parent" />
+                
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!--  STICKY CHAT BAR — Floating Glass Input  -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_home_chat"
@@ -352,7 +406,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/spacing_12dp"
         android:layout_marginBottom="@dimen/spacing_12dp"
-        android:background="@drawable/bg_banner_glass"
+        android:background="@drawable/bg_glass_input"
         android:paddingHorizontal="@dimen/spacing_12dp"
         android:paddingVertical="@dimen/spacing_8dp"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -372,20 +426,35 @@
             android:id="@+id/et_home_chat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_8dp"
-            android:layout_marginEnd="@dimen/spacing_8dp"
+            android:layout_marginStart="@dimen/spacing_md"
             android:background="@android:color/transparent"
-            android:hint="@string/home_chat_hint"
+            android:hint="@string/chat_hint_input"
             android:textColor="@color/white"
             android:textColorHint="@color/white_25"
-            android:textSize="@dimen/home_chat_text_size"
-            android:maxLines="1"
-            android:imeOptions="actionSend"
-            android:inputType="textShortMessage"
+            android:textSize="@dimen/text_size_body_md"
+            android:maxLines="3"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_home_send"
             app:layout_constraintStart_toEndOf="@id/iv_chat_avatar"
-            app:layout_constraintEnd_toStartOf="@+id/btn_home_send"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- TICKER TEXT (Visible when idle) -->
+        <TextView
+            android:id="@+id/tv_chat_ticker"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@color/white_70"
+            android:textSize="@dimen/text_size_body_sm"
+            android:hint="@string/chat_hint_input"
+            android:textColorHint="@color/white_25"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_home_send"
+            app:layout_constraintStart_toEndOf="@id/iv_chat_avatar"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btn_home_send"

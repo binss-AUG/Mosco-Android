@@ -145,6 +145,15 @@
     <string name="showcase_empty_slot">EMPTY SLOT</string>
     <string name="showcase_unknown_card">OBJ#%s</string>
 
+    <!-- Chat System -->
+    <string name="chat_header_world">WORLD CHAT</string>
+    <string name="chat_header_private">DIRECT MESSAGE</string>
+    <string name="chat_hint_input">Type a message...</string>
+    <string name="chat_msg_welcome">Welcome to World Chat.</string>
+    <string name="chat_msg_secure_connection">Chat session started.</string>
+    <string name="chat_msg_system">SYSTEM</string>
+    <string name="chat_msg_you">You</string>
+    <string name="chat_error_empty_message">Message cannot be empty</string>
     <!-- QR Code Gateway -->
     <string name="social_qr_tab_my_qr">My QR Code</string>
     <string name="social_qr_tab_scan">Scan</string>

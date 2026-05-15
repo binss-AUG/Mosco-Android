@@ -38,7 +38,7 @@ public class MainActivity extends MoscoBaseActivity {
         setContentView(R.layout.activity_main);
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
@@ -98,6 +98,9 @@ public class MainActivity extends MoscoBaseActivity {
         
         // Initialize on Home tab by default (Premium User Flow)
         bottomNav.setSelectedItemId(R.id.nav_home);
+
+        // --- 🚀 AUTO-BACKUP SYSTEM (PHASE 3) ---
+        com.vn.jet.mosco.utils.WorkScheduler.scheduleAutoBackup(this);
 
         // --- 🚀 EXIT CONFIRMATION SYSTEM ---
         setupExitConfirmation();

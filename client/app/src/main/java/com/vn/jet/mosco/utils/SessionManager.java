@@ -31,6 +31,8 @@ public class SessionManager {
     private static final String KEY_DARK_MODE = "dark_mode";
     private static final String KEY_MUSIC_ENABLED = "music_enabled";
     private static final String KEY_SFX_ENABLED = "sfx_enabled";
+    private static final String KEY_AUTO_BACKUP = "auto_backup";
+    private static final String KEY_BACKUP_INTERVAL = "backup_interval";
 
     private final SharedPreferences prefs;
     private final Context context;
@@ -183,5 +185,21 @@ public class SessionManager {
 
     public boolean isSfxEnabled() {
         return prefs.getBoolean(KEY_SFX_ENABLED, true);
+    }
+
+    public void setAutoBackupEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_AUTO_BACKUP, enabled).apply();
+    }
+
+    public boolean isAutoBackupEnabled() {
+        return prefs.getBoolean(KEY_AUTO_BACKUP, false); // Default OFF
+    }
+
+    public void setBackupInterval(int hours) {
+        prefs.edit().putInt(KEY_BACKUP_INTERVAL, hours).apply();
+    }
+
+    public int getBackupInterval() {
+        return prefs.getInt(KEY_BACKUP_INTERVAL, 72); // Default 72 hours (3 days)
     }
 }

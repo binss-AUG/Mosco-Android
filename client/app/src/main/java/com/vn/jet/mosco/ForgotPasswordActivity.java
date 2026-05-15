@@ -99,6 +99,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             finish();
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
+
+        // --- Handle Settings Invocation ---
+        boolean fromSettings = getIntent().getBooleanExtra("from_settings", false);
+        if (fromSettings) {
+            tvGoToSignIn.setVisibility(View.GONE);
+            android.widget.TextView tvTitle = findViewById(R.id.tv_title_forgot);
+            android.widget.TextView tvSubtitle = findViewById(R.id.tv_subtitle_forgot);
+            if (tvTitle != null) tvTitle.setText(getString(R.string.settings_action_change_password));
+            if (tvSubtitle != null) tvSubtitle.setText("Update your password to keep your account secure.");
+        }
     }
 
 

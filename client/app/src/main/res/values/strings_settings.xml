@@ -8,4 +8,23 @@
     <string name="settings_label_storage">Storage</string>
     <string name="settings_action_clear_cache">Clear Cache</string>
     <string name="settings_msg_cache_cleared">Cache cleared successfully</string>
+    <string name="settings_label_cache_usage">Using %s of storage</string>
+    <string name="settings_msg_clearing_cache">Clearing cache...</string>
+    
+    <!-- Backup Settings -->
+    <string name="settings_label_auto_backup">Auto Cloud Backup</string>
+    <string name="settings_label_backup_interval">Backup Frequency</string>
+    <string name="settings_desc_auto_backup">Automatically sync your data to the cloud when battery is safe.</string>
+    <string name="settings_label_system">SYSTEM &amp; SOUND</string>
+    <string name="settings_label_data">DATA MANAGEMENT</string>
+    <string name="interval_6h">Every 6 Hours</string>
+    <string name="interval_12h">Every 12 Hours</string>
+    <string name="interval_24h">Daily (24 Hours)</string>
+    <string name="interval_3d">Every 3 Days</string>
+    <string name="interval_7d">Every 7 Days</string>
+    <string name="interval_15d">Every 15 Days</string>
+    <string name="interval_30d">Monthly (30 Days)</string>
+    <string name="settings_label_account">ACCOUNT</string>
+    <string name="settings_action_change_password">Change Password</string>
+    <string name="settings_action_logout">Log Out</string>
 </resources>
