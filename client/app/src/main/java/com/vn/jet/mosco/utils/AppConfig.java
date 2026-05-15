@@ -34,6 +34,7 @@ public class AppConfig {
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
             "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
 
+    // Tránh khởi tạo đối tượng
     private AppConfig() {
     }
 }

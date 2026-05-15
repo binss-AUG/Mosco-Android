@@ -73,6 +73,31 @@ public class FriendActivity extends MoscoBaseActivity {
             }
         }).attach();
 
+        // Lập trình thay đổi động chuỗi gợi ý (hint) và làm sạch thanh tìm kiếm khi chuyển Tab
+        // Lý do (WHY): Giúp người chơi nhận biết rõ ràng bối cảnh tra cứu hiện tại, tự động thiết lập lại danh sách về trạng thái đầy đủ ban đầu
+        EditText etSearch = findViewById(R.id.et_search_friend);
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (etSearch != null) {
+                    // Tạm thời gỡ bỏ chuỗi text hiện tại để tránh kích hoạt bộ lọc chéo không mong muốn
+                    etSearch.setText("");
+                    switch (position) {
+                        case 0:
+                            etSearch.setHint(R.string.social_search_hint_explore);
+                            break;
+                        case 1:
+                            etSearch.setHint(R.string.social_search_hint_friends);
+                            break;
+                        case 2:
+                            etSearch.setHint(R.string.social_search_hint_requests);
+                            break;
+                    }
+                }
+            }
+        });
+
         // Setup Search — lọc danh sách cũ hoặc tìm user mới
         setupSearch();
 
@@ -94,7 +119,7 @@ public class FriendActivity extends MoscoBaseActivity {
      * Hiện Dialog thẻ căn cước thiên hà của Sếp kèm mã QR.
      */
     private void showGalacticIdDialog() {
-        Toast.makeText(this, R.string.social_msg_opening_galactic_id, Toast.LENGTH_SHORT).show();
+        com.vn.jet.mosco.widget.MoscoQrDialog.show(this);
     }
 
     /**
@@ -113,6 +138,15 @@ public class FriendActivity extends MoscoBaseActivity {
 
             @Override
             public void afterTextChanged(android.text.Editable s) {
+                ViewPager2 viewPager = findViewById(R.id.view_pager_friend);
+                // Kiểm tra nếu Tab hiện tại là Explore (Vị trí 0), tuyệt đối chặn không gửi truy vấn tự động
+                // Tại sao (WHY): Ngăn chặn việc gửi hàng loạt request API lên máy chủ mỗi khi thay đổi ký tự, bảo vệ Backend khỏi nguy cơ sập tải (Flooding).
+                // Tìm kiếm API trên Tab Khám phá sẽ chỉ được thực thi duy nhất khi người dùng chủ động nhấn nút Search/Enter trên bàn phím.
+                if (viewPager != null && viewPager.getCurrentItem() == 0) {
+                    return;
+                }
+
+                // Tab Bạn bè và Lời mời tiếp tục áp dụng lọc Real-time nội bộ mượt mà
                 timer.cancel();
                 timer = new java.util.Timer();
                 timer.schedule(new java.util.TimerTask() {
@@ -140,18 +174,35 @@ public class FriendActivity extends MoscoBaseActivity {
         handleGlobalSearch(query);
     }
 
+    /**
+     * Phân phối luồng xử lý từ khóa độc lập dựa trên ngữ cảnh Tab hiện tại.
+     * Lý do (WHY): Tránh tình trạng tự động chuyển trang gây mất phương hướng, cho phép tra cứu thời gian thực mượt mà trên danh sách bạn bè và lời mời.
+     */
     private void handleGlobalSearch(String query) {
-        if (query.isEmpty()) return;
-
         ViewPager2 viewPager = findViewById(R.id.view_pager_friend);
         if (viewPager == null) return;
 
-        // Luôn chuyển sang tab EXPLORE (vị trí 0)
-        viewPager.setCurrentItem(0, true);
-        
-        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f0");
-        if (currentFragment instanceof com.vn.jet.mosco.fragment.FriendSearchFragment) {
-            ((com.vn.jet.mosco.fragment.FriendSearchFragment) currentFragment).performSearch(query);
+        int currentPosition = viewPager.getCurrentItem();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("f" + currentPosition);
+
+        if (currentFragment != null) {
+            switch (currentPosition) {
+                case 0: // Tab Khám phá (Explore)
+                    if (!query.trim().isEmpty() && currentFragment instanceof com.vn.jet.mosco.fragment.FriendSearchFragment) {
+                        ((com.vn.jet.mosco.fragment.FriendSearchFragment) currentFragment).performSearch(query.trim());
+                    }
+                    break;
+                case 1: // Tab Bạn bè (Friends)
+                    if (currentFragment instanceof com.vn.jet.mosco.fragment.FriendListFragment) {
+                        ((com.vn.jet.mosco.fragment.FriendListFragment) currentFragment).filterFriends(query.trim());
+                    }
+                    break;
+                case 2: // Tab Lời mời (Requests)
+                    if (currentFragment instanceof com.vn.jet.mosco.fragment.FriendRequestFragment) {
+                        ((com.vn.jet.mosco.fragment.FriendRequestFragment) currentFragment).filterRequests(query.trim());
+                    }
+                    break;
+            }
         }
     }
 
@@ -191,6 +242,57 @@ public class FriendActivity extends MoscoBaseActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(FriendActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Tra cứu thông tin người dùng từ ID quét được qua mã QR hoặc Deep Link và hiển thị xem trước.
+     * Xử lý bất đồng bộ, đảm bảo an toàn luồng và kiểm tra null nghiêm ngặt.
+     */
+    public void fetchAndShowProfile(String userIdStr) {
+        if (userIdStr == null || userIdStr.trim().isEmpty()) return;
+        Toast.makeText(this, R.string.social_msg_opening_galactic_id, Toast.LENGTH_SHORT).show();
+        
+        apiService.searchUsers(userIdStr.trim()).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray data = json.optJSONArray("data");
+
+                        if (data != null && data.length() > 0) {
+                            // Tìm chính xác user có ID tương ứng để tránh nhầm lẫn kết quả tra cứu gần đúng
+                            JSONObject targetUser = null;
+                            long targetId = Long.parseLong(userIdStr.trim());
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject u = data.getJSONObject(i);
+                                if (u.optLong("userId", -1) == targetId) {
+                                    targetUser = u;
+                                    break;
+                                }
+                            }
+                            if (targetUser == null) {
+                                targetUser = data.getJSONObject(0);
+                            }
+                            // Sử dụng lại toàn bộ màn hình ProfileFragment cao cấp đã có sẵn thay vì tạo mới bản xem trước
+                            com.vn.jet.mosco.utils.NavigationUtils.openProfile(FriendActivity.this, targetUser.optLong("userId"));
+                        } else {
+                            Toast.makeText(FriendActivity.this, R.string.social_msg_player_not_found, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(FriendActivity.this, R.string.social_msg_player_not_found, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi phân tích dữ liệu tra cứu QR", e);
+                    Toast.makeText(FriendActivity.this, R.string.common_error_unknown, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Toast.makeText(FriendActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });

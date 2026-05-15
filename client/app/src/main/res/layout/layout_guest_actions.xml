@@ -7,24 +7,25 @@
     android:paddingTop="@dimen/spacing_lg"
     android:gravity="center_horizontal">
 
+    <!-- Row 1: Interaction & Communication (Like & Message ở trên) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_marginHorizontal="@dimen/spacing_xl"
-        android:layout_marginBottom="@dimen/spacing_sm">
+        android:layout_marginBottom="@dimen/spacing_xs">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_like"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="@dimen/button_height_large"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:text="@string/profile_btn_like"
-            android:backgroundTint="@color/mosco_primary"
-            android:textColor="@color/white"
+            android:textColor="@color/mosco_white_70"
+            app:strokeColor="@color/mosco_white_40"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@null" />
 
@@ -43,16 +44,41 @@
             app:iconTint="@color/mosco_white_70" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_add_friend"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    <!-- Row 2: Relationship Management (Nút Add Friend nổi bật ở dưới) -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/button_height_large"
-        android:layout_marginHorizontal="@dimen/spacing_xl"
-        android:text="@string/profile_btn_add_friend"
-        android:textColor="@color/white"
-        app:strokeColor="@color/mosco_outline"
-        app:cornerRadius="@dimen/radius_md"
-        app:icon="@null" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginHorizontal="@dimen/spacing_xl">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_friend"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_height_large"
+            android:layout_weight="1"
+            android:text="@string/profile_btn_add_friend"
+            android:backgroundTint="@color/mosco_primary"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:cornerRadius="@dimen/radius_md"
+            app:icon="@null" />
+
+        <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_decline_request"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="@dimen/button_height_large"
+            android:layout_height="@dimen/button_height_large"
+            android:layout_marginStart="@dimen/spacing_xs"
+            app:icon="@drawable/ic_close"
+            app:iconPadding="0dp"
+            app:iconGravity="textStart"
+            app:iconTint="@color/palette_red_accent"
+            app:strokeColor="@color/palette_red_accent"
+            app:cornerRadius="@dimen/radius_md"
+            android:visibility="gone" />
+    </LinearLayout>
 
 </LinearLayout>

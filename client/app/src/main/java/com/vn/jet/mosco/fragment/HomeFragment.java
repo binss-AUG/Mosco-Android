@@ -99,6 +99,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
     private View vBubbleDaily, vBubbleEvent, vBubbleUpgrade, vBubbleRank, vBubbleShop, vBubbleFriends, vBubbleFormation, vBubbleGift;
     private android.widget.ImageView ivQuickDaily, ivQuickEvent, ivQuickUpgrade, ivQuickRank, ivQuickShop, ivQuickFriends, ivQuickFormation, ivQuickGift;
+    private View vQuickFriendsRedDot;
     private android.widget.HorizontalScrollView hsvQuickTools;
     private LinearLayout llQuickToolsContainer;
 
@@ -332,6 +333,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         ivQuickFriends = v.findViewById(R.id.iv_quick_friends);
         ivQuickFormation = v.findViewById(R.id.iv_quick_formation);
         ivQuickGift = v.findViewById(R.id.iv_quick_gift);
+        vQuickFriendsRedDot = v.findViewById(R.id.v_quick_friends_red_dot);
 
         hsvQuickTools = v.findViewById(R.id.hsv_quick_tools);
         llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
@@ -806,6 +808,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 checkAndShowContent();
             }
 
+            checkFriendRequestsBadge();
             gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
                 @Override
                 public void onResponse(Call<UserStats> call, Response<UserStats> response) {
@@ -826,6 +829,32 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         } catch (Exception e) { Log.e(TAG, "Error data", e); }
+    }
+
+    /**
+     * Tải ngầm danh sách lời mời kết bạn để quyết định hiển thị Red Dot.
+     * Tại sao: Tránh chặn UI luồng chính và đảm bảo thông báo kết bạn luôn tức thời khi mở game.
+     */
+    private void checkFriendRequestsBadge() {
+        if (gameApiService == null || vQuickFriendsRedDot == null) return;
+        gameApiService.getFriendRequests().enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray data = json.optJSONArray("data");
+                        if (data != null && data.length() > 0) {
+                            vQuickFriendsRedDot.setVisibility(View.VISIBLE);
+                        } else {
+                            vQuickFriendsRedDot.setVisibility(View.GONE);
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {}
+        });
     }
 
     private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores, int level, long exp) {

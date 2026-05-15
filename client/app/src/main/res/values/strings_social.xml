@@ -8,8 +8,15 @@
     <string name="social_stats_total">TOTAL FRIENDS</string>
     <string name="social_stats_online">ONLINE NOW</string>
     <string name="social_search_hint">Search by name or ID...</string>
+    <string name="social_search_hint_explore">Search user ID or name...</string>
+    <string name="social_search_hint_friends">Filter your friends...</string>
+    <string name="social_search_hint_requests">Filter requests...</string>
     <string name="social_empty_msg">The archive is silent...</string>
     <string name="social_explore_hint">NO NEW SUGGESTIONS</string>
+    <string name="social_friend_list_empty">You are a lonely little WAV...\nExpand your network so more people recognize your presence!</string>
+    <string name="social_msg_pull_cooldown">Please try again in %d seconds</string>
+    <string name="social_action_refresh">REFRESH</string>
+    <string name="social_msg_refresh_cooldown">Cooldown remaining: %ds</string>
     <string name="social_action_accept">Accept</string>
     <string name="social_action_decline">Decline</string>
     <string name="social_msg_opening_galactic_id">Loading Profile...</string>
@@ -115,7 +122,7 @@
     <string name="gift_label_sent_to">Sent to</string>
     <string name="social_label_gift_limit">DAILY GIFT LIMIT</string>
     <string name="social_msg_no_matches">No matches found</string>
-    <string name="social_msg_no_requests">No pending requests</string>
+    <string name="social_msg_no_requests">No incoming transmissions...\nThe signal space is quiet.</string>
     <string name="social_error_accept">Failed to accept</string>
     <string name="social_error_decline">Failed to decline</string>
 
@@ -147,4 +154,10 @@
     <string name="chat_msg_system">SYSTEM</string>
     <string name="chat_msg_you">You</string>
     <string name="chat_error_empty_message">Message cannot be empty</string>
+    <!-- QR Code Gateway -->
+    <string name="social_qr_tab_my_qr">My QR Code</string>
+    <string name="social_qr_tab_scan">Scan</string>
+    <string name="social_qr_my_code_label">Scan to Add Friend</string>
+    <string name="social_qr_scan_instruction">Align the QR code within the frame to scan.</string>
+    <string name="social_qr_camera_permission_required">Camera permission is required to scan QR codes.</string>
 </resources>

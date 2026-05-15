@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fragment Explore — Tìm bạn mới — NO HARDCODE — BASIC UI -->
+<!-- Fragment Explore — Tìm bạn mới — NO HARDCODE — PURE SKELETON UI -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -17,26 +17,35 @@
         android:textColor="@color/white_70"
         android:letterSpacing="0.1" />
 
-
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/spacing_20dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_search_results"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_explore"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false" />
+            android:layout_height="match_parent">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_search_results"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Skeleton Loading List (Dùng chung cho mọi trạng thái tải) -->
+        <include layout="@layout/layout_friend_skeleton_list" />
+
+        <!-- Trạng thái gợi ý rỗng căn giữa tuyệt đối -->
         <LinearLayout
             android:id="@+id/layout_search_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:visibility="gone">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -45,15 +54,6 @@
                 android:textColor="@color/white_25"
                 android:letterSpacing="0.1" />
         </LinearLayout>
-        
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/lottie_search_loading"
-            android:layout_width="@dimen/spacing_80dp"
-            android:layout_height="@dimen/spacing_80dp"
-            android:layout_gravity="center"
-            app:lottie_rawRes="@raw/loading"
-            android:visibility="gone" />
 
     </FrameLayout>
 </LinearLayout>
-

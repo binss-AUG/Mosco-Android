@@ -167,6 +167,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         setupViewModel();
         setupProfileRouting(view);
 
+        // Khởi tạo GameApiService dùng chung cho cả Owner và Guest để tránh NullPointerException khi bấm Like/Friend
+        gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
+
         if (isOwner) {
             setupSession();
         }
@@ -428,7 +431,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         // Không tái khởi tạo sessionManager — đã init ở onCreateView
         if (getContext() == null)
             return;
-        gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
         // Ưu tiên hiển thị Display Name, fallback về username
         String displayName = sessionManager.getIngameName();
@@ -512,92 +514,174 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         com.google.android.material.button.MaterialButton btnLike = v.findViewById(R.id.btn_like);
         com.google.android.material.button.MaterialButton btnFriend = v.findViewById(R.id.btn_add_friend);
         com.google.android.material.button.MaterialButton btnMsg = v.findViewById(R.id.btn_direct_message);
+        com.google.android.material.button.MaterialButton btnDecline = v.findViewById(R.id.btn_decline_request);
 
         // Quan sát dữ liệu để cập nhật trạng thái nút
         viewModel.getUserStats().observe(getViewLifecycleOwner(), stats -> {
             if (stats == null)
                 return;
 
-            // Update Like Button
-            if (isAdded() && getContext() != null) {
+            // Update Like Button (Cân bằng viền mờ sang trọng với nút Message)
+            if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
-                    btnLike.setBackgroundTintList(android.content.res.ColorStateList
-                            .valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                    btnLike.setTextColor(getResources().getColor(R.color.mosco_primary));
+                    btnLike.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
-                    btnLike.setBackgroundTintList(
-                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
+                    btnLike.setTextColor(getResources().getColor(R.color.mosco_white_70));
+                    btnLike.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_white_40)));
                 }
             }
 
-            // Update Friend Button
-            if (isAdded() && getContext() != null) {
+            // Update Friend Button & Decline Button
+            if (isAdded() && getContext() != null && btnFriend != null) {
+                if (btnDecline != null) {
+                    btnDecline.setVisibility(stats.getFriendshipStatus() == 3 ? View.VISIBLE : View.GONE);
+                }
+
                 switch (stats.getFriendshipStatus()) {
-                    case 1: // Pending
+                    case 3: // Nhận được lời mời -> Hiển thị nút Chấp nhận
+                        btnFriend.setText(R.string.social_action_accept);
+                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_success)));
+                        break;
+                    case 1: // Pending (Đã gửi lời mời)
                         btnFriend.setText(R.string.profile_btn_pending);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.palette_gold)));
+                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.palette_gold)));
                         break;
                     case 2: // Friends
                         btnFriend.setText(R.string.profile_btn_friends);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_success)));
+                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
                         break;
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
-                        btnFriend.setStrokeColor(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_outline)));
+                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
                         break;
                 }
             }
         });
 
-        btnLike.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            UserStats stats = viewModel.getUserStats().getValue();
-            if (stats != null && getContext() != null) {
-                // Toggle Like locally for Optimistic UI
-                stats.setLiked(!stats.isLiked());
-                stats.setLikesCount(stats.isLiked() ? stats.getLikesCount() + 1 : stats.getLikesCount() - 1);
+        if (btnLike != null) {
+            btnLike.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+                UserStats stats = viewModel.getUserStats().getValue();
+                if (stats != null && getContext() != null && targetUserId != null) {
+                    // Tại sao: Áp dụng Optimistic UI để giao diện phản hồi lập tức, lưu trạng thái gốc để tự động Rollback nếu mạng lỗi
+                    final boolean originalLiked = stats.isLiked();
+                    final int originalLikesCount = stats.getLikesCount();
 
-                // Update Local DB to trigger observer
-                android.content.Context appContext = getContext().getApplicationContext();
-                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
-                            .userStatsDao().insertUserStats(stats);
-                });
+                    stats.setLiked(!originalLiked);
+                    stats.setLikesCount(stats.isLiked() ? originalLikesCount + 1 : originalLikesCount - 1);
 
-                // [SYNC] Gửi lên Server để lưu trữ vĩnh viễn
-                syncStatsToServer(stats.getLikesCount(), stats.getFriendsCount());
-                // TODO: Gọi API Like chuyên sâu nếu cần phân biệt ai like ai
-            }
-        }));
+                    final android.content.Context appContext = getContext().getApplicationContext();
+                    com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                        com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                .userStatsDao().insertUserStats(stats);
+                    });
 
-        btnFriend.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            UserStats stats = viewModel.getUserStats().getValue();
-            if (stats == null || getContext() == null)
-                return;
+                    if (gameApiService != null) {
+                        gameApiService.likeProfile(targetUserId)
+                                .enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<java.util.Map<String, Object>>>() {
+                                    @Override
+                                    public void onResponse(
+                                            Call<com.vn.jet.mosco.model.ApiResponse<java.util.Map<String, Object>>> call,
+                                            Response<com.vn.jet.mosco.model.ApiResponse<java.util.Map<String, Object>>> response) {
+                                        if (response.isSuccessful() && response.body() != null) {
+                                            java.util.Map<String, Object> data = response.body().getData();
+                                            if (data != null && data.containsKey("likesCount")) {
+                                                try {
+                                                    int updatedLikes = ((Double) data.get("likesCount")).intValue();
+                                                    stats.setLikesCount(updatedLikes);
+                                                    com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                                                        com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                                                .userStatsDao().insertUserStats(stats);
+                                                    });
+                                                } catch (Exception ignored) {}
+                                            }
+                                        } else {
+                                            rollbackLikeAction(stats, originalLiked, originalLikesCount, appContext);
+                                        }
+                                    }
 
-            if (stats.getFriendshipStatus() == 2) {
-                showUnfriendDialog();
-            } else if (stats.getFriendshipStatus() == 1) {
-                showCancelRequestDialog();
-            } else {
-                // Send Request
-                stats.setFriendshipStatus(1);
-                android.content.Context appContext = getContext().getApplicationContext();
-                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                    com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
-                            .userStatsDao().insertUserStats(stats);
-                });
-                Toast.makeText(getContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT)
-                        .show();
+                                    @Override
+                                    public void onFailure(
+                                            Call<com.vn.jet.mosco.model.ApiResponse<java.util.Map<String, Object>>> call,
+                                            Throwable t) {
+                                        rollbackLikeAction(stats, originalLiked, originalLikesCount, appContext);
+                                    }
+                                });
+                    }
+                }
+            }));
+        }
 
-                // [SYNC] Gửi yêu cầu kết bạn lên Server
-                // TODO: Gọi API /api/friends/add
-                syncStatsToServer(null, stats.getFriendsCount());
-            }
-        }));
+        if (btnFriend != null) {
+            btnFriend.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+                UserStats stats = viewModel.getUserStats().getValue();
+                if (stats == null || getContext() == null || targetUserId == null)
+                    return;
+
+                if (stats.getFriendshipStatus() == 3) {
+                    // Nhận được lời mời -> Bấm vào là Chấp nhận ngay
+                    final int originalStatus = stats.getFriendshipStatus();
+                    stats.setFriendshipStatus(2);
+                    stats.setFriendsCount(stats.getFriendsCount() + 1);
+                    final android.content.Context appContext = getContext().getApplicationContext();
+                    com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                        com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                .userStatsDao().insertUserStats(stats);
+                    });
+                    Toast.makeText(getContext(), getString(R.string.common_msg_success), Toast.LENGTH_SHORT).show();
+
+                    if (gameApiService != null) {
+                        gameApiService.acceptFriendByUser(targetUserId).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<Void>>() {
+                            @Override
+                            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Response<com.vn.jet.mosco.model.ApiResponse<Void>> response) {
+                                if (!response.isSuccessful()) {
+                                    rollbackFriendStatus(stats, originalStatus, appContext);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Throwable t) {
+                                rollbackFriendStatus(stats, originalStatus, appContext);
+                            }
+                        });
+                    }
+                } else if (stats.getFriendshipStatus() == 2) {
+                    showUnfriendDialog();
+                } else if (stats.getFriendshipStatus() == 1) {
+                    showCancelRequestDialog();
+                } else {
+                    // Tại sao: Cập nhật giao diện PENDING ngay lập tức để người dùng biết đã gửi yêu cầu
+                    final int originalStatus = stats.getFriendshipStatus();
+                    stats.setFriendshipStatus(1);
+                    final android.content.Context appContext = getContext().getApplicationContext();
+                    com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                        com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                .userStatsDao().insertUserStats(stats);
+                    });
+                    Toast.makeText(getContext(), getString(R.string.profile_msg_friend_request_sent), Toast.LENGTH_SHORT).show();
+
+                    if (gameApiService != null) {
+                        java.util.Map<String, Long> body = new java.util.HashMap<>();
+                        body.put("addresseeId", targetUserId);
+                        gameApiService.addFriend(body).enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                if (!response.isSuccessful()) {
+                                    rollbackFriendStatus(stats, originalStatus, appContext);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                rollbackFriendStatus(stats, originalStatus, appContext);
+                            }
+                        });
+                    }
+                }
+            }));
+        }
 
         btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
             View chatContainer = getView() != null ? getView().findViewById(R.id.layout_private_chat_container) : null;
@@ -780,25 +864,110 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
             }
         }));
+        if (btnDecline != null) {
+            btnDecline.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+                UserStats stats = viewModel.getUserStats().getValue();
+                if (stats != null && getContext() != null && targetUserId != null) {
+                    final int originalStatus = stats.getFriendshipStatus();
+                    stats.setFriendshipStatus(0);
+                    final android.content.Context appContext = getContext().getApplicationContext();
+                    com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                        com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                                .userStatsDao().insertUserStats(stats);
+                    });
+
+                    if (gameApiService != null) {
+                        gameApiService.removeFriendByUser(targetUserId).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<Void>>() {
+                            @Override
+                            public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Response<com.vn.jet.mosco.model.ApiResponse<Void>> response) {
+                                if (!response.isSuccessful()) {
+                                    rollbackFriendStatus(stats, originalStatus, appContext);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Throwable t) {
+                                rollbackFriendStatus(stats, originalStatus, appContext);
+                            }
+                        });
+                    }
+                }
+            }));
+        }
+
+        if (btnMsg != null) {
+            btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
+                Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast), Toast.LENGTH_SHORT).show();
+            }));
+        }
+    }
+
+    private void rollbackLikeAction(UserStats stats, boolean originalLiked, int originalLikesCount, android.content.Context appContext) {
+        stats.setLiked(originalLiked);
+        stats.setLikesCount(originalLikesCount);
+        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+            com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                    .userStatsDao().insertUserStats(stats);
+        });
+        if (isAdded() && getContext() != null) {
+            Toast.makeText(getContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void rollbackFriendStatus(UserStats stats, int originalStatus, android.content.Context appContext) {
+        stats.setFriendshipStatus(originalStatus);
+        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+            com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                    .userStatsDao().insertUserStats(stats);
+        });
+        if (isAdded() && getContext() != null) {
+            Toast.makeText(getContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void rollbackFriendRemoval(UserStats stats, int originalStatus, int originalCount, android.content.Context appContext) {
+        stats.setFriendshipStatus(originalStatus);
+        stats.setFriendsCount(originalCount);
+        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+            com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
+                    .userStatsDao().insertUserStats(stats);
+        });
+        if (isAdded() && getContext() != null) {
+            Toast.makeText(getContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showUnfriendDialog() {
         showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?",
                 () -> {
                     UserStats stats = viewModel.getUserStats().getValue();
-                    if (stats != null && getContext() != null) {
+                    if (stats != null && getContext() != null && targetUserId != null) {
+                        final int originalStatus = stats.getFriendshipStatus();
+                        final int originalCount = stats.getFriendsCount();
                         stats.setFriendshipStatus(0);
-                        stats.setFriendsCount(Math.max(0, stats.getFriendsCount() - 1));
+                        stats.setFriendsCount(Math.max(0, originalCount - 1));
 
-                        android.content.Context appContext = getContext().getApplicationContext();
+                        final android.content.Context appContext = getContext().getApplicationContext();
                         com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
                             com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
                                     .userStatsDao().insertUserStats(stats);
                         });
 
-                        // [SYNC] Cập nhật số bạn bè lên Server
-                        syncStatsToServer(null, stats.getFriendsCount());
-                        // TODO: Gọi API /api/friends/remove
+                        if (gameApiService != null) {
+                            gameApiService.removeFriendByUser(targetUserId).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<Void>>() {
+                                @Override
+                                public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Response<com.vn.jet.mosco.model.ApiResponse<Void>> response) {
+                                    if (!response.isSuccessful()) {
+                                        rollbackFriendRemoval(stats, originalStatus, originalCount, appContext);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Throwable t) {
+                                    rollbackFriendRemoval(stats, originalStatus, originalCount, appContext);
+                                }
+                            });
+                        }
                     }
                 });
     }
@@ -806,18 +975,31 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private void showCancelRequestDialog() {
         showFriendActionDialog("Cancel Request?", "Do you want to cancel your friend request?", () -> {
             UserStats stats = viewModel.getUserStats().getValue();
-            if (stats != null && getContext() != null) {
+            if (stats != null && getContext() != null && targetUserId != null) {
+                final int originalStatus = stats.getFriendshipStatus();
                 stats.setFriendshipStatus(0);
 
-                android.content.Context appContext = getContext().getApplicationContext();
+                final android.content.Context appContext = getContext().getApplicationContext();
                 com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
                     com.vn.jet.mosco.database.AppDatabase.getInstance(appContext)
                             .userStatsDao().insertUserStats(stats);
                 });
 
-                // [SYNC] Đồng bộ trạng thái hủy yêu cầu
-                syncStatsToServer(null, stats.getFriendsCount());
-                // TODO: Gọi API hủy kết bạn chuyên sâu
+                if (gameApiService != null) {
+                    gameApiService.removeFriendByUser(targetUserId).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<Void>>() {
+                        @Override
+                        public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Response<com.vn.jet.mosco.model.ApiResponse<Void>> response) {
+                            if (!response.isSuccessful()) {
+                                rollbackFriendStatus(stats, originalStatus, appContext);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<Void>> call, Throwable t) {
+                            rollbackFriendStatus(stats, originalStatus, appContext);
+                        }
+                    });
+                }
             }
         });
     }
