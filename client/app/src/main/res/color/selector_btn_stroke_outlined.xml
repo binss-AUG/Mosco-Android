@@ -3,5 +3,5 @@
     <!-- Tắt: Viền xám tối -->
     <item android:color="@color/mosco_btn_disabled" android:state_enabled="false" />
     <!-- Bật: Viền ảo mờ (Ghost border) -->
-    <item android:color="@color/mosco_outline_variant" />
+    <item android:color="@color/lg_outline" />
 </selector>

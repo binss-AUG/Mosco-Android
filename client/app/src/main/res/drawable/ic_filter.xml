@@ -5,7 +5,8 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="@color/mosco_on_surface"
+        android:fillColor="@color/lg_text_primary"
         android:pathData="M4,6h16v2L13,14v6l-2,-1v-5L4,8z" />
 </vector>
+
 

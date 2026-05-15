@@ -76,7 +76,7 @@ public class ObjetDetailBinder {
             if (objet.getBackgroundColor() != null && objet.getBackgroundColor().startsWith("#")) {
                 bgColor = Color.parseColor(objet.getBackgroundColor());
             } else {
-                bgColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_primary);
+                bgColor = androidx.core.content.ContextCompat.getColor(context, R.color.lg_accent_primary);
             }
 
             int txtColor;
@@ -191,7 +191,7 @@ public class ObjetDetailBinder {
             int strokeWidth = dpToPx(context, 1);
             int blurredBorderColor = androidx.core.graphics.ColorUtils.setAlphaComponent(bgColor, 128);
 
-            int topColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_surface);
+            int topColor = androidx.core.content.ContextCompat.getColor(context, R.color.lg_background);
             int bottomColor = androidx.core.graphics.ColorUtils.blendARGB(topColor, bgColor, 0.5f);
             GradientDrawable rootBg = new GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
@@ -419,7 +419,7 @@ public class ObjetDetailBinder {
             // ── 10. Chức năng Rã thẻ (Recycle) ───────────────────────────
             ImageView btnRecycle = dialog.findViewById(R.id.btn_recycle_detail);
             if (btnRecycle != null) {
-                int disabledColor = androidx.core.content.ContextCompat.getColor(context, R.color.mosco_text_disabled);
+                int disabledColor = androidx.core.content.ContextCompat.getColor(context, R.color.lg_text_disabled);
                 btnRecycle.setImageTintList(ColorStateList.valueOf(disabledColor));
             }
 
@@ -497,3 +497,4 @@ public class ObjetDetailBinder {
         public int getOpacity() { return android.graphics.PixelFormat.TRANSLUCENT; }
     }
 }
+

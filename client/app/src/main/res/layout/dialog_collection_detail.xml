@@ -3,324 +3,193 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:layout_marginHorizontal="@dimen/spacing_lg"
+    android:layout_height="match_parent"
     android:clipChildren="false"
-    android:clipToPadding="false"
-    android:paddingVertical="@dimen/spacing_xl">
+    android:clipToPadding="false">
 
-    <!-- Container tỷ lệ vé 1:1.75 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/ticket_container"
+    <!-- [LIQUID GLASS] Main Background Surface (Obsidian Obsidian) -->
+    <View
+        android:id="@+id/dialog_glass_bg"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        app:layout_constraintDimensionRatio="1:1.75"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/lg_glass_dialog_bg" />
 
-        <!-- Nền Ticket -->
-        <com.vn.jet.mosco.utils.TicketBackgroundView
-            android:id="@+id/ticket_bg"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Drag Handle (Pull down to dismiss) -->
+    <View
+        android:id="@+id/view_drag_handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:background="@color/lg_glass_stroke_strong"
+        android:alpha="0.5"
+        app:layout_constraintTop_toTopOf="@id/dialog_glass_bg"
+        app:layout_constraintStart_toStartOf="@id/dialog_glass_bg"
+        app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg" />
 
-        <!-- Đường cơ sở khuyết tròn (đọc tỉ lệ từ resource, không hardcode) -->
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guide_notch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.75" />
+    <!-- ═══ TOP CONTROL BAR ═══ -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_top_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        app:layout_constraintTop_toBottomOf="@id/view_drag_handle"
+        app:layout_constraintStart_toStartOf="@id/dialog_glass_bg"
+        app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg">
 
-        <!-- Nút đóng -->
-        <ImageView
-            android:id="@+id/btn_close_collection_detail"
-            android:layout_width="@dimen/spacing_xl"
-            android:layout_height="@dimen/spacing_xl"
-            android:src="@drawable/ic_close"
-            android:padding="@dimen/spacing_xs"
-            android:layout_margin="@dimen/radius_lg"
-            app:tint="@color/mosco_white_60"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Name Tag Bubble (Top Position - Balanced Premium Style) -->
+        <!-- OBJET NAME TITLE (Center) -->
         <TextView
             android:id="@+id/tv_detail_card_name"
-            style="@style/MoscoText.Luxury"
-            android:layout_width="wrap_content"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:background="@drawable/bg_card_name_tag"
-            android:paddingHorizontal="@dimen/spacing_16dp"
-            android:paddingVertical="@dimen/spacing_4dp"
+            android:layout_marginHorizontal="@dimen/spacing_md"
+            android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="@dimen/text_16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/btn_close_collection_detail"
+            android:letterSpacing="0.05"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="SeoAh A2 316Z" />
 
-        <!-- Vùng chứa thẻ bài (Shrunk variant for Modern Look) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_album_card_container"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/spacing_md"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:layout_marginHorizontal="@dimen/card_detail_margin_horizontal"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_constraintDimensionRatio="1:1.54"
-            app:layout_constraintTop_toBottomOf="@id/tv_detail_card_name"
-            app:layout_constraintBottom_toTopOf="@id/guide_notch"
-            app:layout_constraintStart_toStartOf="parent"
+        <!-- Send/Gift Button (Right) -->
+        <FrameLayout
+            android:id="@+id/btn_send_gift"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_glass_square"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:cardBackgroundColor="@color/lg_glass_surface_elevated"
-            app:cardCornerRadius="@dimen/radius_lg"
-            app:cardElevation="@dimen/spacing_sm">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <!-- Unified Card Content -->
-                <include layout="@layout/layout_core_card" />
-
-                <!-- Lock Icon (Góc trên phải) -->
-                <ImageView
-                    android:id="@+id/iv_detail_lock"
-                    android:layout_width="@dimen/spacing_lg"
-                    android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_lock"
-                    android:layout_margin="@dimen/spacing_sm"
-                    app:tint="@color/mosco_gold"
-                    android:visibility="gone"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <!-- Back Face -->
-                <ImageView
-                    android:id="@+id/iv_collection_back"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/objet_back_spin"
-                    android:visibility="gone" />
-
-                <!-- Locked Overlay (Phủ xám + Mặt buồn khóc) -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/layout_locked_overlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/lg_glass_surface_elevated"
-                    android:visibility="gone"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_locked_emoji"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="(╥﹏╥)"
-                        android:textColor="@color/mosco_white_30"
-                        android:textSize="40sp"
-                        android:textStyle="bold"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintVertical_bias="0.45" />
-
-                    <TextView
-                        android:id="@+id/tv_locked_sad_notice"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/collection_album_not_collected"
-                        android:textColor="@color/mosco_white_40"
-                        android:textSize="@dimen/text_size_body_xs"
-                        android:textStyle="bold"
-                        android:fontWeight="700"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/spacing_lg"
-                        style="@style/MoscoText.Luxury.Body"
-                        app:layout_constraintTop_toBottomOf="@id/tv_locked_emoji"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginTop="@dimen/radius_lg" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <View
-            android:id="@+id/divider_ticket"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/stroke_thin"
-            android:layout_marginHorizontal="@dimen/spacing_20dp"
-            android:background="@color/mosco_white_15"
-            app:layout_constraintTop_toTopOf="@id/guide_notch"
-            app:layout_constraintBottom_toBottomOf="@id/guide_notch"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Cụm Content dưới -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingTop="@dimen/spacing_sm"
-            android:paddingBottom="@dimen/spacing_md"
-            android:gravity="center_horizontal"
-            app:layout_constraintTop_toBottomOf="@id/guide_notch"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <!-- Hệ thống Ghost Buttons (Dọc) -->
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Container cho Thẻ CHƯA sở hữu -->
-                    <LinearLayout
-                        android:id="@+id/layout_buttons_locked"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <include
-                            android:id="@+id/item_btn_spin"
-                            layout="@layout/item_ghost_menu" />
-
-                        <View android:layout_width="match_parent" android:layout_height="@dimen/spacing_sm" />
-
-                        <include
-                            android:id="@+id/item_btn_shop"
-                            layout="@layout/item_ghost_menu" />
-                    </LinearLayout>
-
-                    <!-- Container cho Thẻ ĐÃ sở hữu -->
-                    <LinearLayout
-                        android:id="@+id/layout_buttons_owned"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <include
-                            android:id="@+id/item_btn_take_photo"
-                            layout="@layout/item_ghost_menu" />
-
-                        <!-- Tương tác Get more (Chỉ hiện khi đã từng có nhưng hiện tại kho đồ trống) -->
-                        <LinearLayout
-                            android:id="@+id/layout_get_more_expandable"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal"
-                            android:visibility="gone"
-                            android:layout_marginTop="@dimen/spacing_xs">
-
-                            <LinearLayout
-                                android:id="@+id/btn_get_more_header"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:padding="@dimen/spacing_sm"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/action_get_more"
-                                    android:textColor="@color/mosco_white_60"
-                                    android:textSize="@dimen/text_size_body_xs"
-                                    android:textStyle="bold"
-                                    android:fontWeight="700"
-                                    style="@style/MoscoText.Luxury.Body" />
-
-                                <ImageView
-                                    android:id="@+id/iv_get_more_arrow"
-                                    android:layout_width="@dimen/spacing_14dp"
-                                    android:layout_height="@dimen/spacing_14dp"
-                                    android:layout_marginStart="@dimen/spacing_xs"
-                                    android:src="@drawable/ic_arrow_down"
-                                    app:tint="@color/mosco_white_60" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:id="@+id/layout_get_more_content"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:visibility="gone"
-                                android:alpha="0"
-                                android:layout_marginTop="@dimen/spacing_xs">
-
-                                <include
-                                    android:id="@+id/item_btn_shop_secondary"
-                                    layout="@layout/item_ghost_menu" />
-
-                                <View android:layout_width="match_parent" android:layout_height="@dimen/spacing_sm" />
-
-                                <include
-                                    android:id="@+id/item_btn_spin_secondary"
-                                    layout="@layout/item_ghost_menu" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <View 
-                            android:id="@+id/spacer_owned_1"
-                            android:layout_width="match_parent" 
-                            android:layout_height="@dimen/spacing_sm" />
-
-                        <include
-                            android:id="@+id/item_btn_send"
-                            layout="@layout/item_ghost_menu" />
-
-                        <View 
-                            android:id="@+id/spacer_owned_2"
-                            android:layout_width="match_parent" 
-                            android:layout_height="@dimen/spacing_sm" />
-
-                        <include
-                            android:id="@+id/item_btn_upgrade"
-                            layout="@layout/item_ghost_menu" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
-
-        </LinearLayout>
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_send"
+                app:tint="@color/white" />
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- ═══ CENTER: THE CARD ═══ -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_album_card_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="48dp"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginBottom="120dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:cardBackgroundColor="@color/transparent"
+        app:cardElevation="20dp"
+        app:cardCornerRadius="20dp"
+        app:layout_constraintDimensionRatio="1:1.54"
+        app:layout_constraintTop_toBottomOf="@id/layout_top_controls"
+        app:layout_constraintBottom_toBottomOf="@id/dialog_glass_bg"
+        app:layout_constraintStart_toStartOf="@id/dialog_glass_bg"
+        app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include layout="@layout/layout_core_card" />
+
+            <!-- Card Back (for Flip) -->
+            <ImageView
+                android:id="@+id/iv_collection_back"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/objet_back_spin"
+                android:visibility="gone" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- ═══ BOTTOM CONTROLS ═══ -->
+    
+    <!-- Pin Button (Bottom Left) -->
+    <FrameLayout
+        android:id="@+id/btn_pin_card"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="@dimen/spacing_lg"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:background="@drawable/bg_glass_square"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@id/dialog_glass_bg"
+        app:layout_constraintStart_toStartOf="@id/dialog_glass_bg">
+        <ImageView
+            android:id="@+id/iv_pin_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pin"
+            app:tint="@color/white_60" />
+    </FrameLayout>
+
+    <!-- Right Side Actions (Photo & Upgrade) -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_right_actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/spacing_lg"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@id/dialog_glass_bg"
+        app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg">
+
+        <!-- Capture Photo Button -->
+        <FrameLayout
+            android:id="@+id/btn_capture_photo"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:background="@drawable/bg_glass_square"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_camera"
+                app:tint="@color/white" />
+        </FrameLayout>
+
+        <!-- Upgrade Button -->
+        <FrameLayout
+            android:id="@+id/btn_upgrade_detail"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_glass_square"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_arrow_up"
+                app:tint="@color/white" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- Legacy Views (Keep IDs for Binder but hide if not used) -->
+    <View android:id="@+id/ticket_container" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/ticket_bg" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/layout_buttons_owned" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/layout_buttons_locked" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/layout_locked_overlay" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/guide_notch" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+    <View android:id="@+id/divider_ticket" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-

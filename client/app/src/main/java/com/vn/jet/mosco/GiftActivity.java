@@ -614,8 +614,8 @@ public class GiftActivity extends MoscoBaseActivity {
         layoutStep3.setVisibility(View.GONE);
 
         // Reset màu indicator — dùng color resource thay vì hardcode
-        int activeColor = getResources().getColor(R.color.mosco_primary, getTheme());
-        int dimColor = getResources().getColor(R.color.mosco_text_dim, getTheme());
+        int activeColor = getResources().getColor(R.color.lg_accent_primary, getTheme());
+        int dimColor = getResources().getColor(R.color.lg_text_dim, getTheme());
 
         tvStep1.setTextColor(step >= 1 ? activeColor : dimColor);
         tvStep2.setTextColor(step >= 2 ? activeColor : dimColor);
@@ -659,3 +659,4 @@ public class GiftActivity extends MoscoBaseActivity {
         }
     }
 }
+

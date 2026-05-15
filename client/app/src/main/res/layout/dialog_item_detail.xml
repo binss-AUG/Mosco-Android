@@ -47,7 +47,7 @@
             android:gravity="center"
             style="@style/MoscoText.Luxury.Body"
             android:textSize="@dimen/text_size_body_sm"
-            android:textColor="@color/mosco_on_surface_variant"
+            android:textColor="@color/mosco_white_50"
             android:text="@string/common_label_item_desc" />
 
         <TextView

@@ -66,8 +66,8 @@ public class GalacticBackgroundView extends View {
         particles = new ArrayList<>();
         startTime = System.currentTimeMillis();
         
-        primaryColor = ContextCompat.getColor(getContext(), R.color.mosco_primary);
-        primaryDimColor = ContextCompat.getColor(getContext(), R.color.mosco_primary_dim);
+        primaryColor = ContextCompat.getColor(getContext(), R.color.lg_accent_primary);
+        primaryDimColor = ContextCompat.getColor(getContext(), R.color.lg_accent_primary_dim);
 
         planetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         particlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -304,3 +304,4 @@ public class GalacticBackgroundView extends View {
         }
     }
 }
+

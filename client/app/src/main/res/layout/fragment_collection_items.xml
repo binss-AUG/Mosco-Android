@@ -10,59 +10,14 @@
         android:id="@+id/appbar_items"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/lg_background"
+        android:background="@android:color/transparent"
         app:liftOnScroll="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Title Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:paddingTop="@dimen/spacing_20dp"
-                android:paddingBottom="@dimen/spacing_xs">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/bg_currency_bar"
-                    android:gravity="bottom"
-                    android:paddingVertical="@dimen/spacing_6dp"
-                    android:paddingStart="@dimen/spacing_6dp"
-                    android:paddingEnd="@dimen/radius_lg"
-                    android:layout_marginTop="@dimen/spacing_2dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_idle_items"
-                        style="@style/MoscoButton.IconGlass"
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:padding="9dp"
-                        app:icon="@drawable/ic_items"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="@dimen/spacing_lg" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/collection_tab_items"
-                        android:layout_marginStart="@dimen/spacing_10dp"
-                        style="@style/MoscoText.Luxury.SubHeader"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/text_size_body_md"
-                        android:textStyle="bold"
-                        android:fontWeight="700"/>
-
-                </LinearLayout>
-            </LinearLayout>
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <!-- Standardized Filter Bar -->
             <LinearLayout
@@ -70,9 +25,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/radius_lg"
-                android:paddingTop="@dimen/radius_lg"
-                android:paddingBottom="@dimen/spacing_sm">
+                android:background="@drawable/lg_surface_filter_bar"
+                android:layout_marginHorizontal="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:paddingTop="@dimen/spacing_xs"
+                android:paddingBottom="@dimen/spacing_xs">
 
                 <com.vn.jet.mosco.view.InventoryFilterBar
                     android:id="@+id/filter_bar_items"
@@ -87,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_sm"
                     android:text="@string/inventory_format_items_count"
-                    android:textColor="@color/mosco_text_disabled"
+                    android:textColor="@color/mosco_white_30"
                     android:textSize="@dimen/text_size_body_xs" />
             </LinearLayout>
 
@@ -116,5 +74,6 @@
         android:elevation="@dimen/spacing_sm" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 

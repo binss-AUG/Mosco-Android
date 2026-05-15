@@ -49,8 +49,9 @@
         android:layout_marginHorizontal="@dimen/spacing_xl"
         android:text="@string/profile_btn_add_friend"
         android:textColor="@color/white"
-        app:strokeColor="@color/mosco_outline"
+        app:strokeColor="@color/lg_outline"
         app:cornerRadius="@dimen/radius_md"
         app:icon="@null" />
 
 </LinearLayout>
+

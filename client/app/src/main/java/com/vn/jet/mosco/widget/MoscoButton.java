@@ -65,12 +65,14 @@ public class MoscoButton extends AppCompatButton {
         applyStyleAndSize();
         setGravity(Gravity.CENTER);
         setAllCaps(false);
-        // Chặn viết hoa để giữ vẻ hiện đại
         setTypeface(getTypeface(), android.graphics.Typeface.BOLD);
+        
+        // Apply Liquid Glass Interaction Animator globally
+        android.animation.StateListAnimator animator = android.animation.AnimatorInflater.loadStateListAnimator(getContext(), R.animator.lg_btn_state_animator);
+        setStateListAnimator(animator);
     }
 
     private void applyStyleAndSize() {
-        // 1. Cấu hình Kích thước (Size)
         int height;
         float textSize;
         int paddingSide;
@@ -99,29 +101,23 @@ public class MoscoButton extends AppCompatButton {
         setTextSize(textSize);
         setPadding(paddingSide, 0, paddingSide, 0);
 
-        // 2. Cấu hình Kiểu dáng (Style)
         switch (currentStyle) {
             case STYLE_SECONDARY:
-                setBackgroundResource(R.drawable.bg_btn_secondary);
-                setTextColor(ContextCompat.getColor(getContext(), R.color.mosco_on_surface));
+                setBackgroundResource(R.drawable.lg_btn_secondary);
+                setTextColor(ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                 break;
             case STYLE_GHOST:
-                setBackgroundResource(R.drawable.bg_btn_ghost_outlined);
-                setTextColor(ContextCompat.getColor(getContext(), R.color.mosco_white_80));
+                setBackgroundResource(R.drawable.lg_btn_ghost);
+                setTextColor(ContextCompat.getColor(getContext(), R.color.lg_text_secondary));
                 break;
             case STYLE_DESTRUCTIVE:
-                setBackgroundResource(R.drawable.bg_btn_destructive);
+                setBackgroundResource(R.drawable.bg_btn_destructive); // Keep as fallback if used
                 setTextColor(Color.WHITE);
                 break;
             case STYLE_PRIMARY:
             default:
-                if (currentSize == SIZE_LARGE) {
-                    // Ưu tiên Rainbow cho nút chính kích thước lớn (chuẩn Spin)
-                    setBackgroundResource(R.drawable.bg_btn_rainbow);
-                } else {
-                    setBackgroundResource(R.drawable.selector_btn_bg_primary);
-                }
-                setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+                setBackgroundResource(R.drawable.lg_btn_primary);
+                setTextColor(ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                 break;
         }
     }
@@ -146,3 +142,4 @@ public class MoscoButton extends AppCompatButton {
         setAlpha(enabled ? 1.0f : 0.5f);
     }
 }
+

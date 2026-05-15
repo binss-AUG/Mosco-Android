@@ -452,7 +452,7 @@ public class FormationActivity extends MoscoBaseActivity {
         container.setOrientation(android.widget.LinearLayout.VERTICAL);
         
         android.graphics.drawable.GradientDrawable gd = new android.graphics.drawable.GradientDrawable();
-        gd.setColor(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_surface_container_high_80)); 
+        gd.setColor(androidx.core.content.ContextCompat.getColor(this, R.color.lg_glass_surface_elevated)); 
         gd.setCornerRadius(getResources().getDimension(R.dimen.radius_lg));
         gd.setStroke(2, androidx.core.content.ContextCompat.getColor(this, R.color.white_25));
         container.setBackground(gd);
@@ -647,3 +647,4 @@ public class FormationActivity extends MoscoBaseActivity {
         return (x > viewX && x < (viewX + view.getWidth()) && y > viewY && y < (viewY + view.getHeight()));
     }
 }
+

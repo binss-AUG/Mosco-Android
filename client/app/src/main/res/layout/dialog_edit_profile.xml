@@ -20,7 +20,7 @@
             android:textStyle="bold"
             android:fontWeight="700" />
 
-        <!-- Username (cho sửa) -->
+        <!-- Username (cho sá»­a) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_edit_username"
             android:layout_width="match_parent"
@@ -36,7 +36,7 @@
                 android:id="@+id/edt_edit_username"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_52dp"
-                android:background="@drawable/bg_glass_input"
+                android:background="@drawable/lg_input_bg"
                 android:drawableStart="@drawable/ic_user"
                 android:drawablePadding="@dimen/radius_lg"
                 style="@style/MoscoText.Luxury.Body"
@@ -50,7 +50,7 @@
                 android:textSize="@dimen/text_size_body_sm" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Email (KHÔNG cho sửa — read only) -->
+        <!-- Email (KHÃ”NG cho sá»­a â€” read only) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_edit_email"
             android:layout_width="match_parent"
@@ -63,7 +63,7 @@
                 android:id="@+id/edt_edit_email"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_52dp"
-                android:background="@drawable/bg_glass_input"
+                android:background="@drawable/lg_input_bg"
                 android:drawableStart="@drawable/ic_email"
                 android:drawablePadding="@dimen/radius_lg"
                 android:enabled="false"
@@ -78,7 +78,7 @@
                 android:textSize="@dimen/text_size_body_sm" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Display Name (cho sửa) -->
+        <!-- Display Name (cho sá»­a) -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_edit_display_name"
             android:layout_width="match_parent"
@@ -91,13 +91,13 @@
             app:errorIconDrawable="@null"
             app:counterEnabled="true"
             app:counterMaxLength="16"
-            app:counterTextColor="@color/mosco_text_disabled">
+            app:counterTextColor="@color/mosco_white_30">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_edit_display_name"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_52dp"
-                android:background="@drawable/bg_glass_input"
+                android:background="@drawable/lg_input_bg"
                 android:drawableStart="@drawable/ic_profile"
                 android:drawablePadding="@dimen/radius_lg"
                 style="@style/MoscoText.Luxury.Body"
@@ -141,5 +141,6 @@
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 

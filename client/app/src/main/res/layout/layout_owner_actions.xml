@@ -24,7 +24,7 @@
             android:layout_marginEnd="@dimen/spacing_xs"
             android:text="@string/profile_btn_edit"
             android:textColor="@color/white"
-            app:strokeColor="@color/mosco_outline"
+            app:strokeColor="@color/lg_outline"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@drawable/ic_edit_pen"
             app:iconTint="@color/white" />
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:text="@string/profile_btn_settings"
             android:textColor="@color/white"
-            app:strokeColor="@color/mosco_outline"
+            app:strokeColor="@color/lg_outline"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@drawable/ic_settings"
             app:iconTint="@color/white" />
@@ -55,3 +55,4 @@
         app:iconTint="@color/lg_accent_primary" />
 
 </LinearLayout>
+

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/radius_lg"
-    app:cardBackgroundColor="@color/mosco_surface"
+    app:cardBackgroundColor="@color/lg_background"
     app:cardCornerRadius="@dimen/spacing_md">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +21,7 @@
             android:layout_height="@dimen/spacing_xl"
             android:padding="@dimen/spacing_xs"
             android:src="@drawable/ic_close"
-            app:tint="@color/mosco_on_surface"
+            app:tint="@color/white"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -42,7 +42,7 @@
                 android:layout_height="@dimen/spacing_44dp"
                 android:padding="@dimen/spacing_10dp"
                 android:src="@drawable/ic_recycle"
-                app:tint="@color/mosco_on_surface_variant"
+                app:tint="@color/mosco_white_50"
                 android:background="@drawable/bg_circle_dark"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -51,7 +51,7 @@
             <!-- Level Up Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_level_up_detail"
-                style="@style/MoscoButton.Primary"
+                style="@style/LiquidGlass_Button_Primary"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_44dp"
                 android:layout_marginStart="@dimen/spacing_sm"
@@ -83,7 +83,7 @@
             <!-- UPGRADE Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_upgrade_detail"
-                style="@style/MoscoButton.Primary"
+                style="@style/LiquidGlass_Button_Primary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Upgrade"
@@ -123,7 +123,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_hp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_hp" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_hp" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
                     <TextView android:id="@+id/tv_stat_hp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" android:textColor="@color/stat_hp" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
@@ -136,7 +136,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_atk" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_atk" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_atk" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
                     <TextView android:id="@+id/tv_stat_atk" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" android:textColor="@color/stat_atk" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
@@ -149,7 +149,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_def" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_def" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_def" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
                     <TextView android:id="@+id/tv_stat_def" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" android:textColor="@color/stat_def" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
@@ -162,7 +162,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_crit_rate" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_rate" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_rate" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
                     <TextView android:id="@+id/tv_stat_crit_rate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="100%" android:textColor="@color/stat_crit_rate" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
@@ -174,8 +174,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_speed"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_spd" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
-                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" android:textColor="@color/mosco_on_surface" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_spd" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" android:textColor="@color/white" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
                 <!-- Crit DMG -->
@@ -186,7 +186,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_crit_dame" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_dmg" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_dmg" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.Body" />
                     <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="200%" android:textColor="@color/lg_accent_primary" android:textSize="@dimen/text_size_body_md" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
                 </LinearLayout>
 
@@ -212,8 +212,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-                <TextView android:id="@+id/tv_level_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Level 1" android:textColor="@color/mosco_on_surface" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
-                <TextView android:id="@+id/tv_level_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9 / 100" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_xs" style="@style/MoscoText.Luxury.Body" android:textStyle="bold" android:fontWeight="700" />
+                <TextView android:id="@+id/tv_level_label" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Level 1" android:textColor="@color/white" android:textSize="@dimen/text_size_body_sm" style="@style/MoscoText.Luxury.SubHeader" android:textStyle="bold" android:fontWeight="700" />
+                <TextView android:id="@+id/tv_level_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9 / 100" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_xs" style="@style/MoscoText.Luxury.Body" android:textStyle="bold" android:fontWeight="700" />
             </LinearLayout>
 
             <ProgressBar android:id="@+id/pb_level" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="@dimen/spacing_lg" android:layout_marginTop="@dimen/spacing_10dp" android:progress="9" android:max="100" android:progressDrawable="@drawable/bg_progress_glow" />
@@ -232,7 +232,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Vùng 30% -->
+            <!-- VÃ¹ng 30% -->
             <TextView
                 android:id="@+id/tv_badge_class"
                 android:layout_width="0dp"
@@ -246,7 +246,7 @@
                 android:textStyle="bold"
                 android:fontWeight="700" />
 
-            <!-- Vùng 70% -->
+            <!-- VÃ¹ng 70% -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="0.7"
@@ -361,4 +361,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+
+
 

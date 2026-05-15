@@ -82,8 +82,15 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     
     // Dashboard Modules
     private View cvModuleStreak, btnFullRank;
-    private TextView tvModuleStreakVal;
-    private com.airbnb.lottie.LottieAnimationView lottieModuleStreak, lottieModuleStreakGlow;
+
+    // Header Buttons & Badges
+    private View btnFriends, btnMailbox, btnShop;
+    private TextView tvBadgeFriends, tvBadgeMailbox, tvBadgeShop;
+    
+    // Avatar Streak overlay
+    private View flStreakAvatar;
+    private TextView tvStreakAvatarVal;
+    private com.airbnb.lottie.LottieAnimationView lottieStreakAvatar;
 
     // ── Quick Tool References ──
     private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
@@ -315,11 +322,21 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         flAvatarGroup = v.findViewById(R.id.fl_avatar_group);
         tvUserId = v.findViewById(R.id.tv_home_user_id);
         
+        // Header Buttons
+        btnFriends = v.findViewById(R.id.btn_header_friends);
+        btnMailbox = v.findViewById(R.id.btn_header_mailbox);
+        btnShop = v.findViewById(R.id.btn_header_shop);
+        
+        tvBadgeFriends = v.findViewById(R.id.tv_badge_friends);
+        tvBadgeMailbox = v.findViewById(R.id.tv_badge_mailbox);
+        tvBadgeShop = v.findViewById(R.id.tv_badge_shop);
+
+        tvStreakAvatarVal = v.findViewById(R.id.tv_streak_avatar_val);
+        flStreakAvatar = v.findViewById(R.id.fl_streak_avatar);
+        lottieStreakAvatar = v.findViewById(R.id.lottie_streak_avatar);
+
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
-        tvModuleStreakVal = v.findViewById(R.id.tv_module_streak_val);
-        lottieModuleStreak = v.findViewById(R.id.lottie_module_streak);
-        lottieModuleStreakGlow = v.findViewById(R.id.lottie_module_streak_glow);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
         btnFullRank = v.findViewById(R.id.btn_home_full_rank);
         
@@ -347,14 +364,45 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupDashboard() {
+        // Header Buttons Actions
+        if (btnFriends != null) {
+            btnFriends.setOnClickListener(new ClickDebounce(v -> {
+                android.widget.Toast.makeText(getContext(), "Friends system coming soon", android.widget.Toast.LENGTH_SHORT).show();
+            }));
+        }
+
+        if (btnMailbox != null) {
+            btnMailbox.setOnClickListener(new ClickDebounce(v -> {
+                // Giảm badge khi mở (Mock logic)
+                if (tvBadgeMailbox != null) tvBadgeMailbox.setVisibility(View.GONE);
+                NavigationUtils.openMailbox(getActivity());
+            }));
+        }
+
+        if (btnShop != null) {
+            btnShop.setOnClickListener(new ClickDebounce(v -> {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                            .add(R.id.frame_layout, new ShopFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }));
+        }
+
+        // Mock Badge Data
+        updateHeaderBadges(3, 1, 0);
+
+        if (flStreakAvatar != null) {
+            flStreakAvatar.setOnClickListener(new ClickDebounce(v -> {
+                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
+            }));
+        }
+
         if (cvModuleStreak != null) {
             cvModuleStreak.setOnClickListener(v -> {
-                int streak = 0;
-                try { 
-                    String val = tvModuleStreakVal.getText().toString().replace(" DAYS", "").trim();
-                    streak = Integer.parseInt(val); 
-                } catch (Exception ignored) {}
-                showStreakDetail(streak, bestStreakValue, restoresThisMonth);
+                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
             });
         }
         
@@ -551,16 +599,33 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void setupQuickToolDimensions() {
         if (hsvQuickTools == null || llQuickToolsContainer == null) return;
         hsvQuickTools.post(() -> {
-            if (!isAdded() || requireContext() == null) return;
+            if (!isAdded() || getContext() == null) return;
+            
             int hsvWidth = hsvQuickTools.getMeasuredWidth();
+            // AAA: Bảo vệ chống việc tính toán sai khi view chưa sẵn sàng (tránh bị cắt 2 bên khi chuyển tab)
+            if (hsvWidth <= 0) return;
+
             int horizontalPadding = hsvQuickTools.getPaddingLeft() + hsvQuickTools.getPaddingRight();
             int itemWidth = (hsvWidth - horizontalPadding) / 5;
+            
+            // Đảm bảo itemWidth không nhỏ hơn kích thước bong bóng + một chút padding
+            int minSize = getResources().getDimensionPixelSize(R.dimen.home_quick_tool_fab_size);
+            if (itemWidth < minSize) itemWidth = minSize;
+
             for (int i = 0; i < llQuickToolsContainer.getChildCount(); i++) {
                 View child = llQuickToolsContainer.getChildAt(i);
                 if (child != null) {
+                    // Tắt clipping cho từng item để hiệu ứng nhịp thở (pulse) không bị cắt viền
+                    if (child instanceof ViewGroup) {
+                        ((ViewGroup) child).setClipChildren(false);
+                        ((ViewGroup) child).setClipToPadding(false);
+                    }
+                    
                     ViewGroup.LayoutParams params = child.getLayoutParams();
-                    params.width = itemWidth;
-                    child.setLayoutParams(params);
+                    if (params.width != itemWidth) {
+                        params.width = itemWidth;
+                        child.setLayoutParams(params);
+                    }
                 }
             }
         });
@@ -689,28 +754,17 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), coins != null ? coins : 0));
         if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), diamonds != null ? diamonds : 0));
         
-        if (tvModuleStreakVal != null) tvModuleStreakVal.setText(getString(R.string.streak_format_days, streak));
+        updateStreakDisplay(streak);
         
-        if (lottieModuleStreak != null) {
-            lottieModuleStreak.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreak.isAnimating()) lottieModuleStreak.playAnimation();
+        if (lottieStreakAvatar != null) {
+            lottieStreakAvatar.setMinAndMaxFrame(0, 24);
+            if (!lottieStreakAvatar.isAnimating()) lottieStreakAvatar.playAnimation();
             
             if (streak >= 1000) {
-                startRGBStreakAnimation(lottieModuleStreak);
+                startRGBStreakAnimation(lottieStreakAvatar);
             } else {
                 stopRGBStreakAnimation();
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieModuleStreak, streak);
-            }
-        }
-        
-        if (lottieModuleStreakGlow != null) {
-            lottieModuleStreakGlow.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreakGlow.isAnimating()) lottieModuleStreakGlow.playAnimation();
-            
-            if (streak >= 1000) {
-                startRGBStreakAnimation(lottieModuleStreakGlow);
-            } else {
-                com.vn.jet.mosco.utils.StreakColorHelper.applyShadowEffect(lottieModuleStreakGlow);
+                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieStreakAvatar, streak);
             }
         }
 
@@ -833,7 +887,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         rgbAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
         rgbAnimator.addUpdateListener(animation -> {
             float hue = (float) animation.getAnimatedValue();
-            com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(lottieModuleStreak, hue);
+            com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(lottie, hue);
         });
         rgbAnimator.start();
     }
@@ -854,6 +908,71 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
             return true;
         });
+    }
+
+    private void updateHeaderBadges(int friendsCount, int mailCount, int shopNewCount) {
+        if (tvBadgeFriends != null) {
+            if (friendsCount > 0) {
+                tvBadgeFriends.setText(friendsCount > 99 ? "99+" : String.valueOf(friendsCount));
+                tvBadgeFriends.setVisibility(View.VISIBLE);
+                animateBadgePop(tvBadgeFriends);
+            } else {
+                tvBadgeFriends.setVisibility(View.GONE);
+            }
+        }
+
+        if (tvBadgeMailbox != null) {
+            if (mailCount > 0) {
+                tvBadgeMailbox.setText(mailCount > 99 ? "99+" : String.valueOf(mailCount));
+                tvBadgeMailbox.setVisibility(View.VISIBLE);
+                animateBadgePop(tvBadgeMailbox);
+            } else {
+                tvBadgeMailbox.setVisibility(View.GONE);
+            }
+        }
+
+        if (tvBadgeShop != null) {
+            if (shopNewCount > 0) {
+                tvBadgeShop.setText("N");
+                tvBadgeShop.setVisibility(View.VISIBLE);
+            } else {
+                tvBadgeShop.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void animateBadgePop(View badge) {
+        badge.setScaleX(0.5f);
+        badge.setScaleY(0.5f);
+        badge.setAlpha(0f);
+        badge.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .alpha(1f)
+            .setDuration(180)
+            .setInterpolator(new android.view.animation.OvershootInterpolator())
+            .start();
+    }
+
+    private void updateStreakDisplay(int streak) {
+        if (tvStreakAvatarVal != null) {
+            String oldVal = tvStreakAvatarVal.getText().toString();
+            int oldStreak = 0;
+            try { oldStreak = Integer.parseInt(oldVal); } catch (Exception ignored) {}
+            
+            tvStreakAvatarVal.setText(String.valueOf(streak));
+            
+            if (streak > oldStreak) {
+                // Animation tăng streak
+                tvStreakAvatarVal.animate()
+                    .scaleX(1.15f)
+                    .scaleY(1.15f)
+                    .setDuration(120)
+                    .withEndAction(() -> {
+                        tvStreakAvatarVal.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    }).start();
+            }
+        }
     }
 
     private class MiniRankPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

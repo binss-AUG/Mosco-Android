@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -58,7 +58,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/profile_label_total_rolls"
                         style="@style/MoscoText.Luxury.Label"
-                        android:textColor="@color/mosco_outline" />
+                        android:textColor="@color/lg_outline" />
                 </LinearLayout>
 
                 <!-- Divider -->
@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/profile_label_collection"
                         style="@style/MoscoText.Luxury.Label"
-                        android:textColor="@color/mosco_outline" />
+                        android:textColor="@color/lg_outline" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md">
 
             <TextView
@@ -130,3 +130,5 @@
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
+
+

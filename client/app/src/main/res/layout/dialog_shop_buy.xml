@@ -125,7 +125,7 @@
             android:text="-"
             android:textSize="@dimen/text_size_h1"
             android:textStyle="bold"
-            android:textColor="@color/mosco_on_surface" />
+            android:textColor="@color/white" />
 
         <EditText
             android:id="@+id/et_quantity"
@@ -151,7 +151,7 @@
             android:text="+"
             android:textSize="@dimen/text_size_h1"
             android:textStyle="bold"
-            android:textColor="@color/mosco_on_surface" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
     <!-- Divider -->
@@ -160,7 +160,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/stroke_thin"
         android:layout_marginTop="@dimen/spacing_20dp"
-        android:background="@color/mosco_outline_variant"
+        android:background="@color/lg_outline"
         app:layout_constraintTop_toBottomOf="@id/ll_quantity" />
 
     <!-- Total Price -->
@@ -180,7 +180,7 @@
             android:layout_height="wrap_content"
             android:text="@string/shop_label_total"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_on_surface_variant"
+            android:textColor="@color/mosco_white_50"
             android:textSize="@dimen/text_size_body_lg" />
 
         <ImageView
@@ -217,4 +217,5 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
 

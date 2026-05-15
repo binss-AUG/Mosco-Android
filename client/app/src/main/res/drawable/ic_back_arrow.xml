@@ -6,7 +6,8 @@
     <path
         android:pathData="M12.5,16l-6,-6l6,-6"
         android:strokeLineCap="round"
-        android:strokeColor="@color/mosco_on_surface"
+        android:strokeColor="@color/lg_text_primary"
         android:strokeWidth="1.5"
         android:strokeLineJoin="round" />
 </vector>
+

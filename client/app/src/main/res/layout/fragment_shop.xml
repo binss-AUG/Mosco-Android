@@ -29,7 +29,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_shop_back"
-            style="@style/MoscoButton.IconGlass"
+            style="@style/LiquidGlass_IconButton"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:padding="9dp"
@@ -133,3 +133,4 @@
         tools:listitem="@layout/item_shop_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

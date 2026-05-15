@@ -97,14 +97,15 @@
     <!-- LIQUID GLASS DIMENSION TOKENS                 -->
     <!-- ============================================= -->
 
-    <!-- LG: Corner Radius (iOS-inspired, lớn hơn hệ thống cũ) -->
-    <dimen name="lg_radius_panel">20dp</dimen>
+    <!-- LG: Corner Radius (iOS-inspired, Version 1.1 Spec) -->
+    <dimen name="lg_radius_small_control">18dp</dimen>
+    <dimen name="lg_radius_button">22dp</dimen>
+    <dimen name="lg_radius_panel">28dp</dimen>
+    <dimen name="lg_radius_modal">32dp</dimen>
     <dimen name="lg_radius_card">16dp</dimen>
-    <dimen name="lg_radius_modal">28dp</dimen>
-    <dimen name="lg_radius_button">14dp</dimen>
-    <dimen name="lg_radius_nav">24dp</dimen>
-    <dimen name="lg_radius_chip">20dp</dimen>
-    <dimen name="lg_radius_input">14dp</dimen>
+    <dimen name="lg_radius_nav">28dp</dimen>
+    <dimen name="lg_radius_chip">18dp</dimen>
+    <dimen name="lg_radius_input">18dp</dimen>
 
     <!-- LG: Stroke -->
     <dimen name="lg_stroke_hairline">0.8dp</dimen>

@@ -342,7 +342,7 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             switch (status) {
                 case "claimed":
                     holder.tvClaimText.setText(getString(R.string.daily_status_claimed));
-                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.mosco_surface_variant));
+                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.lg_background_mid));
                     holder.btnClaim.setAlpha(0.6f);
                     break;
                 case "available":
@@ -389,3 +389,4 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
         }
     }
 }
+

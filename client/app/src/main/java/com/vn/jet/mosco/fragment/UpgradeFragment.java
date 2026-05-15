@@ -123,6 +123,14 @@ public class UpgradeFragment extends Fragment {
         return new UpgradeFragment();
     }
 
+    public static UpgradeFragment newInstance(CardDisplayItem mainCard) {
+        UpgradeFragment fragment = new UpgradeFragment();
+        Bundle args = new Bundle();
+        args.putString("main_card_json", new Gson().toJson(mainCard));
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +145,13 @@ public class UpgradeFragment extends Fragment {
         bindViews(rootView);
         setupClickListeners();
         setupVideoBackground();
+
+        // Load card from arguments if present
+        if (getArguments() != null && getArguments().containsKey("main_card_json")) {
+            String json = getArguments().getString("main_card_json");
+            this.mainCard = new Gson().fromJson(json, CardDisplayItem.class);
+        }
+
         updateUI();
         return rootView;
     }
@@ -1036,8 +1051,8 @@ public class UpgradeFragment extends Fragment {
             }
         }
         tvMaterialsCount.setText(getString(R.string.upgrade_format_materials_count_limit, selectedCount));
-        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
-        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_accent_primary);
+        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_text_disabled);
         tvMaterialsCount.setTextColor(selectedCount > 0 ? primaryColor : disabledColor);
     }
 
@@ -1074,3 +1089,4 @@ public class UpgradeFragment extends Fragment {
         }
     }
 }
+

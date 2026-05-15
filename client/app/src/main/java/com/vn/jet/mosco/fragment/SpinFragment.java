@@ -864,7 +864,7 @@ public class SpinFragment extends Fragment {
         // Fade-in title: Trạng thái (Thắng/Thua)
         if (tvResultTitle != null) {
             tvResultTitle.setText(isWin ? getString(R.string.spin_msg_success) : getString(R.string.spin_msg_failed));
-            tvResultTitle.setTextColor(isWin ? Color.WHITE : ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
+            tvResultTitle.setTextColor(isWin ? Color.WHITE : ContextCompat.getColor(requireContext(), R.color.lg_text_disabled));
             tvResultTitle.animate()
                     .alpha(1f)
                     .setDuration(400)
@@ -876,7 +876,7 @@ public class SpinFragment extends Fragment {
                     ? "You received: " + cardName
                     : "Unfortunately, you received: " + cardName + " (Trash)";
             tvResultSubtitle.setText(subMsg);
-            tvResultSubtitle.setTextColor(isWin ? ContextCompat.getColor(requireContext(), R.color.palette_gray_300) : ContextCompat.getColor(requireContext(), R.color.mosco_text_dim));
+            tvResultSubtitle.setTextColor(isWin ? ContextCompat.getColor(requireContext(), R.color.palette_gray_300) : ContextCompat.getColor(requireContext(), R.color.lg_text_dim));
             tvResultSubtitle.animate()
                     .alpha(1f)
                     .setDuration(400)
@@ -1011,8 +1011,6 @@ public class SpinFragment extends Fragment {
         // Reset nút Confirm
         if (btnConfirmSelect != null) {
             btnConfirmSelect.setEnabled(false);
-            ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_btn_disabled)));
-            btnConfirmSelect.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
         }
         // Hiện lại màn Spin chính
         layoutSpinMain.setVisibility(View.VISIBLE);
@@ -1035,8 +1033,6 @@ public class SpinFragment extends Fragment {
         }
         if (btnSpin != null) {
             btnSpin.setEnabled(false);
-            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_btn_disabled)));
-            btnSpin.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled));
         }
     }
 
@@ -1218,8 +1214,6 @@ public class SpinFragment extends Fragment {
                     notifyItemChanged(selectedPosition);
                     if (btnConfirmSelect != null) {
                         btnConfirmSelect.setEnabled(true);
-                        ViewCompat.setBackgroundTintList(btnConfirmSelect, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_card_stroke)));
-                        btnConfirmSelect.setTextColor(Color.WHITE);
                     }
                 }
             });
@@ -1771,8 +1765,6 @@ public class SpinFragment extends Fragment {
 
         if (btnSpin != null) {
             btnSpin.setEnabled(true);
-            ViewCompat.setBackgroundTintList(btnSpin, ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.mosco_card_stroke)));
-            btnSpin.setTextColor(Color.WHITE);
         }
     }
 }

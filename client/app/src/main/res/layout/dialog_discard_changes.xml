@@ -27,7 +27,7 @@
             android:layout_marginTop="@dimen/radius_lg"
             style="@style/MoscoText.Luxury.Body"
             android:text="@string/profile_edit_discard_msg"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout

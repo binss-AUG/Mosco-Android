@@ -39,7 +39,7 @@
             android:textAlignment="center"
             style="@style/MoscoText.Luxury.Body"
             android:text="@string/common_msg_purchase_success"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_body_sm" />
 
         <!-- Navigation Actions -->

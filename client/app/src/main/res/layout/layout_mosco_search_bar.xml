@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="@drawable/bg_glass_input"
+    android:background="@drawable/lg_input_bg"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_12dp">
@@ -42,3 +42,4 @@
         android:background="?attr/selectableItemBackgroundBorderless" />
 
 </LinearLayout>
+

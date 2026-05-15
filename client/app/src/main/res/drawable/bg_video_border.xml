@@ -3,7 +3,8 @@
     android:shape="rectangle">
     <stroke
         android:width="@dimen/spacing_2dp"
-        android:color="@color/mosco_on_surface" />
+        android:color="@color/lg_text_primary" />
     <solid android:color="@android:color/transparent" />
 </shape>
+
 

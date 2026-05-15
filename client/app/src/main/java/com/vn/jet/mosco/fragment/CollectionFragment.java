@@ -106,6 +106,9 @@ public class CollectionFragment extends Fragment {
         if (getArguments() != null) {
             int defaultTab = getArguments().getInt("default_tab", 0);
             viewPager.setCurrentItem(defaultTab, false);
+        } else {
+            // Default to Cards (index 0)
+            viewPager.setCurrentItem(0, false);
         }
     }
 
@@ -327,7 +330,8 @@ public class CollectionFragment extends Fragment {
             this.isArtistGrid = isArtistGrid;
         }
 
-        public FilterCategory(String tabName, List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> memberItems) {
+        public FilterCategory(String tabName,
+                List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> memberItems) {
             this.tabName = tabName;
             this.items = null;
             this.memberItems = memberItems;
@@ -565,7 +569,8 @@ public class CollectionFragment extends Fragment {
 
     /** Artist grid: 3-column circles */
     private static void buildArtistGrid(Context ctx, android.widget.FrameLayout fl,
-            List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> items, Set<String> workingSet, Runnable renderChips) {
+            List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> items, Set<String> workingSet,
+            Runnable renderChips) {
         ScrollView sv = new ScrollView(ctx);
         sv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -592,7 +597,8 @@ public class CollectionFragment extends Fragment {
         fl.addView(sv);
     }
 
-    private static View buildArtistCell(Context ctx, com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item, Set<String> workingSet, Runnable renderChips) {
+    private static View buildArtistCell(Context ctx, com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item,
+            Set<String> workingSet, Runnable renderChips) {
         String name = item.name;
         LinearLayout cell = new LinearLayout(ctx);
         cell.setOrientation(LinearLayout.VERTICAL);
@@ -617,7 +623,8 @@ public class CollectionFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        // [QUIET LUXURY] Load real member avatar with SmartFaceCrop for perfect circle center
+        // [QUIET LUXURY] Load real member avatar with SmartFaceCrop for perfect circle
+        // center
         String finalUrl = item.imageUrl;
         if (finalUrl != null && !finalUrl.isEmpty()) {
             Glide.with(ctx)
@@ -636,7 +643,7 @@ public class CollectionFragment extends Fragment {
         label.setText(name);
         label.setTextSize(11f);
         label.setTextColor(
-                workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
+                workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_disabled));
         label.setTypeface(null,
                 workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
@@ -652,7 +659,7 @@ public class CollectionFragment extends Fragment {
                 workingSet.remove(name);
                 card.setStrokeWidth(0);
                 card.setAlpha(1f);
-                label.setTextColor(ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
+                label.setTextColor(ContextCompat.getColor(ctx, R.color.lg_text_disabled));
                 label.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
@@ -723,34 +730,29 @@ public class CollectionFragment extends Fragment {
         card.setLayoutParams(lp);
 
         boolean selected = workingSet.contains(name);
-        card.setBackground(ctx.getDrawable(R.drawable.bg_button));
-        card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selected ? ContextCompat.getColor(ctx, R.color.mosco_primary)
-                        : ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
-        card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
+        card.setBackground(
+                ctx.getDrawable(selected ? R.drawable.lg_nav_item_indicator : R.drawable.lg_chip_unselected_bg));
+        card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_secondary));
         card.setTypeface(null, selected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         card.setText(name);
         card.setTextSize(14f);
-        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setGravity(Gravity.CENTER);
         card.setPadding(dpToPx(ctx, 16), 0, dpToPx(ctx, 16), 0);
 
         card.setOnClickListener(v -> {
             if (workingSet.contains(name)) {
                 workingSet.remove(name);
-                card.setBackgroundTintList(android.content.res.ColorStateList
-                        .valueOf(ContextCompat.getColor(ctx, R.color.mosco_btn_disabled)));
-                card.setTextColor(ContextCompat.getColor(ctx, R.color.mosco_text_disabled));
+                card.setBackground(ctx.getDrawable(R.drawable.lg_chip_unselected_bg));
+                card.setTextColor(ContextCompat.getColor(ctx, R.color.lg_text_secondary));
                 card.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
-                card.setBackgroundTintList(
-                        android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.mosco_primary)));
+                card.setBackground(ctx.getDrawable(R.drawable.lg_nav_item_indicator));
                 card.setTextColor(Color.WHITE);
                 card.setTypeface(null, android.graphics.Typeface.BOLD);
             }
             renderChips.run();
         });
-
         return card;
     }
 
@@ -762,11 +764,13 @@ public class CollectionFragment extends Fragment {
     // DEMO DATA
     // ==========================================
     public static List<FilterCategory> buildObjetCategories(Context context) {
-        List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> artists = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueMembers(context);
+        List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> artists = com.vn.jet.mosco.utils.DatabaseLoader
+                .getUniqueMembers(context);
         List<String> seasons = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueSeasons(context);
         List<String> classes = com.vn.jet.mosco.utils.DatabaseLoader.getUniqueClasses(context);
 
-        // [LUXURY CHECK] Nếu dữ liệu rỗng (do đang sync), báo cho người dùng biết thay vì hiện tab trống
+        // [LUXURY CHECK] Nếu dữ liệu rỗng (do đang sync), báo cho người dùng biết thay
+        // vì hiện tab trống
         if (artists.isEmpty() && seasons.isEmpty() && classes.isEmpty()) {
             android.util.Log.w("CollectionFragment", "Filter categories are empty, Room sync might be in progress.");
         }
@@ -816,15 +820,15 @@ public class CollectionFragment extends Fragment {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    return new AlbumFragment();
+                    return new ObjetsFragment(); // Cards
                 case 1:
                     return new MailboxFragment();
                 case 2:
-                    return new ObjetsFragment();
-                case 3:
                     return new ItemsFragment();
-                default:
+                case 3:
                     return new AlbumFragment();
+                default:
+                    return new ObjetsFragment();
             }
         }
 
@@ -841,6 +845,7 @@ public class CollectionFragment extends Fragment {
         private final Set<String> mailboxFilter = new LinkedHashSet<>();
         private String[] SORT_OPTIONS;
         private MailboxAdapter adapter;
+        private TextView tvCount;
         private List<com.vn.jet.mosco.model.UserMail> originalMails = new ArrayList<>();
 
         @Nullable
@@ -853,6 +858,7 @@ public class CollectionFragment extends Fragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            tvCount = view.findViewById(R.id.tv_mailbox_count_title);
             SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
 
             View sortBtn = view.findViewById(R.id.btn_sort_mailbox);
@@ -1002,6 +1008,9 @@ public class CollectionFragment extends Fragment {
 
             if (adapter != null)
                 adapter.updateData(filtered);
+            if (tvCount != null) {
+                tvCount.setText(String.valueOf(filtered.size()));
+            }
         }
     }
 
@@ -1134,7 +1143,8 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main Thread blockade
+                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main
+                        // Thread blockade
                         new Thread(() -> {
                             List<FilterCategory> categories = buildObjetCategories(requireContext());
                             if (getActivity() != null) {
@@ -1159,10 +1169,11 @@ public class CollectionFragment extends Fragment {
                     com.vn.jet.mosco.adapter.UnifiedCardAdapter.DisplayMode.INVENTORY,
                     item -> {
                         Context ctx = requireContext();
-                        if (ctx == null) return;
+                        if (ctx == null)
+                            return;
 
                         // Dùng trực tiếp CardDisplayItem — không cần chuyển đổi qua CollectionEntry nữa
-                        com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, item);
+                        com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(ctx, item, false, this::applyFilters);
                     });
             rvObjets.setAdapter(adapter);
 
@@ -1245,7 +1256,8 @@ public class CollectionFragment extends Fragment {
                 // Chuyển đổi trực tiếp sang CardDisplayItem — bỏ bước trung gian qua Objet
                 List<com.vn.jet.mosco.model.CardDisplayItem> displayItems = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
-                    com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem.fromCacheItem(uc);
+                    com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem
+                            .fromCacheItem(uc);
                     // Chuẩn hóa cardClass qua mapping hệ thống
                     displayItem.setCardClass(mapClassToTypeKey(uc.cardClass));
                     displayItems.add(displayItem);
@@ -1315,6 +1327,13 @@ public class CollectionFragment extends Fragment {
                 }
 
                 filtered.sort((a, b) -> {
+                    // [PRIORITY] Pinned cards always on top (Only if sorting by newest)
+                    if (SORT_NEWEST.equals(currentSort)) {
+                        boolean pinA = com.vn.jet.mosco.utils.PinManager.isPinned(requireContext(), String.valueOf(a.getId()));
+                        boolean pinB = com.vn.jet.mosco.utils.PinManager.isPinned(requireContext(), String.valueOf(b.getId()));
+                        if (pinA != pinB) return pinA ? -1 : 1;
+                    }
+
                     int res = 0;
                     if (SORT_NEWEST.equals(currentSort)) {
                         String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
@@ -1355,8 +1374,9 @@ public class CollectionFragment extends Fragment {
                         if (adapter != null) {
                             adapter.updateData(filtered);
                         }
-                        if (tvCount != null)
-                            tvCount.setText(getString(R.string.inventory_format_items_count, filtered.size()));
+                        if (tvCount != null) {
+                            tvCount.setText(String.valueOf(filtered.size()));
+                        }
                     });
                 }
             }).start();
@@ -1370,6 +1390,7 @@ public class CollectionFragment extends Fragment {
         private final Set<String> itemsFilter = new LinkedHashSet<>();
         private final String[] SORT_OPTIONS = { SORT_NEWEST, SORT_LOWEST_NO, SORT_HIGHEST_NO };
         private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
+        private TextView tvCount;
         private RecyclerView rvItems;
         private ItemsAdapter adapter;
         private List<com.vn.jet.mosco.model.UserItem> originalItems = new ArrayList<>();
@@ -1404,6 +1425,7 @@ public class CollectionFragment extends Fragment {
                     }
                 });
             }
+            tvCount = view.findViewById(R.id.tv_items_count_title);
 
             // RecyclerView
             rvItems = view.findViewById(R.id.rv_items);
@@ -1550,7 +1572,8 @@ public class CollectionFragment extends Fragment {
 
                 @Override
                 public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserItem>> call, Throwable t) {
-                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_inventory), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_inventory),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -1596,8 +1619,16 @@ public class CollectionFragment extends Fragment {
                 return isAsc ? res : -res;
             });
 
-            if (adapter != null)
-                adapter.updateData(filtered);
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.updateData(filtered);
+                    }
+                    if (tvCount != null) {
+                        tvCount.setText(String.valueOf(filtered.size()));
+                    }
+                });
+            }
         }
     }
 
@@ -1702,9 +1733,9 @@ public class CollectionFragment extends Fragment {
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            tvProgress = view.findViewById(R.id.tv_album_progress);
+            // tvProgress = view.findViewById(R.id.tv_album_progress);
             tvCount = view.findViewById(R.id.tv_album_count);
-            progressBar = view.findViewById(R.id.progress_album);
+            // progressBar = view.findViewById(R.id.progress_album);
 
             // Standardized Filter Bar Integration
             filterBar = view.findViewById(R.id.filter_bar_album);
@@ -1720,7 +1751,8 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main Thread blockade
+                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main
+                        // Thread blockade
                         new Thread(() -> {
                             List<FilterCategory> categories = buildAlbumCategories(requireContext());
                             if (getActivity() != null) {
@@ -1774,7 +1806,7 @@ public class CollectionFragment extends Fragment {
          */
         private void onBookCardClicked(com.vn.jet.mosco.model.CardDisplayItem item) {
             if (requireContext() != null && item != null) {
-                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), item);
+                com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(requireContext(), item, true, this::applyFilters);
             }
         }
 
@@ -1805,10 +1837,13 @@ public class CollectionFragment extends Fragment {
                                 ownedCount = book.getOwnedCount();
 
                                 // Chuyển đổi CollectionEntry -> CardDisplayItem (Unified Model)
-                                List<com.vn.jet.mosco.model.CollectionEntry> rawEntries = book.getEntries() != null ? book.getEntries() : new ArrayList<>();
+                                List<com.vn.jet.mosco.model.CollectionEntry> rawEntries = book.getEntries() != null
+                                        ? book.getEntries()
+                                        : new ArrayList<>();
                                 originalEntries = new ArrayList<>();
                                 for (com.vn.jet.mosco.model.CollectionEntry entry : rawEntries) {
-                                    originalEntries.add(com.vn.jet.mosco.model.CardDisplayItem.fromCollectionEntry(entry));
+                                    originalEntries
+                                            .add(com.vn.jet.mosco.model.CardDisplayItem.fromCollectionEntry(entry));
                                 }
 
                                 // Cập nhật tiến trình
@@ -1870,68 +1905,7 @@ public class CollectionFragment extends Fragment {
         }
 
         private void handleMilestoneState(int index, boolean achieved, int owned, int req) {
-            View view = getView();
-            if (view == null)
-                return;
-
-            int iconId = (index == 1) ? R.id.iv_ms_1_icon : (index == 2) ? R.id.iv_ms_2_icon : R.id.iv_ms_3_icon;
-            int containerId = (index == 1) ? R.id.ms_1_container
-                    : (index == 2) ? R.id.ms_2_container : R.id.ms_3_container;
-            int textId = (index == 1) ? R.id.tv_ms_1_req : (index == 2) ? R.id.tv_ms_2_req : R.id.tv_ms_3_req;
-
-            ImageView iv = view.findViewById(iconId);
-            View container = view.findViewById(containerId);
-            TextView tv = view.findViewById(textId);
-
-            if (iv == null || container == null || tv == null)
-                return;
-
-            // Kiểm tra trạng thái đã nhận quà
-            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(requireContext());
-            Long userIdLong = session.getUserId();
-            String userId = userIdLong != null ? String.valueOf(userIdLong) : "unknown";
-
-            android.content.SharedPreferences prefs = requireContext().getSharedPreferences("MoscoCollection",
-                    Context.MODE_PRIVATE);
-            boolean isClaimed = prefs.getBoolean("claimed_" + userId + "_ms_" + index, false);
-
-            if (isClaimed) {
-                // ĐÃ NHẬN: Mờ đi để báo hiệu đã lấy quà
-                iv.setColorFilter(null);
-                iv.setAlpha(0.3f);
-                tv.setTextColor(android.graphics.Color.GRAY);
-                tv.setText(getString(R.string.collection_label_completed));
-                container.clearAnimation();
-                container.setOnClickListener(v -> android.widget.Toast.makeText(requireContext(),
-                        getString(R.string.collection_msg_reward_claimed), android.widget.Toast.LENGTH_SHORT).show());
-            } else if (achieved) {
-                // ĐÃ ĐẠT (CHƯA NHẬN): Hiệu ứng Pulse (Nhịp đập) mời gọi click
-                iv.setAlpha(1.0f);
-                iv.setColorFilter(null);
-                tv.setTextColor(android.graphics.Color.WHITE);
-                tv.setText(getString(R.string.collection_label_reward));
-
-                if (container.getAnimation() == null) {
-                    android.view.animation.Animation pulse = android.view.animation.AnimationUtils
-                            .loadAnimation(requireContext(), R.anim.pulse_milestone);
-                    container.startAnimation(pulse);
-                }
-
-                container.setOnClickListener(v -> claimMilestone(index, req));
-            } else {
-                // CHƯA ĐẠT: Bộ lọc Grayscale
-                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-                matrix.setSaturation(0f);
-                iv.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-                iv.setAlpha(0.2f);
-                tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_white_40));
-                tv.setText(owned + "/" + req);
-                container.clearAnimation();
-                container.setOnClickListener(v -> android.widget.Toast
-                        .makeText(requireContext(), getString(R.string.collection_format_reward_requirement, req),
-                                android.widget.Toast.LENGTH_SHORT)
-                        .show());
-            }
+            // Milestone UI has been removed in Liquid Glass V1.1
         }
 
         private void claimMilestone(int index, int req) {
@@ -2014,16 +1988,16 @@ public class CollectionFragment extends Fragment {
                     if (SORT_NEWEST.equals(currentSort)) {
                         String t1 = a.getCreatedAt() != null ? a.getCreatedAt() : "";
                         String t2 = b.getCreatedAt() != null ? b.getCreatedAt() : "";
-                        
+
                         if (!t1.isEmpty() && !t2.isEmpty()) {
                             res = t1.compareTo(t2);
                         }
-                        
+
                         if (res == 0) {
-                            res = Long.compare(a.getUserCardId() != null ? a.getUserCardId() : -1, 
-                                             b.getUserCardId() != null ? b.getUserCardId() : -1);
+                            res = Long.compare(a.getUserCardId() != null ? a.getUserCardId() : -1,
+                                    b.getUserCardId() != null ? b.getUserCardId() : -1);
                         }
-                        
+
                         if (res == 0) {
                             res = compareNatural(a.getCollectionNo(), b.getCollectionNo());
                         }
@@ -2055,8 +2029,14 @@ public class CollectionFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
                         if (adapter != null)
                             adapter.updateData(filtered);
-                        if (tvCount != null)
-                            tvCount.setText(filtered.size() + " Cards");
+                        if (tvCount != null) {
+                            int filteredOwned = 0;
+                            for (com.vn.jet.mosco.model.CardDisplayItem item : filtered) {
+                                if (item.isOwned())
+                                    filteredOwned++;
+                            }
+                            tvCount.setText(filteredOwned + "/" + filtered.size());
+                        }
                     });
                 }
             }).start();

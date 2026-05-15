@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -43,7 +43,7 @@
                 android:textColor="@color/white"
                 android:textColorHint="@color/white_40"
                 android:gravity="top"
-                tools:text="xin chào mọi người cho xin 1 tym và 1 follow nhé." />
+                tools:text="xin chÃ o má»i ngÆ°á»i cho xin 1 tym vÃ  1 follow nhÃ©." />
         </LinearLayout>
 
         <!-- 2. Display Name -->
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -83,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -108,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -149,7 +149,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md">
 
@@ -191,7 +191,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_glass_input"
+            android:background="@drawable/lg_input_bg"
             android:padding="@dimen/spacing_md"
             android:layout_marginBottom="@dimen/spacing_md"
             android:visibility="gone">
@@ -220,3 +220,4 @@
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
+

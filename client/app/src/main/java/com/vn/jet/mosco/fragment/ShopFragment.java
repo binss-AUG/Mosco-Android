@@ -143,10 +143,10 @@ public class ShopFragment extends Fragment {
                 TextView tv = (TextView) chip;
                 if (i == index) {
                     tv.setBackgroundResource(R.drawable.bg_shop_buy_btn);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_on_surface));
+                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_primary));
                 } else {
                     tv.setBackgroundResource(R.drawable.bg_filter_chip);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_on_surface_variant));
+                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_secondary));
                 }
             }
         }
@@ -459,3 +459,4 @@ public class ShopFragment extends Fragment {
         }
     }
 }
+

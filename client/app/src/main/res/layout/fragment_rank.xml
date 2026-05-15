@@ -68,7 +68,7 @@
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
         app:tabSelectedTextColor="@color/lg_glass_stroke"
-        app:tabTextColor="@color/mosco_text_disabled"
+        app:tabTextColor="@color/mosco_white_30"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"

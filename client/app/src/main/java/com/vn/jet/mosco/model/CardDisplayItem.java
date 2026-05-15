@@ -110,6 +110,25 @@ public class CardDisplayItem {
         return item;
     }
 
+    public static CollectionEntry toCollectionEntry(@androidx.annotation.NonNull CardDisplayItem item) {
+        CollectionEntry entry = new CollectionEntry();
+        entry.setCollectionId(item.getCollectionId());
+        entry.setFrontImage(item.getFrontImage());
+        entry.setBackImage(item.getBackImage());
+        entry.setOvr(item.getOvr());
+        entry.setLevel(item.getLevel());
+        entry.setUpgradeLevel(item.getUpgradeLevel());
+        entry.setMember(item.getMember());
+        entry.setSeason(item.getSeason());
+        entry.setCardClass(item.getCardClass());
+        entry.setCollectionNo(item.getCollectionNo());
+        entry.setBackgroundColor(item.getBackgroundColor());
+        entry.setOwned(item.isOwned());
+        entry.setUserCardId(item.getUserCardId() != null ? item.getUserCardId() : -1L);
+        entry.setCreatedAt(item.getCreatedAt());
+        return entry;
+    }
+
     /**
      * Chuyển đổi từ Cache Item (Local-First) sang CardDisplayItem.
      */

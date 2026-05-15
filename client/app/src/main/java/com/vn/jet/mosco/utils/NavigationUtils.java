@@ -111,4 +111,13 @@ public class NavigationUtils {
                 .replace(R.id.frame_layout, fragment)
                 .commit();
     }
+    public static void openMailbox(FragmentActivity activity) {
+        if (activity == null) return;
+        
+        activity.getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
+                .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.CollectionFragment.MailboxFragment())
+                .addToBackStack("Mailbox")
+                .commit();
+    }
 }

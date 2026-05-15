@@ -222,7 +222,7 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
             ((android.widget.Button) btnEnter).setTextColor(
-                    ContextCompat.getColor(this, R.color.mosco_text_disabled));
+                    ContextCompat.getColor(this, R.color.lg_text_disabled));
         } else {
             ((android.widget.Button) btnEnter).setBackgroundTintList(null);
             ((android.widget.Button) btnEnter).setTextColor(
@@ -248,3 +248,4 @@ public class DisplayNameSetupActivity extends AppCompatActivity {
         com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
     }
 }
+

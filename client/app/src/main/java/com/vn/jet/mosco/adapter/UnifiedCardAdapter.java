@@ -20,6 +20,7 @@ import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.utils.CardAssetManager;
 import com.vn.jet.mosco.utils.GlideBindingAdapter;
+import com.vn.jet.mosco.utils.PinManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -402,7 +403,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation(0f);
             vh.ivCardImage.setColorFilter(new ColorMatrixColorFilter(matrix));
-            vh.ivCardImage.setAlpha(0.2f);
+            vh.ivCardImage.setAlpha(0.2f); // Trả về 0.2f như cũ cho danh sách lưới
             if (vh.viewLockedOverlay != null) vh.viewLockedOverlay.setVisibility(View.VISIBLE);
             if (vh.ivLockIcon != null) vh.ivLockIcon.setVisibility(View.VISIBLE);
             if (vh.ivLevel != null) vh.ivLevel.setVisibility(View.GONE);
@@ -484,6 +485,12 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (vh.cvCard != null) {
             vh.cvCard.setCardBackgroundColor(cardBgColor);
         }
+
+        // Pin Indicator
+        if (vh.ivPin != null) {
+            boolean isPinned = PinManager.isPinned(mContext, String.valueOf(item.getId()));
+            vh.ivPin.setVisibility(isPinned ? View.VISIBLE : View.GONE);
+        }
     }
 
     /**
@@ -562,6 +569,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvNameTag;
         View layoutSkeleton;
         CardView cvCard;
+        ImageView ivPin;
 
         // Chỉ có trong ALBUM mode
         ImageView ivLockIcon;
@@ -578,6 +586,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ivLevel = itemView.findViewById(R.id.card_iv_level);
             tvOvr = itemView.findViewById(R.id.card_tv_ovr);
             tvNameTag = itemView.findViewById(R.id.tv_card_name);
+            ivPin = itemView.findViewById(R.id.card_iv_pin);
 
             if (mode == DisplayMode.ALBUM) {
                 cvCard = itemView.findViewById(R.id.cv_book_card);

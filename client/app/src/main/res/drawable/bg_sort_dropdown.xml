@@ -2,9 +2,9 @@
 <!-- Liquid Glass: Sort dropdown -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/lg_glass_surface_elevated" />
-    <corners android:radius="@dimen/lg_radius_card" />
+    <solid android:color="@color/lg_nav_surface" />
+    <corners android:radius="@dimen/lg_radius_small_control" />
     <stroke
         android:width="@dimen/lg_stroke_hairline"
-        android:color="@color/lg_glass_stroke" />
+        android:color="@color/lg_glass_stroke_strong" />
 </shape>

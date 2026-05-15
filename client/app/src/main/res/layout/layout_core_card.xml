@@ -117,5 +117,18 @@
             android:textSize="@dimen/text_size_headline"
             android:textStyle="bold" />
     </FrameLayout>
+
+    <!-- Pin Indicator (Standardized) -->
+    <ImageView
+        android:id="@+id/card_iv_pin"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="6dp"
+        android:src="@drawable/ic_pin"
+        android:visibility="gone"
+        app:tint="#FFD700"
+        app:layout_constraintTop_toTopOf="@id/card_iv_image"
+        app:layout_constraintStart_toStartOf="@id/card_iv_image" />
 </merge>
 

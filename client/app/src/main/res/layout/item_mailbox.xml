@@ -9,7 +9,7 @@
     app:cardBackgroundColor="@color/mosco_surface_container"
     app:cardCornerRadius="@dimen/spacing_md"
     app:cardElevation="0dp"
-    app:strokeColor="@color/mosco_outline_variant"
+    app:strokeColor="@color/lg_outline"
     app:strokeWidth="@dimen/stroke_thin"
     android:foreground="?android:attr/selectableItemBackground"
     android:clickable="true"
@@ -48,7 +48,7 @@
             android:layout_marginTop="@dimen/spacing_2dp"
             style="@style/MoscoText.Luxury.SubHeader"
             tools:text="Rewards Box 1"
-            android:textColor="@color/mosco_on_surface"
+            android:textColor="@color/white"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700"
@@ -64,7 +64,7 @@
             android:layout_marginTop="@dimen/spacing_xs"
             style="@style/MoscoText.Luxury.Body"
             tools:text="Season Event Compensation"
-            android:textColor="@color/mosco_on_surface_variant"
+            android:textColor="@color/mosco_white_50"
             android:textSize="@dimen/text_size_body_sm"
             android:maxLines="1"
             android:ellipsize="end"
@@ -86,7 +86,7 @@
             <ImageView
                 android:layout_width="@dimen/spacing_14dp"
                 android:layout_height="@dimen/spacing_14dp"
-                app:tint="@color/mosco_on_surface_variant"
+                app:tint="@color/mosco_white_50"
                 android:src="@drawable/ic_time_clock" />
             
             <TextView
@@ -96,7 +96,7 @@
                 android:layout_marginStart="@dimen/spacing_6dp"
                 style="@style/MoscoText.Luxury.Body"
                 tools:text="2H AGO"
-                android:textColor="@color/mosco_on_surface_variant"
+                android:textColor="@color/mosco_white_50"
                 android:textSize="@dimen/text_size_mini"
                 android:textStyle="bold"
                 android:fontWeight="700" />
@@ -122,4 +122,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+
 

@@ -8,8 +8,7 @@
         android:id="@+id/layout_collection_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:paddingHorizontal="@dimen/spacing_20dp"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.card.MaterialCardView
@@ -55,7 +54,7 @@
         android:id="@+id/tab_layout_collection"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginTop="0dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +63,7 @@
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
         app:tabSelectedTextColor="@color/lg_accent_primary"
-        app:tabTextColor="@color/mosco_text_disabled"
+        app:tabTextColor="@color/mosco_white_30"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"

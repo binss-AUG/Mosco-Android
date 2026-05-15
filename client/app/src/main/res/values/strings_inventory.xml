@@ -45,10 +45,10 @@
     <string name="collection_tab_items">Items</string>
 
     <string-array name="collection_tabs">
-        <item>@string/collection_tab_album</item>
-        <item>@string/collection_tab_mailbox</item>
         <item>@string/collection_tab_objets</item>
+        <item>@string/collection_tab_mailbox</item>
         <item>@string/collection_tab_items</item>
+        <item>@string/collection_tab_album</item>
     </string-array>
     <string name="collection_msg_reward_claimed">Reward already claimed!</string>
     <string name="collection_format_reward_requirement">Collect %d cards to claim!</string>

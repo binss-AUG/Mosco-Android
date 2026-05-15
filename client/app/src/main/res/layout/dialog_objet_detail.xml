@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/radius_lg"
-    app:cardBackgroundColor="@color/mosco_surface"
+    app:cardBackgroundColor="@color/lg_background"
     app:cardCornerRadius="@dimen/spacing_md">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +21,7 @@
             android:layout_height="@dimen/spacing_xl"
             android:padding="@dimen/spacing_xs"
             android:src="@drawable/ic_close"
-            app:tint="@color/mosco_on_surface"
+            app:tint="@color/white"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -42,7 +42,7 @@
                 android:layout_height="@dimen/spacing_44dp"
                 android:padding="@dimen/spacing_10dp"
                 android:src="@drawable/ic_recycle"
-                app:tint="@color/mosco_on_surface_variant"
+                app:tint="@color/mosco_white_50"
                 android:background="@drawable/bg_circle_dark"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -51,7 +51,7 @@
             <!-- Level Up Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_level_up_detail"
-                style="@style/MoscoButton.Primary"
+                style="@style/LiquidGlass_Button_Primary"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_44dp"
                 android:layout_marginStart="@dimen/spacing_sm"
@@ -84,7 +84,7 @@
             <!-- UPGRADE Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_upgrade_detail"
-                style="@style/MoscoButton.Primary"
+                style="@style/LiquidGlass_Button_Primary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/card_action_upgrade_title"
@@ -176,8 +176,8 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_speed"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_spd" style="@style/MoscoText.Luxury.Body" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" />
-                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" style="@style/MoscoText.Luxury.Price" android:textColor="@color/mosco_on_surface" android:textSize="@dimen/text_size_body_md" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_spd" style="@style/MoscoText.Luxury.Body" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" />
+                    <TextView android:id="@+id/tv_stat_spd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="999" style="@style/MoscoText.Luxury.Price" android:textColor="@color/white" android:textSize="@dimen/text_size_body_md" />
                 </LinearLayout>
 
                 <!-- Crit DMG -->
@@ -188,7 +188,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView android:layout_width="@dimen/spacing_28dp" android:layout_height="@dimen/spacing_28dp" android:src="@drawable/ic_crit_dame" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_dmg" style="@style/MoscoText.Luxury.Body" android:textColor="@color/mosco_on_surface_variant" android:textSize="@dimen/text_size_body_sm" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_sm" android:text="@string/stat_crit_dmg" style="@style/MoscoText.Luxury.Body" android:textColor="@color/mosco_white_50" android:textSize="@dimen/text_size_body_sm" />
                     <TextView android:id="@+id/tv_stat_crit_dmg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/spacing_6dp" android:text="200%" style="@style/MoscoText.Luxury.Price" android:textColor="@color/lg_accent_primary" android:textSize="@dimen/text_size_body_md" />
                 </LinearLayout>
 
@@ -234,7 +234,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Vùng 30% -->
+            <!-- VÃ¹ng 30% -->
             <TextView
                 android:id="@+id/tv_badge_class"
                 android:layout_width="0dp"
@@ -246,7 +246,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/text_size_body_md" />
 
-            <!-- Vùng 70% -->
+            <!-- VÃ¹ng 70% -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="0.7"
@@ -290,7 +290,7 @@
                 <!-- Unified Card Content (Same proportions as Upgrade Fragment) -->
                 <include layout="@layout/layout_core_card" />
 
-                <!-- 2b. Back Face (Hiện khi Flip 3D, mặc định ẩn) -->
+                <!-- 2b. Back Face (Hiá»‡n khi Flip 3D, máº·c Ä‘á»‹nh áº©n) -->
                 <ImageView
                     android:id="@+id/iv_objet_detail_back"
                     android:layout_width="match_parent"
@@ -305,3 +305,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+
+

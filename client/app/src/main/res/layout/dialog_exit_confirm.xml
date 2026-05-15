@@ -37,7 +37,7 @@
             style="@style/MoscoText.Luxury.Body"
             android:textAlignment="center"
             android:text="@string/dialog_exit_msg"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_body_sm" />
 
         <LinearLayout

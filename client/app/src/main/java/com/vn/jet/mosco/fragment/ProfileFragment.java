@@ -463,11 +463,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
                     btnLike.setBackgroundTintList(android.content.res.ColorStateList
-                            .valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                            .valueOf(getResources().getColor(R.color.lg_accent_primary_dim)));
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
                     btnLike.setBackgroundTintList(
-                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.mosco_primary)));
+                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.lg_accent_primary)));
                 }
             }
 
@@ -487,7 +487,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
                         btnFriend.setStrokeColor(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_outline)));
+                                .valueOf(getResources().getColor(R.color.lg_outline)));
                         break;
                 }
             }
@@ -717,10 +717,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
         options.setCompressionQuality(90);
-        options.setToolbarColor(getResources().getColor(R.color.mosco_surface_container_high));
+        options.setToolbarColor(getResources().getColor(R.color.lg_glass_surface_elevated));
         options.setStatusBarColor(getResources().getColor(R.color.mosco_screen_bg));
         options.setToolbarWidgetColor(android.graphics.Color.WHITE);
-        options.setActiveControlsWidgetColor(getResources().getColor(R.color.mosco_primary));
+        options.setActiveControlsWidgetColor(getResources().getColor(R.color.lg_accent_primary));
 
         // [PHASE 6] Làm header nổi bật và sử dụng lớp phủ tối mờ kiểu không gian
         options.setDimmedLayerColor(getResources().getColor(R.color.mosco_black_80));

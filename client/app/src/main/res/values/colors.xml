@@ -253,4 +253,13 @@
     <color name="lg_modal_surface">#E6080C14</color>
     <color name="lg_modal_scrim">#B3050710</color>
 
+    <!-- LG: Text -->
+    <color name="lg_text_primary">@color/white</color>
+    <color name="lg_text_secondary">@color/mosco_white_70</color>
+    <color name="lg_text_dim">@color/mosco_white_50</color>
+    <color name="lg_text_disabled">@color/mosco_white_30</color>
+
+    <!-- LG: Outline -->
+    <color name="lg_outline">@color/lg_glass_stroke</color>
+
 </resources>

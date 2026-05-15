@@ -125,7 +125,7 @@ public class SignUpActivity extends AppCompatActivity {
                         android.content.res.ColorStateList.valueOf(
                                 ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
                 btnSendCode.setTextColor(
-                        ContextCompat.getColor(this, R.color.mosco_text_disabled));
+                        ContextCompat.getColor(this, R.color.lg_text_disabled));
             } else {
                 btnSendCode.setText(sentOnce ? getString(R.string.auth_action_resend) : getString(R.string.auth_action_send_code));
                 btnSendCode.setEnabled(true);
@@ -253,7 +253,7 @@ public class SignUpActivity extends AppCompatActivity {
         int start = fullText.indexOf(linkText);
         if (start != -1) {
             spannable.setSpan(
-                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.lg_accent_primary)),
                     start, start + linkText.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -336,7 +336,7 @@ public class SignUpActivity extends AppCompatActivity {
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
             btnSignUp.setTextColor(
-                    ContextCompat.getColor(this, R.color.mosco_text_disabled));
+                    ContextCompat.getColor(this, R.color.lg_text_disabled));
         } else {
             btnSignUp.setBackgroundTintList(null);
             btnSignUp.setTextColor(ContextCompat.getColor(this, R.color.white));

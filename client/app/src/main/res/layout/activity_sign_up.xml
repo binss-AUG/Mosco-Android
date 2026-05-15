@@ -7,7 +7,7 @@
 
     <include layout="@layout/layout_auth_background" />
 
-    <!-- Back Button (Quay về Sign In) -->
+    <!-- Back Button (Quay vá» Sign In) -->
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="@dimen/spacing_48dp"
@@ -49,7 +49,7 @@
 
 
 
-            <!-- Nhóm nội dung trung tâm - Căn giữa dọc -->
+            <!-- NhÃ³m ná»™i dung trung tÃ¢m - CÄƒn giá»¯a dá»c -->
             <LinearLayout
                 android:id="@+id/center_group"
                 android:layout_width="0dp"
@@ -113,7 +113,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="@dimen/spacing_15dp"
                             android:hint="@string/auth_prompt_username"
@@ -148,7 +148,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_email"
                             android:drawablePadding="@dimen/spacing_15dp"
                             android:hint="@string/auth_prompt_email"
@@ -175,7 +175,7 @@
                         android:layout_marginTop="@dimen/spacing_xs"
                         app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
-                        app:endIconTint="@color/mosco_text_disabled"
+                        app:endIconTint="@color/mosco_white_30"
                         app:hintEnabled="false"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
@@ -186,7 +186,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_sm"
                             android:hint="@string/auth_prompt_password"
@@ -214,7 +214,7 @@
                         android:layout_marginTop="@dimen/spacing_xs"
                         app:boxBackgroundMode="none"
                         app:endIconMode="password_toggle"
-                        app:endIconTint="@color/mosco_text_disabled"
+                        app:endIconTint="@color/mosco_white_30"
                         app:hintEnabled="false"
                         app:errorEnabled="true"
                         app:errorTextColor="@color/stat_atk"
@@ -225,7 +225,7 @@
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_52dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_sm"
                             android:hint="@string/auth_prompt_confirm_password"
@@ -271,7 +271,7 @@
                                 style="@style/MoscoText.Luxury.Input"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/spacing_52dp"
-                                android:background="@drawable/bg_glass_input"
+                                android:background="@drawable/lg_input_bg"
                                 android:drawableStart="@drawable/ic_shield_check"
                                 android:drawablePadding="@dimen/spacing_15dp"
                                 android:hint="@string/auth_prompt_verification_code"
@@ -399,4 +399,5 @@
         android:visibility="gone" />
 
 </FrameLayout>
+
 

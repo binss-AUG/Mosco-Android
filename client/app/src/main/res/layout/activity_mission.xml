@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:text="@string/common_mission_coming_soon_desc"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_body_sm"
             android:gravity="center"
             android:layout_marginTop="@dimen/spacing_sm" />

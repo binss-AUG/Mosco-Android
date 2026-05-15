@@ -3,40 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_button"
-    android:backgroundTint="@color/mosco_filter_bg"
+    android:background="@drawable/lg_surface_nav"
     android:paddingTop="@dimen/radius_lg">
 
-    <!-- Drag Handle -->
+    <!-- Drag Handle (Liquid Pill) -->
     <View
         android:id="@+id/v_drag_handle"
-        android:layout_width="@dimen/spacing_40dp"
-        android:layout_height="@dimen/spacing_xs"
-        android:background="@drawable/bg_button"
-        android:backgroundTint="@color/mosco_filter_hint"
+        android:layout_width="48dp"
+        android:layout_height="5dp"
+        android:background="@drawable/lg_btn_pill"
+        android:backgroundTint="@color/lg_glass_stroke"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Category Tabs (Artist / Season / Class) -->
+    <!-- Category Tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_filter_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/radius_lg"
-        android:background="@color/mosco_filter_bg"
-        app:tabIndicatorColor="@color/lg_glass_stroke"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:background="@android:color/transparent"
+        app:tabIndicator="@drawable/lg_nav_item_indicator"
+        app:tabIndicatorGravity="stretch"
+        app:tabIndicatorColor="@null"
         app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/mosco_text_disabled"
+        app:tabTextColor="@color/lg_text_disabled"
+        app:tabRippleColor="@null"
+        app:tabIndicatorFullWidth="true"
+        app:tabMinWidth="0dp"
         app:tabMode="fixed"
         app:tabGravity="fill"
         app:layout_constraintTop_toBottomOf="@id/v_drag_handle" />
 
-    <!-- Dynamic content area: filled programmatically -->
+    <!-- Dynamic content area -->
     <FrameLayout
         android:id="@+id/fl_filter_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/spacing_sm"
         app:layout_constraintTop_toBottomOf="@id/tab_filter_categories"
         app:layout_constraintBottom_toTopOf="@id/layout_filter_actions" />
 
@@ -45,7 +50,7 @@
         android:id="@+id/layout_filter_actions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/mosco_filter_bg"
+        android:background="@android:color/transparent"
         android:paddingHorizontal="@dimen/spacing_md"
         android:paddingTop="@dimen/spacing_sm"
         android:paddingBottom="@dimen/spacing_md"
@@ -82,28 +87,22 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_filter_clear"
+                style="@style/LiquidGlass_Button_Secondary"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_xxl"
                 android:layout_weight="0.8"
                 android:layout_marginEnd="@dimen/spacing_10dp"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/mosco_btn_disabled"
                 android:text="@string/action_clear"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:textStyle="bold" />
+                android:textAllCaps="true" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_filter_apply"
+                style="@style/LiquidGlass_Button_Primary"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_xxl"
                 android:layout_weight="1.2"
-                android:background="@drawable/bg_button"
-                android:backgroundTint="@color/lg_glass_stroke"
                 android:text="@string/action_apply"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:textStyle="bold" />
+                android:textAllCaps="true" />
 
         </LinearLayout>
 

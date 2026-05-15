@@ -8,7 +8,7 @@
     app:cardBackgroundColor="@color/mosco_surface_container"
     app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp"
-    app:strokeColor="@color/mosco_outline_variant"
+    app:strokeColor="@color/lg_outline"
     app:strokeWidth="@dimen/stroke_thin"
     app:cardPreventCornerOverlap="false"
     android:foreground="?android:attr/selectableItemBackground"
@@ -105,7 +105,7 @@
             android:layout_height="@dimen/stroke_thin"
             android:layout_marginHorizontal="@dimen/spacing_sm"
             android:layout_marginTop="@dimen/spacing_sm"
-            android:background="@color/mosco_outline_variant"
+            android:background="@color/lg_outline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_shop_item_timer" />
@@ -157,4 +157,5 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
+
 

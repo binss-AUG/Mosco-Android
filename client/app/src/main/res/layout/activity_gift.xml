@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="@string/social_label_gift_limit"
             style="@style/MoscoText.Luxury.Badge"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_body_xs"
             android:textStyle="bold"
             android:letterSpacing="0.05" />
@@ -60,7 +60,7 @@
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="false"
         app:tabSelectedTextColor="@color/lg_accent_primary"
-        app:tabTextColor="@color/mosco_text_disabled"
+        app:tabTextColor="@color/mosco_white_30"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_2"
                     style="@style/MoscoText.Luxury.Badge"
-                    android:textColor="@color/mosco_text_disabled"
+                    android:textColor="@color/mosco_white_30"
                     android:textSize="@dimen/text_size_body_md"
                     android:textStyle="bold" />
 
@@ -131,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/gift_step_3"
                     style="@style/MoscoText.Luxury.Badge"
-                    android:textColor="@color/mosco_text_disabled"
+                    android:textColor="@color/mosco_white_30"
                     android:textSize="@dimen/text_size_body_md"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -285,7 +285,7 @@
                                 android:layout_weight="1"
                                 android:layout_marginStart="@dimen/radius_lg"
                                 android:hint="@string/social_search_hint"
-                                android:textColorHint="@color/mosco_text_disabled"
+                                android:textColorHint="@color/mosco_white_30"
                                 android:textColor="@color/white"
                                 style="@style/MoscoText.Luxury.Body"
                                 android:textSize="@dimen/text_size_body_md"
@@ -312,7 +312,7 @@
                         android:gravity="center"
                         android:text="@string/gift_empty_friends"
                         style="@style/MoscoText.Luxury.Body"
-                        android:textColor="@color/mosco_text_disabled"
+                        android:textColor="@color/mosco_white_30"
                         android:textSize="@dimen/text_size_body_md"
                         android:visibility="gone" />
 
@@ -474,7 +474,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/gift_label_cost"
                             style="@style/MoscoText.Luxury.Badge"
-                            android:textColor="@color/mosco_text_disabled"
+                            android:textColor="@color/mosco_white_30"
                             android:textSize="@dimen/text_size_mini"
                             android:textStyle="bold"
                             android:fontWeight="700"
@@ -603,7 +603,7 @@
                 android:gravity="center"
                 android:text="@string/gift_empty_received"
                 style="@style/MoscoText.Luxury.Body"
-                android:textColor="@color/mosco_text_disabled"
+                android:textColor="@color/mosco_white_30"
                 android:textSize="@dimen/text_size_body_md"
                 android:visibility="gone" />
         </LinearLayout>

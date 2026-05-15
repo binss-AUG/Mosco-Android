@@ -113,7 +113,7 @@
             android:layout_width="200dp"
             android:layout_height="54dp"
             android:text="@string/splash_action_retry"
-            app:backgroundTint="@color/mosco_surface"
+            app:backgroundTint="@color/lg_background"
             app:cornerRadius="27dp"
             app:elevation="@dimen/spacing_sm"
             app:strokeColor="@color/lg_accent_primary"
@@ -121,3 +121,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

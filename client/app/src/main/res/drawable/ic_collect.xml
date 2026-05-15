@@ -5,16 +5,17 @@
     android:viewportHeight="24">
     <path
         android:fillColor="@color/transparent"
-        android:strokeColor="@color/mosco_on_surface"
+        android:strokeColor="@color/lg_text_primary"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:strokeWidth="1.5"
         android:pathData="M11,4h7a2,2 0 0 1 2,2v7a2,2 0 0 1 -2,2h-7a2,2 0 0 1 -2,-2V6a2,2 0 0 1 2,-2z" />
     <path
         android:fillColor="@color/transparent"
-        android:strokeColor="@color/mosco_on_surface"
+        android:strokeColor="@color/lg_text_primary"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:strokeWidth="1.5"
         android:pathData="M4,11h7a2,2 0 0 1 2,2v7a2,2 0 0 1 -2,2H4a2,2 0 0 1 -2,-2v-7a2,2 0 0 1 2,-2z" />
 </vector>
+
