@@ -44,6 +44,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+    }
 }
 
 dependencies {
@@ -61,6 +64,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'io.github.scwang90:refresh-layout-kernel:2.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     // --- Firebase (Dùng cho Auth và lưu trữ kho đồ Online) ---
     implementation platform('com.google.firebase:firebase-bom:34.12.0')
@@ -95,4 +99,7 @@ dependencies {
 
     // --- Cronet (Google Play Services version) - Chuẩn 2026 cho HTTP/3 (QUIC) ---
     implementation 'com.google.android.gms:play-services-cronet:18.0.1'
+
+    // --- ZXing Android Embedded hỗ trợ Quét và Sinh mã QR tốc độ cao ---
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 }

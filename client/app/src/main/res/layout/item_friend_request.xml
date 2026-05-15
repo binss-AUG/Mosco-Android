@@ -76,7 +76,7 @@
         android:id="@+id/btn_reject"
         android:layout_width="@dimen/spacing_xl"
         android:layout_height="@dimen/spacing_xl"
-        android:src="@drawable/ic_arrow_down"
+        android:src="@drawable/ic_close"
         android:rotation="0"
         android:padding="@dimen/spacing_6dp"
         android:clickable="true"

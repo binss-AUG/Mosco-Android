@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fragment Friend List — Tích hợp Thống kê (Total/Online) — NO HARDCODE — CLEAN UI -->
+<!-- Fragment Friend List — Tối giản hóa giao diện thuần Skeleton Shimmer — TYPOGRAPHY STANDARDIZED -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,39 +11,54 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_friend_list"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_friend_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingTop="@dimen/spacing_sm"
-            android:clipToPadding="false" />
+            android:layout_height="match_parent">
 
-        <!-- Empty State -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_friend_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingTop="@dimen/spacing_sm"
+                android:clipToPadding="false" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Skeleton Loading List (Dùng chung cho mọi trạng thái tải) -->
+        <include layout="@layout/layout_friend_skeleton_list" />
+
+        <!-- Empty State được ghim trọng tâm tuyệt đối -->
         <LinearLayout
             android:id="@+id/layout_friend_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
             android:visibility="gone">
+            
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottie_friend_empty"
                 android:layout_width="140dp"
                 android:layout_height="140dp"
                 app:lottie_autoPlay="true"
-                app:lottie_loop="true" />
+                app:lottie_loop="true"
+                android:visibility="gone" />
+                
             <TextView
                 android:id="@+id/tv_friend_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/social_empty_msg"
                 style="@style/MoscoText.Luxury.Body"
-                android:textColor="@color/white_40"
+                android:textColor="@color/mosco_text_disabled"
                 android:textSize="@dimen/text_size_body_sm"
-                android:layout_marginTop="@dimen/spacing_sm" />
+                android:gravity="center"
+                android:textAlignment="center"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:paddingHorizontal="@dimen/spacing_md" />
         </LinearLayout>
+
     </FrameLayout>
 </LinearLayout>
-

@@ -96,6 +96,13 @@ public class User {
     @Column(name = "collection_id", nullable = false)
     private Set<String> unlockedCollections = new HashSet<>();
 
+    // Các trường động (Transient) hỗ trợ trả về trạng thái tương tác xã hội cho Client
+    @Transient
+    private boolean liked = false;
+
+    @Transient
+    private int friendshipStatus = 0; // 0: None, 1: Pending, 2: Friends
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
@@ -191,4 +198,10 @@ public class User {
 
     public String getAvatarCropParams() { return avatarCropParams; }
     public void setAvatarCropParams(String avatarCropParams) { this.avatarCropParams = avatarCropParams; }
+
+    public boolean isLiked() { return liked; }
+    public void setLiked(boolean liked) { this.liked = liked; }
+
+    public int getFriendshipStatus() { return friendshipStatus; }
+    public void setFriendshipStatus(int friendshipStatus) { this.friendshipStatus = friendshipStatus; }
 }

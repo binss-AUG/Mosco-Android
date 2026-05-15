@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cổng Kết Nối QR định danh (Galactic ID QR Gateway) - Centered Liquid Dialog (Phóng to 32% chiều cao) -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/spacing_16dp"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_surface_solid"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/spacing_16dp"
+        android:paddingBottom="@dimen/spacing_20dp"
+        android:elevation="@dimen/spacing_10dp">
+
+        <!-- Thanh Tiêu đề và Nút Đóng -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_lg">
+
+            <TextView
+                android:id="@+id/tv_qr_dialog_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/social_qr_tab_my_qr"
+                style="@style/MoscoText.Luxury.Section"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_title"
+                android:fontWeight="800" />
+
+            <ImageView
+                android:id="@+id/btn_close_qr_dialog"
+                android:layout_width="@dimen/spacing_32dp"
+                android:layout_height="@dimen/spacing_32dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="@dimen/spacing_xs"
+                android:src="@drawable/ic_close"
+                app:tint="@color/mosco_text_disabled" />
+        </RelativeLayout>
+
+        <!-- TabLayout điều khiển 2 chế độ: My QR Code và Scan -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout_qr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_marginHorizontal="@dimen/spacing_lg"
+            android:background="@android:color/transparent"
+            app:tabIndicatorColor="@color/galactic_accent_purple"
+            app:tabIndicatorHeight="@dimen/spacing_xs"
+            app:tabIndicatorFullWidth="true"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/mosco_text_disabled"
+            app:tabRippleColor="@null"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
+
+        <!-- Vùng Nội dung Chuyển đổi giữa QR tĩnh và Khung ngắm Camera -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md">
+
+            <!-- 1. CỤM HIỂN THỊ MY QR CODE (Phóng to tối đa, giảm padding) -->
+            <LinearLayout
+                android:id="@+id/my_qr_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:visibility="visible">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="@dimen/radius_lg"
+                    app:cardElevation="@dimen/spacing_sm"
+                    app:cardBackgroundColor="@color/white"
+                    app:strokeColor="@color/galactic_accent_purple"
+                    app:strokeWidth="@dimen/stroke_thin">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp">
+
+                        <ImageView
+                            android:id="@+id/iv_qr_code"
+                            android:layout_width="280dp"
+                            android:layout_height="280dp"
+                            android:scaleType="fitCenter" />
+
+                        <!-- Lớp phủ Logo/Avatar nhỏ giữa mã QR được căn chỉnh cân đối -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="@dimen/spacing_48dp"
+                            android:layout_height="@dimen/spacing_48dp"
+                            android:layout_centerInParent="true"
+                            app:cardCornerRadius="@dimen/radius_xxl"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/mosco_card_bg"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="2dp">
+
+                            <ImageView
+                                android:id="@+id/iv_qr_logo_overlay"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="4dp"
+                                android:src="@drawable/ic_mosco_logo_static"
+                                android:scaleType="centerCrop" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tv_qr_user_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:text="@string/social_qr_my_code_label"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textColor="@color/mosco_text_dim"
+                    android:textSize="@dimen/text_size_body_sm"
+                    android:gravity="center"
+                    android:letterSpacing="0.05" />
+            </LinearLayout>
+
+            <!-- 2. CỤM KHUNG QUÉT CAMERA (SCAN - Mở rộng tương xứng lên 280dp) -->
+            <LinearLayout
+                android:id="@+id/scan_qr_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="280dp"
+                    android:layout_height="280dp"
+                    app:cardCornerRadius="@dimen/radius_lg"
+                    app:cardElevation="@dimen/spacing_md"
+                    app:cardBackgroundColor="@color/black"
+                    app:strokeColor="@color/galactic_accent_purple"
+                    app:strokeWidth="2dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <com.journeyapps.barcodescanner.BarcodeView
+                            android:id="@+id/barcode_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Khung viền ngắm Neon Laser Overlay -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_item_reveal_ghost_border"
+                            android:alpha="0.7" />
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:text="@string/social_qr_scan_instruction"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textColor="@color/mosco_text_disabled"
+                    android:textSize="@dimen/text_size_body_sm"
+                    android:gravity="center"
+                    android:paddingHorizontal="@dimen/spacing_xs" />
+            </LinearLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+</FrameLayout>

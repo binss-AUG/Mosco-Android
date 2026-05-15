@@ -32,4 +32,11 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
      */
     @Query("SELECT f FROM Friendship f WHERE (f.requesterId = :uid1 AND f.addresseeId = :uid2) OR (f.requesterId = :uid2 AND f.addresseeId = :uid1)")
     Optional<Friendship> findExistingFriendship(@Param("uid1") Long uid1, @Param("uid2") Long uid2);
+
+    /**
+     * Lấy toàn bộ danh sách quan hệ bạn bè (Status 0 hoặc 1) liên quan đến một tài khoản.
+     * Tại sao (WHY): Cung cấp danh sách bóc tách ID nhanh chóng nhằm loại trừ các người chơi đã có tương tác ra khỏi danh sách gợi ý mới mẻ.
+     */
+    @Query("SELECT f FROM Friendship f WHERE f.requesterId = :userId OR f.addresseeId = :userId")
+    List<Friendship> findAllFriendshipsForUser(@Param("userId") Long userId);
 }

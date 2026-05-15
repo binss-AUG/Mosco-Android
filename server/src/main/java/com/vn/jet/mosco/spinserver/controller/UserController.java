@@ -4,14 +4,20 @@ import com.vn.jet.mosco.spinserver.dto.ApiResponse;
 import com.vn.jet.mosco.spinserver.dto.AuthResponse;
 import com.vn.jet.mosco.spinserver.dto.DisplayNameRequest;
 import com.vn.jet.mosco.spinserver.dto.UpdateProfileRequest;
+import com.vn.jet.mosco.spinserver.model.Friendship;
 import com.vn.jet.mosco.spinserver.model.User;
+import com.vn.jet.mosco.spinserver.model.UserLike;
+import com.vn.jet.mosco.spinserver.repository.FriendshipRepository;
+import com.vn.jet.mosco.spinserver.repository.UserLikeRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -35,6 +41,8 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserRepository userRepository;
+    private final UserLikeRepository userLikeRepository;
+    private final FriendshipRepository friendshipRepository;
     private final com.vn.jet.mosco.spinserver.service.AuthService authService;
 
     // Danh sách tên hệ thống bị cấm — chống giả mạo quyền hạn
@@ -50,8 +58,13 @@ public class UserController {
     // Pattern cho username: chỉ chữ/số/underscore, 3-20 ký tự
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
 
-    public UserController(UserRepository userRepository, com.vn.jet.mosco.spinserver.service.AuthService authService) {
+    public UserController(UserRepository userRepository, 
+                          UserLikeRepository userLikeRepository,
+                          FriendshipRepository friendshipRepository,
+                          com.vn.jet.mosco.spinserver.service.AuthService authService) {
         this.userRepository = userRepository;
+        this.userLikeRepository = userLikeRepository;
+        this.friendshipRepository = friendshipRepository;
         this.authService = authService;
     }
 
@@ -59,12 +72,38 @@ public class UserController {
      * GET /api/user/{userId} — Xem thông tin user.
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserInfo(@PathVariable Long userId) {
+    public ResponseEntity<User> getUserInfo(HttpServletRequest request, @PathVariable Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             authService.updateStreak(user);
             userRepository.save(user);
+
+            // Bổ sung tính toán trạng thái mạng xã hội động nếu request được xác thực
+            // Tại sao: Client dựa vào các trường này để cập nhật nút Like và Add Friend chính xác
+            Long currentUserId = (Long) request.getAttribute("userId");
+            if (currentUserId != null) {
+                user.setLiked(userLikeRepository.existsByLikerIdAndTargetUserId(currentUserId, userId));
+
+                Optional<Friendship> friendshipOpt = friendshipRepository.findExistingFriendship(currentUserId, userId);
+                if (friendshipOpt.isPresent()) {
+                    Friendship f = friendshipOpt.get();
+                    if (f.getStatus() == 1) {
+                        user.setFriendshipStatus(2); // Đã là bạn bè
+                    } else {
+                        // Trạng thái chờ xác nhận
+                        if (currentUserId.equals(f.getAddresseeId())) {
+                            // Tại sao: Nếu người dùng hiện tại là người nhận lời mời, trả về trạng thái 3 để Client hiển thị nút Accept / Decline
+                            user.setFriendshipStatus(3);
+                        } else {
+                            user.setFriendshipStatus(1); // Đã gửi lời mời -> Hiển thị Pending
+                        }
+                    }
+                } else {
+                    user.setFriendshipStatus(0);
+                }
+            }
+
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.notFound().build();
@@ -211,6 +250,65 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, response.getMessage()));
         }
+    }
+
+    /**
+     * POST /api/user/{targetUserId}/like — Thích hoặc bỏ thích hồ sơ người chơi khác.
+     * Tại sao: Đảm bảo tính nguyên tử (Atomicity) khi tăng/giảm like, ngăn chặn race condition 
+     * và kiểm tra toàn vẹn dữ liệu tránh một người bấm thích nhiều lần.
+     */
+    @PostMapping("/{targetUserId}/like")
+    @Transactional
+    public ResponseEntity<ApiResponse<Map<String, Object>>> likeProfile(
+            HttpServletRequest request,
+            @PathVariable Long targetUserId) {
+
+        Long currentUserId = (Long) request.getAttribute("userId");
+        if (currentUserId == null) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(401, "Authentication required"));
+        }
+
+        // Không cho phép tự thích hồ sơ của chính mình
+        if (currentUserId.equals(targetUserId)) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Không thể tự thích hồ sơ của chính mình"));
+        }
+
+        User targetUser = userRepository.findById(targetUserId).orElse(null);
+        if (targetUser == null) {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error(404, "Không tìm thấy hồ sơ người chơi"));
+        }
+
+        Optional<UserLike> existingLike = userLikeRepository.findByLikerIdAndTargetUserId(currentUserId, targetUserId);
+        boolean liked;
+        if (existingLike.isPresent()) {
+            // Đã thích -> Bỏ thích
+            userLikeRepository.delete(existingLike.get());
+            targetUser.setLikesCount(Math.max(0, targetUser.getLikesCount() - 1));
+            liked = false;
+            logger.info("User {} unliked user {}", currentUserId, targetUserId);
+        } else {
+            // Chưa thích -> Thích
+            UserLike newLike = new UserLike(currentUserId, targetUserId);
+            userLikeRepository.save(newLike);
+            targetUser.setLikesCount(targetUser.getLikesCount() + 1);
+            liked = true;
+            logger.info("User {} liked user {}", currentUserId, targetUserId);
+        }
+
+        userRepository.save(targetUser);
+
+        Map<String, Object> responseData = Map.of(
+                "liked", liked,
+                "likesCount", targetUser.getLikesCount()
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(
+                liked ? "Đã thích hồ sơ thành công" : "Đã bỏ thích hồ sơ",
+                responseData
+        ));
     }
 
     // ════════════════════════════════════════════════════════════════

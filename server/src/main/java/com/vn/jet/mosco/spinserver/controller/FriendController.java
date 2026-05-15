@@ -110,6 +110,42 @@ public class FriendController {
     }
 
     /**
+     * DELETE /api/friends/remove-by-user/{targetUserId} — Hủy kết bạn hoặc lời mời kết bạn theo ID người chơi.
+     * Tại sao: Hỗ trợ luồng thao tác trực tiếp từ màn hình Profile của người chơi khác mà không cần tra cứu friendshipId.
+     */
+    @DeleteMapping("/remove-by-user/{targetUserId}")
+    public ResponseEntity<ApiResponse<Void>> removeFriendByUser(HttpServletRequest request, @PathVariable Long targetUserId) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
+        }
+
+        String error = friendService.removeFriendshipByTargetUser(userId, targetUserId);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, error));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Đã hủy kết bạn / lời mời", null));
+    }
+
+    /**
+     * POST /api/friends/accept-by-user/{targetUserId} — Chấp nhận lời mời kết bạn theo ID người chơi.
+     * Tại sao: Cho phép Client chấp nhận kết bạn trực tiếp khi xem hồ sơ người gửi mà không cần tra cứu friendshipId.
+     */
+    @PostMapping("/accept-by-user/{targetUserId}")
+    public ResponseEntity<ApiResponse<Void>> acceptFriendByUser(HttpServletRequest request, @PathVariable Long targetUserId) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
+        }
+
+        String error = friendService.acceptRequestByTargetUser(userId, targetUserId);
+        if (error != null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, error));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Đã chấp nhận kết bạn", null));
+    }
+
+    /**
      * GET /api/friends/search?query=xxx — Tìm kiếm user theo tên hoặc ID.
      */
     @GetMapping("/search")
@@ -123,5 +159,19 @@ public class FriendController {
 
         List<Map<String, Object>> results = friendService.searchUsers(query, userId);
         return ResponseEntity.ok(ApiResponse.success("Kết quả tìm kiếm", results));
+    }
+
+    /**
+     * GET /api/friends/explore — Lấy tối đa 20 tài khoản gợi ý mới để kết bạn.
+     * Tại sao (WHY): Tách biệt hoàn toàn luồng truy vấn ngẫu nhiên khỏi logic tra cứu từ khóa, hỗ trợ cơ chế Refresh ngẫu nhiên phía Client.
+     */
+    @GetMapping("/explore")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getExploreSuggestions(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
+        }
+        List<Map<String, Object>> suggestions = friendService.getExploreSuggestions(userId);
+        return ResponseEntity.ok(ApiResponse.success("Gợi ý kết bạn", suggestions));
     }
 }
