@@ -135,7 +135,8 @@ public class FriendActivity extends MoscoBaseActivity {
     }
 
     private void handleSearch(String query) {
-        if (query == null || query.trim().isEmpty()) return;
+        if (this == null || this.isFinishing() || this.isDestroyed()) return;
+        if (query == null) return;
         handleGlobalSearch(query);
     }
 
@@ -170,7 +171,7 @@ public class FriendActivity extends MoscoBaseActivity {
                             // Lấy kết quả đầu tiên
                             JSONObject firstResult = data.getJSONObject(0);
                             Long targetId = firstResult.optLong("userId");
-                            String targetName = firstResult.optString("ingameName", "Unknown");
+                            String targetName = firstResult.optString("ingameName", getString(R.string.profile_preview_default_name));
 
                             // Hiện dialog xác nhận
                             new androidx.appcompat.app.AlertDialog.Builder(FriendActivity.this)
@@ -270,7 +271,7 @@ public class FriendActivity extends MoscoBaseActivity {
 
         tvName.setText(name.toUpperCase());
         tvLevel.setText(String.valueOf(level));
-        tvObjets.setText(String.valueOf(user.optInt("objetsCount", 42))); 
+        tvObjets.setText(String.valueOf(user.optInt("objetsCount", 0))); 
         tvId.setText(String.valueOf(10000000 + id));
         
         String rawDate = user.optString("createdAt", getString(R.string.placeholder_empty));
@@ -325,11 +326,12 @@ public class FriendActivity extends MoscoBaseActivity {
                 ImageView btnClose = view.findViewById(R.id.btn_close_chat);
                 
                 com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
+                chatAdapter.setCurrentUserId("me");
                 rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
                 rvPrivate.setAdapter(chatAdapter);
                 
                 // Professional chat initialization
-                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0", getString(R.string.chat_msg_system), avatarId, getString(R.string.chat_msg_secure_connection)));
+                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("SYSTEM", getString(R.string.chat_msg_system), avatarId, getString(R.string.chat_msg_secure_connection)));
                 
                 btnClose.setOnClickListener(v1 -> chatContainer.setVisibility(View.GONE));
                 

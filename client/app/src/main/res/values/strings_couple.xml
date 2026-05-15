@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="couple_streak_title">Couple’s Streak</string>
+    <string name="couple_streak_invite_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chờ bạn ngỏ lời!!</string>
+    <string name="couple_streak_waiting_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chờ bạn ngỏ lời!!</string>
+    <string name="couple_streak_received_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chỉ chờ mỗi bạn thôi!!</string>
+    
+    <string name="couple_streak_action_request">Request</string>
+    <string name="couple_streak_action_wait">Wait %s Response</string>
+    <string name="couple_streak_action_accept">Accept</string>
+    <string name="couple_streak_action_decline">Decline</string>
+    <string name="couple_streak_action_share">Share</string>
+    <string name="couple_streak_action_cancel">Cancel</string>
+    <string name="couple_streak_action_change">Change</string>
+    <string name="couple_streak_you">You</string>
+</resources>
