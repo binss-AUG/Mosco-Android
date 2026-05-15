@@ -446,8 +446,6 @@ public class FriendActivity extends MoscoBaseActivity {
                         v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
                     }
                 });
-            } else {
-                Toast.makeText(this, getString(R.string.profile_preview_msg_chat_coming, name), Toast.LENGTH_SHORT).show();
             }
         });
 
