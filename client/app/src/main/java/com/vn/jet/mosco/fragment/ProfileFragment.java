@@ -180,6 +180,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         return view;
     }
 
+    private io.reactivex.disposables.Disposable notificationSubscription;
+
     private void handleArguments() {
         Bundle args = getArguments();
         Long currentUserId = sessionManager != null ? sessionManager.getUserId() : null;
@@ -787,7 +789,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void showUnfriendDialog() {
-        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?",
+        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list? You will lose your Couple Streak with this person if you unfriend.",
                 () -> {
                     UserStats stats = viewModel.getUserStats().getValue();
                     if (stats != null && getContext() != null && targetUserId != null) {
@@ -1513,5 +1515,32 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 Toast.makeText(requireContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (sessionManager != null) {
+            notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
+                String.valueOf(sessionManager.getUserId()),
+                message -> {
+                    if ("SYSTEM_FRIEND".equals(message.getSenderId())) {
+                        if (targetUserId != null && viewModel != null) {
+                            requireActivity().runOnUiThread(() -> {
+                                viewModel.refreshUserStats(targetUserId);
+                            });
+                        }
+                    }
+                }
+            );
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (notificationSubscription != null && !notificationSubscription.isDisposed()) {
+            notificationSubscription.dispose();
+        }
     }
 }

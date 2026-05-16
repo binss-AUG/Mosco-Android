@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.vn.jet.mosco.spinserver.repository.CoupleStreakRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 /**
  * Service xử lý logic Bạn bè.
  * Hỗ trợ: Tìm kiếm user, gửi/chấp nhận/từ chối/xóa bạn bè.
@@ -23,10 +26,15 @@ public class FriendService {
 
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
+    private final CoupleStreakRepository streakRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public FriendService(FriendshipRepository friendshipRepository, UserRepository userRepository) {
+    public FriendService(FriendshipRepository friendshipRepository, UserRepository userRepository, 
+                         CoupleStreakRepository streakRepository, SimpMessagingTemplate messagingTemplate) {
         this.friendshipRepository = friendshipRepository;
         this.userRepository = userRepository;
+        this.streakRepository = streakRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     /**
@@ -103,6 +111,9 @@ public class FriendService {
         Friendship friendship = new Friendship(requesterId, addresseeId);
         friendshipRepository.save(friendship);
         logger.info("Friend request sent: {} -> {}", requesterId, addresseeId);
+        
+        notifyFriendStatusUpdate(addresseeId);
+        
         return null; // null = thành công
     }
 
@@ -137,6 +148,10 @@ public class FriendService {
         }
 
         logger.info("Friend request accepted: friendshipId={}", friendshipId);
+        
+        notifyFriendStatusUpdate(f.getRequesterId());
+        notifyFriendStatusUpdate(f.getAddresseeId());
+        
         return null;
     }
 
@@ -169,8 +184,15 @@ public class FriendService {
                 userRepository.save(addressee);
             }
         }
+        
+        // Xóa Couple Streak data cho cả 2
+        streakRepository.deleteBetweenUsers(f.getRequesterId(), f.getAddresseeId());
 
         logger.info("Friendship removed: friendshipId={}, by userId={}", friendshipId, userId);
+        
+        notifyFriendStatusUpdate(f.getRequesterId());
+        notifyFriendStatusUpdate(f.getAddresseeId());
+        
         return null;
     }
 
@@ -202,8 +224,15 @@ public class FriendService {
                 userRepository.save(addressee);
             }
         }
+        
+        // Xóa Couple Streak data
+        streakRepository.deleteBetweenUsers(currentUserId, targetUserId);
 
         logger.info("Friendship removed between userId={} and targetUserId={}", currentUserId, targetUserId);
+        
+        notifyFriendStatusUpdate(currentUserId);
+        notifyFriendStatusUpdate(targetUserId);
+        
         return null;
     }
 
@@ -241,6 +270,10 @@ public class FriendService {
         }
 
         logger.info("Friend request accepted between userId={} and targetUserId={}", currentUserId, targetUserId);
+        
+        notifyFriendStatusUpdate(currentUserId);
+        notifyFriendStatusUpdate(targetUserId);
+        
         return null;
     }
 
@@ -317,5 +350,16 @@ public class FriendService {
                     return entry;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private void notifyFriendStatusUpdate(Long targetUserId) {
+        try {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("senderId", "SYSTEM_FRIEND");
+            msg.put("content", "FRIEND_UPDATE");
+            messagingTemplate.convertAndSend("/topic/private." + targetUserId, msg);
+        } catch (Exception e) {
+            logger.error("Failed to broadcast friend update to user " + targetUserId, e);
+        }
     }
 }

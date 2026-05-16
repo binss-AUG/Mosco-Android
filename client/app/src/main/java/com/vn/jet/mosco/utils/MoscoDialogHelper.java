@@ -324,7 +324,13 @@ public class MoscoDialogHelper {
                 tvNameA.setSelected(true); // Kích hoạt Marquee (lineshow)
                 tvNameB.setText(data.partnerName);
                 tvNameB.setSelected(true); // Kích hoạt Marquee
-                tvStreak.setText(String.valueOf(data.streakCount));
+                
+                if (data.streakCount == 0) {
+                    tvStreak.setVisibility(View.GONE);
+                } else {
+                    tvStreak.setVisibility(View.VISIBLE);
+                    tvStreak.setText(String.valueOf(data.streakCount));
+                }
 
                 com.airbnb.lottie.LottieAnimationView ivFire = dialogView.findViewById(R.id.iv_fire_streak);
                 if (ivFire != null) {
@@ -338,26 +344,49 @@ public class MoscoDialogHelper {
                 ImageView ivCardBImg = dialogView.findViewById(R.id.card_iv_image_b);
                 ImageView ivPlaceholderB = dialogView.findViewById(R.id.iv_card_b_placeholder);
                 TextView tvCardNameB = dialogView.findViewById(R.id.tv_card_name_b);
+                ImageView ivBackB = dialogView.findViewById(R.id.iv_card_b_back);
                 com.google.android.material.card.MaterialCardView cardB = dialogView.findViewById(R.id.card_b);
                 
                 if (data.cardBUrl != null && !data.cardBUrl.isEmpty()) {
                     if (ivPlaceholderB != null) ivPlaceholderB.setVisibility(View.GONE);
+                    View layoutFrontB = dialogView.findViewById(R.id.layout_selected_front_b);
+                    if (layoutFrontB != null) layoutFrontB.setVisibility(View.VISIBLE);
+                    
                     if (ivCardBImg != null) {
-                        ivCardBImg.setVisibility(View.VISIBLE);
-                        GlideBindingAdapter.loadImage(ivCardBImg, data.cardBUrl, true);
+                        GlideBindingAdapter.loadImage(ivCardBImg, ensureHighQualityUrl(data.cardBUrl), false);
+                    }
+                    if (ivBackB != null && data.cardBBackUrl != null) {
+                        GlideBindingAdapter.loadImage(ivBackB, ensureHighQualityUrl(data.cardBBackUrl), false);
                     }
                     if (tvCardNameB != null) tvCardNameB.setText(data.cardBName != null ? data.cardBName : "");
+                    
+                    ImageView ivBadgeB = dialogView.findViewById(R.id.card_iv_badge_b);
+                    // TODO: Hiển thị badge sau này
+                    // if (ivBadgeB != null && data.cardBGrade > 0) {
+                    //     ivBadgeB.setVisibility(View.VISIBLE);
+                    //     String badgePath = activity.getString(R.string.asset_grade_path) + data.cardBGrade + ".png";
+                    //     com.bumptech.glide.Glide.with(activity).load(badgePath).into(ivBadgeB);
+                    // }
+
                     if (cardB != null) {
                         com.vn.jet.mosco.model.CardDisplayItem mockItem = new com.vn.jet.mosco.model.CardDisplayItem();
                         mockItem.setFrontImage(data.cardBUrl);
-                        mockItem.setId(-1);
+                        // Sử dụng hash của URL làm ID để CardEffectHelper nhận biết thay đổi
+                        mockItem.setId(data.cardBUrl.hashCode()); 
                         CardEffectHelper.apply(cardB, null, mockItem, true);
                     }
                 } else {
                     if (ivPlaceholderB != null) ivPlaceholderB.setVisibility(View.VISIBLE);
-                    if (ivCardBImg != null) ivCardBImg.setVisibility(View.GONE);
+                    View layoutFrontB = dialogView.findViewById(R.id.layout_selected_front_b);
+                    if (layoutFrontB != null) layoutFrontB.setVisibility(View.GONE);
                     if (tvCardNameB != null) tvCardNameB.setText("");
                     if (cardB != null) CardEffectHelper.applyEmptyStateGlow(cardB, true);
+                }
+                
+                // Cho phép lật thẻ B
+                if (cardB != null && data.cardBUrl != null && !data.cardBUrl.isEmpty()) {
+                    View layoutFrontB = dialogView.findViewById(R.id.layout_selected_front_b);
+                    attach3DFlip(activity, cardB, layoutFrontB, ivBackB, data.cardBUrl, null);
                 }
                 
                 btnDescriptionShow(tvDescription, status, activity);
@@ -379,6 +408,83 @@ public class MoscoDialogHelper {
 
         dialog.show();
         return dialog;
+    }
+
+    public static void updateCoupleStreakDialog(android.app.AlertDialog dialog, CoupleData data, Activity activity) {
+        if (dialog == null || !dialog.isShowing() || data == null) return;
+        
+        // Cập nhật card A
+        ImageView ivFrontA = dialog.findViewById(R.id.card_iv_image);
+        ImageView ivBackA = dialog.findViewById(R.id.iv_card_a_back);
+        TextView tvCardNameA = dialog.findViewById(R.id.tv_card_name_a);
+        ImageView ivBadgeA = dialog.findViewById(R.id.card_iv_badge_a);
+        
+        if (ivFrontA != null && data.cardAUrl != null) {
+            GlideBindingAdapter.loadImage(ivFrontA, ensureHighQualityUrl(data.cardAUrl), false);
+            if (ivBackA != null && data.cardABackUrl != null) GlideBindingAdapter.loadImage(ivBackA, ensureHighQualityUrl(data.cardABackUrl), false);
+            if (tvCardNameA != null) tvCardNameA.setText(data.cardAName != null ? data.cardAName : "");
+            
+            // TODO: Hiển thị badge sau này
+            // if (ivBadgeA != null && data.cardAGrade > 0) {
+            //     ivBadgeA.setVisibility(View.VISIBLE);
+            //     String badgePath = activity.getString(R.string.asset_grade_path) + data.cardAGrade + ".png";
+            //     com.bumptech.glide.Glide.with(activity).load(badgePath).into(ivBadgeA);
+            // }
+            // Khởi tạo lại toàn bộ Interaction (Tap đổi thẻ & Lật 3D)
+            setupCardInteraction(activity, dialog.getWindow().getDecorView(), data);
+        }
+
+        // Cập nhật card B
+        ImageView ivFrontB = dialog.findViewById(R.id.card_iv_image_b);
+        ImageView ivBackB = dialog.findViewById(R.id.iv_card_b_back);
+        TextView tvCardNameB = dialog.findViewById(R.id.tv_card_name_b);
+        ImageView ivBadgeB = dialog.findViewById(R.id.card_iv_badge_b);
+        
+        if (ivFrontB != null && data.cardBUrl != null) {
+            dialog.findViewById(R.id.iv_card_b_placeholder).setVisibility(View.GONE);
+            dialog.findViewById(R.id.layout_selected_front_b).setVisibility(View.VISIBLE);
+            GlideBindingAdapter.loadImage(ivFrontB, ensureHighQualityUrl(data.cardBUrl), false);
+            if (ivBackB != null && data.cardBBackUrl != null) GlideBindingAdapter.loadImage(ivBackB, ensureHighQualityUrl(data.cardBBackUrl), false);
+            if (tvCardNameB != null) tvCardNameB.setText(data.cardBName != null ? data.cardBName : "");
+            
+            // TODO: Hiển thị badge sau này
+            // if (ivBadgeB != null && data.cardBGrade > 0) {
+            //     ivBadgeB.setVisibility(View.VISIBLE);
+            //     String badgePath = activity.getString(R.string.asset_grade_path) + data.cardBGrade + ".png";
+            //     com.bumptech.glide.Glide.with(activity).load(badgePath).into(ivBadgeB);
+            // }
+
+            com.google.android.material.card.MaterialCardView cardB = dialog.findViewById(R.id.card_b);
+            if (cardB != null) {
+                // Áp dụng Glow màu thực từ ảnh (shimmer=null vì Card B không có shimmer view riêng)
+                com.vn.jet.mosco.model.CardDisplayItem mockItemB = new com.vn.jet.mosco.model.CardDisplayItem();
+                mockItemB.setFrontImage(data.cardBUrl);
+                mockItemB.setId(data.cardBUrl.hashCode()); // Đồng bộ theo URL
+                CardEffectHelper.apply(cardB, null, mockItemB, true);
+                
+                // Tái gắn Touch Listener lật 3D
+                View layoutFrontB = dialog.findViewById(R.id.layout_selected_front_b);
+                attach3DFlip(activity, cardB, layoutFrontB, ivBackB, data.cardBUrl, null);
+            }
+        } else {
+            // Nếu mất thẻ B (bị gỡ)
+            com.google.android.material.card.MaterialCardView cardB = dialog.findViewById(R.id.card_b);
+            if (cardB != null) {
+                CardEffectHelper.applyEmptyStateGlow(cardB, true);
+                cardB.setOnTouchListener(null); // Gỡ bỏ lật
+            }
+        }
+        
+        // Cập nhật số streak
+        TextView tvStreak = dialog.findViewById(R.id.tv_streak_count);
+        if (tvStreak != null) {
+            if (data.streakCount == 0) {
+                tvStreak.setVisibility(View.GONE);
+            } else {
+                tvStreak.setVisibility(View.VISIBLE);
+                tvStreak.setText(String.valueOf(data.streakCount));
+            }
+        }
     }
 
     private static void btnDescriptionShow(TextView tv, CoupleStatus status, Activity activity) {
@@ -423,7 +529,7 @@ public class MoscoDialogHelper {
             if (shimmer != null) {
                 com.vn.jet.mosco.model.CardDisplayItem mockItem = new com.vn.jet.mosco.model.CardDisplayItem();
                 mockItem.setFrontImage(data.cardAUrl);
-                mockItem.setId(-1);
+                mockItem.setId(data.cardAUrl.hashCode()); // Dùng hash URL thay vì -1 để update glow chính xác
                 CardEffectHelper.apply(cardA, shimmer, mockItem, true);
             }
         } else {
@@ -453,31 +559,40 @@ public class MoscoDialogHelper {
                         GlideBindingAdapter.loadImage(ivBackA, ensureHighQualityUrl(data.cardABackUrl), false);
                         if (tvCardNameA != null) tvCardNameA.setText(data.cardAName);
                         
-                        if (ivBadgeA != null && data.cardAGrade > 0) {
-                            ivBadgeA.setVisibility(View.VISIBLE);
-                            String badgePath = activity.getString(R.string.asset_grade_path) + data.cardAGrade + ".png";
-                            com.bumptech.glide.Glide.with(activity).load(badgePath).into(ivBadgeA);
-                        }
+                        // TODO: Hiển thị badge sau này
+                        // if (ivBadgeA != null && data.cardAGrade > 0) {
+                        //     ivBadgeA.setVisibility(View.VISIBLE);
+                        //     String badgePath = activity.getString(R.string.asset_grade_path) + data.cardAGrade + ".png";
+                        //     com.bumptech.glide.Glide.with(activity).load(badgePath).into(ivBadgeA);
+                        // }
 
                         View shimmer = cardA.findViewById(R.id.view_card_shimmer);
                         if (shimmer != null) CardEffectHelper.apply(cardA, shimmer, selectedItem, true);
+
+                        // Thay vì đợi callback, ta cập nhật trực tiếp tại chỗ
+                        ImageView ivFrontA_local = cardA.findViewById(R.id.card_iv_image);
+                        ImageView ivBackA_local = cardA.findViewById(R.id.iv_card_a_back);
+                        if (ivFrontA_local != null) GlideBindingAdapter.loadImage(ivFrontA_local, ensureHighQualityUrl(data.cardAUrl), false);
+                        if (ivBackA_local != null) GlideBindingAdapter.loadImage(ivBackA_local, ensureHighQualityUrl(data.cardABackUrl), false);
 
                         // 2. Sync to Backend
                         if (data.streakId != null) {
                             Long myId = new com.vn.jet.mosco.utils.SessionManager(activity).getUserId();
                             com.vn.jet.mosco.network.ApiClient.getClient(activity)
                                 .create(com.vn.jet.mosco.network.GameApiService.class)
-                                .updateCoupleStreakObjet(data.streakId, myId, selectedItem.getCollectionId())
+                                .updateCoupleStreakObjet(data.streakId, myId, selectedItem.getCollectionId(), selectedItem.getUpgradeLevel())
                                 .enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>>() {
                                     @Override
                                     public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> response) {
                                         if (response.isSuccessful()) {
-                                            android.util.Log.d("STREAK", "Objet synced successfully");
+                                            android.widget.Toast.makeText(activity, "Objet updated successfully!", android.widget.Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            android.widget.Toast.makeText(activity, "Failed to update Objet", android.widget.Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                     @Override
                                     public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> call, Throwable t) {
-                                        android.util.Log.e("STREAK", "Failed to sync objet", t);
+                                        android.widget.Toast.makeText(activity, "Network error. Please try again.", android.widget.Toast.LENGTH_SHORT).show();
                                     }
                                 });
                         }
@@ -488,66 +603,68 @@ public class MoscoDialogHelper {
             }
         });
 
-        // 3D Flip Logic (Cao cấp - Silent Luxury)
+        attach3DFlip(activity, cardA, layoutFrontA, ivBackA, data.cardAUrl, detector);
+    }
+
+    private static void attach3DFlip(Activity activity, com.google.android.material.card.MaterialCardView card, View layoutFront, ImageView ivBack, String cardUrl, GestureDetectorCompat detector) {
         float scale = activity.getResources().getDisplayMetrics().density;
-        cardA.setCameraDistance(12000 * scale); // Tăng chiều sâu để xoay mượt hơn
+        card.setCameraDistance(12000 * scale);
         
         final float[] initialTouchX = {0f};
         final float[] startRotation = {0f};
         final boolean[] isFlipped = {false};
         final boolean[] isAnimating = {false};
 
-        cardA.setOnTouchListener((v, event) -> {
+        card.setOnTouchListener((v, event) -> {
             if (isAnimating[0]) return true;
-            detector.onTouchEvent(event);
+            if (detector != null) detector.onTouchEvent(event);
             
-            if (data.cardAUrl == null || data.cardAUrl.isEmpty()) {
+            if (cardUrl == null || cardUrl.isEmpty()) {
                 return true; 
             }
 
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     initialTouchX[0] = event.getRawX();
-                    startRotation[0] = cardA.getRotationY();
-                    v.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Kích hoạt phần cứng
+                    startRotation[0] = card.getRotationY();
+                    v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                     return true;
                 case MotionEvent.ACTION_MOVE:
                     float diffX = event.getRawX() - initialTouchX[0];
-                    float targetRotation = startRotation[0] + (diffX / 4.5f); // Độ nhạy vừa phải
-                    cardA.setRotationY(targetRotation);
-                    syncGlowToCard(cardA);
+                    float targetRotation = startRotation[0] + (diffX / 4.5f);
+                    card.setRotationY(targetRotation);
+                    syncGlowToCard(card);
 
                     float normalized = Math.abs(targetRotation % 360);
                     boolean shouldShowBack = (normalized > 90 && normalized < 270);
                     
                     if (shouldShowBack != isFlipped[0]) {
                         isFlipped[0] = shouldShowBack;
-                        layoutFrontA.setVisibility(shouldShowBack ? View.GONE : View.VISIBLE);
-                        ivBackA.setVisibility(shouldShowBack ? View.VISIBLE : View.GONE);
+                        if (layoutFront != null) layoutFront.setVisibility(shouldShowBack ? View.GONE : View.VISIBLE);
+                        if (ivBack != null) ivBack.setVisibility(shouldShowBack ? View.VISIBLE : View.GONE);
                     }
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    // Snap về 0 hoặc 180 mượt mà như SpinFragment
-                    float finalRot = cardA.getRotationY();
+                    float finalRot = card.getRotationY();
                     float snapTo = Math.round(finalRot / 180f) * 180f;
                     
                     isAnimating[0] = true;
-                    ObjectAnimator snapAnim = ObjectAnimator.ofFloat(cardA, "rotationY", finalRot, snapTo);
+                    ObjectAnimator snapAnim = ObjectAnimator.ofFloat(card, "rotationY", finalRot, snapTo);
                     snapAnim.setDuration(450);
                     snapAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-                    snapAnim.addUpdateListener(anim -> syncGlowToCard(cardA));
+                    snapAnim.addUpdateListener(anim -> syncGlowToCard(card));
                     snapAnim.addListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             isAnimating[0] = false;
                             v.setLayerType(View.LAYER_TYPE_NONE, null);
                             
-                            float norm = Math.abs(cardA.getRotationY() % 360);
+                            float norm = Math.abs(card.getRotationY() % 360);
                             boolean isBack = (norm > 90 && norm < 270);
                             isFlipped[0] = isBack;
-                            layoutFrontA.setVisibility(isBack ? View.GONE : View.VISIBLE);
-                            ivBackA.setVisibility(isBack ? View.VISIBLE : View.GONE);
+                            if (layoutFront != null) layoutFront.setVisibility(isBack ? View.GONE : View.VISIBLE);
+                            if (ivBack != null) ivBack.setVisibility(isBack ? View.VISIBLE : View.GONE);
                         }
                     });
                     snapAnim.start();

@@ -21,4 +21,11 @@ public interface CoupleStreakRepository extends JpaRepository<CoupleStreak, Long
            "(s.requester.id = :id1 AND s.partner.id = :id2) OR " +
            "(s.requester.id = :id2 AND s.partner.id = :id1)")
     Optional<CoupleStreak> findBetweenUserIds(@Param("id1") Long id1, @Param("id2") Long id2);
+
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM CoupleStreak s WHERE " +
+           "(s.requester.id = :id1 AND s.partner.id = :id2) OR " +
+           "(s.requester.id = :id2 AND s.partner.id = :id1)")
+    void deleteBetweenUsers(@Param("id1") Long id1, @Param("id2") Long id2);
 }

@@ -34,6 +34,12 @@ public class CoupleStreak {
     private LocalDate lastInteractionDate;
     private LocalDate requestDate;
 
+    @Column(name = "requester_interaction_date")
+    private LocalDate requesterInteractionDate;
+
+    @Column(name = "partner_interaction_date")
+    private LocalDate partnerInteractionDate;
+
     @Column(name = "requester_objet_id")
     private String requesterObjetId;
 

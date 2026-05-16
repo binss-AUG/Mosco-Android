@@ -207,25 +207,41 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void updateStreakUI(int count, boolean active) {
-        if (count == lastCount && active == lastActive) return;
+        boolean interactedToday = false;
+        if (currentStreakData != null && currentStreakData.getLastInteractionDate() != null) {
+            String lastDate = currentStreakData.getLastInteractionDate();
+            String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
+            if (lastDate.startsWith(today)) {
+                interactedToday = true;
+            }
+        }
+
+        // Nếu qua ngày mới mà chưa tương tác (interactedToday = false), coi như inactive để xám lại
+        boolean visualActive = active && interactedToday;
+
+        if (count == lastCount && visualActive == lastActive) return;
         
         lastCount = count;
-        lastActive = active;
+        lastActive = visualActive;
         
-        tvStreakCount.setText(String.valueOf(count));
+        if (count == 0) {
+            tvStreakCount.setVisibility(View.GONE);
+        } else {
+            tvStreakCount.setVisibility(View.VISIBLE);
+            tvStreakCount.setText(String.valueOf(count));
+        }
+
         if (lottieStreakIcon == null) return;
 
-        // Chỉ setup lại Lottie nếu trạng thái active thay đổi (vì setupLottie làm reset animation)
-        // Hoặc nếu count thay đổi đáng kể (ngưỡng màu sắc thay đổi)
-        StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, active);
+        StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, visualActive);
 
-        if (active && count >= 1000) {
+        if (visualActive && count >= 1000) {
             startRGBStreakAnimation(lottieStreakIcon);
         } else {
             stopRGBStreakAnimation();
         }
         
-        tvStreakCount.setTextColor(active && count > 0 ? Color.WHITE : Color.GRAY);
+        tvStreakCount.setTextColor(visualActive && count > 0 ? android.graphics.Color.WHITE : android.graphics.Color.GRAY);
     }
 
     private void startRGBStreakAnimation(LottieAnimationView lottie) {
@@ -270,8 +286,16 @@ public class ChatPrivateFragment extends Fragment {
         // 2. Truy vấn Metadata thẻ từ Local DB để đồng bộ hiển thị (Local-First)
         AppExecutors.getInstance().diskIO().execute(() -> {
             com.vn.jet.mosco.database.MasterObjetDao dao = com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).masterObjetDao();
-            com.vn.jet.mosco.model.MasterObjetEntity objA = dao.findById(currentStreakData.getRequesterObjetId());
-            com.vn.jet.mosco.model.MasterObjetEntity objB = dao.findById(currentStreakData.getPartnerObjetId());
+            
+            boolean isRequester = Objects.equals(currentStreakData.getRequesterId(), sessionManager.getUserId());
+            String myObjetId = isRequester ? currentStreakData.getRequesterObjetId() : currentStreakData.getPartnerObjetId();
+            String partnerObjetId = isRequester ? currentStreakData.getPartnerObjetId() : currentStreakData.getRequesterObjetId();
+            
+            int myGrade = isRequester ? currentStreakData.getRequesterGrade() : currentStreakData.getPartnerGrade();
+            int partnerGrade = isRequester ? currentStreakData.getPartnerGrade() : currentStreakData.getRequesterGrade();
+
+            org.json.JSONObject objA = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), myObjetId);
+            org.json.JSONObject objB = com.vn.jet.mosco.utils.DatabaseLoader.findById(requireContext(), partnerObjetId);
 
             if (!isAdded()) return;
 
@@ -282,46 +306,52 @@ public class ChatPrivateFragment extends Fragment {
                         null,
                         currentStreakData.getStreakCount()
                 );
+                
                 dialogData.streakId = currentStreakData.getId();
 
-                // Map dữ liệu thẻ A (Người yêu cầu)
+                // Map dữ liệu thẻ A (Chính chủ)
                 if (objA != null) {
-                    dialogData.cardAUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objA.getFrontImageId(), false);
-                    dialogData.cardABackUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objA.getBackImageId(), false);
-                    dialogData.cardAName = objA.getMemberName();
+                    dialogData.cardAUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objA.optString("frontImage"), false);
+                    dialogData.cardABackUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objA.optString("backImage"), false);
+                    dialogData.cardAName = objA.optString("member");
                 }
+                // Cập nhật Badge (Grade)
+                dialogData.cardAGrade = myGrade;
 
-                // Map dữ liệu thẻ B (Đối phương)
+                // Map dữ liệu thẻ B (Partner)
                 if (objB != null) {
-                    dialogData.cardBUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objB.getFrontImageId(), false);
-                    dialogData.cardBBackUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objB.getBackImageId(), false);
-                    dialogData.cardBName = objB.getMemberName();
+                    dialogData.cardBUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objB.optString("frontImage"), false);
+                    dialogData.cardBBackUrl = com.vn.jet.mosco.utils.GlideBindingAdapter.convertImageIdToUrl(objB.optString("backImage"), false);
+                    dialogData.cardBName = objB.optString("member");
                 }
+                // Cập nhật Badge (Grade)
+                dialogData.cardBGrade = partnerGrade;
 
                 if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
-                    currentStreakDialog.dismiss();
-                }
-                currentStreakDialog = MoscoDialogHelper.showCoupleStreakDialog(requireActivity(), status, dialogData, new MoscoDialogHelper.DialogCallback() {
-                    @Override
-                    public void onPositive() {
-                        currentStreakDialog = null;
-                        if (status == MoscoDialogHelper.CoupleStatus.INVITE) {
-                            requestStreak();
-                        } else if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
-                            acceptStreak();
-                        } else if (status == MoscoDialogHelper.CoupleStatus.WAITING) {
-                            declineStreak(); // Reuse decline for cancellation
+                    MoscoDialogHelper.updateCoupleStreakDialog(currentStreakDialog, dialogData, requireActivity());
+                } else {
+                    currentStreakDialog = MoscoDialogHelper.showCoupleStreakDialog(requireActivity(), status, dialogData, new MoscoDialogHelper.DialogCallback() {
+                        @Override
+                        public void onPositive() {
+                            currentStreakDialog = null;
+                            if (status == MoscoDialogHelper.CoupleStatus.INVITE) {
+                                requestStreak();
+                            } else if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
+                                acceptStreak();
+                            } else if (status == MoscoDialogHelper.CoupleStatus.WAITING) {
+                                declineStreak(); // Reuse decline for cancellation
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onNegative() {
-                        currentStreakDialog = null;
-                        if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
-                            declineStreak();
+                        @Override
+                        public void onNegative() {
+                            currentStreakDialog = null;
+                            if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
+                                declineStreak();
+                            }
                         }
-                    }
-                });
+                    });
+                }
                 
                 if (currentStreakDialog != null) {
                     currentStreakDialog.setOnDismissListener(d -> currentStreakDialog = null);
@@ -429,7 +459,9 @@ public class ChatPrivateFragment extends Fragment {
 
     private void subscribeToUpdates() {
         chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
-            if (message.getSenderId().equals(String.valueOf(partnerId)) || message.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
+            // Chỉ thêm tin nhắn vào adapter nếu người gửi LÀ ĐỐI PHƯƠNG.
+            // Tránh duplicate vì tin nhắn của chính mình đã được thêm ngay khi gọi sendMessage()
+            if (message.getSenderId().equals(String.valueOf(partnerId))) {
                 chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
                     message.getSenderId(), 
                     message.getSenderName(), 
@@ -476,11 +508,11 @@ public class ChatPrivateFragment extends Fragment {
                     if (currentStreakDialog == null || !currentStreakDialog.isShowing()) {
                         showCoupleStreakDialog();
                     } else {
-                        showCoupleStreakDialog();
+                        showCoupleStreakDialog(); // showCoupleStreakDialog giờ đã biết tự update
                     }
                 } else if ("ACTIVE".equals(data.getStatus())) {
                     if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
-                        showCoupleStreakDialog();
+                        showCoupleStreakDialog(); // tự update thay vì dismiss
                     }
                 }
             }

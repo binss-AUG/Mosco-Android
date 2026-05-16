@@ -91,13 +91,9 @@ public class DatabaseLoader {
          * Chuyển đổi từ UserCard DTO sang Cache Item
          */
         public static UserInventoryItem fromUserCard(com.vn.jet.mosco.model.UserCard userCard) {
-            // [UUID FIX] Ưu tiên dùng UUID từ Server, fallback về collectionId
-            String bestId = userCard.getUuid() != null && !userCard.getUuid().isEmpty() ? 
-                    userCard.getUuid() : userCard.getCollectionId();
-            
             return new UserInventoryItem(
                     userCard.getId(),
-                    bestId,
+                    userCard.getCollectionId(),
                     userCard.getFrontImage(),
                     userCard.getBackImage(),
                     userCard.getLevel(),

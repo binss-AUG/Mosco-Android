@@ -204,6 +204,7 @@
                             android:layout_height="match_parent"
                             android:src="@drawable/objet_back_spin"
                             android:scaleType="centerCrop"
+                            android:scaleX="-1"
                             android:visibility="gone" />
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -240,12 +241,35 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                         
-                        <ImageView
-                            android:id="@+id/card_iv_image_b"
+                        <!-- Front Layout (Partner Card) -->
+                        <FrameLayout
+                            android:id="@+id/layout_selected_front_b"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:visibility="gone" />
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/card_iv_image_b"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop" />
+
+                            <ImageView
+                                android:id="@+id/card_iv_badge_b"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layout_card_b_front"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+                            <include layout="@layout/layout_core_card" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <!-- Placeholder Icon B -->
                         <ImageView
@@ -256,13 +280,14 @@
                             android:src="@drawable/ic_add_plus"
                             android:alpha="0.3" />
 
-                        <!-- Grade Badge Overlay B -->
+                        <!-- Back Layout -->
                         <ImageView
-                            android:id="@+id/card_iv_badge_b"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="top|end"
-                            android:layout_margin="8dp"
+                            android:id="@+id/iv_card_b_back"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/objet_back_spin"
+                            android:scaleType="centerCrop"
+                            android:scaleX="-1"
                             android:visibility="gone" />
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>

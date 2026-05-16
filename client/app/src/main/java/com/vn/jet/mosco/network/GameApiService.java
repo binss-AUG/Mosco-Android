@@ -311,5 +311,6 @@ public interface GameApiService {
     Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> updateCoupleStreakObjet(
             @Query("streakId") Long streakId,
             @Query("userId") Long userId,
-            @Query("objetId") String objetId);
+            @Query("objetId") String objetId,
+            @Query("grade") int grade);
 }

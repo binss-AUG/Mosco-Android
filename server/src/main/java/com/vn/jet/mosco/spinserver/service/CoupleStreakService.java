@@ -96,34 +96,55 @@ public class CoupleStreakService {
             throw new RuntimeException("Unauthorized to decline this request");
         }
 
+        // Fix lỗ hổng: Không cho phép Cancel nếu đối phương đã Accept (ACTIVE)
+        if ("ACTIVE".equals(streak.getStatus())) {
+            log.info("[STREAK] Cannot decline. Streak is already ACTIVE.");
+            notifyStreakUpdate(streak); // Đồng bộ lại trạng thái ACTIVE cho client
+            return;
+        }
+
         streak.setStatus("DECLINED");
+        streak.setStreakCount(0); // Reset bộ đếm nếu có lỗi
         streakRepository.save(streak);
         notifyStreakUpdate(streak);
         log.info("[STREAK] Streak request DECLINED between {} and {}", userId, requesterId);
     }
 
     @Transactional
-    public void recordInteraction(Long user1Id, Long user2Id) {
-        Optional<CoupleStreak> streakOpt = streakRepository.findBetweenUserIds(user1Id, user2Id);
+    public void recordInteraction(Long senderId, Long receiverId) {
+        Optional<CoupleStreak> streakOpt = streakRepository.findBetweenUserIds(senderId, receiverId);
         
         if (streakOpt.isPresent()) {
             CoupleStreak streak = streakOpt.get();
             if ("ACTIVE".equals(streak.getStatus())) {
-                LocalDate last = streak.getLastInteractionDate();
                 LocalDate today = LocalDate.now();
-
-                if (last == null || last.isBefore(today)) {
-                    if (last != null && last.isEqual(today.minusDays(1))) {
-                        streak.setStreakCount(streak.getStreakCount() + 1);
-                        log.info("[STREAK] Streak INCREASED for users {} and {}. New count: {}", user1Id, user2Id, streak.getStreakCount());
-                    } else if (last != null) {
-                        streak.setStreakCount(1);
-                        log.info("[STREAK] Streak RESTARTED for users {} and {}. Count: 1", user1Id, user2Id);
-                    }
-                    streak.setLastInteractionDate(today);
-                    CoupleStreak saved = streakRepository.save(streak);
-                    notifyStreakUpdate(saved);
+                
+                // Cập nhật ngày tương tác cho người gửi
+                boolean isRequester = senderId.equals(streak.getRequester().getId());
+                if (isRequester) {
+                    streak.setRequesterInteractionDate(today);
+                } else {
+                    streak.setPartnerInteractionDate(today);
                 }
+
+                // Nếu cả hai người đều đã nhắn tin trong ngày hôm nay, mới tiến hành tính streak
+                if (today.equals(streak.getRequesterInteractionDate()) && today.equals(streak.getPartnerInteractionDate())) {
+                    LocalDate last = streak.getLastInteractionDate();
+                    
+                    if (last == null || last.isBefore(today)) {
+                        if (last != null && last.isEqual(today.minusDays(1))) {
+                            streak.setStreakCount(streak.getStreakCount() + 1);
+                            log.info("[STREAK] Streak INCREASED for users {} and {}. New count: {}", senderId, receiverId, streak.getStreakCount());
+                        } else if (last != null) {
+                            streak.setStreakCount(1);
+                            log.info("[STREAK] Streak RESTARTED for users {} and {}. Count: 1", senderId, receiverId);
+                        }
+                        streak.setLastInteractionDate(today);
+                    }
+                }
+                
+                CoupleStreak saved = streakRepository.save(streak);
+                notifyStreakUpdate(saved);
             }
         }
     }
