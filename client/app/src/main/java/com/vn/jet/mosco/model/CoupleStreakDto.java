@@ -15,6 +15,12 @@ public class CoupleStreakDto {
     @SerializedName("streakLevel")
     private int streakLevel;
 
+    @SerializedName("requesterGrade")
+    private int requesterGrade;
+
+    @SerializedName("partnerGrade")
+    private int partnerGrade;
+
     @SerializedName("requesterObjetId")
     private String requesterObjetId;
 
@@ -37,6 +43,8 @@ public class CoupleStreakDto {
     public String getStatus() { return status; }
     public int getStreakCount() { return streakCount; }
     public int getStreakLevel() { return streakLevel; }
+    public int getRequesterGrade() { return requesterGrade; }
+    public int getPartnerGrade() { return partnerGrade; }
     public String getRequesterObjetId() { return requesterObjetId; }
     public String getPartnerObjetId() { return partnerObjetId; }
     public int getObjetChangesThisWeek() { return objetChangesThisWeek; }

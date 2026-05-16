@@ -50,6 +50,14 @@ public class CoupleStreak {
     @Builder.Default
     private int streakLevel = 1;
 
+    @Column(name = "requester_grade")
+    @Builder.Default
+    private int requesterGrade = 1;
+
+    @Column(name = "partner_grade")
+    @Builder.Default
+    private int partnerGrade = 1;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

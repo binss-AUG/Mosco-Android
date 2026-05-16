@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="couple_streak_title">Couple Streak</string>
-    <string name="couple_streak_invite_msg">Bắt đầu hành trình Galactic cùng %s. Duy trì tương tác mỗi ngày để thắp sáng ngọn lửa kết nối và nhận đặc quyền Elite.</string>
-    <string name="couple_streak_waiting_msg">Lời mời đã gửi tới %s. Ngọn lửa đang chờ được thắp sáng, hãy kiên nhẫn một chút nhé!</string>
-    <string name="couple_streak_received_msg">%s vừa gửi một lời mời kết nối! Chấp nhận ngay để bắt đầu chuỗi Streak huyền thoại của riêng hai bạn.</string>
+    <string name="couple_streak_invite_msg">Start your Galactic journey with %s. Maintain daily interaction to ignite the flame of connection and earn Elite perks.</string>
+    <string name="couple_streak_waiting_msg">Request sent to %s. The flame is waiting to be ignited, please be patient!</string>
+    <string name="couple_streak_received_msg">%s has sent a connection request! Accept now to start your legendary Streak journey together.</string>
     
     <string name="couple_streak_action_request">Request</string>
     <string name="couple_streak_action_wait">Wait %s Accept</string>

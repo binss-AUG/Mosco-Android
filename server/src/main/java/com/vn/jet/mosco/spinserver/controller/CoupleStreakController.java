@@ -61,32 +61,13 @@ public class CoupleStreakController {
     }
 
     @PostMapping("/update-objet")
-    public ApiResponse<CoupleStreakResponse> updateObjet(@RequestParam Long streakId, @RequestParam Long userId, @RequestParam String objetId) {
-        CoupleStreak streak = streakService.updateObjet(streakId, userId, objetId);
-        return ApiResponse.success("Objet updated", mapToResponse(streak));
+    public ApiResponse<CoupleStreakResponse> updateObjet(@RequestParam Long streakId, @RequestParam Long userId, @RequestParam String objetId, @RequestParam int grade) {
+        CoupleStreak streak = streakService.updateObjet(streakId, userId, objetId, grade);
+        return ApiResponse.success("Objet updated", CoupleStreakResponse.fromEntity(streak));
     }
 
     private CoupleStreakResponse mapToResponse(CoupleStreak s) {
-        return CoupleStreakResponse.builder()
-                .id(s.getId())
-                .status(s.getStatus())
-                .streakCount(s.getStreakCount())
-                .streakLevel(s.getStreakLevel())
-                .requesterObjetId(s.getRequesterObjetId())
-                .partnerObjetId(s.getPartnerObjetId())
-                .objetChangesThisWeek(s.getObjetChangesThisWeek())
-                .lastInteractionDate(s.getLastInteractionDate())
-                .requester(CoupleStreakResponse.UserSummary.builder()
-                        .id(s.getRequester().getId())
-                        .ingameName(s.getRequester().getIngameName())
-                        .avatarId(s.getRequester().getAvatarId())
-                        .build())
-                .partner(CoupleStreakResponse.UserSummary.builder()
-                        .id(s.getPartner().getId())
-                        .ingameName(s.getPartner().getIngameName())
-                        .avatarId(s.getPartner().getAvatarId())
-                        .build())
-                .build();
+        return CoupleStreakResponse.fromEntity(s);
     }
 }
 

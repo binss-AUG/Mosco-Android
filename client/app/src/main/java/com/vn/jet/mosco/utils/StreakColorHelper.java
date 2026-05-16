@@ -38,15 +38,18 @@ public class StreakColorHelper {
     public static void setupStreakLottie(LottieAnimationView lottie, int count, boolean active) {
         if (lottie == null) return;
 
-        // 1. Giới hạn frame chuẩn (0-24) như yêu cầu của Designer
-        lottie.setMinAndMaxFrame(0, 24);
+        // 1. Chỉ set frame nếu chưa đúng dải (tránh giật)
+        // TODO: Further optimize Lottie performance for low-end emulators to eliminate minor stuttering
+        if (lottie.getMinFrame() != 0 || lottie.getMaxFrame() != 24) {
+            lottie.setMinAndMaxFrame(0, 24);
+        }
 
         if (!active || count <= 0) {
-            // 2. Nếu chưa có streak: Dừng ở frame 0, không chuyển động cho chân thực
-            lottie.cancelAnimation();
-            lottie.setFrame(0);
+            // 2. Nếu chưa có streak: Dừng ở frame 0
+            if (lottie.isAnimating()) lottie.cancelAnimation();
+            if (lottie.getFrame() != 0) lottie.setFrame(0);
             
-            // Áp dụng màu xám (Grayscale) để thể hiện sự nguội lạnh
+            // Áp dụng Grayscale
             ColorMatrix cm = new ColorMatrix();
             cm.setSaturation(0);
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
@@ -58,10 +61,7 @@ public class StreakColorHelper {
             }
 
             // 4. Áp dụng hiệu ứng màu sắc theo số ngày
-            if (count >= 1000) {
-                // Hiệu ứng RGB được quản lý bởi Animator bên ngoài (Fragment) gọi applyRGBEffect
-                // Ở đây chỉ đảm bảo filter không bị xóa
-            } else {
+            if (count < 1000) {
                 applyStreakColor(lottie, count);
             }
         }

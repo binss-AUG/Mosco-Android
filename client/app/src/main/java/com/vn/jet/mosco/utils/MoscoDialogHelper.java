@@ -248,12 +248,12 @@ public class MoscoDialogHelper {
     /**
      * Hiển thị Dialog Couple's Streak đa trạng thái
      */
-    public static void showCoupleStreakDialog(Activity activity, 
+    public static AlertDialog showCoupleStreakDialog(Activity activity, 
                                             CoupleStatus status, 
                                             CoupleData data, 
                                             DialogCallback callback) {
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
-        if (data == null) return;
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return null;
+        if (data == null) return null;
 
         View dialogView = LayoutInflater.from(activity).inflate(R.layout.layout_streak_luxury_v3, null);
         
@@ -300,8 +300,9 @@ public class MoscoDialogHelper {
                 layoutActive.setVisibility(View.GONE);
                 tvDescription.setText(activity.getString(R.string.couple_streak_waiting_msg, data.partnerName));
                 btnLeft.setVisibility(View.GONE);
-                btnRight.setText(activity.getString(R.string.couple_streak_action_wait, data.partnerName));
-                btnRight.setEnabled(false);
+                btnRight.setText(activity.getString(R.string.couple_streak_action_cancel)); // "Hủy yêu cầu"
+                btnRight.setEnabled(true);
+                btnRight.setMoscoStyle("secondary");
                 break;
 
             case RECEIVED_REQUEST:
@@ -310,7 +311,9 @@ public class MoscoDialogHelper {
                 tvDescription.setText(activity.getString(R.string.couple_streak_received_msg, data.partnerName));
                 btnLeft.setVisibility(View.VISIBLE);
                 btnLeft.setText(activity.getString(R.string.couple_streak_action_decline));
+                btnLeft.setMoscoStyle("secondary");
                 btnRight.setText(activity.getString(R.string.couple_streak_action_accept));
+                btnRight.setMoscoStyle("primary");
                 break;
 
             case SETUP:
@@ -375,6 +378,7 @@ public class MoscoDialogHelper {
         });
 
         dialog.show();
+        return dialog;
     }
 
     private static void btnDescriptionShow(TextView tv, CoupleStatus status, Activity activity) {

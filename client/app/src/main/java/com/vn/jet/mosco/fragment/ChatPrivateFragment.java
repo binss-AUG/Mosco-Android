@@ -80,9 +80,13 @@ public class ChatPrivateFragment extends Fragment {
     private SessionManager sessionManager;
     private GameApiService gameApiService;
     private io.reactivex.disposables.Disposable chatSubscription;
+    private io.reactivex.disposables.Disposable streakSubscription;
     private android.animation.ValueAnimator rgbAnimator;
+    private android.app.AlertDialog currentStreakDialog;
 
     private CoupleStreakDto currentStreakData;
+    private int lastCount = -1;
+    private boolean lastActive = false;
 
     public ChatPrivateFragment() {
     }
@@ -203,14 +207,22 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void updateStreakUI(int count, boolean active) {
+        if (count == lastCount && active == lastActive) return;
+        
+        lastCount = count;
+        lastActive = active;
+        
         tvStreakCount.setText(String.valueOf(count));
         if (lottieStreakIcon == null) return;
-        stopRGBStreakAnimation();
 
+        // Chỉ setup lại Lottie nếu trạng thái active thay đổi (vì setupLottie làm reset animation)
+        // Hoặc nếu count thay đổi đáng kể (ngưỡng màu sắc thay đổi)
         StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, active);
 
         if (active && count >= 1000) {
             startRGBStreakAnimation(lottieStreakIcon);
+        } else {
+            stopRGBStreakAnimation();
         }
         
         tvStreakCount.setTextColor(active && count > 0 ? Color.WHITE : Color.GRAY);
@@ -244,7 +256,7 @@ public class ChatPrivateFragment extends Fragment {
         String apiStatus = currentStreakData.getStatus();
         
         if ("PENDING".equals(apiStatus)) {
-            if (currentStreakData.getRequesterId() == sessionManager.getUserId()) {
+            if (Objects.equals(currentStreakData.getRequesterId(), sessionManager.getUserId())) {
                 status = MoscoDialogHelper.CoupleStatus.WAITING;
             } else {
                 status = MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST;
@@ -286,23 +298,34 @@ public class ChatPrivateFragment extends Fragment {
                     dialogData.cardBName = objB.getMemberName();
                 }
 
-                MoscoDialogHelper.showCoupleStreakDialog(requireActivity(), status, dialogData, new MoscoDialogHelper.DialogCallback() {
+                if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
+                    currentStreakDialog.dismiss();
+                }
+                currentStreakDialog = MoscoDialogHelper.showCoupleStreakDialog(requireActivity(), status, dialogData, new MoscoDialogHelper.DialogCallback() {
                     @Override
                     public void onPositive() {
+                        currentStreakDialog = null;
                         if (status == MoscoDialogHelper.CoupleStatus.INVITE) {
                             requestStreak();
                         } else if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
                             acceptStreak();
+                        } else if (status == MoscoDialogHelper.CoupleStatus.WAITING) {
+                            declineStreak(); // Reuse decline for cancellation
                         }
                     }
 
                     @Override
                     public void onNegative() {
+                        currentStreakDialog = null;
                         if (status == MoscoDialogHelper.CoupleStatus.RECEIVED_REQUEST) {
                             declineStreak();
                         }
                     }
                 });
+                
+                if (currentStreakDialog != null) {
+                    currentStreakDialog.setOnDismissListener(d -> currentStreakDialog = null);
+                }
             });
         });
     }
@@ -330,7 +353,11 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void declineStreak() {
-        gameApiService.declineCoupleStreak(sessionManager.getUserId(), currentStreakData.getRequesterId()).enqueue(new Callback<ApiResponse<Void>>() {
+        if (currentStreakData == null) return;
+        Long targetId = Objects.equals(currentStreakData.getRequesterId(), sessionManager.getUserId()) 
+                        ? partnerId : currentStreakData.getRequesterId();
+        
+        gameApiService.declineCoupleStreak(sessionManager.getUserId(), targetId).enqueue(new Callback<ApiResponse<Void>>() {
             @Override
             public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
                 if (isAdded() && response.isSuccessful()) fetchStreakStatus();
@@ -401,17 +428,75 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void subscribeToUpdates() {
-        String myId = String.valueOf(sessionManager.getUserId());
-        String partnerIdStr = String.valueOf(partnerId);
-        chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(myId, pm -> {
-            if (pm.getSenderId().equals(partnerIdStr)) {
-                chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
-                rvChat.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-                AppExecutors.getInstance().diskIO().execute(() -> {
-                    AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
-                });
+        chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
+            if (message.getSenderId().equals(String.valueOf(partnerId)) || message.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
+                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
+                    message.getSenderId(), 
+                    message.getSenderName(), 
+                    message.getAvatarId(), 
+                    message.getContent()
+                ));
+                rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
             }
         });
+
+        subscribeToStreakUpdates();
+        fetchStreakStatus();
+    }
+
+    private void subscribeToStreakUpdates() {
+        if (streakSubscription != null && !streakSubscription.isDisposed()) return;
+        
+        Long myId = sessionManager.getUserId();
+        streakSubscription = WebSocketManager.getInstance().subscribeToStreakUpdates(String.valueOf(myId), data -> {
+            if (data == null) return;
+            
+            boolean isRelated = (data.getRequesterId().equals(partnerId) && data.getPartnerId().equals(myId))
+                             || (data.getRequesterId().equals(myId) && data.getPartnerId().equals(partnerId));
+            
+            if (isRelated) {
+                // Chỉ xử lý nếu có sự thay đổi thực sự trong data
+                if (currentStreakData != null && 
+                    Objects.equals(currentStreakData.getStatus(), data.getStatus()) && 
+                    currentStreakData.getStreakCount() == data.getStreakCount() &&
+                    Objects.equals(currentStreakData.getRequesterObjetId(), data.getRequesterObjetId()) &&
+                    Objects.equals(currentStreakData.getPartnerObjetId(), data.getPartnerObjetId())) {
+                    return; 
+                }
+
+                currentStreakData = data;
+                updateStreakUI(data.getStreakCount(), "ACTIVE".equals(data.getStatus()));
+                
+                if ("NONE".equals(data.getStatus()) || "DECLINED".equals(data.getStatus())) {
+                    if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
+                        currentStreakDialog.dismiss();
+                    }
+                }
+                else if ("PENDING".equals(data.getStatus())) {
+                    if (currentStreakDialog == null || !currentStreakDialog.isShowing()) {
+                        showCoupleStreakDialog();
+                    } else {
+                        showCoupleStreakDialog();
+                    }
+                } else if ("ACTIVE".equals(data.getStatus())) {
+                    if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
+                        showCoupleStreakDialog();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
+            currentStreakDialog.dismiss();
+            currentStreakDialog = null;
+        }
+        if (chatSubscription != null) chatSubscription.dispose();
+        if (streakSubscription != null) streakSubscription.dispose();
+        if (rgbAnimator != null) rgbAnimator.cancel();
     }
 
     private void sendMessage() {
