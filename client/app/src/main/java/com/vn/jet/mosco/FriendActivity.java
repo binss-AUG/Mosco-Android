@@ -417,37 +417,10 @@ public class FriendActivity extends MoscoBaseActivity {
         });
 
         view.findViewById(R.id.btn_preview_message_small).setOnClickListener(v -> {
-            View chatContainer = view.findViewById(R.id.layout_private_chat_container);
-            if (chatContainer != null) {
-                chatContainer.setVisibility(View.VISIBLE);
-                
-                // Init Private Chat UI logic
-                RecyclerView rvPrivate = view.findViewById(R.id.rv_private_chat);
-                EditText etPrivate = view.findViewById(R.id.et_private_chat);
-                ImageView btnSend = view.findViewById(R.id.btn_private_send);
-                ImageView btnClose = view.findViewById(R.id.btn_close_chat);
-                
-                com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
-                chatAdapter.setCurrentUserId("me");
-                rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
-                rvPrivate.setAdapter(chatAdapter);
-                
-                // Professional chat initialization
-                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("SYSTEM", getString(R.string.chat_msg_system), avatarId, getString(R.string.chat_msg_secure_connection)));
-                
-                btnClose.setOnClickListener(v1 -> chatContainer.setVisibility(View.GONE));
-                
-                btnSend.setOnClickListener(v1 -> {
-                    String msgText = etPrivate.getText().toString().trim();
-                    if (!msgText.isEmpty()) {
-                        chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("me", getString(R.string.chat_msg_you), "0", msgText));
-                        rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-                        etPrivate.setText("");
-                        v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-                    }
-                });
-            }
+            dialog.dismiss();
+            com.vn.jet.mosco.utils.NavigationUtils.openPrivateChat(this, id, name, avatarId);
         });
+
 
         dialog.show();
     }

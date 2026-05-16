@@ -281,4 +281,35 @@ public interface GameApiService {
     @GET("/api/backup/download/{filename}")
     @retrofit2.http.Streaming
     Call<ResponseBody> downloadCloudBackup(@Path("filename") String filename);
+
+    // ══════════════════════════════════════════════════════════════
+    //  COUPLE STREAK — Hệ thống chuỗi đôi
+    // ══════════════════════════════════════════════════════════════
+
+    @POST("/api/v1/streaks/request")
+    Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> requestCoupleStreak(
+            @Query("requesterId") Long requesterId, 
+            @Query("partnerId") Long partnerId);
+
+    @GET("/api/v1/streaks/check")
+    Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> checkCoupleStreak(
+            @Query("user1") Long user1, 
+            @Query("user2") Long user2);
+
+    @POST("/api/v1/streaks/accept")
+
+    Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> acceptCoupleStreak(
+            @Query("userId") Long userId, 
+            @Query("requesterId") Long requesterId);
+
+    @POST("/api/v1/streaks/decline")
+    public Call<com.vn.jet.mosco.model.ApiResponse<Void>> declineCoupleStreak(
+            @Query("userId") Long userId, 
+            @Query("requesterId") Long requesterId);
+
+    @POST("/api/v1/streaks/update-objet")
+    Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> updateCoupleStreakObjet(
+            @Query("streakId") Long streakId,
+            @Query("userId") Long userId,
+            @Query("objetId") String objetId);
 }

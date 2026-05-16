@@ -864,21 +864,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (tvModuleStreakVal != null) tvModuleStreakVal.setText(getString(R.string.streak_format_days, streak));
         
         if (lottieModuleStreak != null) {
-            lottieModuleStreak.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreak.isAnimating()) lottieModuleStreak.playAnimation();
-            
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(lottieModuleStreak, streak, streak > 0);
             if (streak >= 1000) {
                 startRGBStreakAnimation(lottieModuleStreak);
-            } else {
-                stopRGBStreakAnimation();
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieModuleStreak, streak);
             }
         }
         
         if (lottieModuleStreakGlow != null) {
-            lottieModuleStreakGlow.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreakGlow.isAnimating()) lottieModuleStreakGlow.playAnimation();
-            
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(lottieModuleStreakGlow, streak, streak > 0);
             if (streak >= 1000) {
                 startRGBStreakAnimation(lottieModuleStreakGlow);
             } else {
@@ -955,8 +948,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
         com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
         if (ivIcon != null) {
-            ivIcon.setMinAndMaxFrame(0, 24);
-            ivIcon.playAnimation();
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
             
             if (currentStreak >= 1000) {
                 android.animation.ValueAnimator dialogRgbAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
@@ -969,8 +961,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 });
                 dialogRgbAnimator.start();
                 dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
-            } else {
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
             }
         }
         tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));

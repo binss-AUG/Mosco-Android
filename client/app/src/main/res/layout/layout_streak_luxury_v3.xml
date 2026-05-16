@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/couple_streak_dialog_margin_h"
+    android:layout_marginVertical="@dimen/couple_streak_dialog_margin_v"
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/couple_streak_dialog_padding"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <!-- Row 1: Title & Close -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/couple_streak_title"
+        android:textColor="@color/white"
+        android:textSize="@dimen/couple_streak_title_size"
+        android:fontFamily="@font/pretendard_bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/view_title_underline"
+        android:layout_width="@dimen/couple_streak_underline_width"
+        android:layout_height="3dp"
+        android:background="@color/mosco_primary"
+        android:layout_marginTop="@dimen/spacing_xs"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_title" />
+
+    <ImageView
+        android:id="@+id/btn_close"
+        android:layout_width="@dimen/spacing_28dp"
+        android:layout_height="@dimen/spacing_28dp"
+        android:src="@drawable/ic_close"
+        app:tint="@color/mosco_white_60"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Content Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@+id/view_title_underline">
+
+        <!-- Fire Row (Centered Streak Count) -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/iv_fire_streak"
+            android:layout_width="@dimen/couple_streak_fire_size"
+            android:layout_height="@dimen/couple_streak_fire_size"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/streak_animation"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_streak_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="@dimen/couple_streak_count_size"
+            android:fontFamily="@font/pretendard_bold"
+            app:layout_constraintTop_toBottomOf="@+id/iv_fire_streak"
+            app:layout_constraintStart_toStartOf="@+id/iv_fire_streak"
+            app:layout_constraintEnd_toEndOf="@+id/iv_fire_streak"
+            android:layout_marginTop="-10dp" />
+
+        <!-- Cards Row with 1.36x Viewport -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_active_streak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:layout_constraintTop_toBottomOf="@+id/tv_streak_count">
+
+            <!-- Individual Name Slots ABOVE Cards (Marquee/Lineshow) -->
+            <TextView
+                android:id="@+id/tv_name_a"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="JiYeon"
+                android:textColor="@color/white"
+                android:textSize="@dimen/couple_streak_name_size"
+                android:fontFamily="@font/pretendard_bold"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/viewport_a"
+                app:layout_constraintEnd_toEndOf="@+id/viewport_a" />
+
+            <TextView
+                android:id="@+id/tv_name_b"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Sullyoon"
+                android:textColor="@color/white"
+                android:textSize="@dimen/couple_streak_name_size"
+                android:fontFamily="@font/pretendard_bold"
+                android:gravity="center"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/viewport_b"
+                app:layout_constraintEnd_toEndOf="@+id/viewport_b" />
+
+            <!-- Viewport A (1.36x Card Size) -->
+            <FrameLayout
+                android:id="@+id/viewport_a"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="12dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/viewport_b"
+                app:layout_constraintTop_toBottomOf="@+id/tv_name_a"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintWidth_percent="0.49"
+                app:layout_constraintDimensionRatio="H,1:1.54">
+
+                <!-- The Actual Card A -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_a"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleX="1.0"
+                    android:scaleY="1.0"
+                    app:cardBackgroundColor="@color/couple_streak_card_bg"
+                    app:cardCornerRadius="@dimen/couple_streak_card_radius"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        
+                        <!-- Front Layout (Original Card) -->
+                        <FrameLayout
+                            android:id="@+id/layout_selected_front_a"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/card_iv_image_a"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop" />
+
+                            <!-- Grade Badge Overlay -->
+                            <ImageView
+                                android:id="@+id/card_iv_badge_a"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:id="@+id/btn_add_card_a"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/mosco_white_15">
+                            <ImageView
+                                android:layout_width="@dimen/spacing_32dp"
+                                android:layout_height="@dimen/spacing_32dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_add_plus"
+                                app:tint="@color/mosco_white_40" />
+                        </FrameLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layout_card_a_front"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+                            <include layout="@layout/layout_core_card" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <ImageView
+                            android:id="@+id/iv_card_a_back"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/objet_back_spin"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/viewport_b"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="-24dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:layout_constraintTop_toTopOf="@+id/viewport_a"
+                app:layout_constraintBottom_toBottomOf="@+id/viewport_a"
+                app:layout_constraintStart_toEndOf="@+id/viewport_a"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.49"
+                app:layout_constraintDimensionRatio="H,1:1.54">
+
+                <!-- The Actual Card B -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_b"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:scaleX="1.0"
+                    android:scaleY="1.0"
+                    app:cardBackgroundColor="@color/couple_streak_card_bg"
+                    app:cardCornerRadius="@dimen/couple_streak_card_radius"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        
+                        <ImageView
+                            android:id="@+id/card_iv_image_b"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+
+                        <!-- Placeholder Icon B -->
+                        <ImageView
+                            android:id="@+id/iv_card_b_placeholder"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_add_plus"
+                            android:alpha="0.3" />
+
+                        <!-- Grade Badge Overlay B -->
+                        <ImageView
+                            android:id="@+id/card_iv_badge_b"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="8dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+
+            <!-- Labels below cards (Character/Member Names) -->
+            <TextView
+                android:id="@+id/tv_card_name_a"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/pretendard_bold"
+                app:layout_constraintTop_toBottomOf="@+id/viewport_a"
+                app:layout_constraintStart_toStartOf="@+id/viewport_a"
+                app:layout_constraintEnd_toEndOf="@+id/viewport_a" />
+
+            <TextView
+                android:id="@+id/tv_card_name_b"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/pretendard_bold"
+                app:layout_constraintTop_toBottomOf="@+id/viewport_b"
+                app:layout_constraintStart_toStartOf="@+id/viewport_b"
+                app:layout_constraintEnd_toEndOf="@+id/viewport_b" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/tv_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:text=""
+        android:textColor="@color/mosco_white_40"
+        android:textSize="@dimen/couple_streak_label_size"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/layout_content_container" />
+
+    <!-- Main Action Button -->
+    <com.vn.jet.mosco.widget.MoscoButton
+        android:id="@+id/btn_action_right"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/couple_streak_button_height"
+        android:layout_marginTop="@dimen/spacing_36dp"
+        app:moscoStyle="primary"
+        app:moscoSize="large"
+        android:text="@string/couple_streak_action_share_connection"
+        app:layout_constraintTop_toBottomOf="@+id/tv_description"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Secondary Action Button -->
+    <com.vn.jet.mosco.widget.MoscoButton
+        android:id="@+id/btn_action_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Invite Illustration -->
+    <ImageView
+        android:id="@+id/iv_illustration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

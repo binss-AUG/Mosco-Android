@@ -84,4 +84,17 @@
     <item name="carousel_scale_range" format="float" type="dimen">0.15</item>
     <item name="carousel_alpha_min" format="float" type="dimen">0.6</item>
     <item name="carousel_alpha_range" format="float" type="dimen">0.4</item>
+
+    <!-- Couple Streak Specific -->
+    <dimen name="couple_streak_dialog_margin_h">32dp</dimen>
+    <dimen name="couple_streak_dialog_margin_v">48dp</dimen>
+    <dimen name="couple_streak_dialog_padding">26dp</dimen>
+    <dimen name="couple_streak_title_size">22sp</dimen>
+    <dimen name="couple_streak_fire_size">56dp</dimen>
+    <dimen name="couple_streak_count_size">18sp</dimen>
+    <dimen name="couple_streak_name_size">15sp</dimen>
+    <dimen name="couple_streak_label_size">13sp</dimen>
+    <dimen name="couple_streak_underline_width">48dp</dimen>
+    <dimen name="couple_streak_button_height">58dp</dimen>
+    <dimen name="couple_streak_card_radius">14dp</dimen>
 </resources>

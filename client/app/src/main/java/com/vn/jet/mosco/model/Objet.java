@@ -27,6 +27,9 @@ public class Objet {
     private String status;
     private String createdAt;
 
+    public Objet() {
+    }
+
     public Objet(long id, String collectionId, String imageUrl, int level, int exp, int upgradeLevel) {
         this.id = id;
         this.collectionId = collectionId;
@@ -62,9 +65,17 @@ public class Objet {
     public long getId() { return id; }
     public String getIdString() { return String.valueOf(id); }
     public String getCollectionId() { return collectionId; }
+    public void setIdString(String idStr) {
+        try {
+            this.id = Long.parseLong(idStr);
+        } catch (Exception e) {
+            this.id = 0;
+        }
+    }
     public String getTypeKey() { return typeKey; }
     public void setTypeKey(String typeKey) { this.typeKey = typeKey; }
     public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public int getLevel() { return level; }
     public int getExp() { return exp; }
     

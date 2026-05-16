@@ -111,4 +111,38 @@ public class NavigationUtils {
                 .replace(R.id.frame_layout, fragment)
                 .commit();
     }
+
+    /**
+     * Mở màn hình Chat riêng với người dùng khác.
+     * @param activity Context của activity chứa fragment.
+     * @param partnerId ID người dùng cần chat.
+     * @param partnerName Tên hiển thị của người dùng đó.
+     * @param partnerAvatar ID avatar của người dùng đó.
+     */
+    public static void openPrivateChat(FragmentActivity activity, Long partnerId, String partnerName, String partnerAvatar) {
+        if (activity == null || partnerId == null) return;
+
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        String tag = "Chat_" + partnerId;
+
+        // Nếu Fragment đã tồn tại trong backstack, quay về đó thay vì tạo mới
+        if (fragmentManager.findFragmentByTag(tag) != null) {
+            fragmentManager.popBackStack(tag, 0);
+            return;
+        }
+
+        com.vn.jet.mosco.fragment.ChatPrivateFragment fragment = 
+                com.vn.jet.mosco.fragment.ChatPrivateFragment.newInstance(partnerId, partnerName, partnerAvatar);
+
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.anim_slide_in_right,
+                        R.anim.anim_slide_out_left,
+                        R.anim.anim_slide_in_left,
+                        R.anim.anim_slide_out_right
+                )
+                .add(R.id.frame_layout, fragment, tag)
+                .addToBackStack(tag)
+                .commit();
+    }
 }
