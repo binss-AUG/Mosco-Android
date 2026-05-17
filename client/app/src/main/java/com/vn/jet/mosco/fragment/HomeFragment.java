@@ -587,6 +587,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 if (rvWorldChatExpanded != null) {
                     rvWorldChatExpanded.smoothScrollToPosition(worldChatAdapter.getItemCount() - 1);
                 }
+                // Tại sao (WHY): Cập nhật ticker ngay lập tức khi nhận được tin nhắn mới nhất từ WebSocket
+                updateChatTickerWithLatest();
             }
         });
 
@@ -612,22 +614,28 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     private void startChatTicker() {
         stopChatTicker();
-        tickerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (worldChatAdapter != null && worldChatAdapter.getItemCount() > 0 && tvChatTicker != null && etHomeChat.getVisibility() == View.GONE) {
-                    WorldChatMessage msg = worldChatAdapter.getMessageAt(currentTickerIndex % worldChatAdapter.getItemCount());
-                    tvChatTicker.setText(msg.getSenderName() + ": " + msg.getContent());
-                    currentTickerIndex++;
-                }
-                tickerHandler.postDelayed(this, 3000);
-            }
-        };
-        tickerHandler.postAtFrontOfQueue(tickerRunnable);
+        // Tại sao (WHY): Hiển thị tin nhắn mới nhất ngay khi khởi chạy ticker thay vì chạy vòng lặp xoay các tin nhắn cũ
+        updateChatTickerWithLatest();
     }
 
     private void stopChatTicker() {
         if (tickerRunnable != null) tickerHandler.removeCallbacks(tickerRunnable);
+    }
+
+    // Tại sao (WHY): Hàm giải mã HTML Entities và cập nhật Ticker hiển thị tin nhắn mới nhất trong danh sách
+    private void updateChatTickerWithLatest() {
+        if (worldChatAdapter != null && worldChatAdapter.getItemCount() > 0 && tvChatTicker != null && etHomeChat.getVisibility() == View.GONE) {
+            WorldChatMessage msg = worldChatAdapter.getMessageAt(worldChatAdapter.getItemCount() - 1);
+            if (msg != null) {
+                CharSequence decodedContent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    decodedContent = android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY);
+                } else {
+                    decodedContent = android.text.Html.fromHtml(msg.getContent());
+                }
+                tvChatTicker.setText(msg.getSenderName() + ": " + decodedContent);
+            }
+        }
     }
 
     private void expandChat() {
@@ -650,6 +658,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             etHomeChat.setVisibility(View.GONE);
             tvChatTicker.setVisibility(View.VISIBLE);
             etHomeChat.clearFocus();
+            // Tại sao (WHY): Cập nhật ticker hiển thị tin nhắn mới nhất khi người dùng đóng khung chat đầy đủ
+            updateChatTickerWithLatest();
         }
     }
 
