@@ -76,6 +76,19 @@ public class CollectionFragment extends Fragment {
         // Nạp Master Data (database.json) ở background sớm để Album/Objets mượt mà
         com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(requireContext());
 
+        // [QUIET LUXURY] Đồng bộ tiêu đề màn hình Collection dùng chung layout_common_header và ẩn nút Back
+        View headerView = view.findViewById(R.id.layout_collection_header);
+        if (headerView != null) {
+            TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(R.string.collection_header_title);
+            }
+            View btnBack = headerView.findViewById(R.id.btn_back_common);
+            if (btnBack != null) {
+                btnBack.setVisibility(View.GONE);
+            }
+        }
+
         tabLayout = view.findViewById(R.id.tab_layout_collection);
         viewPager = view.findViewById(R.id.view_pager_collection);
 
@@ -342,13 +355,18 @@ public class CollectionFragment extends Fragment {
     public static void showFilterBottomSheet(
             Fragment fragment,
             List<FilterCategory> categories,
-            int initialTabIndex,
             Set<String> currentSelections,
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar,
+            String[] sortOptions,
             Runnable onFilterApplied) {
 
         Context ctx = fragment.getContext();
         BottomSheetDialog dialog = new BottomSheetDialog(ctx, R.style.CustomBottomSheetDialogTheme);
         View bsView = LayoutInflater.from(ctx).inflate(R.layout.layout_bottom_sheet_objet_filter, null);
+
+        // State cục bộ cho Sort
+        final String[] workingSort = { filterBar != null ? filterBar.getSortOption() : SORT_NEWEST };
+        final boolean[] workingAsc = { filterBar != null && filterBar.isAscending() };
 
         android.widget.FrameLayout wrapper = new android.widget.FrameLayout(ctx) {
             @Override
@@ -359,8 +377,8 @@ public class CollectionFragment extends Fragment {
                     int action = ev.getActionMasked();
                     if (action == android.view.MotionEvent.ACTION_DOWN) {
                         float y = ev.getY();
-                        View tabs = bsView.findViewById(R.id.tab_filter_categories);
-                        if (tabs != null && y > tabs.getBottom()) {
+                        View header = bsView.findViewById(R.id.layout_filter_header);
+                        if (header != null && y > header.getBottom()) {
                             behavior.setDraggable(false);
                             getParent().requestDisallowInterceptTouchEvent(true);
                         } else {
@@ -379,41 +397,25 @@ public class CollectionFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         dialog.setContentView(wrapper);
 
-        // Configure 3-state behavior:
-        // HIDDEN → COLLAPSED (half, default open state) → EXPANDED (full)
         dialog.setOnShowListener(di -> {
-            View sheet = ((BottomSheetDialog) di)
-                    .findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (sheet == null)
-                return;
-
+            View sheet = ((BottomSheetDialog) di).findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (sheet == null) return;
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(sheet);
-
-            // peekHeight = ~50% screen height for the "half" state
             int screenHeight = ctx.getResources().getDisplayMetrics().heightPixels;
-            int peekH = (int) (screenHeight * 0.50f);
+            int peekH = (int) (screenHeight * 0.70f);
             behavior.setPeekHeight(peekH, false);
-
-            // Start at COLLAPSED (half screen)
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
-            // Allow drag-down to HIDDEN from both COLLAPSED and EXPANDED
             behavior.setHideable(true);
-            behavior.setSkipCollapsed(false); // must pass through COLLAPSED on the way down
+            behavior.setSkipCollapsed(false);
             behavior.setDraggable(true);
-
-            // Make the sheet fill max height when EXPANDED
             sheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
             sheet.requestLayout();
 
-            // Setup callback to keep bottom actions pinned to bottom of screen in COLLAPSED
-            // state
             BottomSheetBehavior.BottomSheetCallback slideCallback = new BottomSheetBehavior.BottomSheetCallback() {
                 @Override
                 public void onStateChanged(@NonNull View bottomSheet, int newState) {
                     updatePinnedActions(bottomSheet, bsView, ctx);
                 }
-
                 @Override
                 public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                     if (slideOffset >= 0) {
@@ -425,96 +427,202 @@ public class CollectionFragment extends Fragment {
             sheet.post(() -> updatePinnedActions(sheet, bsView, ctx));
         });
 
-        TabLayout tabLayout = bsView.findViewById(R.id.tab_filter_categories);
-        android.widget.FrameLayout flFilterContent = bsView.findViewById(R.id.fl_filter_content);
-        LinearLayout llChips = bsView.findViewById(R.id.ll_selected_chips);
+        LinearLayout llContainer = bsView.findViewById(R.id.ll_filter_sections_container);
+        TextView btnApply = bsView.findViewById(R.id.btn_filter_apply);
+        TextView btnReset = bsView.findViewById(R.id.btn_filter_reset);
 
-        // A local working set so we can "Clear" without touching the original until
-        // Apply
         Set<String> workingSet = new LinkedHashSet<>(currentSelections);
 
-        // Build tabs
-        for (FilterCategory cat : categories) {
-            tabLayout.addTab(tabLayout.newTab().setText(cat.tabName));
-        }
+        // === Đếm tổng filter + sort thay đổi ===
+        Runnable updateCount = () -> {
+            int count = workingSet.size();
+            btnApply.setText(count > 0 ? "Apply (" + count + ")" : "Apply");
+        };
 
-        // Chip renderer
-        Runnable renderChips = new Runnable() {
+        // === Render toàn bộ UI (Sort + Filter sections) ===
+        Runnable renderUI = new Runnable() {
             @Override
             public void run() {
-                llChips.removeAllViews();
-                for (String selected : new ArrayList<>(workingSet)) {
-                    TextView chip = new TextView(ctx);
-                    chip.setText(selected + " ×");
-                    chip.setTextColor(Color.WHITE);
-                    chip.setTextSize(13f);
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                    lp.setMarginEnd(dpToPx(ctx, 20));
-                    chip.setLayoutParams(lp);
-                    chip.setOnClickListener(v2 -> {
-                        workingSet.remove(selected);
-                        this.run();
-                        // Also visually deselect in content
-                        rebuildContent(ctx, flFilterContent, categories,
-                                tabLayout.getSelectedTabPosition(), workingSet, this);
-                        View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                        if (sheet != null)
-                            updatePinnedActions(sheet, bsView, ctx);
+                llContainer.removeAllViews();
+
+                // ====== SORT BY SECTION ======
+                if (sortOptions != null && sortOptions.length > 0) {
+                    // Section Title: "Sort By"
+                    TextView sortTitle = new TextView(ctx);
+                    sortTitle.setText("Sort By");
+                    sortTitle.setTextColor(Color.WHITE);
+                    sortTitle.setTextSize(14f);
+                    sortTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+                    LinearLayout.LayoutParams stLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    stLp.bottomMargin = dpToPx(ctx, 10);
+                    sortTitle.setLayoutParams(stLp);
+                    llContainer.addView(sortTitle);
+
+                    // Sort Chips + Direction Toggle trong một dòng ngang
+                    LinearLayout sortRow = new LinearLayout(ctx);
+                    sortRow.setOrientation(LinearLayout.HORIZONTAL);
+                    sortRow.setGravity(Gravity.CENTER_VERTICAL);
+
+                    // Direction Toggle (↑↓) bên trái — [QUIET LUXURY] Sử dụng ic_arrow_upward cho nét vẽ mỏng thanh lịch
+                    ImageView ivDir = new ImageView(ctx);
+                    ivDir.setImageResource(R.drawable.ic_arrow_upward);
+                    ivDir.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, R.color.white));
+                    ivDir.setRotation(workingAsc[0] ? 0f : 180f);
+                    LinearLayout.LayoutParams dirLp = new LinearLayout.LayoutParams(
+                            dpToPx(ctx, 32), dpToPx(ctx, 32));
+                    dirLp.rightMargin = dpToPx(ctx, 8);
+                    ivDir.setLayoutParams(dirLp);
+                    ivDir.setPadding(dpToPx(ctx, 6), dpToPx(ctx, 6), dpToPx(ctx, 6), dpToPx(ctx, 6));
+                    ivDir.setBackgroundResource(R.drawable.lg_chip_unselected_bg);
+                    ivDir.setOnClickListener(v -> {
+                        workingAsc[0] = !workingAsc[0];
+                        ivDir.animate().rotation(workingAsc[0] ? 0f : 180f).setDuration(200).start();
                     });
-                    llChips.addView(chip);
+                    sortRow.addView(ivDir);
+
+                    // Scrollable Sort Chips
+                    android.widget.HorizontalScrollView sortHsv = new android.widget.HorizontalScrollView(ctx);
+                    sortHsv.setHorizontalScrollBarEnabled(false);
+                    sortHsv.setClipToPadding(false);
+                    sortHsv.setFocusable(false);
+                    sortHsv.setFocusableInTouchMode(false);
+                    sortHsv.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                    LinearLayout sortChipsRow = new LinearLayout(ctx);
+                    sortChipsRow.setOrientation(LinearLayout.HORIZONTAL);
+
+                    for (String opt : sortOptions) {
+                        TextView chip = new TextView(ctx);
+                        boolean sel = opt.equals(workingSort[0]);
+                        chip.setBackground(ctx.getDrawable(sel ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
+                        chip.setTextColor(sel ? Color.WHITE : androidx.core.content.ContextCompat.getColor(ctx, R.color.lg_text_secondary));
+                        chip.setTypeface(null, android.graphics.Typeface.BOLD); // [QUIET LUXURY] Cố định BOLD để chiều rộng chữ không thay đổi giữa các trạng thái, tránh lỗi giật kích thước.
+                        chip.setText(opt);
+                        chip.setTextSize(13f);
+                        chip.setGravity(Gravity.CENTER);
+                        chip.setPadding(dpToPx(ctx, 14), 0, dpToPx(ctx, 14), 0);
+                        chip.setFocusable(false);
+                        chip.setFocusableInTouchMode(false);
+                        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT, dpToPx(ctx, 36));
+                        clp.rightMargin = dpToPx(ctx, 8);
+                        chip.setLayoutParams(clp);
+                        chip.setOnClickListener(v -> {
+                            workingSort[0] = opt;
+                            // [QUIET LUXURY UX] Thay đổi trực tiếp visual state của các chip con trong hàng.
+                            // Việc này giúp tránh gọi renderUI.run() làm hủy và vẽ lại toàn bộ HorizontalScrollView,
+                            // triệt tiêu hoàn toàn lỗi giật cuộn ngang khi chọn chip ở cuối.
+                            for (int i = 0; i < sortChipsRow.getChildCount(); i++) {
+                                View child = sortChipsRow.getChildAt(i);
+                                if (child instanceof TextView) {
+                                    TextView cTv = (TextView) child;
+                                    boolean isSel = opt.equals(cTv.getText().toString());
+                                    cTv.setBackground(ctx.getDrawable(isSel ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
+                                    cTv.setTextColor(isSel ? Color.WHITE : androidx.core.content.ContextCompat.getColor(ctx, R.color.lg_text_secondary));
+                                }
+                            }
+                        });
+                        sortChipsRow.addView(chip);
+                    }
+                    sortHsv.addView(sortChipsRow);
+                    sortRow.addView(sortHsv, new LinearLayout.LayoutParams(
+                            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+                    LinearLayout.LayoutParams sortRowLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    sortRowLp.bottomMargin = dpToPx(ctx, 8);
+                    sortRow.setLayoutParams(sortRowLp);
+                    llContainer.addView(sortRow);
+
+                    // Divider mỏng giữa Sort và Filter
+                    View divider = new View(ctx);
+                    divider.setBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, R.color.mosco_white_10));
+                    LinearLayout.LayoutParams dvLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, dpToPx(ctx, 1));
+                    dvLp.topMargin = dpToPx(ctx, 4);
+                    dvLp.bottomMargin = dpToPx(ctx, 4);
+                    divider.setLayoutParams(dvLp);
+                    llContainer.addView(divider);
                 }
+
+                // ====== FILTER SECTIONS ======
+                for (FilterCategory cat : categories) {
+                    TextView title = new TextView(ctx);
+                    title.setText(cat.tabName);
+                    title.setTextColor(Color.WHITE);
+                    title.setTextSize(14f);
+                    title.setTypeface(null, android.graphics.Typeface.BOLD);
+                    LinearLayout.LayoutParams tLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    tLp.topMargin = dpToPx(ctx, 16);
+                    tLp.bottomMargin = dpToPx(ctx, 10);
+                    title.setLayoutParams(tLp);
+                    llContainer.addView(title);
+
+                    if (cat.isArtistGrid) {
+                        GridLayout grid = new GridLayout(ctx);
+                        grid.setLayoutParams(new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        grid.setColumnCount(3);
+                        if (cat.memberItems != null) {
+                            for (com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item : cat.memberItems) {
+                                View cell = buildArtistCell(ctx, item, workingSet, updateCount);
+                                GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
+                                lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                                lp.width = 0;
+                                lp.setMargins(dpToPx(ctx, 4), dpToPx(ctx, 4), dpToPx(ctx, 4), dpToPx(ctx, 12));
+                                cell.setLayoutParams(lp);
+                                grid.addView(cell);
+                            }
+                        }
+                        llContainer.addView(grid);
+                    } else {
+                        android.widget.HorizontalScrollView hsv = new android.widget.HorizontalScrollView(ctx);
+                        hsv.setHorizontalScrollBarEnabled(false);
+                        hsv.setClipToPadding(false);
+                        hsv.setPadding(0, 0, dpToPx(ctx, 16), dpToPx(ctx, 8));
+                        hsv.setFocusable(false);
+                        hsv.setFocusableInTouchMode(false);
+                        hsv.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                        LinearLayout llRow = new LinearLayout(ctx);
+                        llRow.setOrientation(LinearLayout.HORIZONTAL);
+                        if (cat.items != null) {
+                            for (String item : cat.items) {
+                                View chip = buildListCard(ctx, item, workingSet, updateCount);
+                                LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.WRAP_CONTENT, dpToPx(ctx, 40));
+                                clp.rightMargin = dpToPx(ctx, 10);
+                                chip.setLayoutParams(clp);
+                                llRow.addView(chip);
+                            }
+                        }
+                        hsv.addView(llRow);
+                        llContainer.addView(hsv);
+                    }
+                }
+                updateCount.run();
             }
         };
 
-        // Content builder (called on tab switch)
-        buildContentForTab(ctx, flFilterContent, categories, initialTabIndex, workingSet, renderChips);
+        renderUI.run();
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                buildContentForTab(ctx, flFilterContent, categories,
-                        tab.getPosition(), workingSet, renderChips);
-                View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                if (sheet != null)
-                    updatePinnedActions(sheet, bsView, ctx);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+        btnReset.setOnClickListener(v -> {
+            workingSet.clear();
+            workingSort[0] = (sortOptions != null && sortOptions.length > 0) ? sortOptions[0] : SORT_NEWEST;
+            workingAsc[0] = false;
+            renderUI.run();
         });
 
-        // Render initial chips
-        renderChips.run();
-
-        // Select initial tab
-        if (initialTabIndex < categories.size()) {
-            TabLayout.Tab t = tabLayout.getTabAt(initialTabIndex);
-            if (t != null)
-                t.select();
-        }
-
-        bsView.findViewById(R.id.btn_filter_apply).setOnClickListener(v -> {
+        btnApply.setOnClickListener(v -> {
             currentSelections.clear();
             currentSelections.addAll(workingSet);
+            // Cập nhật sort state về filterBar
+            if (filterBar != null) {
+                filterBar.applySortFromBottomSheet(workingSort[0], workingAsc[0]);
+            }
             dialog.dismiss();
             if (onFilterApplied != null)
                 onFilterApplied.run();
-        });
-        bsView.findViewById(R.id.btn_filter_clear).setOnClickListener(v -> {
-            workingSet.clear();
-            renderChips.run();
-            buildContentForTab(ctx, flFilterContent, categories,
-                    tabLayout.getSelectedTabPosition(), workingSet, renderChips);
-            View sheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (sheet != null)
-                updatePinnedActions(sheet, bsView, ctx);
         });
 
         dialog.show();
@@ -533,78 +641,21 @@ public class CollectionFragment extends Fragment {
         if (actions != null)
             actions.setTranslationY(-offScreenAmount);
 
-        View flContent = bsView.findViewById(R.id.fl_filter_content);
-        if (flContent instanceof ViewGroup) {
-            ViewGroup vg = (ViewGroup) flContent;
-            if (vg.getChildCount() > 0) {
-                View sv = vg.getChildAt(0);
-                if (sv != null) {
-                    sv.setPadding(sv.getPaddingLeft(), sv.getPaddingTop(), sv.getPaddingRight(),
-                            dpToPx(ctx, 8) + offScreenAmount);
-                }
-            }
+        View svContent = bsView.findViewById(R.id.sv_filter_content);
+        if (svContent instanceof ScrollView) {
+            ScrollView sv = (ScrollView) svContent;
+            sv.setPadding(sv.getPaddingLeft(), sv.getPaddingTop(), sv.getPaddingRight(),
+                    dpToPx(ctx, 88) + offScreenAmount); // 88dp for actions area height
         }
-    }
-
-    private static void rebuildContent(Context ctx, android.widget.FrameLayout fl,
-            List<FilterCategory> categories, int tabIndex,
-            Set<String> workingSet, Runnable renderChips) {
-        buildContentForTab(ctx, fl, categories, tabIndex, workingSet, renderChips);
-    }
-
-    private static void buildContentForTab(Context ctx, android.widget.FrameLayout fl,
-            List<FilterCategory> categories, int tabIndex,
-            Set<String> workingSet, Runnable renderChips) {
-        fl.removeAllViews();
-        if (tabIndex < 0 || tabIndex >= categories.size())
-            return;
-        FilterCategory cat = categories.get(tabIndex);
-
-        if (cat.isArtistGrid) {
-            buildArtistGrid(ctx, fl, cat.memberItems, workingSet, renderChips);
-        } else {
-            buildTwoColumnList(ctx, fl, cat.items, workingSet, renderChips);
-        }
-    }
-
-    /** Artist grid: 3-column circles */
-    private static void buildArtistGrid(Context ctx, android.widget.FrameLayout fl,
-            List<com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem> items, Set<String> workingSet,
-            Runnable renderChips) {
-        ScrollView sv = new ScrollView(ctx);
-        sv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        sv.setPadding(dpToPx(ctx, 8), dpToPx(ctx, 8), dpToPx(ctx, 8), dpToPx(ctx, 8));
-        sv.setNestedScrollingEnabled(false); // disable nested scrolling so BottomSheet doesn't react
-        GridLayout grid = new GridLayout(ctx);
-        grid.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        grid.setColumnCount(3);
-
-        if (items != null) {
-            for (com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item : items) {
-                View cell = buildArtistCell(ctx, item, workingSet, renderChips);
-                GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-                lp.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-                lp.width = 0;
-                lp.setMargins(dpToPx(ctx, 4), dpToPx(ctx, 8), dpToPx(ctx, 4), dpToPx(ctx, 8));
-                cell.setLayoutParams(lp);
-                grid.addView(cell);
-            }
-        }
-
-        sv.addView(grid);
-        fl.addView(sv);
     }
 
     private static View buildArtistCell(Context ctx, com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem item,
-            Set<String> workingSet, Runnable renderChips) {
+            Set<String> workingSet, Runnable updateCount) {
         String name = item.name;
         LinearLayout cell = new LinearLayout(ctx);
         cell.setOrientation(LinearLayout.VERTICAL);
         cell.setGravity(Gravity.CENTER);
 
-        // Avatar card
         MaterialCardView card = new MaterialCardView(ctx);
         int size = dpToPx(ctx, 76);
         LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(size, size);
@@ -613,18 +664,13 @@ public class CollectionFragment extends Fragment {
         card.setStrokeColor(ContextCompat.getColor(ctx, R.color.mosco_card_stroke));
         card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.mosco_card_bg_variant));
         card.setStrokeWidth(workingSet.contains(name) ? dpToPx(ctx, 2) : 0);
-        // Add purple overlay if selected
-        if (workingSet.contains(name)) {
-            card.setAlpha(0.9f);
-        }
+        if (workingSet.contains(name)) card.setAlpha(0.9f);
 
         ImageView iv = new ImageView(ctx);
         iv.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        // [QUIET LUXURY] Load real member avatar with SmartFaceCrop for perfect circle
-        // center
         String finalUrl = item.imageUrl;
         if (finalUrl != null && !finalUrl.isEmpty()) {
             Glide.with(ctx)
@@ -638,14 +684,11 @@ public class CollectionFragment extends Fragment {
         }
         card.addView(iv);
 
-        // Name label
         TextView label = new TextView(ctx);
         label.setText(name);
         label.setTextSize(11f);
-        label.setTextColor(
-                workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_disabled));
-        label.setTypeface(null,
-                workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+        label.setTextColor(workingSet.contains(name) ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_disabled));
+        label.setTypeface(null, workingSet.contains(name) ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.topMargin = dpToPx(ctx, 6);
@@ -668,90 +711,36 @@ public class CollectionFragment extends Fragment {
                 label.setTextColor(Color.WHITE);
                 label.setTypeface(null, android.graphics.Typeface.BOLD);
             }
-            renderChips.run();
+            updateCount.run();
         });
 
         return cell;
     }
 
-    /** Season/Class: 2-column card list */
-    private static void buildTwoColumnList(Context ctx, android.widget.FrameLayout fl,
-            List<String> items, Set<String> workingSet, Runnable renderChips) {
-        ScrollView sv = new ScrollView(ctx);
-        sv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        sv.setNestedScrollingEnabled(false); // disable nested scrolling so BottomSheet doesn't react
-        LinearLayout root = new LinearLayout(ctx);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.setPadding(dpToPx(ctx, 12), dpToPx(ctx, 12), dpToPx(ctx, 12), dpToPx(ctx, 12));
-
-        // Build rows of 2
-        for (int i = 0; i < items.size(); i += 2) {
-            LinearLayout row = new LinearLayout(ctx);
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setWeightSum(2f);
-            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            rowLp.bottomMargin = dpToPx(ctx, 10);
-            row.setLayoutParams(rowLp);
-
-            String name1 = items.get(i);
-            row.addView(buildListCard(ctx, name1, workingSet, renderChips, true));
-
-            if (i + 1 < items.size()) {
-                String name2 = items.get(i + 1);
-                row.addView(buildListCard(ctx, name2, workingSet, renderChips, false));
-            } else {
-                // Empty placeholder
-                View placeholder = new View(ctx);
-                LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,
-                        1f);
-                placeholder.setLayoutParams(plp);
-                row.addView(placeholder);
-            }
-
-            root.addView(row);
-        }
-
-        sv.addView(root);
-        fl.addView(sv);
-    }
-
-    private static View buildListCard(Context ctx, String name, Set<String> workingSet,
-            Runnable renderChips, boolean isLeft) {
+    private static View buildListCard(Context ctx, String name, Set<String> workingSet, Runnable updateCount) {
         TextView card = new TextView(ctx);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dpToPx(ctx, 48), 1f);
-        if (isLeft)
-            lp.rightMargin = dpToPx(ctx, 6);
-        else
-            lp.leftMargin = dpToPx(ctx, 6);
-        card.setLayoutParams(lp);
-
         boolean selected = workingSet.contains(name);
-        card.setBackground(
-                ctx.getDrawable(selected ? R.drawable.lg_nav_item_indicator : R.drawable.lg_chip_unselected_bg));
+        card.setBackground(ctx.getDrawable(selected ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
         card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_secondary));
-        card.setTypeface(null, selected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+        card.setTypeface(null, android.graphics.Typeface.BOLD); // [QUIET LUXURY] Cố định BOLD để tránh lỗi nhảy kích thước khi đổi kiểu chữ.
         card.setText(name);
         card.setTextSize(14f);
         card.setGravity(Gravity.CENTER);
         card.setPadding(dpToPx(ctx, 16), 0, dpToPx(ctx, 16), 0);
+        card.setFocusable(false);
+        card.setFocusableInTouchMode(false);
 
         card.setOnClickListener(v -> {
             if (workingSet.contains(name)) {
                 workingSet.remove(name);
                 card.setBackground(ctx.getDrawable(R.drawable.lg_chip_unselected_bg));
                 card.setTextColor(ContextCompat.getColor(ctx, R.color.lg_text_secondary));
-                card.setTypeface(null, android.graphics.Typeface.NORMAL);
             } else {
                 workingSet.add(name);
-                card.setBackground(ctx.getDrawable(R.drawable.lg_nav_item_indicator));
+                card.setBackground(ctx.getDrawable(R.drawable.lg_chip_selected_bg));
                 card.setTextColor(Color.WHITE);
-                card.setTypeface(null, android.graphics.Typeface.BOLD);
             }
-            renderChips.run();
+            updateCount.run();
         });
         return card;
     }
@@ -822,10 +811,8 @@ public class CollectionFragment extends Fragment {
                 case 0:
                     return new ObjetsFragment(); // Cards
                 case 1:
-                    return new MailboxFragment();
-                case 2:
                     return new ItemsFragment();
-                case 3:
+                case 2:
                     return new AlbumFragment();
                 default:
                     return new ObjetsFragment();
@@ -834,7 +821,7 @@ public class CollectionFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return 4;
+            return 3;
         }
     }
 
@@ -869,7 +856,7 @@ public class CollectionFragment extends Fragment {
             // Filter
             View filterBtn = view.findViewById(R.id.btn_filter_mailbox);
             filterBtn.setOnClickListener(
-                    v -> showFilterBottomSheet(this, buildMailboxCategories(), 0, mailboxFilter, this::applyFilters));
+                    v -> showFilterBottomSheet(this, buildMailboxCategories(), mailboxFilter, null, null, this::applyFilters));
 
             // Receive All
             View btnReceiveAll = view.findViewById(R.id.btn_receive_all);
@@ -1162,12 +1149,10 @@ public class CollectionFragment extends Fragment {
 
             tvCount = view.findViewById(R.id.tv_objet_types_count);
 
-            // Standardized Filter Bar Integration
+            // [QUIET LUXURY] Smart Pill — bấm mở Bottom Sheet tổng hợp Sort + Filter
             filterBar = view.findViewById(R.id.filter_bar_objets);
-            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_objets);
-            if (filterBar != null && dropdown != null) {
+            if (filterBar != null) {
                 filterBar.setSortOptions(SORT_OPTIONS);
-                filterBar.attachDropdown(dropdown);
                 filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
                     @Override
                     public void onFilterChanged(String sortOption, boolean isAscending) {
@@ -1176,14 +1161,13 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main
-                        // Thread blockade
                         new Thread(() -> {
                             List<FilterCategory> categories = buildObjetCategories(requireContext());
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
-                                    showFilterBottomSheet(ObjetsFragment.this, categories, 0,
-                                            objetFilter, ObjetsFragment.this::applyFilters);
+                                    showFilterBottomSheet(ObjetsFragment.this, categories,
+                                            objetFilter, filterBar, SORT_OPTIONS,
+                                            ObjetsFragment.this::applyFilters);
                                 });
                             }
                         }).start();
@@ -1194,6 +1178,8 @@ public class CollectionFragment extends Fragment {
             // RecyclerView — load REAL data from server
             rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+            // [QUIET LUXURY] Hiệu ứng thẻ mờ dần và nhỏ lại ở 2 viền
+            rvObjets.addOnScrollListener(new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f));
             // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
             com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvObjets);
 
@@ -1439,12 +1425,10 @@ public class CollectionFragment extends Fragment {
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
-            // Standardized Filter Bar Integration
+            // [QUIET LUXURY] Smart Pill — bấm mở Bottom Sheet tổng hợp Sort + Filter
             filterBar = view.findViewById(R.id.filter_bar_items);
-            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_items);
-            if (filterBar != null && dropdown != null) {
+            if (filterBar != null) {
                 filterBar.setSortOptions(SORT_OPTIONS);
-                filterBar.attachDropdown(dropdown);
                 filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
                     @Override
                     public void onFilterChanged(String sortOption, boolean isAscending) {
@@ -1453,7 +1437,8 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        showFilterBottomSheet(ItemsFragment.this, buildItemsCategories(), 0, itemsFilter,
+                        showFilterBottomSheet(ItemsFragment.this, buildItemsCategories(),
+                                itemsFilter, filterBar, SORT_OPTIONS,
                                 ItemsFragment.this::applyFilters);
                     }
                 });
@@ -1770,12 +1755,10 @@ public class CollectionFragment extends Fragment {
             tvCount = view.findViewById(R.id.tv_album_count);
             // progressBar = view.findViewById(R.id.progress_album);
 
-            // Standardized Filter Bar Integration
+            // [QUIET LUXURY] Smart Pill — bấm mở Bottom Sheet tổng hợp Sort + Filter
             filterBar = view.findViewById(R.id.filter_bar_album);
-            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_album);
-            if (filterBar != null && dropdown != null) {
+            if (filterBar != null) {
                 filterBar.setSortOptions(SORT_OPTIONS);
-                filterBar.attachDropdown(dropdown);
                 filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
                     @Override
                     public void onFilterChanged(String sortOption, boolean isAscending) {
@@ -1784,14 +1767,13 @@ public class CollectionFragment extends Fragment {
 
                     @Override
                     public void onFilterRequested() {
-                        // [PERFORMANCE] Fetch filter data from Room in background thread to avoid Main
-                        // Thread blockade
                         new Thread(() -> {
                             List<FilterCategory> categories = buildAlbumCategories(requireContext());
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
-                                    showFilterBottomSheet(AlbumFragment.this, categories, 0,
-                                            albumFilter, AlbumFragment.this::applyFilters);
+                                    showFilterBottomSheet(AlbumFragment.this, categories,
+                                            albumFilter, filterBar, SORT_OPTIONS,
+                                            AlbumFragment.this::applyFilters);
                                 });
                             }
                         }).start();
