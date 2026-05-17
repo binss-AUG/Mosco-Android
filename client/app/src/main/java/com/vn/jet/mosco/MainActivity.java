@@ -361,23 +361,34 @@ public class MainActivity extends MoscoBaseActivity {
     private void triggerStreakBurstAnimation(com.airbnb.lottie.LottieAnimationView ivIcon) {
         if (ivIcon == null) return;
         
+        // Cấu hình điểm pivot ở đáy trung tâm để ngọn lửa bùng lên TỪ DƯỚI LÊN
+        float width = ivIcon.getWidth() > 0 ? ivIcon.getWidth() / 2f : (220f * ivIcon.getResources().getDisplayMetrics().density) / 2f;
+        float height = ivIcon.getHeight() > 0 ? ivIcon.getHeight() : (220f * ivIcon.getResources().getDisplayMetrics().density);
+        ivIcon.setPivotX(width);
+        ivIcon.setPivotY(height);
+        
         // Kích hoạt ngọn lửa Lottie chạy hoạt họa
         ivIcon.playAnimation();
         
-        // Hoạt họa bùng cháy (Overshoot + Bounce back) mang chiều sâu tuyệt hảo
-        ivIcon.setScaleX(0.2f);
-        ivIcon.setScaleY(0.2f);
+        // Hoạt họa bùng lên từ đáy (Scale Y mạnh hơn Scale X, kết hợp trượt nhẹ từ dưới lên)
+        ivIcon.setScaleX(0.1f);
+        ivIcon.setScaleY(0.1f);
+        ivIcon.setTranslationY(60f); // hơi lùi xuống dưới
         ivIcon.setAlpha(0f);
+        
         ivIcon.animate()
             .alpha(1f)
-            .scaleX(1.15f)
-            .scaleY(1.15f)
+            .scaleX(1.1f)
+            .scaleY(1.25f) // scale Y cao hơn để tạo cảm giác ngọn lửa vươn cao bùng cháy!
+            .translationY(-15f) // hơi vọt lên trên đỉnh một chút
             .setDuration(450)
             .setInterpolator(new android.view.animation.AccelerateInterpolator())
             .withEndAction(() -> {
+                // Đàn hồi nhẹ nhàng về kích thước và vị trí chuẩn ổn định (1.0f, translationY=0)
                 ivIcon.animate()
                     .scaleX(1.0f)
                     .scaleY(1.0f)
+                    .translationY(0f)
                     .setDuration(250)
                     .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
                     .start();
