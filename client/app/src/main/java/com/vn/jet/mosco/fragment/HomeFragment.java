@@ -967,6 +967,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (ivIcon != null) {
             com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
             
+            // Tạm dừng hoạt họa ngọn lửa ban đầu để chuẩn bị hiệu ứng "bùng cháy" sau khi mở hẳn BottomSheet
+            if (ivIcon.isAnimating()) ivIcon.cancelAnimation();
+            ivIcon.setFrame(0);
+            ivIcon.setAlpha(0f);
+            
             if (currentStreak >= 1000) {
                 android.animation.ValueAnimator dialogRgbAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
                 dialogRgbAnimator.setDuration(3000);
@@ -979,18 +984,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 dialogRgbAnimator.start();
                 dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
             }
-
-            // Tại sao (WHY): Hiệu ứng ngọn lửa bùng nổ đàn hồi khi mở dialog giúp tạo chiều sâu thị giác cực cao cấp
-            ivIcon.setAlpha(0f);
-            ivIcon.setScaleX(0.4f);
-            ivIcon.setScaleY(0.4f);
-            ivIcon.animate()
-                .alpha(1f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(600)
-                .setInterpolator(new android.view.animation.OvershootInterpolator(1.2f))
-                .start();
         }
 
         // Tại sao (WHY): Hiệu ứng trượt so le (Staggered Animation) từ dưới lên của các phần tử stats và shield
@@ -1042,8 +1035,64 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Throwable t) { btnRestore.setEnabled(true); }
             });
         });
+        
+        final boolean[] hasBurst = {false};
+        final Runnable burstAction = () -> {
+            if (hasBurst[0]) return;
+            hasBurst[0] = true;
+            triggerStreakBurstAnimation(ivIcon);
+        };
+
+        dialog.setOnShowListener(d -> {
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
+                    com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
+                behavior.addBottomSheetCallback(new com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
+                    @Override
+                    public void onStateChanged(@androidx.annotation.NonNull View bottomSheetView, int newState) {
+                        if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) {
+                            burstAction.run();
+                        }
+                    }
+                    @Override
+                    public void onSlide(@androidx.annotation.NonNull View bottomSheetView, float slideOffset) {}
+                });
+            }
+            
+            // Backup Trigger: Đảm bảo bùng cháy chuẩn xác sau 350ms (thời gian trượt của window kết thúc)
+            view.postDelayed(burstAction, 350);
+        });
+
         dialog.setContentView(view);
         dialog.show();
+    }
+
+    private void triggerStreakBurstAnimation(com.airbnb.lottie.LottieAnimationView ivIcon) {
+        if (ivIcon == null) return;
+        
+        // Kích hoạt ngọn lửa Lottie chạy hoạt họa
+        ivIcon.playAnimation();
+        
+        // Hoạt họa bùng cháy (Overshoot + Bounce back) mang chiều sâu tuyệt hảo
+        ivIcon.setScaleX(0.2f);
+        ivIcon.setScaleY(0.2f);
+        ivIcon.setAlpha(0f);
+        ivIcon.animate()
+            .alpha(1f)
+            .scaleX(1.15f)
+            .scaleY(1.15f)
+            .setDuration(450)
+            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+            .withEndAction(() -> {
+                ivIcon.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .setDuration(250)
+                    .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
+                    .start();
+            })
+            .start();
     }
 
     private void startRGBStreakAnimation(com.airbnb.lottie.LottieAnimationView lottie) {
