@@ -99,7 +99,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- Username (Canh trái) -->
+            <!-- Username (Canh trái - Chạy chữ marquee nếu tên quá dài) -->
             <TextView
                 android:id="@+id/tv_home_username"
                 style="@style/MoscoText.Luxury.SubHeader"
@@ -113,7 +113,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/pb_home_xp"
                 app:layout_constraintVertical_chainStyle="packed"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true" />
 
             <!-- Level (Canh phải, text bình thường, loại bỏ viền bao quanh) -->

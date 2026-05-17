@@ -187,6 +187,10 @@ public class MainActivity extends MoscoBaseActivity {
         tvCoins    = findViewById(R.id.tv_home_coins);
         tvDiamonds = findViewById(R.id.tv_home_diamonds);
         tvUsername = findViewById(R.id.tv_home_username);
+        if (tvUsername != null) {
+            // Kích hoạt setSelected(true) để Android TextView khởi chạy hoạt ảnh chữ chạy ngang (marquee/lineshow) khi tên quá dài.
+            tvUsername.setSelected(true);
+        }
         tvLevel = findViewById(R.id.tv_home_level);
         pbHomeXp = findViewById(R.id.pb_home_xp);
         ivHomeAvatar = findViewById(R.id.iv_home_avatar);
