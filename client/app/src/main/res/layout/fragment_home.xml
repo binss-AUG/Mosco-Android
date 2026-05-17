@@ -150,17 +150,18 @@
                         app:flow_wrapMode="none"
                         app:constraint_referenced_ids="cv_module_streak,cv_module_empty" />
 
-                    <!-- DAILY CHECK-IN STREAK CARD (Premium Centered Layout) -->
+                    <!-- DAILY CHECK-IN STREAK CARD (Premium Square Centered Layout) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cv_module_streak"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         app:cardCornerRadius="@dimen/radius_m"
                         app:cardElevation="0dp"
                         app:cardBackgroundColor="@android:color/transparent">
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/spacing_120dp"
+                            android:layout_height="match_parent"
                             android:background="@drawable/bg_streak_module_glass">
 
                             <!-- Tiêu đề nhỏ dạng luxury ở GÓC TRÊN TRÁI -->
@@ -178,28 +179,28 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
 
-                            <!-- Cụm nội dung chính nằm ở CHÍNH GIỮA thẻ -->
+                            <!-- Cụm nội dung chính nằm ở CHÍNH GIỮA thẻ (Tỉ lệ phóng to cực đẹp) -->
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:gravity="center_horizontal"
-                                android:layout_marginTop="14dp"
+                                android:layout_marginTop="12dp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent">
 
-                                <!-- Lottie Ngọn Lửa Chạy Vô Tận -->
+                                <!-- Lottie Ngọn Lửa Chạy Vô Tận (Phóng to lên 72dp cực kỳ rực rỡ) -->
                                 <com.airbnb.lottie.LottieAnimationView
                                     android:id="@+id/lottie_module_streak"
-                                    android:layout_width="56dp"
-                                    android:layout_height="56dp"
+                                    android:layout_width="72dp"
+                                    android:layout_height="72dp"
                                     app:lottie_rawRes="@raw/streak_animation"
                                     app:lottie_loop="true"
                                     app:lottie_autoPlay="true" />
 
-                                <!-- Số ngày điểm danh liên tiếp -->
+                                <!-- Số ngày điểm danh liên tiếp (Phóng to lên 18sp rõ nét) -->
                                 <TextView
                                     android:id="@+id/tv_module_streak_val"
                                     android:layout_width="wrap_content"
@@ -207,18 +208,18 @@
                                     android:layout_marginTop="1dp"
                                     android:text="0 DAYS"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp"
+                                    android:textSize="18sp"
                                     android:fontFamily="@font/pretendard"
                                     android:textStyle="bold" />
 
-                                <!-- Gợi ý tương tác chạm nhỏ dưới days -->
+                                <!-- Gợi ý tương tác chạm nhỏ dưới days (Phóng to lên 9sp) -->
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="1dp"
+                                    android:layout_marginTop="2dp"
                                     android:text="@string/home_streak_action_hint"
                                     android:textColor="@color/brand_secondary"
-                                    android:textSize="8sp"
+                                    android:textSize="9sp"
                                     android:fontFamily="@font/pretendard"
                                     android:letterSpacing="0.08"
                                     android:textStyle="bold" />
