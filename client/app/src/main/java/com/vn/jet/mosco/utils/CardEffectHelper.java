@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.card.MaterialCardView;
+import androidx.core.content.ContextCompat;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.Objet;
 
@@ -397,8 +398,8 @@ public class CardEffectHelper {
             cardView.setStrokeWidth(0);
             float cornerRadius = cardView.getRadius();
 
-            // Màu glow tím nhạtặc định của hệ thống Mosco
-            int glowColor = Color.parseColor("#336c29fd");
+            // Màu glow tím mặc định của hệ thống Mosco
+            int glowColor = ContextCompat.getColor(context, R.color.mosco_primary_alpha_20);
 
             ViewGroup parent = (ViewGroup) cardView.getParent();
             if (parent != null) {

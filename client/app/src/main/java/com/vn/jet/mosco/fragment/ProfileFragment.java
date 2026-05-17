@@ -180,6 +180,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         return view;
     }
 
+    private io.reactivex.disposables.Disposable notificationSubscription;
+
     private void handleArguments() {
         Bundle args = getArguments();
         Long currentUserId = sessionManager != null ? sessionManager.getUserId() : null;
@@ -704,225 +706,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
 
         btnMsg.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
-            View chatContainer = getView() != null ? getView().findViewById(R.id.layout_private_chat_container) : null;
-            if (chatContainer != null) {
-                chatContainer.setVisibility(View.VISIBLE);
-
-                RecyclerView rvPrivate = chatContainer.findViewById(R.id.rv_private_chat);
-                EditText etPrivate = chatContainer.findViewById(R.id.et_private_chat);
-                ImageView btnSend = chatContainer.findViewById(R.id.btn_private_send);
-                ImageView btnClose = chatContainer.findViewById(R.id.btn_close_private_chat);
-                ImageView ivHeaderAvatar = chatContainer.findViewById(R.id.iv_private_header_avatar);
-                TextView tvHeaderName = chatContainer.findViewById(R.id.tv_private_header_name);
-
-                final io.reactivex.disposables.Disposable[] chatSubscription = { null };
-
-                com.vn.jet.mosco.adapter.WorldChatAdapter chatAdapter = new com.vn.jet.mosco.adapter.WorldChatAdapter();
-                String myId = String.valueOf(sessionManager.getUserId());
-                String partnerId = String.valueOf(targetUserId);
-
-                chatAdapter.setCurrentUserId(myId);
-                rvPrivate.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(getContext()));
-
-                // Disable soft keyboard on emulator to prevent unnecessary layout push up
-                boolean isEmulator = android.os.Build.FINGERPRINT.contains("generic")
-                        || android.os.Build.MODEL.contains("Emulator") || android.os.Build.MODEL.contains("sdk");
-                if (isEmulator) {
-                    etPrivate.setShowSoftInputOnFocus(false);
-                }
-
-                rvPrivate.setAdapter(chatAdapter);
-
-                // Fetch target user data for context
-                UserStats targetStats = viewModel.getUserStats().getValue();
-                String targetName = (targetStats != null && targetStats.getIngameName() != null)
-                        ? targetStats.getIngameName()
-                        : "Unknown";
-                String targetAvatar = targetStats != null ? targetStats.getAvatarId() : "1";
-
-                // Populate Header with Target User info
-                tvHeaderName.setText(targetName);
-                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, targetUserId, targetAvatar);
-
-                // --- 📦 LOCAL-FIRST: Load History from Room ---
-                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                    List<com.vn.jet.mosco.model.PrivateChatMessage> localMsgs = com.vn.jet.mosco.database.AppDatabase
-                            .getInstance(requireContext()).messageDao().getChatHistory(myId, partnerId);
-
-                    if (isAdded()) {
-                        requireActivity().runOnUiThread(() -> {
-                            if (localMsgs.isEmpty()) {
-                                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage("0",
-                                        getString(R.string.chat_msg_system), targetAvatar,
-                                        getString(R.string.chat_msg_secure_connection)));
-                            } else {
-                                for (com.vn.jet.mosco.model.PrivateChatMessage pm : localMsgs) {
-                                    chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(pm.getSenderId(),
-                                            pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
-                                }
-                                rvPrivate.scrollToPosition(chatAdapter.getItemCount() - 1);
-                            }
-                        });
-                    }
-                });
-
-                // --- ☁️ SERVER-SYNC: Fetch missed messages from MySQL ---
-                com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
-                        .create(com.vn.jet.mosco.network.GameApiService.class)
-                        .getChatHistory(Long.parseLong(myId), Long.parseLong(partnerId))
-                        .enqueue(
-                                new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>>() {
-                                    @Override
-                                    public void onResponse(
-                                            retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> call,
-                                            retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> response) {
-                                        if (response.isSuccessful() && response.body() != null
-                                                && response.body().getData() != null) {
-                                            List<com.vn.jet.mosco.model.PrivateChatMessage> serverMsgs = response.body()
-                                                    .getData();
-                                            com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                                                com.vn.jet.mosco.database.MessageDao dao = com.vn.jet.mosco.database.AppDatabase
-                                                        .getInstance(requireContext()).messageDao();
-                                                List<com.vn.jet.mosco.model.PrivateChatMessage> localMsgs = dao
-                                                        .getChatHistory(myId, partnerId);
-
-                                                List<Long> ackIds = new java.util.ArrayList<>();
-                                                boolean hasNewMsgs = false;
-                                                for (com.vn.jet.mosco.model.PrivateChatMessage sMsg : serverMsgs) {
-                                                    boolean exists = false;
-                                                    for (com.vn.jet.mosco.model.PrivateChatMessage lMsg : localMsgs) {
-                                                        // Dùng Objects.equals và check cả timestamp lẫn content để
-                                                        // tránh trùng lặp khi sync
-                                                        if (lMsg.getTimestamp() == sMsg.getTimestamp() &&
-                                                                java.util.Objects.equals(lMsg.getContent(),
-                                                                        sMsg.getContent())) {
-                                                            exists = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (!exists) {
-                                                        // Reset ID for Room DB auto-generation
-                                                        long serverId = sMsg.getId();
-                                                        if (serverId > 0) {
-                                                            ackIds.add(serverId);
-                                                        }
-                                                        sMsg.setId(0); // Bắt buộc ID = 0 để Room tự tăng
-
-                                                        dao.insertMessage(sMsg);
-                                                        hasNewMsgs = true;
-                                                        if (isAdded()) {
-                                                            requireActivity().runOnUiThread(() -> {
-                                                                chatAdapter.addMessage(
-                                                                        new com.vn.jet.mosco.model.WorldChatMessage(
-                                                                                sMsg.getSenderId(),
-                                                                                sMsg.getSenderName(),
-                                                                                sMsg.getAvatarId(), sMsg.getContent()));
-                                                                rvPrivate.smoothScrollToPosition(
-                                                                        chatAdapter.getItemCount() - 1);
-                                                            });
-                                                        }
-                                                    } else {
-                                                        // Vẫn thêm vào mảng ACK nếu đã có trong Local (do lần trước gửi
-                                                        // ACK fail)
-                                                        long serverId = sMsg.getId();
-                                                        if (serverId > 0) {
-                                                            ackIds.add(serverId);
-                                                        }
-                                                    }
-                                                }
-
-                                                // Báo cho Server biết đã nhận thành công để xóa tin nhắn chờ
-                                                if (!ackIds.isEmpty()) {
-                                                    com.vn.jet.mosco.network.ApiClient.getClient(requireContext())
-                                                            .create(com.vn.jet.mosco.network.GameApiService.class)
-                                                            .ackMessages(ackIds)
-                                                            .enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
-                                                                @Override
-                                                                public void onResponse(
-                                                                        retrofit2.Call<okhttp3.ResponseBody> call,
-                                                                        retrofit2.Response<okhttp3.ResponseBody> response) {
-                                                                }
-
-                                                                @Override
-                                                                public void onFailure(
-                                                                        retrofit2.Call<okhttp3.ResponseBody> call,
-                                                                        Throwable t) {
-                                                                }
-                                                            });
-                                                }
-                                            });
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(
-                                            retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<com.vn.jet.mosco.model.PrivateChatMessage>>> call,
-                                            Throwable t) {
-                                        // Offline, ignore.
-                                    }
-                                });
-
-                // [SYNC] Subscribe to WebSocket for incoming Private Messages
-                chatSubscription[0] = com.vn.jet.mosco.network.WebSocketManager.getInstance()
-                        .subscribeToPrivateChat(myId, pm -> {
-                            // Bỏ qua tin nhắn do chính mình gửi từ tab khác (vì Local-First đã insert rồi)
-                            if (!pm.getSenderId().equals(myId) && pm.getSenderId().equals(partnerId)) {
-                                // Update UI
-                                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(pm.getSenderId(),
-                                        pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
-                                rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-
-                                // Save to Room
-                                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                                    com.vn.jet.mosco.model.PrivateChatMessage localPm = new com.vn.jet.mosco.model.PrivateChatMessage(
-                                            pm.getSenderId(), pm.getReceiverId(), pm.getSenderName(), pm.getAvatarId(),
-                                            pm.getContent(), pm.getTimestamp());
-                                    com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao()
-                                            .insertMessage(localPm);
-                                });
-                            }
-                        });
-
-                btnClose.setOnClickListener(v1 -> {
-                    chatContainer.setVisibility(View.GONE);
-                    if (chatSubscription[0] != null) {
-                        chatSubscription[0].dispose();
-                    }
-                });
-
-                btnSend.setOnClickListener(v1 -> {
-                    String msgText = etPrivate.getText().toString().trim();
-                    if (!msgText.isEmpty()) {
-                        String myName = sessionManager.getIngameName();
-                        String myAvatar = sessionManager.getAvatarId();
-
-                        // 1. Update UI instantly
-                        com.vn.jet.mosco.model.WorldChatMessage displayMsg = new com.vn.jet.mosco.model.WorldChatMessage(
-                                myId, myName, myAvatar, msgText);
-                        chatAdapter.addMessage(displayMsg);
-                        rvPrivate.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-                        etPrivate.setText("");
-                        v1.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-
-                        // 2. Persist to Room DB (Local-First)
-                        com.vn.jet.mosco.model.PrivateChatMessage pm = new com.vn.jet.mosco.model.PrivateChatMessage(
-                                myId, partnerId, myName, myAvatar, msgText);
-                        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
-                            com.vn.jet.mosco.database.AppDatabase.getInstance(requireContext()).messageDao()
-                                    .insertMessage(pm);
-                        });
-
-                        // 3. Send to Server (WebSocket Sync)
-                        com.vn.jet.mosco.model.PrivateChatMessage wsMessage = new com.vn.jet.mosco.model.PrivateChatMessage(
-                                myId, partnerId, myName, myAvatar, msgText);
-                        com.vn.jet.mosco.network.WebSocketManager.getInstance().sendPrivateMessage(wsMessage);
-                    }
-                });
-            } else {
-                Toast.makeText(requireContext(), getString(R.string.profile_msg_chat_coming_soon_toast),
-                        Toast.LENGTH_SHORT).show();
-            }
+            com.vn.jet.mosco.model.UserStats targetStats = viewModel.getUserStats().getValue();
+            String targetName = (targetStats != null && targetStats.getIngameName() != null)
+                    ? targetStats.getIngameName()
+                    : "Unknown";
+            String targetAvatar = targetStats != null ? targetStats.getAvatarId() : "1";
+            com.vn.jet.mosco.utils.NavigationUtils.openPrivateChat(requireActivity(), targetUserId, targetName, targetAvatar);
         }));
+
+
         if (btnDecline != null) {
             btnDecline.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce(500, view -> {
                 UserStats stats = viewModel.getUserStats().getValue();
@@ -997,7 +789,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void showUnfriendDialog() {
-        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list?",
+        showFriendActionDialog("Unfriend?", "Are you sure you want to remove this person from your friends list? You will lose your Couple Streak with this person if you unfriend.",
                 () -> {
                     UserStats stats = viewModel.getUserStats().getValue();
                     if (stats != null && getContext() != null && targetUserId != null) {
@@ -1723,5 +1515,32 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 Toast.makeText(requireContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (sessionManager != null) {
+            notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
+                String.valueOf(sessionManager.getUserId()),
+                message -> {
+                    if ("SYSTEM_FRIEND".equals(message.getSenderId())) {
+                        if (targetUserId != null && viewModel != null) {
+                            requireActivity().runOnUiThread(() -> {
+                                viewModel.refreshUserStats(targetUserId);
+                            });
+                        }
+                    }
+                }
+            );
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (notificationSubscription != null && !notificationSubscription.isDisposed()) {
+            notificationSubscription.dispose();
+        }
     }
 }

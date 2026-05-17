@@ -432,6 +432,7 @@
             android:textColor="@color/white"
             android:textColorHint="@color/white_25"
             android:textSize="@dimen/text_size_body_md"
+            android:inputType="textShortMessage|textNoSuggestions"
             android:maxLines="3"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

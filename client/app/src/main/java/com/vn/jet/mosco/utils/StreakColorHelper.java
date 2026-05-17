@@ -30,6 +30,44 @@ public class StreakColorHelper {
     }
 
     /**
+     * Cấu hình toàn diện cho Lottie Streak (Chống hardcode frame khắp nơi).
+     * @param lottie LottieAnimationView cần cấu hình.
+     * @param count Số ngày streak.
+     * @param active Trạng thái streak (đã kích hoạt hay chưa).
+     */
+    public static void setupStreakLottie(LottieAnimationView lottie, int count, boolean active) {
+        if (lottie == null) return;
+
+        // 1. Chỉ set frame nếu chưa đúng dải (tránh giật)
+        // TODO: Further optimize Lottie performance for low-end emulators to eliminate minor stuttering
+        if (lottie.getMinFrame() != 0 || lottie.getMaxFrame() != 24) {
+            lottie.setMinAndMaxFrame(0, 24);
+        }
+
+        if (!active || count <= 0) {
+            // 2. Nếu chưa có streak: Dừng ở frame 0
+            if (lottie.isAnimating()) lottie.cancelAnimation();
+            if (lottie.getFrame() != 0) lottie.setFrame(0);
+            
+            // Áp dụng Grayscale
+            ColorMatrix cm = new ColorMatrix();
+            cm.setSaturation(0);
+            ColorMatrixColorFilter filter = new ColorMatrixColorFilter(cm);
+            lottie.addValueCallback(new KeyPath("**"), LottieProperty.COLOR_FILTER, new LottieValueCallback<>(filter));
+        } else {
+            // 3. Nếu đang active: Kích hoạt ngọn lửa
+            if (!lottie.isAnimating()) {
+                lottie.playAnimation();
+            }
+
+            // 4. Áp dụng hiệu ứng màu sắc theo số ngày
+            if (count < 1000) {
+                applyStreakColor(lottie, count);
+            }
+        }
+    }
+
+    /**
      * Thay đổi màu sắc của Lottie Streak dựa trên cấp độ (Streak Level).
      * Sử dụng ColorMatrix để Hue Shift nhằm giữ lại toàn bộ độ chuyển màu (gradient)
      * gốc của ngọn lửa mà vẫn thay đổi được màu nền cơ bản.
@@ -37,11 +75,8 @@ public class StreakColorHelper {
     public static void applyStreakColor(LottieAnimationView ivIcon, int streakValue) {
         if (ivIcon == null) return;
         ColorMatrixColorFilter filter = getStreakColorFilter(streakValue);
-        if (filter == null) {
-            ivIcon.addValueCallback(new KeyPath("**"), LottieProperty.COLOR_FILTER, new LottieValueCallback<>(null));
-        } else {
-            ivIcon.addValueCallback(new KeyPath("**"), LottieProperty.COLOR_FILTER, new LottieValueCallback<>(filter));
-        }
+        // Luôn áp dụng filter, nếu null thì reset về mặc định
+        ivIcon.addValueCallback(new KeyPath("**"), LottieProperty.COLOR_FILTER, new LottieValueCallback<>(filter));
     }
 
     /**

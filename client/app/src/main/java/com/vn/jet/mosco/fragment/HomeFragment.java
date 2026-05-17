@@ -587,6 +587,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 if (rvWorldChatExpanded != null) {
                     rvWorldChatExpanded.smoothScrollToPosition(worldChatAdapter.getItemCount() - 1);
                 }
+                // Tại sao (WHY): Cập nhật ticker ngay lập tức khi nhận được tin nhắn mới nhất từ WebSocket
+                updateChatTickerWithLatest();
             }
         });
 
@@ -612,22 +614,28 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     private void startChatTicker() {
         stopChatTicker();
-        tickerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (worldChatAdapter != null && worldChatAdapter.getItemCount() > 0 && tvChatTicker != null && etHomeChat.getVisibility() == View.GONE) {
-                    WorldChatMessage msg = worldChatAdapter.getMessageAt(currentTickerIndex % worldChatAdapter.getItemCount());
-                    tvChatTicker.setText(msg.getSenderName() + ": " + msg.getContent());
-                    currentTickerIndex++;
-                }
-                tickerHandler.postDelayed(this, 3000);
-            }
-        };
-        tickerHandler.postAtFrontOfQueue(tickerRunnable);
+        // Tại sao (WHY): Hiển thị tin nhắn mới nhất ngay khi khởi chạy ticker thay vì chạy vòng lặp xoay các tin nhắn cũ
+        updateChatTickerWithLatest();
     }
 
     private void stopChatTicker() {
         if (tickerRunnable != null) tickerHandler.removeCallbacks(tickerRunnable);
+    }
+
+    // Tại sao (WHY): Hàm giải mã HTML Entities và cập nhật Ticker hiển thị tin nhắn mới nhất trong danh sách
+    private void updateChatTickerWithLatest() {
+        if (worldChatAdapter != null && worldChatAdapter.getItemCount() > 0 && tvChatTicker != null && etHomeChat.getVisibility() == View.GONE) {
+            WorldChatMessage msg = worldChatAdapter.getMessageAt(worldChatAdapter.getItemCount() - 1);
+            if (msg != null) {
+                CharSequence decodedContent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    decodedContent = android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY);
+                } else {
+                    decodedContent = android.text.Html.fromHtml(msg.getContent());
+                }
+                tvChatTicker.setText(msg.getSenderName() + ": " + decodedContent);
+            }
+        }
     }
 
     private void expandChat() {
@@ -650,6 +658,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             etHomeChat.setVisibility(View.GONE);
             tvChatTicker.setVisibility(View.VISIBLE);
             etHomeChat.clearFocus();
+            // Tại sao (WHY): Cập nhật ticker hiển thị tin nhắn mới nhất khi người dùng đóng khung chat đầy đủ
+            updateChatTickerWithLatest();
         }
     }
 
@@ -864,21 +874,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (tvModuleStreakVal != null) tvModuleStreakVal.setText(getString(R.string.streak_format_days, streak));
         
         if (lottieModuleStreak != null) {
-            lottieModuleStreak.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreak.isAnimating()) lottieModuleStreak.playAnimation();
-            
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(lottieModuleStreak, streak, streak > 0);
             if (streak >= 1000) {
                 startRGBStreakAnimation(lottieModuleStreak);
-            } else {
-                stopRGBStreakAnimation();
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieModuleStreak, streak);
             }
         }
         
         if (lottieModuleStreakGlow != null) {
-            lottieModuleStreakGlow.setMinAndMaxFrame(0, 24);
-            if (!lottieModuleStreakGlow.isAnimating()) lottieModuleStreakGlow.playAnimation();
-            
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(lottieModuleStreakGlow, streak, streak > 0);
             if (streak >= 1000) {
                 startRGBStreakAnimation(lottieModuleStreakGlow);
             } else {
@@ -955,8 +958,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
         com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
         if (ivIcon != null) {
-            ivIcon.setMinAndMaxFrame(0, 24);
-            ivIcon.playAnimation();
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
             
             if (currentStreak >= 1000) {
                 android.animation.ValueAnimator dialogRgbAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
@@ -969,8 +971,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 });
                 dialogRgbAnimator.start();
                 dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
-            } else {
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
             }
         }
         tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));

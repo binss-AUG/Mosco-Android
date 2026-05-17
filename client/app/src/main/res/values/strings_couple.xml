@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="couple_streak_title">Couple’s Streak</string>
-    <string name="couple_streak_invite_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chờ bạn ngỏ lời!!</string>
-    <string name="couple_streak_waiting_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chờ bạn ngỏ lời!!</string>
-    <string name="couple_streak_received_msg">Cùng nhau xây dựng couple yêu thích của các bạn. Couple mạnh nhất chỉ cách 1 click, ngần ngại gì!!!\n%s đang chỉ chờ mỗi bạn thôi!!</string>
+    <string name="couple_streak_title">Couple Streak</string>
+    <string name="couple_streak_invite_msg">Start your Galactic journey with %s. Maintain daily interaction to ignite the flame of connection and earn Elite perks.</string>
+    <string name="couple_streak_waiting_msg">Request sent to %s. The flame is waiting to be ignited, please be patient!</string>
+    <string name="couple_streak_received_msg">%s has sent a connection request! Accept now to start your legendary Streak journey together.</string>
     
     <string name="couple_streak_action_request">Request</string>
-    <string name="couple_streak_action_wait">Wait %s Response</string>
+    <string name="couple_streak_action_wait">Wait %s Accept</string>
     <string name="couple_streak_action_accept">Accept</string>
     <string name="couple_streak_action_decline">Decline</string>
     <string name="couple_streak_action_share">Share</string>
     <string name="couple_streak_action_cancel">Cancel</string>
-    <string name="couple_streak_action_change">Change</string>
+    <string name="couple_streak_action_change">Switch Card</string>
     <string name="couple_streak_you">You</string>
+    <string name="couple_streak_action_share_connection">Flex Connection</string>
+    <string name="couple_streak_invite_stylized"><![CDATA[<b>Fuel the fire!</b> Sync daily with <font color=\'#00FFFF\'>%s</font> to maintain your streak. Unlock <font color=\'#FFD700\'>Elite Objets</font> and reach Galactic status. Don\'t let the flame fade!]]></string>
 </resources>

@@ -36,6 +36,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyItemInserted(messages.size() - 1);
     }
 
+    public void clear() {
+        messages.clear();
+        notifyDataSetChanged();
+    }
+
+
     @Override
     public int getItemViewType(int position) {
         WorldChatMessage msg = messages.get(position);

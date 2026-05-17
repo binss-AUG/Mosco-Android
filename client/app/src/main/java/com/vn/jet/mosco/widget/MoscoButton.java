@@ -39,6 +39,29 @@ public class MoscoButton extends AppCompatButton {
     private int currentStyle = STYLE_PRIMARY;
     private int currentSize = SIZE_LARGE;
 
+    public void setMoscoStyle(int style) {
+        this.currentStyle = style;
+        applyStyleAndSize();
+    }
+
+    public void setMoscoStyle(String styleName) {
+        if ("primary".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_PRIMARY);
+        else if ("secondary".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_SECONDARY);
+        else if ("ghost".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_GHOST);
+        else if ("destructive".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_DESTRUCTIVE);
+    }
+
+    public void setMoscoSize(int size) {
+        this.currentSize = size;
+        applyStyleAndSize();
+    }
+
+    public void setMoscoSize(String sizeName) {
+        if ("large".equalsIgnoreCase(sizeName)) setMoscoSize(SIZE_LARGE);
+        else if ("medium".equalsIgnoreCase(sizeName)) setMoscoSize(SIZE_MEDIUM);
+        else if ("small".equalsIgnoreCase(sizeName)) setMoscoSize(SIZE_SMALL);
+    }
+
     public MoscoButton(@NonNull Context context) {
         super(context);
         init(null);

@@ -147,4 +147,32 @@ public class WebSocketManager {
     public interface OnPrivateMessageReceived {
         void onReceived(com.vn.jet.mosco.model.PrivateChatMessage message);
     }
+
+    /**
+     * Subscribe to Streak Update topic.
+     * Topic format: /topic/streak.{userId}
+     */
+    public Disposable subscribeToStreakUpdates(String userId, OnStreakUpdateReceived listener) {
+        Log.d(TAG, "Subscribing to /topic/streak." + userId + "...");
+        return stompClient.topic("/topic/streak." + userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    Log.d(TAG, "Received streak update: " + topicMessage.getPayload());
+                    try {
+                        com.vn.jet.mosco.model.CoupleStreakDto data = gson.fromJson(topicMessage.getPayload(), com.vn.jet.mosco.model.CoupleStreakDto.class);
+                        if (data != null) {
+                            listener.onReceived(data);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing streak update", e);
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic /topic/streak." + userId, throwable);
+                });
+    }
+
+    public interface OnStreakUpdateReceived {
+        void onReceived(com.vn.jet.mosco.model.CoupleStreakDto data);
+    }
 }

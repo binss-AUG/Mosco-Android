@@ -53,6 +53,10 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 }
 
+bootRun {
+	jvmArgs = ["-Xmx1024m", "-Xms512m"]
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
