@@ -81,43 +81,13 @@ public class MoscoDialogHelper {
                                        String positiveText, 
                                        String negativeText, 
                                        DialogCallback callback) {
-        
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
-
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.layout_mosco_dialog_base, null);
-        
-        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
-        TextView tvMessage = dialogView.findViewById(R.id.tv_dialog_message);
-        MoscoButton btnPositive = dialogView.findViewById(R.id.btn_positive);
-        MoscoButton btnNegative = dialogView.findViewById(R.id.btn_negative);
-
-        tvTitle.setText(title);
-        tvMessage.setText(message);
-        btnPositive.setText(positiveText);
-        btnNegative.setText(negativeText);
-
-        AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setView(dialogView)
-                .setCancelable(true)
-                .create();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            // Thêm hiệu ứng fade/scale nếu cần (Galactic style)
-            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
-        }
-
-        btnPositive.setOnClickListener(v -> {
-            dialog.dismiss();
-            if (callback != null) callback.onPositive();
-        });
-
-        btnNegative.setOnClickListener(v -> {
-            dialog.dismiss();
-            if (callback != null) callback.onNegative();
-        });
-
-        dialog.show();
+        new MoscoDialogManager.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveText(positiveText)
+                .setNegativeText(negativeText)
+                .setCallback(callback)
+                .show();
     }
 
     /**
@@ -127,8 +97,8 @@ public class MoscoDialogHelper {
         showConfirmDialog(activity,
                 activity.getString(R.string.dialog_logout_title),
                 activity.getString(R.string.dialog_logout_msg),
-                activity.getString(R.string.dialog_action_confirm),
-                activity.getString(R.string.dialog_action_cancel),
+                activity.getString(R.string.action_confirm),
+                activity.getString(R.string.action_cancel),
                 callback);
     }
 
@@ -145,36 +115,13 @@ public class MoscoDialogHelper {
     }
 
     public static void showInfoDialog(Activity activity, String title, String message, String positiveText, DialogCallback callback) {
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
-
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.layout_mosco_dialog_base, null);
-        
-        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
-        TextView tvMessage = dialogView.findViewById(R.id.tv_dialog_message);
-        MoscoButton btnPositive = dialogView.findViewById(R.id.btn_positive);
-        MoscoButton btnNegative = dialogView.findViewById(R.id.btn_negative);
-
-        tvTitle.setText(title);
-        tvMessage.setText(message);
-        btnPositive.setText(positiveText);
-        btnNegative.setVisibility(View.GONE);
-
-        AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setView(dialogView)
+        new MoscoDialogManager.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveText(positiveText)
+                .setCallback(callback)
                 .setCancelable(false)
-                .create();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
-        }
-
-        btnPositive.setOnClickListener(v -> {
-            dialog.dismiss();
-            if (callback != null) callback.onPositive();
-        });
-
-        dialog.show();
+                .show();
     }
 
     public static void showSingleChoiceDialog(Activity activity, String title, String[] items, DialogChoiceCallback callback) {
@@ -703,5 +650,165 @@ public class MoscoDialogHelper {
             return url + "/4x";
         }
         return url;
+    }
+
+    /**
+     * Hiển thị BottomSheet chi tiết Streak (Daily Check-in Streak) chuẩn Holographic Liquid Glass
+     */
+    public static void showStreakDetailBottomSheet(
+            android.content.Context context,
+            int currentStreak,
+            int bestStreak,
+            int restores,
+            com.vn.jet.mosco.network.GameApiService gameApiService,
+            Runnable onUpdated) {
+        if (context == null) return;
+        
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(context, R.style.LiquidGlass_BottomSheetTheme);
+        View view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_streak_detail, null);
+        
+        TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
+        TextView tvBest = view.findViewById(R.id.tv_best_streak);
+        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
+        com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
+        
+        if (ivIcon != null) {
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
+            
+            // Tạm dừng hoạt họa ngọn lửa ban đầu để chuẩn bị hiệu ứng "bùng cháy" sau khi mở hẳn BottomSheet
+            if (ivIcon.isAnimating()) ivIcon.cancelAnimation();
+            ivIcon.setFrame(0);
+            ivIcon.setAlpha(0f);
+            
+            if (currentStreak >= 1000) {
+                // Hiệu ứng RGB cầu vồng cho streak khủng
+                android.animation.ValueAnimator dialogRgbAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
+                dialogRgbAnimator.setDuration(3000);
+                dialogRgbAnimator.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+                dialogRgbAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
+                dialogRgbAnimator.addUpdateListener(animation -> {
+                    float hue = (float) animation.getAnimatedValue();
+                    com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(ivIcon, hue);
+                });
+                dialogRgbAnimator.start();
+                dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
+            }
+        }
+
+        // Hiệu ứng trượt so le (Staggered Animation) từ dưới lên của các phần tử stats và shield
+        View statsLayout = view.findViewById(R.id.layout_streak_stats);
+        if (statsLayout != null) {
+            statsLayout.setAlpha(0f);
+            statsLayout.setTranslationY(80f);
+            statsLayout.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(500)
+                .setStartDelay(120)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+
+        View shieldCard = view.findViewById(R.id.card_streak_shield);
+        if (shieldCard != null) {
+            shieldCard.setAlpha(0f);
+            shieldCard.setTranslationY(100f);
+            shieldCard.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(600)
+                .setStartDelay(220)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+        
+        tvCurrent.setText(context.getString(R.string.rank_format_streak, currentStreak));
+        tvBest.setText(context.getString(R.string.rank_format_streak, bestStreak));
+        btnRestore.setText(restores < 3 ? "RESTORE (FREE " + (3 - restores) + "/3)" : "RESTORE (500 DIAMONDS)");
+
+        btnRestore.setOnClickListener(v -> {
+            if (currentStreak >= bestStreak && currentStreak > 0) return;
+            btnRestore.setEnabled(false);
+            gameApiService.restoreStreak().enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, retrofit2.Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        if (onUpdated != null) onUpdated.run();
+                        dialog.dismiss();
+                    } else { btnRestore.setEnabled(true); }
+                }
+                @Override
+                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call, Throwable t) { btnRestore.setEnabled(true); }
+            });
+        });
+        
+        final boolean[] hasBurst = {false};
+        final Runnable burstAction = () -> {
+            if (hasBurst[0]) return;
+            hasBurst[0] = true;
+            triggerStreakBurstAnimation(ivIcon);
+        };
+
+        dialog.setOnShowListener(d -> {
+            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
+                    com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
+                behavior.addBottomSheetCallback(new com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
+                    @Override
+                    public void onStateChanged(@androidx.annotation.NonNull View bottomSheetView, int newState) {
+                        if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) {
+                            burstAction.run();
+                        }
+                    }
+                    @Override
+                    public void onSlide(@androidx.annotation.NonNull View bottomSheetView, float slideOffset) {}
+                });
+            }
+            
+            // Backup Trigger: Đảm bảo bùng cháy chuẩn xác sau 350ms (thời gian trượt của window kết thúc)
+            view.postDelayed(burstAction, 350);
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    private static void triggerStreakBurstAnimation(com.airbnb.lottie.LottieAnimationView ivIcon) {
+        if (ivIcon == null) return;
+        
+        // Cấu hình điểm pivot ở đáy trung tâm để ngọn lửa bùng lên TỪ DƯỚI LÊN
+        float width = ivIcon.getWidth() > 0 ? ivIcon.getWidth() / 2f : (220f * ivIcon.getResources().getDisplayMetrics().density) / 2f;
+        float height = ivIcon.getHeight() > 0 ? ivIcon.getHeight() : (220f * ivIcon.getResources().getDisplayMetrics().density);
+        ivIcon.setPivotX(width);
+        ivIcon.setPivotY(height);
+        
+        // Kích hoạt ngọn lửa Lottie chạy hoạt họa
+        ivIcon.playAnimation();
+        
+        // Hoạt họa bùng lên từ đáy (Scale Y mạnh hơn Scale X, kết hợp trượt nhẹ từ dưới lên)
+        ivIcon.setScaleX(0.1f);
+        ivIcon.setScaleY(0.1f);
+        ivIcon.setTranslationY(60f); // hơi lùi xuống dưới
+        ivIcon.setAlpha(0f);
+        
+        ivIcon.animate()
+            .alpha(1f)
+            .scaleX(1.1f)
+            .scaleY(1.25f) // scale Y cao hơn để tạo cảm giác ngọn lửa vươn cao bùng cháy!
+            .translationY(-15f) // hơi vọt lên trên đỉnh một chút
+            .setDuration(450)
+            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+            .withEndAction(() -> {
+                // Đàn hồi nhẹ nhàng về kích thước và vị trí chuẩn ổn định (1.0f, translationY=0)
+                ivIcon.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .translationY(0f)
+                    .setDuration(250)
+                    .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
+                    .start();
+            })
+            .start();
     }
 }

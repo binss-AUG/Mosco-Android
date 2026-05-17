@@ -956,154 +956,18 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void showStreakDetail(int currentStreak, int bestStreak, int restores) {
-        if (requireContext() == null) return;
-        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.LiquidGlass_BottomSheetTheme);
-        View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_streak_detail, null);
-        
-        TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
-        TextView tvBest = view.findViewById(R.id.tv_best_streak);
-        android.widget.Button btnRestore = view.findViewById(R.id.btn_restore_streak);
-        com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
-        if (ivIcon != null) {
-            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
-            
-            // Tạm dừng hoạt họa ngọn lửa ban đầu để chuẩn bị hiệu ứng "bùng cháy" sau khi mở hẳn BottomSheet
-            if (ivIcon.isAnimating()) ivIcon.cancelAnimation();
-            ivIcon.setFrame(0);
-            ivIcon.setAlpha(0f);
-            
-            if (currentStreak >= 1000) {
-                android.animation.ValueAnimator dialogRgbAnimator = android.animation.ValueAnimator.ofFloat(0f, 360f);
-                dialogRgbAnimator.setDuration(3000);
-                dialogRgbAnimator.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-                dialogRgbAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
-                dialogRgbAnimator.addUpdateListener(animation -> {
-                    float hue = (float) animation.getAnimatedValue();
-                    com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(ivIcon, hue);
-                });
-                dialogRgbAnimator.start();
-                dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
-            }
-        }
-
-        // Tại sao (WHY): Hiệu ứng trượt so le (Staggered Animation) từ dưới lên của các phần tử stats và shield
-        View statsLayout = view.findViewById(R.id.layout_streak_stats);
-        if (statsLayout != null) {
-            statsLayout.setAlpha(0f);
-            statsLayout.setTranslationY(80f);
-            statsLayout.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(500)
-                .setStartDelay(120)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                .start();
-        }
-
-        View shieldCard = view.findViewById(R.id.card_streak_shield);
-        if (shieldCard != null) {
-            shieldCard.setAlpha(0f);
-            shieldCard.setTranslationY(100f);
-            shieldCard.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(600)
-                .setStartDelay(220)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                .start();
-        }
-
-        tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));
-        tvBest.setText(getString(R.string.rank_format_streak, bestStreak));
-        btnRestore.setText(restores < 3 ? "RESTORE (FREE " + (3 - restores) + "/3)" : "RESTORE (500 DIAMONDS)");
-
-        btnRestore.setOnClickListener(v -> {
-            if (currentStreak >= bestStreak && currentStreak > 0) return;
-            btnRestore.setEnabled(false);
-            gameApiService.restoreStreak().enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<UserStats>>() {
-                @Override
-                public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
-                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                        UserStats updated = response.body().getData();
-                        if (getActivity() instanceof MainActivity) {
-                            ((MainActivity) getActivity()).loadUserData();
-                        }
-                        dialog.dismiss();
-                    } else { btnRestore.setEnabled(true); }
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showStreakDetailBottomSheet(
+            requireContext(),
+            currentStreak,
+            bestStreak,
+            restores,
+            gameApiService,
+            () -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).loadUserData();
                 }
-                @Override
-                public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Throwable t) { btnRestore.setEnabled(true); }
-            });
-        });
-        
-        final boolean[] hasBurst = {false};
-        final Runnable burstAction = () -> {
-            if (hasBurst[0]) return;
-            hasBurst[0] = true;
-            triggerStreakBurstAnimation(ivIcon);
-        };
-
-        dialog.setOnShowListener(d -> {
-            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (bottomSheet != null) {
-                com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
-                    com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
-                behavior.addBottomSheetCallback(new com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
-                    @Override
-                    public void onStateChanged(@androidx.annotation.NonNull View bottomSheetView, int newState) {
-                        if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) {
-                            burstAction.run();
-                        }
-                    }
-                    @Override
-                    public void onSlide(@androidx.annotation.NonNull View bottomSheetView, float slideOffset) {}
-                });
             }
-            
-            // Backup Trigger: Đảm bảo bùng cháy chuẩn xác sau 350ms (thời gian trượt của window kết thúc)
-            view.postDelayed(burstAction, 350);
-        });
-
-        dialog.setContentView(view);
-        dialog.show();
-    }
-
-    private void triggerStreakBurstAnimation(com.airbnb.lottie.LottieAnimationView ivIcon) {
-        if (ivIcon == null) return;
-        
-        // Cấu hình điểm pivot ở đáy trung tâm để ngọn lửa bùng lên TỪ DƯỚI LÊN
-        float width = ivIcon.getWidth() > 0 ? ivIcon.getWidth() / 2f : (220f * ivIcon.getResources().getDisplayMetrics().density) / 2f;
-        float height = ivIcon.getHeight() > 0 ? ivIcon.getHeight() : (220f * ivIcon.getResources().getDisplayMetrics().density);
-        ivIcon.setPivotX(width);
-        ivIcon.setPivotY(height);
-        
-        // Kích hoạt ngọn lửa Lottie chạy hoạt họa
-        ivIcon.playAnimation();
-        
-        // Hoạt họa bùng lên từ đáy (Scale Y mạnh hơn Scale X, kết hợp trượt nhẹ từ dưới lên)
-        ivIcon.setScaleX(0.1f);
-        ivIcon.setScaleY(0.1f);
-        ivIcon.setTranslationY(60f); // hơi lùi xuống dưới
-        ivIcon.setAlpha(0f);
-        
-        ivIcon.animate()
-            .alpha(1f)
-            .scaleX(1.1f)
-            .scaleY(1.25f) // scale Y cao hơn để tạo cảm giác ngọn lửa vươn cao bùng cháy!
-            .translationY(-15f) // hơi vọt lên trên đỉnh một chút
-            .setDuration(450)
-            .setInterpolator(new android.view.animation.AccelerateInterpolator())
-            .withEndAction(() -> {
-                // Đàn hồi nhẹ nhàng về kích thước và vị trí chuẩn ổn định (1.0f, translationY=0)
-                ivIcon.animate()
-                    .scaleX(1.0f)
-                    .scaleY(1.0f)
-                    .translationY(0f)
-                    .setDuration(250)
-                    .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
-                    .start();
-            })
-            .start();
+        );
     }
 
     private void startRGBStreakAnimation(com.airbnb.lottie.LottieAnimationView lottie) {
