@@ -37,13 +37,28 @@
         app:layout_constraintStart_toStartOf="@id/dialog_glass_bg"
         app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg">
 
+        <!-- Close Button (Left) -->
+        <ImageView
+            android:id="@+id/btn_close_detail"
+            android:layout_width="@dimen/spacing_xl"
+            android:layout_height="@dimen/spacing_xl"
+            android:padding="@dimen/spacing_xs"
+            android:src="@drawable/ic_close"
+            app:tint="@color/white"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
         <!-- OBJET NAME TITLE (Center) -->
         <TextView
             android:id="@+id/tv_detail_card_name"
             style="@style/MoscoText.Luxury.SubHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/spacing_md"
+            android:layout_marginHorizontal="56dp"
             android:gravity="center"
             android:textColor="@color/white"
             android:textSize="18sp"
