@@ -112,16 +112,16 @@
     <dimen name="lg_stroke_thin">1dp</dimen>
 
     <!-- LG: Navigation -->
-    <dimen name="lg_nav_height">64dp</dimen>
+    <dimen name="lg_nav_height">48dp</dimen>
     <dimen name="lg_nav_margin_horizontal">12dp</dimen>
     <dimen name="lg_nav_margin_bottom">10dp</dimen>
-    <dimen name="lg_nav_icon_size">22dp</dimen>
+    <dimen name="lg_nav_icon_size">20dp</dimen>
 
     <!-- LG: Header -->
     <dimen name="lg_header_height">56dp</dimen>
 
     <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che -->
-    <!-- = nav_height(64) + nav_margin_bottom(10) + spacing(10) = 84dp -->
-    <dimen name="lg_content_bottom_clearance">84dp</dimen>
+    <!-- = nav_height(48) + nav_margin_bottom(10) + spacing(10) = 68dp -->
+    <dimen name="lg_content_bottom_clearance">68dp</dimen>
 
 </resources>

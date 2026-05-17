@@ -129,12 +129,17 @@ public class CollectionDetailBinder {
         ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
         int upgradeGrade = entry.getUpgradeLevel();
         if (ivLevel != null) {
-            if (upgradeGrade > 0) {
+            if (isAlbumMode) {
+                ivLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
+            } else if (upgradeGrade > 0) {
                 String assetPath = context.getString(R.string.asset_grade_path) + upgradeGrade + ".png";
                 Glide.with(context).load(assetPath).into(ivLevel);
                 ivLevel.setVisibility(View.VISIBLE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, upgradeGrade);
             } else {
                 ivLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
             }
         }
 
@@ -196,7 +201,7 @@ public class CollectionDetailBinder {
         // --- TOP-RIGHT: GIFT (SEND) ---
         View btnSend = dialog.findViewById(R.id.btn_send_gift);
         if (btnSend != null) {
-            btnSend.setVisibility(item.isOwned() ? View.VISIBLE : View.GONE);
+            btnSend.setVisibility((item.isOwned() && !isAlbumMode) ? View.VISIBLE : View.GONE);
             btnSend.setOnClickListener(v -> {
                 Intent intent = new Intent(context, GiftActivity.class);
                 intent.putExtra("target_collection_id", item.getCollectionId());
@@ -226,6 +231,7 @@ public class CollectionDetailBinder {
         // --- BOTTOM-RIGHT: CAPTURE & UPGRADE ---
         View btnCapture = dialog.findViewById(R.id.btn_capture_photo);
         if (btnCapture != null) {
+            btnCapture.setVisibility(isAlbumMode ? View.GONE : View.VISIBLE);
             btnCapture.setOnClickListener(v -> {
                 Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show();
             });
@@ -233,7 +239,7 @@ public class CollectionDetailBinder {
 
         View btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
         if (btnUpgrade != null) {
-            btnUpgrade.setVisibility(item.isOwned() ? View.VISIBLE : View.GONE);
+            btnUpgrade.setVisibility((item.isOwned() && !isAlbumMode) ? View.VISIBLE : View.GONE);
             btnUpgrade.setOnClickListener(v -> {
                 if (context instanceof androidx.appcompat.app.AppCompatActivity) {
                     ((androidx.appcompat.app.AppCompatActivity) context).getSupportFragmentManager().beginTransaction()

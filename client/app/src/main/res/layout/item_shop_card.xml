@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    app:cardBackgroundColor="@color/mosco_surface_container"
+    app:cardBackgroundColor="@color/white_05"
     app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp"
     app:strokeColor="@color/lg_outline"
@@ -27,7 +27,7 @@
             android:paddingVertical="@dimen/spacing_10dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:background="@color/mosco_surface_container_high"
+            android:background="@color/transparent"
             android:contentDescription="Shop item image"
             app:layout_constraintDimensionRatio="1:1.2"
             app:layout_constraintEnd_toEndOf="parent"
@@ -111,26 +111,25 @@
             app:layout_constraintTop_toBottomOf="@id/tv_shop_item_timer" />
 
         <!-- Price Row: currency icon + price + buy button -->
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ll_price_row"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
             android:layout_marginHorizontal="@dimen/spacing_sm"
             android:layout_marginTop="@dimen/spacing_sm"
             android:layout_marginBottom="@dimen/spacing_10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider_shop_item">
 
             <!-- Currency Icon -->
             <ImageView
                 android:id="@+id/iv_price_icon"
-                android:layout_width="@dimen/spacing_20dp"
-                android:layout_height="@dimen/spacing_20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_item_coin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 android:contentDescription="Currency" />
 
             <!-- Price Text -->
@@ -139,20 +138,33 @@
                 style="@style/MoscoText.Luxury.Card.Price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_xs"
-                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:maxLines="1"
+                android:includeFontPadding="false"
+                android:gravity="center_vertical"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="15sp"
+                app:layout_constraintStart_toEndOf="@id/iv_price_icon"
+                app:layout_constraintEnd_toStartOf="@id/btn_buy"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 tools:text="250" />
 
             <!-- Buy Button -->
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_buy"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 app:moscoStyle="primary"
                 app:moscoSize="small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 android:text="@string/shop_action_buy" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

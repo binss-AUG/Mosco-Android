@@ -161,7 +161,7 @@
 
     <!-- Bottom Navigation Text Appearance - Fix Center Alignment -->
     <style name="MoscoBottomNavText" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">9sp</item>
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="android:fontWeight">500</item>
         <item name="android:letterSpacing">0.02</item>

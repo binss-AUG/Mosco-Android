@@ -871,6 +871,12 @@ public class CollectionFragment extends Fragment {
             filterBtn.setOnClickListener(
                     v -> showFilterBottomSheet(this, buildMailboxCategories(), 0, mailboxFilter, this::applyFilters));
 
+            // Receive All
+            View btnReceiveAll = view.findViewById(R.id.btn_receive_all);
+            if (btnReceiveAll != null) {
+                btnReceiveAll.setOnClickListener(v -> receiveAll());
+            }
+
             // RecyclerView
             RecyclerView rvMailbox = view.findViewById(R.id.rv_mailbox);
             rvMailbox.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -907,12 +913,6 @@ public class CollectionFragment extends Fragment {
          * Thực hiện gửi yêu cầu nhận quà lên Server.
          */
         private void performClaim(com.vn.jet.mosco.model.UserMail mail) {
-            // Hiển thị Loading Dialog phong cách Galactic
-            AlertDialog loading = new AlertDialog.Builder(requireContext())
-                    .setMessage(getString(R.string.mailbox_msg_connecting))
-                    .setCancelable(false)
-                    .show();
-
             com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
                     .getClient(requireContext())
                     .create(com.vn.jet.mosco.network.GameApiService.class);
@@ -921,31 +921,64 @@ public class CollectionFragment extends Fragment {
                 @Override
                 public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
                         retrofit2.Response<okhttp3.ResponseBody> response) {
-                    loading.dismiss();
                     if (response.isSuccessful()) {
-                        // Cập nhật trạng thái local
                         mail.setReceived(true);
-
-                        // Hiển thị thông báo thành công cao cấp
-                        new AlertDialog.Builder(requireContext())
-                                .setTitle(getString(R.string.mailbox_msg_claim_success_title))
-                                .setMessage(getString(R.string.mailbox_format_claim_success_msg,
-                                        (mail.getItemCode() != null ? mail.getItemCode() : "")))
-                                .setPositiveButton(getString(R.string.mailbox_action_awesome), (d, w) -> loadMailbox())
-                                .show();
-                    } else {
-                        Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT)
-                                .show();
+                        loadMailbox();
                     }
                 }
 
                 @Override
                 public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                    loading.dismiss();
-                    Toast.makeText(requireContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT)
-                            .show();
+                    // Xử lý ngầm, không hiện thông báo nổi
                 }
             });
+        }
+
+        private void receiveAll() {
+            if (originalMails == null || originalMails.isEmpty()) {
+                return;
+            }
+
+            List<com.vn.jet.mosco.model.UserMail> unreceivedMails = new ArrayList<>();
+            for (com.vn.jet.mosco.model.UserMail m : originalMails) {
+                if (!m.isReceived()) {
+                    unreceivedMails.add(m);
+                }
+            }
+
+            if (unreceivedMails.isEmpty()) {
+                return;
+            }
+
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext())
+                    .create(com.vn.jet.mosco.network.GameApiService.class);
+
+            java.util.concurrent.atomic.AtomicInteger count = new java.util.concurrent.atomic.AtomicInteger(unreceivedMails.size());
+
+            for (com.vn.jet.mosco.model.UserMail mail : unreceivedMails) {
+                apiService.claimMail(mail.getId()).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
+                            retrofit2.Response<okhttp3.ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            mail.setReceived(true);
+                        }
+                        checkCompletion();
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                        checkCompletion();
+                    }
+
+                    private void checkCompletion() {
+                        if (count.decrementAndGet() == 0) {
+                            loadMailbox(); // Reload list
+                        }
+                    }
+                });
+            }
         }
 
         private void loadMailbox() {
@@ -986,7 +1019,7 @@ public class CollectionFragment extends Fragment {
                     if (mailboxFilter.isEmpty()) {
                         filtered.add(m);
                     } else {
-                        // Tương lai: Lọc theo Type nếu sếp muốn
+                        // Tương lai: Lọc theo Type nếu cần
                         filtered.add(m);
                     }
                 }

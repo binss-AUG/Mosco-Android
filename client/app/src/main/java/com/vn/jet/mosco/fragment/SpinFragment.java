@@ -1736,11 +1736,11 @@ public class SpinFragment extends Fragment {
 
                     android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
                     if (ivLevelBadge != null) {
-                        if (selectedObj.getLevel() > 0) {
-                            com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getLevel() + ".png").into(ivLevelBadge);
+                        if (selectedObj.getUpgradeLevel() > 0) {
+                            com.bumptech.glide.Glide.with(requireContext()).load("file:///android_asset/grade/" + selectedObj.getUpgradeLevel() + ".png").into(ivLevelBadge);
                             ivLevelBadge.setVisibility(View.VISIBLE);
                             ivLevelBadge.setTag("has_badge"); // Đánh dấu để swapSacrificeFaces biết nên hiện lại
-                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getLevel());
+                            com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevelBadge, selectedObj.getUpgradeLevel());
                         } else {
                             ivLevelBadge.setVisibility(View.GONE);
                             ivLevelBadge.setTag(null);

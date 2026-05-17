@@ -65,13 +65,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private static final int MIN_SKELETON_DURATION = 1500; // Thời gian tối thiểu hiện Skeleton (Luxury feel)
 
     // ── UI References ──
-    private TextView tvUsername, tvCoins, tvDiamonds, tvUserId, tvNotification, tvLevel, tvXpVal;
-    private ProgressBar pbHomeXp;
-    private ImageView ivHomeAvatar, ivChatAvatar, btnHomeSend;
+    private TextView tvNotification; // Vẫn giữ lại cho ticker
+    private ImageView ivChatAvatar, btnHomeSend;
     private EditText etHomeChat;
     private ViewPager2 vpBanners, vpMiniRanking;
     private LinearLayout llBannerDots;
-    private View flAvatarGroup;
     private com.scwang.smart.refresh.layout.SmartRefreshLayout swipeRefreshLayout;
     private com.facebook.shimmer.ShimmerFrameLayout shimmerHome;
     private View clRealContent;
@@ -137,8 +135,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         initViews(view);
         initServices();
         
-        setupLongClickCopy(tvUsername, getString(R.string.home_label_username));
-        setupLongClickCopy(tvUserId, getString(R.string.home_label_user_id));
+        // setupLongClickCopy đã chuyển sang MainActivity
         setupBannerCarousel();
         setupQuickToolActions();
         setupQuickToolDimensions();
@@ -260,22 +257,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     public void onInventoryChanged() { }
 
     private void initViews(View v) {
-        tvUsername = v.findViewById(R.id.tv_home_username);
-        tvCoins = v.findViewById(R.id.tv_home_coins);
-        tvDiamonds = v.findViewById(R.id.tv_home_diamonds);
+        // Thanh top bar đã được chuyển sang MainActivity quản lý
         tvNotification = v.findViewById(R.id.tv_home_notification);
-        tvLevel = v.findViewById(R.id.tv_home_level);
-        tvXpVal = v.findViewById(R.id.tv_home_xp_val);
-        pbHomeXp = v.findViewById(R.id.pb_home_xp);
-        
-        ivHomeAvatar = v.findViewById(R.id.iv_home_avatar);
         ivChatAvatar = v.findViewById(R.id.iv_chat_avatar);
         etHomeChat = v.findViewById(R.id.et_home_chat);
         btnHomeSend = v.findViewById(R.id.btn_home_send);
         llBannerDots = v.findViewById(R.id.ll_banner_dots);
         vpBanners = v.findViewById(R.id.vp_banners);
         swipeRefreshLayout = v.findViewById(R.id.swipe_refresh_home);
-        pbHomeXp = v.findViewById(R.id.pb_home_xp);
         
         btnQuickRank = v.findViewById(R.id.btn_quick_rank);
         btnQuickDaily = v.findViewById(R.id.btn_quick_daily);
@@ -319,21 +308,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             });
         }
         
-        flAvatarGroup = v.findViewById(R.id.fl_avatar_group);
-        tvUserId = v.findViewById(R.id.tv_home_user_id);
-        
-        // Header Buttons
-        btnFriends = v.findViewById(R.id.btn_header_friends);
-        btnMailbox = v.findViewById(R.id.btn_header_mailbox);
-        btnShop = v.findViewById(R.id.btn_header_shop);
-        
-        tvBadgeFriends = v.findViewById(R.id.tv_badge_friends);
-        tvBadgeMailbox = v.findViewById(R.id.tv_badge_mailbox);
-        tvBadgeShop = v.findViewById(R.id.tv_badge_shop);
-
-        tvStreakAvatarVal = v.findViewById(R.id.tv_streak_avatar_val);
-        flStreakAvatar = v.findViewById(R.id.fl_streak_avatar);
-        lottieStreakAvatar = v.findViewById(R.id.lottie_streak_avatar);
+        // Top bar views đã được chuyển sang MainActivity
 
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
@@ -574,14 +549,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         // if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
         if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
         
-        if (flAvatarGroup != null) {
-            flAvatarGroup.setOnClickListener(new ClickDebounce() {
-                @Override
-                public void onDebouncedClick(View v) { 
-                    NavigationUtils.openProfile(getActivity(), null); 
-                }
-            });
-        }
+        // flAvatarGroup đã chuyển sang MainActivity
 
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
@@ -702,96 +670,28 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void loadUserData() {
-        // Nếu đã có data thì không reset để tránh hiện skeleton lại
         if (sIsFirstLoad) isUserStatsLoaded = false;
         if (sessionManager == null || gameApiService == null) return;
         try {
-            String displayName = sessionManager.getIngameName();
-            if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
-            if (tvUsername != null) {
-                tvUsername.setText(displayName != null ? displayName : getString(R.string.placeholder_commander));
-                tvUsername.setSelected(true);
-            }
-
             Long userId = sessionManager.getUserId();
             String avatarId = sessionManager.getAvatarId();
             if (avatarId == null) avatarId = "1";
-            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivHomeAvatar, userId, avatarId);
             com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivChatAvatar, userId, avatarId);
-            if (userId == null) return;
-            if (tvUserId != null) tvUserId.setText(getString(R.string.home_format_user_id, String.valueOf(10000000L + userId)));
             
-            // AAA Strategy: Hiển thị data cũ ngay lập tức nếu có
-            if (sCachedStats != null) {
-                bindCurrency(sCachedStats.getCoins(), sCachedStats.getDiamonds(), sCachedStats.getStreak(), sCachedStats.getBestStreak(), sCachedStats.getStreakRestoresThisMonth(), sCachedStats.getLevel(), sCachedStats.getExp());
-                isUserStatsLoaded = true;
-                checkAndShowContent();
+            // Gọi MainActivity cập nhật lại dữ liệu trên thanh top bar dùng chung
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadUserData();
             }
-
-            gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
-                @Override
-                public void onResponse(Call<UserStats> call, Response<UserStats> response) {
-                    if (!isAdded() || requireContext() == null) return;
-                    if (response.isSuccessful() && response.body() != null) {
-                        UserStats stats = response.body();
-                        sCachedStats = stats; // Cập nhật cache
-                        bindCurrency(stats.getCoins(), stats.getDiamonds(), stats.getStreak(), stats.getBestStreak(), stats.getStreakRestoresThisMonth(), stats.getLevel(), stats.getExp());
-                        isUserStatsLoaded = true;
-                        sIsFirstLoad = false; // Đã xong lần đầu
-                        checkAndShowContent();
-                    }
-                }
-                @Override
-                public void onFailure(Call<UserStats> call, Throwable t) {
-                    isUserStatsLoaded = true; 
-                    checkAndShowContent();
-                }
-            });
+            
+            // Giả lập việc load xong để ẩn skeleton
+            isUserStatsLoaded = true;
+            sIsFirstLoad = false;
+            checkAndShowContent();
+            
         } catch (Exception e) { Log.e(TAG, "Error data", e); }
     }
 
-    private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores, int level, long exp) {
-        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), coins != null ? coins : 0));
-        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), diamonds != null ? diamonds : 0));
-        
-        updateStreakDisplay(streak);
-        
-        if (lottieStreakAvatar != null) {
-            lottieStreakAvatar.setMinAndMaxFrame(0, 24);
-            if (!lottieStreakAvatar.isAnimating()) lottieStreakAvatar.playAnimation();
-            
-            if (streak >= 1000) {
-                startRGBStreakAnimation(lottieStreakAvatar);
-            } else {
-                stopRGBStreakAnimation();
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieStreakAvatar, streak);
-            }
-        }
-
-        // XP Bar Animation
-        if (tvLevel != null) tvLevel.setText(getString(R.string.format_level, level));
-        
-        long nextLevelXp = level * 1000L;
-        if (nextLevelXp == 0) nextLevelXp = 1000;
-        int progress = (int) ((exp * 100) / nextLevelXp);
-        if (progress > 100) progress = 100;
-        
-        if (pbHomeXp != null) {
-            ObjectAnimator anim = ObjectAnimator.ofInt(pbHomeXp, "progress", lastProgress, progress);
-            anim.setDuration(1200);
-            anim.setInterpolator(new android.view.animation.DecelerateInterpolator());
-            anim.start();
-            lastProgress = progress;
-        }
-        
-        if (tvXpVal != null) {
-            String pct = String.format("%.2f%%", (exp * 100f) / nextLevelXp);
-            tvXpVal.setText(pct);
-        }
-
-        this.bestStreakValue = bestStreak;
-        this.restoresThisMonth = restores;
-    }
+    // Xóa bindCurrency vì dùng chung với MainActivity
 
     private void checkAndShowContent() {
         // Chỉ cần UserStats là cho hiện Home (Non-blocking Ranking)
@@ -867,7 +767,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                         UserStats updated = response.body().getData();
-                        bindCurrency(updated.getCoins(), updated.getDiamonds(), updated.getStreak(), updated.getBestStreak(), updated.getStreakRestoresThisMonth(), updated.getLevel(), updated.getExp());
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).loadUserData();
+                        }
                         dialog.dismiss();
                     } else { btnRestore.setEnabled(true); }
                 }

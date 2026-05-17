@@ -37,7 +37,7 @@ public class MailboxController {
             mailboxService.claimMail(mailId);
             return ResponseEntity.ok().body(java.util.Map.of(
                 "status", 200,
-                "message", "Nhận quà thành công! Chúc mừng sếp nhé!"
+                "message", "Nhận quà thành công!"
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(java.util.Map.of(

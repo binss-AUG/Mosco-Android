@@ -6,15 +6,352 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/lg_background_deep"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context=".MainActivity">
 
-    <!-- Content: full-height để nội dung trượt dưới nav bar floating -->
+    <!-- TOP HEADER: Integrated Profile & Quick Actions (Shared) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_header_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0dp"
+        android:layout_marginTop="0dp"
+        android:paddingHorizontal="@dimen/spacing_8dp"
+        android:paddingTop="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- BACK BUTTON: Consistent style with other tabs -->
+        <FrameLayout
+            android:id="@+id/btn_header_back"
+            android:layout_width="@dimen/header_btn_size"
+            android:layout_height="@dimen/header_btn_size"
+            android:background="@drawable/bg_glass_square"
+            android:stateListAnimator="@animator/lg_btn_state_animator"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <ImageView
+                android:layout_width="@dimen/header_icon_size"
+                android:layout_height="@dimen/header_icon_size"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back_arrow" />
+        </FrameLayout>
+
+        <!-- Profile Panel — Compact Glass HUD -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_header"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/home_header_pill_height"
+            android:background="@drawable/bg_header_asymmetric_glass"
+            app:layout_constraintStart_toEndOf="@id/btn_header_back"
+            app:layout_constraintEnd_toStartOf="@+id/barrier_header_right"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Avatar Head -->
+            <FrameLayout
+                android:id="@+id/fl_avatar_group"
+                android:layout_width="@dimen/home_header_pill_height"
+                android:layout_height="@dimen/home_header_pill_height"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_home_avatar"
+                    android:layout_width="@dimen/home_header_avatar_size_hud"
+                    android:layout_height="@dimen/home_header_avatar_size_hud"
+                    android:layout_gravity="center"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                    app:strokeColor="@color/white_25"
+                    app:strokeWidth="@dimen/home_avatar_stroke_hud"
+                    android:src="@drawable/ic_user" />
+
+                <!-- MINI STREAK OVERLAY -->
+                <FrameLayout
+                    android:id="@+id/fl_streak_avatar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/lottie_streak_avatar"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        app:lottie_rawRes="@raw/streak_animation"
+                        app:lottie_autoPlay="true"
+                        app:lottie_loop="true" />
+
+                    <com.vn.jet.mosco.utils.StrokedTextView
+                        android:id="@+id/tv_streak_avatar_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="0"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:translationY="4dp" />
+                </FrameLayout>
+            </FrameLayout>
+
+            <!-- Right Side HUD Content -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xs"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                app:layout_constraintStart_toEndOf="@id/fl_avatar_group"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <!-- Top Row: Name & Level -->
+                <LinearLayout
+                    android:id="@+id/ll_name_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+                    
+                    <TextView
+                        android:id="@+id/tv_home_username"
+                        style="@style/MoscoText.Luxury.SubHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_commander"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_home_level"
+                        style="@style/MoscoText.Technical.Badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/home_format_level"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <!-- Middle Row: XP Bar -->
+                <ProgressBar
+                    android:id="@+id/pb_home_xp"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="2dp"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/bg_xp_progress"
+                    app:layout_constraintTop_toBottomOf="@id/ll_name_level" />
+
+                <!-- Bottom Row: Currencies -->
+                <LinearLayout
+                    android:id="@+id/ll_internal_currencies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/pb_home_xp">
+                    <ImageView android:layout_width="@dimen/home_currency_icon_size_hud" android:layout_height="@dimen/home_currency_icon_size_hud" android:src="@drawable/ic_item_diamond" />
+                    <TextView android:id="@+id/tv_home_diamonds" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="2dp" android:text="0" android:textColor="@color/white" android:textSize="11sp" android:fontFamily="@font/pretendard" android:textStyle="bold" />
+                    <ImageView android:layout_width="@dimen/home_currency_icon_size_hud" android:layout_height="@dimen/home_currency_icon_size_hud" android:layout_marginStart="8dp" android:src="@drawable/ic_item_coin" />
+                    <TextView android:id="@+id/tv_home_coins" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="2dp" android:text="0" android:textColor="@color/white" android:textSize="11sp" android:fontFamily="@font/pretendard" android:textStyle="bold" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- HEADER ACTION BUTTONS -->
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_header_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="start"
+            app:constraint_referenced_ids="ll_header_buttons,ll_shop_currencies" />
+
+        <!-- STANDARD MODE BUTTONS -->
+        <LinearLayout
+            android:id="@+id/ll_header_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_6dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Friends Button -->
+            <FrameLayout
+                android:id="@+id/btn_header_friends"
+                android:layout_width="@dimen/header_btn_size"
+                android:layout_height="@dimen/header_btn_size"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_glass_square"
+                android:stateListAnimator="@animator/lg_btn_state_animator"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:layout_width="@dimen/header_icon_size"
+                    android:layout_height="@dimen/header_icon_size"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_friends" />
+                <TextView
+                    android:id="@+id/tv_badge_friends"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_notification_badge"
+                    android:paddingHorizontal="@dimen/header_badge_padding_h"
+                    android:paddingVertical="@dimen/header_badge_padding_v"
+                    android:minWidth="@dimen/header_badge_min_size"
+                    android:minHeight="@dimen/header_badge_min_size"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/header_badge_text_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Mailbox Button -->
+            <FrameLayout
+                android:id="@+id/btn_header_mailbox"
+                android:layout_width="@dimen/header_btn_size"
+                android:layout_height="@dimen/header_btn_size"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_glass_square"
+                android:stateListAnimator="@animator/lg_btn_state_animator"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:layout_width="@dimen/header_icon_size"
+                    android:layout_height="@dimen/header_icon_size"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_bell_neon" />
+                <TextView
+                    android:id="@+id/tv_badge_mailbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_notification_badge"
+                    android:paddingHorizontal="@dimen/header_badge_padding_h"
+                    android:paddingVertical="@dimen/header_badge_padding_v"
+                    android:minWidth="@dimen/header_badge_min_size"
+                    android:minHeight="@dimen/header_badge_min_size"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/header_badge_text_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Shop Button -->
+            <FrameLayout
+                android:id="@+id/btn_header_shop"
+                android:layout_width="@dimen/header_btn_size"
+                android:layout_height="@dimen/header_btn_size"
+                android:background="@drawable/bg_glass_square"
+                android:stateListAnimator="@animator/lg_btn_state_animator"
+                android:clickable="true"
+                android:focusable="true"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+                <ImageView
+                    android:layout_width="@dimen/header_icon_size"
+                    android:layout_height="@dimen/header_icon_size"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_shop_bag" />
+                <TextView
+                    android:id="@+id/tv_badge_shop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_notification_badge"
+                    android:paddingHorizontal="@dimen/header_badge_padding_h"
+                    android:paddingVertical="@dimen/header_badge_padding_v"
+                    android:minWidth="@dimen/header_badge_min_size"
+                    android:minHeight="@dimen/header_badge_min_size"
+                    android:gravity="center"
+                    android:text="N"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/header_badge_text_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- SHOP MODE CURRENCIES: Larger for visibility -->
+        <LinearLayout
+            android:id="@+id/ll_shop_currencies"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Diamond Large -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_glass_square">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_item_diamond" />
+                <TextView android:id="@+id/tv_shop_diamonds" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="0" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Coin Large -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_glass_square">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_item_coin" />
+                <TextView android:id="@+id/tv_shop_coins" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="0" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Content: positioned below the header -->
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/cl_header_row" />
 
     <!-- Liquid Glass: Floating Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -34,13 +371,13 @@
         app:itemIconTint="@color/lg_nav_item_color"
         app:itemTextColor="@color/lg_nav_item_color"
         app:itemIconSize="@dimen/lg_nav_icon_size"
-        app:itemIconPadding="6dp"
+        app:itemIconPadding="2dp"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="2dp"
         app:itemTextAppearanceActive="@style/MoscoBottomNavText.Active"
         app:itemTextAppearanceInactive="@style/MoscoBottomNavText"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,7 @@
     <!-- Semi-transparent deep glass layer -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#99000000" /> <!-- Obsidian with ~60% opacity -->
+            <solid android:color="#BF000000" /> <!-- Obsidian with ~60% opacity -->
             <corners android:radius="24dp" />
         </shape>
     </item>
@@ -13,7 +13,7 @@
         <shape android:shape="rectangle">
             <corners android:radius="24dp" />
             <stroke
-                android:width="1.5dp"
+                android:width="1.5dp" 
                 android:color="@color/lg_glass_stroke_strong" />
         </shape>
     </item>

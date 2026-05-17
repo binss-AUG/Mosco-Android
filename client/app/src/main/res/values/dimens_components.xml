@@ -7,11 +7,11 @@
     -->
 
     <!-- Home Dashboard -->
-    <dimen name="home_header_pill_height">64dp</dimen>
-    <dimen name="home_header_pill_radius_head">32dp</dimen>
-    <dimen name="home_header_pill_radius_tail">32dp</dimen>
-    <dimen name="home_header_avatar_size_hud">54dp</dimen>
-    <dimen name="home_avatar_stroke_hud">2dp</dimen>
+    <dimen name="home_header_pill_height">36dp</dimen>
+    <dimen name="home_header_pill_radius_head">18dp</dimen>
+    <dimen name="home_header_pill_radius_tail">18dp</dimen>
+    <dimen name="home_header_avatar_size_hud">30dp</dimen>
+    <dimen name="home_avatar_stroke_hud">1.5dp</dimen>
     <dimen name="home_avatar_stroke">@dimen/home_avatar_stroke_hud</dimen>
     <dimen name="home_xp_bar_height">4dp</dimen>
     <dimen name="home_banner_height">96dp</dimen>
@@ -28,11 +28,11 @@
     <dimen name="home_hud_fab_size">52dp</dimen>
     <dimen name="home_hud_mini_fab_size">44dp</dimen>
     <dimen name="home_hologram_height">80dp</dimen>
-    <dimen name="home_header_pill_padding_h">14dp</dimen>
-    <dimen name="home_header_pill_padding_v">8dp</dimen>
-    <dimen name="home_header_pill_divider_h">1.5dp</dimen>
-    <dimen name="home_header_pill_divider_v">16dp</dimen>
-    <dimen name="home_currency_icon_size_hud">20dp</dimen>
+    <dimen name="home_header_pill_padding_h">8dp</dimen>
+    <dimen name="home_header_pill_padding_v">4dp</dimen>
+    <dimen name="home_header_pill_divider_h">1dp</dimen>
+    <dimen name="home_header_pill_divider_v">12dp</dimen>
+    <dimen name="home_currency_icon_size_hud">12dp</dimen>
     <dimen name="home_chat_avatar_size">28dp</dimen>
     <dimen name="home_notification_height">32dp</dimen>
     <dimen name="home_notification_margin_top">12dp</dimen>
@@ -212,9 +212,13 @@
     <dimen name="social_icon_size">24dp</dimen>
     <dimen name="social_icon_padding">12dp</dimen>
     <dimen name="social_button_size">48dp</dimen>
-    <dimen name="header_btn_size">40dp</dimen>
-    <dimen name="header_icon_size">24dp</dimen>
-    <dimen name="header_btn_corner">12dp</dimen>
+    <dimen name="header_btn_size">32dp</dimen>
+    <dimen name="header_icon_size">16dp</dimen>
+    <dimen name="header_btn_corner">8dp</dimen>
+    <dimen name="header_badge_padding_h">4dp</dimen>
+    <dimen name="header_badge_padding_v">2dp</dimen>
+    <dimen name="header_badge_min_size">14dp</dimen>
+    <dimen name="header_badge_text_size">8sp</dimen>
     <dimen name="friend_explore_padding">16dp</dimen>
     <dimen name="friend_explore_item_spacing">12dp</dimen>
 

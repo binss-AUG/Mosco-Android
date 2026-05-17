@@ -31,11 +31,11 @@ public class MailboxService {
     public void claimMail(Long mailId) {
         // 1. Tìm thư trong DB
         UserMail mail = userMailRepository.findById(mailId)
-                .orElseThrow(() -> new RuntimeException("Hệ thống không tìm thấy bức thư này, sếp ơi!"));
+                .orElseThrow(() -> new RuntimeException("Hệ thống không tìm thấy bức thư này!"));
 
         // 2. Kiểm tra trạng thái nhận
         if (mail.isReceived()) {
-            throw new IllegalStateException("Thư này sếp đã nhận quà rồi nhé!");
+            throw new IllegalStateException("Thư này đã được nhận quà rồi.");
         }
 
         // 3. Xử lý cộng quà (Coins / Diamonds)
