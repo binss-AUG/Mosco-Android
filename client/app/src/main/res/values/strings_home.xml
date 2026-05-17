@@ -46,12 +46,12 @@
     <string name="formation_label_buff_active">BUFF ACTIVE</string>
 
     <!-- Streak Module -->
-    <string name="streak_header_title">STREAK MOSCO</string>
+    <string name="streak_header_title">STREAK JOURNEY</string>
     <string name="streak_label_current">CURRENT STREAK</string>
     <string name="streak_label_best">ALL-TIME RECORD</string>
     <string name="streak_label_shield">STREAK SHIELD</string>
     <string name="streak_format_days">%d DAYS</string>
-    <string name="streak_desc_shield">Protect or restore your streak using Diamonds.</string>
+    <string name="streak_desc_shield">Keep your streak alive. Missed a day? Restore it now!</string>
     <string name="streak_action_restore">RESTORE</string>
     <string name="home_streak_title">DAILY STREAK</string>
     <string name="home_streak_action_hint">TAP TO VISIT</string>

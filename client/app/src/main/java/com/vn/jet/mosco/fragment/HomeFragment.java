@@ -957,7 +957,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     private void showStreakDetail(int currentStreak, int bestStreak, int restores) {
         if (requireContext() == null) return;
-        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.LiquidGlass_BottomSheetTheme);
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.bottom_sheet_streak_detail, null);
         
         TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
@@ -979,7 +979,47 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 dialogRgbAnimator.start();
                 dialog.setOnDismissListener(d -> dialogRgbAnimator.cancel());
             }
+
+            // Tại sao (WHY): Hiệu ứng ngọn lửa bùng nổ đàn hồi khi mở dialog giúp tạo chiều sâu thị giác cực cao cấp
+            ivIcon.setAlpha(0f);
+            ivIcon.setScaleX(0.4f);
+            ivIcon.setScaleY(0.4f);
+            ivIcon.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(600)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(1.2f))
+                .start();
         }
+
+        // Tại sao (WHY): Hiệu ứng trượt so le (Staggered Animation) từ dưới lên của các phần tử stats và shield
+        View statsLayout = view.findViewById(R.id.layout_streak_stats);
+        if (statsLayout != null) {
+            statsLayout.setAlpha(0f);
+            statsLayout.setTranslationY(80f);
+            statsLayout.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(500)
+                .setStartDelay(120)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+
+        View shieldCard = view.findViewById(R.id.card_streak_shield);
+        if (shieldCard != null) {
+            shieldCard.setAlpha(0f);
+            shieldCard.setTranslationY(100f);
+            shieldCard.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(600)
+                .setStartDelay(220)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+
         tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));
         tvBest.setText(getString(R.string.rank_format_streak, bestStreak));
         btnRestore.setText(restores < 3 ? "RESTORE (FREE " + (3 - restores) + "/3)" : "RESTORE (500 DIAMONDS)");

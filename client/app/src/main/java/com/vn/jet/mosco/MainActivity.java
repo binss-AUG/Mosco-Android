@@ -251,7 +251,7 @@ public class MainActivity extends MoscoBaseActivity {
     }
 
     private void showStreakDetail(int currentStreak, int bestStreak, int restores) {
-        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.CustomBottomSheetDialogTheme);
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.LiquidGlass_BottomSheetTheme);
         View view = android.view.LayoutInflater.from(this).inflate(R.layout.bottom_sheet_streak_detail, null);
         
         TextView tvCurrent = view.findViewById(R.id.tv_current_streak);
@@ -260,8 +260,8 @@ public class MainActivity extends MoscoBaseActivity {
         com.airbnb.lottie.LottieAnimationView ivIcon = view.findViewById(R.id.iv_streak_icon);
         
         if (ivIcon != null) {
-            ivIcon.setMinAndMaxFrame(0, 24);
-            ivIcon.playAnimation();
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(ivIcon, currentStreak, currentStreak > 0);
+            
             if (currentStreak >= 1000) {
                 // Hiệu ứng RGB cầu vồng cho streak khủng
                 android.animation.ValueAnimator rgbAnim = android.animation.ValueAnimator.ofFloat(0f, 360f);
@@ -272,9 +272,46 @@ public class MainActivity extends MoscoBaseActivity {
                 });
                 rgbAnim.start();
                 dialog.setOnDismissListener(d -> rgbAnim.cancel());
-            } else {
-                com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivIcon, currentStreak);
             }
+
+            // Tại sao (WHY): Hiệu ứng ngọn lửa bùng nổ đàn hồi khi mở dialog giúp tạo chiều sâu thị giác cực cao cấp
+            ivIcon.setAlpha(0f);
+            ivIcon.setScaleX(0.4f);
+            ivIcon.setScaleY(0.4f);
+            ivIcon.animate()
+                .alpha(1f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(600)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(1.2f))
+                .start();
+        }
+
+        // Tại sao (WHY): Hiệu ứng trượt so le (Staggered Animation) từ dưới lên của các phần tử stats và shield
+        View statsLayout = view.findViewById(R.id.layout_streak_stats);
+        if (statsLayout != null) {
+            statsLayout.setAlpha(0f);
+            statsLayout.setTranslationY(80f);
+            statsLayout.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(500)
+                .setStartDelay(120)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+
+        View shieldCard = view.findViewById(R.id.card_streak_shield);
+        if (shieldCard != null) {
+            shieldCard.setAlpha(0f);
+            shieldCard.setTranslationY(100f);
+            shieldCard.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(600)
+                .setStartDelay(220)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
         }
         
         tvCurrent.setText(getString(R.string.rank_format_streak, currentStreak));
