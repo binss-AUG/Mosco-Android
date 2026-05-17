@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Deep Cosmic Frosted Glass Bar Background (Ultimate Contrast & Card Bleed Shield) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Layer A: Deep Cosmic Space Shield (50% Deep Navy Space Black - prevents bright card bleed-through, maximizes legibility) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#80091322" /> <!-- 50% deep space navy -->
+            <corners android:radius="@dimen/radius_pill" />
+        </shape>
+    </item>
+
+    <!-- Layer B: Cloudy/Fuzzy White Mist (Frosty Snow Density: 15% -> 36% -> 24%) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_pill" />
+            <gradient
+                android:angle="135"
+                android:startColor="#26FFFFFF"
+                android:centerColor="#5CFFFFFF"
+                android:endColor="#3DFFFFFF"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Layer C: Enhanced Cosmic Blue Fuzzy Refraction (8% electric cyan/neon cyan blur) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_pill" />
+            <gradient
+                android:angle="45"
+                android:startColor="#1400E5FF"
+                android:endColor="#1424A1DE"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Layer D: Inner Highlight Stroke (Nét bắt sáng mảnh mềm mại) -->
+    <item android:top="1dp" android:bottom="1dp" android:left="1dp" android:right="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_pill" />
+            <stroke android:width="1dp" android:color="#3DFFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Layer E: High Precision Outer Border (Nét cắt thủy tinh trong suốt) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/radius_pill" />
+            <stroke android:width="1dp" android:color="@color/lg_glass_stroke" />
+        </shape>
+    </item>
+</layer-list>

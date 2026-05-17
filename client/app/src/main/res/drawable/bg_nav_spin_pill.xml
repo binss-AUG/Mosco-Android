@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Central Gacha Spin Pill Background (Pure Cyan/Blue Galactic Gradient) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Layer A: Main Pure Cyan Gradient Base (Chuyển sắc từ Xanh Biển đậm sang Cyan sáng) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient
+                android:angle="0"
+                android:startColor="#24A1DE"
+                android:endColor="#00E5FF"
+                android:type="linear" />
+        </shape>
+    </item>
+    <!-- Layer B: Inner Glow Highlights (Nét viền bắt sáng trong suốt phía trong) -->
+    <item android:top="0.8dp" android:bottom="0.8dp" android:left="0.8dp" android:right="0.8dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="23dp" />
+            <stroke android:width="0.8dp" android:color="#66FFFFFF" />
+        </shape>
+    </item>
+    <!-- Layer C: Top Gloss Reflection (Lớp phản xạ ánh gương bề mặt) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <gradient android:angle="270"
+                android:startColor="#40FFFFFF"
+                android:centerColor="#00FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:centerY="0.3"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

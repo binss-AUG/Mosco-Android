@@ -21,4 +21,10 @@
     <dimen name="text_size_subtitle">@dimen/text_size_body_lg</dimen>
     <dimen name="text_size_title">@dimen/text_size_h3</dimen>
     <dimen name="text_size_headline">@dimen/text_size_h2</dimen>
+
+    <!-- Feature-specific Typography (Cỡ chữ đặc thù theo tính năng) -->
+    <dimen name="couple_streak_title_size">22sp</dimen>
+    <dimen name="couple_streak_count_size">18sp</dimen>
+    <dimen name="couple_streak_name_size">15sp</dimen>
+    <dimen name="couple_streak_label_size">13sp</dimen>
 </resources>

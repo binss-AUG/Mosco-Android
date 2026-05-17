@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 
-        dimens.xml - Semantic Aliases & Legacy Support
-        This file maps legacy dimension names to the new modular system.
+        dimens.xml - Semantic Aliases & Legacy Support Map (Bản đồ biệt danh & Tương thích ngược)
+        Tệp này CHỈ đóng vai trò ánh xạ các tên gọi cũ (dùng trong code cũ/layout cũ) 
+        sang các hệ thống đại lượng mới được quy hoạch tập trung (spacing, radius, typography).
     -->
 
-    <!-- Generic Aliases -->
+    <!-- ================================================================= -->
+    <!-- LEGACY SPACING & MARGIN ALIASES (Ánh xạ khoảng cách kế thừa)      -->
+    <!-- ================================================================= -->
+    
+    <!-- Generic Aliases (Biệt danh khoảng cách kế thừa) -->
     <dimen name="spacing_2dp">2dp</dimen>
     <dimen name="spacing_6dp">6dp</dimen>
     <dimen name="spacing_10dp">10dp</dimen>
+    <dimen name="spacing_12dp">12dp</dimen>
     <dimen name="spacing_14dp">14dp</dimen>
     <dimen name="spacing_15dp">15dp</dimen>
     <dimen name="spacing_20dp">20dp</dimen>
     <dimen name="spacing_4dp">@dimen/spacing_xs</dimen>
     <dimen name="spacing_8dp">@dimen/spacing_sm</dimen>
-    <dimen name="spacing_12dp">@dimen/radius_lg</dimen>
     <dimen name="spacing_16dp">@dimen/spacing_md</dimen>
     <dimen name="spacing_24dp">@dimen/spacing_lg</dimen>
     <dimen name="spacing_28dp">28dp</dimen>
@@ -31,16 +36,26 @@
     <dimen name="spacing_100dp">100dp</dimen>
     <dimen name="spacing_120dp">120dp</dimen>
 
-    <!-- Semantic Spacing Aliases -->
+    <!-- Semantic Spacing Aliases (Biệt danh ngữ nghĩa) -->
     <dimen name="spacing_section">@dimen/spacing_xl</dimen>
     <dimen name="spacing_group">@dimen/spacing_md</dimen>
     <dimen name="spacing_row">12dp</dimen>
     <dimen name="spacing_item">@dimen/spacing_sm</dimen>
 
-    <dimen name="stroke_thin">1dp</dimen>
-    <dimen name="divider_thin">0.5dp</dimen>
+    <!-- Spacing Scale Support (Hỗ trợ quy đổi thang khoảng cách kế thừa) -->
+    <dimen name="spacing_xxs">@dimen/spacing_xs</dimen>
+    <dimen name="spacing_xs_alias">@dimen/spacing_sm</dimen>
+    <dimen name="spacing_sm_alias">@dimen/spacing_12dp</dimen>
 
-    <!-- Typography Aliases -->
+    <!-- ================================================================= -->
+    <!-- LEGACY CORNER RADIUS ALIASES (Ánh xạ bo góc kế thừa)              -->
+    <!-- ================================================================= -->
+    <dimen name="radius_m">@dimen/radius_md</dimen>
+    <dimen name="radius_pill">@dimen/radius_full</dimen>
+
+    <!-- ================================================================= -->
+    <!-- LEGACY TYPOGRAPHY ALIASES (Ánh xạ cỡ chữ kế thừa)                 -->
+    <!-- ================================================================= -->
     <dimen name="text_9sp">@dimen/text_size_mini</dimen>
     <dimen name="text_10sp">@dimen/text_size_badge</dimen>
     <dimen name="text_11sp">@dimen/text_size_caption</dimen>
@@ -48,92 +63,16 @@
     <dimen name="text_14sp">@dimen/text_size_body_lg</dimen>
     <dimen name="text_16sp">@dimen/text_size_subtitle</dimen>
 
-    <!-- Global Standards Aliases -->
+    <!-- ================================================================= -->
+    <!-- GLOBAL AESTHETICS & ELEVATIONS (Độ nổi bóng & Độ dày nét chuẩn)     -->
+    <!-- ================================================================= -->
+    <dimen name="stroke_thin">1dp</dimen>
+    <dimen name="divider_thin">0.5dp</dimen>
+    
     <dimen name="icon_size_xl">@dimen/icon_standard_xl</dimen>
 
-    <!-- Module Specific Aliases (Mapping old names used in Java/XML to modular tokens) -->
-    <dimen name="radius_m">@dimen/radius_md</dimen>
-    <dimen name="radius_pill">@dimen/radius_full</dimen>
-    
-    <!-- Spacing scale support -->
-    <dimen name="spacing_xxs">@dimen/spacing_xs</dimen>
-    <dimen name="spacing_xs_alias">@dimen/spacing_sm</dimen>
-    <dimen name="spacing_sm_alias">@dimen/radius_lg</dimen> <!-- Legacy overlap fix -->
-    
-    <!-- Elevations -->
     <dimen name="elevation_s">2dp</dimen>
     <dimen name="elevation_m">4dp</dimen>
     <dimen name="elevation_l">8dp</dimen>
     <dimen name="elevation_xl">12dp</dimen>
-
-    <!-- Component Specific Tokens -->
-    <dimen name="card_detail_margin_horizontal">60dp</dimen>
-    <dimen name="name_tag_max_width_grid">150dp</dimen>
-
-    <!-- Spin Slideshow Ratios & Dimensions -->
-    <item name="spin_card_width_ratio" format="float" type="dimen">0.58</item>
-    <item name="spin_beam_width_ratio" format="float" type="dimen">0.3</item>
-    <item name="spin_card_base_scale" format="float" type="dimen">0.82</item>
-    <dimen name="spin_z_elevation_max">10dp</dimen>
-
-    <!-- Generic Aesthetic Constants -->
-    <item name="detail_dialog_dim_amount" format="float" type="dimen">0.8</item>
-    <item name="card_aspect_ratio" format="float" type="dimen">1.54</item>
-    <item name="flip_camera_distance_factor" format="float" type="dimen">8000</item>
-    <item name="carousel_scale_min" format="float" type="dimen">0.85</item>
-    <item name="carousel_scale_range" format="float" type="dimen">0.15</item>
-    <item name="carousel_alpha_min" format="float" type="dimen">0.6</item>
-    <item name="carousel_alpha_range" format="float" type="dimen">0.4</item>
-
-    <!-- Couple Streak Specific -->
-    <dimen name="couple_streak_dialog_margin_h">32dp</dimen>
-    <dimen name="couple_streak_dialog_margin_v">48dp</dimen>
-    <dimen name="couple_streak_dialog_padding">26dp</dimen>
-    <dimen name="couple_streak_title_size">22sp</dimen>
-    <dimen name="couple_streak_fire_size">56dp</dimen>
-    <dimen name="couple_streak_count_size">18sp</dimen>
-    <dimen name="couple_streak_name_size">15sp</dimen>
-    <dimen name="couple_streak_label_size">13sp</dimen>
-    <dimen name="couple_streak_underline_width">48dp</dimen>
-    <dimen name="couple_streak_button_height">58dp</dimen>
-    <dimen name="couple_streak_card_radius">14dp</dimen>
-
-    <!-- Upgrade UI Dimensions (Fixed DP for Performance) -->
-    <dimen name="upgrade_title_slide_offset">80dp</dimen>
-    <dimen name="upgrade_success_video_top_margin">80dp</dimen>
-    <dimen name="upgrade_done_button_bottom_margin">64dp</dimen>
-    <dimen name="upgrade_result_card_width">200dp</dimen>
-    <dimen name="upgrade_result_card_height">308dp</dimen>
-    <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
-
-    <!-- ============================================= -->
-    <!-- LIQUID GLASS DIMENSION TOKENS                 -->
-    <!-- ============================================= -->
-
-    <!-- LG: Corner Radius (iOS-inspired, Version 1.1 Spec) -->
-    <dimen name="lg_radius_small_control">18dp</dimen>
-    <dimen name="lg_radius_button">22dp</dimen>
-    <dimen name="lg_radius_panel">28dp</dimen>
-    <dimen name="lg_radius_modal">32dp</dimen>
-    <dimen name="lg_radius_card">16dp</dimen>
-    <dimen name="lg_radius_nav">28dp</dimen>
-    <dimen name="lg_radius_chip">18dp</dimen>
-    <dimen name="lg_radius_input">18dp</dimen>
-
-    <!-- LG: Stroke -->
-    <dimen name="lg_stroke_hairline">0.8dp</dimen>
-    <dimen name="lg_stroke_thin">1dp</dimen>
-
-    <!-- LG: Navigation -->
-    <dimen name="lg_nav_height">48dp</dimen>
-    <dimen name="lg_nav_margin_horizontal">12dp</dimen>
-    <dimen name="lg_nav_margin_bottom">10dp</dimen>
-    <dimen name="lg_nav_icon_size">20dp</dimen>
-
-    <!-- LG: Header -->
-    <dimen name="lg_header_height">56dp</dimen>
-
-    <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che -->
-    <!-- = nav_height(48) + nav_margin_bottom(10) + spacing(10) = 68dp -->
-    <dimen name="lg_content_bottom_clearance">68dp</dimen>
 </resources>

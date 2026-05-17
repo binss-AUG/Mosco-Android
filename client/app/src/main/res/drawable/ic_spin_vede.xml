@@ -3,17 +3,77 @@
     android:height="@dimen/radius_xxl"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
+    <!-- Outer Capsule Circle with subtle glass fill -->
     <path
-        android:fillColor="@color/lg_text_primary"
-        android:fillAlpha="0.24"
-        android:pathData="M12,2m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0" />
+        android:fillColor="#12FFFFFF"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M 12 2 A 10 10 0 1 0 12 22 A 10 10 0 1 0 12 2 Z" />
+
+    <!-- Split Middle Belts (Double curves representing the capsule opening) -->
     <path
         android:fillColor="@color/transparent"
-        android:strokeColor="@color/lg_text_primary"
-        android:strokeWidth="1.8"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M 2.2,12.5 Q 12,15.5 21.8,12.5" />
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M 2.6,14.5 Q 12,17.5 21.4,14.5" />
+
+    <!-- Cute Cat Face Outline inside the capsule -->
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M12,4.2l-1.7,2.6h3.4zM12,13.8m-6.2,0a6.2,6.2 0,1 1,12.4 0a6.2,6.2 0,1 1,-12.4 0M12,9.2v2.4M12,16.1v2.2M9.5,13.8H7.3M16.7,13.8h-2.2M10.2,12l-1.7,-1.7M13.8,15.6l1.7,1.7M13.8,12l1.7,-1.7M10.2,15.6l-1.7,1.7" />
+        android:pathData="M 6.8,12.5 C 6.8,10.8 7.3,8.5 8.2,8.0 L 9.6,5.5 L 11.2,8.2 Q 12,8.5 12.8,8.2 L 14.4,5.5 L 15.8,8.0 C 16.7,8.5 17.2,10.8 17.2,12.5" />
+
+    <!-- Cat's Antenna and Ball -->
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:pathData="M 12,8.2 L 12,5.2" />
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M 12,4.2m -1.1,0 a 1.1,1.1 0 1 1 2.2,0 a 1.1,1.1 0 1 1 -2.2,0" />
+
+    <!-- Cat Eyes -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M 10,10.2m -0.8,0 a 0.8,0.8 0 1 1 1.6,0 a 0.8,0.8 0 1 1 -1.6,0" />
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M 14,10.2m -0.8,0 a 0.8,0.8 0 1 1 1.6,0 a 0.8,0.8 0 1 1 -1.6,0" />
+
+    <!-- Cat Mouth (v-shape) -->
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 11.3,11.3 L 12,11.9 L 12.7,11.3" />
+
+    <!-- Glass Reflections on top-right -->
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M 17.5,5.5 A 8.5,8.5 0 0,1 19,7" />
+    <path
+        android:fillColor="@color/transparent"
+        android:strokeColor="@color/white"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M 19.8,8.2 A 8.5,8.5 0 0,1 20.3,9.5" />
+
 </vector>
-
-

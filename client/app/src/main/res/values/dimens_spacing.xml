@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 8dp Grid Spacing System -->
+    <!-- 8dp Grid Spacing System (Hệ thống lưới khoảng cách 8dp) -->
 
     <!-- XS: 4dp - Micro spacing, tight borders -->
     <dimen name="spacing_xs">4dp</dimen>
@@ -21,24 +21,46 @@
     <dimen name="spacing_xxl">48dp</dimen>
 
 
-    <!-- Semantic Spacing -->
+    <!-- Semantic Spacing (Khoảng cách ngữ nghĩa) -->
     <dimen name="screen_edge_margin">@dimen/spacing_md</dimen>
     <dimen name="card_padding">@dimen/spacing_md</dimen>
     <dimen name="item_spacing_sm">@dimen/spacing_sm</dimen>
     <dimen name="item_spacing_md">@dimen/spacing_md</dimen>
     <dimen name="item_spacing_lg">@dimen/spacing_lg</dimen>
     
-    <!-- Component Specific -->
+    <!-- Component Heights & Controls (Chiều cao nút bấm và thanh nhập liệu) -->
     <dimen name="button_height_standard">48dp</dimen>
     <dimen name="button_height_large">56dp</dimen>
     <dimen name="input_height_standard">52dp</dimen>
     
-    <!-- Fixed Component Dimensions -->
+    <!-- Fixed Component Dimensions (Kích thước cố định các thành phần con) -->
     <dimen name="home_dot_size">8dp</dimen>
     <dimen name="home_dot_spacing">4dp</dimen>
     <dimen name="header_pill_height">32dp</dimen>
+    
+    <!-- Standard Icon Scales (Thang đo kích thước Icon chuẩn) -->
     <dimen name="icon_size_xs">16dp</dimen>
     <dimen name="icon_size_sm">24dp</dimen>
     <dimen name="icon_size_md">32dp</dimen>
     <dimen name="icon_size_lg">48dp</dimen>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS STROKE & NAVIGATION TOKENS       -->
+    <!-- ============================================= -->
+    
+    <!-- LG: Stroke (Đường viền kính) -->
+    <dimen name="lg_stroke_hairline">0.8dp</dimen>
+    <dimen name="lg_stroke_thin">1dp</dimen>
+
+    <!-- LG: Navigation (Thanh điều hướng nổi tỉ lệ vàng rộng rãi) -->
+    <dimen name="lg_nav_height">68dp</dimen>
+    <dimen name="lg_nav_margin_horizontal">16dp</dimen>
+    <dimen name="lg_nav_margin_bottom">12dp</dimen>
+    <dimen name="lg_nav_icon_size">24dp</dimen>
+
+    <!-- LG: Header (Chiều cao thanh tiêu đề đầu trang) -->
+    <dimen name="lg_header_height">56dp</dimen>
+
+    <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che -->
+    <dimen name="lg_content_bottom_clearance">92dp</dimen>
 </resources>

@@ -16,6 +16,7 @@
     <string name="home_label_user_id">User ID</string>
     <string name="home_msg_copy_clipboard_label">UserID</string>
     <string name="home_label_station_pending">STATION\nPENDING</string>
+    <string name="home_label_system_standby">SYSTEM\nSTANDBY</string>
     <string name="home_notification_default">NEWS: New card collections are now available in the shop. Check it out!</string>
     <string name="home_chat_hint">Type message to world chat...</string>
     <string name="home_msg_broadcast_success">Broadcast sent successfully!</string>
@@ -97,4 +98,10 @@
     <string name="home_hud_gift">GIFT</string>
     <string name="home_nav_formation">FORMATION</string>
     <string name="formation_label_active_synergies">ACTIVE SYNERGIES</string>
+    
+    <!-- Action hints for Home Dashboard modules -->
+    <string name="home_hud_daily_action">CLAIM REWARDS</string>
+    <string name="home_hud_upgrade_action">CARD PLUS</string>
+    <string name="home_daily_header_title">DAILY CHECK-IN</string>
+    <string name="home_upgrade_header_title">CARD UPGRADE</string>
 </resources>

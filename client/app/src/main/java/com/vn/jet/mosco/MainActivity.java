@@ -99,54 +99,8 @@ public class MainActivity extends MoscoBaseActivity {
             bottomNav.setSelectedItemId(R.id.nav_home);
         }
 
-        // 2. Make Spin tab prominent
-        makeSpinTabProminent(bottomNav);
-
-        // 2. Handle navigation item selection with Spam prevention
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            
-            // Nếu click vào tab đang hiển thị thì không làm gì (Tránh dựt lag)
-            if (itemId == bottomNav.getSelectedItemId()) {
-                return false;
-            }
-
-            // Debounce để tránh chuyển tab quá nhanh liên tục
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastNavClickTime < 500) {
-                return false;
-            }
-            lastNavClickTime = currentTime;
-
-            Fragment selectedFragment = null;
-            if (itemId == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_stage) {
-                selectedFragment = new com.vn.jet.mosco.fragment.StageFragment();
-            } else if (itemId == R.id.nav_collect) {
-                selectedFragment = new CollectionFragment();
-            } else if (itemId == R.id.nav_spin) {
-                selectedFragment = new SpinFragment();
-            } else if (itemId == R.id.nav_profile) {
-                selectedFragment = new ProfileFragment();
-            }
-
-            // 3. Perform Fragment transaction
-            if (selectedFragment != null) {
-                // Chỉ hiện Header ở Home, các tab khác ẩn
-                setTopBarVisible(itemId == R.id.nav_home, TOP_BAR_MODE_HOME);
-                
-                getSupportFragmentManager().beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.frame_layout, selectedFragment)
-                        .commit();
-                return true;
-            }
-            return false;
-        });
-        
-        // Initialize on Home tab by default (Premium User Flow)
-        bottomNav.setSelectedItemId(R.id.nav_home);
+        // 2. Setup custom Liquid Glass bottom navigation bar (Visual & functional mapping)
+        setupCustomBottomNavigation(bottomNav);
 
         // --- 🚀 AUTO-BACKUP SYSTEM (PHASE 3) ---
         com.vn.jet.mosco.utils.WorkScheduler.scheduleAutoBackup(this);
@@ -302,8 +256,9 @@ public class MainActivity extends MoscoBaseActivity {
                     }
                     
                     // Cập nhật thông báo
-                    updateHeaderBadges(stats.getFriendsCount(), 0, 0); // Tạm thời mail/shop là 0
+                    updateHeaderBadges(-1, 0, 0); // Khởi tạo, mail/shop tạm là 0
                     fetchExtraNotificationCounts();
+                    fetchFriendRequestsCount();
                 }
             }
             @Override
@@ -382,36 +337,120 @@ public class MainActivity extends MoscoBaseActivity {
         }
     }
 
-    private void makeSpinTabProminent(BottomNavigationView bottomNav) {
-        try {
-            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNav.getChildAt(0);
-            int childCount = menuView.getChildCount();
+    private void setupCustomBottomNavigation(BottomNavigationView bottomNav) {
+        View btnHome = findViewById(R.id.btn_custom_nav_home);
+        View btnStage = findViewById(R.id.btn_custom_nav_stage);
+        View btnSpin = findViewById(R.id.btn_custom_nav_spin);
+        View btnCollect = findViewById(R.id.btn_custom_nav_collect);
+        View btnProfile = findViewById(R.id.btn_custom_nav_profile);
+
+        if (btnHome == null) return;
+
+        // Binds custom layout click events directly to BottomNavigationView items
+        btnHome.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_home));
+        btnStage.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_stage));
+        btnSpin.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_spin));
+        btnCollect.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_collect));
+        btnProfile.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_profile));
+
+        // Setup the shared onItemSelectedListener to synchronize state & handle transitions
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
             
-            for (int i = 0; i < childCount; i++) {
-                BottomNavigationItemView itemView = (BottomNavigationItemView) menuView.getChildAt(i);
+            // Debounce check
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastNavClickTime < 500 && itemId != bottomNav.getSelectedItemId()) {
+                return false;
+            }
+
+            // Click same tab -> bounce to provide tactile feedback
+            if (itemId == bottomNav.getSelectedItemId()) {
+                View activeBtn = findViewById(itemId == R.id.nav_home ? R.id.btn_custom_nav_home :
+                                             itemId == R.id.nav_stage ? R.id.btn_custom_nav_stage :
+                                             itemId == R.id.nav_spin ? R.id.btn_custom_nav_spin :
+                                             itemId == R.id.nav_collect ? R.id.btn_custom_nav_collect :
+                                             R.id.btn_custom_nav_profile);
+                animateTabClick(activeBtn);
+                return false;
+            }
+
+            Fragment selectedFragment = null;
+            if (itemId == R.id.nav_home) {
+                selectedFragment = new HomeFragment();
+            } else if (itemId == R.id.nav_stage) {
+                selectedFragment = new com.vn.jet.mosco.fragment.StageFragment();
+            } else if (itemId == R.id.nav_collect) {
+                selectedFragment = new CollectionFragment();
+            } else if (itemId == R.id.nav_spin) {
+                selectedFragment = new SpinFragment();
+            } else if (itemId == R.id.nav_profile) {
+                selectedFragment = new ProfileFragment();
+            }
+
+            if (selectedFragment != null) {
+                lastNavClickTime = currentTime;
                 
-                if (itemView.getId() == R.id.nav_spin) {
-                    for (int j = 0; j < itemView.getChildCount(); j++) {
-                        View child = itemView.getChildAt(j);
-                        if (child instanceof ImageView) {
-                            ViewGroup.LayoutParams params = child.getLayoutParams();
-                            params.width = (int) (getResources().getDisplayMetrics().density * 32);
-                            params.height = (int) (getResources().getDisplayMetrics().density * 32);
-                            child.setLayoutParams(params);
-                        } else if (child instanceof TextView) {
-                            TextView labelView = (TextView) child;
-                            labelView.setTextSize(13);
-                            labelView.setTypeface(labelView.getTypeface(), android.graphics.Typeface.BOLD);
-                        }
-                    }
-                    
-                    itemView.setPadding(0, (int) (-getResources().getDisplayMetrics().density * 8), 0, 0);
-                    break;
+                // Hide header row everywhere except Home tab
+                setTopBarVisible(itemId == R.id.nav_home, TOP_BAR_MODE_HOME);
+                
+                getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.frame_layout, selectedFragment)
+                        .commit();
+
+                // Update visual custom tabs state
+                updateCustomTabsVisualState(itemId);
+                return true;
+            }
+            return false;
+        });
+
+        // Initialize visual selection (Home by default)
+        updateCustomTabsVisualState(R.id.nav_home);
+    }
+
+    private void updateCustomTabsVisualState(int selectedItemId) {
+        int[] itemIds = {R.id.nav_home, R.id.nav_stage, R.id.nav_spin, R.id.nav_collect, R.id.nav_profile};
+        int[] customBtnIds = {R.id.btn_custom_nav_home, R.id.btn_custom_nav_stage, R.id.btn_custom_nav_spin, R.id.btn_custom_nav_collect, R.id.btn_custom_nav_profile};
+        int[] ivIds = {R.id.iv_custom_nav_home, R.id.iv_custom_nav_stage, R.id.iv_custom_nav_spin, R.id.iv_custom_nav_collect, R.id.iv_custom_nav_profile};
+        int[] tvIds = {R.id.tv_custom_nav_home, R.id.tv_custom_nav_stage, 0, R.id.tv_custom_nav_collect, R.id.tv_custom_nav_profile};
+
+        for (int i = 0; i < itemIds.length; i++) {
+            boolean isActive = (itemIds[i] == selectedItemId);
+            ImageView iv = findViewById(ivIds[i]);
+            TextView tv = (tvIds[i] != 0) ? findViewById(tvIds[i]) : null;
+            View btn = findViewById(customBtnIds[i]);
+
+            if (isActive && btn != null) {
+                animateTabClick(btn);
+            }
+
+            if (iv != null) {
+                if (itemIds[i] == R.id.nav_spin) {
+                    // Spin tab pill button has custom colors, keep icon white
+                    iv.setColorFilter(ContextCompat.getColor(this, R.color.white));
+                } else {
+                    iv.setColorFilter(ContextCompat.getColor(this, isActive ? R.color.brand_primary : R.color.semantic_text_secondary));
                 }
             }
-        } catch (Exception e) {
-            android.util.Log.e("MainActivity", "Error making Spin tab prominent", e);
+
+            if (tv != null) {
+                tv.setTextColor(ContextCompat.getColor(this, isActive ? R.color.brand_primary : R.color.semantic_text_secondary));
+                tv.setTypeface(null, isActive ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            }
         }
+    }
+
+    private void animateTabClick(View view) {
+        if (view == null) return;
+        view.setScaleX(0.9f);
+        view.setScaleY(0.9f);
+        view.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .setDuration(250)
+            .setInterpolator(new android.view.animation.OvershootInterpolator(1.8f))
+            .start();
     }
 
     @Override
@@ -487,6 +526,25 @@ public class MainActivity extends MoscoBaseActivity {
                 }
             }
             @Override public void onFailure(Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {}
+        });
+    }
+
+    private void fetchFriendRequestsCount() {
+        if (gameApiService == null) return;
+        gameApiService.getFriendRequests().enqueue(new Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
+                        org.json.JSONArray data = json.optJSONArray("data");
+                        int count = (data != null) ? data.length() : 0;
+                        updateHeaderBadges(count, -1, -1);
+                    }
+                } catch (Exception ignored) {}
+            }
+            @Override
+            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {}
         });
     }
 }

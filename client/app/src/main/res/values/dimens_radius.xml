@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Mosco Corner Radius System -->
+    <!-- Mosco Corner Radius System (Hệ thống bo góc chuẩn) -->
     
     <!-- XS: Sharp but softened -->
     <dimen name="radius_xs">2dp</dimen>
@@ -22,4 +22,20 @@
     
     <!-- FULL: Pill shape / Circle -->
     <dimen name="radius_full">999dp</dimen>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS CORNER RADIUS TOKENS             -->
+    <!-- ============================================= -->
+    <dimen name="lg_radius_pill">33dp</dimen>
+    <dimen name="lg_radius_card">12dp</dimen>
+    <dimen name="lg_radius_small_control">18dp</dimen>
+    <dimen name="lg_radius_button">33dp</dimen>
+    <dimen name="lg_radius_panel">28dp</dimen>
+    <dimen name="lg_radius_modal">33dp</dimen>
+    <dimen name="lg_radius_nav">28dp</dimen>
+    <dimen name="lg_radius_chip">33dp</dimen>
+    <dimen name="lg_radius_input">18dp</dimen>
+
+    <!-- Feature-specific Corner Radii (Bo góc đặc thù theo tính năng) -->
+    <dimen name="couple_streak_card_radius">14dp</dimen>
 </resources>

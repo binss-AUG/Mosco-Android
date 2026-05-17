@@ -14,7 +14,7 @@
     <dimen name="home_avatar_stroke_hud">1.5dp</dimen>
     <dimen name="home_avatar_stroke">@dimen/home_avatar_stroke_hud</dimen>
     <dimen name="home_xp_bar_height">8dp</dimen>
-    <dimen name="home_banner_height">96dp</dimen>
+    <dimen name="home_banner_height">160dp</dimen>
     <dimen name="home_banner_margin_horizontal">16dp</dimen>
     <dimen name="home_banner_margin_bottom">12dp</dimen>
     <dimen name="home_showcase_margin_horizontal">20dp</dimen>
@@ -23,22 +23,22 @@
     <dimen name="home_banner_corner">16dp</dimen>
     <dimen name="home_quick_tool_fab_size">60dp</dimen>
     <dimen name="home_quick_tool_icon_size">50dp</dimen>
-    <dimen name="home_quick_tool_spacing">12dp</dimen>
-    <dimen name="home_quick_tool_text_size">11sp</dimen>
+    <dimen name="home_quick_tool_spacing">@dimen/spacing_12dp</dimen>
+    <dimen name="home_quick_tool_text_size">@dimen/text_size_caption</dimen>
     <dimen name="home_hud_fab_size">52dp</dimen>
     <dimen name="home_hud_mini_fab_size">44dp</dimen>
     <dimen name="home_hologram_height">80dp</dimen>
     <dimen name="home_header_pill_padding_h">8dp</dimen>
     <dimen name="home_header_pill_padding_v">4dp</dimen>
     <dimen name="home_header_pill_divider_h">1dp</dimen>
-    <dimen name="home_header_pill_divider_v">12dp</dimen>
+    <dimen name="home_header_pill_divider_v">@dimen/spacing_12dp</dimen>
     <dimen name="home_currency_icon_size_hud">16dp</dimen>
     <dimen name="home_chat_avatar_size">28dp</dimen>
     <dimen name="home_notification_height">32dp</dimen>
-    <dimen name="home_notification_margin_top">12dp</dimen>
-    <dimen name="home_notification_text_size">12sp</dimen>
+    <dimen name="home_notification_margin_top">@dimen/spacing_12dp</dimen>
+    <dimen name="home_notification_text_size">@dimen/text_size_body_xs</dimen>
     <dimen name="home_streak_icon_size">24dp</dimen>
-    <dimen name="home_streak_value_text_size">14sp</dimen>
+    <dimen name="home_streak_value_text_size">@dimen/text_14sp</dimen>
     <dimen name="home_chat_send_icon_size">24dp</dimen>
     <dimen name="home_chat_text_size">13sp</dimen>
 
@@ -60,25 +60,25 @@
     <dimen name="reveal_title_translation_y">6dp</dimen>
     <dimen name="reveal_summary_corner_radius">24dp</dimen>
     <dimen name="reveal_summary_stroke_width">1dp</dimen>
-    <dimen name="reveal_summary_header_text_size">15sp</dimen>
+    <dimen name="reveal_summary_header_text_size">@dimen/text_size_body_md</dimen>
     <dimen name="reveal_summary_header_padding_horizontal">16dp</dimen>
     <dimen name="reveal_summary_header_padding_top">16dp</dimen>
     <dimen name="reveal_summary_header_padding_bottom">8dp</dimen>
     <dimen name="reveal_summary_row_padding_vertical">8dp</dimen>
-    <dimen name="reveal_summary_indicator_size">12dp</dimen>
-    <dimen name="reveal_summary_name_padding_start">12dp</dimen>
-    <dimen name="reveal_summary_name_padding_end">12dp</dimen>
+    <dimen name="reveal_summary_indicator_size">@dimen/spacing_12dp</dimen>
+    <dimen name="reveal_summary_name_padding_start">@dimen/spacing_12dp</dimen>
+    <dimen name="reveal_summary_name_padding_end">@dimen/spacing_12dp</dimen>
     <dimen name="reveal_summary_qty_text_size">13sp</dimen>
-    <dimen name="reveal_summary_name_text_size">14sp</dimen>
+    <dimen name="reveal_summary_name_text_size">@dimen/text_14sp</dimen>
     <dimen name="reveal_button_corner_radius_summary">14dp</dimen>
     <dimen name="reveal_summary_negative_margin">80dp</dimen>
     <dimen name="reveal_summary_margin_side">32dp</dimen>
     <dimen name="reveal_summary_translation_y">40dp</dimen>
-    <dimen name="reveal_summary_footer_marker_text_size">12sp</dimen>
+    <dimen name="reveal_summary_footer_marker_text_size">@dimen/text_size_body_xs</dimen>
     <dimen name="reveal_summary_footer_marker_padding_top">8dp</dimen>
     <dimen name="reveal_summary_micro_lift">24dp</dimen>
     <dimen name="reveal_loading_overlay_elevation">100dp</dimen>
-    <dimen name="reveal_shake_mild">12dp</dimen>
+    <dimen name="reveal_shake_mild">@dimen/spacing_12dp</dimen>
     <dimen name="reveal_shake_intense">18dp</dimen>
     <dimen name="reveal_card_float_y">8dp</dimen>
     <dimen name="reveal_parallax_card_shift">10dp</dimen>
@@ -91,35 +91,35 @@
     <dimen name="item_reveal_result_image_width">220dp</dimen>
     <dimen name="item_reveal_result_image_height">339dp</dimen>
     <dimen name="item_reveal_result_button_height">56dp</dimen>
-    <dimen name="item_reveal_result_button_corner">12dp</dimen>
-    <dimen name="item_reveal_result_image_corner">12dp</dimen>
+    <dimen name="item_reveal_result_button_corner">@dimen/lg_radius_card</dimen>
+    <dimen name="item_reveal_result_image_corner">@dimen/lg_radius_card</dimen>
     <dimen name="item_reveal_result_stroke_width">1dp</dimen>
 
     <!-- Inventory & Collection -->
     <dimen name="inventory_loader_size">120dp</dimen>
-    <dimen name="inventory_padding">16dp</dimen>
-    <dimen name="inventory_item_spacing">8dp</dimen>
-    <dimen name="inventory_title_margin_top">16dp</dimen>
-    <dimen name="inventory_title_margin_bottom">12dp</dimen>
-    <dimen name="inventory_filter_margin_top">12dp</dimen>
-    <dimen name="inventory_filter_margin_bottom">8dp</dimen>
-    <dimen name="inventory_rv_padding_bottom">80dp</dimen>
+    <dimen name="inventory_padding">@dimen/spacing_md</dimen>
+    <dimen name="inventory_item_spacing">@dimen/spacing_sm</dimen>
+    <dimen name="inventory_title_margin_top">@dimen/spacing_md</dimen>
+    <dimen name="inventory_title_margin_bottom">@dimen/spacing_12dp</dimen>
+    <dimen name="inventory_filter_margin_top">@dimen/spacing_12dp</dimen>
+    <dimen name="inventory_filter_margin_bottom">@dimen/spacing_sm</dimen>
+    <dimen name="inventory_rv_padding_bottom">@dimen/lg_content_bottom_clearance</dimen>
     <dimen name="inventory_empty_image_width">140dp</dimen>
     <dimen name="inventory_empty_image_height">216dp</dimen>
     <dimen name="inventory_empty_image_margin_bottom">24dp</dimen>
-    <dimen name="inventory_empty_text_size">15sp</dimen>
+    <dimen name="inventory_empty_text_size">@dimen/text_size_body_md</dimen>
     <dimen name="inventory_filter_bar_height">38dp</dimen>
-    <dimen name="inventory_filter_spacing">8dp</dimen>
-    <dimen name="inventory_filter_chip_padding_horizontal">12dp</dimen>
+    <dimen name="inventory_filter_spacing">@dimen/spacing_sm</dimen>
+    <dimen name="inventory_filter_chip_padding_horizontal">@dimen/spacing_12dp</dimen>
     <dimen name="inventory_filter_chip_padding_vertical">6dp</dimen>
     <dimen name="inventory_filter_chip_corner">19dp</dimen>
     <dimen name="inventory_dropdown_width">160dp</dimen>
     <dimen name="inventory_action_btn_height">56dp</dimen>
-    <dimen name="inventory_action_padding_horizontal">16dp</dimen>
-    <dimen name="inventory_action_padding_top">12dp</dimen>
-    <dimen name="inventory_action_padding_bottom">24dp</dimen>
-    <dimen name="inventory_action_btn_spacing">12dp</dimen>
-    <dimen name="inventory_action_corner">12dp</dimen>
+    <dimen name="inventory_action_padding_horizontal">@dimen/spacing_md</dimen>
+    <dimen name="inventory_action_padding_top">@dimen/spacing_12dp</dimen>
+    <dimen name="inventory_action_padding_bottom">@dimen/spacing_lg</dimen>
+    <dimen name="inventory_action_btn_spacing">@dimen/spacing_12dp</dimen>
+    <dimen name="inventory_action_corner">@dimen/lg_radius_card</dimen>
 
     <!-- Card Grid (Thumbnail scale-down size) -->
     <dimen name="card_grid_width">150dp</dimen>
@@ -140,19 +140,19 @@
     <dimen name="rank_avatar_corner">24dp</dimen>
     <dimen name="rank_badge_size">24dp</dimen>
     <dimen name="text_size_rank_badge">10sp</dimen>
-    <dimen name="rank_item_padding_h">16dp</dimen>
-    <dimen name="rank_item_padding_v">12dp</dimen>
+    <dimen name="rank_item_padding_h">@dimen/spacing_md</dimen>
+    <dimen name="rank_item_padding_v">@dimen/spacing_12dp</dimen>
     <dimen name="text_size_profile_section">@dimen/text_size_body_md</dimen>
     <dimen name="text_size_profile_item">@dimen/text_size_h3</dimen>
     <dimen name="text_size_profile_nav">@dimen/text_size_h3</dimen>
     <dimen name="text_size_profile_footer">@dimen/text_size_body_sm</dimen>
-    <dimen name="profile_section_spacing">24dp</dimen>
+    <dimen name="profile_section_spacing">@dimen/spacing_lg</dimen>
     <dimen name="profile_input_height">64dp</dimen>
     <dimen name="friend_stats_height">72dp</dimen>
 
     <!-- Stage & Battle -->
-    <dimen name="daily_card_corner">12dp</dimen>
-    <dimen name="daily_card_padding">12dp</dimen>
+    <dimen name="daily_card_corner">@dimen/lg_radius_card</dimen>
+    <dimen name="daily_card_padding">@dimen/spacing_12dp</dimen>
     <dimen name="daily_chip_corner">20dp</dimen>
     <dimen name="daily_chip_padding_h">10dp</dimen>
     <dimen name="daily_chip_padding_v">4dp</dimen>
@@ -160,32 +160,32 @@
     <dimen name="daily_time_chip_padding_v">2dp</dimen>
     <dimen name="daily_button_height">40dp</dimen>
     <dimen name="daily_button_corner">20dp</dimen>
-    <dimen name="daily_button_text_size">14sp</dimen>
+    <dimen name="daily_button_text_size">@dimen/text_14sp</dimen>
     <dimen name="daily_reward_icon_size">24dp</dimen>
-    <dimen name="daily_reward_text_size">12sp</dimen>
-    <dimen name="daily_header_text_size">16sp</dimen>
-    <dimen name="daily_subheader_text_size">12sp</dimen>
-    <dimen name="daily_info_padding_h">12dp</dimen>
-    <dimen name="daily_info_padding_v">8dp</dimen>
+    <dimen name="daily_reward_text_size">@dimen/text_size_body_xs</dimen>
+    <dimen name="daily_header_text_size">@dimen/text_16sp</dimen>
+    <dimen name="daily_subheader_text_size">@dimen/text_size_body_xs</dimen>
+    <dimen name="daily_info_padding_h">@dimen/spacing_12dp</dimen>
+    <dimen name="daily_info_padding_v">@dimen/spacing_sm</dimen>
     <dimen name="stage_button_height">48dp</dimen>
     <dimen name="stage_button_corner">24dp</dimen>
     <dimen name="stage_reward_explosion_size">500dp</dimen>
     <dimen name="stage_reward_icon_size">72dp</dimen>
-    <dimen name="stage_reward_title_size">24sp</dimen>
-    <dimen name="stage_reward_subtitle_margin_top">12dp</dimen>
+    <dimen name="stage_reward_title_size">@dimen/text_size_h2</dimen>
+    <dimen name="stage_reward_subtitle_margin_top">@dimen/spacing_12dp</dimen>
     <dimen name="stage_reward_panel_margin_horizontal">32dp</dimen>
     <dimen name="stage_reward_panel_margin_top">120dp</dimen>
     <dimen name="stage_reward_panel_padding">24dp</dimen>
     <dimen name="stage_reward_panel_padding_vertical">24dp</dimen>
     <dimen name="stage_reward_panel_padding_horizontal">20dp</dimen>
     <dimen name="stage_reward_panel_corner">24dp</dimen>
-    <dimen name="stage_reward_value_text_size">18sp</dimen>
+    <dimen name="stage_reward_value_text_size">@dimen/text_size_h4</dimen>
     <dimen name="stage_reward_footer_margin_bottom">32dp</dimen>
-    <dimen name="stage_reward_tap_text_size">14sp</dimen>
+    <dimen name="stage_reward_tap_text_size">@dimen/text_14sp</dimen>
     <dimen name="formation_bottom_sheet_peek">56dp</dimen>
     <dimen name="formation_handle_width">40dp</dimen>
     <dimen name="formation_handle_height">5dp</dimen>
-    <dimen name="formation_grid_margin">8dp</dimen>
+    <dimen name="formation_grid_margin">@dimen/spacing_sm</dimen>
     <dimen name="formation_stage_margin_top">80dp</dimen>
 
     <!-- Global Icon Standards -->
@@ -218,10 +218,56 @@
     <dimen name="header_badge_padding_h">4dp</dimen>
     <dimen name="header_badge_padding_v">2dp</dimen>
     <dimen name="header_badge_min_size">16dp</dimen>
-    <dimen name="header_badge_text_size">9sp</dimen>
-    <dimen name="friend_explore_padding">16dp</dimen>
-    <dimen name="friend_explore_item_spacing">12dp</dimen>
+    <dimen name="header_badge_text_size">@dimen/text_size_mini</dimen>
+    <dimen name="friend_explore_padding">@dimen/spacing_md</dimen>
+    <dimen name="friend_explore_item_spacing">@dimen/spacing_12dp</dimen>
 
     <!-- Dividers -->
     <dimen name="divider_height_l">40dp</dimen>
+
+    <!-- ================================================================= -->
+    <!-- DETAILED COMPONENT-SPECIFIC TOKENS                                -->
+    <!-- ================================================================= -->
+
+    <!-- Card Detail Display & Catalog (Chi tiết Thẻ & Trưng bày) -->
+    <dimen name="card_detail_margin_horizontal">60dp</dimen>
+    <dimen name="name_tag_max_width_grid">150dp</dimen>
+    <item name="card_aspect_ratio" format="float" type="dimen">1.54</item>
+
+    <!-- Spin Slideshow Ratios & Physics (Gacha quay vòng tỷ lệ động) -->
+    <item name="spin_card_width_ratio" format="float" type="dimen">0.58</item>
+    <item name="spin_beam_width_ratio" format="float" type="dimen">0.3</item>
+    <item name="spin_card_base_scale" format="float" type="dimen">0.82</item>
+    <dimen name="spin_z_elevation_max">10dp</dimen>
+
+    <!-- Generic Dialog and Motion Constants (Thông số Dialog & hiệu ứng quay lật) -->
+    <item name="detail_dialog_dim_amount" format="float" type="dimen">0.8</item>
+    <item name="flip_camera_distance_factor" format="float" type="dimen">8000</item>
+    <item name="carousel_scale_min" format="float" type="dimen">0.85</item>
+    <item name="carousel_scale_range" format="float" type="dimen">0.15</item>
+    <item name="carousel_alpha_min" format="float" type="dimen">0.6</item>
+    <item name="carousel_alpha_range" format="float" type="dimen">0.4</item>
+
+    <!-- Couple Streak Subsystem Components (Thông số hộp thoại Streak cặp đôi) -->
+    <dimen name="couple_streak_dialog_margin_h">32dp</dimen>
+    <dimen name="couple_streak_dialog_margin_v">48dp</dimen>
+    <dimen name="couple_streak_dialog_padding">26dp</dimen>
+    <dimen name="couple_streak_fire_size">56dp</dimen>
+    <dimen name="couple_streak_underline_width">48dp</dimen>
+    <dimen name="couple_streak_button_height">58dp</dimen>
+
+    <!-- Upgrade Module Components (Thành phần nâng cấp Objet FO4) -->
+    <dimen name="upgrade_title_slide_offset">80dp</dimen>
+    <dimen name="upgrade_success_video_top_margin">80dp</dimen>
+    <dimen name="upgrade_done_button_bottom_margin">64dp</dimen>
+    <dimen name="upgrade_result_card_width">200dp</dimen>
+    <dimen name="upgrade_result_card_height">308dp</dimen>
+    <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
+
+    <!-- Custom Floating Bottom Navigation (Aesthetic Components - Generous Scales) -->
+    <dimen name="custom_nav_spin_glow_width">90dp</dimen>
+    <dimen name="custom_nav_spin_glow_height">90dp</dimen>
+    <dimen name="custom_nav_spin_pill_width">96dp</dimen>
+    <dimen name="custom_nav_spin_pill_height">48dp</dimen>
+    <dimen name="custom_nav_spin_icon_size">30dp</dimen>
 </resources>
