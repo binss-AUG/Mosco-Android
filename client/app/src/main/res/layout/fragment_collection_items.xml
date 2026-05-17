@@ -19,35 +19,53 @@
             android:orientation="vertical"
             app:layout_scrollFlags="scroll|enterAlways">
 
-            <!-- Standardized Filter Bar -->
-            <LinearLayout
+            <!-- [QUIET LUXURY] Smart Pill LEFT, Counter RIGHT -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="@drawable/lg_surface_filter_bar"
-                android:layout_marginHorizontal="@dimen/spacing_md"
-                android:layout_marginTop="@dimen/spacing_sm"
-                android:paddingHorizontal="@dimen/spacing_sm"
-                android:paddingTop="@dimen/spacing_xs"
-                android:paddingBottom="@dimen/spacing_xs">
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingVertical="@dimen/spacing_sm"
+                android:layout_marginTop="@dimen/spacing_xs">
 
+                <!-- Smart Pill (Left) -->
                 <com.vn.jet.mosco.view.InventoryFilterBar
                     android:id="@+id/filter_bar_items"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="@dimen/inventory_filter_bar_height"
-                    android:layout_weight="1" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
-                <TextView
-                    android:id="@+id/tv_items_count_title"
-                    style="@style/MoscoText.Luxury.Body"
+                <!-- Items Count (Right) -->
+                <LinearLayout
+                    android:id="@+id/ll_items_count_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_sm"
-                    android:text="@string/inventory_format_items_count"
-                    android:textColor="@color/mosco_white_30"
-                    android:textSize="@dimen/text_size_body_xs" />
-            </LinearLayout>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_items"
+                        app:tint="@color/lg_text_secondary" />
+
+                    <TextView
+                        android:id="@+id/tv_items_count_title"
+                        style="@style/MoscoText.Luxury.Body"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/inventory_format_items_count"
+                        android:textColor="@color/lg_text_secondary"
+                        android:textSize="@dimen/text_size_body_sm"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -59,21 +77,9 @@
         android:layout_marginHorizontal="@dimen/spacing_6dp"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/lg_content_bottom_clearance"
+        android:requiresFadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/spacing_lg"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_inventory_item" />
 
-    <!-- Sort Dropdown Popup (hidden by default) -->
-    <LinearLayout
-        android:id="@+id/dropdown_sort_items"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_sort_dropdown"
-        android:paddingVertical="@dimen/spacing_sm"
-        android:visibility="gone"
-        android:elevation="@dimen/spacing_sm" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
-

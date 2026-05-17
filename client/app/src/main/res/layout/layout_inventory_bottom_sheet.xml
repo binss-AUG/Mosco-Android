@@ -41,17 +41,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
-    <TextView
-        android:id="@+id/tv_select_types_count"
+    <LinearLayout
+        android:id="@+id/ll_select_count_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/MoscoText.Luxury.Body"
-        android:text="@string/placeholder_empty"
-        android:textColor="@color/mosco_white_30"
-        android:textSize="@dimen/text_size_body_sm"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/filter_bar"
-        app:layout_constraintTop_toTopOf="@id/filter_bar" />
+        app:layout_constraintTop_toTopOf="@id/filter_bar">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_objets"
+            app:tint="@color/lg_text_secondary" />
+
+        <TextView
+            android:id="@+id/tv_select_types_count"
+            style="@style/MoscoText.Luxury.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/placeholder_empty"
+            android:textColor="@color/lg_text_secondary"
+            android:textSize="@dimen/text_size_body_sm"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <!-- Sort Dropdown Popup (Managed by Custom Component) -->
     <LinearLayout
@@ -129,6 +145,8 @@
         android:clipToPadding="false"
         android:paddingBottom="@dimen/inventory_rv_padding_bottom"
         android:visibility="gone"
+        android:requiresFadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/spacing_lg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/filter_bar"
         tools:listitem="@layout/item_inventory_card" />
