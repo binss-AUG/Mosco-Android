@@ -150,6 +150,7 @@
                         app:flow_wrapMode="none"
                         app:constraint_referenced_ids="cv_module_streak,cv_module_empty" />
 
+                    <!-- DAILY CHECK-IN STREAK CARD (Premium Lottie + Day Counter) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cv_module_streak"
                         android:layout_width="0dp"
@@ -157,21 +158,72 @@
                         app:cardCornerRadius="@dimen/radius_m"
                         app:cardElevation="0dp"
                         app:cardBackgroundColor="@android:color/transparent">
-                        <FrameLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_120dp"
                             android:background="@drawable/bg_streak_module_glass">
-                            <TextView
-                                android:layout_width="wrap_content"
+
+                            <!-- Lottie Ngọn Lửa Chạy Vô Tận -->
+                            <com.airbnb.lottie.LottieAnimationView
+                                android:id="@+id/lottie_module_streak"
+                                android:layout_width="72dp"
+                                android:layout_height="72dp"
+                                android:layout_marginStart="14dp"
+                                app:lottie_rawRes="@raw/streak_animation"
+                                app:lottie_loop="true"
+                                app:lottie_autoPlay="true"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent" />
+
+                            <!-- Cụm thông tin Streak (Canh lề theo Lottie) -->
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:text="COMING SOON"
-                                android:textColor="@color/white_20"
-                                android:textSize="@dimen/text_size_caption"
-                                android:fontFamily="@font/pretendard"
-                                android:letterSpacing="0.2"
-                                android:textStyle="bold" />
-                        </FrameLayout>
+                                android:layout_marginStart="12dp"
+                                android:layout_marginEnd="14dp"
+                                android:orientation="vertical"
+                                app:layout_constraintStart_toEndOf="@id/lottie_module_streak"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent">
+
+                                <!-- Tiêu đề nhỏ dạng luxury -->
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/home_streak_title"
+                                    android:textColor="@color/white_40"
+                                    android:textSize="9sp"
+                                    android:fontFamily="@font/pretendard"
+                                    android:letterSpacing="0.15"
+                                    android:textStyle="bold" />
+
+                                <!-- Số ngày điểm danh liên tiếp -->
+                                <TextView
+                                    android:id="@+id/tv_module_streak_val"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="0 DAYS"
+                                    android:textColor="@color/white"
+                                    android:textSize="22sp"
+                                    android:fontFamily="@font/pretendard"
+                                    android:textStyle="bold" />
+
+                                <!-- Gợi ý tương tác chạm -->
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="@string/home_streak_action_hint"
+                                    android:textColor="@color/brand_secondary"
+                                    android:textSize="9sp"
+                                    android:fontFamily="@font/pretendard"
+                                    android:letterSpacing="0.1"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
                 <com.google.android.material.card.MaterialCardView android:id="@+id/cv_module_empty" android:layout_width="0dp" android:layout_height="0dp" app:cardCornerRadius="@dimen/radius_m" app:cardElevation="0dp" app:cardBackgroundColor="@color/white_05" app:strokeWidth="@dimen/stroke_thin" app:strokeColor="@color/white_10"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="@string/home_label_station_pending" android:gravity="center" android:textColor="@color/white_20" android:textSize="@dimen/text_size_caption" android:fontFamily="@font/pretendard" /></com.google.android.material.card.MaterialCardView>
 
@@ -236,7 +288,7 @@
 
             <include 
                 android:id="@+id/layout_chat_expanded_header"
-                layout="@layout/layout_galactic_header"
+                layout="@layout/layout_common_header"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Close Button (X) placed in Right Slot or overlaid -->

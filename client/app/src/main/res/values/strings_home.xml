@@ -53,6 +53,8 @@
     <string name="streak_format_days">%d DAYS</string>
     <string name="streak_desc_shield">Protect or restore your streak using Diamonds.</string>
     <string name="streak_action_restore">RESTORE</string>
+    <string name="home_streak_title">DAILY STREAK</string>
+    <string name="home_streak_action_hint">TAP TO VISIT</string>
 
     <!-- Daily Check-in -->
     <string name="daily_header_title">DAILY CHECK-IN</string>

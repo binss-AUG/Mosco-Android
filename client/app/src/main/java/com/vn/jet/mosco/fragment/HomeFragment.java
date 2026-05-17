@@ -352,6 +352,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
+        tvModuleStreakVal = v.findViewById(R.id.tv_module_streak_val);
+        lottieModuleStreak = v.findViewById(R.id.lottie_module_streak);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
         btnFullRank = v.findViewById(R.id.btn_home_full_rank);
         
@@ -689,6 +691,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupQuickToolActions() {
+        if (cvModuleStreak != null) {
+            cvModuleStreak.setOnClickListener(new ClickDebounce(v -> {
+                // Tại sao (WHY): Khi nhấn vào thẻ Streak, mở trực tiếp Activity điểm danh hàng ngày để tối ưu UX
+                startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class));
+            }));
+        }
         if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class)));
         // if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.MissionActivity.class)));
         if (btnQuickUpgrade != null) {
@@ -889,9 +897,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores, int level, long exp) {
-        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), coins != null ? coins : 0));
-        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), diamonds != null ? diamonds : 0));
-        
+        // Tại sao (WHY): Sử dụng số ngày streak nạp từ đối tượng UserStats phía Server thay vì tính toán local.
+        // Điều này đảm bảo tính năng chống cheat/hack tuyệt đối khi người dùng cố tình thay đổi thời gian hệ thống của thiết bị/giả lập.
         if (tvModuleStreakVal != null) tvModuleStreakVal.setText(getString(R.string.streak_format_days, streak));
         
         if (lottieModuleStreak != null) {
@@ -908,27 +915,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             } else {
                 com.vn.jet.mosco.utils.StreakColorHelper.applyShadowEffect(lottieModuleStreakGlow);
             }
-        }
-
-        // XP Bar Animation
-        if (tvLevel != null) tvLevel.setText(getString(R.string.format_level, level));
-        
-        long nextLevelXp = level * 1000L;
-        if (nextLevelXp == 0) nextLevelXp = 1000;
-        int progress = (int) ((exp * 100) / nextLevelXp);
-        if (progress > 100) progress = 100;
-        
-        if (pbHomeXp != null) {
-            ObjectAnimator anim = ObjectAnimator.ofInt(pbHomeXp, "progress", lastProgress, progress);
-            anim.setDuration(1200);
-            anim.setInterpolator(new android.view.animation.DecelerateInterpolator());
-            anim.start();
-            lastProgress = progress;
-        }
-        
-        if (tvXpVal != null) {
-            String pct = String.format("%.2f%%", (exp * 100f) / nextLevelXp);
-            tvXpVal.setText(pct);
         }
 
         this.bestStreakValue = bestStreak;
