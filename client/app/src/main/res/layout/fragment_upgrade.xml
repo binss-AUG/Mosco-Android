@@ -65,7 +65,7 @@
                 android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/reveal_summary_divider_height"
                 android:layout_marginTop="@dimen/reveal_summary_divider_height"
-                android:background="@color/galactic_accent_purple" />
+                android:background="@color/lg_accent_secondary" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="+"
-                    android:textColor="@color/mosco_primary"
+                    android:textColor="@color/lg_accent_primary"
                     android:textSize="@dimen/text_size_h1" />
             </FrameLayout>
 
@@ -285,7 +285,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_md"
             android:text="→"
-            android:textColor="@color/mosco_text_dim"
+            android:textColor="@color/mosco_white_40"
             android:textSize="@dimen/text_size_subtitle" />
 
         <!-- Next Level -->
@@ -339,7 +339,7 @@
             android:paddingVertical="3dp"
             android:text="@string/upgrade_label_boost"
             android:textAllCaps="true"
-            android:textColor="@color/mosco_primary"
+            android:textColor="@color/lg_accent_primary"
             android:textSize="@dimen/text_size_badge" />
 
         <!-- Progress Bar Container -->
@@ -370,7 +370,7 @@
         style="@style/MoscoText.Luxury.Badge"
         android:text="@string/upgrade_label_materials"
         android:textAllCaps="true"
-        android:textColor="@color/mosco_text_dim"
+        android:textColor="@color/mosco_white_40"
         android:textSize="@dimen/text_size_badge"
         app:layout_constraintBottom_toTopOf="@id/layout_materials_grid"
         app:layout_constraintStart_toStartOf="parent"
@@ -382,7 +382,7 @@
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Badge"
         android:text="@string/placeholder_empty"
-        android:textColor="@color/mosco_text_dim"
+        android:textColor="@color/mosco_white_40"
         android:textSize="@dimen/text_size_badge"
         app:layout_constraintBaseline_toBaselineOf="@id/tv_materials_label"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -649,7 +649,7 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/spacing_56dp"
         android:layout_marginHorizontal="0dp"
-        android:layout_marginBottom="@dimen/spacing_20dp"
+        android:layout_marginBottom="@dimen/lg_content_bottom_clearance"
         android:enabled="false"
         android:text="@string/upgrade_btn_text"
         app:moscoStyle="primary"

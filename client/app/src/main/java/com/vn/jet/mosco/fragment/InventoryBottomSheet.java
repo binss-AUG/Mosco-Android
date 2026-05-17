@@ -191,7 +191,15 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
                 @Override
                 public void onFilterRequested() {
-                    CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, CollectionFragment.buildObjetCategories(requireContext()), 0, objetFilter, InventoryBottomSheet.this::applyFilters);
+                    // [PERFORMANCE] Nạp dữ liệu Filter từ Room ở background thread để tránh block Main Thread
+                    new Thread(() -> {
+                        List<CollectionFragment.FilterCategory> categories = CollectionFragment.buildObjetCategories(requireContext());
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories, 0, objetFilter, InventoryBottomSheet.this::applyFilters);
+                            });
+                        }
+                    }).start();
                 }
             });
         }
@@ -421,29 +429,17 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             } else {
                 String currentSort = currentSortOption;
                 
-                // [DYNAMIC FILTER] Lấy danh sách Artist và Class thực tế từ DB để phân loại Filter Tags
-                java.util.Set<String> artistsList = new java.util.HashSet<>();
-                for (com.vn.jet.mosco.utils.DatabaseLoader.MemberFilterItem m : com.vn.jet.mosco.utils.DatabaseLoader.getUniqueMembers(requireContext())) {
-                    artistsList.add(m.name.toLowerCase());
-                }
-                
-                java.util.Set<String> classesList = new java.util.HashSet<>();
-                for (String c : com.vn.jet.mosco.utils.DatabaseLoader.getUniqueClasses(requireContext())) {
-                    classesList.add(c.toLowerCase());
-                }
-
                 java.util.Set<String> selArtists = new java.util.HashSet<>();
                 java.util.Set<String> selClasses = new java.util.HashSet<>();
                 java.util.Set<String> selSeasons = new java.util.HashSet<>();
 
                 for (String f : objetFilter) {
-                    String lowerF = f.toLowerCase();
-                    if (artistsList.contains(lowerF)) {
-                        selArtists.add(lowerF);
-                    } else if (classesList.contains(lowerF)) {
-                        selClasses.add(lowerF);
+                    if (DatabaseLoader.isArtist(f)) {
+                        selArtists.add(f.toLowerCase());
+                    } else if (DatabaseLoader.isClass(f)) {
+                        selClasses.add(f.toLowerCase());
                     } else {
-                        selSeasons.add(lowerF);
+                        selSeasons.add(f.toLowerCase());
                     }
                 }
 
@@ -563,13 +559,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     }
 
     private String mapClassToTypeKey(String cardClass) {
-        if (cardClass == null) return "First";
-        String key = cardClass.replaceAll("\\s+", "");
-        if (key.equalsIgnoreCase("Double")) return "Double";
-        if (key.equalsIgnoreCase("SpecialUnit") || key.equalsIgnoreCase("Special")) return "SpecialUnit";
-        if (key.equalsIgnoreCase("Premier")) return "Premier";
-        if (key.equalsIgnoreCase("Welcome")) return "Welcome";
-        return "First";
+        return DatabaseLoader.mapClassToTypeKey(cardClass);
     }
 
     private double calculateCurrentProgress() {
@@ -579,7 +569,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
             c.id = String.valueOf(mc.getId());
             c.typeKey = mapClassToTypeKey(mc.getCardClass());
-            c.level = mc.getLevel();
+            c.level = mc.getUpgradeLevel();
             c.ovr = mc.getOvr();
             algoMaterials.add(c);
         }
@@ -587,7 +577,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         UpgradeAlgorithm.Card target = new UpgradeAlgorithm.Card();
         target.id = String.valueOf(mainCard.getId());
         target.typeKey = mapClassToTypeKey(mainCard.getCardClass());
-        target.level = mainCard.getLevel();
+        target.level = mainCard.getUpgradeLevel();
         target.ovr = mainCard.getOvr();
 
         return upgradeAlgorithm.calculateFillPercent(target, algoMaterials);
@@ -626,13 +616,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     }
 
     private int getCardClassRank(String cardClass) {
-        if (cardClass == null) return 0;
-        String key = cardClass.replaceAll("\\s+", "").toLowerCase();
-        if (key.contains("premier")) return 4;
-        if (key.contains("special")) return 3;
-        if (key.contains("double")) return 2;
-        if (key.contains("first") || key.contains("welcome")) return 1;
-        return 0;
+        return DatabaseLoader.getCardClassRank(cardClass);
     }
 
     private void quickPickTeam() {

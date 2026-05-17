@@ -218,4 +218,48 @@
     <color name="palette_blue_powder">#B0E0E6</color>
     <color name="palette_pink_soft_alt">#FFC0CB</color>
     <color name="couple_streak_card_bg">#1A1A1A</color>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS DESIGN SYSTEM — Semantic Tokens  -->
+    <!-- ============================================= -->
+
+    <!-- LG: Background (Layer 0) -->
+    <color name="lg_background">@color/palette_deep_space</color>
+    <color name="lg_background_mid">@color/palette_deep_space_mid</color>
+    <color name="lg_background_soft">@color/palette_deep_space_soft</color>
+
+    <!-- LG: Glass Surface (Layer 1-2) -->
+    <color name="lg_glass_surface">#0DFFFFFF</color>
+    <color name="lg_glass_surface_elevated">#14FFFFFF</color>
+    <color name="lg_glass_surface_high">#1FFFFFFF</color>
+
+    <!-- LG: Glass Stroke (Hairline borders) -->
+    <color name="lg_glass_stroke">#26FFFFFF</color>
+    <color name="lg_glass_stroke_subtle">#1AFFFFFF</color>
+    <color name="lg_glass_stroke_strong">#33FFFFFF</color>
+
+    <!-- LG: Accent -->
+    <color name="lg_accent_primary">@color/palette_electric_blue</color>
+    <color name="lg_accent_secondary">@color/palette_cyber_purple</color>
+    <color name="lg_accent_primary_alpha_15">#263A86FF</color>
+    <color name="lg_accent_primary_alpha_25">#403A86FF</color>
+    <color name="lg_accent_primary_dim">#B33A86FF</color>
+    <color name="lg_accent_secondary_alpha_15">#268338EC</color>
+
+    <!-- LG: Navigation -->
+    <color name="lg_nav_surface">#CC080C14</color>
+    <color name="lg_nav_indicator">#333A86FF</color>
+
+    <!-- LG: Modal / Dialog (Layer 3) -->
+    <color name="lg_modal_surface">#E6080C14</color>
+    <color name="lg_modal_scrim">#B3050710</color>
+
+    <!-- LG: Text -->
+    <color name="lg_text_primary">@color/white</color>
+    <color name="lg_text_secondary">@color/mosco_white_70</color>
+    <color name="lg_text_dim">@color/mosco_white_50</color>
+    <color name="lg_text_disabled">@color/mosco_white_30</color>
+
+    <!-- LG: Outline -->
+    <color name="lg_outline">@color/lg_glass_stroke</color>
 </resources>

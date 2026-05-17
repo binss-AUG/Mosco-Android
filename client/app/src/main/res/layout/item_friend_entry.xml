@@ -25,7 +25,7 @@
             android:layout_height="@dimen/spacing_44dp"
             app:cardCornerRadius="22dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+            app:cardBackgroundColor="@color/lg_glass_surface_high"
             app:strokeColor="@color/mosco_white_20"
             app:strokeWidth="@dimen/stroke_thin"
             app:layout_constraintStart_toStartOf="parent"
@@ -77,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_caption"
             android:layout_marginTop="@dimen/spacing_2dp" />
     </LinearLayout>

@@ -21,7 +21,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/spacing_16dp"
             android:src="@drawable/ic_sync_galactic"
-            app:tint="@color/mosco_primary" />
+            app:tint="@color/lg_accent_primary" />
 
         <TextView
             android:id="@+id/tv_dialog_title"
@@ -54,7 +54,7 @@
             android:fontFamily="@font/pretendard_bold"
             android:paddingHorizontal="14dp"
             android:paddingVertical="6dp"
-            android:textColor="@color/mosco_primary"
+            android:textColor="@color/lg_accent_primary"
             android:textSize="12sp" />
 
         <LinearLayout

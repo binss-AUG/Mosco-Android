@@ -69,13 +69,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private static final int MIN_SKELETON_DURATION = 1500; // Thời gian tối thiểu hiện Skeleton (Luxury feel)
 
     // ── UI References ──
-    private TextView tvUsername, tvCoins, tvDiamonds, tvUserId, tvNotification, tvLevel, tvXpVal;
-    private ProgressBar pbHomeXp;
-    private ImageView ivHomeAvatar, ivChatAvatar, btnHomeSend;
+    private TextView tvNotification; // Vẫn giữ lại cho ticker
+    private ImageView ivChatAvatar, btnHomeSend;
     private EditText etHomeChat;
     private ViewPager2 vpBanners, vpMiniRanking;
     private LinearLayout llBannerDots;
-    private View flAvatarGroup;
     private com.scwang.smart.refresh.layout.SmartRefreshLayout swipeRefreshLayout;
     private com.facebook.shimmer.ShimmerFrameLayout shimmerHome;
     private View clRealContent;
@@ -94,6 +92,15 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private final Handler tickerHandler = new Handler(Looper.getMainLooper());
     private Runnable tickerRunnable;
     private int currentTickerIndex = 0;
+
+    // Header Buttons & Badges
+    private View btnFriends, btnMailbox, btnShop;
+    private TextView tvBadgeFriends, tvBadgeMailbox, tvBadgeShop;
+    
+    // Avatar Streak overlay
+    private View flStreakAvatar;
+    private TextView tvStreakAvatarVal;
+    private com.airbnb.lottie.LottieAnimationView lottieStreakAvatar;
 
     // ── Quick Tool References ──
     private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
@@ -149,8 +156,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         initViews(view);
         initServices();
         
-        setupLongClickCopy(tvUsername, getString(R.string.home_label_username));
-        setupLongClickCopy(tvUserId, getString(R.string.home_label_user_id));
+        // setupLongClickCopy đã chuyển sang MainActivity
         setupBannerCarousel();
         setupQuickToolActions();
         setupQuickToolDimensions();
@@ -286,15 +292,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     public void onInventoryChanged() { }
 
     private void initViews(View v) {
-        tvUsername = v.findViewById(R.id.tv_home_username);
-        tvCoins = v.findViewById(R.id.tv_home_coins);
-        tvDiamonds = v.findViewById(R.id.tv_home_diamonds);
+        // Thanh top bar đã được chuyển sang MainActivity quản lý
         tvNotification = v.findViewById(R.id.tv_home_notification);
-        tvLevel = v.findViewById(R.id.tv_home_level);
-        tvXpVal = v.findViewById(R.id.tv_home_xp_val);
-        pbHomeXp = v.findViewById(R.id.pb_home_xp);
-        
-        ivHomeAvatar = v.findViewById(R.id.iv_home_avatar);
         ivChatAvatar = v.findViewById(R.id.iv_chat_avatar);
         etHomeChat = v.findViewById(R.id.et_home_chat);
         btnHomeSend = v.findViewById(R.id.btn_home_send);
@@ -305,7 +304,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         llBannerDots = v.findViewById(R.id.ll_banner_dots);
         vpBanners = v.findViewById(R.id.vp_banners);
         swipeRefreshLayout = v.findViewById(R.id.swipe_refresh_home);
-        pbHomeXp = v.findViewById(R.id.pb_home_xp);
         
         btnQuickRank = v.findViewById(R.id.btn_quick_rank);
         btnQuickDaily = v.findViewById(R.id.btn_quick_daily);
@@ -350,14 +348,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             });
         }
         
-        flAvatarGroup = v.findViewById(R.id.fl_avatar_group);
-        tvUserId = v.findViewById(R.id.tv_home_user_id);
-        
+        // Top bar views đã được chuyển sang MainActivity
+
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
-        tvModuleStreakVal = v.findViewById(R.id.tv_module_streak_val);
-        lottieModuleStreak = v.findViewById(R.id.lottie_module_streak);
-        lottieModuleStreakGlow = v.findViewById(R.id.lottie_module_streak_glow);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
         btnFullRank = v.findViewById(R.id.btn_home_full_rank);
         
@@ -387,14 +381,45 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupDashboard() {
+        // Header Buttons Actions
+        if (btnFriends != null) {
+            btnFriends.setOnClickListener(new ClickDebounce(v -> {
+                android.widget.Toast.makeText(getContext(), "Friends system coming soon", android.widget.Toast.LENGTH_SHORT).show();
+            }));
+        }
+
+        if (btnMailbox != null) {
+            btnMailbox.setOnClickListener(new ClickDebounce(v -> {
+                // Giảm badge khi mở (Mock logic)
+                if (tvBadgeMailbox != null) tvBadgeMailbox.setVisibility(View.GONE);
+                NavigationUtils.openMailbox(getActivity());
+            }));
+        }
+
+        if (btnShop != null) {
+            btnShop.setOnClickListener(new ClickDebounce(v -> {
+                if (getActivity() != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                            .add(R.id.frame_layout, new ShopFragment())
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }));
+        }
+
+        // Mock Badge Data
+        updateHeaderBadges(3, 1, 0);
+
+        if (flStreakAvatar != null) {
+            flStreakAvatar.setOnClickListener(new ClickDebounce(v -> {
+                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
+            }));
+        }
+
         if (cvModuleStreak != null) {
             cvModuleStreak.setOnClickListener(v -> {
-                int streak = 0;
-                try { 
-                    String val = tvModuleStreakVal.getText().toString().replace(" DAYS", "").trim();
-                    streak = Integer.parseInt(val); 
-                } catch (Exception ignored) {}
-                showStreakDetail(streak, bestStreakValue, restoresThisMonth);
+                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
             });
         }
         
@@ -681,14 +706,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         // if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
         if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
         
-        if (flAvatarGroup != null) {
-            flAvatarGroup.setOnClickListener(new ClickDebounce() {
-                @Override
-                public void onDebouncedClick(View v) { 
-                    NavigationUtils.openProfile(getActivity(), null); 
-                }
-            });
-        }
+        // flAvatarGroup đã chuyển sang MainActivity
 
         if (btnQuickShop != null) {
             btnQuickShop.setOnClickListener(v -> {
@@ -706,16 +724,33 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void setupQuickToolDimensions() {
         if (hsvQuickTools == null || llQuickToolsContainer == null) return;
         hsvQuickTools.post(() -> {
-            if (!isAdded() || requireContext() == null) return;
+            if (!isAdded() || getContext() == null) return;
+            
             int hsvWidth = hsvQuickTools.getMeasuredWidth();
+            // AAA: Bảo vệ chống việc tính toán sai khi view chưa sẵn sàng (tránh bị cắt 2 bên khi chuyển tab)
+            if (hsvWidth <= 0) return;
+
             int horizontalPadding = hsvQuickTools.getPaddingLeft() + hsvQuickTools.getPaddingRight();
             int itemWidth = (hsvWidth - horizontalPadding) / 5;
+            
+            // Đảm bảo itemWidth không nhỏ hơn kích thước bong bóng + một chút padding
+            int minSize = getResources().getDimensionPixelSize(R.dimen.home_quick_tool_fab_size);
+            if (itemWidth < minSize) itemWidth = minSize;
+
             for (int i = 0; i < llQuickToolsContainer.getChildCount(); i++) {
                 View child = llQuickToolsContainer.getChildAt(i);
                 if (child != null) {
+                    // Tắt clipping cho từng item để hiệu ứng nhịp thở (pulse) không bị cắt viền
+                    if (child instanceof ViewGroup) {
+                        ((ViewGroup) child).setClipChildren(false);
+                        ((ViewGroup) child).setClipToPadding(false);
+                    }
+                    
                     ViewGroup.LayoutParams params = child.getLayoutParams();
-                    params.width = itemWidth;
-                    child.setLayoutParams(params);
+                    if (params.width != itemWidth) {
+                        params.width = itemWidth;
+                        child.setLayoutParams(params);
+                    }
                 }
             }
         });
@@ -792,32 +827,18 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void loadUserData() {
-        // Nếu đã có data thì không reset để tránh hiện skeleton lại
         if (sIsFirstLoad) isUserStatsLoaded = false;
         if (sessionManager == null || gameApiService == null) return;
         try {
-            String displayName = sessionManager.getIngameName();
-            if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
-            if (tvUsername != null) {
-                tvUsername.setText(displayName != null ? displayName : getString(R.string.placeholder_commander));
-                tvUsername.setSelected(true);
-            }
-
             Long userId = sessionManager.getUserId();
             String avatarId = sessionManager.getAvatarId();
             if (avatarId == null) avatarId = "1";
-            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivHomeAvatar, userId, avatarId);
             com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(requireContext(), ivChatAvatar, userId, avatarId);
-            if (userId == null) return;
-            if (tvUserId != null) tvUserId.setText(getString(R.string.home_format_user_id, String.valueOf(10000000L + userId)));
             
-            // AAA Strategy: Hiển thị data cũ ngay lập tức nếu có
-            if (sCachedStats != null) {
-                bindCurrency(sCachedStats.getCoins(), sCachedStats.getDiamonds(), sCachedStats.getStreak(), sCachedStats.getBestStreak(), sCachedStats.getStreakRestoresThisMonth(), sCachedStats.getLevel(), sCachedStats.getExp());
-                isUserStatsLoaded = true;
-                checkAndShowContent();
+            // Gọi MainActivity cập nhật lại dữ liệu trên thanh top bar dùng chung
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadUserData();
             }
-
             checkFriendRequestsBadge();
             gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
                 @Override
@@ -985,7 +1006,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> call, Response<com.vn.jet.mosco.model.ApiResponse<UserStats>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                         UserStats updated = response.body().getData();
-                        bindCurrency(updated.getCoins(), updated.getDiamonds(), updated.getStreak(), updated.getBestStreak(), updated.getStreakRestoresThisMonth(), updated.getLevel(), updated.getExp());
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).loadUserData();
+                        }
                         dialog.dismiss();
                     } else { btnRestore.setEnabled(true); }
                 }
@@ -1005,7 +1028,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         rgbAnimator.setInterpolator(new android.view.animation.LinearInterpolator());
         rgbAnimator.addUpdateListener(animation -> {
             float hue = (float) animation.getAnimatedValue();
-            com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(lottieModuleStreak, hue);
+            com.vn.jet.mosco.utils.StreakColorHelper.applyRGBEffect(lottie, hue);
         });
         rgbAnimator.start();
     }
@@ -1026,6 +1049,71 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
             return true;
         });
+    }
+
+    private void updateHeaderBadges(int friendsCount, int mailCount, int shopNewCount) {
+        if (tvBadgeFriends != null) {
+            if (friendsCount > 0) {
+                tvBadgeFriends.setText(friendsCount > 99 ? "99+" : String.valueOf(friendsCount));
+                tvBadgeFriends.setVisibility(View.VISIBLE);
+                animateBadgePop(tvBadgeFriends);
+            } else {
+                tvBadgeFriends.setVisibility(View.GONE);
+            }
+        }
+
+        if (tvBadgeMailbox != null) {
+            if (mailCount > 0) {
+                tvBadgeMailbox.setText(mailCount > 99 ? "99+" : String.valueOf(mailCount));
+                tvBadgeMailbox.setVisibility(View.VISIBLE);
+                animateBadgePop(tvBadgeMailbox);
+            } else {
+                tvBadgeMailbox.setVisibility(View.GONE);
+            }
+        }
+
+        if (tvBadgeShop != null) {
+            if (shopNewCount > 0) {
+                tvBadgeShop.setText("N");
+                tvBadgeShop.setVisibility(View.VISIBLE);
+            } else {
+                tvBadgeShop.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void animateBadgePop(View badge) {
+        badge.setScaleX(0.5f);
+        badge.setScaleY(0.5f);
+        badge.setAlpha(0f);
+        badge.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .alpha(1f)
+            .setDuration(180)
+            .setInterpolator(new android.view.animation.OvershootInterpolator())
+            .start();
+    }
+
+    private void updateStreakDisplay(int streak) {
+        if (tvStreakAvatarVal != null) {
+            String oldVal = tvStreakAvatarVal.getText().toString();
+            int oldStreak = 0;
+            try { oldStreak = Integer.parseInt(oldVal); } catch (Exception ignored) {}
+            
+            tvStreakAvatarVal.setText(String.valueOf(streak));
+            
+            if (streak > oldStreak) {
+                // Animation tăng streak
+                tvStreakAvatarVal.animate()
+                    .scaleX(1.15f)
+                    .scaleY(1.15f)
+                    .setDuration(120)
+                    .withEndAction(() -> {
+                        tvStreakAvatarVal.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    }).start();
+            }
+        }
     }
 
     private class MiniRankPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

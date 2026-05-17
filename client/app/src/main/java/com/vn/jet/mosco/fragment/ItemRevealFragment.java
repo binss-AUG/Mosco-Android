@@ -146,7 +146,7 @@ public class ItemRevealFragment extends Fragment {
         packRevealRoot = view.findViewById(R.id.root_item_reveal);
         if (packRevealRoot != null) {
             packRevealRoot.setBackgroundColor(
-                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_surface));
+                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_background));
         }
 
         if (getActivity() != null) {
@@ -833,7 +833,7 @@ public class ItemRevealFragment extends Fragment {
                 subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
                 new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(),
-                        R.color.mosco_on_surface_variant)),
+                        R.color.lg_text_secondary)),
                 subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
         tvTitle.setGravity(Gravity.CENTER);
@@ -1036,7 +1036,7 @@ public class ItemRevealFragment extends Fragment {
         footerMarker.setText(getString(R.string.reveal_summary_footer_marker));
         footerMarker.setGravity(Gravity.CENTER);
         footerMarker.setTextColor(
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_on_surface_variant));
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_text_secondary));
         footerMarker.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimension(R.dimen.reveal_summary_footer_marker_text_size));
         footerMarker.setPadding(0, (int) getResources().getDimension(R.dimen.reveal_summary_footer_marker_padding_top),
@@ -1077,7 +1077,7 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void applyVisualEffects(MaterialCardView cardItem, View view) {
-        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
+        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_accent_primary);
         cardItem.setStrokeWidth(dpToPx(1));
         cardItem.setStrokeColor(androidx.core.graphics.ColorUtils.setAlphaComponent(primaryColor, 128));
         float cardFloatY = getResources().getDimension(R.dimen.reveal_card_float_y);
@@ -1597,3 +1597,4 @@ public class ItemRevealFragment extends Fragment {
         }
     }
 }
+

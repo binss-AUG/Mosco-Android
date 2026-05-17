@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="4dp" android:right="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_nav" />
+            <solid android:color="@color/lg_nav_indicator" />
+        </shape>
+    </item>
+    <item android:left="4dp" android:right="4dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_nav" />
+            <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_strong" />
+        </shape>
+    </item>
+</layer-list>

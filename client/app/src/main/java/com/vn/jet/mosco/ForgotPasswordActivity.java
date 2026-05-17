@@ -90,7 +90,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         int start = text.indexOf(getString(R.string.auth_action_sign_in));
         if (start != -1) {
             spannable.setSpan(
-                    new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_primary)),
+                    new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(this, R.color.lg_accent_primary)),
                     start, start + getString(R.string.auth_action_sign_in).length(),
                     android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -199,12 +199,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             btnResetPassword.setBackgroundTintList(
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
-            btnResetPassword.setTextColor(ContextCompat.getColor(this, R.color.mosco_text_disabled));
+            btnResetPassword.setTextColor(ContextCompat.getColor(this, R.color.lg_text_disabled));
 
             btnSendCode.setBackgroundTintList(
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
-            btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.mosco_text_disabled));
+            btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.lg_text_disabled));
         } else {
             btnResetPassword.setBackgroundTintList(null);
             btnResetPassword.setTextColor(ContextCompat.getColor(this, R.color.white));
@@ -229,3 +229,4 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         com.vn.jet.mosco.utils.AuthUIHelper.saveAnimationState();
     }
 }
+

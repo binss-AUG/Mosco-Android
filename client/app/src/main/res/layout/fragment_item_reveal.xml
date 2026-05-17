@@ -5,7 +5,7 @@
     android:id="@+id/root_item_reveal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface">
+    android:background="@color/lg_background">
 
     <!-- Back Arrow (top left) -->
     <ImageView
@@ -15,7 +15,7 @@
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginTop="@dimen/spacing_xxl"
         android:src="@drawable/ic_back_arrow"
-        app:tint="@color/mosco_on_surface"
+        app:tint="@color/white"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"
@@ -117,7 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_sm"
         style="@style/MoscoText.Luxury.Body"
-        android:textColor="@color/mosco_on_surface_variant"
+        android:textColor="@color/mosco_white_50"
         android:textSize="@dimen/text_size_body_sm"
         android:gravity="center"
         android:paddingHorizontal="@dimen/spacing_40dp"
@@ -194,7 +194,7 @@
             android:fontWeight="700"
             android:letterSpacing="0.2"
             android:alpha="0"
-            android:shadowColor="@color/mosco_primary"
+            android:shadowColor="@color/lg_accent_primary"
             android:shadowRadius="30"
             tools:text="2005" />
 

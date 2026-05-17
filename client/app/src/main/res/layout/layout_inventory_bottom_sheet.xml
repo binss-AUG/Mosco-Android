@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface"
+    android:background="@color/lg_modal_surface"
     android:padding="@dimen/inventory_padding">
 
     <!-- Header -->
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Body"
         android:text="@string/placeholder_empty"
-        android:textColor="@color/mosco_text_disabled"
+        android:textColor="@color/mosco_white_30"
         android:textSize="@dimen/text_size_body_sm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/filter_bar"

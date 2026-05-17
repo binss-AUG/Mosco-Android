@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Drawable hình tròn tối — dùng cho indicator chọn bạn bè trong Gift -->
+<!-- Liquid Glass: Circle dark button (Add card, indicators) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="@color/mosco_outline" />
+    <solid android:color="@color/lg_glass_surface_elevated" />
     <size android:width="22dp" android:height="22dp" />
-    <stroke android:width="1.5dp" android:color="@color/mosco_white_20" />
+    <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke" />
 </shape>

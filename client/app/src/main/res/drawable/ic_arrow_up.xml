@@ -8,8 +8,9 @@
     <path
         android:pathData="M4,12.5l6,-6 6,6"
         android:strokeLineCap="round"
-        android:strokeColor="@color/mosco_on_surface"
+        android:strokeColor="@color/lg_text_primary"
         android:strokeWidth="1.5"
         android:strokeLineJoin="round" />
 </vector>
+
 

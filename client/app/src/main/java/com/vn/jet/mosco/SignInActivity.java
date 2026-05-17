@@ -90,7 +90,7 @@ public class SignInActivity extends AppCompatActivity {
         int start = text.indexOf(getString(R.string.auth_action_sign_up));
         if (start != -1) {
             spannable.setSpan(
-                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.mosco_primary)),
+                    new ForegroundColorSpan(ContextCompat.getColor(this, R.color.lg_accent_primary)),
                     start, start + getString(R.string.auth_action_sign_up).length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -248,7 +248,7 @@ public class SignInActivity extends AppCompatActivity {
             btnSignIn.setBackgroundTintList(
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
-            btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.mosco_text_disabled));
+            btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.lg_text_disabled));
         } else {
             btnSignIn.setBackgroundTintList(null);
             btnSignIn.setTextColor(ContextCompat.getColor(this, R.color.white));
@@ -393,3 +393,4 @@ public class SignInActivity extends AppCompatActivity {
         com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 }
+

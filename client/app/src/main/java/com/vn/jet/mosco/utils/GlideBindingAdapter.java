@@ -21,8 +21,8 @@ public class GlideBindingAdapter {
 
     private static final String BASE_URL = "https://imagedelivery.net/";
 
-    @BindingAdapter({"imageUrl", "isThumbnail"})
-    public static void loadImage(ImageView view, String imageIdOrUrl, boolean isThumbnail) {
+    @BindingAdapter(value = {"imageUrl", "isThumbnail", "isHighQuality"}, requireAll = false)
+    public static void loadImage(ImageView view, String imageIdOrUrl, boolean isThumbnail, boolean isHighQuality) {
         if (view == null || imageIdOrUrl == null || imageIdOrUrl.isEmpty()) {
             return;
         }
@@ -30,7 +30,7 @@ public class GlideBindingAdapter {
         Context context = view.getContext();
         if (context == null) return;
 
-        // Tim Skeleton View trong cung cap voi ImageView (Standard Layout)
+        // Tìm Skeleton View trong cùng cấp với ImageView (Standard Layout)
         final View skeleton = (view.getParent() instanceof ViewGroup) 
                 ? ((ViewGroup) view.getParent()).findViewById(R.id.layout_card_skeleton) 
                 : null;
@@ -39,7 +39,9 @@ public class GlideBindingAdapter {
             skeleton.setVisibility(View.VISIBLE);
         }
 
-        String finalUrl = convertImageIdToUrl(imageIdOrUrl, isThumbnail);
+        // Ưu tiên isHighQuality nếu được set
+        boolean effectiveThumbnail = isThumbnail && !isHighQuality;
+        String finalUrl = convertImageIdToUrl(imageIdOrUrl, effectiveThumbnail);
 
         // 🚀 LOCAL FIRST: Check if the asset exists locally (2x or original)
         java.io.File localFile = CardAssetManager.getLocalFile(context, finalUrl);
@@ -47,15 +49,18 @@ public class GlideBindingAdapter {
 
         com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
                 .diskCacheStrategy(loadSource instanceof java.io.File ? DiskCacheStrategy.NONE : DiskCacheStrategy.ALL)
-                .priority(Priority.IMMEDIATE)
+                .priority(isHighQuality ? Priority.IMMEDIATE : Priority.NORMAL)
                 .placeholder(R.drawable.bg_skeleton_card)
                 .error(R.drawable.ic_error_placeholder);
 
         // Toi uu RAM: Dung RGB_565 cho thumbnail (giam 50% RAM so voi ARGB_8888)
-        if (isThumbnail) {
+        if (effectiveThumbnail) {
             options = options.format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565);
             // Scale down for grid to save memory
             options = options.override(150, 231);
+        } else {
+            // ARGB_8888 cho bản sắc nét
+            options = options.format(com.bumptech.glide.load.DecodeFormat.PREFER_ARGB_8888);
         }
 
         Glide.with(context)
@@ -81,14 +86,21 @@ public class GlideBindingAdapter {
                 .into(view);
     }
 
+    /**
+     * Overload cho Java code để duy trì tính tương thích.
+     */
+    public static void loadImage(ImageView view, String imageIdOrUrl, boolean isThumbnail) {
+        loadImage(view, imageIdOrUrl, isThumbnail, !isThumbnail);
+    }
+
     @BindingAdapter("imageUrlOriginal")
     public static void loadImageOriginal(ImageView view, String imageId) {
-        loadImage(view, imageId, false);
+        loadImage(view, imageId, false, true);
     }
 
     @BindingAdapter("imageUrlThumbnail")
     public static void loadImageThumbnail(ImageView view, String imageId) {
-        loadImage(view, imageId, true);
+        loadImage(view, imageId, true, false);
     }
 
     /**

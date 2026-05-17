@@ -7,6 +7,7 @@ import com.vn.jet.mosco.spinserver.model.UpgradeRequest;
 import com.vn.jet.mosco.spinserver.model.UpgradeResponse;
 import com.vn.jet.mosco.spinserver.model.UserCard;
 import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
+import com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.util.Random;
 public class UpgradeService {
 
     private final UserCardRepository userCardRepository;
+    private final StageSessionMemberRepository stageSessionMemberRepository;
     private final CardDataService cardDataService;
     private final ObjectMapper objectMapper;
     private final Random random = new Random();
@@ -122,6 +124,10 @@ public class UpgradeService {
         }
 
         // 6. Xóa thẻ nguyên liệu (Consuming)
+        // Trước khi xóa thẻ, cần xóa các liên kết Foreign Key trong các table session/lineup
+        for (UserCard material : materials) {
+            stageSessionMemberRepository.deleteByUserCardId(material.getId());
+        }
         userCardRepository.deleteAll(materials);
 
         // 7. Lưu thẻ chính và trả về kết quả

@@ -24,7 +24,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/bg_global_gradient" />
+            android:src="@drawable/lg_background_deep" />
 
         <View
             android:layout_width="match_parent"
@@ -196,7 +196,7 @@
                 android:layout_width="@dimen/spacing_xl"
                 android:layout_height="@dimen/spacing_2dp"
                 android:layout_marginTop="@dimen/radius_lg"
-                android:background="@color/mosco_primary" />
+                android:background="@color/lg_accent_primary" />
 
             <!-- Dispatch Button / Progress -->
             <FrameLayout
@@ -224,7 +224,7 @@
                         android:id="@+id/pb_stage_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:indicatorColor="@color/mosco_primary"
+                        app:indicatorColor="@color/lg_accent_primary"
                         app:trackColor="@color/white_10"
                         app:trackCornerRadius="@dimen/spacing_xs"
                         android:progress="0" />

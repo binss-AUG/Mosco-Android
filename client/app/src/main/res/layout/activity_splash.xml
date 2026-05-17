@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_screen_bg">
+    android:background="@color/lg_background">
 
     <include layout="@layout/layout_auth_background" />
 
@@ -113,11 +113,12 @@
             android:layout_width="200dp"
             android:layout_height="54dp"
             android:text="@string/splash_action_retry"
-            app:backgroundTint="@color/mosco_surface"
+            app:backgroundTint="@color/lg_background"
             app:cornerRadius="27dp"
             app:elevation="@dimen/spacing_sm"
-            app:strokeColor="@color/mosco_primary"
+            app:strokeColor="@color/lg_accent_primary"
             app:strokeWidth="1.5dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.vn.jet.mosco.MainActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,8 +46,7 @@ public class ShopFragment extends Fragment {
     private final List<String> categories = List.of("All", "OBJET", "PACK", "BUFF", "RESOURCE");
     private int selectedChipIndex = 0;
     
-    private TextView tvCoins;
-    private TextView tvDiamonds;
+    // Thanh top bar đã được chuyển sang MainActivity quản lý
     
     private GameApiService apiService;
     private SessionManager sessionManager;
@@ -67,7 +67,7 @@ public class ShopFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
-        setupHeader(view);
+        // setupHeader(view); // Đã chuyển sang MainActivity
         setupChips(view);
         setupRecyclerView(view);
         
@@ -75,36 +75,11 @@ public class ShopFragment extends Fragment {
         fetchShopItems();
     }
 
-    private void setupHeader(@NonNull View root) {
-        root.findViewById(R.id.btn_shop_back).setOnClickListener(v -> {
-            if (getActivity() != null) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
-
-        tvCoins    = root.findViewById(R.id.tv_coins);
-        tvDiamonds = root.findViewById(R.id.tv_diamonds);
-        tvCoins.setText(getString(R.string.placeholder_empty));
-        tvDiamonds.setText(getString(R.string.placeholder_empty));
-    }
-
     private void fetchUserResources() {
-        Long userId = sessionManager.getUserId();
-        if (userId == null) return;
-        
-        apiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
-            @Override
-            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    tvCoins.setText(NumberUtils.format(requireContext(), response.body().getCoins()));
-                    tvDiamonds.setText(NumberUtils.format(requireContext(), response.body().getDiamonds()));
-                }
-            }
-            @Override
-            public void onFailure(Call<UserStats> call, Throwable t) {
-                Log.e("ShopFragment", "Failed to fetch stats", t);
-            }
-        });
+        // Gọi MainActivity cập nhật lại dữ liệu trên thanh top bar dùng chung
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).loadUserData();
+        }
     }
 
     private void fetchShopItems() {
@@ -143,10 +118,10 @@ public class ShopFragment extends Fragment {
                 TextView tv = (TextView) chip;
                 if (i == index) {
                     tv.setBackgroundResource(R.drawable.bg_shop_buy_btn);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_on_surface));
+                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_primary));
                 } else {
                     tv.setBackgroundResource(R.drawable.bg_filter_chip);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.mosco_on_surface_variant));
+                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_secondary));
                 }
             }
         }
@@ -287,7 +262,9 @@ public class ShopFragment extends Fragment {
 
     private void showBuyDialog(ShopItem item) {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_shop_buy, null);
-        android.app.Dialog dialog = MoscoDialogManager.createLiquidDialog(requireContext(), dialogView);
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+        dialog.setContentView(dialogView);
+        dialog.getBehavior().setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
         
         ImageView ivImage = dialogView.findViewById(R.id.iv_dialog_image);
         TextView tvName = dialogView.findViewById(R.id.tv_dialog_name);
@@ -359,7 +336,10 @@ public class ShopFragment extends Fragment {
 
         btnMinus.setOnClickListener(v -> { if (qty[0] > 1) { qty[0]--; etQuantity.setText(String.valueOf(qty[0])); }});
         btnPlus.setOnClickListener(v -> { qty[0]++; etQuantity.setText(String.valueOf(qty[0])); });
-        btnClose.setOnClickListener(v -> dialog.dismiss());
+        
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> dialog.dismiss());
+        }
 
         btnConfirm.setOnClickListener(v -> {
             dialog.dismiss();
@@ -459,3 +439,4 @@ public class ShopFragment extends Fragment {
         }
     }
 }
+

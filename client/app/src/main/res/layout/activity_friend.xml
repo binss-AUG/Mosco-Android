@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_global_gradient">
+    android:background="@drawable/lg_background_deep">
 
     <!-- Standard Galactic Header (Abstracted) -->
     <include
@@ -37,8 +37,8 @@
         android:layout_marginTop="@dimen/spacing_sm"
         app:cardCornerRadius="@dimen/radius_md"
         app:cardElevation="@dimen/spacing_xs"
-        app:cardBackgroundColor="@color/mosco_card_bg"
-        app:strokeColor="@color/galactic_accent_purple"
+        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
+        app:strokeColor="@color/lg_accent_secondary"
         app:strokeWidth="@dimen/stroke_thin"
         app:layout_constraintTop_toBottomOf="@id/layout_header_friend_container"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
                 android:layout_width="@dimen/spacing_20dp"
                 android:layout_height="@dimen/spacing_20dp"
                 android:src="@drawable/ic_search"
-                app:tint="@color/galactic_accent_purple" />
+                app:tint="@color/lg_accent_secondary" />
 
             <EditText
                 android:id="@+id/et_search_friend"
@@ -64,7 +64,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/radius_lg"
                 android:hint="@string/social_search_hint"
-                android:textColorHint="@color/mosco_text_disabled"
+                android:textColorHint="@color/mosco_white_30"
                 android:textColor="@color/white"
                 style="@style/MoscoText.Luxury.Body"
                 android:textSize="@dimen/text_size_body_md"
@@ -85,11 +85,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card_search_friend"
-        app:tabIndicatorColor="@color/galactic_accent_purple"
+        app:tabIndicatorColor="@color/lg_accent_secondary"
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="true"
-        app:tabSelectedTextColor="@color/galactic_accent_purple"
-        app:tabTextColor="@color/mosco_text_disabled"
+        app:tabSelectedTextColor="@color/lg_accent_secondary"
+        app:tabTextColor="@color/mosco_white_30"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
         app:tabMode="fixed"

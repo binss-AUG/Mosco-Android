@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Input field với focused state -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <layer-list>
-            <!-- Shadow/Glow effect (Subtle purple shadow) -->
+            <!-- Glow effect khi focused -->
             <item>
                 <shape>
-                    <corners android:radius="@dimen/radius_md" />
-                    <solid android:color="#206C29FD" /> <!-- Very faint primary glow -->
-                    <padding android:bottom="@dimen/stroke_thin" android:left="@dimen/stroke_thin" android:right="@dimen/stroke_thin" android:top="@dimen/stroke_thin" />
+                    <corners android:radius="@dimen/lg_radius_input" />
+                    <solid android:color="@color/lg_accent_primary_alpha_15" />
+                    <padding android:bottom="@dimen/lg_stroke_thin" android:left="@dimen/lg_stroke_thin" android:right="@dimen/lg_stroke_thin" android:top="@dimen/lg_stroke_thin" />
                 </shape>
             </item>
             <!-- Main Background -->
             <item>
                 <shape>
-                    <solid android:color="@color/mosco_white_15" />
-                    <corners android:radius="@dimen/radius_md" />
+                    <solid android:color="@color/lg_glass_surface_elevated" />
+                    <corners android:radius="@dimen/lg_radius_input" />
                     <stroke
-                        android:width="1.8dp"
-                        android:color="@color/mosco_primary" />
+                        android:width="1.5dp"
+                        android:color="@color/lg_accent_primary" />
                 </shape>
             </item>
         </layer-list>
     </item>
     <item>
         <shape>
-            <solid android:color="#12FFFFFF" />
-            <corners android:radius="@dimen/radius_md" />
+            <solid android:color="@color/lg_glass_surface" />
+            <corners android:radius="@dimen/lg_radius_input" />
             <stroke
-                android:width="1.0dp"
-                android:color="#44FFFFFF" />
+                android:width="@dimen/lg_stroke_hairline"
+                android:color="@color/lg_glass_stroke" />
         </shape>
     </item>
 </selector>
-

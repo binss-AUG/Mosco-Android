@@ -24,9 +24,9 @@
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:text="@string/profile_btn_like"
-            android:textColor="@color/mosco_white_70"
-            app:strokeColor="@color/mosco_white_40"
-            app:cornerRadius="@dimen/radius_md"
+            android:backgroundTint="@color/lg_accent_primary"
+            android:textColor="@color/white"
+            app:cornerRadius="@dimen/lg_radius_button"
             app:icon="@null" />
 
         <com.google.android.material.button.MaterialButton
@@ -36,12 +36,12 @@
             android:layout_height="@dimen/button_height_large"
             android:layout_weight="1"
             android:text="@string/profile_btn_message"
-            android:textColor="@color/mosco_white_70"
-            app:strokeColor="@color/mosco_white_40"
-            app:cornerRadius="@dimen/radius_md"
+            android:textColor="@color/lg_text_secondary"
+            app:strokeColor="@color/lg_outline"
+            app:cornerRadius="@dimen/lg_radius_button"
             app:icon="@drawable/ic_mailbox"
             app:iconGravity="textStart"
-            app:iconTint="@color/mosco_white_70" />
+            app:iconTint="@color/lg_text_secondary" />
     </LinearLayout>
 
     <!-- Row 2: Relationship Management (Nút Add Friend nổi bật ở dưới) -->
@@ -59,10 +59,10 @@
             android:layout_height="@dimen/button_height_large"
             android:layout_weight="1"
             android:text="@string/profile_btn_add_friend"
-            android:backgroundTint="@color/mosco_primary"
+            android:backgroundTint="@color/lg_accent_primary"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:cornerRadius="@dimen/radius_md"
+            app:cornerRadius="@dimen/lg_radius_button"
             app:icon="@null" />
 
         <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
@@ -77,8 +77,9 @@
             app:iconGravity="textStart"
             app:iconTint="@color/palette_red_accent"
             app:strokeColor="@color/palette_red_accent"
-            app:cornerRadius="@dimen/radius_md"
+            app:cornerRadius="@dimen/lg_radius_button"
             android:visibility="gone" />
     </LinearLayout>
 
 </LinearLayout>
+

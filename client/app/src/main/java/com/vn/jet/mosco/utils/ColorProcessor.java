@@ -11,7 +11,7 @@ public class ColorProcessor {
      */
     public static int getSurfaceColor(android.content.Context context, String hex) {
         int baseColor = Color.parseColor(hex);
-        int bgColor = androidx.core.content.ContextCompat.getColor(context, com.vn.jet.mosco.R.color.mosco_surface_container_low);
+        int bgColor = androidx.core.content.ContextCompat.getColor(context, com.vn.jet.mosco.R.color.lg_glass_surface);
         // Blend with 15% opacity of the base color
         return ColorUtils.blendARGB(bgColor, baseColor, 0.15f);
     }
@@ -40,3 +40,4 @@ public class ColorProcessor {
         return luminance > 0.5 ? Color.BLACK : Color.WHITE;
     }
 }
+

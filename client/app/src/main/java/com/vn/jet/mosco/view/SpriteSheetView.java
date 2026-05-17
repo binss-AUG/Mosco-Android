@@ -3,16 +3,10 @@ package com.vn.jet.mosco.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ComposeShader;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.RadialGradient;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -32,10 +26,9 @@ public class SpriteSheetView extends View {
     private boolean isPlaying = false;
     private Runnable onAnimationEnd;
 
+    private final Rect srcRect = new Rect();
     private final RectF dstRectF = new RectF();
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
-    private final Matrix matrix = new Matrix();
-    private BitmapShader spriteShader;
     
     private float drawScale = 1.0f;
     private float drawOffsetX = 0f;
@@ -49,18 +42,32 @@ public class SpriteSheetView extends View {
 
     public SpriteSheetView(Context context) {
         super(context);
+        initPaint();
     }
 
     public SpriteSheetView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initPaint();
+    }
+
+    private void initPaint() {
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
     }
 
     public void init(int drawableResId, int cols, int rows, int frames, long durationMs) {
         if (spriteSheet != null && !spriteSheet.isRecycled()) {
             spriteSheet.recycle();
         }
-        spriteSheet = BitmapFactory.decodeResource(getResources(), drawableResId);
-        spriteShader = new BitmapShader(spriteSheet, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        
+        // High-Quality: Giữ nguyên độ phân giải gốc của SpriteSheet
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = 1; // Không nén ảnh để giữ chất lượng cực cao
+        options.inScaled = false; // Tắt tự động scale theo mật độ điểm ảnh
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        
+        spriteSheet = BitmapFactory.decodeResource(getResources(), drawableResId, options);
         
         colCount = cols;
         rowCount = rows;
@@ -77,9 +84,13 @@ public class SpriteSheetView extends View {
         currentFrame = 0;
         isPlaying = true;
         setVisibility(VISIBLE);
-        postInvalidate();
+        
+        // Ép kiểu phần cứng để đạt 60 FPS
+        setLayerType(LAYER_TYPE_HARDWARE, null);
+        
         removeCallbacks(frameRunnable);
         postDelayed(frameRunnable, frameDuration);
+        invalidate();
     }
 
     private final Runnable frameRunnable = new Runnable() {
@@ -90,6 +101,7 @@ public class SpriteSheetView extends View {
             if (currentFrame >= totalFrames - 1) {
                 isPlaying = false;
                 setVisibility(GONE);
+                setLayerType(LAYER_TYPE_NONE, null);
                 if (onAnimationEnd != null) onAnimationEnd.run();
             } else {
                 currentFrame++;
@@ -101,7 +113,7 @@ public class SpriteSheetView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (!isPlaying || spriteSheet == null || spriteSheet.isRecycled() || spriteShader == null) return;
+        if (!isPlaying || spriteSheet == null || spriteSheet.isRecycled()) return;
         
         int row = currentFrame / colCount;
         int col = currentFrame % colCount;
@@ -126,22 +138,24 @@ public class SpriteSheetView extends View {
         
         float left = (viewWidth - finalWidth) / 2f + drawOffsetX;
         float top = (viewHeight - finalHeight) / 2f + drawOffsetY;
+        
         dstRectF.set(left, top, left + finalWidth, top + finalHeight);
 
-        // 1. Cấu hình Matrix cho Sprite
-        matrix.reset();
-        matrix.postTranslate(-col * frameWidth, -row * frameHeight);
-        float scaleX = finalWidth / frameWidth;
-        float scaleY = finalHeight / frameHeight;
-        matrix.postScale(scaleX, scaleY);
-        matrix.postTranslate(left, top);
-        spriteShader.setLocalMatrix(matrix);
+        // 1. Xác định vùng frame trong SpriteSheet (Source)
+        int srcLeft = col * frameWidth;
+        int srcTop = row * frameHeight;
+        srcRect.set(srcLeft, srcTop, srcLeft + frameWidth, srcTop + frameHeight);
         
-        // Bỏ Fade Viền (No Feathering) theo yêu cầu của user
-        paint.setShader(spriteShader);
-        
-        // 4. Vẽ với hiệu ứng bo góc nhẹ bổ sung
-        float cornerRadius = 4 * getResources().getDisplayMetrics().density;
-        canvas.drawRoundRect(dstRectF, cornerRadius, cornerRadius, paint);
+        // 2. Vẽ trực tiếp bằng drawBitmap (GPU optimized for Sprite Sheets)
+        canvas.drawBitmap(spriteSheet, srcRect, dstRectF, paint);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (spriteSheet != null && !spriteSheet.isRecycled()) {
+            spriteSheet.recycle();
+            spriteSheet = null;
+        }
     }
 }

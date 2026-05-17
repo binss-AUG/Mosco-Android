@@ -7,19 +7,20 @@
     <path
         android:fillColor="@color/transparent"
         android:pathData="M1,12s4,-8 11,-8 11,8 11,8 -4,8 -11,8 -11,-8 -11,-8z"
-        android:strokeColor="@color/mosco_text_disabled"
+        android:strokeColor="@color/lg_text_disabled"
         android:strokeWidth="1.5" />
     <path
         android:fillColor="@color/transparent"
         android:pathData="M12,12m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
-        android:strokeColor="@color/mosco_text_disabled"
+        android:strokeColor="@color/lg_text_disabled"
         android:strokeWidth="1.5" />
         
     <path
         android:fillColor="@color/transparent"
         android:pathData="M3,3 L21,21"
-        android:strokeColor="@color/mosco_text_disabled"
+        android:strokeColor="@color/lg_text_disabled"
         android:strokeWidth="1.5"
         android:strokeLineCap="round" />
         
 </vector>
+

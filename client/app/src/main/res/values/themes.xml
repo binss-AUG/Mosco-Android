@@ -4,11 +4,12 @@
         <!-- Global Typography - Quiet Luxury Standard -->
         <item name="android:fontFamily">@font/pretendard</item>
         
-        <!-- Matte Obsidian Background - Đồng bộ toàn hệ thống -->
-        <item name="android:windowBackground">@drawable/bg_global_gradient</item>
+        <!-- Liquid Glass: Deep Space Background -->
+        <item name="android:windowBackground">@drawable/lg_background_deep</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarColor">@color/mosco_surface_container</item>
+        <!-- Transparent để floating nav bar hiển thị đúng -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.Mosco" parent="Base.Theme.Mosco" >
@@ -57,4 +58,31 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/overlay_dark_90</item>
     </style>
+
+    <!-- ============================================= -->
+    <!-- LIQUID GLASS THEME SYSTEM                     -->
+    <!-- ============================================= -->
+
+    <!-- LG: Dialog Theme -->
+    <style name="LiquidGlass_DialogTheme" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/lg_surface_modal</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/mosco_white_70</item>
+        <item name="colorAccent">@color/lg_accent_primary</item>
+        <item name="android:backgroundDimAmount">0.75</item>
+    </style>
+
+    <!-- LG: BottomSheet Dialog Theme -->
+    <style name="LiquidGlass_BottomSheetTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/LiquidGlass_BottomSheetStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+    </style>
+
+    <style name="LiquidGlass_BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 </resources>

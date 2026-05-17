@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Dialog background surface (V1.1 Adaptive) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Semi-transparent deep glass layer -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#BF000000" /> <!-- Obsidian with ~60% opacity -->
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <!-- Glass sheen / Inner glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <stroke
+                android:width="1.5dp" 
+                android:color="@color/lg_glass_stroke_strong" />
+        </shape>
+    </item>
+</layer-list>

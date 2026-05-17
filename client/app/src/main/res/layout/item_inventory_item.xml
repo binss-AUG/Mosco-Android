@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/spacing_6dp"
-    app:cardBackgroundColor="@color/mosco_card_bg_alpha_50"
+    app:cardBackgroundColor="@color/lg_glass_surface"
     app:cardCornerRadius="@dimen/radius_lg"
     app:cardElevation="0dp"
     app:strokeColor="@color/mosco_white_25"

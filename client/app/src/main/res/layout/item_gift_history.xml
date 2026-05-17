@@ -17,7 +17,7 @@
         android:layout_height="74dp"
         app:cardCornerRadius="@dimen/spacing_6dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/mosco_card_bg_variant">
+        app:cardBackgroundColor="@color/lg_glass_surface_high">
 
         <ImageView
             android:id="@+id/iv_gift_card_thumb"
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_text_disabled"
+            android:textColor="@color/mosco_white_30"
             android:textSize="@dimen/text_size_mini" />
 
         <!-- Thời gian -->

@@ -4,18 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/spacing_md"
-    android:background="@drawable/bg_surface_solid"
+    android:layout_margin="0dp"
+    android:background="@drawable/lg_glass_dialog_bg"
     android:padding="@dimen/spacing_20dp">
 
-    <!-- Close Button -->
-    <ImageView
-        android:id="@+id/btn_dialog_close"
-        android:layout_width="@dimen/spacing_lg"
-        android:layout_height="@dimen/spacing_lg"
-        android:src="@drawable/ic_close"
-        app:tint="@color/mosco_white_60"
+    <!-- Drag Handle -->
+    <View
+        android:id="@+id/v_drag_handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:background="@color/white_20"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Item Image Frame -->
@@ -23,10 +24,10 @@
         android:id="@+id/fl_image_container"
         android:layout_width="160dp"
         android:layout_height="246dp"
-        android:layout_marginTop="@dimen/spacing_10dp"
+        android:layout_marginTop="@dimen/spacing_lg"
         android:padding="3dp"
         android:background="@drawable/card_border"
-        app:layout_constraintTop_toBottomOf="@id/btn_dialog_close"
+        app:layout_constraintTop_toBottomOf="@id/v_drag_handle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -121,11 +122,13 @@
             android:layout_width="@dimen/spacing_44dp"
             android:layout_height="@dimen/spacing_44dp"
             android:gravity="center"
-            android:background="@drawable/bg_filter_chip"
+            android:background="@drawable/bg_quantity_btn"
             android:text="-"
-            android:textSize="@dimen/text_size_h1"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/mosco_on_surface" />
+            android:textColor="@color/white"
+            android:clickable="true"
+            android:focusable="true" />
 
         <EditText
             android:id="@+id/et_quantity"
@@ -137,7 +140,7 @@
             android:inputType="number"
             android:maxLength="4"
             android:text="1"
-            android:background="@drawable/bg_filter_chip"
+            android:background="@drawable/bg_glass_input"
             android:textSize="@dimen/text_size_h3"
             android:textStyle="bold"
             android:fontWeight="700" />
@@ -147,11 +150,13 @@
             android:layout_width="@dimen/spacing_44dp"
             android:layout_height="@dimen/spacing_44dp"
             android:gravity="center"
-            android:background="@drawable/bg_filter_chip"
+            android:background="@drawable/bg_quantity_btn"
             android:text="+"
-            android:textSize="@dimen/text_size_h1"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/mosco_on_surface" />
+            android:textColor="@color/white"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <!-- Divider -->
@@ -160,7 +165,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/stroke_thin"
         android:layout_marginTop="@dimen/spacing_20dp"
-        android:background="@color/mosco_outline_variant"
+        android:background="@color/lg_outline"
         app:layout_constraintTop_toBottomOf="@id/ll_quantity" />
 
     <!-- Total Price -->
@@ -170,7 +175,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_lg"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/divider"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -180,14 +185,16 @@
             android:layout_height="wrap_content"
             android:text="@string/shop_label_total"
             style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_on_surface_variant"
-            android:textSize="@dimen/text_size_body_lg" />
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:textColor="@color/mosco_white_50"
+            android:textSize="@dimen/text_size_body_sm" />
 
         <ImageView
             android:id="@+id/iv_total_icon"
-            android:layout_width="@dimen/spacing_xl"
-            android:layout_height="@dimen/spacing_xl"
-            android:layout_marginStart="@dimen/spacing_sm"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="@dimen/spacing_md"
             android:src="@drawable/ic_item_coin" />
 
         <TextView
@@ -196,7 +203,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_sm"
             style="@style/MoscoText.Luxury.Price"
-            android:textSize="@dimen/text_size_h1"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:fontWeight="700"
             tools:text="1000" />
@@ -217,4 +224,5 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Panel cơ bản (Layer 1) cho các container chính -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/lg_glass_surface" />
+    <corners android:radius="@dimen/lg_radius_panel" />
+    <stroke
+        android:width="@dimen/lg_stroke_hairline"
+        android:color="@color/lg_glass_stroke_subtle" />
+</shape>

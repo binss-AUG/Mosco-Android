@@ -10,4 +10,5 @@ import java.util.List;
 public interface StageSessionMemberRepository extends JpaRepository<StageSessionMember, Long> {
     List<StageSessionMember> findByStageSession(StageSession stageSession);
     void deleteByStageSessionId(Long sessionId);
+    void deleteByUserCardId(Long userCardId);
 }

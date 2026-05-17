@@ -12,7 +12,7 @@
         android:id="@+id/cv_card_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:cardBackgroundColor="@color/mosco_card_bg"
+        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
         app:cardCornerRadius="@dimen/radius_lg"
         app:cardElevation="0dp"
         app:layout_constraintDimensionRatio="1:1.54"

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Currency bar cho Shop header -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Glassmorphism: mosco_surface_variant with ~60% opacity -->
-    <solid android:color="@color/mosco_black_60" />
-    <corners android:radius="@dimen/spacing_md" />
-    <stroke android:width="@dimen/stroke_thin" android:color="@color/mosco_outline_variant" />
+    <solid android:color="@color/lg_glass_surface" />
+    <corners android:radius="@dimen/lg_radius_panel" />
+    <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
 </shape>
-

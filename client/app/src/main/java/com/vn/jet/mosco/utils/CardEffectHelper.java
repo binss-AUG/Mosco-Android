@@ -398,8 +398,8 @@ public class CardEffectHelper {
             cardView.setStrokeWidth(0);
             float cornerRadius = cardView.getRadius();
 
-            // Màu glow tím mặc định của hệ thống Mosco
-            int glowColor = ContextCompat.getColor(context, R.color.mosco_primary_alpha_20);
+            // Màu glow tím nhạt mặc định của hệ thống Mosco -> nay là lg_accent_primary_alpha_25
+            int glowColor = ContextCompat.getColor(context, R.color.lg_accent_primary_alpha_25);
 
             ViewGroup parent = (ViewGroup) cardView.getParent();
             if (parent != null) {

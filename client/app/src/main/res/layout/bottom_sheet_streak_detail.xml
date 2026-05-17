@@ -116,7 +116,7 @@
                 android:text="@string/placeholder_empty"
                 style="@style/MoscoText.Luxury.Header"
                 android:textSize="@dimen/text_size_h1_xl"
-                android:textColor="@color/galactic_accent_purple" />
+                android:textColor="@color/lg_accent_secondary" />
         </LinearLayout>
     </LinearLayout>
 

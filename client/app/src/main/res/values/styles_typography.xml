@@ -84,7 +84,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_body_sm</item>
-        <item name="android:textColor">@color/mosco_text_disabled</item>
+        <item name="android:textColor">@color/lg_text_disabled</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:gravity">center</item>
     </style>
@@ -227,3 +227,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 </resources>
+

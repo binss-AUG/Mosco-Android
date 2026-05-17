@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_screen_bg">
+    android:background="@color/lg_background">
 
     <include layout="@layout/layout_auth_background" />
 
@@ -32,7 +32,7 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.94" />
 
-            <!-- Nhóm nội dung trung tâm -->
+            <!-- NhÃ³m ná»™i dung trung tÃ¢m -->
             <LinearLayout
                 android:id="@+id/center_group"
                 android:layout_width="0dp"
@@ -45,13 +45,13 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.40">
 
-                <!-- Icon thẻ bài nhỏ (tượng trưng danh tính) -->
+                <!-- Icon tháº» bÃ i nhá» (tÆ°á»£ng trÆ°ng danh tÃ­nh) -->
                 <ImageView
                     android:layout_width="@dimen/spacing_64dp"
                     android:layout_height="@dimen/spacing_64dp"
                     android:layout_marginBottom="@dimen/spacing_20dp"
                     android:src="@drawable/ic_user"
-                    app:tint="@color/mosco_primary"
+                    app:tint="@color/lg_accent_primary"
                     android:contentDescription="@null" />
 
                 <!-- Title -->
@@ -97,13 +97,13 @@
                         app:errorIconDrawable="@null"
                         app:counterEnabled="true"
                         app:counterMaxLength="16"
-                        app:counterTextColor="@color/mosco_text_disabled">
+                        app:counterTextColor="@color/mosco_white_30">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edt_display_name"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_56dp"
-                            android:background="@drawable/bg_glass_input"
+                            android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="@dimen/spacing_15dp"
                             style="@style/MoscoText.Luxury.Body"
@@ -136,7 +136,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <!-- Welcome overlay (ẩn mặc định, hiện khi thành công) -->
+    <!-- Welcome overlay (áº©n máº·c Ä‘á»‹nh, hiá»‡n khi thÃ nh cÃ´ng) -->
     <FrameLayout
         android:id="@+id/welcome_overlay"
         android:layout_width="match_parent"
@@ -175,6 +175,7 @@
         android:visibility="gone" />
 
 </FrameLayout>
+
 
 
 

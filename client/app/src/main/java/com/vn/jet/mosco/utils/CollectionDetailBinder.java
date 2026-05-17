@@ -24,9 +24,10 @@ import com.vn.jet.mosco.fragment.ShopFragment;
 import com.vn.jet.mosco.GiftActivity;
 import android.content.Intent;
 import android.widget.Toast;
-import android.view.ViewGroup;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 /**
  * CollectionDetailBinder — Xử lý giao diện chi tiết Thẻ bài trong Album.
@@ -41,52 +42,81 @@ public class CollectionDetailBinder {
      * để tương thích với logic hiện tại.
      */
     public static void showDetail(Context context, CardDisplayItem item) {
-        if (context == null || item == null) return;
-
-        // Chuyển đổi sang CollectionEntry để tái sử dụng logic cũ
-        CollectionEntry entry = new CollectionEntry();
-        entry.setCollectionId(item.getCollectionId());
-        entry.setFrontImage(item.getFrontImage());
-        entry.setBackImage(item.getBackImage());
-        entry.setOvr(item.getOvr());
-        entry.setLevel(item.getLevel());
-        entry.setUpgradeLevel(item.getUpgradeLevel());
-        entry.setMember(item.getMember());
-        entry.setSeason(item.getSeason());
-        entry.setCardClass(item.getCardClass());
-        entry.setCollectionNo(item.getCollectionNo());
-        entry.setBackgroundColor(item.getBackgroundColor());
-        entry.setOwned(item.isOwned());
-        entry.setUserCardId(item.getUserCardId() != null ? item.getUserCardId() : -1L);
-
-        showDetail(context, entry);
+        showDetail(context, item, false, null);
     }
 
-    /**
-     * Hiển thị hộp thoại chi tiết Thẻ bài trong Collection Book (Album).
-     * Tích hợp đầy đủ hiệu ứng Showcase từ HomeFragment.
-     */
-    public static void showDetail(Context context, CollectionEntry entry) {
-        if (context == null || entry == null) return;
+    public static void showDetail(Context context, CardDisplayItem item, Runnable onDismiss) {
+        showDetail(context, item, false, onDismiss);
+    }
 
-        Dialog dialog = new Dialog(context);
+    public static void showDetail(Context context, CardDisplayItem item, boolean isAlbumMode, Runnable onDismiss) {
+        showDetail(context, item, null, isAlbumMode, onDismiss);
+    }
+
+    public static void showDetail(Context context, CollectionEntry entry) {
+        showDetail(context, entry, false, null);
+    }
+
+    public static void showDetail(Context context, CollectionEntry entry, Runnable onDismiss) {
+        showDetail(context, entry, false, onDismiss);
+    }
+
+    public static void showDetail(Context context, CollectionEntry entry, boolean isAlbumMode, Runnable onDismiss) {
+        CardDisplayItem item = CardDisplayItem.fromCollectionEntry(entry);
+        showDetail(context, item, entry, isAlbumMode, onDismiss);
+    }
+
+    private static void showDetail(Context context, CardDisplayItem item, CollectionEntry legacyEntry, boolean isAlbumMode, Runnable onDismiss) {
+        if (context == null || (item == null && legacyEntry == null)) return;
+        
+        final boolean[] hasChanged = {false};
+
+        BottomSheetDialog dialog = new BottomSheetDialog(context, R.style.TransparentBottomSheetDialog);
         dialog.setContentView(R.layout.dialog_collection_detail);
+        
+        dialog.setOnDismissListener(d -> {
+            if (hasChanged[0] && onDismiss != null) onDismiss.run();
+        });
         
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            // Thêm hiệu ứng Dim mờ nền sâu thẳm (Galactic Dark Dim)
-            android.util.TypedValue dimVal = new android.util.TypedValue();
-            context.getResources().getValue(R.dimen.detail_dialog_dim_amount, dimVal, true);
-            dialog.getWindow().setDimAmount(dimVal.getFloat());
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            dialog.getWindow().setDimAmount(0.0f);
         }
 
-        // 1. Bind Hình ảnh thẻ bài (Sử dụng Priority Loading Flow - Original)
+        // Configure BottomSheet to be full screen and expanded
+        View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet != null) {
+            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            behavior.setSkipCollapsed(true);
+            behavior.setPeekHeight(context.getResources().getDisplayMetrics().heightPixels);
+            
+            // Adjust height to match parent precisely
+            ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+            if (layoutParams != null) {
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            }
+            bottomSheet.setLayoutParams(layoutParams);
+        }
+
+        // Use legacyEntry if available (for fields that might be missing in item)
+        final CollectionEntry entry = (legacyEntry != null) ? legacyEntry : CardDisplayItem.toCollectionEntry(item);
+
+        // 1. Bind Hình ảnh thẻ bài
         ImageView ivCard = dialog.findViewById(R.id.card_iv_image);
         if (ivCard != null) {
             String imageUrl = entry.getFrontImage();
             // Load bản Original chất lượng cao cho màn hình chi tiết
             GlideBindingAdapter.loadImage(ivCard, imageUrl, false);
+
+            if (!entry.isOwned()) {
+                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                matrix.setSaturation(0f);
+                ivCard.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+            } else {
+                ivCard.clearColorFilter();
+            }
         }
 
         // 2. Bind OVR & Grade Badge
@@ -97,127 +127,35 @@ public class CollectionDetailBinder {
         }
 
         ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
-        int entryLevel = entry.getLevel();
+        int upgradeGrade = entry.getUpgradeLevel();
         if (ivLevel != null) {
-            if (entryLevel > 0) {
-                String assetPath = context.getString(R.string.asset_grade_path) + entryLevel + ".png";
+            if (isAlbumMode) {
+                ivLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
+            } else if (upgradeGrade > 0) {
+                String assetPath = context.getString(R.string.asset_grade_path) + upgradeGrade + ".png";
                 Glide.with(context).load(assetPath).into(ivLevel);
                 ivLevel.setVisibility(View.VISIBLE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, upgradeGrade);
             } else {
                 ivLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
             }
         }
 
-        // 3. Bind Metadata (Restored as Name Tag Bubble)
+        // 3. Bind Metadata (Title Center)
         TextView tvDetailName = dialog.findViewById(R.id.tv_detail_card_name);
         if (tvDetailName != null) {
             String nameTag = entry.getMember() + " " + entry.getSeason() + " " + entry.getCollectionNo();
             tvDetailName.setText(nameTag);
         }
         
-        // 4. Trạng thái chưa sở hữu (Locked Overlay vs Unlock UI)
-        ImageView ivLock = dialog.findViewById(R.id.iv_detail_lock);
         View lockedOverlay = dialog.findViewById(R.id.layout_locked_overlay);
         
-        if (ivLock != null) ivLock.setVisibility(entry.isOwned() ? View.GONE : View.VISIBLE);
         if (lockedOverlay != null) lockedOverlay.setVisibility(entry.isOwned() ? View.GONE : View.VISIBLE);
 
-        // 5. Hệ thống Ghost Buttons (Title + Description + Logic)
-        View layoutLocked = dialog.findViewById(R.id.layout_buttons_locked);
-        View layoutOwned = dialog.findViewById(R.id.layout_buttons_owned);
-
-        if (!entry.isOwned()) {
-            if (layoutOwned != null) layoutOwned.setVisibility(View.GONE);
-            if (layoutLocked != null) {
-                layoutLocked.setVisibility(View.VISIBLE);
-
-                // Button 1: Gacha Spin
-                View btnSpin = dialog.findViewById(R.id.item_btn_spin);
-                setupGhostButton(btnSpin, 
-                    context.getString(R.string.btn_spin_title),
-                    context.getString(R.string.btn_spin_desc),
-                    v -> {
-                        if (context instanceof MainActivity) ((MainActivity) context).selectTab(R.id.nav_spin);
-                        dialog.dismiss();
-                    });
-
-                // Button 2: Open Shop
-                View btnShop = dialog.findViewById(R.id.item_btn_shop);
-                setupGhostButton(btnShop,
-                    context.getString(R.string.btn_shop_title),
-                    context.getString(R.string.btn_shop_desc),
-                    v -> {
-                        if (context instanceof AppCompatActivity) {
-                            ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction()
-                                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                                    .replace(R.id.frame_layout, new ShopFragment())
-                                    .addToBackStack(null).commit();
-                        }
-                        dialog.dismiss();
-                    });
-            }
-        } else {
-            if (layoutLocked != null) layoutLocked.setVisibility(View.GONE);
-            if (layoutOwned != null) {
-                layoutOwned.setVisibility(View.VISIBLE);
-
-                // Kiểm tra xem thực tế sếp có đang cầm thẻ này không (userCardId != null && > 0)
-                boolean isInInventory = entry.getUserCardId() != null && entry.getUserCardId() > 0;
-
-                // Button 1: Capture Photo (Luôn cho phép vì đã từng sở hữu)
-                View btnPhoto = dialog.findViewById(R.id.item_btn_take_photo);
-                setupGhostButton(btnPhoto,
-                    context.getString(R.string.btn_photo_title),
-                    context.getString(R.string.btn_photo_desc),
-                    v -> Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show());
-
-                // Logic cho "Get more" (Chỉ hiện khi ĐÃ TỪNG CÓ nhưng HIỆN KHÔNG CÒN)
-                View layoutGetMore = dialog.findViewById(R.id.layout_get_more_expandable);
-                View btnSend = dialog.findViewById(R.id.item_btn_send);
-                View btnUpgrade = dialog.findViewById(R.id.item_btn_upgrade);
-                View spacer1 = dialog.findViewById(R.id.spacer_owned_1);
-                View spacer2 = dialog.findViewById(R.id.spacer_owned_2);
-
-                if (!isInInventory) {
-                    // TRẠNG THÁI: TỪNG CÓ NHƯNG ĐÃ BAY MÀU
-                    if (layoutGetMore != null) {
-                        layoutGetMore.setVisibility(View.VISIBLE);
-                        setupGetMoreInteraction(dialog, context);
-                    }
-                    if (btnSend != null) btnSend.setVisibility(View.GONE);
-                    if (btnUpgrade != null) btnUpgrade.setVisibility(View.GONE);
-                    if (spacer1 != null) spacer1.setVisibility(View.GONE);
-                    if (spacer2 != null) spacer2.setVisibility(View.GONE);
-                } else {
-                    // TRẠNG THÁI: ĐANG CẦM TRÊN TAY
-                    if (layoutGetMore != null) layoutGetMore.setVisibility(View.GONE);
-                    if (btnSend != null) {
-                        btnSend.setVisibility(View.VISIBLE);
-                        setupGhostButton(btnSend,
-                            context.getString(R.string.btn_send_title),
-                            context.getString(R.string.btn_send_desc),
-                            v -> {
-                                Intent intent = new Intent(context, GiftActivity.class);
-                                intent.putExtra("target_collection_id", entry.getCollectionId());
-                                context.startActivity(intent);
-                                dialog.dismiss();
-                            });
-                    }
-                    if (btnUpgrade != null) {
-                        btnUpgrade.setVisibility(View.VISIBLE);
-                        setupGhostButton(btnUpgrade,
-                            context.getString(R.string.btn_upgrade_title),
-                            context.getString(R.string.btn_upgrade_desc),
-                            v -> {
-                                if (context instanceof MainActivity) ((MainActivity) context).selectTab(R.id.nav_stage);
-                                dialog.dismiss();
-                            });
-                    }
-                    if (spacer1 != null) spacer1.setVisibility(View.VISIBLE);
-                    if (spacer2 != null) spacer2.setVisibility(View.VISIBLE);
-                }
-            }
-        }
+        // 5. Liquid Glass Interactive Controls
+        setupLiquidGlassControls(dialog, context, item, isAlbumMode, hasChanged);
 
         // 6. Áp dụng hiệu ứng Showcase & Lật thẻ (Chỉ khi ĐÃ sở hữu)
         MaterialCardView cvCard = dialog.findViewById(R.id.cv_album_card_container);
@@ -246,23 +184,78 @@ public class CollectionDetailBinder {
             }
 
             if (cvCard != null) {
-                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getLevel());
+                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel());
             }
         } else {
             // Nếu chưa sở hữu: Ẩn Shimmer để hiện diện lớp xám Sad
             if (viewShimmer != null) viewShimmer.setVisibility(View.GONE);
         }
 
-        // 8. Đóng Dialog
-        View btnClose = dialog.findViewById(R.id.btn_close_collection_detail);
-        if (btnClose != null) {
-            btnClose.setOnClickListener(v -> {
-                if (cvCard != null) CardEffectHelper.remove(cvCard, viewShimmer);
+        dialog.show();
+    }
+
+    /**
+     * [LIQUID GLASS] Setup new interactive controls for the redesigned detail UI.
+     */
+    private static void setupLiquidGlassControls(Dialog dialog, Context context, CardDisplayItem item, boolean isAlbumMode, boolean[] hasChanged) {
+        // --- TOP-RIGHT: GIFT (SEND) ---
+        View btnSend = dialog.findViewById(R.id.btn_send_gift);
+        if (btnSend != null) {
+            btnSend.setVisibility((item.isOwned() && !isAlbumMode) ? View.VISIBLE : View.GONE);
+            btnSend.setOnClickListener(v -> {
+                Intent intent = new Intent(context, GiftActivity.class);
+                intent.putExtra("target_collection_id", item.getCollectionId());
+                context.startActivity(intent);
                 dialog.dismiss();
             });
         }
 
-        dialog.show();
+        // --- BOTTOM-LEFT: PIN ---
+        View btnPin = dialog.findViewById(R.id.btn_pin_card);
+        ImageView ivPin = dialog.findViewById(R.id.iv_pin_icon);
+        
+        // Pin hidden in Album tab
+        if (btnPin != null) {
+            btnPin.setVisibility(isAlbumMode ? View.GONE : View.VISIBLE);
+            if (!isAlbumMode) {
+                String uniqueId = String.valueOf(item.getId());
+                updatePinUI(context, uniqueId, ivPin);
+                btnPin.setOnClickListener(v -> {
+                    PinManager.togglePin(context, uniqueId);
+                    updatePinUI(context, uniqueId, ivPin);
+                    hasChanged[0] = true;
+                });
+            }
+        }
+
+        // --- BOTTOM-RIGHT: CAPTURE & UPGRADE ---
+        View btnCapture = dialog.findViewById(R.id.btn_capture_photo);
+        if (btnCapture != null) {
+            btnCapture.setVisibility(isAlbumMode ? View.GONE : View.VISIBLE);
+            btnCapture.setOnClickListener(v -> {
+                Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        View btnUpgrade = dialog.findViewById(R.id.btn_upgrade_detail);
+        if (btnUpgrade != null) {
+            btnUpgrade.setVisibility((item.isOwned() && !isAlbumMode) ? View.VISIBLE : View.GONE);
+            btnUpgrade.setOnClickListener(v -> {
+                if (context instanceof androidx.appcompat.app.AppCompatActivity) {
+                    ((androidx.appcompat.app.AppCompatActivity) context).getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .add(R.id.frame_layout, com.vn.jet.mosco.fragment.UpgradeFragment.newInstance(item))
+                        .addToBackStack(null)
+                        .commit();
+                }
+                dialog.dismiss();
+            });
+        }
+    }
+
+    private static void updatePinUI(Context context, String cardId, ImageView ivPin) {
+        boolean isPinned = PinManager.isPinned(context, cardId);
+        ivPin.setColorFilter(isPinned ? Color.parseColor("#FFD700") : Color.parseColor("#99FFFFFF")); // Gold if pinned
     }
 
     /**
@@ -412,68 +405,5 @@ public class CollectionDetailBinder {
             }
             return false;
         });
-    }
-    /**
-     * Thiết lập tương tác mở rộng cho cụm "Get more".
-     * Xoay mũi tên 180 độ và Fade-in các nút bổ trợ Shop/Spin.
-     */
-    private static void setupGetMoreInteraction(Dialog dialog, Context context) {
-        View header = dialog.findViewById(R.id.btn_get_more_header);
-        View content = dialog.findViewById(R.id.layout_get_more_content);
-        ImageView arrow = dialog.findViewById(R.id.iv_get_more_arrow);
-
-        if (header == null || content == null || arrow == null) return;
-
-        final boolean[] isExpanded = {false};
-
-        header.setOnClickListener(v -> {
-            isExpanded[0] = !isExpanded[0];
-
-            // 1. Xoay mũi tên (0 -> 180)
-            ObjectAnimator.ofFloat(arrow, "rotation", isExpanded[0] ? 180f : 0f)
-                    .setDuration(300)
-                    .start();
-
-            // 2. Hiệu ứng Fade + Visibility cho Content
-            if (isExpanded[0]) {
-                content.setVisibility(View.VISIBLE);
-                content.animate()
-                        .alpha(1f)
-                        .setDuration(300)
-                        .setInterpolator(new AccelerateDecelerateInterpolator())
-                        .start();
-            } else {
-                content.animate()
-                        .alpha(0f)
-                        .setDuration(200)
-                        .setInterpolator(new AccelerateDecelerateInterpolator())
-                        .withEndAction(() -> content.setVisibility(View.GONE))
-                        .start();
-            }
-        });
-
-        // Thiết lập sự kiện cho các nút Shop/Spin thứ cấp
-        View btnShopSec = dialog.findViewById(R.id.item_btn_shop_secondary);
-        setupGhostButton(btnShopSec,
-            context.getString(R.string.btn_shop_title),
-            context.getString(R.string.btn_shop_desc),
-            v -> {
-                if (context instanceof AppCompatActivity) {
-                    ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                            .replace(R.id.frame_layout, new ShopFragment())
-                            .addToBackStack(null).commit();
-                }
-                dialog.dismiss();
-            });
-
-        View btnSpinSec = dialog.findViewById(R.id.item_btn_spin_secondary);
-        setupGhostButton(btnSpinSec,
-            context.getString(R.string.btn_spin_title),
-            context.getString(R.string.btn_spin_desc),
-            v -> {
-                if (context instanceof MainActivity) ((MainActivity) context).selectTab(R.id.nav_spin);
-                dialog.dismiss();
-            });
     }
 }

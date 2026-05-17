@@ -96,4 +96,13 @@
     <color name="palette_bronze_dark">#A0522D</color>
     <color name="palette_bronze_obsidian">#8B4513</color>
 
+    <!-- Liquid Glass Primitives -->
+    <color name="palette_deep_space">#05070A</color>
+    <color name="palette_deep_space_mid">#080C14</color>
+    <color name="palette_deep_space_soft">#0B1020</color>
+    <color name="palette_electric_blue">#3A86FF</color>
+    <color name="palette_electric_blue_dim">#2A6AD9</color>
+    <color name="palette_cyber_purple">#8338EC</color>
+    <color name="palette_cyber_purple_dim">#6A2DB8</color>
+
 </resources>

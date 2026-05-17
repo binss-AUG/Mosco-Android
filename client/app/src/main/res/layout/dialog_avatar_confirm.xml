@@ -46,7 +46,7 @@
                 android:layout_height="120dp"
                 android:layout_centerHorizontal="true"
                 app:cardCornerRadius="60dp"
-                app:strokeColor="@color/mosco_primary"
+                app:strokeColor="@color/lg_accent_primary"
                 app:strokeWidth="2dp"
                 app:cardElevation="4dp">
                 <ImageView
@@ -86,7 +86,7 @@
         android:layout_gravity="top|end"
         android:layout_marginTop="-12dp"
         android:layout_marginEnd="-12dp"
-        app:cardBackgroundColor="@color/mosco_primary"
+        app:cardBackgroundColor="@color/lg_accent_primary"
         app:cardCornerRadius="24dp"
         app:cardElevation="12dp"
         app:strokeColor="@color/white"

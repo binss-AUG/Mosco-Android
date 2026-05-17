@@ -13,7 +13,8 @@
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/radius_full" />
             <solid android:color="@android:color/transparent" />
-            <stroke android:width="1dp" android:color="@color/mosco_outline_variant" />
+            <stroke android:width="1dp" android:color="@color/lg_outline" />
         </shape>
     </item>
 </selector>
+

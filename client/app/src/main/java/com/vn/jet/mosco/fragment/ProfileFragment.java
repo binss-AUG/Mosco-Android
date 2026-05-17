@@ -528,14 +528,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
-                    btnLike.setTextColor(getResources().getColor(R.color.mosco_primary));
-                    btnLike.setStrokeColor(android.content.res.ColorStateList
-                            .valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                    btnLike.setBackgroundTintList(android.content.res.ColorStateList
+                            .valueOf(getResources().getColor(R.color.lg_accent_primary_dim)));
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
-                    btnLike.setTextColor(getResources().getColor(R.color.mosco_white_70));
-                    btnLike.setStrokeColor(android.content.res.ColorStateList
-                            .valueOf(getResources().getColor(R.color.mosco_white_40)));
+                    btnLike.setBackgroundTintList(
+                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.lg_accent_primary)));
                 }
             }
 
@@ -564,7 +562,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
                         btnFriend.setBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_primary)));
+                                .valueOf(getResources().getColor(R.color.lg_accent_primary)));
                         break;
                 }
             }
@@ -1033,10 +1031,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
         options.setCompressionQuality(90);
-        options.setToolbarColor(getResources().getColor(R.color.mosco_surface_container_high));
+        options.setToolbarColor(getResources().getColor(R.color.lg_glass_surface_elevated));
         options.setStatusBarColor(getResources().getColor(R.color.mosco_screen_bg));
         options.setToolbarWidgetColor(android.graphics.Color.WHITE);
-        options.setActiveControlsWidgetColor(getResources().getColor(R.color.mosco_primary));
+        options.setActiveControlsWidgetColor(getResources().getColor(R.color.lg_accent_primary));
 
         // [PHASE 6] Làm header nổi bật và sử dụng lớp phủ tối mờ kiểu không gian
         options.setDimmedLayerColor(getResources().getColor(R.color.mosco_black_80));
@@ -1453,7 +1451,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
         return getString(R.string.profile_error_unknown);
     }
-
     private void showCloudBackupPicker() {
         Toast.makeText(requireContext(), "Fetching backup list...", Toast.LENGTH_SHORT).show();
         BackupManager.fetchCloudBackups(requireContext(),

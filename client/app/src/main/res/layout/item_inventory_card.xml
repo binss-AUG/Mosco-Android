@@ -11,10 +11,11 @@
         android:id="@+id/cv_card_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/mosco_card_bg"
-        app:cardCornerRadius="@dimen/radius_lg"
-        app:cardElevation="@dimen/spacing_xs"
-        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
+        app:cardCornerRadius="@dimen/lg_radius_card"
+        app:cardElevation="0dp"
+        app:strokeWidth="@dimen/lg_stroke_hairline"
+        app:strokeColor="@color/lg_glass_stroke_subtle"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -35,10 +36,10 @@
                 android:layout_height="0dp"
                 android:background="@drawable/bg_card_selected_overlay"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/layout_core"
-                app:layout_constraintEnd_toEndOf="@id/layout_core"
-                app:layout_constraintStart_toStartOf="@id/layout_core"
-                app:layout_constraintTop_toTopOf="@id/layout_core" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Disabled Overlay -->
             <View
@@ -47,10 +48,10 @@
                 android:layout_height="0dp"
                 android:background="@color/mosco_black_70"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/layout_core"
-                app:layout_constraintEnd_toEndOf="@id/layout_core"
-                app:layout_constraintStart_toStartOf="@id/layout_core"
-                app:layout_constraintTop_toTopOf="@id/layout_core" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Busy/Status Text -->
             <TextView
@@ -65,10 +66,10 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_size_caption"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/layout_core"
-                app:layout_constraintEnd_toEndOf="@id/layout_core"
-                app:layout_constraintStart_toStartOf="@id/layout_core"
-                app:layout_constraintTop_toTopOf="@id/layout_core" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

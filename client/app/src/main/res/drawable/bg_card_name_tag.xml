@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Card name tag bubble -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Premium Galactic Dark Bubble (Semantic Token) -->
-    <solid android:color="@color/mosco_tag_bg" /> 
-    <corners android:radius="@dimen/spacing_20dp" />
+    <solid android:color="@color/lg_glass_surface_elevated" />
+    <corners android:radius="@dimen/lg_radius_chip" />
+    <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
 </shape>

@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid Glass: Panel cao cấp với specular highlight (dùng cho Home sections) -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 1. Tầng Shadow & Glow (Tỏa sáng bên ngoài) -->
+    <!-- 1. Tầng Glow bên ngoài (Electric Blue thay vì Purple) -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/spacing_28dp" />
-            <solid android:color="#1A6C29FD" /> <!-- Tỏa sáng màu tím nhẹ -->
+            <corners android:radius="@dimen/lg_radius_modal" />
+            <solid android:color="@color/lg_accent_primary_alpha_15" />
         </shape>
     </item>
 
     <!-- 2. Tầng Nền Kính Lỏng (Liquid Glass Background) -->
     <item android:left="2dp" android:top="2dp" android:right="2dp" android:bottom="2dp">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/spacing_24dp" />
+            <corners android:radius="@dimen/lg_radius_panel" />
             <!-- Gradient tạo hiệu ứng bề mặt chất lỏng sáng bóng -->
             <gradient
                 android:angle="135"
-                android:startColor="#CC1E2033"
-                android:centerColor="#991A1C29"
-                android:endColor="#CC0D0E1A"
+                android:startColor="#CC080C14"
+                android:centerColor="#990B1020"
+                android:endColor="#CC05070A"
                 android:type="linear" />
             
-            <!-- Viền Neon siêu mảnh chuẩn Luxury -->
+            <!-- Viền kính mảnh chuẩn Luxury -->
             <stroke
-                android:width="0.8dp"
-                android:color="#4DFFFFFF" />
+                android:width="@dimen/lg_stroke_hairline"
+                android:color="@color/lg_glass_stroke" />
         </shape>
     </item>
 
     <!-- 3. Tầng Phản chiếu ánh sáng (Specular Highlight) -->
     <item android:left="10dp" android:top="2dp" android:right="10dp" android:bottom="40dp">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/spacing_24dp" />
+            <corners android:radius="@dimen/lg_radius_panel" />
             <gradient
                 android:angle="270"
-                android:startColor="#1AFFFFFF"
+                android:startColor="#14FFFFFF"
                 android:endColor="@android:color/transparent" />
         </shape>
     </item>

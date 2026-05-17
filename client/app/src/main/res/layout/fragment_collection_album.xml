@@ -4,171 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface">
+    android:background="@color/lg_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_album"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/mosco_surface"
+        android:background="@android:color/transparent"
         app:liftOnScroll="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Title Section + Progress -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:paddingTop="@dimen/spacing_20dp"
-                android:paddingBottom="@dimen/spacing_xs">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/bg_currency_bar"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="@dimen/spacing_6dp"
-                    android:paddingStart="@dimen/spacing_6dp"
-                    android:paddingEnd="@dimen/radius_lg"
-                    android:layout_marginTop="@dimen/spacing_2dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_idle_album"
-                        style="@style/MoscoButton.IconGlass"
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:padding="9dp"
-                        app:icon="@drawable/ic_collect"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="@dimen/spacing_lg" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/collection_tab_album"
-                        android:layout_marginStart="@dimen/spacing_10dp"
-                        style="@style/MoscoText.Luxury.SubHeader" />
-
-                    <!-- Tiến trình thu thập -->
-                    <TextView
-                        android:id="@+id/tv_album_progress"
-                        style="@style/MoscoText.Luxury.Price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/palette_gold"
-                        android:textSize="@dimen/text_size_body_md"
-                        tools:text="24/350" />
-
-                </LinearLayout>
-
-                <!-- Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progress_album"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_6dp"
-                    android:layout_marginTop="@dimen/spacing_sm"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/mosco_progress_bar" />
-
-                <!-- Milestone Rewards -->
-                <LinearLayout
-                    android:id="@+id/ll_milestones"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/spacing_sm"
-                    android:weightSum="3">
-
-                    <!-- Milestone 1 (30%) -->
-                    <LinearLayout
-                        android:id="@+id/ms_1_container"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <ImageView
-                            android:id="@+id/iv_ms_1_icon"
-                            android:layout_width="@dimen/spacing_lg"
-                            android:layout_height="@dimen/spacing_lg"
-                            android:src="@drawable/ic_gift"
-                            app:tint="@color/palette_bronze_medium" />
-                        <TextView
-                            android:id="@+id/tv_ms_1_req"
-                            style="@style/MoscoText.Luxury.Label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="30%"
-                            android:textSize="@dimen/text_size_badge" />
-                    </LinearLayout>
-
-                    <!-- Milestone 2 (60%) -->
-                    <LinearLayout
-                        android:id="@+id/ms_2_container"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <ImageView
-                            android:id="@+id/iv_ms_2_icon"
-                            android:layout_width="@dimen/spacing_lg"
-                            android:layout_height="@dimen/spacing_lg"
-                            android:src="@drawable/ic_gift"
-                            app:tint="@color/palette_silver_medium" />
-                        <TextView
-                            android:id="@+id/tv_ms_2_req"
-                            style="@style/MoscoText.Luxury.Label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="60%"
-                            android:textSize="@dimen/text_size_badge" />
-                    </LinearLayout>
-
-                    <!-- Milestone 3 (100%) -->
-                    <LinearLayout
-                        android:id="@+id/ms_3_container"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <ImageView
-                            android:id="@+id/iv_ms_3_icon"
-                            android:layout_width="@dimen/spacing_28dp"
-                            android:layout_height="@dimen/spacing_28dp"
-                            android:src="@drawable/ic_gift"
-                            app:tint="@color/palette_gold" />
-                        <TextView
-                            android:id="@+id/tv_ms_3_req"
-                            style="@style/MoscoText.Luxury.Label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="100%"
-                            android:textSize="@dimen/text_size_badge" />
-                    </LinearLayout>
-                </LinearLayout>
-
-            </LinearLayout>
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <!-- Standardized Filter Bar -->
             <LinearLayout
@@ -176,9 +25,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/radius_lg"
-                android:paddingTop="@dimen/radius_lg"
-                android:paddingBottom="@dimen/spacing_sm">
+                android:background="@drawable/lg_surface_filter_bar"
+                android:layout_marginHorizontal="@dimen/spacing_md"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:paddingTop="@dimen/spacing_xs"
+                android:paddingBottom="@dimen/spacing_xs">
 
                 <com.vn.jet.mosco.view.InventoryFilterBar
                     android:id="@+id/filter_bar_album"
@@ -205,7 +57,7 @@
         android:layout_height="match_parent"
         android:layout_marginHorizontal="@dimen/spacing_6dp"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_20dp"
+        android:paddingBottom="@dimen/lg_content_bottom_clearance"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_collection_book_card" />
 
@@ -221,5 +73,6 @@
         android:elevation="@dimen/spacing_sm" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 

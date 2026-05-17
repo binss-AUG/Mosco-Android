@@ -2,7 +2,9 @@ package com.vn.jet.mosco.fragment;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -10,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,12 +114,21 @@ public class UpgradeFragment extends Fragment {
     private int currentMaterialSlot = -1;
 
     private UpgradeAlgorithm upgradeAlgorithm;
+    private boolean isUpgrading = false;
 
     public UpgradeFragment() {
     }
 
     public static UpgradeFragment newInstance() {
         return new UpgradeFragment();
+    }
+
+    public static UpgradeFragment newInstance(CardDisplayItem mainCard) {
+        UpgradeFragment fragment = new UpgradeFragment();
+        Bundle args = new Bundle();
+        args.putString("main_card_json", new Gson().toJson(mainCard));
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -133,6 +145,13 @@ public class UpgradeFragment extends Fragment {
         bindViews(rootView);
         setupClickListeners();
         setupVideoBackground();
+
+        // Load card from arguments if present
+        if (getArguments() != null && getArguments().containsKey("main_card_json")) {
+            String json = getArguments().getString("main_card_json");
+            this.mainCard = new Gson().fromJson(json, CardDisplayItem.class);
+        }
+
         updateUI();
         return rootView;
     }
@@ -280,6 +299,7 @@ public class UpgradeFragment extends Fragment {
     private void setupClickListeners() {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> {
+                if (isUpgrading) return;
                 if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                     getParentFragmentManager().popBackStack();
                 } else {
@@ -297,6 +317,7 @@ public class UpgradeFragment extends Fragment {
     }
 
     private void openCardSelector(int slotIndex) {
+        if (isUpgrading) return;
         if (slotIndex != -1 && mainCard == null) {
             Toast.makeText(requireContext(), getString(R.string.upgrade_msg_select_main), Toast.LENGTH_SHORT).show();
             return;
@@ -331,24 +352,48 @@ public class UpgradeFragment extends Fragment {
         bottomSheet.show(getParentFragmentManager(), "upgrade_card_selector");
     }
 
-    // --- CONSTANTS cho Timing & Sync ---
-    private static final int RESULT_TEXT_SLIDE_DURATION = 300;
-    private static final float TITLE_SLIDE_OFFSET = 80f;
-    private static final float CARD_OVERSHOOT_TENSION = 2.5f;
-    private static final int OVERLAY_FADE_DURATION = 150;
-    private static final int VIDEO_FADE_DURATION = 150;
-    private static final float CARD_INITIAL_SCALE = 0.8f;
-    private static final int CARD_GATHER_DURATION = 800;
-    private static final int NEON_GLOW_DURATION = 300;
-    private static final int CUTSCENE_CROSSFADE_DURATION = 400;
-    private static final int RESULT_REVEAL_DURATION = 300;
-    private static final float SUCCESS_VIDEO_TOP_MARGIN_DP = 80f;
-    private static final float DONE_BUTTON_BOTTOM_MARGIN_DP = 64f;
-    private static final float RESULT_CARD_WIDTH_PERCENT = 0.5f;
-    private static final float RESULT_CARD_RATIO = 1.54f;
-    private static final int VIDEO_CLIMAX_DELAY_MS = 2500;
-    private static final int CAMERA_SHAKE_DURATION_MS = 200;
-    private static final int CARD_REVEAL_OVERSHOOT_DURATION = 500;
+    // --- Timing & Layout Config (Nạp từ Resources) ---
+    private int animOverlayFadeDuration;
+    private int animVideoFadeDuration;
+    private int animGatherDuration;
+    private int animNeonGlowDuration;
+    private int animCutsceneCrossfadeDuration;
+    private int animResultRevealDuration;
+    private int animVideoClimaxDelay;
+    private int animCameraShakeDuration;
+    private int animRevealOvershootDuration;
+    private int animResultTextSlideDuration;
+
+    private float dimenTitleSlideOffset;
+    private float dimenSuccessVideoTopMargin;
+    private float dimenDoneButtonBottomMargin;
+    private float dimenResultCardWidth;
+    private float dimenResultCardHeight;
+    private float dimenCardInitialScale;
+
+    private void initAnimationConstants() {
+        Context ctx = requireContext();
+        animOverlayFadeDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_overlay_fade_duration);
+        animVideoFadeDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_video_fade_duration);
+        animGatherDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_gather_duration);
+        animNeonGlowDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_neon_glow_duration);
+        animCutsceneCrossfadeDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_cutscene_crossfade_duration);
+        animResultRevealDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_result_reveal_duration);
+        animVideoClimaxDelay = ctx.getResources().getInteger(R.integer.upgrade_anim_video_climax_delay);
+        animCameraShakeDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_camera_shake_duration);
+        animRevealOvershootDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_reveal_overshoot_duration);
+        animResultTextSlideDuration = ctx.getResources().getInteger(R.integer.upgrade_anim_result_text_slide_duration);
+
+        dimenTitleSlideOffset = ctx.getResources().getDimension(R.dimen.upgrade_title_slide_offset);
+        dimenSuccessVideoTopMargin = ctx.getResources().getDimension(R.dimen.upgrade_success_video_top_margin);
+        dimenDoneButtonBottomMargin = ctx.getResources().getDimension(R.dimen.upgrade_done_button_bottom_margin);
+        dimenResultCardWidth = ctx.getResources().getDimension(R.dimen.upgrade_result_card_width);
+        dimenResultCardHeight = ctx.getResources().getDimension(R.dimen.upgrade_result_card_height);
+        
+        TypedValue outValue = new TypedValue();
+        ctx.getResources().getValue(R.dimen.upgrade_card_initial_scale, outValue, true);
+        dimenCardInitialScale = outValue.getFloat();
+    }
 
     // --- SFX HOOKS ---
     private void playSfx(String eventType) {
@@ -370,11 +415,16 @@ public class UpgradeFragment extends Fragment {
             return;
 
         // Disable button ngay lập tức để block click liên tục
+        isUpgrading = true;
         btnUpgrade.setEnabled(false);
         btnUpgrade.setText(getString(R.string.upgrade_action_upgrading));
 
         Long userId = new SessionManager(requireContext()).getUserId();
         UpgradeRequest request = new UpgradeRequest(userId, mainCard.getId(), materialIds);
+
+        // Pre-load constants & SpriteSheet (Local-First optimization)
+        initAnimationConstants();
+        preloadFailureSpriteSheet();
 
         GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
         apiService.upgradeCard(request).enqueue(new Callback<ApiResponse<UpgradeResponse>>() {
@@ -383,12 +433,14 @@ public class UpgradeFragment extends Fragment {
                     Response<ApiResponse<UpgradeResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 200) {
                     UpgradeResponse result = response.body().getData();
-                    // Vào thẳng Cinematic, không có animation gathering
                     performUpgradeAnimation(result);
                 } else {
                     resetUpgradeButton();
-                    Toast.makeText(requireContext(), getString(R.string.common_error_unknown), Toast.LENGTH_SHORT)
-                            .show();
+                    String msg = getString(R.string.common_error_unknown);
+                    if (response.body() != null && response.body().getMessage() != null) {
+                        msg = response.body().getMessage();
+                    }
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -400,7 +452,18 @@ public class UpgradeFragment extends Fragment {
         });
     }
 
+    private SpriteSheetView globalSpriteSheetView; 
+
+    private void preloadFailureSpriteSheet() {
+        if (globalSpriteSheetView == null) {
+            globalSpriteSheetView = new SpriteSheetView(requireContext());
+        }
+        // Pre-decode Bitmap bất đồng bộ ngầm định (trong SpriteSheetView.init)
+        globalSpriteSheetView.init(R.drawable.failedupgrade, 8, 4, 18, 1000);
+    }
+
     private void resetUpgradeButton() {
+        isUpgrading = false;
         btnUpgrade.setEnabled(true);
         btnUpgrade.setText(getString(R.string.upgrade_btn_text));
         updateUpgradeButtonUI();
@@ -422,7 +485,7 @@ public class UpgradeFragment extends Fragment {
                 navBar.setVisibility(View.GONE);
         }
         if (layoutContentWrapper != null) {
-            layoutContentWrapper.animate().alpha(0f).setDuration(OVERLAY_FADE_DURATION).start();
+            layoutContentWrapper.animate().alpha(0f).setDuration(animOverlayFadeDuration).withLayer().start();
         }
 
         // === OVERLAY ===
@@ -430,6 +493,7 @@ public class UpgradeFragment extends Fragment {
         overlay.setId(R.id.view_upgrade_overlay);
         overlay.setAlpha(0f);
         overlay.setBackgroundColor(Color.TRANSPARENT);
+        overlay.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Bắt buộc Hardware Layer
         parent.addView(overlay, new ViewGroup.LayoutParams(-1, -1));
 
         // Video sấm chớp (thành công)
@@ -466,8 +530,9 @@ public class UpgradeFragment extends Fragment {
         // === CARD WRAPPER ===
         FrameLayout cardWrapper = new FrameLayout(requireContext());
         cardWrapper.setAlpha(0f);
-        cardWrapper.setScaleX(CARD_INITIAL_SCALE);
-        cardWrapper.setScaleY(CARD_INITIAL_SCALE);
+        cardWrapper.setScaleX(dimenCardInitialScale);
+        cardWrapper.setScaleY(dimenCardInitialScale);
+        cardWrapper.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Bắt buộc Hardware Layer cho wrapper card
 
         com.google.android.material.card.MaterialCardView resultCard = new com.google.android.material.card.MaterialCardView(
                 requireContext());
@@ -483,8 +548,8 @@ public class UpgradeFragment extends Fragment {
         LayoutInflater.from(requireContext()).inflate(R.layout.layout_core_card, cardContainer, true);
         resultCard.addView(cardContainer, new ViewGroup.LayoutParams(-1, -1));
 
-        int width = (int) (getResources().getDisplayMetrics().widthPixels * RESULT_CARD_WIDTH_PERCENT);
-        int height = (int) (width * RESULT_CARD_RATIO);
+        int width = (int) dimenResultCardWidth;
+        int height = (int) dimenResultCardHeight;
         FrameLayout.LayoutParams cardParams = new FrameLayout.LayoutParams(width, height);
         cardParams.gravity = android.view.Gravity.CENTER;
         resultCard.setLayoutParams(cardParams);
@@ -497,10 +562,18 @@ public class UpgradeFragment extends Fragment {
         neonGlow.setScaleY(0.8f);
         cardWrapper.addView(neonGlow, new FrameLayout.LayoutParams(width, height, android.view.Gravity.CENTER));
 
-        SpriteSheetView spriteSheetView = new SpriteSheetView(requireContext());
-        spriteSheetView.setVisibility(View.GONE);
-        spriteSheetView.init(R.drawable.failedupgrade, 8, 4, 18, 1000);
+        // Đảm bảo SpriteSheetView không có parent cũ (Tránh crash IllegalStateException)
+        SpriteSheetView spriteSheetView = globalSpriteSheetView != null ? globalSpriteSheetView : new SpriteSheetView(requireContext());
+        if (spriteSheetView.getParent() != null) {
+            ((ViewGroup) spriteSheetView.getParent()).removeView(spriteSheetView);
+        }
+        
+        if (globalSpriteSheetView == null) {
+            spriteSheetView.init(R.drawable.failedupgrade, 8, 4, 18, 1000);
+        }
         spriteSheetView.setDrawSettings(1.7f, 0f, 0f);
+        spriteSheetView.setAlpha(0f);
+        spriteSheetView.setVisibility(View.GONE);
         cardWrapper.addView(spriteSheetView,
                 new FrameLayout.LayoutParams((int) (width * 1.5f), (int) (height * 1.5f), android.view.Gravity.CENTER));
 
@@ -521,12 +594,13 @@ public class UpgradeFragment extends Fragment {
 
         // Load ảnh thẻ CŨ lên card (Sử dụng Priority Flow - Original)
         com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivResultImage, mainCard.getFrontImage(), false);
-        tvResultOvr.setVisibility(View.GONE);
+        tvResultOvr.setVisibility(View.GONE); // Ẩn OVR theo yêu cầu
         tvResultOvr.setText(String.valueOf(mainCard.getOvr()));
-        if (mainCard.getLevel() > 0) {
+        if (mainCard.getUpgradeLevel() > 0) {
             ivResultLevel.setVisibility(View.VISIBLE);
-            String gradePath = "file:///android_asset/grade/" + Math.min(mainCard.getLevel(), 10) + ".png";
-            Glide.with(requireContext()).load(gradePath).into(ivResultLevel);
+            String gradePath = "file:///android_asset/grade/" + Math.min(mainCard.getUpgradeLevel(), 10) + ".png";
+            Glide.with(requireContext()).load(gradePath).dontAnimate().into(ivResultLevel);
+            LevelBadgeEffectHelper.apply(ivResultLevel, mainCard.getUpgradeLevel());
         }
 
         // Nút DONE
@@ -539,7 +613,7 @@ public class UpgradeFragment extends Fragment {
         int btnHeight = (int) getResources().getDimension(R.dimen.spacing_56dp);
         FrameLayout.LayoutParams btnParams = new FrameLayout.LayoutParams(btnWidth, btnHeight);
         btnParams.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
-        btnParams.bottomMargin = (int) (DONE_BUTTON_BOTTOM_MARGIN_DP * getResources().getDisplayMetrics().density);
+        btnParams.bottomMargin = (int) dimenDoneButtonBottomMargin;
         overlay.addView(btnDone, btnParams);
 
         // Title kết quả
@@ -550,99 +624,107 @@ public class UpgradeFragment extends Fragment {
         tvTitle.setTextSize(24);
         tvTitle.setAlpha(0f);
         tvTitle.setVisibility(View.GONE);
-        tvTitle.setTranslationY(TITLE_SLIDE_OFFSET);
+        tvTitle.setTranslationY(dimenTitleSlideOffset);
         FrameLayout.LayoutParams titleParams = new FrameLayout.LayoutParams(-2, -2);
         titleParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
-        titleParams.topMargin = (int) (SUCCESS_VIDEO_TOP_MARGIN_DP * getResources().getDisplayMetrics().density);
+        titleParams.topMargin = (int) dimenSuccessVideoTopMargin;
         overlay.addView(tvTitle, titleParams);
 
         // ══════════════════════════════════════════════════
-        // SEQUENCE BẮT ĐẦU
+        // SEQUENCE ĐIỀU PHỐI BẰNG ANIMATORSET (ZERO HANDLER)
         // ══════════════════════════════════════════════════
-        overlay.animate().alpha(1f).setDuration(OVERLAY_FADE_DURATION).start();
+        
+        // 1. Overlay fade-in
+        overlay.animate().alpha(1f).setDuration(animOverlayFadeDuration).withLayer().start();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Hiện card bay lên giữa
-            cardWrapper.setAlpha(1f);
-            float currentY = frameMainCard.getY() + frameMainCard.getHeight() / 2f;
-            float centerY = parent.getHeight() / 2f;
-            cardWrapper.setTranslationY(currentY - centerY);
+        // 2. Gather Animation (Card bay lên)
+        float currentY = frameMainCard.getY() + frameMainCard.getHeight() / 2f;
+        float centerY = parent.getHeight() / 2f;
+        cardWrapper.setAlpha(1f);
+        cardWrapper.setTranslationY(currentY - centerY);
 
-            ObjectAnimator moveAnim = ObjectAnimator.ofFloat(cardWrapper, "translationY", currentY - centerY, 0f);
-            ObjectAnimator sx = ObjectAnimator.ofFloat(cardWrapper, "scaleX", CARD_INITIAL_SCALE, 1.0f);
-            ObjectAnimator sy = ObjectAnimator.ofFloat(cardWrapper, "scaleY", CARD_INITIAL_SCALE, 1.0f);
-            moveAnim.setDuration(CARD_GATHER_DURATION);
-            sx.setDuration(CARD_GATHER_DURATION);
-            sy.setDuration(CARD_GATHER_DURATION);
-            moveAnim.setInterpolator(new DecelerateInterpolator());
+        ObjectAnimator gatherY = ObjectAnimator.ofFloat(cardWrapper, "translationY", currentY - centerY, 0f);
+        ObjectAnimator gatherScaleX = ObjectAnimator.ofFloat(cardWrapper, "scaleX", dimenCardInitialScale, 1.0f);
+        ObjectAnimator gatherScaleY = ObjectAnimator.ofFloat(cardWrapper, "scaleY", dimenCardInitialScale, 1.0f);
+        
+        android.animation.AnimatorSet gatherSet = new android.animation.AnimatorSet();
+        gatherSet.playTogether(gatherY, gatherScaleX, gatherScaleY);
+        gatherSet.setDuration(animGatherDuration);
+        gatherSet.setInterpolator(new DecelerateInterpolator());
+        gatherSet.setStartDelay(animRevealOvershootDuration); // Thay thế postDelayed đầu tiên
 
-            moveAnim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    // Khi card đã đáp xuống tâm, cho lớp trắng (neonGlow) mờ dần hiện lên
-                    neonGlow.setScaleX(1.0f);
-                    neonGlow.setScaleY(1.0f);
-                    neonGlow.animate().alpha(1f).setDuration(NEON_GLOW_DURATION).withEndAction(() -> {
+        gatherSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // 3. Neon Glow Animation
+                neonGlow.setScaleX(1.0f);
+                neonGlow.setScaleY(1.0f);
+                neonGlow.animate().alpha(1f).setDuration(animNeonGlowDuration).withLayer().withEndAction(() -> {
+                    
+                    // 4. Transition into Cutscene
+                    sceneView.setCoreBounds(
+                            parent.getWidth() / 2f - width / 2f,
+                            parent.getHeight() / 2f - height / 2f,
+                            parent.getWidth() / 2f + width / 2f,
+                            parent.getHeight() / 2f + height / 2f);
+                    sceneView.setAlpha(0f);
+                    sceneView.setVisibility(View.VISIBLE);
+                    sceneView.startAnimation();
+                    
+                    // Cross-fade (Card mờ đi, SceneView hiện lên)
+                    sceneView.animate().alpha(1f).setDuration(animCutsceneCrossfadeDuration).withLayer().start();
+                    cardWrapper.animate().alpha(0f).setDuration(animCutsceneCrossfadeDuration).withLayer().withEndAction(() -> {
+                        
+                        // Khi đã mờ hẳn, chuẩn bị card kết quả (Pre-bind data)
+                        neonGlow.setVisibility(View.GONE);
+                        cardWrapper.setVisibility(View.GONE);
 
-                        // TRANSITION INTO CUTSCENE: Cross-fade (Tiền Cutscene)
-                        sceneView.setCoreBounds(
-                                parent.getWidth() / 2f - width / 2f,
-                                parent.getHeight() / 2f - height / 2f,
-                                parent.getWidth() / 2f + width / 2f,
-                                parent.getHeight() / 2f + height / 2f);
-                        sceneView.setAlpha(0f);
-                        sceneView.setVisibility(View.VISIBLE);
-                        sceneView.startAnimation();
-                        sceneView.animate().alpha(1f).setDuration(CUTSCENE_CROSSFADE_DURATION).start();
+                        // Cập nhật data ngầm trong lúc cutscene đang chạy (Backend-Driven)
+                        tvResultOvr.setVisibility(View.GONE); // Giữ ẩn OVR
+                        tvResultOvr.setText(String.valueOf(result.getNewOvr()));
+                        if (result.getNewLevel() > 0) {
+                            ivResultLevel.setVisibility(View.VISIBLE);
+                            String p = "file:///android_asset/grade/" + Math.min(result.getNewLevel(), 10) + ".png";
+                            Glide.with(requireContext()).load(p).dontAnimate().into(ivResultLevel);
+                            LevelBadgeEffectHelper.apply(ivResultLevel, result.getNewLevel());
+                        } else {
+                            ivResultLevel.setVisibility(View.GONE);
+                        }
+                        
+                        CardDisplayItem tempItem = new CardDisplayItem();
+                        tempItem.setOvr(result.getNewOvr());
+                        tempItem.setLevel(result.getNewLevel());
+                        tempItem.setFrontImage(mainCard.getFrontImage());
+                        tempItem.setOwned(true);
+                        CardEffectHelper.apply(resultCard, shimmer, tempItem, true, result.isSuccess());
 
-                        // Sau khi lớp trắng hiện xong, cả card + layer cùng fade out
-                        cardWrapper.animate().alpha(0f).setDuration(CUTSCENE_CROSSFADE_DURATION).withEndAction(() -> {
-                            // Khi đã mờ hẳn, dọn dẹp
-                            neonGlow.setVisibility(View.GONE);
-                            cardWrapper.setVisibility(View.GONE);
+                        if (!result.isSuccess()) {
+                            android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                            matrix.setSaturation(0);
+                            resultCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                            android.graphics.Paint paint = new android.graphics.Paint();
+                            paint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                            resultCard.setLayerPaint(paint);
+                        }
 
-                            // Chuẩn bị data thẻ mới (ngầm)
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                tvResultOvr.setText(String.valueOf(result.getNewOvr()));
-                                if (result.getNewLevel() > 0) {
-                                    ivResultLevel.setVisibility(View.VISIBLE);
-                                    String p = "file:///android_asset/grade/" + Math.min(result.getNewLevel(), 10)
-                                            + ".png";
-                                    Glide.with(requireContext()).load(p).into(ivResultLevel);
-                                    LevelBadgeEffectHelper.apply(ivResultLevel, result.getNewLevel());
-                                } else {
-                                    ivResultLevel.setVisibility(View.GONE);
-                                }
-                                
-                                // Tạo một CardDisplayItem giả để apply hiệu ứng
-                                CardDisplayItem tempItem = new CardDisplayItem();
-                                tempItem.setOvr(result.getNewOvr());
-                                tempItem.setLevel(result.getNewLevel());
-                                tempItem.setFrontImage(mainCard.getFrontImage());
-                                tempItem.setOwned(true);
-                                
-                                CardEffectHelper.apply(resultCard, shimmer, tempItem, true, result.isSuccess());
-
-                                if (!result.isSuccess()) {
-                                    android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-                                    matrix.setSaturation(0);
-                                    resultCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-                                    android.graphics.Paint paint = new android.graphics.Paint();
-                                    paint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-                                    resultCard.setLayerPaint(paint);
-                                }
-                            }, VIDEO_CLIMAX_DELAY_MS - 400);
-
-                            // ── CLIMAX: TRANSITION OUT OF CUTSCENE (Hậu Cutscene) ──
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                // Cross-fade mờ đi Cutscene
-                                sceneView.animate().alpha(0f).setDuration(RESULT_REVEAL_DURATION).withEndAction(() -> {
+                        // 5. CLIMAX REVEAL (Sử dụng AnimatorSet để timing chính xác)
+                        android.animation.AnimatorSet climaxSet = new android.animation.AnimatorSet();
+                        
+                        // Fake delay để khớp với climax video
+                        ValueAnimator climaxTimer = ValueAnimator.ofFloat(0, 1);
+                        climaxTimer.setDuration(animVideoClimaxDelay);
+                        
+                        climaxTimer.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                // Kết thúc Cutscene
+                                sceneView.animate().alpha(0f).setDuration(animResultRevealDuration).withLayer().withEndAction(() -> {
                                     sceneView.stopAnimation();
                                     sceneView.setVisibility(View.GONE);
-                                    sceneView.setAlpha(1f); // Reset state
                                 }).start();
 
-                                float topY = -(parent.getHeight() / 6f); // Đặt ở vị trí 1/3 màn hình từ trên xuống
+                                // Hiển thị Card Wrapper kết quả
+                                float topY = -(parent.getHeight() / 6f);
                                 cardWrapper.setTranslationY(topY);
                                 cardWrapper.setAlpha(0f);
                                 cardWrapper.setVisibility(View.VISIBLE);
@@ -651,136 +733,143 @@ public class UpgradeFragment extends Fragment {
                                 if (result.isSuccess()) {
                                     successVideoView.setVisibility(View.VISIBLE);
                                     successVideoView.setAlpha(1f);
-
-                                    // Đồng bộ tuyệt đối: Chờ VideoView báo cáo đã render frame đầu tiên
                                     successVideoView.setOnInfoListener((mp, what, extra) -> {
                                         if (what == android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-                                            new Handler(Looper.getMainLooper()).post(() -> {
-                                                // Object, FX, và Flash lập tức bung ra không cần delay
-                                                cardWrapper.animate().alpha(1f).setDuration(RESULT_REVEAL_DURATION)
-                                                        .setStartDelay(0).start();
-                                                playSfx("lightning_strike");
-                                                // Vô hiệu hóa Flash trắng theo yêu cầu
-                                                /*
-                                                 * flashWhite.setVisibility(View.VISIBLE);
-                                                 * flashWhite.animate().alpha(1f).setDuration(75).withEndAction(() ->
-                                                 * flashWhite.animate().alpha(0f).setDuration(75).start()
-                                                 * ).start();
-                                                 */
-                                            });
-                                            successVideoView.setOnInfoListener(null); // Giải phóng listener
+                                            // THÀNH CÔNG TỨC THÌ (Zero Latency)
+                                            cardWrapper.setVisibility(View.VISIBLE);
+                                            cardWrapper.setAlpha(1f);
+                                            playSfx("lightning_strike");
+                                            successVideoView.setOnInfoListener(null);
                                             return true;
                                         }
                                         return false;
                                     });
-
                                     successVideoView.start();
-
                                 } else {
-                                    // Fallback thất bại thì không delay
-                                    cardWrapper.animate().alpha(1f).setDuration(300).start();
+                                    // THẤT BẠI
+                                    cardWrapper.setAlpha(1f);
                                     playSfx("glass_shatter");
-                                    ObjectAnimator shake = ObjectAnimator.ofFloat(cardWrapper, "translationX", 0, 25,
-                                            -25, 25, -25, 15, -15, 6, -6, 0);
-                                    shake.setDuration(CAMERA_SHAKE_DURATION_MS);
+                                    ObjectAnimator shake = ObjectAnimator.ofFloat(cardWrapper, "translationX", 0, 25, -25, 25, -25, 15, -15, 6, -6, 0);
+                                    shake.setDuration(animCameraShakeDuration);
                                     shake.start();
                                     spriteSheetView.setAlpha(1f);
                                     spriteSheetView.setVisibility(View.VISIBLE);
                                     spriteSheetView.play(null);
                                 }
 
-                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                    if (result.isSuccess()) {
-                                        successVideoView.animate().alpha(0f).setDuration(VIDEO_FADE_DURATION)
-                                                .withEndAction(() -> {
-                                                    successVideoView.setVisibility(View.GONE);
-                                                    successVideoView.stopPlayback();
-                                                }).start();
-                                    } else {
-                                        spriteSheetView.animate().alpha(0f).setDuration(150).withEndAction(() -> {
-                                            spriteSheetView.setVisibility(View.GONE);
-                                        }).start();
-                                    }
-
-                                    cardWrapper.animate()
-                                            .translationY(0f).scaleX(1.0f).scaleY(1.0f)
-                                            .setDuration(CARD_GATHER_DURATION)
-                                            .setInterpolator(new AccelerateInterpolator())
-                                            .withEndAction(() -> {
-                                                finalizeAnimationUI(tvTitle, btnDone, cardWrapper, null);
+                                // 6. FINALIZING ANIMATION (Dọn dẹp và hiện nút Done)
+                                android.animation.AnimatorSet finalizeSet = new android.animation.AnimatorSet();
+                                ValueAnimator finalizeTimer = ValueAnimator.ofFloat(0, 1);
+                                finalizeTimer.setDuration(3000); // 3s chiêm ngưỡng kết quả
+                                
+                                finalizeTimer.addListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        if (result.isSuccess()) {
+                                            successVideoView.animate().alpha(0f).setDuration(animVideoFadeDuration).withLayer().withEndAction(() -> {
+                                                successVideoView.setVisibility(View.GONE);
+                                                successVideoView.stopPlayback();
                                             }).start();
-                                }, 3000);
-                            }, VIDEO_CLIMAX_DELAY_MS);
-                        }).start();
+                                        } else {
+                                            spriteSheetView.animate().alpha(0f).setDuration(150).withLayer().withEndAction(() -> {
+                                                spriteSheetView.setVisibility(View.GONE);
+                                            }).start();
+                                        }
+
+                                        cardWrapper.animate()
+                                                .translationY(0f).scaleX(1.0f).scaleY(1.0f)
+                                                .setDuration(animGatherDuration)
+                                                .setInterpolator(new AccelerateInterpolator())
+                                                .withLayer()
+                                                .withEndAction(() -> {
+                                                    finalizeAnimationUI(tvTitle, btnDone, cardWrapper, null);
+                                                }).start();
+                                    }
+                                });
+                                finalizeTimer.start();
+                            }
+                        });
+                        climaxTimer.start();
                     }).start();
-                }
-            });
-            moveAnim.start();
-            sx.start();
-            sy.start();
-        }, CARD_REVEAL_OVERSHOOT_DURATION);
+                }).start();
+            }
+        });
+        gatherSet.start();
 
         // Nút DONE: Khôi phục toàn bộ UI
         btnDone.setOnClickListener(v -> {
-            overlay.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+            isUpgrading = false;
+            overlay.animate().alpha(0f).setDuration(300).withLayer().withEndAction(() -> {
                 parent.removeView(overlay);
                 if (getActivity() != null) {
                     View navBar = getActivity().findViewById(R.id.bottom_navigation);
-                    if (navBar != null)
-                        navBar.setVisibility(View.VISIBLE);
+                    if (navBar != null) navBar.setVisibility(View.VISIBLE);
                 }
                 resultCard.setLayerPaint(null);
                 if (layoutContentWrapper != null) {
                     layoutContentWrapper.setAlpha(1f);
                 }
                 resetUpgradeButton();
+                
+                // Clear dữ liệu ngay lập tức trên UI thread để tránh gởi ID cũ lên server lần 2
+                for (int i = 0; i < 5; i++) materialCards[i] = null;
+                updateUI(); 
+
                 finalizeData(result);
             }).start();
         });
     }
 
+
+
     private void finalizeAnimationUI(TextView title, View done, View card, View video) {
         if (video != null) {
-            video.animate().alpha(0f).setDuration(VIDEO_FADE_DURATION).start();
+            video.animate().alpha(0f).setDuration(animVideoFadeDuration).start();
         }
         title.setVisibility(View.VISIBLE);
         done.setVisibility(View.VISIBLE);
 
         // Anim Title (Slide Up + Fade In)
-        ObjectAnimator slideUp = ObjectAnimator.ofFloat(title, "translationY", 80f, 0f);
+        ObjectAnimator slideUp = ObjectAnimator.ofFloat(title, "translationY", dimenTitleSlideOffset, 0f);
         ObjectAnimator titleFade = ObjectAnimator.ofFloat(title, "alpha", 0f, 1f);
-        slideUp.setDuration(RESULT_TEXT_SLIDE_DURATION);
-        titleFade.setDuration(RESULT_TEXT_SLIDE_DURATION);
+        slideUp.setDuration(animResultTextSlideDuration);
+        titleFade.setDuration(animResultTextSlideDuration);
         slideUp.setInterpolator(new DecelerateInterpolator());
         slideUp.start();
         titleFade.start();
 
-        ObjectAnimator.ofFloat(done, "alpha", 0f, 1f).setDuration(RESULT_TEXT_SLIDE_DURATION).start();
+        ObjectAnimator.ofFloat(done, "alpha", 0f, 1f).setDuration(animResultTextSlideDuration).start();
 
         // Anim Card Reveal (Overshoot)
         card.animate()
                 .scaleX(1.0f)
                 .scaleY(1.0f)
                 .setInterpolator(new OvershootInterpolator(2.5f))
-                .setDuration(CARD_REVEAL_OVERSHOOT_DURATION)
+                .setDuration(animRevealOvershootDuration)
+                .withLayer()
                 .start();
     }
 
     private void finalizeData(UpgradeResponse result) {
-        mainCard.setLevel(result.getNewLevel());
-        mainCard.setOvr(result.getNewOvr());
-        for (int i = 0; i < 5; i++)
-            materialCards[i] = null;
-        DatabaseLoader.clearUserCache();
-        GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
-        DatabaseLoader.reloadInventoryFromServer(requireContext(), new SessionManager(requireContext()).getUserId(),
-                apiService);
+        // Cập nhật Main Card data
+        if (mainCard != null) {
+            mainCard.setUpgradeLevel(result.getNewLevel());
+            mainCard.setOvr(result.getNewOvr());
+        }
 
-        // [Phase 2] Phát tín hiệu Broadcast để CollectionFragment tự động Refresh
-        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(requireContext())
-                .sendBroadcast(new android.content.Intent("ACTION_INVENTORY_UPDATED"));
+        com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+            GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
+            DatabaseLoader.reloadInventoryFromServer(requireContext(), new SessionManager(requireContext()).getUserId(),
+                    apiService);
+            
+            // [Phase 2] Phát tín hiệu Broadcast
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(requireContext())
+                    .sendBroadcast(new android.content.Intent("ACTION_INVENTORY_UPDATED"));
 
-        updateUI();
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(this::updateUI);
+            }
+        });
     }
 
     private void updateUI() {
@@ -806,23 +895,24 @@ public class UpgradeFragment extends Fragment {
             tvCardOvr.setVisibility(View.GONE);
             ivCardLevelBadge.setVisibility(View.GONE);
             viewCardBg.setBackgroundResource(R.drawable.bg_card_placeholder);
-            if (skeleton != null) skeleton.setVisibility(View.GONE);
+            if (skeleton != null)
+                skeleton.setVisibility(View.GONE);
             CardEffectHelper.remove(cardMain, shimmer);
             LevelBadgeEffectHelper.remove(ivCardLevelBadge);
         } else {
             btnAddMainCard.setVisibility(View.GONE);
             ivMainCardImage.setVisibility(View.VISIBLE);
             viewCardBg.setBackgroundResource(R.drawable.bg_card_filled);
-            
+
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
             tvCardOvr.setVisibility(View.GONE);
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
-            if (mainCard.getLevel() > 0) {
+            if (mainCard.getUpgradeLevel() > 0) {
                 ivCardLevelBadge.setVisibility(View.VISIBLE);
-                String path = "file:///android_asset/grade/" + Math.min(mainCard.getLevel(), 10) + ".png";
+                String path = "file:///android_asset/grade/" + Math.min(mainCard.getUpgradeLevel(), 10) + ".png";
                 Glide.with(this).load(path).into(ivCardLevelBadge);
-                LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getLevel());
+                LevelBadgeEffectHelper.apply(ivCardLevelBadge, mainCard.getUpgradeLevel());
             } else {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 LevelBadgeEffectHelper.remove(ivCardLevelBadge);
@@ -842,7 +932,7 @@ public class UpgradeFragment extends Fragment {
             tvOvrCurrentSmall.setVisibility(View.GONE);
         } else {
             layoutRightStats.setAlpha(1.0f);
-            tvOvrAfter.setText("+" + Math.min(mainCard.getLevel() + 1, 10));
+            tvOvrAfter.setText("+" + Math.min(mainCard.getUpgradeLevel() + 1, 10));
             tvOvrCurrentSmall.setVisibility(View.GONE); // Hidden per OVR requirement
         }
     }
@@ -856,12 +946,12 @@ public class UpgradeFragment extends Fragment {
             ivLevelNext.setVisibility(View.GONE);
         } else {
             layoutLevelIndicator.setAlpha(1.0f);
-            int currentLevel = mainCard.getLevel();
+            int currentLevel = mainCard.getUpgradeLevel();
             int nextLevel = Math.min(currentLevel + 1, 10);
             if (currentLevel > 0) {
                 tvLevelCurrent.setVisibility(View.GONE);
                 ivLevelCurrent.setVisibility(View.VISIBLE);
-                Glide.with(this).load("file:///android_asset/grade/" + currentLevel + ".png").into(ivLevelCurrent);
+                Glide.with(this).load("file:///android_asset/grade/" + currentLevel + ".png").dontAnimate().into(ivLevelCurrent);
             } else {
                 tvLevelCurrent.setVisibility(View.VISIBLE);
                 tvLevelCurrent.setText(getString(R.string.format_level_plus, 0));
@@ -870,7 +960,7 @@ public class UpgradeFragment extends Fragment {
             if (nextLevel > 0) {
                 tvLevelNext.setVisibility(View.GONE);
                 ivLevelNext.setVisibility(View.VISIBLE);
-                Glide.with(this).load("file:///android_asset/grade/" + nextLevel + ".png").into(ivLevelNext);
+                Glide.with(this).load("file:///android_asset/grade/" + nextLevel + ".png").dontAnimate().into(ivLevelNext);
             } else {
                 tvLevelNext.setVisibility(View.VISIBLE);
                 tvLevelNext.setText(getString(R.string.format_level_plus, 1));
@@ -903,16 +993,17 @@ public class UpgradeFragment extends Fragment {
         viewProgressFill.post(() -> {
             ViewGroup parent = (ViewGroup) viewProgressFill.getParent();
             if (parent.getWidth() == 0) {
-                parent.getViewTreeObserver().addOnGlobalLayoutListener(new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
-                        ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
-                        params.width = fillWidth;
-                        viewProgressFill.setLayoutParams(params);
-                    }
-                });
+                parent.getViewTreeObserver()
+                        .addOnGlobalLayoutListener(new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                parent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
+                                ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
+                                params.width = fillWidth;
+                                viewProgressFill.setLayoutParams(params);
+                            }
+                        });
             } else {
                 int fillWidth = (int) (parent.getWidth() * (percent / 100.0));
                 ViewGroup.LayoutParams params = viewProgressFill.getLayoutParams();
@@ -932,16 +1023,17 @@ public class UpgradeFragment extends Fragment {
                 selectedCount++;
                 ivMaterials[i].setVisibility(View.VISIBLE);
                 tvMaterialPlus[i].setVisibility(View.GONE);
-                
+
                 // Luồng tải ưu tiên: Card nguyên liệu dùng bản Thumbnail
-                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMaterials[i], materialCards[i].getFrontImage(), true);
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMaterials[i], materialCards[i].getFrontImage(),
+                        true);
                 tvMaterialOvr[i].setVisibility(View.GONE); // Luôn ẩn OVR trên card trong màn hình này
-                if (materialCards[i].getLevel() > 0) {
+                if (materialCards[i].getUpgradeLevel() > 0) {
                     ivMaterialLevel[i].setVisibility(View.VISIBLE);
                     Glide.with(this).load(
-                            "file:///android_asset/grade/" + Math.min(materialCards[i].getLevel(), 10) + ".png")
+                            "file:///android_asset/grade/" + Math.min(materialCards[i].getUpgradeLevel(), 10) + ".png")
                             .into(ivMaterialLevel[i]);
-                    LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getLevel());
+                    LevelBadgeEffectHelper.apply(ivMaterialLevel[i], materialCards[i].getUpgradeLevel());
                 } else {
                     ivMaterialLevel[i].setVisibility(View.GONE);
                     LevelBadgeEffectHelper.remove(ivMaterialLevel[i]);
@@ -959,8 +1051,8 @@ public class UpgradeFragment extends Fragment {
             }
         }
         tvMaterialsCount.setText(getString(R.string.upgrade_format_materials_count_limit, selectedCount));
-        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_primary);
-        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_text_disabled);
+        int primaryColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_accent_primary);
+        int disabledColor = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_text_disabled);
         tvMaterialsCount.setTextColor(selectedCount > 0 ? primaryColor : disabledColor);
     }
 
@@ -980,7 +1072,7 @@ public class UpgradeFragment extends Fragment {
         UpgradeAlgorithm.Card c = new UpgradeAlgorithm.Card();
         c.id = String.valueOf(card.getId());
         c.typeKey = card.getCardClass();
-        c.level = card.getLevel();
+        c.level = card.getUpgradeLevel();
         c.ovr = card.getOvr();
         return c;
     }
@@ -997,3 +1089,4 @@ public class UpgradeFragment extends Fragment {
         }
     }
 }
+

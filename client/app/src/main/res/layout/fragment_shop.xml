@@ -4,114 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_screen_bg"
+    android:background="@drawable/bg_home_space"
     android:clickable="true"
     android:focusable="true">
 
     <!-- ====================================================== -->
-    <!-- TOP HEADER: Glassmorphism Currency Bar                  -->
-    <!-- ====================================================== -->
-    <LinearLayout
-        android:id="@+id/header_currency_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_20dp"
-        android:layout_marginHorizontal="@dimen/spacing_md"
-        android:background="@drawable/bg_currency_bar"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingVertical="@dimen/spacing_6dp"
-        android:paddingStart="@dimen/spacing_6dp"
-        android:paddingEnd="@dimen/radius_lg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_shop_back"
-            style="@style/MoscoButton.IconGlass"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:padding="9dp"
-            app:icon="@drawable/ic_back_arrow"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconSize="@dimen/icon_size_md" />
-
-        <TextView
-            android:id="@+id/tv_shop_title"
-            style="@style/MoscoText.Luxury.SubHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/spacing_10dp"
-            android:text="@string/shop_header_title" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/radius_lg"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="@dimen/icon_size_lg"
-                android:layout_height="@dimen/icon_size_lg"
-                android:src="@drawable/ic_item_coin" />
-            <TextView
-                android:id="@+id/tv_coins"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_xs"
-                android:text="1,250"
-                android:textSize="@dimen/text_size_body_md" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="@dimen/icon_size_lg"
-                android:layout_height="@dimen/icon_size_lg"
-                android:src="@drawable/ic_item_diamond" />
-            <TextView
-                android:id="@+id/tv_diamonds"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_xs"
-                android:text="80"
-                android:textSize="@dimen/text_size_body_md" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- ====================================================== -->
-    <!-- CATEGORY CHIPS                                          -->
+    <!-- CATEGORY CHIPS (Styled like Filter Bar)                 -->
     <!-- ====================================================== -->
     <HorizontalScrollView
         android:id="@+id/hsv_categories"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_14dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginHorizontal="@dimen/spacing_md"
+        android:background="@drawable/lg_surface_filter_bar"
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="@dimen/spacing_xs"
         android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_currency_bar">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:id="@+id/ll_chip_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <TextView android:id="@+id/chip_all" style="@style/FilterChipStyle" android:layout_marginEnd="@dimen/spacing_sm" android:state_selected="true" android:text="@string/shop_tab_all" />
-            <TextView android:id="@+id/chip_objet" style="@style/FilterChipStyle" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_objet" />
-            <TextView android:id="@+id/chip_pack" style="@style/FilterChipStyle" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_pack" />
-            <TextView android:id="@+id/chip_buff" style="@style/FilterChipStyle" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_buff" />
-            <TextView android:id="@+id/chip_resource" style="@style/FilterChipStyle" android:text="@string/shop_tab_resource" />
+            <TextView android:id="@+id/chip_all" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:state_selected="true" android:text="@string/shop_tab_all" />
+            <TextView android:id="@+id/chip_objet" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_objet" />
+            <TextView android:id="@+id/chip_pack" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_pack" />
+            <TextView android:id="@+id/chip_buff" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_buff" />
+            <TextView android:id="@+id/chip_resource" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:text="@string/shop_tab_resource" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -125,7 +48,7 @@
         android:layout_marginTop="@dimen/spacing_10dp"
         android:layout_marginHorizontal="@dimen/spacing_10dp"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/lg_content_bottom_clearance"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -133,3 +56,4 @@
         tools:listitem="@layout/item_shop_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

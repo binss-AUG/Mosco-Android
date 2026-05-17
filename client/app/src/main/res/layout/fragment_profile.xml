@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface"
+    android:background="@color/lg_background"
     android:clickable="true"
     android:focusable="true"
     android:importantForAccessibility="no"
@@ -53,8 +53,8 @@
                     android:layout_height="140dp"
                     app:cardCornerRadius="70dp"
                     app:cardElevation="@dimen/spacing_10dp"
-                    app:strokeColor="@color/mosco_outline"
-                    app:strokeWidth="3dp">
+                    app:strokeColor="@color/lg_glass_stroke_strong"
+                    app:strokeWidth="2dp">
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_user"
-                            android:background="@color/mosco_surface_container" />
+                            android:background="@color/lg_background_mid" />
 
                         <!-- Lớp phủ mờ khi bật Edit Mode -->
                         <View
@@ -97,7 +97,7 @@
                     android:layout_alignStart="@id/avatar_card"
                     android:layout_marginTop="@dimen/spacing_xs"
                     android:layout_marginStart="@dimen/spacing_xs"
-                    app:cardBackgroundColor="@color/mosco_primary"
+                    app:cardBackgroundColor="@color/lg_accent_primary"
                     app:cardCornerRadius="@dimen/radius_lg"
                     app:cardElevation="@dimen/spacing_10dp"
                     app:strokeColor="@color/white"
@@ -123,7 +123,7 @@
                     android:layout_marginEnd="@dimen/spacing_xs"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="@color/mosco_primary"
+                    app:cardBackgroundColor="@color/lg_accent_primary"
                     app:cardCornerRadius="21dp"
                     app:cardElevation="@dimen/radius_lg"
                     app:strokeColor="@color/white"

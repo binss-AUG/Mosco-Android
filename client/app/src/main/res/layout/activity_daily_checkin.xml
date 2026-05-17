@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="@drawable/bg_global_gradient">
+    android:background="@drawable/lg_background_deep">
 
     <!-- Dynamic Overlay Background (Driven by ViewPager Color Interpolation) -->
     <View
