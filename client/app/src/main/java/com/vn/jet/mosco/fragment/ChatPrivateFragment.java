@@ -120,10 +120,14 @@ public class ChatPrivateFragment extends Fragment {
         initViews(view);
         setupListeners();
         loadHistory();
-        syncWithServer();
-        fetchStreakStatus();
-        subscribeToUpdates();
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        syncWithServer();
+        subscribeToUpdates();
     }
 
     private void initViews(View v) {
@@ -458,6 +462,9 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void subscribeToUpdates() {
+        if (chatSubscription != null && !chatSubscription.isDisposed()) {
+            chatSubscription.dispose();
+        }
         chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
             // Chỉ thêm tin nhắn vào adapter nếu người gửi LÀ ĐỐI PHƯƠNG.
             // Tránh duplicate vì tin nhắn của chính mình đã được thêm ngay khi gọi sendMessage()
@@ -477,7 +484,9 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void subscribeToStreakUpdates() {
-        if (streakSubscription != null && !streakSubscription.isDisposed()) return;
+        if (streakSubscription != null && !streakSubscription.isDisposed()) {
+            streakSubscription.dispose();
+        }
         
         Long myId = sessionManager.getUserId();
         streakSubscription = WebSocketManager.getInstance().subscribeToStreakUpdates(String.valueOf(myId), data -> {
