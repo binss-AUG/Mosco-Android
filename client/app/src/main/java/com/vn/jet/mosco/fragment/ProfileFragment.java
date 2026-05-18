@@ -550,15 +550,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
             // Update Like Button (Cân bằng viền mờ sang trọng với nút Message)
             if (isAdded() && getContext() != null && btnLike != null) {
-                btnLike.setSupportBackgroundTintList(null);
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
                     btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
-                    btnLike.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_secondary));
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
                     btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
-                    btnLike.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                 }
             }
 
@@ -572,28 +569,18 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     case 3: // Nhận được lời mời -> Hiển thị nút Chấp nhận
                         btnFriend.setText(R.string.social_action_accept);
                         btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
-                        btnFriend.setSupportBackgroundTintList(null);
-                        btnFriend.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                         break;
                     case 1: // Pending (Đã gửi lời mời)
-                        // Tại sao: Giữ nguyên style Liquid Glass (STYLE_PRIMARY) lấp lánh nhưng nhuộm màu vàng gold theo yêu cầu và set text trắng
                         btnFriend.setText(R.string.profile_btn_pending);
-                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
-                        btnFriend.setSupportBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.palette_gold)));
-                        btnFriend.setTextColor(android.graphics.Color.WHITE);
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_WARNING);
                         break;
                     case 2: // Friends
                         btnFriend.setText(R.string.profile_btn_friends);
                         btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
-                        btnFriend.setSupportBackgroundTintList(null);
-                        btnFriend.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_secondary));
                         break;
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
                         btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
-                        btnFriend.setSupportBackgroundTintList(null);
-                        btnFriend.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                         break;
                 }
             }

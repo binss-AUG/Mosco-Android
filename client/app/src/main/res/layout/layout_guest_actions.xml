@@ -7,46 +7,67 @@
     android:paddingTop="@dimen/spacing_sm"
     android:gravity="center_horizontal">
 
-    <com.vn.jet.mosco.widget.MoscoButton
-        android:id="@+id/btn_like"
+    <!-- Row 1: Interaction & Communication (Like & Message ở trên) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_xs"
-        app:moscoStyle="primary"
-        app:moscoSize="medium"
-        android:text="@string/profile_btn_like"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="@dimen/spacing_xs"
+        android:layout_marginBottom="@dimen/spacing_xs">
 
-    <com.vn.jet.mosco.widget.MoscoButton
-        android:id="@+id/btn_direct_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_xs"
-        app:moscoStyle="ghost"
-        app:moscoSize="medium"
-        android:text="@string/profile_btn_message"
-        android:textStyle="bold" />
+        <com.vn.jet.mosco.widget.MoscoButton
+            android:id="@+id/btn_like"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/spacing_xxs"
+            app:moscoStyle="primary"
+            app:moscoSize="medium"
+            android:text="@string/profile_btn_like"
+            android:textStyle="bold" />
 
-    <com.vn.jet.mosco.widget.MoscoButton
-        android:id="@+id/btn_add_friend"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:moscoStyle="primary"
-        app:moscoSize="medium"
-        android:text="@string/profile_btn_add_friend"
-        android:textStyle="bold" />
+        <com.vn.jet.mosco.widget.MoscoButton
+            android:id="@+id/btn_direct_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:moscoStyle="ghost"
+            app:moscoSize="medium"
+            android:text="@string/profile_btn_message"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-    <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
-    <com.vn.jet.mosco.widget.MoscoButton
-        android:id="@+id/btn_decline_request"
+    <!-- Row 2: Relationship Management (Nút Add Friend nổi bật ở dưới) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xs"
-        app:moscoStyle="ghost"
-        app:moscoSize="medium"
-        android:text="@string/social_action_decline"
-        android:textColor="@color/palette_red_accent"
-        android:textStyle="bold"
-        android:visibility="gone" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="@dimen/spacing_xs">
+
+        <com.vn.jet.mosco.widget.MoscoButton
+            android:id="@+id/btn_add_friend"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:moscoStyle="primary"
+            app:moscoSize="medium"
+            android:text="@string/profile_btn_add_friend"
+            android:textStyle="bold" />
+
+        <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
+        <com.vn.jet.mosco.widget.MoscoButton
+            android:id="@+id/btn_decline_request"
+            android:layout_width="@dimen/spacing_48dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_xxs"
+            app:moscoStyle="ghost"
+            app:moscoSize="medium"
+            android:drawableStart="@drawable/ic_close"
+            android:drawableTint="@color/palette_red_accent"
+            android:paddingStart="14dp"
+            android:visibility="gone" />
+    </LinearLayout>
 
 </LinearLayout>

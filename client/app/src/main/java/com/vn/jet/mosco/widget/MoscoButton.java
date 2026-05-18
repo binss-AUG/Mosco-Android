@@ -27,7 +27,8 @@ public class MoscoButton extends AppCompatButton {
     public static final int STYLE_SECONDARY = 1;
     public static final int STYLE_GHOST = 2;
     public static final int STYLE_DESTRUCTIVE = 3;
-
+    public static final int STYLE_WARNING = 4;
+    
     // Constants cho Size
     public static final int SIZE_LARGE = 0;
     public static final int SIZE_MEDIUM = 1;
@@ -49,6 +50,7 @@ public class MoscoButton extends AppCompatButton {
         else if ("secondary".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_SECONDARY);
         else if ("ghost".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_GHOST);
         else if ("destructive".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_DESTRUCTIVE);
+        else if ("warning".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_WARNING);
     }
 
     public void setMoscoSize(int size) {
@@ -136,6 +138,10 @@ public class MoscoButton extends AppCompatButton {
             case STYLE_DESTRUCTIVE:
                 setBackgroundResource(R.drawable.bg_btn_destructive); // Keep as fallback if used
                 setTextColor(Color.WHITE);
+                break;
+            case STYLE_WARNING:
+                setBackgroundResource(R.drawable.lg_btn_warning);
+                setTextColor(ContextCompat.getColor(getContext(), R.color.lg_text_primary));
                 break;
             case STYLE_PRIMARY:
             default:

@@ -49,10 +49,10 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
+                    android:layout_weight="0.9"
                     android:orientation="vertical"
                     android:gravity="center_horizontal"
-                    android:paddingHorizontal="@dimen/spacing_sm"
+                    android:layout_marginStart="@dimen/spacing_md"
                     android:paddingEnd="@dimen/spacing_xxs">
 
                     <!-- Avatar Frame -->
@@ -160,12 +160,13 @@
                         style="@style/MoscoText.Luxury.Header"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="2dp"
                         android:text="@string/placeholder_commander"
                         android:textSize="@dimen/text_size_h4"
                         android:maxLines="1"
-                        android:ellipsize="end" />
+                        android:ellipsize="end"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center" />
 
                     <!-- Stats: Likes & Friends -->
                     <LinearLayout
@@ -221,7 +222,7 @@
                     android:id="@+id/layout_exhibit_container"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1.0"
+                    android:layout_weight="1.1"
                     android:layout_gravity="center_vertical"
                     android:clipChildren="false"
                     android:clipToPadding="false"

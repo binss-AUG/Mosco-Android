@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#26FFFFFF">
+    <item>
+        <layer-list>
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><solid android:color="@color/lg_nav_surface" /></shape></item>
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><solid android:color="@color/lg_accent_warning_alpha_25" /></shape></item>
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><gradient android:angle="270" android:startColor="#26FFFFFF" android:endColor="#00FFFFFF" android:type="linear" /></shape></item>
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_strong" /></shape></item>
+        </layer-list>
+    </item>
+</ripple>
