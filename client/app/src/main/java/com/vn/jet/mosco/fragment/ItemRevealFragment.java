@@ -184,6 +184,9 @@ public class ItemRevealFragment extends Fragment {
             View navBar = getActivity().findViewById(R.id.bottom_navigation);
             if (navBar != null)
                 navBar.setVisibility(View.GONE);
+            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+            if (customNavBar != null)
+                customNavBar.setVisibility(View.GONE);
         }
 
         bindInitialUI(view);
@@ -1261,7 +1264,10 @@ public class ItemRevealFragment extends Fragment {
         if (getActivity() != null) {
             View navBar = getActivity().findViewById(R.id.bottom_navigation);
             if (navBar != null)
-                navBar.setVisibility(View.VISIBLE);
+                navBar.setVisibility(View.GONE); // Đảm bảo thanh gốc luôn GONE
+            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+            if (customNavBar != null)
+                customNavBar.setVisibility(View.VISIBLE);
             getActivity().getSupportFragmentManager().popBackStack();
         }
     }

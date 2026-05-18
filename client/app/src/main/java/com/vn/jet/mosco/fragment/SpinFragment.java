@@ -311,7 +311,7 @@ public class SpinFragment extends Fragment {
     private void toggleBottomNavigation(boolean show) {
         if (getActivity() != null) {
             View navBar = getActivity().findViewById(R.id.bottom_navigation);
-            if (navBar != null) navBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (navBar != null) navBar.setVisibility(View.GONE); // Luôn giữ GONE làm backing store
             View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
             if (customNavBar != null) customNavBar.setVisibility(show ? View.VISIBLE : View.GONE);
         }
