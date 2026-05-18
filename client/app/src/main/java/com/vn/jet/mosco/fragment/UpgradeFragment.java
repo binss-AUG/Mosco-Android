@@ -941,28 +941,9 @@ public class UpgradeFragment extends Fragment {
                 .setDuration(animRevealOvershootDuration)
                 .withLayer()
                 .withEndAction(() -> {
-                    // Khi mọi thứ animation khác đã hoàn thiện, card kết quả đã đứng yên (stands still) thì mới cho phát MP4
-                    if (mainCard != null && vvResultVideo != null && requireContext() != null) {
-                        boolean isResultMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
-                        if (isResultMotion) {
-                            if (resultVideoPlayer != null) {
-                                resultVideoPlayer.release();
-                                resultVideoPlayer = null;
-                            }
-                            ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
-                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                                    requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
-                            if (!isSuccess) {
-                                vvResultVideo.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-                                android.graphics.Paint grayscalePaint = new android.graphics.Paint();
-                                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-                                matrix.setSaturation(0);
-                                grayscalePaint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-                                vvResultVideo.setLayerPaint(grayscalePaint);
-                            } else {
-                                vvResultVideo.setLayerType(View.LAYER_TYPE_NONE, null);
-                            }
-                        }
+                    // Không phát video MP4 trong UpgradeFragment để tránh giật lag
+                    if (vvResultVideo != null) {
+                        vvResultVideo.setVisibility(View.GONE);
                     }
                 })
                 .start();
@@ -1033,20 +1014,10 @@ public class UpgradeFragment extends Fragment {
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
 
-            // Thiết lập trình phát video ExoPlayer cho thẻ chính dạng Motion (DRY)
-            boolean isMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
+            // Chỉ hiển thị ảnh tĩnh trong UpgradeFragment để tránh giật lag khi rèn đập thẻ
             TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
             if (vvMainVideo != null) {
-                if (mainVideoPlayer != null) {
-                    mainVideoPlayer.release();
-                    mainVideoPlayer = null;
-                }
-                if (isMotion) {
-                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                            requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
-                } else {
-                    vvMainVideo.setVisibility(View.GONE);
-                }
+                vvMainVideo.setVisibility(View.GONE);
             }
 
             tvCardOvr.setVisibility(View.GONE);

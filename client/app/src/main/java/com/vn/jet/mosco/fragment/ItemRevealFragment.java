@@ -588,22 +588,10 @@ public class ItemRevealFragment extends Fragment {
                                 .setInterpolator(new OvershootInterpolator())
                                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
                                 .withEndAction(() -> {
-                                    // Khi mọi thứ animation khác đã hoàn thiện, card đã đứng yên (stands still) thì mới cho phát MP4
-                                    if (requireContext() != null && getView() != null) {
-                                        TextureView vvItemVideoDelayed = getView().findViewById(R.id.vv_item_video);
-                                        if (vvItemVideoDelayed != null) {
-                                            String cardClass = topCardJson.optString(KEY_CARD_CLASS, "Welcome");
-                                            String frontVideoUrl = topCardJson.optString("frontVideoUrl", "");
-                                            boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && !frontVideoUrl.isEmpty();
-                                            if (isMotion) {
-                                                releaseItemPlayer();
-                                                isCardFlipped = false;
-                                                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                                                        requireContext(), vvItemVideoDelayed, frontVideoUrl, ivItemImage);
-                                            } else {
-                                                vvItemVideoDelayed.setVisibility(View.GONE);
-                                            }
-                                        }
+                                    // Không phát video MP4 trong ItemRevealFragment để tránh giật lag khi mở hộp
+                                    TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+                                    if (vvItemVideoReveal != null) {
+                                        vvItemVideoReveal.setVisibility(View.GONE);
                                     }
                                 })
                                 .start();
