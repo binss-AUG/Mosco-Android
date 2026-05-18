@@ -679,31 +679,9 @@ public class UpgradeFragment extends Fragment {
         // Load ảnh thẻ CŨ lên card (Sử dụng Priority Flow - Original)
         com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivResultImage, mainCard.getFrontImage(), false);
 
-        // Khởi chạy trình phát video ExoPlayer cho thẻ kết quả đập thẻ dạng Motion (DRY)
-        boolean isResultMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
         TextureView vvResultVideo = cardContainer.findViewById(R.id.card_vv_video);
         if (vvResultVideo != null) {
-            if (resultVideoPlayer != null) {
-                resultVideoPlayer.release();
-                resultVideoPlayer = null;
-            }
-            if (isResultMotion) {
-                resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                        requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
-                // Nếu đập thẻ thất bại, áp dụng Grayscale Paint cho video để hiển thị đen trắng tuyệt đẹp!
-                if (!result.isSuccess()) {
-                    vvResultVideo.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-                    android.graphics.Paint grayscalePaint = new android.graphics.Paint();
-                    android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
-                    matrix.setSaturation(0);
-                    grayscalePaint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
-                    vvResultVideo.setLayerPaint(grayscalePaint);
-                } else {
-                    vvResultVideo.setLayerType(View.LAYER_TYPE_NONE, null);
-                }
-            } else {
-                vvResultVideo.setVisibility(View.GONE);
-            }
+            vvResultVideo.setVisibility(View.GONE);
         }
 
         tvResultOvr.setVisibility(View.GONE); // Ẩn OVR theo yêu cầu
@@ -895,7 +873,7 @@ public class UpgradeFragment extends Fragment {
                                                 .setInterpolator(new AccelerateInterpolator())
                                                 .withLayer()
                                                 .withEndAction(() -> {
-                                                    finalizeAnimationUI(tvTitle, btnDone, cardWrapper, null);
+                                                    finalizeAnimationUI(tvTitle, btnDone, cardWrapper, vvResultVideo, result.isSuccess());
                                                 }).start();
                                     }
                                 });
@@ -940,10 +918,7 @@ public class UpgradeFragment extends Fragment {
 
 
 
-    private void finalizeAnimationUI(TextView title, View done, View card, View video) {
-        if (video != null) {
-            video.animate().alpha(0f).setDuration(animVideoFadeDuration).start();
-        }
+    private void finalizeAnimationUI(TextView title, View done, View card, TextureView vvResultVideo, boolean isSuccess) {
         title.setVisibility(View.VISIBLE);
         done.setVisibility(View.VISIBLE);
 
@@ -965,6 +940,31 @@ public class UpgradeFragment extends Fragment {
                 .setInterpolator(new OvershootInterpolator(2.5f))
                 .setDuration(animRevealOvershootDuration)
                 .withLayer()
+                .withEndAction(() -> {
+                    // Khi mọi thứ animation khác đã hoàn thiện, card kết quả đã đứng yên (stands still) thì mới cho phát MP4
+                    if (mainCard != null && vvResultVideo != null && requireContext() != null) {
+                        boolean isResultMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
+                        if (isResultMotion) {
+                            if (resultVideoPlayer != null) {
+                                resultVideoPlayer.release();
+                                resultVideoPlayer = null;
+                            }
+                            ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
+                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                    requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
+                            if (!isSuccess) {
+                                vvResultVideo.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                                android.graphics.Paint grayscalePaint = new android.graphics.Paint();
+                                android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                                matrix.setSaturation(0);
+                                grayscalePaint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                                vvResultVideo.setLayerPaint(grayscalePaint);
+                            } else {
+                                vvResultVideo.setLayerType(View.LAYER_TYPE_NONE, null);
+                            }
+                        }
+                    }
+                })
                 .start();
     }
 

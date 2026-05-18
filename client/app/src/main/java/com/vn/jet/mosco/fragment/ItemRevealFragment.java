@@ -550,20 +550,9 @@ public class ItemRevealFragment extends Fragment {
                         if (!imageUrl.isEmpty())
                             Glide.with(this).load(imageUrl).into(ivItemImage);
 
-                        // Thiết lập ExoPlayer phát video thẻ Motion cao cấp (DRY)
-                        String cardClass = topCardJson.optString(KEY_CARD_CLASS, "Welcome");
-                        String frontVideoUrl = topCardJson.optString("frontVideoUrl", "");
-                        boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && !frontVideoUrl.isEmpty();
                         TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
                         if (vvItemVideo != null) {
-                            releaseItemPlayer();
-                            if (isMotion && requireContext() != null) {
-                                isCardFlipped = false;
-                                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                                        requireContext(), vvItemVideo, frontVideoUrl, ivItemImage);
-                            } else {
-                                vvItemVideo.setVisibility(View.GONE);
-                            }
+                            vvItemVideo.setVisibility(View.GONE);
                         }
 
 
@@ -598,6 +587,25 @@ public class ItemRevealFragment extends Fragment {
                         ivItemImage.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(500)
                                 .setInterpolator(new OvershootInterpolator())
                                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
+                                .withEndAction(() -> {
+                                    // Khi mọi thứ animation khác đã hoàn thiện, card đã đứng yên (stands still) thì mới cho phát MP4
+                                    if (requireContext() != null && getView() != null) {
+                                        TextureView vvItemVideoDelayed = getView().findViewById(R.id.vv_item_video);
+                                        if (vvItemVideoDelayed != null) {
+                                            String cardClass = topCardJson.optString(KEY_CARD_CLASS, "Welcome");
+                                            String frontVideoUrl = topCardJson.optString("frontVideoUrl", "");
+                                            boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && !frontVideoUrl.isEmpty();
+                                            if (isMotion) {
+                                                releaseItemPlayer();
+                                                isCardFlipped = false;
+                                                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                                        requireContext(), vvItemVideoDelayed, frontVideoUrl, ivItemImage);
+                                            } else {
+                                                vvItemVideoDelayed.setVisibility(View.GONE);
+                                            }
+                                        }
+                                    }
+                                })
                                 .start();
 
                         // Kích hoạt Thiên Hà Hạt
