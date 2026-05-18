@@ -13,6 +13,7 @@ import com.vn.jet.mosco.spinserver.model.UserItem;
 import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
 import com.vn.jet.mosco.spinserver.repository.UserItemRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
+import com.vn.jet.mosco.spinserver.utils.ChaosTheoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -104,7 +105,7 @@ public class PackService {
         double[] rates = new double[ratesArray.size()];
         for (int i = 0; i < ratesArray.size(); i++) rates[i] = ratesArray.get(i).getAsDouble();
 
-        Random random = new Random();
+        // Sử dụng ChaosTheoryHelper dùng chung để sinh số ngẫu nhiên khí quyển (DRY)
 
         for (int q = 0; q < quantity; q++) {
             // 1. Quay Class dựa trên Rank
@@ -118,7 +119,7 @@ public class PackService {
             }
 
             // 3. Chọn thẻ ngẫu nhiên
-            JsonObject selectedCard = pool.get(random.nextInt(pool.size()));
+            JsonObject selectedCard = pool.get(ChaosTheoryHelper.nextInt(pool.size()));
             String cardId = selectedCard.has("id") ? selectedCard.get("id").getAsString() : "unknown";
             String actualClass = selectedCard.has("class") ? selectedCard.get("class").getAsString() : selectedRankClass;
 
@@ -146,7 +147,7 @@ public class PackService {
     }
 
     private String rollClassByRank(double[] rates) {
-        double r = new Random().nextDouble();
+        double r = ChaosTheoryHelper.nextDouble();
         double cumulative = 0;
         
         // Tỷ lệ quay theo 4 Rank mặc định trong pack_rates
@@ -164,17 +165,16 @@ public class PackService {
      * Chọn subclass ngẫu nhiên (50/50) nếu rank có nhiều class.
      */
     private String selectSubClassByRank(int rank) {
-        Random rnd = new Random();
         switch (rank) {
             case 1: 
-                int r = rnd.nextInt(3);
+                int r = ChaosTheoryHelper.nextInt(3);
                 return r == 0 ? "First" : (r == 1 ? "Welcome" : "Zero");
             case 2: 
                 return "Double";
             case 3: 
-                return rnd.nextBoolean() ? "Special" : "Motion";
+                return ChaosTheoryHelper.nextBoolean() ? "Special" : "Motion";
             case 4: 
-                return rnd.nextBoolean() ? "Premier" : "Unit"; // Unit được nâng độ hiếm lên bằng Premier
+                return ChaosTheoryHelper.nextBoolean() ? "Premier" : "Unit"; // Unit được nâng độ hiếm lên bằng Premier
             default: 
                 return "First";
         }

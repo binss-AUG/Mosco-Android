@@ -1,15 +1,5 @@
 package com.vn.jet.mosco.spinserver.utils;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,8 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.security.SecureRandom;
 import java.util.LinkedList;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
@@ -47,7 +41,6 @@ public class SpinSystem {
 
     private final Map<String, List<JsonObject>> groupedCards = new HashMap<>();
     private final Map<String, Double> baseRates = new HashMap<>();
-    private final SecureRandom random;
     
     // History to avoid recent duplicates in results
     // private final LinkedList<JsonObject> recentHistory = new LinkedList<>();
@@ -73,10 +66,6 @@ public class SpinSystem {
     }
 
     public SpinSystem(Long seed) {
-        this.random = new SecureRandom();
-        if (seed != null) {
-            this.random.setSeed(seed);
-        }
         initGroups();
     }
 
@@ -99,32 +88,7 @@ public class SpinSystem {
         }
     }
 
-    // Lấy số ngẫu nhiên từ tiếng ồn khí quyển (True Random)
-    private long fetchTrueRandomSeed() {
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://www.random.org/integers/?num=1&min=1&max=1000000000&col=1&base=10&format=plain&rnd=new";
-        
-        Request request = new Request.Builder().url(url).build();
-        
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful() && response.body() != null) {
-                String result = response.body().string().trim();
-                return Long.parseLong(result);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        // Fallback: Nếu rớt mạng hoặc API lỗi, dùng nanoTime của hệ thống để chữa cháy
-        return System.nanoTime(); 
-    }
-
-    // Bơm sự hỗn loạn vào SecureRandom
-    private void injectChaos() {
-        long trueRandomSeed = fetchTrueRandomSeed();
-        // Trộn số True Random từ API với thời gian thực để tạo ra Hạt giống không thể đoán trước
-        this.random.setSeed(trueRandomSeed ^ System.currentTimeMillis());
-    }
+    // Lấy số ngẫu nhiên thực sự qua ChaosTheoryHelper bất đồng bộ định kỳ
 
     private void initGroups() {
         groupedCards.put(GROUP_NOTHING, new ArrayList<>());
@@ -225,7 +189,7 @@ public class SpinSystem {
             }
 
             double maxFluc = base * 0.10; // 10%
-            double fluctuation = (random.nextDouble() * 2 * maxFluc) - maxFluc; // range: -maxFluc to +maxFluc
+            double fluctuation = (ChaosTheoryHelper.nextDouble() * 2 * maxFluc) - maxFluc; // range: -maxFluc to +maxFluc
             double val = base + fluctuation;
 
             if (val < 0) val = 0; // Ensure no negative values
@@ -272,7 +236,7 @@ public class SpinSystem {
      * Implement weighted random selection
      */
     private String selectGroupWeighted(Map<String, Double> finalRates) {
-        double roll = random.nextDouble() * 100.0;
+        double roll = ChaosTheoryHelper.nextDouble() * 100.0;
         double cumulative = 0.0;
 
         for (Map.Entry<String, Double> entry : finalRates.entrySet()) {
@@ -288,10 +252,6 @@ public class SpinSystem {
      * Spin logic implementation
      */
     public SpinResult spin() {
-
-        // TÍCH HỢP TRUE RANDOM Ở ĐÂY: Reset lại thuật toán ngẫu nhiên trước khi quay
-        injectChaos();
-
         SpinResult result = new SpinResult();
         
         // Step 1: Generate final probability table
@@ -312,7 +272,7 @@ public class SpinSystem {
         }
 
         // Bốc ngẫu nhiên 1 thẻ trúng thưởng (Đã xóa logic chặn thẻ trùng lặp)
-        int randomIndex = random.nextInt(cardsInGroup.size());
+        int randomIndex = ChaosTheoryHelper.nextInt(cardsInGroup.size());
         JsonObject finalCard = cardsInGroup.get(randomIndex);
         result.result = finalCard;
 
@@ -339,7 +299,7 @@ public class SpinSystem {
             int targetSize = Math.min(count, safePool.size());
             
             // Trộn ngẫu nhiên danh sách bằng chính thuật toán mã hóa của SecureRandom
-            java.util.Collections.shuffle(safePool, random);
+            ChaosTheoryHelper.shuffle(safePool);
             
             // Cắt đúng số lượng thẻ đưa vào lưới
             for (int i = 0; i < targetSize; i++) {
@@ -348,7 +308,7 @@ public class SpinSystem {
         }
         
         // Trộn ngẫu nhiên vị trí của 15 thẻ rác trước khi đưa lên UI
-        java.util.Collections.shuffle(revealGrid, random);
+        ChaosTheoryHelper.shuffle(revealGrid);
         result.revealGrid = revealGrid;
         
         // Build display message
@@ -374,14 +334,14 @@ public class SpinSystem {
         bounds.put(GROUP_DOUBLE, new int[]{doubleMin, doubleMax});
 
         // 3. Phân phối nhóm Special, Motion (tách từ SpecialUnit cũ)
-        int sMax = specialUnitMax > 0 ? random.nextInt(specialUnitMax + 1) : 0;
+        int sMax = specialUnitMax > 0 ? ChaosTheoryHelper.nextInt(specialUnitMax + 1) : 0;
         int sMin = sMax / 2;
         bounds.put(GROUP_SPECIAL, new int[]{sMin, sMax});
         bounds.put(GROUP_MOTION, new int[]{sMin, sMax});
 
         // 4. Phân phối nhóm Unit, Premier (nhóm Rank 4)
-        int premierCount = (resultGroup.equals(GROUP_PREMIER)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);
-        int unitCount = (resultGroup.equals(GROUP_UNIT)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);
+        int premierCount = (resultGroup.equals(GROUP_PREMIER)) ? 1 : (ChaosTheoryHelper.nextInt(100) < pProb ? 1 : 0);
+        int unitCount = (resultGroup.equals(GROUP_UNIT)) ? 1 : (ChaosTheoryHelper.nextInt(100) < pProb ? 1 : 0);
         bounds.put(GROUP_PREMIER, new int[]{premierCount, premierCount});
         bounds.put(GROUP_UNIT, new int[]{unitCount, unitCount});
 
@@ -393,7 +353,7 @@ public class SpinSystem {
 
     private Map<String, Integer> buildCaseDistribution(String resultGroup) {
         Map<String, int[]> bounds;
-        int caseRoll = random.nextInt(100);
+        int caseRoll = ChaosTheoryHelper.nextInt(100);
         if (caseRoll < 24) {
             bounds = createBounds(resultGroup, 3, 6, 11, 3, 6, 2, 0, 2);
         } else if (caseRoll < 48) {
@@ -450,7 +410,7 @@ public class SpinSystem {
         while (currentSum < targetSum) {
             boolean added = false;
             List<String> keys = new ArrayList<>(bounds.keySet());
-            java.util.Collections.shuffle(keys, random);
+            ChaosTheoryHelper.shuffle(keys);
             for (String g : keys) {
                 if (dist.get(g) < bounds.get(g)[1]) {
                     dist.put(g, dist.get(g) + 1);

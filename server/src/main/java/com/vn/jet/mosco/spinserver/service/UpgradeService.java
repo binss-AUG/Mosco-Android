@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.vn.jet.mosco.spinserver.utils.ChaosTheoryHelper;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Service xử lý logic nâng cấp thẻ bài (FO4 Style).
@@ -33,7 +33,6 @@ public class UpgradeService {
     private final StageSessionMemberRepository stageSessionMemberRepository;
     private final CardDataService cardDataService;
     private final ObjectMapper objectMapper;
-    private final Random random = new Random();
 
     private Map<Integer, Double> upgradeRates;
     private JsonNode customUpgradeConfig;
@@ -114,8 +113,8 @@ public class UpgradeService {
         double fillPercent = Math.min(totalFillPercent, 100.0);
         double actualSuccessRate = (fillPercent / 100.0) * maxRate;
 
-        // 4. Quay Gacha (Server Truth)
-        boolean isSuccess = (random.nextDouble() * 100.0) <= actualSuccessRate;
+        // 4. Quay Gacha (Server Truth) - Sử dụng ChaosTheoryHelper dùng chung để sinh số ngẫu nhiên khí quyển (DRY)
+        boolean isSuccess = (ChaosTheoryHelper.nextDouble() * 100.0) <= actualSuccessRate;
 
         // 5. Cập nhật kết quả
         int oldLevel = mainCard.getUpgradeLevel();

@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @Component
 public class UpgradeSystem {
@@ -35,7 +34,6 @@ public class UpgradeSystem {
 
     private Map<Integer, Double> upgradeRates;
     private Map<Integer, Map<String, UpgradeConfig>> customUpgrades;
-    private Random random = new Random();
 
     @PostConstruct
     public void init() {
@@ -109,9 +107,8 @@ public class UpgradeSystem {
         double displayFill = Math.min(totalFillPercent, 100.0);
         double actualSuccessRate = (displayFill / 100.0) * maxSuccessRate;
 
-        // Tránh bị hack RNG bằng cách tái sử dụng logic ngẫu nhiên tương tự SpinSystem (nâng cao hơn)
-        // Nhưng tạm thời Random cơ bản đã được bảo vệ vì chạy ở phía Server, Client k can thiệp được
-        double roll = random.nextDouble() * 100.0;
+        // Sử dụng ChaosTheoryHelper dùng chung để sinh số ngẫu nhiên khí quyển (DRY)
+        double roll = ChaosTheoryHelper.nextDouble() * 100.0;
         boolean isSuccess = roll <= actualSuccessRate;
 
         UpgradeResult result = new UpgradeResult();
