@@ -538,10 +538,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void setupGuestListeners(View v) {
-        com.google.android.material.button.MaterialButton btnLike = v.findViewById(R.id.btn_like);
-        com.google.android.material.button.MaterialButton btnFriend = v.findViewById(R.id.btn_add_friend);
-        com.google.android.material.button.MaterialButton btnMsg = v.findViewById(R.id.btn_direct_message);
-        com.google.android.material.button.MaterialButton btnDecline = v.findViewById(R.id.btn_decline_request);
+        com.vn.jet.mosco.widget.MoscoButton btnLike = v.findViewById(R.id.btn_like);
+        com.vn.jet.mosco.widget.MoscoButton btnFriend = v.findViewById(R.id.btn_add_friend);
+        com.vn.jet.mosco.widget.MoscoButton btnMsg = v.findViewById(R.id.btn_direct_message);
+        com.vn.jet.mosco.widget.MoscoButton btnDecline = v.findViewById(R.id.btn_decline_request);
 
         // Quan sát dữ liệu để cập nhật trạng thái nút
         viewModel.getUserStats().observe(getViewLifecycleOwner(), stats -> {
@@ -552,12 +552,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
-                    btnLike.setBackgroundTintList(android.content.res.ColorStateList
-                            .valueOf(getResources().getColor(R.color.lg_accent_primary_dim)));
+                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
-                    btnLike.setBackgroundTintList(
-                            android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.lg_accent_primary)));
+                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
                 }
             }
 
@@ -570,23 +568,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 switch (stats.getFriendshipStatus()) {
                     case 3: // Nhận được lời mời -> Hiển thị nút Chấp nhận
                         btnFriend.setText(R.string.social_action_accept);
-                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_success)));
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
                         break;
                     case 1: // Pending (Đã gửi lời mời)
                         btnFriend.setText(R.string.profile_btn_pending);
-                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.palette_gold)));
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
                         break;
                     case 2: // Friends
                         btnFriend.setText(R.string.profile_btn_friends);
-                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.mosco_primary_alpha_60)));
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
                         break;
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
-                        btnFriend.setBackgroundTintList(android.content.res.ColorStateList
-                                .valueOf(getResources().getColor(R.color.lg_accent_primary)));
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
                         break;
                 }
             }

@@ -15,65 +15,47 @@
         android:gravity="center"
         android:layout_marginBottom="@dimen/spacing_xs">
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_edit_profile"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="0dp"
-            android:layout_height="38dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xxs"
+            app:moscoStyle="primary"
+            app:moscoSize="medium"
             android:text="@string/profile_btn_edit"
-            android:textSize="@dimen/text_12sp"
-            android:padding="0dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:backgroundTint="@null"
-            android:background="@drawable/lg_btn_pill"
-            android:textColor="@color/white"
             android:textStyle="bold"
-            app:icon="@drawable/ic_edit_pen"
-            app:iconSize="14dp"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white" />
+            android:drawableStart="@drawable/ic_edit_pen"
+            android:drawablePadding="@dimen/spacing_xs"
+            android:drawableTint="@color/white"
+            android:paddingStart="@dimen/spacing_md" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_settings"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="wrap_content"
+            app:moscoStyle="ghost"
+            app:moscoSize="medium"
             android:text="@string/profile_btn_settings"
-            android:textSize="@dimen/text_12sp"
-            android:padding="0dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:backgroundTint="@null"
-            android:background="@drawable/lg_btn_pill"
-            android:textColor="@color/white"
             android:textStyle="bold"
-            app:icon="@drawable/ic_settings"
-            app:iconSize="14dp"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white" />
+            android:drawableStart="@drawable/ic_settings"
+            android:drawablePadding="@dimen/spacing_xs"
+            android:drawableTint="@color/white"
+            android:paddingStart="@dimen/spacing_md" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <com.vn.jet.mosco.widget.MoscoButton
         android:id="@+id/btn_resource_management"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="wrap_content"
+        app:moscoStyle="ghost"
+        app:moscoSize="medium"
         android:text="@string/profile_btn_resource_mgmt"
-        android:textSize="@dimen/text_12sp"
-        android:padding="0dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        app:backgroundTint="@null"
-        android:background="@drawable/lg_btn_pill"
-        android:textColor="@color/white"
         android:textStyle="bold"
-        app:icon="@drawable/ic_items"
-        app:iconSize="14dp"
-        app:iconGravity="textStart"
-        app:iconTint="@color/white" />
+        android:drawableStart="@drawable/ic_items"
+        android:drawablePadding="@dimen/spacing_xs"
+        android:drawableTint="@color/white"
+        android:paddingStart="@dimen/spacing_md" />
 
 </LinearLayout>
 
