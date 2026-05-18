@@ -67,6 +67,9 @@ public class UserCard {
     @SerializedName("createdAt")
     private String createdAt; // ISO string from server
 
+    @SerializedName("frontVideoUrl")
+    private String frontVideoUrl;
+
     public UserCard() {}
 
     public String getUuid() { return uuid; }
@@ -138,4 +141,7 @@ public class UserCard {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
 }

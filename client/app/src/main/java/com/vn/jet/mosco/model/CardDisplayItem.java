@@ -43,6 +43,7 @@ public class CardDisplayItem {
     // === Display State (Album mode) ===
     private boolean owned;              // User đã từng sở hữu chưa (Ever Owned)
     private Long userCardId;            // ID bản ghi user_cards (null nếu chưa có)
+    private String frontVideoUrl;
 
     public CardDisplayItem() {}
 
@@ -75,6 +76,7 @@ public class CardDisplayItem {
         item.dimension = obj.getDimension();
         item.status = obj.getStatus();
         item.createdAt = obj.getCreatedAt();
+        item.frontVideoUrl = obj.getFrontVideoUrl();
         item.owned = true;
         item.userCardId = obj.getId();
         return item;
@@ -107,6 +109,7 @@ public class CardDisplayItem {
         item.owned = entry.isOwned();
         item.userCardId = entry.getUserCardId();
         item.createdAt = entry.getCreatedAt();
+        item.frontVideoUrl = entry.getFrontVideoUrl();
         return item;
     }
 
@@ -126,6 +129,7 @@ public class CardDisplayItem {
         entry.setOwned(item.isOwned());
         entry.setUserCardId(item.getUserCardId() != null ? item.getUserCardId() : -1L);
         entry.setCreatedAt(item.getCreatedAt());
+        entry.setFrontVideoUrl(item.getFrontVideoUrl());
         return entry;
     }
 
@@ -153,6 +157,7 @@ public class CardDisplayItem {
         item.dimension = cache.dimension;
         item.status = cache.status;
         item.createdAt = cache.createdAt;
+        item.frontVideoUrl = cache.frontVideoUrl;
         item.owned = true;
         item.userCardId = cache.id;
         return item;
@@ -245,4 +250,7 @@ public class CardDisplayItem {
 
     public Long getUserCardId() { return userCardId; }
     public void setUserCardId(Long userCardId) { this.userCardId = userCardId; }
+
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
 }

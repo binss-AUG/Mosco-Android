@@ -44,6 +44,14 @@ public class ObjetDetailBinder {
         bind(dialog, context, objet);
 
         dialog.findViewById(R.id.btn_close_detail).setOnClickListener(v -> dialog.dismiss());
+        dialog.setOnDismissListener(d -> {
+            android.widget.VideoView vv = dialog.findViewById(R.id.vv_objet_detail_video);
+            if (vv != null) {
+                try {
+                    vv.stopPlayback();
+                } catch (Exception e) {}
+            }
+        });
         dialog.show();
     }
 
@@ -103,6 +111,35 @@ public class ObjetDetailBinder {
             if (ivObjet != null && frontImageUrl != null && !frontImageUrl.isEmpty()) {
                 // Su dung GlideBindingAdapter thong qua code Java (manual binding)
                 com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivObjet, frontImageUrl, false);
+            }
+
+            // ── 3.5. Xử lý VideoView cho thẻ Motion (Apollo MP4s) ──────
+            final android.widget.VideoView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
+            final boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && objet.getFrontVideoUrl() != null && !objet.getFrontVideoUrl().isEmpty();
+
+            if (vvObjetVideo != null) {
+                if (isMotion) {
+                    vvObjetVideo.setVisibility(View.VISIBLE);
+                    String cachedUrl = com.vn.jet.mosco.MoscoApplication.getProxy(context).getProxyUrl(objet.getFrontVideoUrl());
+                    vvObjetVideo.setVideoURI(android.net.Uri.parse(cachedUrl));
+                    vvObjetVideo.setOnPreparedListener(mp -> {
+                        mp.setLooping(true);
+                        mp.setVideoScalingMode(android.media.MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                        vvObjetVideo.start();
+                        if (ivObjet != null) {
+                            ivObjet.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    vvObjetVideo.setOnErrorListener((mp, what, extra) -> {
+                        if (ivObjet != null) {
+                            ivObjet.setVisibility(View.VISIBLE);
+                        }
+                        vvObjetVideo.setVisibility(View.GONE);
+                        return true;
+                    });
+                } else {
+                    vvObjetVideo.setVisibility(View.GONE);
+                }
             }
 
             // ── 3. Tính toán chỉ số (Stats) ──────────────────────────
@@ -274,13 +311,23 @@ public class ObjetDetailBinder {
                             if (shouldShowBack != isFlipped[0]) {
                                 isFlipped[0] = shouldShowBack;
                                 if (!shouldShowBack) {
-                                    if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                    if (isMotion && vvObjetVideo != null) {
+                                        vvObjetVideo.setVisibility(View.VISIBLE);
+                                        vvObjetVideo.start();
+                                        if (ivObjet != null) ivObjet.setVisibility(View.INVISIBLE);
+                                    } else {
+                                        if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                    }
                                     if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
                                     View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
                                     if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
                                     ImageView ivLevelFlip = dialog.findViewById(R.id.card_iv_level);
                                     if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
                                 } else {
+                                    if (isMotion && vvObjetVideo != null) {
+                                        vvObjetVideo.pause();
+                                        vvObjetVideo.setVisibility(View.GONE);
+                                    }
                                     if (ivObjet != null) ivObjet.setVisibility(View.GONE);
                                     if (ivDetailBack != null) {
                                         ivDetailBack.setVisibility(View.VISIBLE);
@@ -330,11 +377,21 @@ public class ObjetDetailBinder {
                                     if (finalBack != isFlipped[0]) {
                                         isFlipped[0] = finalBack;
                                         if (!finalBack) {
-                                            if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                            if (isMotion && vvObjetVideo != null) {
+                                                vvObjetVideo.setVisibility(View.VISIBLE);
+                                                vvObjetVideo.start();
+                                                if (ivObjet != null) ivObjet.setVisibility(View.INVISIBLE);
+                                            } else {
+                                                if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                                            }
                                             if (ivDetailBack != null) ivDetailBack.setVisibility(View.GONE);
                                             View shimmerContainer = dialog.findViewById(R.id.layout_shimmer_container);
                                             if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
                                         } else {
+                                            if (isMotion && vvObjetVideo != null) {
+                                                vvObjetVideo.pause();
+                                                vvObjetVideo.setVisibility(View.GONE);
+                                            }
                                             if (ivObjet != null) ivObjet.setVisibility(View.GONE);
                                             if (ivDetailBack != null) {
                                                 ivDetailBack.setVisibility(View.VISIBLE);

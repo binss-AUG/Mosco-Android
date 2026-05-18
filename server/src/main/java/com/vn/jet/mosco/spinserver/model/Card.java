@@ -50,6 +50,9 @@ public class Card {
     @Column(name = "collection_no")
     private String collectionNo;
 
+    @Column(name = "front_video_url")
+    private String frontVideoUrl;
+
     @org.hibernate.annotations.UpdateTimestamp
     @Column(name = "updated_at")
     private java.time.LocalDateTime updatedAt;

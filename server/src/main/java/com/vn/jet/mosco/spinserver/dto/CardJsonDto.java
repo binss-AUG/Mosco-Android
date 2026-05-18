@@ -15,6 +15,7 @@ public class CardJsonDto {
     private String cardClass;
     private String frontImage;
     private String backImage;
+    private String slug;
 
     // Jackson mapping for "class" which is a reserved keyword
     public void setClass(String cardClass) {

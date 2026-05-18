@@ -75,6 +75,12 @@ public class CollectionDetailBinder {
         dialog.setContentView(R.layout.dialog_collection_detail);
         
         dialog.setOnDismissListener(d -> {
+            android.widget.VideoView vv = dialog.findViewById(R.id.vv_objet_detail_video);
+            if (vv != null) {
+                try {
+                    vv.stopPlayback();
+                } catch (Exception e) {}
+            }
             if (hasChanged[0] && onDismiss != null) onDismiss.run();
         });
         
@@ -116,6 +122,43 @@ public class CollectionDetailBinder {
                 ivCard.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
             } else {
                 ivCard.clearColorFilter();
+            }
+        }
+
+        // 1.5. Xử lý VideoView cho thẻ Motion (Apollo MP4s)
+        final android.widget.VideoView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
+        final boolean isMotion = "Motion".equalsIgnoreCase(entry.getCardClass()) && entry.getFrontVideoUrl() != null && !entry.getFrontVideoUrl().isEmpty() && entry.isOwned();
+
+        if (vvObjetVideo != null) {
+            if (isMotion) {
+                vvObjetVideo.setVisibility(View.VISIBLE);
+                try {
+                    String cachedUrl = com.vn.jet.mosco.MoscoApplication.getProxy(context).getProxyUrl(entry.getFrontVideoUrl());
+                    vvObjetVideo.setVideoURI(android.net.Uri.parse(cachedUrl));
+                    vvObjetVideo.setOnPreparedListener(mp -> {
+                        mp.setLooping(true);
+                        mp.setVideoScalingMode(android.media.MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                        vvObjetVideo.start();
+                        if (ivCard != null) {
+                            ivCard.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    vvObjetVideo.setOnErrorListener((mp, what, extra) -> {
+                        if (ivCard != null) {
+                            ivCard.setVisibility(View.VISIBLE);
+                        }
+                        vvObjetVideo.setVisibility(View.GONE);
+                        return true;
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (ivCard != null) {
+                        ivCard.setVisibility(View.VISIBLE);
+                    }
+                    vvObjetVideo.setVisibility(View.GONE);
+                }
+            } else {
+                vvObjetVideo.setVisibility(View.GONE);
             }
         }
 
@@ -184,7 +227,7 @@ public class CollectionDetailBinder {
             }
 
             if (cvCard != null) {
-                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel());
+                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel(), vvObjetVideo, isMotion);
             }
         } else {
             // Nếu chưa sở hữu: Ẩn Shimmer để hiện diện lớp xám Sad
@@ -278,7 +321,8 @@ public class CollectionDetailBinder {
     private static void setupInteractiveFlip(Context context, Dialog dialog,
                                               MaterialCardView cvCard,
                                               ImageView ivFront, ImageView ivBack,
-                                              ImageView ivLevel, int upgradeLevel) {
+                                              ImageView ivLevel, int upgradeLevel,
+                                              android.widget.VideoView vvObjetVideo, boolean isMotion) {
         float density = context.getResources().getDisplayMetrics().density;
         android.util.TypedValue distVal = new android.util.TypedValue();
         context.getResources().getValue(R.dimen.flip_camera_distance_factor, distVal, true);
@@ -334,6 +378,12 @@ public class CollectionDetailBinder {
                             if (ivBack != null) ivBack.setVisibility(View.GONE);
                             if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
                             if (ivLevel != null && upgradeLevel > 0) ivLevel.setVisibility(View.VISIBLE);
+                            // MOTION VIDEO SUPPORT
+                            if (vvObjetVideo != null && isMotion) {
+                                vvObjetVideo.setVisibility(View.VISIBLE);
+                                vvObjetVideo.start();
+                                if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                            }
                         } else {
                             // Hiện mặt sau
                             if (ivFront != null) ivFront.setVisibility(View.GONE);
@@ -344,6 +394,11 @@ public class CollectionDetailBinder {
                             }
                             if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
                             if (ivLevel != null) ivLevel.setVisibility(View.GONE);
+                            // MOTION VIDEO SUPPORT
+                            if (vvObjetVideo != null) {
+                                vvObjetVideo.setVisibility(View.GONE);
+                                vvObjetVideo.pause();
+                            }
                         }
                     }
                     return true;
@@ -389,6 +444,12 @@ public class CollectionDetailBinder {
                                     if (ivFront != null) ivFront.setVisibility(View.VISIBLE);
                                     if (ivBack != null) ivBack.setVisibility(View.GONE);
                                     if (shimmerContainer != null) shimmerContainer.setVisibility(View.VISIBLE);
+                                    // MOTION VIDEO SUPPORT
+                                    if (vvObjetVideo != null && isMotion) {
+                                        vvObjetVideo.setVisibility(View.VISIBLE);
+                                        vvObjetVideo.start();
+                                        if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                                    }
                                 } else {
                                     if (ivFront != null) ivFront.setVisibility(View.GONE);
                                     if (ivBack != null) {
@@ -396,6 +457,11 @@ public class CollectionDetailBinder {
                                         ivBack.setScaleX(-1f);
                                     }
                                     if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
+                                    // MOTION VIDEO SUPPORT
+                                    if (vvObjetVideo != null) {
+                                        vvObjetVideo.setVisibility(View.GONE);
+                                        vvObjetVideo.pause();
+                                    }
                                 }
                             }
                         }

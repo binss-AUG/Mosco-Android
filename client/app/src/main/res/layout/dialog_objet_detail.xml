@@ -290,6 +290,13 @@
                 <!-- Unified Card Content (Same proportions as Upgrade Fragment) -->
                 <include layout="@layout/layout_core_card" />
 
+                <!-- VideoView cho thẻ Motion (Apollo MP4s) -->
+                <VideoView
+                    android:id="@+id/vv_objet_detail_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
                 <!-- 2b. Back Face (Hiá»‡n khi Flip 3D, máº·c Ä‘á»‹nh áº©n) -->
                 <ImageView
                     android:id="@+id/iv_objet_detail_back"

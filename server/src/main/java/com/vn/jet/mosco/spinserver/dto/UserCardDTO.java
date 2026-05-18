@@ -30,6 +30,7 @@ public class UserCardDTO {
     private String status;
     private Object rarityColor; // Mã màu hex hoặc mảng màu cho gradient
     private String createdAt;
+    private String frontVideoUrl;
 
     public UserCardDTO() {}
 
@@ -102,4 +103,7 @@ public class UserCardDTO {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
 }

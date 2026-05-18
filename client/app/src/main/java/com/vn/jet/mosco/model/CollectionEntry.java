@@ -48,11 +48,17 @@ public class CollectionEntry {
     @SerializedName("level")
     private int level;
 
+    @SerializedName("frontVideoUrl")
+    private String frontVideoUrl;
+
     public CollectionEntry() {}
 
     // === Getters ===
 
     // === Getters & Setters ===
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
+
     public String getCollectionId() { return collectionId; }
     public void setCollectionId(String collectionId) { this.collectionId = collectionId; }
 

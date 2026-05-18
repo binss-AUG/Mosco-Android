@@ -102,6 +102,21 @@ public class EtlService {
                 if (card.getBaseOvr() == 0) card.setBaseOvr(70);
                 if (card.getUpgradeLevel() == 0) card.setUpgradeLevel(1);
 
+                // Phát triển cho thẻ Motion (Dynamic URL Generation từ Slug Apollo)
+                if (cardClass != null && "Motion".equalsIgnoreCase(cardClass.getName())) {
+                    String slug = dto.getSlug() != null ? dto.getSlug().toLowerCase() : "";
+                    if (slug.isEmpty()) {
+                        String seasonName = season != null ? season.getName().toLowerCase().replaceAll("\\s+", "") : "";
+                        String memberName = member != null ? member.getName().toLowerCase().replaceAll("\\s+", "") : "";
+                        String colNo = dto.getCollectionNo() != null ? dto.getCollectionNo().toLowerCase() : "";
+                        slug = seasonName + "-" + memberName + "-" + colNo;
+                    }
+                    String videoUrl = "https://cdn.apollo.cafe/mco/triples/" + slug + ".mp4";
+                    card.setFrontVideoUrl(videoUrl);
+                } else {
+                    card.setFrontVideoUrl(null);
+                }
+
                 batchCards.add(card);
                 count++;
 

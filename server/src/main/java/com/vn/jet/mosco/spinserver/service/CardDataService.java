@@ -32,10 +32,16 @@ public class CardDataService {
     private Map<String, JsonNode> cardMetadataCache;
     private JsonNode gameConfig;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.vn.jet.mosco.spinserver.repository.CardRepository cardRepository;
+
+    private final Map<String, String> videoUrlCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     @PostConstruct
     public void init() {
         loadDatabaseJson();
         loadGameConfigJson();
+        loadVideoUrlCache();
     }
 
     private void loadGameConfigJson() {
@@ -221,7 +227,24 @@ public class CardDataService {
         if (card.getCreatedAt() != null) {
             dto.setCreatedAt(card.getCreatedAt().toString());
         }
+        dto.setFrontVideoUrl(videoUrlCache.get(collectionId));
         return dto;
+    }
+
+    private void loadVideoUrlCache() {
+        videoUrlCache.clear();
+        try {
+            if (cardRepository != null) {
+                cardRepository.findAll().forEach(c -> {
+                    if (c.getFrontVideoUrl() != null) {
+                        videoUrlCache.put(c.getId(), c.getFrontVideoUrl());
+                    }
+                });
+                logger.info("CardDataService: Loaded {} video URLs into cache.", videoUrlCache.size());
+            }
+        } catch (Exception e) {
+            logger.error("CardDataService: Failed to load front_video_url cache from database", e);
+        }
     }
 
     public String getTypeKey(String collectionId) {
@@ -253,6 +276,7 @@ public class CardDataService {
     public void reload() {
         logger.info("CardDataService: Reloading metadata cache...");
         loadDatabaseJson();
+        loadVideoUrlCache();
         logger.info("CardDataService: Reload complete. New cache size: {}", cardMetadataCache.size());
     }
 }

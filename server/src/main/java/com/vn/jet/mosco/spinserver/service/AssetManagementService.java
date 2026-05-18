@@ -39,18 +39,6 @@ public class AssetManagementService {
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-    // Danh sách các Class thẻ bài được phép (Whitelist)
-    private static final java.util.Set<String> WHITELIST_CLASSES = java.util.Set.of(
-            "First", "Welcome", "Double", "Special", "Premier"
-    );
-
-    // [VIP] Danh sách 24 thành viên chính thức (S1-S24) - Loại bỏ thành viên "giả"
-    private static final java.util.Set<String> WHITELIST_ARTISTS = java.util.Set.of(
-            "SeoYeon", "HyeRin", "JiWoo", "ChaeYeon", "YooYeon", "SooMin", "NaKyoung", "YuBin",
-            "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
-            "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon"
-    );
-
     private volatile String syncStatus = "IDLE";
     private volatile String syncDetail = "";
 
@@ -112,16 +100,12 @@ public class AssetManagementService {
 
             List<JsonObject> allCollections = parseAndSort(jsonContent);
             
-            // Thực hiện lọc theo Whitelist (Chỉ lọc Class, giữ lại Artist để làm Easter Eggs)
-            List<JsonObject> filteredCollections = allCollections.stream()
-                    .filter(obj -> {
-                        String cardClass = obj.has("class") ? obj.get("class").getAsString() : "";
-                        return WHITELIST_CLASSES.contains(cardClass);
-                    })
-                    .collect(java.util.stream.Collectors.toList());
+            // Giữ lại toàn bộ danh sách cào được để người dùng có đầy đủ bộ sưu tập,
+            // không lọc bỏ theo bất kỳ Class hay Artist nào nhằm đảm bảo đồng bộ 100% dữ liệu gốc.
+            List<JsonObject> filteredCollections = allCollections;
 
-            log.info("📊 Thống kê: Tổng cào: {} | Sau khi lọc: {}. Cập nhật file database.json...", 
-                    allCollections.size(), filteredCollections.size());
+            log.info("📊 Thống kê: Tổng cào: {}. Cập nhật file database.json...", 
+                    allCollections.size());
 
             long oldSize = 0;
             File dbFile = new File(databaseJson);

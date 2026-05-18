@@ -14,6 +14,7 @@ public class CollectionEntry {
     private String frontImage;     // URL hình mặt trước
     private String backImage;      // URL hình mặt sau
     private String backgroundColor;
+    private String frontVideoUrl;  // URL video mặt trước cho thẻ Motion
 
     // Trạng thái sở hữu
     private boolean owned;         // User đã có thẻ này chưa
@@ -26,6 +27,9 @@ public class CollectionEntry {
     public CollectionEntry() {}
 
     // === Getters & Setters ===
+
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }

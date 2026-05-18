@@ -57,6 +57,7 @@ public class DatabaseLoader {
         public String dimension;
         public String status;
         public String createdAt;
+        public String frontVideoUrl;
 
         public UserInventoryItem() {
         }
@@ -65,7 +66,7 @@ public class DatabaseLoader {
                 int upgradeLevel, int ovr,
                 String cardClass, String member, String season, String collectionNo, String slug,
                 String backgroundColor, String textColor,
-                List<String> availableTags, String dimension, String status, String createdAt) {
+                List<String> availableTags, String dimension, String status, String createdAt, String frontVideoUrl) {
             this.id = id;
             this.collectionId = collectionId;
             this.frontImage = frontImage;
@@ -85,6 +86,7 @@ public class DatabaseLoader {
             this.dimension = dimension;
             this.status = status;
             this.createdAt = createdAt;
+            this.frontVideoUrl = frontVideoUrl;
         }
 
         /**
@@ -110,7 +112,8 @@ public class DatabaseLoader {
                     userCard.getAvailableTags(),
                     userCard.getDimension(),
                     userCard.getStatus(),
-                    userCard.getCreatedAt());
+                    userCard.getCreatedAt(),
+                    userCard.getFrontVideoUrl());
         }
     }
 
@@ -279,6 +282,8 @@ public class DatabaseLoader {
         if (key.equalsIgnoreCase("Premier")) return "Premier";
         if (key.equalsIgnoreCase("Special")) return "Special";
         if (key.equalsIgnoreCase("Unit")) return "Unit";
+        if (key.equalsIgnoreCase("Motion")) return "Motion";
+        if (key.equalsIgnoreCase("Zero")) return "Zero";
 
         // Hỗ trợ hạ cấp các kiểu cũ (Legacy support)
         if (key.contains("Welcome")) return "Welcome";
@@ -290,11 +295,12 @@ public class DatabaseLoader {
     }
 
     /**
-     * Ranking class để sort (Premier > Special/Unit > Double > First/Welcome)
+     * Ranking class để sort (Motion/Zero > Premier > Special/Unit > Double > First/Welcome)
      */
     public static int getCardClassRank(String cardClass) {
         if (cardClass == null) return 0;
         String key = mapClassToTypeKey(cardClass).toLowerCase();
+        if (key.equals("motion") || key.equals("zero")) return 5;
         if (key.equals("premier")) return 4;
         if (key.equals("special") || key.equals("unit")) return 3;
         if (key.equals("double")) return 2;
@@ -319,7 +325,10 @@ public class DatabaseLoader {
 
     public static boolean isClass(String f) {
         if (f == null) return false;
-        return java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "Unit", "SpecialUnit").contains(f);
+        for (String c : java.util.Arrays.asList("First", "Welcome", "Double", "Premier", "Special", "Unit", "SpecialUnit", "Motion", "Zero")) {
+            if (c.equalsIgnoreCase(f)) return true;
+        }
+        return false;
     }
 
     private static String loadJSONFromAsset(Context context, String fileName) {
@@ -505,97 +514,6 @@ public class DatabaseLoader {
     }
 
     /**
-     * Bổ túc dữ liệu tĩnh từ Master Database (database.json hoặc Room) vào UserInventoryItem.
-     * Giải quyết triệt để lỗi ảnh bị xám đen hoặc tên bị biến thành chữ "F" đơn lẻ.
-     */
-    public static void enrichMetadata(Context context, UserInventoryItem item) {
-        if (item == null || item.collectionId == null || context == null) return;
-        
-        // [CRITICAL FIX] Đảm bảo Master Data đã được nạp hoàn tất vào RAM (chặn luồng background)
-        // Nếu không có, Room Database Fallback sẽ thất bại khi tìm bằng UUID.
-        if (!isMasterDataLoaded) {
-            initMasterDataSync(context);
-        }
-        
-        JSONObject master = findById(context, item.collectionId);
-        if (master != null) {
-            if (item.frontImage == null || item.frontImage.isEmpty() || "null".equalsIgnoreCase(item.frontImage)) {
-                item.frontImage = master.optString("frontImage");
-            }
-            if (item.backImage == null || item.backImage.isEmpty() || "null".equalsIgnoreCase(item.backImage)) {
-                item.backImage = master.optString("backImage");
-            }
-            if (item.member == null || item.member.isEmpty() || "null".equalsIgnoreCase(item.member)) {
-                item.member = master.optString("member");
-            }
-            if (item.season == null || item.season.isEmpty() || "null".equalsIgnoreCase(item.season)) {
-                item.season = master.optString("season");
-            }
-            if (item.collectionNo == null || item.collectionNo.isEmpty() || "null".equalsIgnoreCase(item.collectionNo)) {
-                item.collectionNo = master.optString("collectionNo");
-            }
-            if (item.cardClass == null || item.cardClass.isEmpty() || "null".equalsIgnoreCase(item.cardClass)) {
-                item.cardClass = master.optString("class");
-            }
-            if (item.backgroundColor == null || item.backgroundColor.isEmpty() || "null".equalsIgnoreCase(item.backgroundColor)) {
-                item.backgroundColor = master.optString("backgroundColor", "#FFFFFF");
-            }
-            if (item.textColor == null || item.textColor.isEmpty() || "null".equalsIgnoreCase(item.textColor)) {
-                item.textColor = master.optString("textColor", "#000000");
-            }
-            if (item.dimension == null || item.dimension.isEmpty() || "null".equalsIgnoreCase(item.dimension)) {
-                item.dimension = master.optString("dimension");
-            }
-            if (item.ovr <= 0) {
-                item.ovr = master.optInt("ovr", 0);
-            }
-        }
-    }
-
-    /**
-     * Bổ túc dữ liệu tĩnh từ Master Database vào CardDisplayItem (dùng trong grids/Album).
-     */
-    public static void enrichMetadata(Context context, com.vn.jet.mosco.model.CardDisplayItem item) {
-        if (item == null || item.getCollectionId() == null || context == null) return;
-        
-        // [CRITICAL FIX] Chờ Master Data tải xong
-        if (!isMasterDataLoaded) {
-            initMasterDataSync(context);
-        }
-        
-        JSONObject master = findById(context, item.getCollectionId());
-        if (master != null) {
-            if (item.getFrontImage() == null || item.getFrontImage().isEmpty() || "null".equalsIgnoreCase(item.getFrontImage())) {
-                item.setFrontImage(master.optString("frontImage"));
-            }
-            if (item.getBackImage() == null || item.getBackImage().isEmpty() || "null".equalsIgnoreCase(item.getBackImage())) {
-                item.setBackImage(master.optString("backImage"));
-            }
-            if (item.getMember() == null || item.getMember().isEmpty() || "null".equalsIgnoreCase(item.getMember())) {
-                item.setMember(master.optString("member"));
-            }
-            if (item.getSeason() == null || item.getSeason().isEmpty() || "null".equalsIgnoreCase(item.getSeason())) {
-                item.setSeason(master.optString("season"));
-            }
-            if (item.getCollectionNo() == null || item.getCollectionNo().isEmpty() || "null".equalsIgnoreCase(item.getCollectionNo())) {
-                item.setCollectionNo(master.optString("collectionNo"));
-            }
-            if (item.getCardClass() == null || item.getCardClass().isEmpty() || "null".equalsIgnoreCase(item.getCardClass())) {
-                item.setCardClass(master.optString("class"));
-            }
-            if (item.getBackgroundColor() == null || item.getBackgroundColor().isEmpty() || "null".equalsIgnoreCase(item.getBackgroundColor())) {
-                item.setBackgroundColor(master.optString("backgroundColor", "#FFFFFF"));
-            }
-            if (item.getDimension() == null || item.getDimension().isEmpty() || "null".equalsIgnoreCase(item.getDimension())) {
-                item.setDimension(master.optString("dimension"));
-            }
-            if (item.getOvr() <= 0) {
-                item.setOvr(master.optInt("ovr", 0));
-            }
-        }
-    }
-
-    /**
      * Nạp lại inventory từ Server.
      */
     public static void reloadInventoryFromServer(Context context, Long userId,
@@ -620,8 +538,6 @@ public class DatabaseLoader {
 
                         for (com.vn.jet.mosco.model.UserCard uc : userCards) {
                             UserInventoryItem item = UserInventoryItem.fromUserCard(uc);
-                            // Bổ túc dữ liệu tĩnh trước khi thêm vào danh sách và map
-                            enrichMetadata(context, item);
                             newList.add(item);
                             newMap.put(item.collectionId, convertToJSONObject(item));
                         }
@@ -679,6 +595,7 @@ public class DatabaseLoader {
                     }
                     obj.put("dimension", item.dimension);
                     obj.put("status", item.status);
+                    obj.put("frontVideoUrl", item.frontVideoUrl);
                     array.put(obj);
                 }
                 java.io.File file = new java.io.File(context.getFilesDir(), "inventory_cache_" + userId + ".json");
@@ -721,7 +638,7 @@ public class DatabaseLoader {
                         tags.add(tagArray.getString(j));
                 }
 
-                UserInventoryItem item = new UserInventoryItem(
+                items.add(new UserInventoryItem(
                         obj.getLong("id"),
                         obj.getString("collectionId"),
                         obj.getString("frontImage"),
@@ -740,10 +657,8 @@ public class DatabaseLoader {
                         tags,
                         obj.optString("dimension", ""),
                         obj.optString("status", "AVAILABLE"),
-                        obj.optString("createdAt", ""));
-                // Bổ túc dữ liệu tĩnh để tránh cache local lưu thiếu trường
-                enrichMetadata(context, item);
-                items.add(item);
+                        obj.optString("createdAt", ""),
+                        obj.optString("frontVideoUrl", "")));
             }
             cachedUserInventory = items;
             cachedInventoryUserId = userId;
@@ -905,6 +820,7 @@ public class DatabaseLoader {
             obj.put("dimension", item.dimension);
             obj.put("status", item.status);
             obj.put("createdAt", item.createdAt);
+            obj.put("frontVideoUrl", item.frontVideoUrl);
             if (item.availableTags != null) {
                 obj.put("availableTags", new JSONArray(item.availableTags));
             }

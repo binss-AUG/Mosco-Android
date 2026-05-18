@@ -26,6 +26,7 @@ public class Objet {
     private String dimension;
     private String status;
     private String createdAt;
+    private String frontVideoUrl;
 
     public Objet() {
     }
@@ -59,6 +60,7 @@ public class Objet {
         obj.setDimension(item.dimension);
         obj.setStatus(item.status);
         obj.setCreatedAt(item.createdAt);
+        obj.setFrontVideoUrl(item.frontVideoUrl);
         return obj;
     }
 
@@ -118,4 +120,7 @@ public class Objet {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getFrontVideoUrl() { return frontVideoUrl; }
+    public void setFrontVideoUrl(String frontVideoUrl) { this.frontVideoUrl = frontVideoUrl; }
 }

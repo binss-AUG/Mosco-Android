@@ -1265,10 +1265,6 @@ public class CollectionFragment extends Fragment {
                 // Chuyển đổi trực tiếp sang CardDisplayItem — bỏ bước trung gian qua Objet
                 List<com.vn.jet.mosco.model.CardDisplayItem> displayItems = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
-                    // [LOCAL-FIRST SYNC] Bổ sung dữ liệu tĩnh từ master database
-                    if (requireContext() != null) {
-                        com.vn.jet.mosco.utils.DatabaseLoader.enrichMetadata(requireContext(), uc);
-                    }
                     com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem
                             .fromCacheItem(uc);
                     // Chuẩn hóa cardClass qua mapping hệ thống
@@ -1853,10 +1849,6 @@ public class CollectionFragment extends Fragment {
                                 for (com.vn.jet.mosco.model.CollectionEntry entry : rawEntries) {
                                     originalEntries
                                             .add(com.vn.jet.mosco.model.CardDisplayItem.fromCollectionEntry(entry));
-                                    com.vn.jet.mosco.model.CardDisplayItem displayItem = originalEntries.get(originalEntries.size() - 1);
-                                    if (requireContext() != null) {
-                                        com.vn.jet.mosco.utils.DatabaseLoader.enrichMetadata(requireContext(), displayItem);
-                                    }
                                 }
 
                                 // Cập nhật tiến trình

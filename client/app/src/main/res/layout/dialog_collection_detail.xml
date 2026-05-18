@@ -101,6 +101,13 @@
 
             <include layout="@layout/layout_core_card" />
 
+            <!-- VideoView cho thẻ Motion (Apollo MP4s) -->
+            <VideoView
+                android:id="@+id/vv_objet_detail_video"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
             <!-- Card Back (for Flip) -->
             <ImageView
                 android:id="@+id/iv_collection_back"
