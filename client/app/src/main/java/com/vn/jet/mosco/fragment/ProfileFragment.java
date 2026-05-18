@@ -1,5 +1,8 @@
 package com.vn.jet.mosco.fragment;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,26 +14,36 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.CompositePageTransformer;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import androidx.recyclerview.widget.RecyclerView;
 import android.widget.EditText;
 import com.vn.jet.mosco.ForgotPasswordActivity;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.MainActivity;
 import com.vn.jet.mosco.SignInActivity;
+import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.model.UserStats;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
+import com.vn.jet.mosco.utils.CardEffectHelper;
+import com.vn.jet.mosco.utils.DatabaseLoader;
+import com.vn.jet.mosco.utils.LevelBadgeEffectHelper;
 import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.ProfileViewModel;
@@ -58,7 +71,7 @@ import retrofit2.Response;
 
 /**
  * ProfileFragment — Quản lý hồ sơ, tài sản, và hành động tài khoản.
- * V6.2: Objet based Avatar (Preset Selection) with LeftOffsetCrop.
+ * V6.3: Refactored with compact layout & right-aligned Exhibit Carousel.
  */
 public class ProfileFragment extends Fragment implements AvatarSelectorBottomSheet.OnAvatarSelectedListener {
 
@@ -66,7 +79,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private static final long MENU_DEBOUNCE_MS = 500;
     public static final String ARG_TARGET_USER_ID = "target_user_id";
 
-    private TextView tvUsername, tvLevel;
+    private TextView tvUsername, tvLevel, tvCurrentTitle;
     private ImageView ivAvatar;
     private View avatarCard, btnMenu, btnBack;
     private View btnEditMode, viewAvatarDim;
@@ -83,13 +96,23 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View layoutProfileContent;
     private ViewStub stubShimmer;
     private View inflatedShimmer;
-    private TextView tvCurrentTitle, tvStatLikes, tvStatFriends;
+    private TextView tvStatLikes, tvStatFriends;
     private View tabSlidingThumb;
     private com.google.android.material.tabs.TabLayout tabLayout;
     private androidx.viewpager2.widget.ViewPager2 viewPager;
     private SessionManager sessionManager;
     private GameApiService gameApiService;
     private ProfileViewModel viewModel;
+
+    // Exhibit Showcase Area (Cột phải Header)
+    private ViewPager2 vpShowcase;
+    private ShowcasePagerAdapter showcaseAdapter;
+    private List<String> currentShowcaseIds = new ArrayList<>();
+    private static final int SHOWCASE_COUNT = 8;
+    private boolean isExhibitEditMode = false;
+    private android.os.Handler carouselHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable carouselRunnable;
+    private long lastShowcaseClickTime = 0;
 
     private Long targetUserId;
     private boolean isOwner;
@@ -220,6 +243,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (stats != null) {
                 showShimmer(false);
                 renderProfileData(stats);
+                renderShowcaseData(stats);
             }
         });
     }
@@ -283,9 +307,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         tvUsername.setText(stats.getIngameName() != null ? stats.getIngameName() : stats.getUsername());
         tvLevel.setText(getString(R.string.format_level_short, stats.getLevel()));
 
-        tvCurrentTitle
-                .setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle()
-                        : getString(R.string.profile_title_default));
+        if (tvCurrentTitle != null) {
+            tvCurrentTitle
+                    .setText(stats.getCurrentTitle() != null && !stats.getCurrentTitle().isEmpty() ? stats.getCurrentTitle()
+                            : getString(R.string.profile_title_default));
+        }
 
         // [PHASE 7] Update Profile Stats
         if (isAdded() && tvStatLikes != null && getContext() != null) {
@@ -330,7 +356,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         tvPreviewHeaderLabel = v.findViewById(R.id.tv_preview_header_label);
         layoutProfileContent = v.findViewById(R.id.layout_profile_content);
         stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
-        tvCurrentTitle = v.findViewById(R.id.tv_current_title);
+        tvCurrentTitle = null;
         tvStatLikes = v.findViewById(R.id.tv_stat_likes);
         tvStatFriends = v.findViewById(R.id.tv_stat_friends);
         tabSlidingThumb = v.findViewById(R.id.tab_sliding_thumb);
@@ -338,6 +364,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         viewPager = v.findViewById(R.id.view_pager);
 
         setupViewPager();
+        setupExhibitShowcase(v);
     }
 
     private void setupViewPager() {
@@ -362,9 +389,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             break;
                         case 1:
                             tab.setText(R.string.profile_tab_trophy);
-                            break;
-                        case 2:
-                            tab.setText(R.string.profile_tab_exhibit);
                             break;
                     }
                 }).attach();
@@ -1270,9 +1294,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (general != null)
             general.setEditMode(editMode);
 
-        ProfileExhibitFragment exhibit = getExhibitFragment();
-        if (exhibit != null)
-            exhibit.setEditMode(editMode);
+        this.isExhibitEditMode = editMode;
+        if (showcaseAdapter != null) {
+            showcaseAdapter.notifyItemRangeChanged(0, SHOWCASE_COUNT, "PAYLOAD_EDIT_MODE");
+        }
+        if (editMode) {
+            stopCarousel();
+        } else {
+            startCarousel();
+        }
     }
 
     /**
@@ -1287,18 +1317,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         Fragment frag = getChildFragmentManager().findFragmentByTag("f0");
         if (frag instanceof ProfileGeneralFragment) {
             return (ProfileGeneralFragment) frag;
-        }
-        return null;
-    }
-
-    @Nullable
-    private ProfileExhibitFragment getExhibitFragment() {
-        if (viewPager == null || viewPager.getAdapter() == null)
-            return null;
-        // Tab Exhibit là position 2
-        Fragment frag = getChildFragmentManager().findFragmentByTag("f2");
-        if (frag instanceof ProfileExhibitFragment) {
-            return (ProfileExhibitFragment) frag;
         }
         return null;
     }
@@ -1517,6 +1535,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     @Override
     public void onResume() {
         super.onResume();
+        startCarousel();
         if (sessionManager != null) {
             notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
                 String.valueOf(sessionManager.getUserId()),
@@ -1536,8 +1555,377 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     @Override
     public void onPause() {
         super.onPause();
+        stopCarousel();
         if (notificationSubscription != null && !notificationSubscription.isDisposed()) {
             notificationSubscription.dispose();
         }
+    }
+
+    // --- Exhibit Showcase Helper Methods & Classes ---
+
+    private void setupExhibitShowcase(View v) {
+        vpShowcase = v.findViewById(R.id.vp_showcase);
+        if (vpShowcase == null) return;
+
+        showcaseAdapter = new ShowcasePagerAdapter(new ArrayList<>());
+        vpShowcase.setAdapter(showcaseAdapter);
+        vpShowcase.setOffscreenPageLimit(3);
+        vpShowcase.setUserInputEnabled(true); // Cho phép vuốt ngang mượt mà
+
+        // [GLOW FIX] Đảm bảo RecyclerView bên trong ViewPager2 không cắt viền Glow
+        View innerRecyclerView = vpShowcase.getChildAt(0);
+        if (innerRecyclerView instanceof ViewGroup) {
+            ((ViewGroup) innerRecyclerView).setClipChildren(false);
+            ((ViewGroup) innerRecyclerView).setClipToPadding(false);
+        }
+
+        CompositePageTransformer transformer = new CompositePageTransformer();
+        transformer.addTransformer(new MarginPageTransformer(getResources().getDimensionPixelSize(R.dimen.spacing_xs)));
+        transformer.addTransformer((page, position) -> {
+            float r = 1 - Math.abs(position);
+            // Áp dụng scale và alpha Galactic premium cho mượt mà
+            float scale = 0.85f + r * 0.15f; 
+            page.setScaleY(scale);
+            page.setScaleX(scale);
+            page.setAlpha(0.6f + r * 0.4f);
+        });
+        vpShowcase.setPageTransformer(transformer);
+
+        // Đảm bảo Master Data được nạp để lấy metadata (Name, Class) chính xác
+        DatabaseLoader.initMasterData(requireContext());
+    }
+
+    private void renderShowcaseData(UserStats stats) {
+        if (stats == null || vpShowcase == null) return;
+        List<String> validIds = new ArrayList<>();
+        boolean needsUpdate = false;
+        
+        List<String> ids = stats.getShowcaseCardIds() != null ? stats.getShowcaseCardIds() : new ArrayList<>();
+        
+        // Nếu là Owner đang xem profile chính mình, kiểm tra xem thẻ còn trong Inventory không
+        if (stats.getId() != null && stats.getId().equals(DatabaseLoader.cachedInventoryUserId) && DatabaseLoader.cachedCollectionMap != null) {
+            for (String id : ids) {
+                if (id == null || id.trim().isEmpty() || id.equals("null")) {
+                    validIds.add("");
+                } else if (DatabaseLoader.cachedCollectionMap.containsKey(id)) {
+                    validIds.add(id);
+                } else {
+                    // Thẻ này thực sự không còn trong kho -> tự động tháo
+                    validIds.add("");
+                    needsUpdate = true;
+                }
+            }
+        } else {
+            validIds.addAll(ids);
+        }
+        
+        this.currentShowcaseIds = validIds;
+        if (showcaseAdapter != null) {
+            showcaseAdapter.updateIds(currentShowcaseIds);
+        }
+        
+        // Nếu phát hiện thẻ ma, báo ViewModel tự động dọn dẹp trên Server
+        if (needsUpdate && viewModel != null) {
+            viewModel.updateShowcase(validIds);
+        }
+
+        // Tự động start carousel khi có dữ liệu
+        startCarousel();
+    }
+
+    private void startCarousel() {
+        stopCarousel();
+        if (isEditMode || showcaseAdapter == null || showcaseAdapter.getItemCount() == 0) return;
+        carouselRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (vpShowcase != null && showcaseAdapter != null && showcaseAdapter.getItemCount() > 0) {
+                    int nextItem = (vpShowcase.getCurrentItem() + 1) % showcaseAdapter.getItemCount();
+                    vpShowcase.setCurrentItem(nextItem, true);
+                }
+                carouselHandler.postDelayed(this, 3000);
+            }
+        };
+        carouselHandler.postDelayed(carouselRunnable, 3000);
+    }
+
+    private void stopCarousel() {
+        if (carouselRunnable != null) {
+            carouselHandler.removeCallbacks(carouselRunnable);
+            carouselRunnable = null;
+        }
+    }
+
+    private void openInventoryPicker(int index) {
+        if (!isEditMode) return;
+        
+        if (System.currentTimeMillis() - lastShowcaseClickTime < 500) return;
+        lastShowcaseClickTime = System.currentTimeMillis();
+
+        if (getChildFragmentManager().findFragmentByTag("InventoryPicker") != null) return;
+
+        InventoryBottomSheet sheet = new InventoryBottomSheet();
+        sheet.setShowcaseMode(true); 
+        sheet.setOnCardSelectedListener(card -> {
+            if (card != null) {
+                updateShowcase(index, card.getCollectionId());
+            }
+        });
+        sheet.show(getChildFragmentManager(), "InventoryPicker");
+    }
+
+    private void updateShowcase(int index, String collectionId) {
+        if (collectionId != null && !collectionId.isEmpty()) {
+            for (String id : currentShowcaseIds) {
+                if (collectionId.equals(id)) {
+                    Toast.makeText(getContext(), R.string.showcase_msg_duplicate, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }
+        List<String> newIds = new ArrayList<>(currentShowcaseIds);
+        while (newIds.size() < SHOWCASE_COUNT) {
+            newIds.add("");
+        }
+        
+        if (index >= 0 && index < SHOWCASE_COUNT) {
+            String finalId = collectionId != null ? collectionId : "";
+            newIds.set(index, finalId);
+            
+            this.currentShowcaseIds = newIds;
+            if (viewModel != null) {
+                viewModel.updateShowcase(newIds);
+            }
+            
+            if (showcaseAdapter != null) {
+                showcaseAdapter.updateIdAt(index, finalId);
+            }
+        }
+    }
+
+    private void unequipObjet(int index) {
+        updateShowcase(index, "");
+    }
+
+    private void bindCardView(View cardView, String collectionId, int position) {
+        com.google.android.material.card.MaterialCardView cvContainer = cardView.findViewById(R.id.cv_card_container);
+        ImageView ivImage = cardView.findViewById(R.id.card_iv_image);
+        ImageView ivBack = cardView.findViewById(R.id.card_iv_back);
+        View shimmer = cardView.findViewById(R.id.view_card_shimmer);
+        TextView tvName = cardView.findViewById(R.id.tv_card_name);
+        TextView tvOvr = cardView.findViewById(R.id.card_tv_ovr);
+        ImageView ivLevel = cardView.findViewById(R.id.card_iv_level);
+        View layoutCore = cardView.findViewById(R.id.layout_core);
+        View layoutEmpty = cardView.findViewById(R.id.layout_empty_placeholder);
+        View layoutAddPlus = cardView.findViewById(R.id.layout_add_objet_plus);
+
+        if (cvContainer == null) return;
+
+        if (tvOvr != null) tvOvr.setVisibility(View.GONE);
+
+        if (collectionId == null || collectionId.isEmpty() || collectionId.equals("null")) {
+            if (layoutEmpty != null) layoutEmpty.setVisibility(View.VISIBLE);
+            if (layoutCore != null) layoutCore.setVisibility(View.GONE);
+            if (ivBack != null) ivBack.setVisibility(View.GONE);
+            
+            if (tvName != null) {
+                tvName.setVisibility(View.VISIBLE);
+                tvName.setText(R.string.showcase_empty_slot);
+            }
+            
+            if (layoutAddPlus != null) {
+                layoutAddPlus.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+            }
+
+            View btnUnequip = cardView.findViewById(R.id.btn_unequip);
+            if (btnUnequip != null) btnUnequip.setVisibility(View.GONE);
+
+            CardEffectHelper.applyEmptyStateGlow(cvContainer, true);
+        } else {
+            if (layoutEmpty != null) layoutEmpty.setVisibility(View.GONE);
+            if (layoutCore != null) layoutCore.setVisibility(View.VISIBLE);
+            if (layoutAddPlus != null) layoutAddPlus.setVisibility(View.GONE);
+            
+            View btnUnequip = cardView.findViewById(R.id.btn_unequip);
+            if (btnUnequip != null) {
+                btnUnequip.setVisibility(View.GONE); 
+                btnUnequip.setOnClickListener(v -> unequipObjet(position));
+            }
+
+            if (layoutAddPlus != null) layoutAddPlus.setVisibility(View.GONE);
+            View coreAddPlus = cardView.findViewById(R.id.layout_add_objet_plus);
+            if (coreAddPlus != null) coreAddPlus.setVisibility(View.GONE);
+            
+            org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), collectionId);
+            if (cardData == null) {
+                DatabaseLoader.initMasterDataSync(getContext());
+                cardData = DatabaseLoader.findByCollectionId(getContext(), collectionId);
+            }
+
+            if (cardData == null) {
+                if (tvName != null) {
+                    tvName.setVisibility(View.VISIBLE);
+                    tvName.setText(getString(R.string.showcase_unknown_card, collectionId.substring(0, Math.min(4, collectionId.length()))));
+                }
+                return;
+            }
+
+            if (tvName != null) {
+                tvName.setVisibility(View.VISIBLE);
+                String member = cardData.optString("member", "");
+                String collectionNo = cardData.optString("collectionNo", "");
+                String name = member + (collectionNo.isEmpty() ? "" : " " + collectionNo);
+                if (name.trim().isEmpty()) name = collectionId;
+                tvName.setText(name);
+            }
+            
+            if (ivImage != null) {
+                ivImage.setAlpha(1.0f);
+                ivImage.setVisibility(View.VISIBLE);
+                String frontImage = cardData.optString("frontImage");
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivImage, frontImage, false);
+            }
+
+            if (ivBack != null) {
+                ivBack.setVisibility(View.GONE);
+                ivBack.setImageResource(R.drawable.objet_back_spin);
+            }
+
+            String frontImageStr = cardData.optString("frontImage");
+            Objet mockObj = new Objet(0, collectionId, frontImageStr, 1, 0, cardData.optInt("upgradeLevel", 0));
+            
+            CardEffectHelper.apply(cvContainer, shimmer, mockObj, true);
+
+            if (ivLevel != null) {
+                int level = cardData.optInt("upgradeLevel", 0);
+                if (level > 0) {
+                    ivLevel.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(getString(R.string.asset_grade_path) + level + ".png").into(ivLevel);
+                    LevelBadgeEffectHelper.apply(ivLevel, level);
+                } else {
+                    ivLevel.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
+
+    private void toggleFlip(View itemView) {
+        View layoutCore = itemView.findViewById(R.id.layout_core);
+        View ivBack = itemView.findViewById(R.id.card_iv_back);
+        View cvContainer = itemView.findViewById(R.id.cv_card_container);
+        if (layoutCore == null || ivBack == null || cvContainer == null) return;
+
+        boolean isBackVisible = ivBack.getVisibility() == View.VISIBLE;
+        
+        float distance = 12000;
+        float scale = getResources().getDisplayMetrics().density;
+        cvContainer.setCameraDistance(distance * scale);
+
+        ObjectAnimator flip1 = ObjectAnimator.ofFloat(cvContainer, "rotationY", 0f, 90f);
+        flip1.setDuration(300);
+        flip1.setInterpolator(new AccelerateInterpolator());
+        
+        flip1.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (isBackVisible) {
+                    ivBack.setVisibility(View.GONE);
+                    layoutCore.setVisibility(View.VISIBLE);
+                } else {
+                    ivBack.setVisibility(View.VISIBLE);
+                    layoutCore.setVisibility(View.GONE);
+                }
+                ObjectAnimator flip2 = ObjectAnimator.ofFloat(cvContainer, "rotationY", -90f, 0f);
+                flip2.setDuration(300);
+                flip2.setInterpolator(new DecelerateInterpolator());
+                flip2.start();
+            }
+        });
+        flip1.start();
+    }
+
+    // --- Showcase View Holder ---
+    private static class ShowcaseViewHolder extends RecyclerView.ViewHolder {
+        public ShowcaseViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
+
+    // --- Showcase Pager Adapter ---
+    private class ShowcasePagerAdapter extends RecyclerView.Adapter<ShowcaseViewHolder> {
+        private final List<String> ids = new ArrayList<>();
+
+        public ShowcasePagerAdapter(List<String> initialIds) { 
+            if (initialIds != null) this.ids.addAll(initialIds); 
+        }
+
+        public void updateIds(List<String> newIds) {
+            List<String> paddedIds = new ArrayList<>(newIds);
+            while (paddedIds.size() < SHOWCASE_COUNT) paddedIds.add("");
+            
+            if (this.ids.equals(paddedIds)) return;
+
+            this.ids.clear();
+            this.ids.addAll(paddedIds);
+            notifyDataSetChanged();
+        }
+
+        public void updateIdAt(int index, String cardId) {
+            if (index >= 0 && index < ids.size()) {
+                ids.set(index, cardId);
+                notifyItemChanged(index);
+            }
+        }
+
+        @NonNull
+        @Override
+        public ShowcaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_showcase_pager, parent, false);
+            return new ShowcaseViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ShowcaseViewHolder holder, int position) {
+            String cardId = (position < ids.size()) ? ids.get(position) : "";
+            bindCardView(holder.itemView, cardId, position);
+            
+            holder.itemView.setOnClickListener(v -> {
+                if (isEditMode) {
+                    openInventoryPicker(position);
+                } else {
+                    toggleFlip(holder.itemView);
+                }
+            });
+
+            holder.itemView.setOnLongClickListener(v -> {
+                if (isEditMode) {
+                    if (cardId != null && !cardId.isEmpty() && !cardId.equals("null")) {
+                        View btnUnequip = holder.itemView.findViewById(R.id.btn_unequip);
+                        if (btnUnequip != null) {
+                            btnUnequip.setVisibility(View.VISIBLE);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            });
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ShowcaseViewHolder holder, int position, @NonNull List<Object> payloads) {
+            if (payloads.contains("PAYLOAD_EDIT_MODE")) {
+                String cardId = (position < ids.size()) ? ids.get(position) : "";
+                boolean isEmpty = cardId == null || cardId.isEmpty() || cardId.equals("null");
+                View layoutAddPlus = holder.itemView.findViewById(R.id.layout_add_objet_plus);
+                if (layoutAddPlus != null && isEmpty) {
+                    layoutAddPlus.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+                }
+            } else {
+                super.onBindViewHolder(holder, position, payloads);
+            }
+        }
+
+        @Override
+        public int getItemCount() { return SHOWCASE_COUNT; }
     }
 }

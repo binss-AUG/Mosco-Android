@@ -80,4 +80,102 @@ public class MoscoDialogManager {
         Dialog dialog = createLiquidDialog(context, customContentView);
         dialog.show();
     }
+
+    /**
+     * Builder hỗ trợ xây dựng và hiển thị Dialog linh hoạt.
+     */
+    public static class Builder {
+        private final Context context;
+        private String title;
+        private String message;
+        private String positiveText;
+        private String negativeText;
+        private com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback callback;
+        private boolean cancelable = true;
+
+        public Builder(@NonNull Context context) {
+            this.context = context;
+        }
+
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder setMessage(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder setPositiveText(String positiveText) {
+            this.positiveText = positiveText;
+            return this;
+        }
+
+        public Builder setNegativeText(String negativeText) {
+            this.negativeText = negativeText;
+            return this;
+        }
+
+        public Builder setCallback(com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback callback) {
+            this.callback = callback;
+            return this;
+        }
+
+        public Builder setCancelable(boolean cancelable) {
+            this.cancelable = cancelable;
+            return this;
+        }
+
+        public Dialog show() {
+            View view = LayoutInflater.from(context).inflate(R.layout.layout_mosco_dialog_base, null);
+            Dialog dialog = createLiquidDialog(context, view);
+            dialog.setCancelable(cancelable);
+
+            TextView tvTitle = view.findViewById(R.id.tv_dialog_title);
+            TextView tvMessage = view.findViewById(R.id.tv_dialog_message);
+            MoscoButton btnPos = view.findViewById(R.id.btn_positive);
+            MoscoButton btnNeg = view.findViewById(R.id.btn_negative);
+
+            if (tvTitle != null && title != null) {
+                tvTitle.setText(title);
+            }
+            if (tvMessage != null && message != null) {
+                tvMessage.setText(message);
+            }
+
+            if (btnPos != null) {
+                if (positiveText != null) {
+                    btnPos.setText(positiveText);
+                    btnPos.setVisibility(View.VISIBLE);
+                } else {
+                    btnPos.setVisibility(View.GONE);
+                }
+                btnPos.setOnClickListener(v -> {
+                    if (callback != null) {
+                        callback.onPositive();
+                    }
+                    dialog.dismiss();
+                });
+            }
+
+            if (btnNeg != null) {
+                if (negativeText != null) {
+                    btnNeg.setText(negativeText);
+                    btnNeg.setVisibility(View.VISIBLE);
+                } else {
+                    btnNeg.setVisibility(View.GONE);
+                }
+                btnNeg.setOnClickListener(v -> {
+                    if (callback != null) {
+                        callback.onNegative();
+                    }
+                    dialog.dismiss();
+                });
+            }
+
+            dialog.show();
+            return dialog;
+        }
+    }
 }

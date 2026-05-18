@@ -212,67 +212,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void startQuickToolAnimations(View root) {
-        if (root == null) return;
-        
-        View[] tools = {
-            btnQuickDaily, btnQuickUpgrade, btnQuickRank,
-            btnQuickShop, btnQuickFriends, btnQuickGift
-        };
-        View[] bubbles = {
-            vBubbleDaily, vBubbleUpgrade, vBubbleRank,
-            vBubbleShop, vBubbleFriends, vBubbleGift
-        };
-        View[] icons = {
-            ivQuickDaily, ivQuickUpgrade, ivQuickRank,
-            ivQuickShop, ivQuickFriends, ivQuickGift
-        };
-
-        // Lấy density an toàn từ root view
-        float density = root.getContext().getResources().getDisplayMetrics().density;
-        float iconBobDistance = 4f * density; // Nhấp nhô nhẹ 4dp cho icon
-        long baseDuration = 3000;
-
-        for (int i = 0; i < tools.length; i++) {
-            final View bubbleIridescent = bubbles[i];
-            final View icon = icons[i];
-
-            // 1. Hiệu ứng xoay vệt sáng nội bộ (Base đứng yên)
-            if (bubbleIridescent != null) {
-                bubbleIridescent.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Ép dùng GPU cho mượt
-                long rotateDuration = 5000 + (i * 400);
-                android.animation.ObjectAnimator rotating = android.animation.ObjectAnimator.ofFloat(
-                    bubbleIridescent, "rotation", 0f, 360f
-                );
-                rotating.setDuration(rotateDuration);
-                rotating.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                rotating.setInterpolator(new android.view.animation.LinearInterpolator());
-                rotating.start();
-                activeAnimators.add(rotating);
-
-                // 2. Gộp hiệu ứng "Nhịp thở" vào 1 Animator duy nhất để tiết kiệm tài nguyên
-                android.animation.PropertyValuesHolder pvhX = android.animation.PropertyValuesHolder.ofFloat("scaleX", 0.96f, 1.04f, 0.96f);
-                android.animation.PropertyValuesHolder pvhY = android.animation.PropertyValuesHolder.ofFloat("scaleY", 0.96f, 1.04f, 0.96f);
-                android.animation.ObjectAnimator pulse = android.animation.ObjectAnimator.ofPropertyValuesHolder(bubbleIridescent, pvhX, pvhY);
-                pulse.setDuration(rotateDuration);
-                pulse.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                pulse.start();
-                activeAnimators.add(pulse);
-            }
-
-            // 3. HIỆU ỨNG NHẤP NHÔ NHẸ CHO ICON BÊN TRONG
-            if (icon != null) {
-                icon.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Tăng tốc phần cứng cho icon
-                long bobDuration = baseDuration + (i * 500);
-                android.animation.ObjectAnimator bobbing = android.animation.ObjectAnimator.ofFloat(
-                    icon, "translationY", 0f, -iconBobDistance, 0f
-                );
-                bobbing.setDuration(bobDuration);
-                bobbing.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                bobbing.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
-                bobbing.start();
-                activeAnimators.add(bobbing);
-            }
-        }
+        // Obsolete animations disabled for the new dashboard cards
     }
 
     @Override
@@ -305,36 +245,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         vpBanners = v.findViewById(R.id.vp_banners);
         swipeRefreshLayout = v.findViewById(R.id.swipe_refresh_home);
         
-        btnQuickRank = v.findViewById(R.id.btn_quick_rank);
-        btnQuickDaily = v.findViewById(R.id.btn_quick_daily);
-        btnQuickEvent = v.findViewById(R.id.btn_quick_event);
-        btnQuickUpgrade = v.findViewById(R.id.btn_quick_upgrade);
-        btnQuickShop = v.findViewById(R.id.btn_quick_shop);
-        btnQuickFriends = v.findViewById(R.id.btn_quick_friends);
-        btnQuickFormation = v.findViewById(R.id.btn_quick_formation);
-        btnQuickGift = v.findViewById(R.id.btn_quick_gift);
-        
-        vBubbleDaily = v.findViewById(R.id.v_bubble_daily);
-        vBubbleEvent = v.findViewById(R.id.v_bubble_event);
-        vBubbleUpgrade = v.findViewById(R.id.v_bubble_upgrade);
-        vBubbleRank = v.findViewById(R.id.v_bubble_rank);
-        vBubbleShop = v.findViewById(R.id.v_bubble_shop);
-        vBubbleFriends = v.findViewById(R.id.v_bubble_friends);
-        vBubbleFormation = v.findViewById(R.id.v_bubble_formation);
-        vBubbleGift = v.findViewById(R.id.v_bubble_gift);
-
-        ivQuickDaily = v.findViewById(R.id.iv_quick_daily);
-        ivQuickEvent = v.findViewById(R.id.iv_quick_event);
-        ivQuickUpgrade = v.findViewById(R.id.iv_quick_upgrade);
-        ivQuickRank = v.findViewById(R.id.iv_quick_rank);
-        ivQuickShop = v.findViewById(R.id.iv_quick_shop);
-        ivQuickFriends = v.findViewById(R.id.iv_quick_friends);
-        ivQuickFormation = v.findViewById(R.id.iv_quick_formation);
-        ivQuickGift = v.findViewById(R.id.iv_quick_gift);
-        vQuickFriendsRedDot = v.findViewById(R.id.v_quick_friends_red_dot);
-
-        hsvQuickTools = v.findViewById(R.id.hsv_quick_tools);
-        llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
+        btnQuickDaily = v.findViewById(R.id.cv_module_daily);
+        btnQuickUpgrade = v.findViewById(R.id.cv_module_upgrade);
         
         // Fix conflict: Không cho SwipeRefreshLayout bắt sự kiện khi đang vuốt ngang Quick Tools
         if (hsvQuickTools != null) {

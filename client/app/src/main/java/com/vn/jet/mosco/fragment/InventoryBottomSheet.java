@@ -196,7 +196,14 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                         List<CollectionFragment.FilterCategory> categories = CollectionFragment.buildObjetCategories(requireContext());
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
-                                CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories, 0, objetFilter, InventoryBottomSheet.this::applyFilters);
+                                CollectionFragment.showFilterBottomSheet(
+                                    InventoryBottomSheet.this, 
+                                    categories, 
+                                    objetFilter, 
+                                    filterBar, 
+                                    SORT_OPTIONS, 
+                                    InventoryBottomSheet.this::applyFilters
+                                );
                             });
                         }
                     }).start();
