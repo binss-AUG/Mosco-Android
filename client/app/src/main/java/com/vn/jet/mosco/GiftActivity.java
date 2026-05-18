@@ -572,23 +572,24 @@ public class GiftActivity extends MoscoBaseActivity {
                         }
 
                         // 3. Bind Info Text
-                        // Line 1: Name, Serial + Grade level (ví dụ "Kaede Binary02 205Z +1")
+                        // Line 1: Name, Serial + Grade level (chữ IN HOA, ví dụ "KAEDE BINARY02 205Z +1")
                         if (tvSuccessCardInfo != null) {
                             String levelStr = selectedObjet.getLevel() > 0 ? " +" + selectedObjet.getLevel() : "";
-                            tvSuccessCardInfo.setText(selectedObjet.getFormattedNameTag() + levelStr);
+                            String fullInfo = selectedObjet.getFormattedNameTag() + levelStr;
+                            tvSuccessCardInfo.setText(fullInfo.toUpperCase());
                         }
 
-                        // Line 2: From (lowercase)
+                        // Line 2: Sender Username (không có "From: " prefix)
                         if (tvSuccessSenderInfo != null) {
                             com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(GiftActivity.this);
                             String senderName = session.getIngameName() != null ? session.getIngameName() : "cc3m";
-                            tvSuccessSenderInfo.setText("From: " + senderName.toLowerCase());
+                            tvSuccessSenderInfo.setText(senderName);
                         }
 
-                        // Line 3: To (lowercase)
+                        // Line 3: Receiver Username (không có "To: " prefix)
                         if (tvSuccessReceiverInfo != null) {
                             String receiverName = selectedFriend.optString("ingameName", "prime");
-                            tvSuccessReceiverInfo.setText("To: " + receiverName.toLowerCase());
+                            tvSuccessReceiverInfo.setText(receiverName);
                         }
 
                         loadDailyRemaining();
