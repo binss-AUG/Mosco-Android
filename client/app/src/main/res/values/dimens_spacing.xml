@@ -52,15 +52,15 @@
     <dimen name="lg_stroke_hairline">0.8dp</dimen>
     <dimen name="lg_stroke_thin">1dp</dimen>
 
-    <!-- LG: Navigation (Thanh điều hướng nổi tỉ lệ vàng rộng rãi) -->
-    <dimen name="lg_nav_height">60dp</dimen>
+    <!-- LG: Navigation (Thanh điều hướng nổi tỉ lệ vàng rộng rãi - Đã giảm 10%) -->
+    <dimen name="lg_nav_height">54dp</dimen>
     <dimen name="lg_nav_margin_horizontal">16dp</dimen>
-    <dimen name="lg_nav_margin_bottom">12dp</dimen>
-    <dimen name="lg_nav_icon_size">24dp</dimen>
+    <dimen name="lg_nav_margin_bottom">10dp</dimen>
+    <dimen name="lg_nav_icon_size">21dp</dimen>
 
     <!-- LG: Header (Chiều cao thanh tiêu đề đầu trang) -->
     <dimen name="lg_header_height">56dp</dimen>
 
-    <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che -->
-    <dimen name="lg_content_bottom_clearance">92dp</dimen>
+    <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che (Đã giảm 10%) -->
+    <dimen name="lg_content_bottom_clearance">82dp</dimen>
 </resources>
