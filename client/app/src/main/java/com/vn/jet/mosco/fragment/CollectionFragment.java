@@ -485,24 +485,19 @@ public class CollectionFragment extends Fragment {
                     android.widget.HorizontalScrollView sortHsv = new android.widget.HorizontalScrollView(ctx);
                     sortHsv.setHorizontalScrollBarEnabled(false);
                     sortHsv.setClipToPadding(false);
-                    sortHsv.setFocusable(false);
-                    sortHsv.setFocusableInTouchMode(false);
-                    sortHsv.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                     LinearLayout sortChipsRow = new LinearLayout(ctx);
                     sortChipsRow.setOrientation(LinearLayout.HORIZONTAL);
 
                     for (String opt : sortOptions) {
                         TextView chip = new TextView(ctx);
                         boolean sel = opt.equals(workingSort[0]);
-                        chip.setBackground(ctx.getDrawable(sel ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
+                        chip.setBackground(ctx.getDrawable(sel ? R.drawable.lg_nav_item_indicator : R.drawable.lg_chip_unselected_bg));
                         chip.setTextColor(sel ? Color.WHITE : androidx.core.content.ContextCompat.getColor(ctx, R.color.lg_text_secondary));
                         chip.setTypeface(null, android.graphics.Typeface.BOLD); // [QUIET LUXURY] Cố định BOLD để chiều rộng chữ không thay đổi giữa các trạng thái, tránh lỗi giật kích thước.
                         chip.setText(opt);
                         chip.setTextSize(13f);
                         chip.setGravity(Gravity.CENTER);
                         chip.setPadding(dpToPx(ctx, 14), 0, dpToPx(ctx, 14), 0);
-                        chip.setFocusable(false);
-                        chip.setFocusableInTouchMode(false);
                         LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.WRAP_CONTENT, dpToPx(ctx, 36));
                         clp.rightMargin = dpToPx(ctx, 8);
@@ -517,7 +512,7 @@ public class CollectionFragment extends Fragment {
                                 if (child instanceof TextView) {
                                     TextView cTv = (TextView) child;
                                     boolean isSel = opt.equals(cTv.getText().toString());
-                                    cTv.setBackground(ctx.getDrawable(isSel ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
+                                    cTv.setBackground(ctx.getDrawable(isSel ? R.drawable.lg_nav_item_indicator : R.drawable.lg_chip_unselected_bg));
                                     cTv.setTextColor(isSel ? Color.WHITE : androidx.core.content.ContextCompat.getColor(ctx, R.color.lg_text_secondary));
                                 }
                             }
@@ -581,9 +576,6 @@ public class CollectionFragment extends Fragment {
                         hsv.setHorizontalScrollBarEnabled(false);
                         hsv.setClipToPadding(false);
                         hsv.setPadding(0, 0, dpToPx(ctx, 16), dpToPx(ctx, 8));
-                        hsv.setFocusable(false);
-                        hsv.setFocusableInTouchMode(false);
-                        hsv.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
                         LinearLayout llRow = new LinearLayout(ctx);
                         llRow.setOrientation(LinearLayout.HORIZONTAL);
                         if (cat.items != null) {
@@ -720,15 +712,13 @@ public class CollectionFragment extends Fragment {
     private static View buildListCard(Context ctx, String name, Set<String> workingSet, Runnable updateCount) {
         TextView card = new TextView(ctx);
         boolean selected = workingSet.contains(name);
-        card.setBackground(ctx.getDrawable(selected ? R.drawable.lg_chip_selected_bg : R.drawable.lg_chip_unselected_bg));
+        card.setBackground(ctx.getDrawable(selected ? R.drawable.lg_nav_item_indicator : R.drawable.lg_chip_unselected_bg));
         card.setTextColor(selected ? Color.WHITE : ContextCompat.getColor(ctx, R.color.lg_text_secondary));
         card.setTypeface(null, android.graphics.Typeface.BOLD); // [QUIET LUXURY] Cố định BOLD để tránh lỗi nhảy kích thước khi đổi kiểu chữ.
         card.setText(name);
         card.setTextSize(14f);
         card.setGravity(Gravity.CENTER);
         card.setPadding(dpToPx(ctx, 16), 0, dpToPx(ctx, 16), 0);
-        card.setFocusable(false);
-        card.setFocusableInTouchMode(false);
 
         card.setOnClickListener(v -> {
             if (workingSet.contains(name)) {
@@ -737,7 +727,7 @@ public class CollectionFragment extends Fragment {
                 card.setTextColor(ContextCompat.getColor(ctx, R.color.lg_text_secondary));
             } else {
                 workingSet.add(name);
-                card.setBackground(ctx.getDrawable(R.drawable.lg_chip_selected_bg));
+                card.setBackground(ctx.getDrawable(R.drawable.lg_nav_item_indicator));
                 card.setTextColor(Color.WHITE);
             }
             updateCount.run();
@@ -1275,6 +1265,10 @@ public class CollectionFragment extends Fragment {
                 // Chuyển đổi trực tiếp sang CardDisplayItem — bỏ bước trung gian qua Objet
                 List<com.vn.jet.mosco.model.CardDisplayItem> displayItems = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
+                    // [LOCAL-FIRST SYNC] Bổ sung dữ liệu tĩnh từ master database
+                    if (requireContext() != null) {
+                        com.vn.jet.mosco.utils.DatabaseLoader.enrichMetadata(requireContext(), uc);
+                    }
                     com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem
                             .fromCacheItem(uc);
                     // Chuẩn hóa cardClass qua mapping hệ thống
@@ -1859,6 +1853,10 @@ public class CollectionFragment extends Fragment {
                                 for (com.vn.jet.mosco.model.CollectionEntry entry : rawEntries) {
                                     originalEntries
                                             .add(com.vn.jet.mosco.model.CardDisplayItem.fromCollectionEntry(entry));
+                                    com.vn.jet.mosco.model.CardDisplayItem displayItem = originalEntries.get(originalEntries.size() - 1);
+                                    if (requireContext() != null) {
+                                        com.vn.jet.mosco.utils.DatabaseLoader.enrichMetadata(requireContext(), displayItem);
+                                    }
                                 }
 
                                 // Cập nhật tiến trình

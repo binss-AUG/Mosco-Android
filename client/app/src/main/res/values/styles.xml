@@ -16,7 +16,7 @@
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/lg_text_secondary</item>
         <item name="android:textSize">@dimen/text_size_body_xs</item>
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">500</item>
         <item name="android:stateListAnimator">@animator/lg_btn_state_animator</item>
     </style>
@@ -31,7 +31,7 @@
         <item name="android:layout_height">48dp</item>
         <item name="cornerRadius">@dimen/lg_radius_button</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">600</item>
         <item name="android:letterSpacing">0.02</item>
         <item name="backgroundTint">@null</item>
@@ -46,7 +46,7 @@
         <item name="android:layout_height">48dp</item>
         <item name="cornerRadius">@dimen/lg_radius_button</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">500</item>
         <item name="android:letterSpacing">0.02</item>
         <item name="backgroundTint">@null</item>
@@ -61,7 +61,7 @@
         <item name="android:layout_height">48dp</item>
         <item name="cornerRadius">@dimen/lg_radius_button</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">500</item>
         <item name="android:letterSpacing">0.02</item>
         <item name="backgroundTint">@null</item>
@@ -159,15 +159,16 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <!-- Bottom Navigation Text Appearance - Fix Center Alignment -->
+    <!-- Bottom Navigation Text Appearance - Fix Center Alignment & Premium Typography -->
     <style name="MoscoBottomNavText" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">9sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="android:fontWeight">500</item>
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 
     <style name="MoscoBottomNavText.Active">
         <item name="android:textStyle">bold</item>
     </style>
 </resources>
+

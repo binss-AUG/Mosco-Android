@@ -12,25 +12,25 @@
 
     <!-- Base Luxury Style -->
     <style name="MoscoText.Luxury">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
     
     <!-- 2. GALACTIC TYPOGRAPHY (Futuristic/Bold) -->
     <style name="MoscoText.Galactic">
-        <item name="android:fontFamily">@font/orbitron</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.15</item>
     </style>
 
     <!-- 3. TECHNICAL TYPOGRAPHY (Monospace/Data) -->
     <style name="MoscoText.Technical">
-        <item name="android:fontFamily">@font/chakra_petch</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textAllCaps">true</item>
     </style>
 
     <!-- Luxury Header: Airy, Light, Sophisticated -->
     <style name="MoscoText.Luxury.Header">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">200</item>
         <item name="android:textSize">@dimen/text_size_h2</item>
@@ -40,7 +40,7 @@
 
     <!-- Luxury SubHeader: Refined and Precise -->
     <style name="MoscoText.Luxury.SubHeader">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_body_lg</item>
@@ -50,7 +50,7 @@
 
     <!-- Luxury Nav: For list items in settings/profile -->
     <style name="MoscoText.Luxury.Nav">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_h3</item>
         <item name="android:textColor">@color/white</item>
@@ -60,7 +60,7 @@
 
     <!-- Luxury Section: For headers like "Account", "Etc" -->
     <style name="MoscoText.Luxury.Section">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">700</item>
         <item name="android:textSize">@dimen/text_size_body_md</item>
         <item name="android:textColor">@color/white</item>
@@ -70,7 +70,7 @@
 
     <!-- Luxury Body: Clean and Readable -->
     <style name="MoscoText.Luxury.Body">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">200</item>
         <item name="android:textSize">@dimen/text_size_body_md</item>
@@ -80,7 +80,7 @@
 
     <!-- Luxury Label: Small but high contrast -->
     <style name="MoscoText.Luxury.Label">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_body_sm</item>
@@ -98,7 +98,7 @@
 
     <!-- Luxury Price: Bold and Authority -->
     <style name="MoscoText.Luxury.Price">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontWeight">700</item>
         <item name="android:textSize">@dimen/text_size_h3</item>
@@ -107,7 +107,7 @@
 
     <!-- Luxury Input: Clean and precise for forms -->
     <style name="MoscoText.Luxury.Input">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">200</item>
         <item name="android:textSize">@dimen/text_size_body_md</item>
         <item name="android:textColor">@color/white</item>
@@ -121,7 +121,7 @@
 
     <!-- Luxury Link: Subtle but interactive -->
     <style name="MoscoText.Luxury.Link">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_body_sm</item>
         <item name="android:textColor">@color/mosco_primary_dim</item>
@@ -151,7 +151,7 @@
 
     <!-- Badge Style -->
     <style name="MoscoText.Luxury.Badge">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">700</item>
         <item name="android:textSize">@dimen/text_size_badge</item>
         <item name="android:textAllCaps">true</item>
@@ -160,7 +160,7 @@
 
     <!-- Luxury Button: Bold and centered -->
     <style name="MoscoText.Luxury.Button">
-        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="android:fontFamily">sans-serif</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textSize">@dimen/text_size_body_lg</item>
         <item name="android:textColor">@color/white</item>
@@ -227,4 +227,5 @@
         <item name="android:textStyle">bold</item>
     </style>
 </resources>
+
 

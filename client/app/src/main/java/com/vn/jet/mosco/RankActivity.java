@@ -58,8 +58,18 @@ public class RankActivity extends MoscoBaseActivity {
             innerItem.setBackgroundResource(android.R.color.transparent);
         }
 
-        // Nút back
-        findViewById(R.id.btn_back_rank).setOnClickListener(v -> finish());
+        // [QUIET LUXURY] Tìm nút quay lại và đặt tiêu đề cho Header dùng chung
+        View headerView = findViewById(R.id.layout_header_rank);
+        if (headerView != null) {
+            TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(R.string.rank_header_title);
+            }
+            View btnBack = headerView.findViewById(R.id.btn_back_common);
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> finish());
+            }
+        }
 
         // Setup adapter — Copy pattern từ CollectionFragment
         RankPagerAdapter adapter = new RankPagerAdapter(this);

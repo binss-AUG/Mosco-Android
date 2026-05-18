@@ -2,49 +2,22 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Sort Button -->
+    <!-- Sort Label (shows current sort name) -->
     <TextView
         android:id="@+id/btn_sort_select"
-        style="@style/FilterChipStyle"
-        android:layout_width="140dp"
-        android:layout_height="match_parent"
-        android:text="@string/inventory_label_sort_newest"
-        android:gravity="center"
-        android:paddingHorizontal="@dimen/inventory_filter_chip_padding_horizontal"
-        app:drawableEndCompat="@drawable/ic_arrow_down"
-        android:drawablePadding="@dimen/spacing_xs"
-        app:drawableTint="@color/selector_filter_chip_text" />
-
-    <!-- Sort Direction Toggle -->
-    <FrameLayout
-        android:id="@+id/btn_sort_direction_container"
-        style="@style/FilterChipStyle"
-        android:layout_width="@dimen/inventory_filter_bar_height"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/inventory_filter_spacing"
-        android:padding="0dp">
-        <ImageView
-            android:id="@+id/iv_sort_direction"
-            android:layout_width="@dimen/spacing_20dp"
-            android:layout_height="@dimen/spacing_20dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_arrow_up"
-            app:tint="@color/selector_filter_chip_text" />
-    </FrameLayout>
-
-    <!-- Filter Button -->
-    <TextView
-        android:id="@+id/btn_filter_select"
-        style="@style/FilterChipStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/inventory_filter_spacing"
         android:text="@string/inventory_label_filter"
         android:gravity="center"
-        android:paddingHorizontal="@dimen/inventory_filter_chip_padding_horizontal"
-        app:drawableStartCompat="@drawable/ic_filter"
-        android:drawablePadding="@dimen/spacing_xs"
-        app:drawableTint="@color/selector_filter_chip_text" />
+        android:paddingStart="@dimen/spacing_md"
+        android:paddingEnd="@dimen/spacing_sm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_body_sm"
+        android:fontFamily="@font/pretendard"
+        android:textStyle="bold"
+        app:drawableEndCompat="@drawable/ic_filter"
+        android:drawablePadding="6dp"
+        app:drawableTint="@color/white"
+        android:background="?attr/selectableItemBackgroundBorderless" />
 
 </merge>
-

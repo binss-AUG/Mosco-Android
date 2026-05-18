@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Nền mờ Alpha (Surface Liquid Glass) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/lg_modal_surface" />
+            <corners android:radius="@dimen/lg_radius_modal" />
+        </shape>
+    </item>
+    
+    <!-- Hạt nhiễu tĩnh giả lập -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_modal" />
+            <solid android:color="#05FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Viền Stroke mỏng (Liquid Edge) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_modal" />
+            <stroke
+                android:width="@dimen/lg_stroke_hairline"
+                android:color="@color/lg_glass_stroke_strong" />
+        </shape>
+    </item>
+</layer-list>

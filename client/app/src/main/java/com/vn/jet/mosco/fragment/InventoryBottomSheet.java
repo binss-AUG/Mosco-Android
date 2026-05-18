@@ -241,6 +241,7 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     private void loadRealInventory() {
         if (getContext() == null) return;
+        final android.content.Context appContext = getContext().getApplicationContext();
 
         adapter = new UnifiedCardAdapter(new ArrayList<>(), rvInventory, UnifiedCardAdapter.DisplayMode.INVENTORY, item -> {
             if (!isMultiSelect) {
@@ -303,6 +304,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
             List<CardDisplayItem> displayItems = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
             busyIds.clear();
             for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
+                // Bổ túc dữ liệu tĩnh từ master database
+                DatabaseLoader.enrichMetadata(appContext, item);
                 CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
                 displayItems.add(displayItem);
                 // [SHOWCASE FIX] Nếu là chế độ trưng bày, không khóa thẻ BUSY
@@ -341,6 +344,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                         
                         for (com.vn.jet.mosco.model.UserCard userCard : responseCards) {
                             DatabaseLoader.UserInventoryItem cachedItem = DatabaseLoader.UserInventoryItem.fromUserCard(userCard);
+                            // Bổ túc dữ liệu tĩnh trước khi đưa vào grid hiển thị
+                            DatabaseLoader.enrichMetadata(appContext, cachedItem);
                             displayItems.add(CardDisplayItem.fromCacheItem(cachedItem));
                             cachedList.add(cachedItem);
                         }

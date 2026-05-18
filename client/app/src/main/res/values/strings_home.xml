@@ -101,7 +101,7 @@
     
     <!-- Action hints for Home Dashboard modules -->
     <string name="home_hud_daily_action">CLAIM REWARDS</string>
-    <string name="home_hud_upgrade_action">CARD PLUS</string>
+    <string name="home_hud_upgrade_action">OBJET UP</string>
     <string name="home_daily_header_title">DAILY CHECK-IN</string>
     <string name="home_upgrade_header_title">CARD UPGRADE</string>
 </resources>

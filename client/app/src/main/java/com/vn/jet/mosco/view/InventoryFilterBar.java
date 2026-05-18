@@ -3,9 +3,6 @@ package com.vn.jet.mosco.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,25 +11,18 @@ import androidx.annotation.Nullable;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.fragment.CollectionFragment;
 
+/**
+ * [QUIET LUXURY] Smart Pill — Viên thuốc thông minh hiển thị tên Sort hiện tại.
+ * Bấm vào → mở Bottom Sheet tổng hợp Sort + Filter.
+ * Lưu giữ state Sort/Ascending nội bộ để các Fragment đọc qua getter.
+ */
 public class InventoryFilterBar extends LinearLayout {
 
     private TextView btnSort;
-    private FrameLayout btnDirection;
-    private ImageView ivDirection;
-    private TextView btnFilter;
-    private LinearLayout dropdownSort;
 
     private boolean isAscending = false;
     private String currentSort = CollectionFragment.SORT_NEWEST;
-    private String[] SORT_OPTIONS = {
-            CollectionFragment.SORT_NEWEST,
-            CollectionFragment.SORT_BADGE,
-            CollectionFragment.SORT_LEVEL,
-            CollectionFragment.SORT_ARTIST,
-            CollectionFragment.SORT_STATUS,
-            CollectionFragment.SORT_CLASS,
-            CollectionFragment.SORT_SEASON
-    };
+    private String[] sortOptions;
 
     private OnFilterChangeListener listener;
 
@@ -53,58 +43,23 @@ public class InventoryFilterBar extends LinearLayout {
 
     private void init(Context context) {
         setOrientation(HORIZONTAL);
+        setBackgroundResource(R.drawable.lg_chip_unselected_bg);
         LayoutInflater.from(context).inflate(R.layout.view_inventory_filter_bar, this, true);
 
         btnSort = findViewById(R.id.btn_sort_select);
-        btnDirection = findViewById(R.id.btn_sort_direction_container);
-        ivDirection = findViewById(R.id.iv_sort_direction);
-        btnFilter = findViewById(R.id.btn_filter_select);
-        // dropdownSort is injected via attachDropdown()
 
-        setupDirectionToggle();
-        
-        btnFilter.setOnClickListener(v -> {
+        // Bấm vào pill → mở Bottom Sheet tổng hợp
+        setOnClickListener(v -> {
             if (listener != null) listener.onFilterRequested();
         });
     }
 
-    public void attachDropdown(LinearLayout dropdown) {
-        this.dropdownSort = dropdown;
-        setupSortDropdown();
-    }
-
     public void setSortOptions(String[] options) {
-        if (options != null) {
-            this.SORT_OPTIONS = options;
-            setupSortDropdown();
-        }
+        this.sortOptions = options;
     }
 
-    private void setupSortDropdown() {
-        if (btnSort != null && dropdownSort != null) {
-            btnSort.setText(currentSort);
-            CollectionFragment.setupSortDropdown(btnSort, null, null, SORT_OPTIONS, dropdownSort, () -> {
-                currentSort = btnSort.getText().toString();
-                notifyChange();
-            });
-        }
-    }
-
-    private void setupDirectionToggle() {
-        if (btnDirection != null && ivDirection != null) {
-            ivDirection.setRotation(isAscending ? 0f : 180f);
-            btnDirection.setOnClickListener(v -> {
-                isAscending = !isAscending;
-                ivDirection.animate().rotation(isAscending ? 0f : 180f).setDuration(200).start();
-                notifyChange();
-            });
-        }
-    }
-
-    private void notifyChange() {
-        if (listener != null) {
-            listener.onFilterChanged(currentSort, isAscending);
-        }
+    public String[] getSortOptions() {
+        return sortOptions;
     }
 
     public void setListener(OnFilterChangeListener listener) {
@@ -112,14 +67,25 @@ public class InventoryFilterBar extends LinearLayout {
     }
 
     public void setSortText(String text) {
+        // [QUIET LUXURY] Lưu lại trạng thái sort nội bộ nhưng KHÔNG cập nhật text hiển thị của Pill.
+        // Điều này giúp giữ vững giao diện Clean Minimalist (luôn là chữ Filter cùng icon phễu).
         this.currentSort = text;
-        if (btnSort != null) btnSort.setText(text);
     }
 
     public void setAscending(boolean ascending) {
         this.isAscending = ascending;
-        if (ivDirection != null) {
-            ivDirection.setRotation(isAscending ? 0f : 180f);
+    }
+
+    /**
+     * Cập nhật cả Sort + Direction từ Bottom Sheet kết quả,
+     * sau đó notify listener để Fragment gọi applyFilters().
+     */
+    public void applySortFromBottomSheet(String sortOption, boolean ascending) {
+        // [QUIET LUXURY] Đồng bộ hóa state sort nội bộ mà không phá vỡ giao diện "Filter" tối giản ở màn hình ngoài.
+        this.currentSort = sortOption;
+        this.isAscending = ascending;
+        if (listener != null) {
+            listener.onFilterChanged(sortOption, ascending);
         }
     }
 
@@ -130,4 +96,6 @@ public class InventoryFilterBar extends LinearLayout {
     public boolean isAscending() {
         return isAscending;
     }
+
+    // Không cần attachDropdown() nữa — Sort đã di chuyển vào Bottom Sheet
 }

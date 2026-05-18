@@ -198,13 +198,6 @@ public class CollectionDetailBinder {
      * [LIQUID GLASS] Setup new interactive controls for the redesigned detail UI.
      */
     private static void setupLiquidGlassControls(Dialog dialog, Context context, CardDisplayItem item, boolean isAlbumMode, boolean[] hasChanged) {
-        // --- TOP-LEFT: CLOSE ---
-        View btnClose = dialog.findViewById(R.id.btn_close_detail);
-        if (btnClose != null) {
-            // Đóng hộp thoại chi tiết để giải phóng tài nguyên giao diện và quay về danh sách chính
-            btnClose.setOnClickListener(v -> dialog.dismiss());
-        }
-
         // --- TOP-RIGHT: GIFT (SEND) ---
         View btnSend = dialog.findViewById(R.id.btn_send_gift);
         if (btnSend != null) {

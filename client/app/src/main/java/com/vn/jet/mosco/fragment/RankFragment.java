@@ -48,10 +48,20 @@ public class RankFragment extends Fragment {
         cardMyRank = view.findViewById(R.id.card_my_rank);
         refreshLayout = view.findViewById(R.id.swipe_refresh_rank);
 
-        // Nút back
-        view.findViewById(R.id.btn_back_rank).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
-        });
+        // [QUIET LUXURY] Tìm nút quay lại và đặt tiêu đề cho Header dùng chung
+        View headerView = view.findViewById(R.id.layout_header_rank);
+        if (headerView != null) {
+            TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(R.string.rank_header_title);
+            }
+            View btnBack = headerView.findViewById(R.id.btn_back_common);
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> {
+                    if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
+                });
+            }
+        }
 
         if (refreshLayout != null) {
             refreshLayout.setOnRefreshListener(layout -> refreshCurrentFragment());

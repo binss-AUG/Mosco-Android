@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private boolean isDataLoaded = false;
     
     // Dashboard Modules
-    private View cvModuleStreak, btnFullRank;
+    private View cvModuleStreak, cvModuleDaily, cvModuleUpgrade, btnFullRank;
     private TextView tvModuleStreakVal;
     private com.airbnb.lottie.LottieAnimationView lottieModuleStreak, lottieModuleStreakGlow;
     private View layoutWorldChatExpanded;
@@ -95,20 +95,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     // Header Buttons & Badges
     private View btnFriends, btnMailbox, btnShop;
-    private TextView tvBadgeFriends, tvBadgeMailbox, tvBadgeShop;
     
     // Avatar Streak overlay
     private View flStreakAvatar;
     private TextView tvStreakAvatarVal;
     private com.airbnb.lottie.LottieAnimationView lottieStreakAvatar;
 
-    // ── Quick Tool References ──
-    private View btnQuickRank, btnQuickDaily, btnQuickEvent, btnQuickUpgrade, btnQuickShop, btnQuickFriends, btnQuickFormation, btnQuickGift;
-    private View vBubbleDaily, vBubbleEvent, vBubbleUpgrade, vBubbleRank, vBubbleShop, vBubbleFriends, vBubbleFormation, vBubbleGift;
-    private android.widget.ImageView ivQuickDaily, ivQuickEvent, ivQuickUpgrade, ivQuickRank, ivQuickShop, ivQuickFriends, ivQuickFormation, ivQuickGift;
-    private View vQuickFriendsRedDot;
-    private android.widget.HorizontalScrollView hsvQuickTools;
-    private LinearLayout llQuickToolsContainer;
+
 
     // ── State ──
     private int bannerCount = 0;
@@ -159,7 +152,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         // setupLongClickCopy đã chuyển sang MainActivity
         setupBannerCarousel();
         setupQuickToolActions();
-        setupQuickToolDimensions();
         setupNotificationTicker();
         setupChatBar();
         setupDashboard();
@@ -168,7 +160,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         loadMiniRankData();
         startRankingTimeout();
         startRankAutoScroll();
-        startQuickToolAnimations(view);
         
         // Bắt đầu Shimmer ngay khi mở fragment (chỉ hiện nếu chưa có data)
         if (shimmerHome != null && sIsFirstLoad) {
@@ -211,69 +202,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         stopRankAutoScroll();
     }
 
-    private void startQuickToolAnimations(View root) {
-        if (root == null) return;
-        
-        View[] tools = {
-            btnQuickDaily, btnQuickUpgrade, btnQuickRank,
-            btnQuickShop, btnQuickFriends, btnQuickGift
-        };
-        View[] bubbles = {
-            vBubbleDaily, vBubbleUpgrade, vBubbleRank,
-            vBubbleShop, vBubbleFriends, vBubbleGift
-        };
-        View[] icons = {
-            ivQuickDaily, ivQuickUpgrade, ivQuickRank,
-            ivQuickShop, ivQuickFriends, ivQuickGift
-        };
 
-        // Lấy density an toàn từ root view
-        float density = root.getContext().getResources().getDisplayMetrics().density;
-        float iconBobDistance = 4f * density; // Nhấp nhô nhẹ 4dp cho icon
-        long baseDuration = 3000;
-
-        for (int i = 0; i < tools.length; i++) {
-            final View bubbleIridescent = bubbles[i];
-            final View icon = icons[i];
-
-            // 1. Hiệu ứng xoay vệt sáng nội bộ (Base đứng yên)
-            if (bubbleIridescent != null) {
-                bubbleIridescent.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Ép dùng GPU cho mượt
-                long rotateDuration = 5000 + (i * 400);
-                android.animation.ObjectAnimator rotating = android.animation.ObjectAnimator.ofFloat(
-                    bubbleIridescent, "rotation", 0f, 360f
-                );
-                rotating.setDuration(rotateDuration);
-                rotating.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                rotating.setInterpolator(new android.view.animation.LinearInterpolator());
-                rotating.start();
-                activeAnimators.add(rotating);
-
-                // 2. Gộp hiệu ứng "Nhịp thở" vào 1 Animator duy nhất để tiết kiệm tài nguyên
-                android.animation.PropertyValuesHolder pvhX = android.animation.PropertyValuesHolder.ofFloat("scaleX", 0.96f, 1.04f, 0.96f);
-                android.animation.PropertyValuesHolder pvhY = android.animation.PropertyValuesHolder.ofFloat("scaleY", 0.96f, 1.04f, 0.96f);
-                android.animation.ObjectAnimator pulse = android.animation.ObjectAnimator.ofPropertyValuesHolder(bubbleIridescent, pvhX, pvhY);
-                pulse.setDuration(rotateDuration);
-                pulse.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                pulse.start();
-                activeAnimators.add(pulse);
-            }
-
-            // 3. HIỆU ỨNG NHẤP NHÔ NHẸ CHO ICON BÊN TRONG
-            if (icon != null) {
-                icon.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Tăng tốc phần cứng cho icon
-                long bobDuration = baseDuration + (i * 500);
-                android.animation.ObjectAnimator bobbing = android.animation.ObjectAnimator.ofFloat(
-                    icon, "translationY", 0f, -iconBobDistance, 0f
-                );
-                bobbing.setDuration(bobDuration);
-                bobbing.setRepeatCount(android.animation.ObjectAnimator.INFINITE);
-                bobbing.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
-                bobbing.start();
-                activeAnimators.add(bobbing);
-            }
-        }
-    }
 
     @Override
     public void onDestroyView() {
@@ -305,53 +234,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         vpBanners = v.findViewById(R.id.vp_banners);
         swipeRefreshLayout = v.findViewById(R.id.swipe_refresh_home);
         
-        btnQuickRank = v.findViewById(R.id.btn_quick_rank);
-        btnQuickDaily = v.findViewById(R.id.btn_quick_daily);
-        btnQuickEvent = v.findViewById(R.id.btn_quick_event);
-        btnQuickUpgrade = v.findViewById(R.id.btn_quick_upgrade);
-        btnQuickShop = v.findViewById(R.id.btn_quick_shop);
-        btnQuickFriends = v.findViewById(R.id.btn_quick_friends);
-        btnQuickFormation = v.findViewById(R.id.btn_quick_formation);
-        btnQuickGift = v.findViewById(R.id.btn_quick_gift);
-        
-        vBubbleDaily = v.findViewById(R.id.v_bubble_daily);
-        vBubbleEvent = v.findViewById(R.id.v_bubble_event);
-        vBubbleUpgrade = v.findViewById(R.id.v_bubble_upgrade);
-        vBubbleRank = v.findViewById(R.id.v_bubble_rank);
-        vBubbleShop = v.findViewById(R.id.v_bubble_shop);
-        vBubbleFriends = v.findViewById(R.id.v_bubble_friends);
-        vBubbleFormation = v.findViewById(R.id.v_bubble_formation);
-        vBubbleGift = v.findViewById(R.id.v_bubble_gift);
-
-        ivQuickDaily = v.findViewById(R.id.iv_quick_daily);
-        ivQuickEvent = v.findViewById(R.id.iv_quick_event);
-        ivQuickUpgrade = v.findViewById(R.id.iv_quick_upgrade);
-        ivQuickRank = v.findViewById(R.id.iv_quick_rank);
-        ivQuickShop = v.findViewById(R.id.iv_quick_shop);
-        ivQuickFriends = v.findViewById(R.id.iv_quick_friends);
-        ivQuickFormation = v.findViewById(R.id.iv_quick_formation);
-        ivQuickGift = v.findViewById(R.id.iv_quick_gift);
-        vQuickFriendsRedDot = v.findViewById(R.id.v_quick_friends_red_dot);
-
-        hsvQuickTools = v.findViewById(R.id.hsv_quick_tools);
-        llQuickToolsContainer = v.findViewById(R.id.ll_quick_tools_container);
-        
-        // Fix conflict: Không cho SwipeRefreshLayout bắt sự kiện khi đang vuốt ngang Quick Tools
-        if (hsvQuickTools != null) {
-            hsvQuickTools.setOnTouchListener((view, event) -> {
-                if (event.getAction() == android.view.MotionEvent.ACTION_DOWN || event.getAction() == android.view.MotionEvent.ACTION_MOVE) {
-                    if (swipeRefreshLayout != null) swipeRefreshLayout.setEnableRefresh(false);
-                } else {
-                    if (swipeRefreshLayout != null) swipeRefreshLayout.setEnableRefresh(true);
-                }
-                return false;
-            });
-        }
-        
         // Top bar views đã được chuyển sang MainActivity
 
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
+        cvModuleDaily = v.findViewById(R.id.cv_module_daily);
+        cvModuleUpgrade = v.findViewById(R.id.cv_module_upgrade);
         tvModuleStreakVal = v.findViewById(R.id.tv_module_streak_val);
         lottieModuleStreak = v.findViewById(R.id.lottie_module_streak);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
@@ -392,8 +280,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         if (btnMailbox != null) {
             btnMailbox.setOnClickListener(new ClickDebounce(v -> {
-                // Giảm badge khi mở (Mock logic)
-                if (tvBadgeMailbox != null) tvBadgeMailbox.setVisibility(View.GONE);
                 NavigationUtils.openMailbox(getActivity());
             }));
         }
@@ -409,9 +295,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             }));
         }
-
-        // Mock Badge Data
-        updateHeaderBadges(3, 1, 0);
 
         if (flStreakAvatar != null) {
             flStreakAvatar.setOnClickListener(new ClickDebounce(v -> {
@@ -430,7 +313,30 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
 
         if (vpMiniRanking != null) {
+            // Thiết lập giới hạn clip nghiêm ngặt để triệt tiêu hoàn toàn hiện tượng lọt trang kề bên (vượt giới địa lý)
+            vpMiniRanking.setClipChildren(true);
+            vpMiniRanking.setClipToPadding(true);
             vpMiniRanking.setAdapter(miniRankAdapter);
+            
+            // Cấu hình PageTransformer tạo hiệu ứng chiều sâu 3D mờ dần chuẩn xác trong ranh giới thẻ
+            vpMiniRanking.setPageTransformer((page, position) -> {
+                float absPos = Math.abs(position);
+                if (absPos >= 1.0f) {
+                    page.setAlpha(0.0f);
+                    page.setScaleX(0.9f);
+                    page.setScaleY(0.9f);
+                    page.setTranslationX(0.0f);
+                } else {
+                    // Hiệu ứng mờ dần mượt mà khi trượt
+                    page.setAlpha(1.0f - absPos * 0.8f);
+                    // Hiệu ứng thu nhỏ nhẹ tạo chiều sâu 3D sang trọng
+                    float scale = 0.92f + (1.0f - absPos) * 0.08f;
+                    page.setScaleX(scale);
+                    page.setScaleY(scale);
+                    // Giữ nguyên vị trí trượt ngang mặc định để không gây lọt trang
+                    page.setTranslationX(0.0f);
+                }
+            });
             
             // Fix conflict: Khóa Pull Refresh khi đang tương tác với Mini Ranking
             vpMiniRanking.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
@@ -537,6 +443,8 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void startRankAutoScroll() {
+        // Tắt chức năng lướt tự động theo yêu cầu của user
+        if (true) return;
         if (vpMiniRanking == null) return;
         stopRankAutoScroll();
         rankRunnable = new Runnable() {
@@ -697,71 +605,21 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class));
             }));
         }
-        if (btnQuickDaily != null) btnQuickDaily.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class)));
-        // if (btnQuickEvent != null) btnQuickEvent.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.MissionActivity.class)));
-        if (btnQuickUpgrade != null) {
-            btnQuickUpgrade.setOnClickListener(v -> {
+        if (cvModuleDaily != null) {
+            cvModuleDaily.setOnClickListener(new ClickDebounce(v -> {
+                startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class));
+            }));
+        }
+        if (cvModuleUpgrade != null) {
+            cvModuleUpgrade.setOnClickListener(new ClickDebounce(v -> {
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .add(R.id.frame_layout, new UpgradeFragment())
                             .addToBackStack(null)
                             .commit();
                 }
-            });
+            }));
         }
-        if (btnQuickRank != null) btnQuickRank.setOnClickListener(v -> NavigationUtils.openRank(getActivity()));
-        if (btnQuickFriends != null) btnQuickFriends.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FriendActivity.class)));
-        // if (btnQuickFormation != null) btnQuickFormation.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.FormationActivity.class)));
-        if (btnQuickGift != null) btnQuickGift.setOnClickListener(v -> startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.GiftActivity.class)));
-        
-        // flAvatarGroup đã chuyển sang MainActivity
-
-        if (btnQuickShop != null) {
-            btnQuickShop.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                            .add(R.id.frame_layout, new ShopFragment())
-                            .addToBackStack(null)
-                            .commit();
-                }
-            });
-        }
-    }
-
-    private void setupQuickToolDimensions() {
-        if (hsvQuickTools == null || llQuickToolsContainer == null) return;
-        hsvQuickTools.post(() -> {
-            if (!isAdded() || getContext() == null) return;
-            
-            int hsvWidth = hsvQuickTools.getMeasuredWidth();
-            // AAA: Bảo vệ chống việc tính toán sai khi view chưa sẵn sàng (tránh bị cắt 2 bên khi chuyển tab)
-            if (hsvWidth <= 0) return;
-
-            int horizontalPadding = hsvQuickTools.getPaddingLeft() + hsvQuickTools.getPaddingRight();
-            int itemWidth = (hsvWidth - horizontalPadding) / 5;
-            
-            // Đảm bảo itemWidth không nhỏ hơn kích thước bong bóng + một chút padding
-            int minSize = getResources().getDimensionPixelSize(R.dimen.home_quick_tool_fab_size);
-            if (itemWidth < minSize) itemWidth = minSize;
-
-            for (int i = 0; i < llQuickToolsContainer.getChildCount(); i++) {
-                View child = llQuickToolsContainer.getChildAt(i);
-                if (child != null) {
-                    // Tắt clipping cho từng item để hiệu ứng nhịp thở (pulse) không bị cắt viền
-                    if (child instanceof ViewGroup) {
-                        ((ViewGroup) child).setClipChildren(false);
-                        ((ViewGroup) child).setClipToPadding(false);
-                    }
-                    
-                    ViewGroup.LayoutParams params = child.getLayoutParams();
-                    if (params.width != itemWidth) {
-                        params.width = itemWidth;
-                        child.setLayoutParams(params);
-                    }
-                }
-            }
-        });
     }
 
     private void setupBannerCarousel() {
@@ -847,7 +705,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).loadUserData();
             }
-            checkFriendRequestsBadge();
             gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
                 @Override
                 public void onResponse(Call<UserStats> call, Response<UserStats> response) {
@@ -870,31 +727,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         } catch (Exception e) { Log.e(TAG, "Error data", e); }
     }
 
-    /**
-     * Tải ngầm danh sách lời mời kết bạn để quyết định hiển thị Red Dot.
-     * Tại sao: Tránh chặn UI luồng chính và đảm bảo thông báo kết bạn luôn tức thời khi mở game.
-     */
-    private void checkFriendRequestsBadge() {
-        if (gameApiService == null || vQuickFriendsRedDot == null) return;
-        gameApiService.getFriendRequests().enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        JSONObject json = new JSONObject(response.body().string());
-                        JSONArray data = json.optJSONArray("data");
-                        if (data != null && data.length() > 0) {
-                            vQuickFriendsRedDot.setVisibility(View.VISIBLE);
-                        } else {
-                            vQuickFriendsRedDot.setVisibility(View.GONE);
-                        }
-                    }
-                } catch (Exception ignored) {}
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {}
-        });
-    }
+
 
     private void bindCurrency(Long coins, Long diamonds, int streak, int bestStreak, int restores, int level, long exp) {
         // Tại sao (WHY): Sử dụng số ngày streak nạp từ đối tượng UserStats phía Server thay vì tính toán local.
@@ -1001,49 +834,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         });
     }
 
-    private void updateHeaderBadges(int friendsCount, int mailCount, int shopNewCount) {
-        if (tvBadgeFriends != null) {
-            if (friendsCount > 0) {
-                tvBadgeFriends.setText(friendsCount > 99 ? "99+" : String.valueOf(friendsCount));
-                tvBadgeFriends.setVisibility(View.VISIBLE);
-                animateBadgePop(tvBadgeFriends);
-            } else {
-                tvBadgeFriends.setVisibility(View.GONE);
-            }
-        }
-
-        if (tvBadgeMailbox != null) {
-            if (mailCount > 0) {
-                tvBadgeMailbox.setText(mailCount > 99 ? "99+" : String.valueOf(mailCount));
-                tvBadgeMailbox.setVisibility(View.VISIBLE);
-                animateBadgePop(tvBadgeMailbox);
-            } else {
-                tvBadgeMailbox.setVisibility(View.GONE);
-            }
-        }
-
-        if (tvBadgeShop != null) {
-            if (shopNewCount > 0) {
-                tvBadgeShop.setText("N");
-                tvBadgeShop.setVisibility(View.VISIBLE);
-            } else {
-                tvBadgeShop.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    private void animateBadgePop(View badge) {
-        badge.setScaleX(0.5f);
-        badge.setScaleY(0.5f);
-        badge.setAlpha(0f);
-        badge.animate()
-            .scaleX(1f)
-            .scaleY(1f)
-            .alpha(1f)
-            .setDuration(180)
-            .setInterpolator(new android.view.animation.OvershootInterpolator())
-            .start();
-    }
 
     private void updateStreakDisplay(int streak) {
         if (tvStreakAvatarVal != null) {

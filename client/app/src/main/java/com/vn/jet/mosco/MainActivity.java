@@ -76,10 +76,19 @@ public class MainActivity extends MoscoBaseActivity {
         setContentView(R.layout.activity_main);
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
             boolean keyboardVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
+            
+            int topPadding = systemBars.top;
+            if (topPadding == 0) {
+                int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+                if (resourceId > 0) {
+                    topPadding = getResources().getDimensionPixelSize(resourceId);
+                }
+            }
+            
             // Nếu có bàn phím ảo hiển thị thì chừa bottom padding cho bàn phím, ngược lại để 0 để floating bottom nav tự quản lý
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, keyboardVisible ? systemBars.bottom : 0);
+            v.setPadding(systemBars.left, topPadding, systemBars.right, keyboardVisible ? systemBars.bottom : 0);
             return insets;
         });
 

@@ -61,8 +61,6 @@
     <string name="common_mission_coming_soon_desc">Our scouts are currently mapping this sector. Check back soon for new updates.</string>
 
     <!-- Dialogs -->
-    <string name="dialog_action_cancel">Cancel</string>
-    <string name="dialog_action_confirm">Confirm</string>
     <string name="dialog_logout_title">Logout Confirmation</string>
     <string name="dialog_logout_msg">Are you sure you want to disconnect from the Mosco world?</string>
     <string name="dialog_exit_title">Exit App?</string>
@@ -138,12 +136,9 @@
     <string name="common_notification_title">System Notification</string>
     <string name="common_label_title">Title</string>
     <string name="common_msg_dialog_placeholder">Notification details appear here.</string>
-    <string name="common_action_cancel">Cancel</string>
-    <string name="common_action_confirm">Confirm</string>
     <string name="common_msg_purchase_success">Purchase Successful!</string>
     <string name="common_label_item_name">Item Name</string>
     <string name="common_label_item_desc">Item Description</string>
     <string name="common_label_owned_format">Owned: %d</string>
     <string name="action_get">Get</string>
-    <string name="msg_feature_coming_soon">Feature coming soon!</string>
 </resources>

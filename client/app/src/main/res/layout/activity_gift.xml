@@ -8,10 +8,10 @@
     android:background="@drawable/lg_background_deep">
 
     <!-- ═══ HEADER ═══ -->
-    <!-- Standard Galactic Header (Synced with Friend) -->
+    <!-- Standard Common Header -->
     <include
         android:id="@+id/layout_header_gift_container"
-        layout="@layout/layout_galactic_header"
+        layout="@layout/layout_common_header"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout

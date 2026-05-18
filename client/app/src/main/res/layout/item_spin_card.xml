@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:cardBackgroundColor="@color/lg_glass_surface_elevated"
-    app:cardCornerRadius="@dimen/spacing_md"
+    app:cardCornerRadius="@dimen/lg_radius_card"
     app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout

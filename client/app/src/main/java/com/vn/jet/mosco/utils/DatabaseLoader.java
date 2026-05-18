@@ -505,6 +505,84 @@ public class DatabaseLoader {
     }
 
     /**
+     * Bổ túc dữ liệu tĩnh từ Master Database (database.json hoặc Room) vào UserInventoryItem.
+     * Giải quyết triệt để lỗi ảnh bị xám đen hoặc tên bị biến thành chữ "F" đơn lẻ.
+     */
+    public static void enrichMetadata(Context context, UserInventoryItem item) {
+        if (item == null || item.collectionId == null || context == null) return;
+        JSONObject master = findById(context, item.collectionId);
+        if (master != null) {
+            if (item.frontImage == null || item.frontImage.isEmpty() || "null".equalsIgnoreCase(item.frontImage)) {
+                item.frontImage = master.optString("frontImage");
+            }
+            if (item.backImage == null || item.backImage.isEmpty() || "null".equalsIgnoreCase(item.backImage)) {
+                item.backImage = master.optString("backImage");
+            }
+            if (item.member == null || item.member.isEmpty() || "null".equalsIgnoreCase(item.member)) {
+                item.member = master.optString("member");
+            }
+            if (item.season == null || item.season.isEmpty() || "null".equalsIgnoreCase(item.season)) {
+                item.season = master.optString("season");
+            }
+            if (item.collectionNo == null || item.collectionNo.isEmpty() || "null".equalsIgnoreCase(item.collectionNo)) {
+                item.collectionNo = master.optString("collectionNo");
+            }
+            if (item.cardClass == null || item.cardClass.isEmpty() || "null".equalsIgnoreCase(item.cardClass)) {
+                item.cardClass = master.optString("class");
+            }
+            if (item.backgroundColor == null || item.backgroundColor.isEmpty() || "null".equalsIgnoreCase(item.backgroundColor)) {
+                item.backgroundColor = master.optString("backgroundColor", "#FFFFFF");
+            }
+            if (item.textColor == null || item.textColor.isEmpty() || "null".equalsIgnoreCase(item.textColor)) {
+                item.textColor = master.optString("textColor", "#000000");
+            }
+            if (item.dimension == null || item.dimension.isEmpty() || "null".equalsIgnoreCase(item.dimension)) {
+                item.dimension = master.optString("dimension");
+            }
+            if (item.ovr <= 0) {
+                item.ovr = master.optInt("ovr", 0);
+            }
+        }
+    }
+
+    /**
+     * Bổ túc dữ liệu tĩnh từ Master Database vào CardDisplayItem (dùng trong grids/Album).
+     */
+    public static void enrichMetadata(Context context, com.vn.jet.mosco.model.CardDisplayItem item) {
+        if (item == null || item.getCollectionId() == null || context == null) return;
+        JSONObject master = findById(context, item.getCollectionId());
+        if (master != null) {
+            if (item.getFrontImage() == null || item.getFrontImage().isEmpty() || "null".equalsIgnoreCase(item.getFrontImage())) {
+                item.setFrontImage(master.optString("frontImage"));
+            }
+            if (item.getBackImage() == null || item.getBackImage().isEmpty() || "null".equalsIgnoreCase(item.getBackImage())) {
+                item.setBackImage(master.optString("backImage"));
+            }
+            if (item.getMember() == null || item.getMember().isEmpty() || "null".equalsIgnoreCase(item.getMember())) {
+                item.setMember(master.optString("member"));
+            }
+            if (item.getSeason() == null || item.getSeason().isEmpty() || "null".equalsIgnoreCase(item.getSeason())) {
+                item.setSeason(master.optString("season"));
+            }
+            if (item.getCollectionNo() == null || item.getCollectionNo().isEmpty() || "null".equalsIgnoreCase(item.getCollectionNo())) {
+                item.setCollectionNo(master.optString("collectionNo"));
+            }
+            if (item.getCardClass() == null || item.getCardClass().isEmpty() || "null".equalsIgnoreCase(item.getCardClass())) {
+                item.setCardClass(master.optString("class"));
+            }
+            if (item.getBackgroundColor() == null || item.getBackgroundColor().isEmpty() || "null".equalsIgnoreCase(item.getBackgroundColor())) {
+                item.setBackgroundColor(master.optString("backgroundColor", "#FFFFFF"));
+            }
+            if (item.getDimension() == null || item.getDimension().isEmpty() || "null".equalsIgnoreCase(item.getDimension())) {
+                item.setDimension(master.optString("dimension"));
+            }
+            if (item.getOvr() <= 0) {
+                item.setOvr(master.optInt("ovr", 0));
+            }
+        }
+    }
+
+    /**
      * Nạp lại inventory từ Server.
      */
     public static void reloadInventoryFromServer(Context context, Long userId,
@@ -529,6 +607,8 @@ public class DatabaseLoader {
 
                         for (com.vn.jet.mosco.model.UserCard uc : userCards) {
                             UserInventoryItem item = UserInventoryItem.fromUserCard(uc);
+                            // Bổ túc dữ liệu tĩnh trước khi thêm vào danh sách và map
+                            enrichMetadata(context, item);
                             newList.add(item);
                             newMap.put(item.collectionId, convertToJSONObject(item));
                         }
@@ -628,7 +708,7 @@ public class DatabaseLoader {
                         tags.add(tagArray.getString(j));
                 }
 
-                items.add(new UserInventoryItem(
+                UserInventoryItem item = new UserInventoryItem(
                         obj.getLong("id"),
                         obj.getString("collectionId"),
                         obj.getString("frontImage"),
@@ -647,7 +727,10 @@ public class DatabaseLoader {
                         tags,
                         obj.optString("dimension", ""),
                         obj.optString("status", "AVAILABLE"),
-                        obj.optString("createdAt", "")));
+                        obj.optString("createdAt", ""));
+                // Bổ túc dữ liệu tĩnh để tránh cache local lưu thiếu trường
+                enrichMetadata(context, item);
+                items.add(item);
             }
             cachedUserInventory = items;
             cachedInventoryUserId = userId;

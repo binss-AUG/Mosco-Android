@@ -8,10 +8,10 @@
     tools:context=".FormationActivity">
 
     <!-- ── PART 1: HEADER (TOP) ──────────────────────────────────────── -->
-    <!-- Standard Galactic Header (Abstracted) -->
+    <!-- Standard Common Header -->
     <include
         android:id="@+id/layout_header_formation_container"
-        layout="@layout/layout_galactic_header"
+        layout="@layout/layout_common_header"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Right Side Content (OVR Stats) -->

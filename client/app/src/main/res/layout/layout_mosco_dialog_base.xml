@@ -59,7 +59,7 @@
                 android:layout_weight="1"
                 app:moscoStyle="ghost"
                 app:moscoSize="large"
-                android:text="@string/common_action_cancel" />
+                android:text="@string/action_cancel" />
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_positive"
@@ -69,7 +69,7 @@
                 android:layout_marginStart="@dimen/spacing_12dp"
                 app:moscoStyle="primary"
                 app:moscoSize="large"
-                android:text="@string/common_action_confirm" />
+                android:text="@string/action_confirm" />
         </LinearLayout>
 
     </LinearLayout>

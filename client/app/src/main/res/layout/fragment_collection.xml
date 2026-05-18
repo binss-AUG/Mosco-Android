@@ -4,51 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <include
         android:id="@+id/layout_collection_header"
+        layout="@layout/layout_common_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent">
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/lg_glass_surface_elevated"
-            app:cardCornerRadius="@dimen/lg_radius_chip"
-            app:strokeColor="@color/lg_glass_stroke"
-            app:strokeWidth="@dimen/lg_stroke_hairline"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tv_collection_header"
-                style="@style/MoscoText.Luxury.SubHeader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TripleS"
-                android:paddingHorizontal="@dimen/spacing_md"
-                android:paddingVertical="@dimen/spacing_xs" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_shop"
-            style="@style/MoscoText.Luxury.Label"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/spacing_36dp"
-            android:background="@drawable/bg_btn_rainbow"
-            android:backgroundTint="@color/lg_glass_stroke"
-            android:text="@string/shop_header_title"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:paddingHorizontal="@dimen/spacing_md"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_shop"
+        style="@style/MoscoText.Luxury.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/spacing_36dp"
+        android:layout_marginEnd="@dimen/spacing_lg"
+        android:background="@drawable/bg_btn_rainbow"
+        android:backgroundTint="@color/lg_glass_stroke"
+        android:text="@string/shop_header_title"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:paddingHorizontal="@dimen/spacing_md"
+        app:layout_constraintBottom_toBottomOf="@id/layout_collection_header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/layout_collection_header" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout_collection"

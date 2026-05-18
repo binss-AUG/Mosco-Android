@@ -14,7 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:cardBackgroundColor="@color/lg_glass_surface_elevated"
-        app:cardCornerRadius="@dimen/radius_lg"
+        app:cardCornerRadius="@dimen/lg_radius_card"
         app:cardElevation="@dimen/elevation_s"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"

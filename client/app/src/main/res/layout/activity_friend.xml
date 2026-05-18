@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/lg_background_deep">
 
-    <!-- Standard Galactic Header (Abstracted) -->
+    <!-- Standard Common Header -->
     <include
         android:id="@+id/layout_header_friend_container"
-        layout="@layout/layout_galactic_header"
+        layout="@layout/layout_common_header"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Friend Specific Header Content (QR Button) -->
