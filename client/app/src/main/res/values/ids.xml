@@ -7,4 +7,6 @@
     <item name="ll_filter_sections_container" type="id" />
     <item name="btn_filter_reset" type="id" />
     <item name="sv_filter_content" type="id" />
+    <item name="fl_filter_content" type="id" />
+    <item name="btn_filter_clear" type="id" />
 </resources>

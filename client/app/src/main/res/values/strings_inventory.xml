@@ -126,5 +126,4 @@
     <string name="collection_reward_msg">You received %s!</string>
     <string name="showcase_msg_duplicate">This card is already showcased in another slot.</string>
     <string name="card_name_unknown">Unknown</string>
-    <string name="collection_header_title">Collection</string>
 </resources>
