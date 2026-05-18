@@ -36,8 +36,8 @@ public class GiftService {
 
     // ═══ CẤU HÌNH — Tập trung tại đây để dễ thay đổi ═══
     private static final int DAILY_GIFT_LIMIT = 5;
-    private static final long GIFT_COST_COINS = 36_000L;
-    private static final long GIFT_COST_DIAMONDS = 36L;
+    private static final long GIFT_COST_COINS = 0L; // Không tốn Gold
+    private static final long GIFT_COST_DIAMONDS = 0L; // Không tốn Diamond
 
     private final UserRepository userRepository;
     private final UserCardRepository userCardRepository;
