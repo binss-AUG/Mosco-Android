@@ -30,9 +30,11 @@
   "classes": {
     "First": { "base_ovr": 117, "rank": 1, "color": "#FFFFFF" },
     "Welcome": { "base_ovr": 117, "rank": 1, "color": "#FFFFFF" },
+    "Zero": { "base_ovr": 117, "rank": 1, "color": "#FFFFFF" },
     "Double": { "base_ovr": 126, "rank": 2, "color": "#22568a" },
     "Special": { "base_ovr": 132, "rank": 3, "colors": ["#F7F7F7", "#FFB7C5", "#ADD8E6"] },
-    "Unit": { "base_ovr": 132, "rank": 3, "color": "#FFD700" },
+    "Motion": { "base_ovr": 132, "rank": 3, "colors": ["#F7F7F7", "#FFB7C5", "#ADD8E6"] },
+    "Unit": { "base_ovr": 135, "rank": 4, "color": "#FFD700" },
     "Premier": { "base_ovr": 135, "rank": 4, "color": "#2E3192" }
   },
   "seasons": [

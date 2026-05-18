@@ -166,11 +166,17 @@ public class PackService {
     private String selectSubClassByRank(int rank) {
         Random rnd = new Random();
         switch (rank) {
-            case 1: return rnd.nextBoolean() ? "First" : "Welcome";
-            case 2: return "Double";
-            case 3: return rnd.nextBoolean() ? "Special" : "SpecialUnit";
-            case 4: return "Premier";
-            default: return "First";
+            case 1: 
+                int r = rnd.nextInt(3);
+                return r == 0 ? "First" : (r == 1 ? "Welcome" : "Zero");
+            case 2: 
+                return "Double";
+            case 3: 
+                return rnd.nextBoolean() ? "Special" : "Motion";
+            case 4: 
+                return rnd.nextBoolean() ? "Premier" : "Unit"; // Unit được nâng độ hiếm lên bằng Premier
+            default: 
+                return "First";
         }
     }
 
@@ -178,11 +184,20 @@ public class PackService {
         if (gameConfig == null) return "#FFFFFF";
         JsonObject classes = gameConfig.getAsJsonObject("classes");
         
-        // Fallback mapping cho "Motion" -> "Special"
         String lookupClass = cardClass;
-        if ("Motion".equalsIgnoreCase(cardClass)) lookupClass = "Special";
+        if (cardClass != null) {
+            String normalized = cardClass.replaceAll("\\s+", "").toLowerCase();
+            if (normalized.contains("welcome")) lookupClass = "Welcome";
+            else if (normalized.contains("zero")) lookupClass = "Zero";
+            else if (normalized.contains("first")) lookupClass = "First";
+            else if (normalized.contains("double")) lookupClass = "Double";
+            else if (normalized.contains("motion")) lookupClass = "Motion";
+            else if (normalized.contains("special")) lookupClass = "Special";
+            else if (normalized.contains("unit")) lookupClass = "Unit";
+            else if (normalized.contains("premier")) lookupClass = "Premier";
+        }
         
-        if (classes.has(lookupClass)) {
+        if (classes != null && classes.has(lookupClass)) {
             JsonObject classInfo = classes.getAsJsonObject(lookupClass);
             if (classInfo.has("colors")) {
                 return gson.fromJson(classInfo.getAsJsonArray("colors"), List.class);
@@ -219,16 +234,8 @@ public class PackService {
 
     private boolean isClassMatch(String dbClass, String targetClass) {
         if (dbClass == null || targetClass == null) return false;
-        String db = dbClass.trim().toLowerCase();
-        String target = targetClass.trim().toLowerCase();
-        
-        if (db.equals(target)) return true;
-        
-        // Logic alias: Motion có thể tương đương với Special hoặc Unit tùy rank
-        if (target.contains("special") || target.contains("unit")) {
-            return db.contains("motion") || db.contains("special") || db.contains("unit");
-        }
-        
+        String db = dbClass.replaceAll("\\s+", "").toLowerCase();
+        String target = targetClass.replaceAll("\\s+", "").toLowerCase();
         return db.contains(target) || target.contains(db);
     }
 

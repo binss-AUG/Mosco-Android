@@ -1,10 +1,14 @@
 {
   "spin_rates": {
     "Nothing": 12.0,
+    "First": 16.96,
+    "Welcome": 16.96,
+    "Zero": 16.97,
     "Double": 30.0,
-    "FirstWelcome": 50.89,
-    "SpecialUnit": 7.0,
-    "Premier": 0.11
+    "Special": 3.45,
+    "Motion": 3.45,
+    "Unit": 0.05,
+    "Premier": 0.16
   },
   "pack_rates": {
     "Metal": [0.8, 0.15, 0.0499, 0.0001],
@@ -27,57 +31,93 @@
   },
   "custom_upgrade_rates": {
     "2": {
-      "FirstWelcome": { "X": 50.0, "M": 1.0 },
+      "First": { "X": 50.0, "M": 1.0 },
+      "Welcome": { "X": 50.0, "M": 1.0 },
+      "Zero": { "X": 50.0, "M": 1.0 },
       "Double": { "X": 50.0, "M": 1.0 },
-      "SpecialUnit": { "X": 50.0, "M": 1.0 },
+      "Special": { "X": 50.0, "M": 1.0 },
+      "Motion": { "X": 50.0, "M": 1.0 },
+      "Unit": { "X": 50.0, "M": 1.0 },
       "Premier": { "X": 50.0, "M": 1.0 }
     },
     "3": {
-      "FirstWelcome": { "X": 33.4, "M": 1.0 },
+      "First": { "X": 33.4, "M": 1.0 },
+      "Welcome": { "X": 33.4, "M": 1.0 },
+      "Zero": { "X": 33.4, "M": 1.0 },
       "Double": { "X": 33.4, "M": 1.0 },
-      "SpecialUnit": { "X": 33.4, "M": 1.0 },
+      "Special": { "X": 33.4, "M": 1.0 },
+      "Motion": { "X": 33.4, "M": 1.0 },
+      "Unit": { "X": 33.4, "M": 1.0 },
       "Premier": { "X": 33.4, "M": 1.0 }
     },
     "4": {
-      "FirstWelcome": { "X": 25.0, "M": 1.0 },
+      "First": { "X": 25.0, "M": 1.0 },
+      "Welcome": { "X": 25.0, "M": 1.0 },
+      "Zero": { "X": 25.0, "M": 1.0 },
       "Double": { "X": 25.0, "M": 1.0 },
-      "SpecialUnit": { "X": 25.0, "M": 1.0 },
+      "Special": { "X": 25.0, "M": 1.0 },
+      "Motion": { "X": 25.0, "M": 1.0 },
+      "Unit": { "X": 25.0, "M": 1.0 },
       "Premier": { "X": 25.0, "M": 1.0 }
     },
     "5": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     },
     "6": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     },
     "7": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     },
     "8": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     },
     "9": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     },
     "10": {
-      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "First": { "X": 20.0, "M": 1.0 },
+      "Welcome": { "X": 20.0, "M": 1.0 },
+      "Zero": { "X": 20.0, "M": 1.0 },
       "Double": { "X": 20.0, "M": 1.0 },
-      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Special": { "X": 20.0, "M": 1.0 },
+      "Motion": { "X": 20.0, "M": 1.0 },
+      "Unit": { "X": 20.0, "M": 1.0 },
       "Premier": { "X": 20.0, "M": 1.0 }
     }
   }

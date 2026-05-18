@@ -36,9 +36,13 @@ import java.nio.charset.StandardCharsets;
 public class SpinSystem {
 
     public static final String GROUP_NOTHING = "Nothing";
+    public static final String GROUP_FIRST = "First";
+    public static final String GROUP_WELCOME = "Welcome";
+    public static final String GROUP_ZERO = "Zero";
     public static final String GROUP_DOUBLE = "Double";
-    public static final String GROUP_FIRST_WELCOME = "FirstWelcome";
-    public static final String GROUP_SPECIAL_UNIT = "SpecialUnit";
+    public static final String GROUP_SPECIAL = "Special";
+    public static final String GROUP_MOTION = "Motion";
+    public static final String GROUP_UNIT = "Unit";
     public static final String GROUP_PREMIER = "Premier";
 
     private final Map<String, List<JsonObject>> groupedCards = new HashMap<>();
@@ -124,9 +128,13 @@ public class SpinSystem {
 
     private void initGroups() {
         groupedCards.put(GROUP_NOTHING, new ArrayList<>());
+        groupedCards.put(GROUP_FIRST, new ArrayList<>());
+        groupedCards.put(GROUP_WELCOME, new ArrayList<>());
+        groupedCards.put(GROUP_ZERO, new ArrayList<>());
         groupedCards.put(GROUP_DOUBLE, new ArrayList<>());
-        groupedCards.put(GROUP_FIRST_WELCOME, new ArrayList<>());
-        groupedCards.put(GROUP_SPECIAL_UNIT, new ArrayList<>());
+        groupedCards.put(GROUP_SPECIAL, new ArrayList<>());
+        groupedCards.put(GROUP_MOTION, new ArrayList<>());
+        groupedCards.put(GROUP_UNIT, new ArrayList<>());
         groupedCards.put(GROUP_PREMIER, new ArrayList<>());
         
         // Add dummy cards for 'Nothing' so grid builder has valid items to draw
@@ -179,10 +187,18 @@ public class SpinSystem {
         String lowerClass = cardClass.toLowerCase();
         if (lowerClass.contains("double")) {
             return GROUP_DOUBLE;
-        } else if (lowerClass.contains("first") || lowerClass.contains("welcome")) {
-            return GROUP_FIRST_WELCOME;
-        } else if (lowerClass.contains("special") || lowerClass.contains("unit")) {
-            return GROUP_SPECIAL_UNIT;
+        } else if (lowerClass.contains("welcome")) {
+            return GROUP_WELCOME;
+        } else if (lowerClass.contains("zero")) {
+            return GROUP_ZERO;
+        } else if (lowerClass.contains("first")) {
+            return GROUP_FIRST;
+        } else if (lowerClass.contains("motion")) {
+            return GROUP_MOTION;
+        } else if (lowerClass.contains("special")) {
+            return GROUP_SPECIAL;
+        } else if (lowerClass.contains("unit")) {
+            return GROUP_UNIT;
         } else if (lowerClass.contains("premier")) {
             return GROUP_PREMIER;
         }
@@ -344,54 +360,52 @@ public class SpinSystem {
         return result;
     }
 
+    private Map<String, int[]> createBounds(String resultGroup, int pProb, int firstWelcomeMin, int firstWelcomeMax, int doubleMin, int doubleMax, int specialUnitMax, int nothingMin, int nothingMax) {
+        Map<String, int[]> bounds = new HashMap<>();
+        
+        // 1. Phân phối nhóm First, Welcome, Zero (tách từ FirstWelcome cũ)
+        int fMin = firstWelcomeMin / 3;
+        int fMax = firstWelcomeMax / 3 + 1;
+        bounds.put(GROUP_FIRST, new int[]{fMin, fMax});
+        bounds.put(GROUP_WELCOME, new int[]{fMin, fMax});
+        bounds.put(GROUP_ZERO, new int[]{fMin, fMax});
+
+        // 2. Phân phối nhóm Double
+        bounds.put(GROUP_DOUBLE, new int[]{doubleMin, doubleMax});
+
+        // 3. Phân phối nhóm Special, Motion (tách từ SpecialUnit cũ)
+        int sMax = specialUnitMax > 0 ? random.nextInt(specialUnitMax + 1) : 0;
+        int sMin = sMax / 2;
+        bounds.put(GROUP_SPECIAL, new int[]{sMin, sMax});
+        bounds.put(GROUP_MOTION, new int[]{sMin, sMax});
+
+        // 4. Phân phối nhóm Unit, Premier (nhóm Rank 4)
+        int premierCount = (resultGroup.equals(GROUP_PREMIER)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);
+        int unitCount = (resultGroup.equals(GROUP_UNIT)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);
+        bounds.put(GROUP_PREMIER, new int[]{premierCount, premierCount});
+        bounds.put(GROUP_UNIT, new int[]{unitCount, unitCount});
+
+        // 5. Phân phối Nothing
+        bounds.put(GROUP_NOTHING, new int[]{nothingMin, nothingMax});
+
+        return bounds;
+    }
+
     private Map<String, Integer> buildCaseDistribution(String resultGroup) {
-        Map<String, int[]> bounds = new HashMap<>(); // [min, max]
-        int pProb = 0;
+        Map<String, int[]> bounds;
         int caseRoll = random.nextInt(100);
         if (caseRoll < 24) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{6, 11});
-            bounds.put(GROUP_DOUBLE, new int[]{3, 6});
-
-            int specialCount = random.nextInt(2);
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
-
-            pProb = 3;
-            bounds.put(GROUP_NOTHING, new int[]{0, 2});
+            bounds = createBounds(resultGroup, 3, 6, 11, 3, 6, 2, 0, 2);
         } else if (caseRoll < 48) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{7, 10});
-            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 0});
-            pProb = 3;
-            bounds.put(GROUP_NOTHING, new int[]{1, 1});
+            bounds = createBounds(resultGroup, 3, 7, 10, 4, 6, 0, 1, 1);
         } else if (caseRoll < 72) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{7, 10});
-            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{0, 0});
-            pProb = 0;
-            bounds.put(GROUP_NOTHING, new int[]{1, 1});
+            bounds = createBounds(resultGroup, 0, 7, 10, 4, 6, 0, 1, 1);
         } else if (caseRoll < 99) {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 10});
-            bounds.put(GROUP_DOUBLE, new int[]{4, 6});
-
-            int specialCount = random.nextInt(2);
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
-
-            pProb = 3;
-            bounds.put(GROUP_NOTHING, new int[]{1, 1});
+            bounds = createBounds(resultGroup, 3, 8, 10, 4, 6, 2, 1, 1);
         } else {
-            bounds.put(GROUP_FIRST_WELCOME, new int[]{8, 9});
-            bounds.put(GROUP_DOUBLE, new int[]{3, 6});
-
-            int specialCount = random.nextInt(3);
-            bounds.put(GROUP_SPECIAL_UNIT, new int[]{specialCount, specialCount});
-
-            pProb = 100;
-            bounds.put(GROUP_NOTHING, new int[]{0, 1});
+            bounds = createBounds(resultGroup, 100, 8, 9, 3, 6, 3, 0, 1);
         }
 
-        int premierCount = (resultGroup.equals(GROUP_PREMIER)) ? 1 : (random.nextInt(100) < pProb ? 1 : 0);
-        bounds.put(GROUP_PREMIER, new int[]{premierCount, premierCount});
-        
         // Force resultGroup min/max to at least 1
         if (bounds.containsKey(resultGroup)) {
             int[] b = bounds.get(resultGroup);

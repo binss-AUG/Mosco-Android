@@ -25,6 +25,9 @@ class CoupleStreakServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+
     @InjectMocks
     private CoupleStreakService coupleStreakService;
 
@@ -66,11 +69,15 @@ class CoupleStreakServiceTest {
         // 3. Tương tác cùng ngày (Không tăng streak)
         when(streakRepository.findBetweenUserIds(1L, 2L)).thenReturn(Optional.of(activeStreak));
         coupleStreakService.recordInteraction(1L, 2L);
+        coupleStreakService.recordInteraction(2L, 1L);
         assertEquals(1, activeStreak.getStreakCount());
 
         // 4. Tương tác ngày hôm sau (Tăng streak)
         activeStreak.setLastInteractionDate(LocalDate.now().minusDays(1));
+        activeStreak.setRequesterInteractionDate(LocalDate.now().minusDays(1));
+        activeStreak.setPartnerInteractionDate(LocalDate.now().minusDays(1));
         coupleStreakService.recordInteraction(1L, 2L);
+        coupleStreakService.recordInteraction(2L, 1L);
         assertEquals(2, activeStreak.getStreakCount());
         assertEquals(LocalDate.now(), activeStreak.getLastInteractionDate());
     }

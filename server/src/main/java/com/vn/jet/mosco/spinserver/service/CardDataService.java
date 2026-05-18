@@ -31,6 +31,7 @@ public class CardDataService {
 
     private Map<String, JsonNode> cardMetadataCache;
     private JsonNode gameConfig;
+    private JsonNode cardOvrConfig;
 
     @org.springframework.beans.factory.annotation.Autowired
     private com.vn.jet.mosco.spinserver.repository.CardRepository cardRepository;
@@ -41,6 +42,7 @@ public class CardDataService {
     public void init() {
         loadDatabaseJson();
         loadGameConfigJson();
+        loadCardOvrJson();
         loadVideoUrlCache();
     }
 
@@ -51,6 +53,16 @@ public class CardDataService {
             logger.info("CardDataService: Loaded game_config.json");
         } catch (Exception e) {
             logger.error("CardDataService: Failed to load game_config.json", e);
+        }
+    }
+
+    private void loadCardOvrJson() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            cardOvrConfig = mapper.readTree(new ClassPathResource("cardOvr.json").getInputStream());
+            logger.info("CardDataService: Loaded cardOvr.json");
+        } catch (Exception e) {
+            logger.error("CardDataService: Failed to load cardOvr.json", e);
         }
     }
 
@@ -117,38 +129,36 @@ public class CardDataService {
      */
     public int getOvr(String collectionId, int upgradeLevel) {
         JsonNode meta = getCardMetadata(collectionId);
-        if (meta == null || gameConfig == null) return DEFAULT_OVR;
+        if (meta == null || cardOvrConfig == null) return DEFAULT_OVR;
 
         String season = meta.has("season") ? meta.get("season").asText() : "";
-
-        // 1. Lấy Base OVR từ Class
-        int base = DEFAULT_OVR;
         String typeKey = getTypeKey(collectionId);
-        JsonNode classesInfo = gameConfig.get("classes");
-        if (classesInfo != null && classesInfo.has(typeKey)) {
-            base = classesInfo.get(typeKey).get("base_ovr").asInt();
+
+        // 1. Lấy Base + Progression OVR từ cardOvr.json
+        int baseAndProgression = DEFAULT_OVR;
+        if (cardOvrConfig.has(typeKey)) {
+            JsonNode levels = cardOvrConfig.get(typeKey);
+            String lvlStr = String.valueOf(upgradeLevel);
+            if (levels.has(lvlStr)) {
+                baseAndProgression = levels.get(lvlStr).asInt();
+            }
         }
 
         // 2. Lấy Season Bonus
         int seasonBonus = 0;
-        JsonNode seasons = gameConfig.get("seasons");
-        if (seasons != null && seasons.isArray()) {
-            for (JsonNode s : seasons) {
-                if (s.get("id").asText().equalsIgnoreCase(season)) {
-                    seasonBonus = s.get("bonus").asInt();
-                    break;
+        if (gameConfig != null) {
+            JsonNode seasons = gameConfig.get("seasons");
+            if (seasons != null && seasons.isArray()) {
+                for (JsonNode s : seasons) {
+                    if (s.get("id").asText().equalsIgnoreCase(season)) {
+                        seasonBonus = s.get("bonus").asInt();
+                        break;
+                    }
                 }
             }
         }
 
-        // 3. Lấy Badge Progression Bonus
-        int badgeBonus = 0;
-        JsonNode progression = gameConfig.get("badge_progression");
-        if (progression != null && progression.has(String.valueOf(upgradeLevel))) {
-            badgeBonus = progression.get(String.valueOf(upgradeLevel)).asInt();
-        }
-
-        return base + seasonBonus + badgeBonus;
+        return baseAndProgression + seasonBonus;
     }
 
     public List<String> getAvailableTags(String collectionId) {
@@ -249,25 +259,17 @@ public class CardDataService {
 
     public String getTypeKey(String collectionId) {
         String cardClass = getCardClass(collectionId);
-        if (cardClass == null || gameConfig == null) return "FirstWelcome";
+        if (cardClass == null) return "First";
         String normalized = cardClass.replaceAll("\\s+", "").toLowerCase();
-
-        JsonNode classes = gameConfig.get("classes");
-        if (classes != null && classes.isObject()) {
-            java.util.Iterator<Map.Entry<String, JsonNode>> fields = classes.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> entry = fields.next();
-                JsonNode aliases = entry.getValue().get("aliases");
-                if (aliases != null && aliases.isArray()) {
-                    for (JsonNode alias : aliases) {
-                        if (normalized.contains(alias.asText().toLowerCase())) {
-                            return entry.getKey(); // e.g., "FirstWelcome", "SpecialUnit"
-                        }
-                    }
-                }
-            }
-        }
-        return "FirstWelcome";
+        if (normalized.contains("welcome")) return "Welcome";
+        if (normalized.contains("zero")) return "Zero";
+        if (normalized.contains("first")) return "First";
+        if (normalized.contains("double")) return "Double";
+        if (normalized.contains("motion")) return "Motion";
+        if (normalized.contains("special")) return "Special";
+        if (normalized.contains("unit")) return "Unit";
+        if (normalized.contains("premier")) return "Premier";
+        return "First";
     }
 
     /**
