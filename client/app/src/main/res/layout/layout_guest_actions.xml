@@ -5,15 +5,15 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingTop="@dimen/spacing_sm"
-    android:gravity="center_horizontal">
+    android:gravity="start">
 
     <!-- Row 1: Interaction & Communication (Like & Message ở trên) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginHorizontal="@dimen/spacing_xs"
+        android:gravity="start"
+        android:layout_marginEnd="@dimen/spacing_xs"
         android:layout_marginBottom="@dimen/spacing_xs">
 
         <com.google.android.material.button.MaterialButton
@@ -58,8 +58,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginHorizontal="@dimen/spacing_xs">
+        android:gravity="start"
+        android:layout_marginEnd="@dimen/spacing_xs">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_friend"

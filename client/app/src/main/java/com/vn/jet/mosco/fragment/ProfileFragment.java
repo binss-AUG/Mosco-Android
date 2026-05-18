@@ -1643,10 +1643,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     int nextItem = (vpShowcase.getCurrentItem() + 1) % showcaseAdapter.getItemCount();
                     vpShowcase.setCurrentItem(nextItem, true);
                 }
-                carouselHandler.postDelayed(this, 3000);
+                carouselHandler.postDelayed(this, 5000);
             }
         };
-        carouselHandler.postDelayed(carouselRunnable, 3000);
+        carouselHandler.postDelayed(carouselRunnable, 5000);
     }
 
     private void stopCarousel() {
@@ -1723,15 +1723,14 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         if (tvOvr != null) tvOvr.setVisibility(View.GONE);
 
+        if (tvName != null) {
+            tvName.setVisibility(View.GONE);
+        }
+
         if (collectionId == null || collectionId.isEmpty() || collectionId.equals("null")) {
             if (layoutEmpty != null) layoutEmpty.setVisibility(View.VISIBLE);
             if (layoutCore != null) layoutCore.setVisibility(View.GONE);
             if (ivBack != null) ivBack.setVisibility(View.GONE);
-            
-            if (tvName != null) {
-                tvName.setVisibility(View.VISIBLE);
-                tvName.setText(R.string.showcase_empty_slot);
-            }
             
             if (layoutAddPlus != null) {
                 layoutAddPlus.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
@@ -1763,20 +1762,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             }
 
             if (cardData == null) {
-                if (tvName != null) {
-                    tvName.setVisibility(View.VISIBLE);
-                    tvName.setText(getString(R.string.showcase_unknown_card, collectionId.substring(0, Math.min(4, collectionId.length()))));
-                }
                 return;
-            }
-
-            if (tvName != null) {
-                tvName.setVisibility(View.VISIBLE);
-                String member = cardData.optString("member", "");
-                String collectionNo = cardData.optString("collectionNo", "");
-                String name = member + (collectionNo.isEmpty() ? "" : " " + collectionNo);
-                if (name.trim().isEmpty()) name = collectionId;
-                tvName.setText(name);
             }
             
             if (ivImage != null) {
@@ -1860,8 +1846,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
 
         public void updateIds(List<String> newIds) {
-            List<String> paddedIds = new ArrayList<>(newIds);
-            while (paddedIds.size() < SHOWCASE_COUNT) paddedIds.add("");
+            List<String> paddedIds = new ArrayList<>();
+            if (isOwner) {
+                // Owner: Giữ đủ 8 slot (đắp thêm "" nếu thiếu)
+                paddedIds.addAll(newIds);
+                while (paddedIds.size() < SHOWCASE_COUNT) paddedIds.add("");
+            } else {
+                // Guest: Chỉ lấy những card có ID thực sự hợp lệ, không show empty slot
+                for (String id : newIds) {
+                    if (id != null && !id.trim().isEmpty() && !id.equals("null")) {
+                        paddedIds.add(id);
+                    }
+                }
+            }
             
             if (this.ids.equals(paddedIds)) return;
 
@@ -1926,6 +1923,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
 
         @Override
-        public int getItemCount() { return SHOWCASE_COUNT; }
+        public int getItemCount() { return ids.size(); }
     }
 }

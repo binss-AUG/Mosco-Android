@@ -9,7 +9,6 @@
     android:padding="@dimen/spacing_md">
 
     <!-- Card Container (The Objet) -->
-    <!-- Sử dụng 0dp + ratio để thẻ tự động scale vừa vặn với mọi màn hình, đảm bảo Name Tag không bị cắt -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_card_container"
         android:layout_width="0dp"
@@ -20,10 +19,10 @@
         app:strokeWidth="1dp"
         app:strokeColor="@color/mosco_white_10"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tv_card_name"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.65"
+        app:layout_constraintWidth_percent="0.92"
         app:layout_constraintDimensionRatio="1:1.5"
         app:layout_constraintVertical_bias="0.5"
         app:layout_constrainedHeight="true">
@@ -131,6 +130,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:maxWidth="280dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
