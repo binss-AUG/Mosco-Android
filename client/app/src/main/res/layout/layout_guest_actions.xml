@@ -28,8 +28,10 @@
             android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:backgroundTint="@color/lg_accent_primary"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/lg_accent_primary_alpha_25"
+            android:textColor="@color/lg_accent_primary"
+            app:strokeColor="@color/lg_accent_primary_dim"
+            app:strokeWidth="1dp"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@null" />
 
@@ -44,8 +46,10 @@
             android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:backgroundTint="@color/mosco_white_10"
             android:textColor="@color/lg_text_secondary"
             app:strokeColor="@color/lg_outline"
+            app:strokeWidth="1dp"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@drawable/ic_mailbox"
             app:iconSize="14dp"
@@ -63,7 +67,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_friend"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="38dp"
             android:layout_weight="1"
@@ -72,9 +76,11 @@
             android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:backgroundTint="@color/lg_accent_primary"
-            android:textColor="@color/white"
+            android:backgroundTint="@color/lg_accent_primary_alpha_25"
+            android:textColor="@color/lg_accent_primary"
             android:textStyle="bold"
+            app:strokeColor="@color/lg_accent_primary_dim"
+            app:strokeWidth="1dp"
             app:cornerRadius="@dimen/radius_md"
             app:icon="@null" />
 
@@ -88,11 +94,13 @@
             android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:backgroundTint="#26EF4444"
             app:icon="@drawable/ic_close"
             app:iconSize="14dp"
             app:iconPadding="0dp"
             app:iconTint="@color/palette_red_accent"
             app:strokeColor="@color/palette_red_accent"
+            app:strokeWidth="1dp"
             app:cornerRadius="@dimen/radius_md"
             android:visibility="gone" />
     </LinearLayout>
