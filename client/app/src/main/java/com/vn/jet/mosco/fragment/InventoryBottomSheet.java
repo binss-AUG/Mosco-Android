@@ -171,12 +171,12 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         rvInventory.setItemViewCacheSize(20);
         // [QUIET LUXURY] ĐÃ GỠ BỎ Drawing Cache (Nguyên nhân gây OOM/Crash khi lướt nhanh)
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        rvInventory.addOnScrollListener(new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f));
 
         filterBar = view.findViewById(R.id.filter_bar);
-        LinearLayout dropdownSort = view.findViewById(R.id.dropdown_sort_select);
         
         if (filterBar != null) {
-            if (dropdownSort != null) filterBar.attachDropdown(dropdownSort);
+            filterBar.setSortOptions(SORT_OPTIONS);
             filterBar.setSortText(currentSortOption);
             filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
                 @Override
@@ -196,7 +196,9 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                         List<CollectionFragment.FilterCategory> categories = CollectionFragment.buildObjetCategories(requireContext());
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
-                                CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories, 0, objetFilter, InventoryBottomSheet.this::applyFilters);
+                                CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories,
+                                        objetFilter, filterBar, SORT_OPTIONS,
+                                        InventoryBottomSheet.this::applyFilters);
                             });
                         }
                     }).start();
