@@ -49,10 +49,10 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.15"
-                    android:layout_marginStart="@dimen/spacing_md"
+                    android:layout_weight="0.9"
                     android:orientation="vertical"
                     android:gravity="start"
+                    android:layout_marginStart="@dimen/spacing_md"
                     android:paddingEnd="@dimen/spacing_xxs">
 
                     <!-- Avatar Frame -->
@@ -220,7 +220,7 @@
                     android:id="@+id/layout_exhibit_container"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.85"
+                    android:layout_weight="1.1"
                     android:layout_gravity="center_vertical"
                     android:clipChildren="false"
                     android:clipToPadding="false"
@@ -232,7 +232,7 @@
                         android:layout_height="match_parent"
                         android:clipChildren="false"
                         android:clipToPadding="false"
-                        android:paddingHorizontal="0dp" />
+                        android:paddingHorizontal="24dp" />
 
                 </FrameLayout>
 

@@ -6,15 +6,14 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:padding="6dp">
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="12dp">
 
     <!-- Card Container (The Objet) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_card_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
         app:cardBackgroundColor="@color/palette_obsidian_950"
         app:cardCornerRadius="@dimen/radius_lg"
         app:cardElevation="@dimen/spacing_xs"
@@ -24,7 +23,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.98">
+        app:layout_constraintWidth_percent="0.98"
+        app:layout_constraintDimensionRatio="1:1.54"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constrainedHeight="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

@@ -1890,16 +1890,22 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 if (isEditMode) {
                     openInventoryPicker(position);
                 } else {
-                    if (cardId != null && !cardId.trim().isEmpty() && !cardId.equals("null")) {
-                        org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(v.getContext(), cardId);
+                    if (cardId != null && !cardId.isEmpty() && !cardId.equals("null")) {
+                        org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), cardId);
                         if (cardData == null) {
-                            DatabaseLoader.initMasterDataSync(v.getContext());
-                            cardData = DatabaseLoader.findByCollectionId(v.getContext(), cardId);
+                            DatabaseLoader.initMasterDataSync(getContext());
+                            cardData = DatabaseLoader.findByCollectionId(getContext(), cardId);
                         }
                         if (cardData != null) {
-                            String frontImage = cardData.optString("frontImage", "");
-                            int level = cardData.optInt("upgradeLevel", 1);
-                            CollectionFragment.showObjetDetailDialog(v.getContext(), frontImage, cardData, level, 0, level);
+                            int level = cardData.optInt("upgradeLevel", 0);
+                            CollectionFragment.showObjetDetailDialog(
+                                getContext(),
+                                cardData.optString("frontImage", ""),
+                                cardData,
+                                level,
+                                0,
+                                level
+                            );
                         }
                     }
                 }
