@@ -129,10 +129,7 @@ public class CollectionDetailBinder {
         ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
         int upgradeGrade = entry.getUpgradeLevel();
         if (ivLevel != null) {
-            if (isAlbumMode) {
-                ivLevel.setVisibility(View.GONE);
-                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
-            } else if (upgradeGrade > 0) {
+            if (upgradeGrade > 0) {
                 String assetPath = context.getString(R.string.asset_grade_path) + upgradeGrade + ".png";
                 Glide.with(context).load(assetPath).into(ivLevel);
                 ivLevel.setVisibility(View.VISIBLE);
@@ -202,6 +199,7 @@ public class CollectionDetailBinder {
         View btnClose = dialog.findViewById(R.id.btn_close_detail);
         if (btnClose != null) {
             // Đóng hộp thoại chi tiết để giải phóng tài nguyên giao diện và quay về danh sách chính
+            btnClose.setVisibility(isAlbumMode ? View.GONE : View.VISIBLE);
             btnClose.setOnClickListener(v -> dialog.dismiss());
         }
 
