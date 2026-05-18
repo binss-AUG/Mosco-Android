@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -113,6 +114,22 @@ public class UpgradeFragment extends Fragment {
     private CardDisplayItem[] materialCards = new CardDisplayItem[5];
     private int currentMaterialSlot = -1;
 
+    // Trình phát video ExoPlayer dành cho các thẻ Motion chính và kết quả nâng cấp (DRY)
+    private androidx.media3.exoplayer.ExoPlayer mainVideoPlayer;
+    private androidx.media3.exoplayer.ExoPlayer resultVideoPlayer;
+
+    private void releaseUpgradePlayers() {
+        if (mainVideoPlayer != null) {
+            mainVideoPlayer.release();
+            mainVideoPlayer = null;
+        }
+        if (resultVideoPlayer != null) {
+            resultVideoPlayer.release();
+            resultVideoPlayer = null;
+        }
+    }
+
+
     private UpgradeAlgorithm upgradeAlgorithm;
     private boolean isUpgrading = false;
 
@@ -163,6 +180,12 @@ public class UpgradeFragment extends Fragment {
         if (bgVideoView != null && !bgVideoView.isPlaying()) {
             bgVideoView.start();
         }
+        if (mainVideoPlayer != null) {
+            mainVideoPlayer.play();
+        }
+        if (resultVideoPlayer != null) {
+            resultVideoPlayer.play();
+        }
         // Ẩn thanh Top Bar (Header chính) khi ở màn hình Upgrade để tránh chồng chéo giao diện.
         if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
             ((com.vn.jet.mosco.MainActivity) getActivity()).setTopBarVisible(false);
@@ -188,6 +211,12 @@ public class UpgradeFragment extends Fragment {
         if (bgVideoView != null && bgVideoView.isPlaying()) {
             bgVideoView.pause();
         }
+        if (mainVideoPlayer != null) {
+            mainVideoPlayer.pause();
+        }
+        if (resultVideoPlayer != null) {
+            resultVideoPlayer.pause();
+        }
         // Khôi phục hiển thị thanh Bottom Navigation và custom glass bottom navigation khi rời khỏi UpgradeFragment.
         if (getActivity() != null) {
             View navBar = getActivity().findViewById(R.id.bottom_navigation);
@@ -199,6 +228,7 @@ public class UpgradeFragment extends Fragment {
                 customNavBar.setVisibility(View.VISIBLE);
             }
         }
+
         // Khôi phục hiển thị thanh Top Bar phù hợp với Fragment hiện tại sau khi thoát UpgradeFragment.
         if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
             com.vn.jet.mosco.MainActivity mainActivity = (com.vn.jet.mosco.MainActivity) getActivity();
@@ -648,6 +678,34 @@ public class UpgradeFragment extends Fragment {
 
         // Load ảnh thẻ CŨ lên card (Sử dụng Priority Flow - Original)
         com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivResultImage, mainCard.getFrontImage(), false);
+
+        // Khởi chạy trình phát video ExoPlayer cho thẻ kết quả đập thẻ dạng Motion (DRY)
+        boolean isResultMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
+        TextureView vvResultVideo = cardContainer.findViewById(R.id.card_vv_video);
+        if (vvResultVideo != null) {
+            if (resultVideoPlayer != null) {
+                resultVideoPlayer.release();
+                resultVideoPlayer = null;
+            }
+            if (isResultMotion) {
+                resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                        requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
+                // Nếu đập thẻ thất bại, áp dụng Grayscale Paint cho video để hiển thị đen trắng tuyệt đẹp!
+                if (!result.isSuccess()) {
+                    vvResultVideo.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                    android.graphics.Paint grayscalePaint = new android.graphics.Paint();
+                    android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                    matrix.setSaturation(0);
+                    grayscalePaint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                    vvResultVideo.setLayerPaint(grayscalePaint);
+                } else {
+                    vvResultVideo.setLayerType(View.LAYER_TYPE_NONE, null);
+                }
+            } else {
+                vvResultVideo.setVisibility(View.GONE);
+            }
+        }
+
         tvResultOvr.setVisibility(View.GONE); // Ẩn OVR theo yêu cầu
         tvResultOvr.setText(String.valueOf(mainCard.getOvr()));
         if (mainCard.getUpgradeLevel() > 0) {
@@ -656,6 +714,7 @@ public class UpgradeFragment extends Fragment {
             Glide.with(requireContext()).load(gradePath).dontAnimate().into(ivResultLevel);
             LevelBadgeEffectHelper.apply(ivResultLevel, mainCard.getUpgradeLevel());
         }
+
 
         // Nút DONE
         MoscoButton btnDone = new MoscoButton(requireContext());
@@ -853,12 +912,17 @@ public class UpgradeFragment extends Fragment {
         // Nút DONE: Khôi phục toàn bộ UI
         btnDone.setOnClickListener(v -> {
             isUpgrading = false;
+            if (resultVideoPlayer != null) {
+                resultVideoPlayer.release();
+                resultVideoPlayer = null;
+            }
             overlay.animate().alpha(0f).setDuration(300).withLayer().withEndAction(() -> {
                 parent.removeView(overlay);
                 resultCard.setLayerPaint(null);
                 if (layoutContentWrapper != null) {
                     layoutContentWrapper.setAlpha(1f);
                 }
+
                 View doneHeaderView = rootView.findViewById(R.id.layout_header_upgrade);
                 if (doneHeaderView != null) {
                     doneHeaderView.setAlpha(1f);
@@ -953,6 +1017,14 @@ public class UpgradeFragment extends Fragment {
                 skeleton.setVisibility(View.GONE);
             CardEffectHelper.remove(cardMain, shimmer);
             LevelBadgeEffectHelper.remove(ivCardLevelBadge);
+            if (cardMain != null) {
+                TextureView vvMainVideo = cardMain.findViewById(R.id.card_vv_video);
+                if (vvMainVideo != null) vvMainVideo.setVisibility(View.GONE);
+            }
+            if (mainVideoPlayer != null) {
+                mainVideoPlayer.release();
+                mainVideoPlayer = null;
+            }
         } else {
             btnAddMainCard.setVisibility(View.GONE);
             ivMainCardImage.setVisibility(View.VISIBLE);
@@ -960,6 +1032,23 @@ public class UpgradeFragment extends Fragment {
 
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
+
+            // Thiết lập trình phát video ExoPlayer cho thẻ chính dạng Motion (DRY)
+            boolean isMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
+            TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
+            if (vvMainVideo != null) {
+                if (mainVideoPlayer != null) {
+                    mainVideoPlayer.release();
+                    mainVideoPlayer = null;
+                }
+                if (isMotion) {
+                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                            requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
+                } else {
+                    vvMainVideo.setVisibility(View.GONE);
+                }
+            }
+
             tvCardOvr.setVisibility(View.GONE);
             tvCardOvr.setText(String.valueOf(mainCard.getOvr()));
             if (mainCard.getUpgradeLevel() > 0) {
@@ -973,6 +1062,7 @@ public class UpgradeFragment extends Fragment {
             }
             CardEffectHelper.apply(cardMain, shimmer, mainCard, true);
         }
+
 
         // Luôn ẩn OVR trên card chính (đã có info ở panel bên phải)
         if (tvCardOvr != null)
@@ -1142,5 +1232,12 @@ public class UpgradeFragment extends Fragment {
             }
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        releaseUpgradePlayers();
+    }
 }
+
 

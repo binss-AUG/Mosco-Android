@@ -299,6 +299,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop" />
+
+            <!-- Video Player for Motion cards (ExoPlayer) -->
+            <TextureView
+                android:id="@+id/vv_result_video"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
         </androidx.cardview.widget.CardView>
 
         <View

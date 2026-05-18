@@ -74,6 +74,14 @@
             android:scaleType="centerCrop"
             tools:src="@drawable/item_shop_demo" />
 
+        <!-- Video Player for Motion cards (ExoPlayer) -->
+        <TextureView
+            android:id="@+id/vv_item_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+
         <!-- 3. Shimmer Overlay -->
         <View
             android:id="@+id/view_card_shimmer"

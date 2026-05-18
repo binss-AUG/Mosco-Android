@@ -27,6 +27,7 @@ import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -101,6 +102,36 @@ public class ItemRevealFragment extends Fragment {
     private LottieAnimationView loadingAnimView;
     private View skeletonLoadingView; // "Quiet Luxury" Objet Skeleton
     private ChaosParticleView activeParticleView;
+
+    // Trình phát video ExoPlayer dành cho các thẻ Motion lật mở nhằm tăng hiệu năng 60fps trên giả lập Android 9
+    private androidx.media3.exoplayer.ExoPlayer itemVideoPlayer;
+    private boolean isCardFlipped = false;
+
+    private void releaseItemPlayer() {
+        if (itemVideoPlayer != null) {
+            itemVideoPlayer.release();
+            itemVideoPlayer = null;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (itemVideoPlayer != null) {
+            itemVideoPlayer.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (itemVideoPlayer != null && !isCardFlipped) {
+            itemVideoPlayer.play();
+        }
+    }
+
+
+
 
     // Components dynamic for Flip
     private ImageView backImageView;
@@ -519,6 +550,23 @@ public class ItemRevealFragment extends Fragment {
                         if (!imageUrl.isEmpty())
                             Glide.with(this).load(imageUrl).into(ivItemImage);
 
+                        // Thiết lập ExoPlayer phát video thẻ Motion cao cấp (DRY)
+                        String cardClass = topCardJson.optString(KEY_CARD_CLASS, "Welcome");
+                        String frontVideoUrl = topCardJson.optString("frontVideoUrl", "");
+                        boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && !frontVideoUrl.isEmpty();
+                        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+                        if (vvItemVideo != null) {
+                            releaseItemPlayer();
+                            if (isMotion && requireContext() != null) {
+                                isCardFlipped = false;
+                                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                        requireContext(), vvItemVideo, frontVideoUrl, ivItemImage);
+                            } else {
+                                vvItemVideo.setVisibility(View.GONE);
+                            }
+                        }
+
+
                         // Tạo mặt sau (Back Image) cho FLIP 3D
                         String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
                         if (backImageView == null) {
@@ -578,6 +626,8 @@ public class ItemRevealFragment extends Fragment {
         heroObjet.setSeason(topCardJson.optString(KEY_SEASON));
         heroObjet.setBackgroundColor(topCardJson.optString(KEY_BACKGROUND_COLOR));
         heroObjet.setTextColor(topCardJson.optString(KEY_TEXT_COLOR));
+        heroObjet.setFrontVideoUrl(topCardJson.optString("frontVideoUrl", ""));
+
 
         this.shimmerView = getView().findViewById(R.id.view_card_shimmer);
         Integer glowColorArg = (forcedGlowColor == 0) ? null : forcedGlowColor;
@@ -680,13 +730,30 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void updateVisibilitySync(ImageView ivFront, boolean showBack) {
+        isCardFlipped = showBack;
+        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
         if (!showBack) {
-            ivFront.setVisibility(View.VISIBLE);
+            if (itemVideoPlayer != null) {
+                itemVideoPlayer.play();
+                if (vvItemVideo != null) {
+                    vvItemVideo.setVisibility(View.VISIBLE);
+                }
+                // Chỉ ẩn ảnh tĩnh khi video đã thực sự vẽ frame
+                ivFront.setVisibility(View.INVISIBLE);
+            } else {
+                ivFront.setVisibility(View.VISIBLE);
+            }
             if (backImageView != null)
                 backImageView.setVisibility(View.GONE);
             if (shimmerView != null)
                 shimmerView.setVisibility(View.VISIBLE);
         } else {
+            if (itemVideoPlayer != null) {
+                itemVideoPlayer.pause();
+            }
+            if (vvItemVideo != null) {
+                vvItemVideo.setVisibility(View.GONE);
+            }
             ivFront.setVisibility(View.GONE);
             if (backImageView != null)
                 backImageView.setVisibility(View.VISIBLE);
@@ -694,6 +761,7 @@ public class ItemRevealFragment extends Fragment {
                 shimmerView.setVisibility(View.GONE);
         }
     }
+
 
     private void createChaosParticles(int color, View cardItem) {
         ViewGroup root = (ViewGroup) getView();
@@ -1205,6 +1273,7 @@ public class ItemRevealFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        releaseItemPlayer();
         if (floatingAnim != null)
             floatingAnim.cancel();
         if (parallaxIdleAnimator != null)

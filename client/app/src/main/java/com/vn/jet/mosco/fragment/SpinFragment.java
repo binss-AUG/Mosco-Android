@@ -20,6 +20,7 @@ import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -92,6 +93,23 @@ public class SpinFragment extends Fragment {
     private TextView tvRevealUnchosen;
     private TextView tvResultTitle;
     private TextView tvResultSubtitle;
+
+    // Trình phát video ExoPlayer dành cho các thẻ Motion hi sinh và trúng thưởng (DRY)
+    private androidx.media3.exoplayer.ExoPlayer sacrificeVideoPlayer;
+    private androidx.media3.exoplayer.ExoPlayer resultVideoPlayer;
+    private boolean isResultFlipped = false;
+
+    private void releaseSpinPlayers() {
+        if (sacrificeVideoPlayer != null) {
+            sacrificeVideoPlayer.release();
+            sacrificeVideoPlayer = null;
+        }
+        if (resultVideoPlayer != null) {
+            resultVideoPlayer.release();
+            resultVideoPlayer = null;
+        }
+    }
+
 
     // Reveal Result Grid UI
     private View layoutRevealResultGrid;
@@ -716,6 +734,38 @@ public class SpinFragment extends Fragment {
         String backUrl = getCardImageUrl(selectedPosition, false);
         loadCardImageInto(backUrl, ivResultBack, true);
 
+        // Khởi chạy ExoPlayer phát video cho thẻ kết quả dạng Motion (DRY)
+        Map<String, Object> cardData = currentSpinResult != null ? currentSpinResult.getCardData() : null;
+        String resultClass = cardData != null ? String.valueOf(cardData.get("class")) : "";
+        String resultVideoUrl = cardData != null ? String.valueOf(cardData.get("frontVideoUrl")) : "";
+        boolean isResultMotion = "Motion".equalsIgnoreCase(resultClass) && resultVideoUrl != null && !resultVideoUrl.isEmpty();
+        TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
+        if (vvResultVideo != null) {
+            if (resultVideoPlayer != null) {
+                resultVideoPlayer.release();
+                resultVideoPlayer = null;
+            }
+            if (isResultMotion) {
+                isResultFlipped = false;
+                resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                        requireContext(), vvResultVideo, resultVideoUrl, ivResultImage);
+                // Nếu thua, áp dụng Grayscale để video chuyển sang đen trắng đồng điệu với ảnh tĩnh!
+                if (!isWin) {
+                    vvResultVideo.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                    android.graphics.Paint grayscalePaint = new android.graphics.Paint();
+                    android.graphics.ColorMatrix matrix = new android.graphics.ColorMatrix();
+                    matrix.setSaturation(0);
+                    grayscalePaint.setColorFilter(new android.graphics.ColorMatrixColorFilter(matrix));
+                    vvResultVideo.setLayerPaint(grayscalePaint);
+                } else {
+                    vvResultVideo.setLayerType(View.LAYER_TYPE_NONE, null);
+                }
+            } else {
+                vvResultVideo.setVisibility(View.GONE);
+            }
+        }
+
+
         // === Phase 1: Neon Glow Fade 100% → 0% trong 1000ms ===
         if (isWin) {
             viewNeonGlow.animate()
@@ -783,6 +833,12 @@ public class SpinFragment extends Fragment {
             cardResultFinal.setRotationY(val);
             if (!showingBack[0] && val >= 90f) {
                 showingBack[0] = true;
+                isResultFlipped = true;
+                if (resultVideoPlayer != null) {
+                    resultVideoPlayer.pause();
+                }
+                TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
+                if (vvResultVideo != null) vvResultVideo.setVisibility(View.GONE);
                 ivResultImage.setVisibility(View.GONE);
                 ivResultBack.setVisibility(View.VISIBLE);
             }
@@ -802,11 +858,20 @@ public class SpinFragment extends Fragment {
                         cardResultFinal.setRotationY(val);
                         if (showingBack[0] && val >= 270f) {
                             showingBack[0] = false;
+                            isResultFlipped = false;
                             ivResultBack.setVisibility(View.GONE);
-                            ivResultImage.setVisibility(View.VISIBLE);
+                            if (resultVideoPlayer != null) {
+                                resultVideoPlayer.play();
+                                TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
+                                if (vvResultVideo != null) vvResultVideo.setVisibility(View.VISIBLE);
+                                ivResultImage.setVisibility(View.INVISIBLE);
+                            } else {
+                                ivResultImage.setVisibility(View.VISIBLE);
+                            }
                         }
                     });
                     rot2.addListener(new AnimatorListenerAdapter() {
+
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             cardResultFinal.setRotationY(0f);
@@ -954,8 +1019,14 @@ public class SpinFragment extends Fragment {
 
     private void resetToSpinMain() {
         if (!isAdded()) return;
+        // Giải phóng các trình phát video (DRY)
+        releaseSpinPlayers();
+        TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
+        if (vvResultVideo != null) vvResultVideo.setVisibility(View.GONE);
+
         // Ẩn result
         layoutResultReveal.setVisibility(View.GONE);
+
         // Ẩn reveal result grid
         if (layoutRevealResultGrid != null) layoutRevealResultGrid.setVisibility(View.GONE);
         // Reset btn_collect
@@ -1166,7 +1237,31 @@ public class SpinFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         stopShineEffectLoop();
+        releaseSpinPlayers();
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (sacrificeVideoPlayer != null) {
+            sacrificeVideoPlayer.pause();
+        }
+        if (resultVideoPlayer != null) {
+            resultVideoPlayer.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (sacrificeVideoPlayer != null && !isSacrificeFlipped) {
+            sacrificeVideoPlayer.play();
+        }
+        if (resultVideoPlayer != null && !isResultFlipped) {
+            resultVideoPlayer.play();
+        }
+    }
+
 
     // ========================
     // SecretCardAdapter (chọn thẻ ban đầu)
@@ -1565,10 +1660,6 @@ public class SpinFragment extends Fragment {
         }
     }
 
-    /**
-     * Thiết lập mặt hiển thị (trước/sau) dựa trên trạng thái.
-     * Không toggle — gán trực tiếp trạng thái mới.
-     */
     private void setSacrificeFace(boolean showBack) {
         if (isSacrificeFlipped == showBack) return;
         if (ivSelectedObjet == null || ivSacrificeBack == null) return;
@@ -1578,10 +1669,17 @@ public class SpinFragment extends Fragment {
         View shimmer = cardCenterSlot.findViewById(R.id.view_card_shimmer);
         android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
         android.widget.ImageView ivLevelBadge = cardCenterSlot.findViewById(R.id.card_iv_level);
+        TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
 
         if (!showBack) {
             // Hiện mặt trước
-            ivSelectedObjet.setVisibility(View.VISIBLE);
+            if (sacrificeVideoPlayer != null) {
+                sacrificeVideoPlayer.play();
+                if (vvSelectedObjetVideo != null) vvSelectedObjetVideo.setVisibility(View.VISIBLE);
+                ivSelectedObjet.setVisibility(View.INVISIBLE);
+            } else {
+                ivSelectedObjet.setVisibility(View.VISIBLE);
+            }
             ivSacrificeBack.setVisibility(View.GONE);
             if (shimmer != null) shimmer.setVisibility(View.VISIBLE);
             if (tvOvr != null) tvOvr.setVisibility(View.GONE);
@@ -1590,6 +1688,10 @@ public class SpinFragment extends Fragment {
             }
         } else {
             // Hiện mặt sau
+            if (sacrificeVideoPlayer != null) {
+                sacrificeVideoPlayer.pause();
+            }
+            if (vvSelectedObjetVideo != null) vvSelectedObjetVideo.setVisibility(View.GONE);
             ivSelectedObjet.setVisibility(View.GONE);
             ivSacrificeBack.setVisibility(View.VISIBLE);
             ivSacrificeBack.setScaleX(-1f); // Mirror fix cho rotation 180°
@@ -1607,7 +1709,17 @@ public class SpinFragment extends Fragment {
         isSacrificeFlipped = false;
         isSacrificeFlipAnimating = false;
         sacrificeBackImageUrl = null;
-        if (cardCenterSlot != null) cardCenterSlot.setRotationY(0f);
+        if (sacrificeVideoPlayer != null) {
+            sacrificeVideoPlayer.release();
+            sacrificeVideoPlayer = null;
+        }
+        if (cardCenterSlot != null) {
+            cardCenterSlot.setRotationY(0f);
+            TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
+            if (vvSelectedObjetVideo != null) {
+                vvSelectedObjetVideo.setVisibility(View.GONE);
+            }
+        }
         if (ivSacrificeBack != null) {
             ivSacrificeBack.setVisibility(View.GONE);
             ivSacrificeBack.setScaleX(1f);
@@ -1615,6 +1727,7 @@ public class SpinFragment extends Fragment {
         }
         if (ivSelectedObjet != null) ivSelectedObjet.setVisibility(View.VISIBLE);
     }
+
 
     private void startBackgroundAnimation() {
         if (getView() == null || bgCardsContainer == null) return;
@@ -1725,7 +1838,24 @@ public class SpinFragment extends Fragment {
                     // Luồng tải ưu tiên: Thẻ đang chọn hy sinh dùng bản Original chất lượng cao
                     com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSelectedObjet, imageUrl, false);
 
+                    // Khởi chạy trình phát video ExoPlayer cho thẻ Motion hy sinh (DRY)
+                    boolean isMotion = "Motion".equalsIgnoreCase(selectedObj.getCardClass()) && selectedObj.getFrontVideoUrl() != null && !selectedObj.getFrontVideoUrl().isEmpty();
+                    TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
+                    if (vvSelectedObjetVideo != null) {
+                        if (sacrificeVideoPlayer != null) {
+                            sacrificeVideoPlayer.release();
+                            sacrificeVideoPlayer = null;
+                        }
+                        if (isMotion) {
+                            sacrificeVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                    requireContext(), vvSelectedObjetVideo, selectedObj.getFrontVideoUrl(), ivSelectedObjet);
+                        } else {
+                            vvSelectedObjetVideo.setVisibility(View.GONE);
+                        }
+                    }
+
                     ivSelectedObjet.animate().alpha(1f).setDuration(300).start();
+
 
                     // Áp dụng Full Hiệu Ứng (OVR, Level Badge, Shimmer)
                     android.widget.TextView tvOvr = cardCenterSlot.findViewById(R.id.card_tv_ovr);
