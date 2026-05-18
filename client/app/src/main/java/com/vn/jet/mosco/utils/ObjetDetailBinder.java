@@ -119,12 +119,26 @@ public class ObjetDetailBinder {
 
             if (vvObjetVideo != null) {
                 if (isMotion) {
-                    vvObjetVideo.setVisibility(View.VISIBLE);
+                    vvObjetVideo.setVisibility(View.INVISIBLE);
+                    
+                    // Thiết lập bo góc tròn hoàn hảo cho VideoView (Không bị lộ viền vuông)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        vvObjetVideo.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                            @Override
+                            public void getOutline(View view, android.graphics.Outline outline) {
+                                float radius = view.getContext().getResources().getDimension(R.dimen.radius_lg);
+                                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                            }
+                        });
+                        vvObjetVideo.setClipToOutline(true);
+                    }
+
                     String cachedUrl = com.vn.jet.mosco.MoscoApplication.getProxy(context).getProxyUrl(objet.getFrontVideoUrl());
                     vvObjetVideo.setVideoURI(android.net.Uri.parse(cachedUrl));
                     vvObjetVideo.setOnPreparedListener(mp -> {
                         mp.setLooping(true);
                         mp.setVideoScalingMode(android.media.MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                        vvObjetVideo.setVisibility(View.VISIBLE);
                         vvObjetVideo.start();
                         if (ivObjet != null) {
                             ivObjet.setVisibility(View.INVISIBLE);
@@ -326,7 +340,6 @@ public class ObjetDetailBinder {
                                 } else {
                                     if (isMotion && vvObjetVideo != null) {
                                         vvObjetVideo.pause();
-                                        vvObjetVideo.setVisibility(View.GONE);
                                     }
                                     if (ivObjet != null) ivObjet.setVisibility(View.GONE);
                                     if (ivDetailBack != null) {
@@ -390,7 +403,7 @@ public class ObjetDetailBinder {
                                         } else {
                                             if (isMotion && vvObjetVideo != null) {
                                                 vvObjetVideo.pause();
-                                                vvObjetVideo.setVisibility(View.GONE);
+
                                             }
                                             if (ivObjet != null) ivObjet.setVisibility(View.GONE);
                                             if (ivDetailBack != null) {

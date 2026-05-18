@@ -131,13 +131,27 @@ public class CollectionDetailBinder {
 
         if (vvObjetVideo != null) {
             if (isMotion) {
-                vvObjetVideo.setVisibility(View.VISIBLE);
+                vvObjetVideo.setVisibility(View.INVISIBLE);
+                
+                // Thiết lập bo góc tròn hoàn hảo cho VideoView (Không bị lộ viền vuông)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    vvObjetVideo.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                        @Override
+                        public void getOutline(View view, android.graphics.Outline outline) {
+                            float radius = view.getContext().getResources().getDimension(R.dimen.lg_radius_card);
+                            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                        }
+                    });
+                    vvObjetVideo.setClipToOutline(true);
+                }
+
                 try {
                     String cachedUrl = com.vn.jet.mosco.MoscoApplication.getProxy(context).getProxyUrl(entry.getFrontVideoUrl());
                     vvObjetVideo.setVideoURI(android.net.Uri.parse(cachedUrl));
                     vvObjetVideo.setOnPreparedListener(mp -> {
                         mp.setLooping(true);
                         mp.setVideoScalingMode(android.media.MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                        vvObjetVideo.setVisibility(View.VISIBLE);
                         vvObjetVideo.start();
                         if (ivCard != null) {
                             ivCard.setVisibility(View.INVISIBLE);
@@ -396,7 +410,7 @@ public class CollectionDetailBinder {
                             if (ivLevel != null) ivLevel.setVisibility(View.GONE);
                             // MOTION VIDEO SUPPORT
                             if (vvObjetVideo != null) {
-                                vvObjetVideo.setVisibility(View.GONE);
+
                                 vvObjetVideo.pause();
                             }
                         }
@@ -459,7 +473,7 @@ public class CollectionDetailBinder {
                                     if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
                                     // MOTION VIDEO SUPPORT
                                     if (vvObjetVideo != null) {
-                                        vvObjetVideo.setVisibility(View.GONE);
+
                                         vvObjetVideo.pause();
                                     }
                                 }
