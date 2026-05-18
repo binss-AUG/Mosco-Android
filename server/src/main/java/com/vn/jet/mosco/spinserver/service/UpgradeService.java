@@ -41,15 +41,18 @@ public class UpgradeService {
     @PostConstruct
     public void init() {
         try {
+            // Tải cấu hình hợp nhất rates_config.json
+            InputStream isConfig = new ClassPathResource("rates_config.json").getInputStream();
+            JsonNode configJson = objectMapper.readTree(isConfig);
+
             // Load upgrade rates
-            InputStream isRate = new ClassPathResource("upgradeRate.json").getInputStream();
-            upgradeRates = objectMapper.readValue(isRate, new TypeReference<Map<Integer, Double>>() {});
+            JsonNode ratesNode = configJson.get("upgrade_rates");
+            upgradeRates = objectMapper.convertValue(ratesNode, new TypeReference<Map<Integer, Double>>() {});
 
             // Load custom upgrade config (X, M coefficients)
-            InputStream isCustom = new ClassPathResource("customUpgrade.json").getInputStream();
-            customUpgradeConfig = objectMapper.readTree(isCustom);
+            customUpgradeConfig = configJson.get("custom_upgrade_rates");
 
-            log.info("UpgradeService: Loaded upgrade configurations.");
+            log.info("UpgradeService: Loaded upgrade configurations from rates_config.json.");
         } catch (Exception e) {
             log.error("UpgradeService: Failed to load upgrade configurations", e);
         }

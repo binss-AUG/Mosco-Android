@@ -84,7 +84,7 @@ public class SpinSystem {
     public void init() {
         try {
             ClassPathResource dbResource = new ClassPathResource("database.json");
-            ClassPathResource rateResource = new ClassPathResource("spinrate.json");
+            ClassPathResource rateResource = new ClassPathResource("rates_config.json");
             
             try (Reader dbReader = new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8);
                  Reader rateReader = new InputStreamReader(rateResource.getInputStream(), StandardCharsets.UTF_8)) {
@@ -144,9 +144,9 @@ public class SpinSystem {
     /**
      * Step 1-4: Load and preprocess data
      */
-    public void loadData(Reader databaseReader, Reader spinrateReader) {
+    public void loadData(Reader databaseReader, Reader ratesConfigReader) {
         // Load Spin Rates
-        JsonObject ratesJson = new JsonParser().parse(spinrateReader).getAsJsonObject();
+        JsonObject ratesJson = new JsonParser().parse(ratesConfigReader).getAsJsonObject().getAsJsonObject("spin_rates");
         for (Map.Entry<String, JsonElement> entry : ratesJson.entrySet()) {
             baseRates.put(entry.getKey(), entry.getValue().getAsDouble());
         }

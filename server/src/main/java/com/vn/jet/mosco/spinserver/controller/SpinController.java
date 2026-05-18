@@ -18,7 +18,7 @@ public class SpinController {
         try {
             // Đọc dữ liệu từ thư mục resources
             var db = new ClassPathResource("database.json");
-            var rates = new ClassPathResource("spinrate.json");
+            var rates = new ClassPathResource("rates_config.json");
             spinSystem.loadData(
                     new InputStreamReader(db.getInputStream(), StandardCharsets.UTF_8),
                     new InputStreamReader(rates.getInputStream(), StandardCharsets.UTF_8)

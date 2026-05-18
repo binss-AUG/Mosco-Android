@@ -1,0 +1,84 @@
+{
+  "spin_rates": {
+    "Nothing": 12.0,
+    "Double": 30.0,
+    "FirstWelcome": 50.89,
+    "SpecialUnit": 7.0,
+    "Premier": 0.11
+  },
+  "pack_rates": {
+    "Metal": [0.8, 0.15, 0.0499, 0.0001],
+    "Copper": [0.75, 0.25, 0.0499, 0.0001],
+    "Silver": [0.25, 0.25, 0.25, 0.25],
+    "Gold": [0.25, 0.25, 0.25, 0.25],
+    "Diamond": [0.0, 0.0, 0.35, 0.65],
+    "EX": [0.0, 0.0, 0.05, 0.95]
+  },
+  "upgrade_rates": {
+    "2": 100.0,
+    "3": 81.0,
+    "4": 64.0,
+    "5": 50.0,
+    "6": 26.0,
+    "7": 15.0,
+    "8": 7.0,
+    "9": 4.0,
+    "10": 2.0
+  },
+  "custom_upgrade_rates": {
+    "2": {
+      "FirstWelcome": { "X": 50.0, "M": 1.0 },
+      "Double": { "X": 50.0, "M": 1.0 },
+      "SpecialUnit": { "X": 50.0, "M": 1.0 },
+      "Premier": { "X": 50.0, "M": 1.0 }
+    },
+    "3": {
+      "FirstWelcome": { "X": 33.4, "M": 1.0 },
+      "Double": { "X": 33.4, "M": 1.0 },
+      "SpecialUnit": { "X": 33.4, "M": 1.0 },
+      "Premier": { "X": 33.4, "M": 1.0 }
+    },
+    "4": {
+      "FirstWelcome": { "X": 25.0, "M": 1.0 },
+      "Double": { "X": 25.0, "M": 1.0 },
+      "SpecialUnit": { "X": 25.0, "M": 1.0 },
+      "Premier": { "X": 25.0, "M": 1.0 }
+    },
+    "5": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    },
+    "6": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    },
+    "7": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    },
+    "8": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    },
+    "9": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    },
+    "10": {
+      "FirstWelcome": { "X": 20.0, "M": 1.0 },
+      "Double": { "X": 20.0, "M": 1.0 },
+      "SpecialUnit": { "X": 20.0, "M": 1.0 },
+      "Premier": { "X": 20.0, "M": 1.0 }
+    }
+  }
+}

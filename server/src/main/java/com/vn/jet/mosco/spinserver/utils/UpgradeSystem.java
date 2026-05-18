@@ -42,17 +42,20 @@ public class UpgradeSystem {
         // Tải config từ JSON (Tương tự ở Client, nhưng bảo mật hơn trên Server)
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // 1. Tải upgradeRate.json
-            InputStream isRate = new ClassPathResource("upgradeRate.json").getInputStream();
-            Map<String, Double> rawRates = mapper.readValue(isRate, new TypeReference<Map<String, Double>>() {});
+            // Tải cấu hình hợp nhất rates_config.json
+            InputStream isConfig = new ClassPathResource("rates_config.json").getInputStream();
+            JsonNode configJson = mapper.readTree(isConfig);
+
+            // 1. Tải upgrade_rates
+            JsonNode ratesNode = configJson.get("upgrade_rates");
+            Map<String, Double> rawRates = mapper.convertValue(ratesNode, new TypeReference<Map<String, Double>>() {});
             upgradeRates = new HashMap<>();
             for (Map.Entry<String, Double> entry : rawRates.entrySet()) {
                 upgradeRates.put(Integer.parseInt(entry.getKey()), entry.getValue());
             }
 
-            // 2. Tải customUpgrade.json
-            InputStream isCustom = new ClassPathResource("customUpgrade.json").getInputStream();
-            JsonNode customJson = mapper.readTree(isCustom);
+            // 2. Tải custom_upgrade_rates
+            JsonNode customJson = configJson.get("custom_upgrade_rates");
             customUpgrades = new HashMap<>();
             
             customJson.fields().forEachRemaining(levelEntry -> {

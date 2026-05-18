@@ -40,6 +40,7 @@ public class PackService {
     private final UserCardRepository userCardRepository;
 
     private JsonObject gameConfig;
+    private JsonObject ratesConfig;
     private List<JsonObject> allCards;
 
     public PackService(UserRepository userRepository, UserItemRepository userItemRepository, UserCardRepository userCardRepository) {
@@ -57,6 +58,9 @@ public class PackService {
             logger.info("Đang nạp cấu hình game và dữ liệu thẻ bài...");
             ClassPathResource configResource = new ClassPathResource("game_config.json");
             gameConfig = JsonParser.parseReader(new InputStreamReader(configResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+
+            ClassPathResource ratesResource = new ClassPathResource("rates_config.json");
+            ratesConfig = JsonParser.parseReader(new InputStreamReader(ratesResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
 
             ClassPathResource dbResource = new ClassPathResource("database.json");
             JsonObject dbJson = JsonParser.parseReader(new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
@@ -79,9 +83,9 @@ public class PackService {
     public PackOpenResponse openPack(Long userId, String packCode, int quantity) {
         logger.info("Người dùng {} đang mở {}x pack: {}", userId, quantity, packCode);
         
-        if (gameConfig == null || allCards == null || allCards.isEmpty()) {
+        if (gameConfig == null || ratesConfig == null || allCards == null || allCards.isEmpty()) {
             loadData();
-            if (gameConfig == null) throw new RuntimeException("Cấu hình hệ thống bị thiếu.");
+            if (gameConfig == null || ratesConfig == null) throw new RuntimeException("Cấu hình hệ thống bị thiếu.");
         }
 
         User user = userRepository.findById(userId)
@@ -96,7 +100,7 @@ public class PackService {
 
         List<PackOpenResponse.CardResult> cardsResults = new ArrayList<>();
         String packType = determinePackType(packCode);
-        JsonArray ratesArray = gameConfig.getAsJsonObject("pack_rates").getAsJsonArray(packType);
+        JsonArray ratesArray = ratesConfig.getAsJsonObject("pack_rates").getAsJsonArray(packType);
         double[] rates = new double[ratesArray.size()];
         for (int i = 0; i < ratesArray.size(); i++) rates[i] = ratesArray.get(i).getAsDouble();
 
