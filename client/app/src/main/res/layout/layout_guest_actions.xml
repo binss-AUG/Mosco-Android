@@ -35,11 +35,7 @@
             app:moscoStyle="ghost"
             app:moscoSize="medium"
             android:text="@string/profile_btn_message"
-            android:textStyle="bold"
-            android:drawableStart="@drawable/ic_mailbox"
-            android:drawablePadding="@dimen/spacing_xs"
-            android:drawableTint="@color/white"
-            android:paddingStart="@dimen/spacing_md" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Row 2: Relationship Management (Nút Add Friend nổi bật ở dưới) -->

@@ -24,11 +24,7 @@
             app:moscoStyle="primary"
             app:moscoSize="medium"
             android:text="@string/profile_btn_edit"
-            android:textStyle="bold"
-            android:drawableStart="@drawable/ic_edit_pen"
-            android:drawablePadding="@dimen/spacing_xs"
-            android:drawableTint="@color/white"
-            android:paddingStart="@dimen/spacing_md" />
+            android:textStyle="bold" />
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_settings"
@@ -37,11 +33,7 @@
             app:moscoStyle="ghost"
             app:moscoSize="medium"
             android:text="@string/profile_btn_settings"
-            android:textStyle="bold"
-            android:drawableStart="@drawable/ic_settings"
-            android:drawablePadding="@dimen/spacing_xs"
-            android:drawableTint="@color/white"
-            android:paddingStart="@dimen/spacing_md" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <com.vn.jet.mosco.widget.MoscoButton
@@ -51,11 +43,7 @@
         app:moscoStyle="ghost"
         app:moscoSize="medium"
         android:text="@string/profile_btn_resource_mgmt"
-        android:textStyle="bold"
-        android:drawableStart="@drawable/ic_items"
-        android:drawablePadding="@dimen/spacing_xs"
-        android:drawableTint="@color/white"
-        android:paddingStart="@dimen/spacing_md" />
+        android:textStyle="bold" />
 
 </LinearLayout>
 
