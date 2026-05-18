@@ -779,8 +779,8 @@ public class MoscoDialogHelper {
         if (ivIcon == null) return;
         
         // Cấu hình điểm pivot ở đáy trung tâm để ngọn lửa bùng lên TỪ DƯỚI LÊN
-        float width = ivIcon.getWidth() > 0 ? ivIcon.getWidth() / 2f : (220f * ivIcon.getResources().getDisplayMetrics().density) / 2f;
-        float height = ivIcon.getHeight() > 0 ? ivIcon.getHeight() : (220f * ivIcon.getResources().getDisplayMetrics().density);
+        float width = ivIcon.getWidth() > 0 ? ivIcon.getWidth() / 2f : (130f * ivIcon.getResources().getDisplayMetrics().density) / 2f;
+        float height = ivIcon.getHeight() > 0 ? ivIcon.getHeight() : (130f * ivIcon.getResources().getDisplayMetrics().density);
         ivIcon.setPivotX(width);
         ivIcon.setPivotY(height);
         
