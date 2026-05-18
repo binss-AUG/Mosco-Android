@@ -537,6 +537,10 @@ public class UpgradeFragment extends Fragment {
         if (layoutContentWrapper != null) {
             layoutContentWrapper.animate().alpha(0f).setDuration(animOverlayFadeDuration).withLayer().start();
         }
+        View headerView = rootView.findViewById(R.id.layout_header_upgrade);
+        if (headerView != null) {
+            headerView.animate().alpha(0f).setDuration(animOverlayFadeDuration).withLayer().start();
+        }
 
         // === OVERLAY ===
         FrameLayout overlay = new FrameLayout(requireContext());
@@ -854,6 +858,10 @@ public class UpgradeFragment extends Fragment {
                 resultCard.setLayerPaint(null);
                 if (layoutContentWrapper != null) {
                     layoutContentWrapper.setAlpha(1f);
+                }
+                View doneHeaderView = rootView.findViewById(R.id.layout_header_upgrade);
+                if (doneHeaderView != null) {
+                    doneHeaderView.setAlpha(1f);
                 }
                 resetUpgradeButton();
                 

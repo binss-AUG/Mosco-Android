@@ -259,7 +259,7 @@
     <!-- Upgrade Module Components (Thành phần nâng cấp Objet FO4) -->
     <dimen name="upgrade_title_slide_offset">80dp</dimen>
     <dimen name="upgrade_success_video_top_margin">80dp</dimen>
-    <dimen name="upgrade_done_button_bottom_margin">64dp</dimen>
+    <dimen name="upgrade_done_button_bottom_margin">@dimen/spacing_lg</dimen>
     <dimen name="upgrade_result_card_width">200dp</dimen>
     <dimen name="upgrade_result_card_height">308dp</dimen>
     <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
