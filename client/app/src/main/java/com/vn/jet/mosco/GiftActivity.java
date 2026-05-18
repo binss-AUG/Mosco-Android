@@ -75,6 +75,15 @@ public class GiftActivity extends MoscoBaseActivity {
     private TextView tvConfirmFriendName, tvSenderName;
     private View btnConfirmCancel, btnConfirmSend, btnConfirmDone;
     private View layoutConfirmActions, layoutGiftCost;
+    private MaterialCardView cvConfirmSelectedCard;
+    private TextView tvConfirmCardName;
+
+    // Success Screen & Indicators
+    private View layoutStepIndicator, flStepContent;
+    private View layoutSuccessScreen;
+    private TextView tvSuccessTimestamp, tvSuccessCardInfo, tvSuccessSenderInfo, tvSuccessReceiverInfo;
+    private MaterialCardView cvSuccessSelectedCard;
+    private View btnSuccessCollect, btnSuccessNewGift;
 
     // Tab Nhận
     private RecyclerView rvGiftReceived;
@@ -91,6 +100,19 @@ public class GiftActivity extends MoscoBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gift);
+
+        // Đăng ký bộ lắng nghe Window Insets để tự động tính toán padding động cho root view.
+        // Lý do (WHY): Nhằm đưa các thành phần UI (đặc biệt là các nút hành động ở đáy màn hình như Previous/Next)
+        // vào vùng an toàn (Safe Area), tránh bị che hoặc đè bởi thanh trạng thái (Status Bar)
+        // và thanh điều hướng ảo (Navigation Bar) khi kích hoạt chế độ Edge-to-Edge tràn viền.
+        View rootLayout = findViewById(R.id.root_gift_layout);
+        if (rootLayout != null) {
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (v, windowInsets) -> {
+                androidx.core.graphics.Insets insets = windowInsets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+                v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+                return androidx.core.view.WindowInsetsCompat.CONSUMED;
+            });
+        }
 
         apiService = ApiClient.getClient(this).create(GameApiService.class);
         com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(this);
@@ -163,6 +185,20 @@ public class GiftActivity extends MoscoBaseActivity {
         btnConfirmDone = findViewById(R.id.btn_confirm_done);
         layoutConfirmActions = findViewById(R.id.layout_confirm_actions);
         layoutGiftCost = findViewById(R.id.layout_gift_cost);
+        cvConfirmSelectedCard = findViewById(R.id.cv_confirm_selected_card);
+        tvConfirmCardName = findViewById(R.id.tv_confirm_card_name);
+
+        // Success Screen & Wizard controls
+        layoutStepIndicator = findViewById(R.id.layout_step_indicator);
+        flStepContent = findViewById(R.id.fl_step_content);
+        layoutSuccessScreen = findViewById(R.id.layout_success_screen);
+        tvSuccessTimestamp = findViewById(R.id.tv_success_timestamp);
+        tvSuccessCardInfo = findViewById(R.id.tv_success_card_info);
+        tvSuccessSenderInfo = findViewById(R.id.tv_success_sender_info);
+        tvSuccessReceiverInfo = findViewById(R.id.tv_success_receiver_info);
+        cvSuccessSelectedCard = findViewById(R.id.cv_success_selected_card);
+        btnSuccessCollect = findViewById(R.id.btn_success_collect);
+        btnSuccessNewGift = findViewById(R.id.btn_success_new_gift);
 
         // Tab Nhận
         rvGiftReceived = findViewById(R.id.rv_gift_received);
@@ -403,6 +439,37 @@ public class GiftActivity extends MoscoBaseActivity {
             resetSendWizard();
             goToStep(1);
         });
+
+        if (btnSuccessCollect != null) {
+            btnSuccessCollect.setOnClickListener(v -> finish());
+        }
+
+        if (btnSuccessNewGift != null) {
+            btnSuccessNewGift.setOnClickListener(v -> {
+                // Ẩn Success Screen
+                if (layoutSuccessScreen != null) layoutSuccessScreen.setVisibility(View.GONE);
+                
+                // Hiện lại màn hình chính của Send Wizard
+                if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.VISIBLE);
+                if (flStepContent != null) flStepContent.setVisibility(View.VISIBLE);
+                
+                // Xóa sạch hiệu ứng Showcase của card confirm và card success để tránh leak
+                if (cvConfirmSelectedCard != null) {
+                    View viewConfirmShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
+                    com.vn.jet.mosco.utils.CardEffectHelper.remove(cvConfirmSelectedCard, viewConfirmShimmer);
+                }
+                if (cvSuccessSelectedCard != null) {
+                    View viewSuccessShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
+                    com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
+                }
+                
+                // Reset trạng thái
+                selectedObjet = null;
+                selectedFriend = null;
+                resetSendWizard();
+                goToStep(1);
+            });
+        }
     }
 
     /**
@@ -411,23 +478,58 @@ public class GiftActivity extends MoscoBaseActivity {
     private void bindConfirmation() {
         if (selectedObjet == null || selectedFriend == null) return;
 
-        // No card preview in Confirm step as requested
+        // Bind Card Title: {card_name_and_serial} (Ví dụ: "Kaede Binary02 205Z")
+        if (tvConfirmCardName != null) {
+            String cardTitle = selectedObjet.getFormattedNameTag();
+            tvConfirmCardName.setText(cardTitle);
+        }
 
-        // Sender info & Avatar
+        // Bind Card Preview Image & Shimmer & Grade Level Badge
+        if (cvConfirmSelectedCard != null) {
+            ImageView ivConfirmCardImage = cvConfirmSelectedCard.findViewById(R.id.card_iv_image);
+            TextView tvConfirmCardOvr = cvConfirmSelectedCard.findViewById(R.id.card_tv_ovr);
+            ImageView ivConfirmCardLevel = cvConfirmSelectedCard.findViewById(R.id.card_iv_level);
+            View viewConfirmCardShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
+
+            if (ivConfirmCardImage != null) {
+                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivConfirmCardImage, selectedObjet.getFrontImage(), false);
+            }
+            if (tvConfirmCardOvr != null) {
+                tvConfirmCardOvr.setVisibility(View.GONE);
+            }
+            if (ivConfirmCardLevel != null) {
+                if (selectedObjet.getLevel() > 0) {
+                    String assetPath = "file:///android_asset/grade/" + selectedObjet.getLevel() + ".png";
+                    Glide.with(this).load(assetPath).into(ivConfirmCardLevel);
+                    ivConfirmCardLevel.setVisibility(View.VISIBLE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivConfirmCardLevel, selectedObjet.getLevel());
+                } else {
+                    ivConfirmCardLevel.setVisibility(View.GONE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivConfirmCardLevel);
+                }
+            }
+            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvConfirmSelectedCard, viewConfirmCardShimmer, selectedObjet, true);
+        }
+
+        // Sender info & Avatar (Chữ in hoa CC3M)
         com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(this);
-        tvSenderName.setText(session.getIngameName() != null ? session.getIngameName() : getString(R.string.common_label_you));
+        if (tvSenderName != null) {
+            String senderName = session.getIngameName() != null ? session.getIngameName() : "CC3M";
+            tvSenderName.setText(senderName.toUpperCase());
+        }
 
         // Load personal avatar
         String myAvatarId = session.getAvatarId();
-        JSONObject myAvatarCard = DatabaseLoader.findByCollectionId(this, myAvatarId);
         Long myUserId = session.getUserId();
         ImageView ivSenderAvatar = findViewById(R.id.iv_sender_avatar_img);
         if (ivSenderAvatar != null) {
             com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(this, ivSenderAvatar, myUserId, myAvatarId);
         }
 
-        // Friend info
-        tvConfirmFriendName.setText(selectedFriend.optString("ingameName", "Unknown"));
+        // Friend info (Chữ in hoa PRIME)
+        if (tvConfirmFriendName != null) {
+            tvConfirmFriendName.setText(selectedFriend.optString("ingameName", "Unknown").toUpperCase());
+        }
 
         // Avatar bạn bè
         String avatarId = selectedFriend.optString("avatarId", "1");
@@ -467,17 +569,70 @@ public class GiftActivity extends MoscoBaseActivity {
                         Long userId = new com.vn.jet.mosco.utils.SessionManager(GiftActivity.this).getUserId();
                         DatabaseLoader.reloadInventoryFromServer(GiftActivity.this, userId, apiService);
 
-                        // Display Success Dialog
-                        new android.app.AlertDialog.Builder(GiftActivity.this)
-                            .setTitle(R.string.gift_dialog_success_title)
-                            .setMessage(msg)
-                            .setPositiveButton(R.string.action_done, null)
-                            .show();
-                        
-                        // Change UI state to Done
-                        layoutConfirmActions.setVisibility(View.GONE);
-                        layoutGiftCost.setVisibility(View.INVISIBLE);
-                        btnConfirmDone.setVisibility(View.VISIBLE);
+                        // Ẩn Send Wizard UI (Indicator + Content)
+                        if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.GONE);
+                        if (flStepContent != null) flStepContent.setVisibility(View.GONE);
+
+                        // Hiển thị Success Screen
+                        if (layoutSuccessScreen != null) layoutSuccessScreen.setVisibility(View.VISIBLE);
+
+                        // 1. Bind Timestamp: định dạng đúng "19:36 Mon 18/05/2026"
+                        if (tvSuccessTimestamp != null) {
+                            try {
+                                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm EEE dd/MM/yyyy", java.util.Locale.US);
+                                String currentTime = sdf.format(new java.util.Date());
+                                tvSuccessTimestamp.setText(currentTime);
+                            } catch (Exception e) {
+                                tvSuccessTimestamp.setText("");
+                            }
+                        }
+
+                        // 2. Bind Card Preview to cvSuccessSelectedCard
+                        if (cvSuccessSelectedCard != null) {
+                            ImageView ivSuccessCardImage = cvSuccessSelectedCard.findViewById(R.id.card_iv_image);
+                            TextView tvSuccessCardOvr = cvSuccessSelectedCard.findViewById(R.id.card_tv_ovr);
+                            ImageView ivSuccessCardLevel = cvSuccessSelectedCard.findViewById(R.id.card_iv_level);
+                            View viewSuccessCardShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
+
+                            if (ivSuccessCardImage != null) {
+                                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSuccessCardImage, selectedObjet.getFrontImage(), false);
+                            }
+                            if (tvSuccessCardOvr != null) {
+                                tvSuccessCardOvr.setVisibility(View.GONE);
+                            }
+                            if (ivSuccessCardLevel != null) {
+                                if (selectedObjet.getLevel() > 0) {
+                                    String assetPath = "file:///android_asset/grade/" + selectedObjet.getLevel() + ".png";
+                                    Glide.with(GiftActivity.this).load(assetPath).into(ivSuccessCardLevel);
+                                    ivSuccessCardLevel.setVisibility(View.VISIBLE);
+                                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivSuccessCardLevel, selectedObjet.getLevel());
+                                } else {
+                                    ivSuccessCardLevel.setVisibility(View.GONE);
+                                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivSuccessCardLevel);
+                                }
+                            }
+                            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSuccessSelectedCard, viewSuccessCardShimmer, selectedObjet, true);
+                        }
+
+                        // 3. Bind Info Text
+                        // Line 1: Name, Serial + Grade level (ví dụ "Kaede Binary02 205Z +1")
+                        if (tvSuccessCardInfo != null) {
+                            String levelStr = selectedObjet.getLevel() > 0 ? " +" + selectedObjet.getLevel() : "";
+                            tvSuccessCardInfo.setText(selectedObjet.getFormattedNameTag() + levelStr);
+                        }
+
+                        // Line 2: From (lowercase)
+                        if (tvSuccessSenderInfo != null) {
+                            com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(GiftActivity.this);
+                            String senderName = session.getIngameName() != null ? session.getIngameName() : "cc3m";
+                            tvSuccessSenderInfo.setText("From: " + senderName.toLowerCase());
+                        }
+
+                        // Line 3: To (lowercase)
+                        if (tvSuccessReceiverInfo != null) {
+                            String receiverName = selectedFriend.optString("ingameName", "prime");
+                            tvSuccessReceiverInfo.setText("To: " + receiverName.toLowerCase());
+                        }
 
                         loadDailyRemaining();
                         
@@ -636,6 +791,15 @@ public class GiftActivity extends MoscoBaseActivity {
         // Xóa sạch hiệu ứng Showcase của thẻ cũ (Glow, Shimmer)
         View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
         com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSelectedCard, viewCardShimmer);
+
+        if (cvConfirmSelectedCard != null) {
+            View viewConfirmShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
+            com.vn.jet.mosco.utils.CardEffectHelper.remove(cvConfirmSelectedCard, viewConfirmShimmer);
+        }
+        if (cvSuccessSelectedCard != null) {
+            View viewSuccessShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
+            com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
+        }
 
         cvSelectCardBtn.setVisibility(View.VISIBLE);
         cvSelectedCard.setVisibility(View.GONE);
