@@ -163,6 +163,21 @@ public class UpgradeFragment extends Fragment {
         if (bgVideoView != null && !bgVideoView.isPlaying()) {
             bgVideoView.start();
         }
+        // Ẩn thanh Top Bar (Header chính) khi ở màn hình Upgrade để tránh chồng chéo giao diện.
+        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+            ((com.vn.jet.mosco.MainActivity) getActivity()).setTopBarVisible(false);
+        }
+        // Ẩn thanh Bottom Navigation và custom glass bottom navigation khi ở màn hình Upgrade để tối ưu không gian hiển thị.
+        if (getActivity() != null) {
+            View navBar = getActivity().findViewById(R.id.bottom_navigation);
+            if (navBar != null) {
+                navBar.setVisibility(View.GONE);
+            }
+            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+            if (customNavBar != null) {
+                customNavBar.setVisibility(View.GONE);
+            }
+        }
         updateUI();
     }
 
@@ -172,6 +187,32 @@ public class UpgradeFragment extends Fragment {
         DatabaseLoader.unregisterInventoryChangeListener(inventoryChangeListener);
         if (bgVideoView != null && bgVideoView.isPlaying()) {
             bgVideoView.pause();
+        }
+        // Khôi phục hiển thị thanh Bottom Navigation và custom glass bottom navigation khi rời khỏi UpgradeFragment.
+        if (getActivity() != null) {
+            View navBar = getActivity().findViewById(R.id.bottom_navigation);
+            if (navBar != null) {
+                navBar.setVisibility(View.VISIBLE);
+            }
+            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+            if (customNavBar != null) {
+                customNavBar.setVisibility(View.VISIBLE);
+            }
+        }
+        // Khôi phục hiển thị thanh Top Bar phù hợp với Fragment hiện tại sau khi thoát UpgradeFragment.
+        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+            com.vn.jet.mosco.MainActivity mainActivity = (com.vn.jet.mosco.MainActivity) getActivity();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (mainActivity.isFinishing() || mainActivity.isDestroyed()) return;
+                Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+                if (currentFragment instanceof com.vn.jet.mosco.fragment.HomeFragment) {
+                    mainActivity.setTopBarVisible(true, com.vn.jet.mosco.MainActivity.TOP_BAR_MODE_HOME);
+                } else if (currentFragment instanceof com.vn.jet.mosco.fragment.ShopFragment) {
+                    mainActivity.setTopBarVisible(true, com.vn.jet.mosco.MainActivity.TOP_BAR_MODE_SHOP);
+                } else {
+                    mainActivity.setTopBarVisible(false);
+                }
+            });
         }
     }
 
@@ -271,7 +312,16 @@ public class UpgradeFragment extends Fragment {
         viewProgressFill = view.findViewById(R.id.view_progress_fill);
         tvMaterialsCount = view.findViewById(R.id.tv_materials_count);
         btnUpgrade = view.findViewById(R.id.btn_upgrade);
-        btnBack = view.findViewById(R.id.btn_back_upgrade);
+        
+        // [QUIET LUXURY] Tìm nút quay lại và đặt tiêu đề cho Header dùng chung
+        View headerView = view.findViewById(R.id.layout_header_upgrade);
+        if (headerView != null) {
+            btnBack = headerView.findViewById(R.id.btn_back_common);
+            TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(R.string.upgrade_header_title);
+            }
+        }
 
         int[] materialFrameIds = { R.id.frame_material_1, R.id.frame_material_2, R.id.frame_material_3,
                 R.id.frame_material_4, R.id.frame_material_5 };
@@ -801,10 +851,6 @@ public class UpgradeFragment extends Fragment {
             isUpgrading = false;
             overlay.animate().alpha(0f).setDuration(300).withLayer().withEndAction(() -> {
                 parent.removeView(overlay);
-                if (getActivity() != null) {
-                    View navBar = getActivity().findViewById(R.id.bottom_navigation);
-                    if (navBar != null) navBar.setVisibility(View.VISIBLE);
-                }
                 resultCard.setLayerPaint(null);
                 if (layoutContentWrapper != null) {
                     layoutContentWrapper.setAlpha(1f);

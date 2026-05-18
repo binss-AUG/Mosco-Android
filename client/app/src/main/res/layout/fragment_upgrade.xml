@@ -17,57 +17,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <include
+        android:id="@+id/layout_header_upgrade"
+        layout="@layout/layout_common_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_content_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="@dimen/spacing_lg">
-
-    <!-- Standard Galactic Header -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_header_upgrade"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/item_reveal_result_card_margin_horizontal"
-        android:paddingBottom="@dimen/spacing_12dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/btn_back_upgrade"
-            android:layout_width="@dimen/spacing_40dp"
-            android:layout_height="@dimen/spacing_40dp"
-            android:src="@drawable/ic_back_arrow"
-            android:padding="@dimen/spacing_xs"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/white" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="@dimen/spacing_16dp"
-            app:layout_constraintStart_toEndOf="@id/btn_back_upgrade"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/upgrade_header_title"
-                style="@style/MoscoText.Luxury.Header" />
-            
-            <View
-                android:layout_width="@dimen/spacing_xl"
-                android:layout_height="@dimen/reveal_summary_divider_height"
-                android:layout_marginTop="@dimen/reveal_summary_divider_height"
-                android:background="@color/lg_accent_secondary" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- ═══════════════════════════════════ -->
     <!-- Guidelines for vertical distribution -->
