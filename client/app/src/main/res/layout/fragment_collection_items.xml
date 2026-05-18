@@ -77,8 +77,6 @@
         android:layout_marginHorizontal="@dimen/spacing_6dp"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/lg_content_bottom_clearance"
-        android:requiresFadingEdge="vertical"
-        android:fadingEdgeLength="@dimen/spacing_lg"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_inventory_item" />
 
