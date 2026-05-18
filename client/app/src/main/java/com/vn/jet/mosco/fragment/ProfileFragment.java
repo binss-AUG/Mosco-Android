@@ -1897,15 +1897,22 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             cardData = DatabaseLoader.findByCollectionId(getContext(), cardId);
                         }
                         if (cardData != null) {
-                            int level = cardData.optInt("upgradeLevel", 0);
-                            CollectionFragment.showObjetDetailDialog(
-                                getContext(),
-                                cardData.optString("frontImage", ""),
-                                cardData,
-                                level,
-                                0,
-                                level
-                            );
+                            com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
+                            entry.setCollectionId(cardData.optString("collectionId", ""));
+                            entry.setMember(cardData.optString("member", ""));
+                            entry.setSeason(cardData.optString("season", ""));
+                            entry.setCardClass(cardData.optString("class", ""));
+                            entry.setCollectionNo(cardData.optString("collectionNo", ""));
+                            entry.setFrontImage(cardData.optString("frontImage", ""));
+                            entry.setBackgroundColor(cardData.optString("backgroundColor", ""));
+                            entry.setBackImage(cardData.optString("backImage", ""));
+                            entry.setOvr(cardData.optInt("ovr", 0));
+                            entry.setUpgradeLevel(cardData.optInt("upgradeLevel", 0));
+                            entry.setLevel(cardData.optInt("level", 1));
+                            entry.setOwned(true); // Đảm bảo hiệu ứng glow hoạt động và ẩn màn đen
+
+                            // Gọi CollectionDetailBinder với isAlbumMode = true để ẩn sạch các nút chức năng
+                            com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(getContext(), entry, true, null);
                         }
                     }
                 }
