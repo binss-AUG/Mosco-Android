@@ -170,11 +170,11 @@
         <!-- Quick Pick Button (Squad only) -->
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_quick_pick_bottom"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
             android:layout_marginEnd="@dimen/inventory_action_btn_spacing"
             android:text="@string/inventory_action_quick"
+            android:singleLine="true"
             app:moscoStyle="secondary"
             app:moscoSize="large" />
 
@@ -183,7 +183,7 @@
             android:id="@+id/btn_confirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.7"
+            android:layout_weight="1"
             android:text="@string/action_confirm"
             app:moscoStyle="primary"
             app:moscoSize="large" />
