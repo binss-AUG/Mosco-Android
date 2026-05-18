@@ -56,9 +56,10 @@ public class GiftActivity extends MoscoBaseActivity {
     // ── UI References ──
     private TabLayout tabLayout;
     private View layoutTabSend, layoutTabReceived;
-    private View layoutStep1, layoutStep2, layoutStep3;
-    private TextView tvStep1, tvStep2, tvStep3;
+    private View layoutStep1, layoutStep2;
+    private TextView tvStep1, tvStep2;
     private TextView tvDailyRemaining;
+    private View layoutHeaderGiftContainer, layoutDailyRemainingContainer;
 
     // Step 1: Chọn thẻ
     private View cvSelectCardBtn, btnStep1Next;
@@ -70,13 +71,7 @@ public class GiftActivity extends MoscoBaseActivity {
     private FriendSelectAdapter friendSelectAdapter;
     private android.widget.EditText etSearchFriend;
 
-    // Step 3: Xác nhận
-    private ImageView ivConfirmFriendAvatar;
-    private TextView tvConfirmFriendName, tvSenderName;
-    private View btnConfirmCancel, btnConfirmSend, btnConfirmDone;
-    private View layoutConfirmActions, layoutGiftCost;
-    private MaterialCardView cvConfirmSelectedCard;
-    private TextView tvConfirmCardName;
+
 
     // Success Screen & Indicators
     private View layoutStepIndicator, flStepContent;
@@ -150,6 +145,8 @@ public class GiftActivity extends MoscoBaseActivity {
         findViewById(R.id.btn_back_common).setOnClickListener(v -> finish());
         ((TextView) findViewById(R.id.tv_header_title)).setText(R.string.gift_header_title);
         tvDailyRemaining = findViewById(R.id.tv_daily_remaining);
+        layoutHeaderGiftContainer = findViewById(R.id.layout_header_gift_container);
+        layoutDailyRemainingContainer = findViewById(R.id.layout_daily_remaining_container);
 
         // Tabs
         tabLayout = findViewById(R.id.tab_layout_gift);
@@ -159,10 +156,8 @@ public class GiftActivity extends MoscoBaseActivity {
         // Steps
         layoutStep1 = findViewById(R.id.layout_step1_select_card);
         layoutStep2 = findViewById(R.id.layout_step2_select_friend);
-        layoutStep3 = findViewById(R.id.layout_step3_confirm);
         tvStep1 = findViewById(R.id.tv_step_1);
         tvStep2 = findViewById(R.id.tv_step_2);
-        tvStep3 = findViewById(R.id.tv_step_3);
 
         // Step 1
         cvSelectCardBtn = findViewById(R.id.cv_select_card_btn);
@@ -175,18 +170,6 @@ public class GiftActivity extends MoscoBaseActivity {
         btnStep2Prev = findViewById(R.id.btn_step2_prev);
         tvNoFriends = findViewById(R.id.tv_no_friends);
         etSearchFriend = findViewById(R.id.et_gift_search_friend);
-
-        // Step 3
-        ivConfirmFriendAvatar = findViewById(R.id.iv_confirm_friend_avatar);
-        tvConfirmFriendName = findViewById(R.id.tv_confirm_friend_name);
-        tvSenderName = findViewById(R.id.tv_sender_name);
-        btnConfirmCancel = findViewById(R.id.btn_confirm_cancel);
-        btnConfirmSend = findViewById(R.id.btn_confirm_send);
-        btnConfirmDone = findViewById(R.id.btn_confirm_done);
-        layoutConfirmActions = findViewById(R.id.layout_confirm_actions);
-        layoutGiftCost = findViewById(R.id.layout_gift_cost);
-        cvConfirmSelectedCard = findViewById(R.id.cv_confirm_selected_card);
-        tvConfirmCardName = findViewById(R.id.tv_confirm_card_name);
 
         // Success Screen & Wizard controls
         layoutStepIndicator = findViewById(R.id.layout_step_indicator);
@@ -340,8 +323,7 @@ public class GiftActivity extends MoscoBaseActivity {
 
         btnStep2Next.setOnClickListener(v -> {
             if (selectedFriend != null) {
-                goToStep(3);
-                bindConfirmation();
+                showSendConfirmDialog();
             } else {
                 Toast.makeText(this, R.string.gift_msg_select_friend_first, Toast.LENGTH_SHORT).show();
             }
@@ -414,32 +396,69 @@ public class GiftActivity extends MoscoBaseActivity {
         });
     }
 
+    /**
+     * Hiển thị Dialog Xác nhận gửi thẻ (Đồng bộ UI/UX với Spin Confirmation).
+     * Yêu cầu: Tiêu đề và nội dung hoàn toàn bằng Tiếng Anh.
+     * Cấu trúc: Are you sure you want to send {full name} +{level} to {username} ({idusername})?
+     */
+    private void showSendConfirmDialog() {
+        if (selectedObjet == null || selectedFriend == null) return;
+
+        // Tên đầy đủ của thẻ: Season + Member + CollectionNo
+        String fullCardName = (selectedObjet.getSeason() != null ? selectedObjet.getSeason() : "") + " "
+                + (selectedObjet.getMember() != null ? selectedObjet.getMember() : "") + " "
+                + (selectedObjet.getCollectionNo() != null ? selectedObjet.getCollectionNo() : "");
+        fullCardName = fullCardName.trim();
+
+        String levelStr = selectedObjet.getLevel() > 0 ? " +" + selectedObjet.getLevel() : "";
+
+        // Thông tin bạn bè nhận
+        String receiverName = selectedFriend.optString("ingameName", "Unknown");
+        String receiverUsername = selectedFriend.optString("username", "");
+
+        // Tạo nội dung thông báo chuẩn tiếng Anh
+        String msg = "Are you sure you want to send " + fullCardName + levelStr + " to " + receiverName + " (" + receiverUsername + ")?";
+
+        View dialogView = android.view.LayoutInflater.from(this).inflate(R.layout.dialog_gift_confirm, null);
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.tv_title);
+        TextView tvMessage = dialogView.findViewById(R.id.tv_message);
+        com.vn.jet.mosco.widget.MoscoButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
+        com.vn.jet.mosco.widget.MoscoButton btnConfirm = dialogView.findViewById(R.id.btn_confirm);
+
+        if (tvTitle != null) {
+            tvTitle.setText("Confirm Send");
+        }
+        if (tvMessage != null) {
+            tvMessage.setText(msg);
+        }
+
+        if (btnCancel != null) {
+            btnCancel.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        if (btnConfirm != null) {
+            btnConfirm.setOnClickListener(v -> {
+                dialog.dismiss();
+                executeSendGift();
+            });
+        }
+
+        dialog.show();
+    }
+
     // ════════════════════════════════════════════════════════════════
     //  STEP 3: XÁC NHẬN & GỬI
     // ════════════════════════════════════════════════════════════════
 
     private void setupStep3() {
-        btnConfirmCancel.setOnClickListener(v -> {
-            // Quay lại Step 2
-            goToStep(2);
-        });
-
-        btnConfirmSend.setOnClickListener(v -> {
-            new android.app.AlertDialog.Builder(this)
-                .setTitle(R.string.gift_dialog_confirm_title)
-                .setMessage(getString(R.string.gift_dialog_confirm_msg, selectedFriend.optString("ingameName", "this friend")))
-                .setPositiveButton(R.string.gift_action_send, (d, w) -> executeSendGift())
-                .setNegativeButton(R.string.action_cancel, null)
-                .show();
-        });
-
-        btnConfirmDone.setOnClickListener(v -> {
-            selectedObjet = null;
-            selectedFriend = null;
-            resetSendWizard();
-            goToStep(1);
-        });
-
         if (btnSuccessCollect != null) {
             btnSuccessCollect.setOnClickListener(v -> finish());
         }
@@ -449,15 +468,16 @@ public class GiftActivity extends MoscoBaseActivity {
                 // Ẩn Success Screen
                 if (layoutSuccessScreen != null) layoutSuccessScreen.setVisibility(View.GONE);
                 
+                // Hiện lại các Header của Activity đã ẩn trước đó
+                if (layoutHeaderGiftContainer != null) layoutHeaderGiftContainer.setVisibility(View.VISIBLE);
+                if (layoutDailyRemainingContainer != null) layoutDailyRemainingContainer.setVisibility(View.VISIBLE);
+                if (tabLayout != null) tabLayout.setVisibility(View.VISIBLE);
+                
                 // Hiện lại màn hình chính của Send Wizard
                 if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.VISIBLE);
                 if (flStepContent != null) flStepContent.setVisibility(View.VISIBLE);
                 
-                // Xóa sạch hiệu ứng Showcase của card confirm và card success để tránh leak
-                if (cvConfirmSelectedCard != null) {
-                    View viewConfirmShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
-                    com.vn.jet.mosco.utils.CardEffectHelper.remove(cvConfirmSelectedCard, viewConfirmShimmer);
-                }
+                // Xóa sạch hiệu ứng Showcase của card success để tránh leak
                 if (cvSuccessSelectedCard != null) {
                     View viewSuccessShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
                     com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
@@ -472,81 +492,13 @@ public class GiftActivity extends MoscoBaseActivity {
         }
     }
 
-    /**
-     * Bind dữ liệu lên giao diện xác nhận.
-     */
-    private void bindConfirmation() {
-        if (selectedObjet == null || selectedFriend == null) return;
 
-        // Bind Card Title: {card_name_and_serial} (Ví dụ: "Kaede Binary02 205Z")
-        if (tvConfirmCardName != null) {
-            String cardTitle = selectedObjet.getFormattedNameTag();
-            tvConfirmCardName.setText(cardTitle);
-        }
-
-        // Bind Card Preview Image & Shimmer & Grade Level Badge
-        if (cvConfirmSelectedCard != null) {
-            ImageView ivConfirmCardImage = cvConfirmSelectedCard.findViewById(R.id.card_iv_image);
-            TextView tvConfirmCardOvr = cvConfirmSelectedCard.findViewById(R.id.card_tv_ovr);
-            ImageView ivConfirmCardLevel = cvConfirmSelectedCard.findViewById(R.id.card_iv_level);
-            View viewConfirmCardShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
-
-            if (ivConfirmCardImage != null) {
-                com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivConfirmCardImage, selectedObjet.getFrontImage(), false);
-            }
-            if (tvConfirmCardOvr != null) {
-                tvConfirmCardOvr.setVisibility(View.GONE);
-            }
-            if (ivConfirmCardLevel != null) {
-                if (selectedObjet.getLevel() > 0) {
-                    String assetPath = "file:///android_asset/grade/" + selectedObjet.getLevel() + ".png";
-                    Glide.with(this).load(assetPath).into(ivConfirmCardLevel);
-                    ivConfirmCardLevel.setVisibility(View.VISIBLE);
-                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivConfirmCardLevel, selectedObjet.getLevel());
-                } else {
-                    ivConfirmCardLevel.setVisibility(View.GONE);
-                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivConfirmCardLevel);
-                }
-            }
-            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvConfirmSelectedCard, viewConfirmCardShimmer, selectedObjet, true);
-        }
-
-        // Sender info & Avatar (Chữ in hoa CC3M)
-        com.vn.jet.mosco.utils.SessionManager session = new com.vn.jet.mosco.utils.SessionManager(this);
-        if (tvSenderName != null) {
-            String senderName = session.getIngameName() != null ? session.getIngameName() : "CC3M";
-            tvSenderName.setText(senderName.toUpperCase());
-        }
-
-        // Load personal avatar
-        String myAvatarId = session.getAvatarId();
-        Long myUserId = session.getUserId();
-        ImageView ivSenderAvatar = findViewById(R.id.iv_sender_avatar_img);
-        if (ivSenderAvatar != null) {
-            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(this, ivSenderAvatar, myUserId, myAvatarId);
-        }
-
-        // Friend info (Chữ in hoa PRIME)
-        if (tvConfirmFriendName != null) {
-            tvConfirmFriendName.setText(selectedFriend.optString("ingameName", "Unknown").toUpperCase());
-        }
-
-        // Avatar bạn bè
-        String avatarId = selectedFriend.optString("avatarId", "1");
-        long friendUserId = selectedFriend.optLong("userId", -1L);
-        if (ivConfirmFriendAvatar != null) {
-            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(this, ivConfirmFriendAvatar, friendUserId, avatarId);
-        }
-    }
 
     /**
      * Gọi API gửi tặng — sau khi thành công, reset wizard và refresh daily remaining.
      */
     private void executeSendGift() {
         if (selectedObjet == null || selectedFriend == null) return;
-
-        // Disable nút gửi để chống double-tap
-        btnConfirmSend.setEnabled(false);
 
         Long cardId = selectedObjet.getId();
         Long receiverId = selectedFriend.optLong("userId");
@@ -558,7 +510,6 @@ public class GiftActivity extends MoscoBaseActivity {
         apiService.sendGift(body).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                btnConfirmSend.setEnabled(true);
                 try {
                     String msg;
                     if (response.isSuccessful() && response.body() != null) {
@@ -572,6 +523,11 @@ public class GiftActivity extends MoscoBaseActivity {
                         // Ẩn Send Wizard UI (Indicator + Content)
                         if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.GONE);
                         if (flStepContent != null) flStepContent.setVisibility(View.GONE);
+
+                        // Ẩn các Header, tab bar của Activity theo đúng yêu cầu UI Success Screen
+                        if (layoutHeaderGiftContainer != null) layoutHeaderGiftContainer.setVisibility(View.GONE);
+                        if (layoutDailyRemainingContainer != null) layoutDailyRemainingContainer.setVisibility(View.GONE);
+                        if (tabLayout != null) tabLayout.setVisibility(View.GONE);
 
                         // Hiển thị Success Screen
                         if (layoutSuccessScreen != null) layoutSuccessScreen.setVisibility(View.VISIBLE);
@@ -611,7 +567,8 @@ public class GiftActivity extends MoscoBaseActivity {
                                     com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivSuccessCardLevel);
                                 }
                             }
-                            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSuccessSelectedCard, viewSuccessCardShimmer, selectedObjet, true);
+                            // Bỏ floating bồng bềnh (applyFloating = false), kích hoạt viền phát sáng (applyGlow = true)
+                            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSuccessSelectedCard, viewSuccessCardShimmer, selectedObjet, false, true);
                         }
 
                         // 3. Bind Info Text
@@ -649,7 +606,6 @@ public class GiftActivity extends MoscoBaseActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                btnConfirmSend.setEnabled(true);
                 Log.e(TAG, "Lỗi kết nối", t);
                 Toast.makeText(GiftActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
@@ -757,30 +713,27 @@ public class GiftActivity extends MoscoBaseActivity {
     // ════════════════════════════════════════════════════════════════
 
     /**
-     * Chuyển đến step chỉ định (1, 2, hoặc 3).
+     * Chuyển đến step chỉ định (1 hoặc 2).
      * Cập nhật indicator + ẩn/hiện layout tương ứng.
      */
     private void goToStep(int step) {
         currentStep = step;
 
         // Ẩn tất cả step
-        layoutStep1.setVisibility(View.GONE);
-        layoutStep2.setVisibility(View.GONE);
-        layoutStep3.setVisibility(View.GONE);
+        if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
+        if (layoutStep2 != null) layoutStep2.setVisibility(View.GONE);
 
         // Reset màu indicator — dùng color resource thay vì hardcode
         int activeColor = getResources().getColor(R.color.lg_accent_primary, getTheme());
         int dimColor = getResources().getColor(R.color.lg_text_dim, getTheme());
 
-        tvStep1.setTextColor(step >= 1 ? activeColor : dimColor);
-        tvStep2.setTextColor(step >= 2 ? activeColor : dimColor);
-        tvStep3.setTextColor(step >= 3 ? activeColor : dimColor);
+        if (tvStep1 != null) tvStep1.setTextColor(step >= 1 ? activeColor : dimColor);
+        if (tvStep2 != null) tvStep2.setTextColor(step >= 2 ? activeColor : dimColor);
 
         // Hiện step hiện tại
         switch (step) {
-            case 1: layoutStep1.setVisibility(View.VISIBLE); break;
-            case 2: layoutStep2.setVisibility(View.VISIBLE); break;
-            case 3: layoutStep3.setVisibility(View.VISIBLE); break;
+            case 1: if (layoutStep1 != null) layoutStep1.setVisibility(View.VISIBLE); break;
+            case 2: if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE); break;
         }
     }
 
@@ -792,10 +745,6 @@ public class GiftActivity extends MoscoBaseActivity {
         View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
         com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSelectedCard, viewCardShimmer);
 
-        if (cvConfirmSelectedCard != null) {
-            View viewConfirmShimmer = cvConfirmSelectedCard.findViewById(R.id.view_card_shimmer);
-            com.vn.jet.mosco.utils.CardEffectHelper.remove(cvConfirmSelectedCard, viewConfirmShimmer);
-        }
         if (cvSuccessSelectedCard != null) {
             View viewSuccessShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
             com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
@@ -806,11 +755,6 @@ public class GiftActivity extends MoscoBaseActivity {
         btnStep1Next.setVisibility(View.GONE);
         if (btnStep2Next != null) btnStep2Next.setVisibility(View.GONE);
         if (etSearchFriend != null) etSearchFriend.setText("");
-        
-        // Reset Step 3 UI
-        layoutConfirmActions.setVisibility(View.VISIBLE);
-        layoutGiftCost.setVisibility(View.VISIBLE);
-        btnConfirmDone.setVisibility(View.GONE);
     }
 
     @Override

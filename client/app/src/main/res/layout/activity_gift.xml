@@ -124,24 +124,6 @@
                     android:maxLines="1"
                     android:ellipsize="none"
                     android:textStyle="bold" />
-
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="@dimen/stroke_thin"
-                    android:layout_marginHorizontal="6dp"
-                    android:background="@color/mosco_white_20" />
-
-                <TextView
-                    android:id="@+id/tv_step_3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gift_step_3"
-                    style="@style/MoscoText.Luxury.Badge"
-                    android:textColor="@color/mosco_white_30"
-                    android:textSize="@dimen/text_size_body_xs"
-                    android:maxLines="1"
-                    android:ellipsize="none"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Step Content Container -->
@@ -351,304 +333,38 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="@dimen/spacing_sm"
-                            android:text="@string/action_next"
+                            android:text="@string/social_dialog_action_send"
                             app:moscoStyle="primary"
                             app:moscoSize="large"
                             android:alpha="0.5" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- STEP 3: Xác nhận & Gửi (Confirm Screen) -->
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/layout_step3_confirm"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:fillViewport="true"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:paddingHorizontal="@dimen/spacing_xl"
-                        android:paddingBottom="@dimen/spacing_lg">
-
-                        <!-- Main Content Glass Container Box -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal"
-                            android:background="@drawable/bg_glass_card"
-                            android:padding="@dimen/spacing_lg"
-                            android:layout_marginTop="16dp">
-
-                            <!-- Card Title -->
-                            <TextView
-                                android:id="@+id/tv_confirm_card_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Kaede Binary02 205Z"
-                                style="@style/MoscoText.Luxury.Body"
-                                android:textColor="@color/white"
-                                android:textSize="@dimen/text_size_body_md"
-                                android:textStyle="bold"
-                                android:layout_marginBottom="12dp" />
-
-                            <!-- Card Preview -->
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/cv_confirm_selected_card"
-                                android:layout_width="160dp"
-                                android:layout_height="246dp"
-                                app:cardCornerRadius="@dimen/spacing_md"
-                                app:cardElevation="@dimen/spacing_sm"
-                                app:cardBackgroundColor="@color/lg_glass_surface_high"
-                                app:strokeColor="@color/mosco_white_20"
-                                app:strokeWidth="@dimen/stroke_thin"
-                                android:layout_marginBottom="16dp">
-
-                                <androidx.constraintlayout.widget.ConstraintLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent">
-                                    <include layout="@layout/layout_core_card" />
-                                </androidx.constraintlayout.widget.ConstraintLayout>
-                            </com.google.android.material.card.MaterialCardView>
-
-                            <!-- Avatars & XML Arrows Container -->
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <!-- Sender (Left) -->
-                                <LinearLayout
-                                    android:id="@+id/layout_confirm_sender"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:gravity="center"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintEnd_toStartOf="@+id/iv_confirm_arrows"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintHorizontal_chainStyle="packed">
-
-                                    <com.google.android.material.card.MaterialCardView
-                                        android:layout_width="@dimen/spacing_64dp"
-                                        android:layout_height="@dimen/spacing_64dp"
-                                        app:cardCornerRadius="@dimen/spacing_xl"
-                                        app:cardElevation="@dimen/spacing_xs"
-                                        app:strokeWidth="1.5dp"
-                                        app:strokeColor="@color/palette_green_forest">
-                                        <ImageView
-                                            android:id="@+id/iv_sender_avatar_img"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            android:src="@drawable/ic_user"
-                                            android:scaleType="centerCrop" />
-                                    </com.google.android.material.card.MaterialCardView>
-
-                                    <TextView
-                                        android:id="@+id/tv_sender_name"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="@dimen/spacing_sm"
-                                        android:text="CC3M"
-                                        style="@style/MoscoText.Luxury.Badge"
-                                        android:textColor="@color/palette_gray_300"
-                                        android:textSize="@dimen/text_size_caption"
-                                        android:textStyle="bold" />
-                                </LinearLayout>
-
-                                <!-- XML Arrows (Triple Chevron) -->
-                                <ImageView
-                                    android:id="@+id/iv_confirm_arrows"
-                                    android:layout_width="@dimen/spacing_60dp"
-                                    android:layout_height="@dimen/spacing_lg"
-                                    android:layout_marginHorizontal="@dimen/spacing_lg"
-                                    android:src="@drawable/ic_triple_arrow_neon"
-                                    app:layout_constraintStart_toEndOf="@id/layout_confirm_sender"
-                                    app:layout_constraintEnd_toStartOf="@+id/layout_confirm_receiver"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintBottom_toBottomOf="parent" />
-
-                                <!-- Receiver (Right) -->
-                                <LinearLayout
-                                    android:id="@+id/layout_confirm_receiver"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:gravity="center"
-                                    app:layout_constraintStart_toEndOf="@id/iv_confirm_arrows"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintBottom_toBottomOf="parent">
-
-                                    <com.google.android.material.card.MaterialCardView
-                                        android:layout_width="@dimen/spacing_64dp"
-                                        android:layout_height="@dimen/spacing_64dp"
-                                        app:cardCornerRadius="@dimen/spacing_xl"
-                                        app:cardElevation="@dimen/spacing_xs"
-                                        app:strokeWidth="1.5dp"
-                                        app:strokeColor="@color/palette_red_accent">
-                                        <ImageView
-                                            android:id="@+id/iv_confirm_friend_avatar"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            android:src="@drawable/ic_user"
-                                            android:scaleType="centerCrop" />
-                                    </com.google.android.material.card.MaterialCardView>
-
-                                    <TextView
-                                        android:id="@+id/tv_confirm_friend_name"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="@dimen/spacing_sm"
-                                        android:text="PRIME"
-                                        style="@style/MoscoText.Luxury.Badge"
-                                        android:textColor="@color/palette_gray_300"
-                                        android:textSize="@dimen/text_size_caption"
-                                        android:textStyle="bold" />
-                                </LinearLayout>
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </LinearLayout>
-
-                        <!-- Phí gửi (GIFT COST) -->
-                        <LinearLayout
-                            android:id="@+id/layout_gift_cost"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:gravity="center"
-                            android:background="@drawable/bg_header_glass_v2"
-                            android:paddingVertical="@dimen/radius_lg"
-                            android:paddingHorizontal="@dimen/spacing_md"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/gift_label_cost"
-                                style="@style/MoscoText.Luxury.Badge"
-                                android:textColor="@color/mosco_white_30"
-                                android:textSize="@dimen/text_size_mini"
-                                android:textStyle="bold"
-                                android:fontWeight="700"
-                                android:letterSpacing="0.1" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_sm"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="@dimen/spacing_20dp"
-                                    android:layout_height="@dimen/spacing_20dp"
-                                    android:src="@drawable/ic_item_coin" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/spacing_sm"
-                                    android:text="36,000"
-                                    style="@style/MoscoText.Luxury.Body"
-                                    android:textColor="@color/lg_accent_primary"
-                                    android:textSize="@dimen/text_size_body_md"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginHorizontal="@dimen/spacing_sm"
-                                    android:text="+"
-                                    android:textColor="#555555" />
-
-                                <ImageView
-                                    android:layout_width="@dimen/spacing_md"
-                                    android:layout_height="@dimen/spacing_md"
-                                    android:src="@drawable/ic_item_diamond" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/spacing_sm"
-                                    android:text="36"
-                                    style="@style/MoscoText.Luxury.Body"
-                                    android:textColor="@color/palette_cyan_neon"
-                                    android:textSize="@dimen/text_size_body_md"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <!-- Action Buttons -->
-                        <LinearLayout
-                            android:id="@+id/layout_confirm_actions"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:gravity="center"
-                            android:orientation="horizontal">
-
-                            <!-- Previous Button -->
-                            <com.vn.jet.mosco.widget.MoscoButton
-                                android:id="@+id/btn_confirm_cancel"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="8dp"
-                                android:text="@string/action_previous"
-                                app:moscoStyle="secondary"
-                                app:moscoSize="large" />
-
-                            <!-- SEND GIFT Button -->
-                            <com.vn.jet.mosco.widget.MoscoButton
-                                android:id="@+id/btn_confirm_send"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:text="@string/gift_action_send"
-                                app:moscoStyle="primary"
-                                app:moscoSize="large" />
-                        </LinearLayout>
-
-                        <!-- Done Button (Hidden in success screen layout flow) -->
-                        <com.vn.jet.mosco.widget.MoscoButton
-                            android:id="@+id/btn_confirm_done"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:text="@string/action_done"
-                            app:moscoStyle="primary"
-                            app:moscoSize="large"
-                            android:visibility="gone" />
-                    </LinearLayout>
-                </androidx.core.widget.NestedScrollView>
             </FrameLayout>
 
             <!-- ═══ SUCCESS SCREEN (Giao dịch thành công) ═══ -->
-            <androidx.core.widget.NestedScrollView
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layout_success_screen"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fillViewport="true"
                 android:visibility="gone">
 
+                <!-- 1. Tick Circle, Status & Timestamp in a top container -->
                 <LinearLayout
+                    android:id="@+id/layout_success_top"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center_horizontal"
-                    android:paddingHorizontal="@dimen/spacing_xl"
-                    android:paddingBottom="@dimen/spacing_xl">
+                    android:layout_marginTop="32dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
                     <!-- Tick Icon -->
                     <FrameLayout
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:layout_marginTop="24dp"
                         android:background="@drawable/bg_circle_white"
                         android:backgroundTint="#4CAF50">
 
@@ -665,7 +381,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="TRANFER SUSSCEFULL"
+                        android:text="TRANSFER SUCCESSFUL"
                         style="@style/MoscoText.Luxury.Body"
                         android:textColor="#4CAF50"
                         android:textSize="18sp"
@@ -682,111 +398,147 @@
                         style="@style/MoscoText.Luxury.Badge"
                         android:textColor="@color/mosco_white_30"
                         android:textSize="@dimen/text_size_caption" />
-
-                    <!-- Main Content Box (Chi tiết giao dịch) -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center_horizontal"
-                        android:background="@drawable/bg_glass_card"
-                        android:padding="@dimen/spacing_lg"
-                        android:layout_marginTop="24dp">
-
-                        <!-- Success Card Preview -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cv_success_selected_card"
-                            android:layout_width="160dp"
-                            android:layout_height="246dp"
-                            app:cardCornerRadius="@dimen/spacing_md"
-                            app:cardElevation="@dimen/spacing_sm"
-                            app:cardBackgroundColor="@color/lg_glass_surface_high"
-                            app:strokeColor="@color/mosco_white_20"
-                            app:strokeWidth="@dimen/stroke_thin"
-                            android:layout_marginBottom="16dp">
-
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent">
-                                <include layout="@layout/layout_core_card" />
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <!-- Info Box (Left-aligned text info) -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="start"
-                            android:layout_marginHorizontal="12dp">
-
-                            <!-- Line 1: Name, Serial + Grade -->
-                            <TextView
-                                android:id="@+id/tv_success_card_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Kaede Binary02 205Z +1"
-                                style="@style/MoscoText.Luxury.Body"
-                                android:textColor="@color/white"
-                                android:textSize="15sp"
-                                android:textStyle="bold" />
-
-                            <!-- Line 2: Sender -->
-                            <TextView
-                                android:id="@+id/tv_success_sender_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="From: cc3m"
-                                style="@style/MoscoText.Luxury.Body"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
-
-                            <!-- Line 3: Receiver -->
-                            <TextView
-                                android:id="@+id/tv_success_receiver_info"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="To: prime"
-                                style="@style/MoscoText.Luxury.Body"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Footer Action Buttons -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="32dp"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <!-- COLLECT Button -->
-                        <com.vn.jet.mosco.widget.MoscoButton
-                            android:id="@+id/btn_success_collect"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:text="COLLECT"
-                            app:moscoStyle="secondary"
-                            app:moscoSize="large" />
-
-                        <!-- NEW GIFT Button -->
-                        <com.vn.jet.mosco.widget.MoscoButton
-                            android:id="@+id/btn_success_new_gift"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:text="NEW GIFT"
-                            app:moscoStyle="primary"
-                            app:moscoSize="large" />
-                    </LinearLayout>
                 </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
+
+                <!-- 2. Centered Card Object Preview (No border, no hover, with glow) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_success_selected_card"
+                    android:layout_width="160dp"
+                    android:layout_height="246dp"
+                    app:cardCornerRadius="@dimen/spacing_md"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/lg_glass_surface_high"
+                    app:strokeWidth="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/layout_success_top"
+                    app:layout_constraintBottom_toTopOf="@id/layout_success_info_container"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <include layout="@layout/layout_core_card" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Transaction Details container (No border, no card background) -->
+                <LinearLayout
+                    android:id="@+id/layout_success_info_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginHorizontal="36dp"
+                    android:layout_marginBottom="24dp"
+                    app:layout_constraintBottom_toTopOf="@id/layout_success_buttons"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <!-- Line 1: Full Name, Serial + Grade -->
+                    <TextView
+                        android:id="@+id/tv_success_card_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Kaede Binary02 205Z +1"
+                        style="@style/MoscoText.Luxury.Body"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Line 2: Sender Row -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:id="@+id/tv_success_sender_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:text="FROM:"
+                            style="@style/MoscoText.Luxury.Badge"
+                            android:textColor="@color/mosco_white_30"
+                            android:textSize="@dimen/text_size_caption"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_success_sender_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="cc3m (cc3m_id)"
+                            style="@style/MoscoText.Luxury.Body"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+                    </RelativeLayout>
+
+                    <!-- Line 3: Receiver Row -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tv_success_receiver_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:text="TO:"
+                            style="@style/MoscoText.Luxury.Badge"
+                            android:textColor="@color/mosco_white_30"
+                            android:textSize="@dimen/text_size_caption"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_success_receiver_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="prime (prime_id)"
+                            style="@style/MoscoText.Luxury.Body"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <!-- 4. Footer Action Buttons (Matched with Step 2 size/position) -->
+                <LinearLayout
+                    android:id="@+id/layout_success_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    android:layout_marginHorizontal="@dimen/item_reveal_result_card_margin_horizontal"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <!-- COLLECT Button -->
+                    <com.vn.jet.mosco.widget.MoscoButton
+                        android:id="@+id/btn_success_collect"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/spacing_sm"
+                        android:text="COLLECT"
+                        app:moscoStyle="secondary"
+                        app:moscoSize="large" />
+
+                    <!-- NEW GIFT Button -->
+                    <com.vn.jet.mosco.widget.MoscoButton
+                        android:id="@+id/btn_success_new_gift"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:text="NEW GIFT"
+                        app:moscoStyle="primary"
+                        app:moscoSize="large" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
         <!-- ═══ TAB 2: NHẬN (Received Inbox) ═══ -->

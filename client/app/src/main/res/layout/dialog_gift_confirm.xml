@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/bg_surface_solid"
+    android:padding="@dimen/spacing_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.SubHeader"
+            android:text="Confirm Send"
+            android:textSize="@dimen/text_size_h3"
+            android:textStyle="bold"
+            android:fontWeight="700" />
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/radius_lg"
+            style="@style/MoscoText.Luxury.Body"
+            android:textColor="@color/mosco_white_30"
+            android:textSize="@dimen/text_size_body_sm" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:orientation="horizontal">
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:moscoStyle="ghost"
+                app:moscoSize="large"
+                android:text="@string/action_cancel" />
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_confirm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/spacing_12dp"
+                app:moscoStyle="primary"
+                app:moscoSize="large"
+                android:text="@string/action_confirm" />
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
