@@ -13,46 +13,37 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginBottom="@dimen/spacing_md">
+        android:layout_marginBottom="@dimen/spacing_xs">
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_edit_profile"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="@dimen/spacing_xs"
+            android:layout_marginEnd="@dimen/spacing_xxs"
+            app:moscoStyle="primary"
+            app:moscoSize="medium"
             android:text="@string/profile_btn_edit"
-            android:textColor="@color/white"
-            app:strokeColor="@color/lg_outline"
-            app:cornerRadius="@dimen/radius_md"
-            app:icon="@drawable/ic_edit_pen"
-            app:iconTint="@color/white" />
+            android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_settings"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:moscoStyle="ghost"
+            app:moscoSize="medium"
             android:text="@string/profile_btn_settings"
-            android:textColor="@color/white"
-            app:strokeColor="@color/lg_outline"
-            app:cornerRadius="@dimen/radius_md"
-            app:icon="@drawable/ic_settings"
-            app:iconTint="@color/white" />
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <com.vn.jet.mosco.widget.MoscoButton
         android:id="@+id/btn_resource_management"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:moscoStyle="ghost"
+        app:moscoSize="medium"
         android:text="@string/profile_btn_resource_mgmt"
-        android:backgroundTint="@color/mosco_surface_container_high"
-        android:textColor="@color/lg_accent_primary"
-        app:cornerRadius="@dimen/radius_md"
-        app:icon="@drawable/ic_items"
-        app:iconTint="@color/lg_accent_primary" />
+        android:textStyle="bold" />
 
 </LinearLayout>
 

@@ -42,31 +42,40 @@ public class CollectionDetailBinder {
      * để tương thích với logic hiện tại.
      */
     public static void showDetail(Context context, CardDisplayItem item) {
-        showDetail(context, item, false, null);
+        showDetail(context, item, false, false, null);
     }
 
     public static void showDetail(Context context, CardDisplayItem item, Runnable onDismiss) {
-        showDetail(context, item, false, onDismiss);
+        showDetail(context, item, false, false, onDismiss);
     }
 
     public static void showDetail(Context context, CardDisplayItem item, boolean isAlbumMode, Runnable onDismiss) {
-        showDetail(context, item, null, isAlbumMode, onDismiss);
+        showDetail(context, item, null, isAlbumMode, false, onDismiss);
+    }
+
+    public static void showDetail(Context context, CardDisplayItem item, boolean isAlbumMode, boolean isFromExhibit, Runnable onDismiss) {
+        showDetail(context, item, null, isAlbumMode, isFromExhibit, onDismiss);
     }
 
     public static void showDetail(Context context, CollectionEntry entry) {
-        showDetail(context, entry, false, null);
+        showDetail(context, entry, false, false, null);
     }
 
     public static void showDetail(Context context, CollectionEntry entry, Runnable onDismiss) {
-        showDetail(context, entry, false, onDismiss);
+        showDetail(context, entry, false, false, onDismiss);
     }
 
     public static void showDetail(Context context, CollectionEntry entry, boolean isAlbumMode, Runnable onDismiss) {
         CardDisplayItem item = CardDisplayItem.fromCollectionEntry(entry);
-        showDetail(context, item, entry, isAlbumMode, onDismiss);
+        showDetail(context, item, entry, isAlbumMode, false, onDismiss);
     }
 
-    private static void showDetail(Context context, CardDisplayItem item, CollectionEntry legacyEntry, boolean isAlbumMode, Runnable onDismiss) {
+    public static void showDetail(Context context, CollectionEntry entry, boolean isAlbumMode, boolean isFromExhibit, Runnable onDismiss) {
+        CardDisplayItem item = CardDisplayItem.fromCollectionEntry(entry);
+        showDetail(context, item, entry, isAlbumMode, isFromExhibit, onDismiss);
+    }
+
+    private static void showDetail(Context context, CardDisplayItem item, CollectionEntry legacyEntry, boolean isAlbumMode, boolean isFromExhibit, Runnable onDismiss) {
         if (context == null || (item == null && legacyEntry == null)) return;
         
         final boolean[] hasChanged = {false};
@@ -228,7 +237,18 @@ public class CollectionDetailBinder {
         ImageView ivLevel = dialog.findViewById(R.id.card_iv_level);
         int upgradeGrade = entry.getUpgradeLevel();
         if (ivLevel != null) {
-            if (isAlbumMode) {
+            if (isFromExhibit) {
+                // Hiển thị cấp thẻ chính xác của Exhibit
+                if (upgradeGrade > 0) {
+                    String assetPath = context.getString(R.string.asset_grade_path) + upgradeGrade + ".png";
+                    Glide.with(context).load(assetPath).into(ivLevel);
+                    ivLevel.setVisibility(View.VISIBLE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, upgradeGrade);
+                } else {
+                    ivLevel.setVisibility(View.GONE);
+                    com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
+                }
+            } else if (isAlbumMode) {
                 ivLevel.setVisibility(View.GONE);
                 com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
             } else if (upgradeGrade > 0) {
@@ -258,7 +278,7 @@ public class CollectionDetailBinder {
         if (lockedOverlay != null) lockedOverlay.setVisibility(entry.isOwned() ? View.GONE : View.VISIBLE);
 
         // 5. Liquid Glass Interactive Controls
-        setupLiquidGlassControls(dialog, context, item, isAlbumMode, hasChanged);
+        setupLiquidGlassControls(dialog, context, item, isAlbumMode, isFromExhibit, hasChanged);
 
         // 6. Áp dụng hiệu ứng Showcase & Lật thẻ (Chỉ khi ĐÃ sở hữu)
         MaterialCardView cvCard = dialog.findViewById(R.id.cv_album_card_container);
@@ -300,7 +320,19 @@ public class CollectionDetailBinder {
     /**
      * [LIQUID GLASS] Setup new interactive controls for the redesigned detail UI.
      */
-    private static void setupLiquidGlassControls(Dialog dialog, Context context, CardDisplayItem item, boolean isAlbumMode, boolean[] hasChanged) {
+    private static void setupLiquidGlassControls(Dialog dialog, Context context, CardDisplayItem item, boolean isAlbumMode, boolean isFromExhibit, boolean[] hasChanged) {
+        // --- TOP-LEFT: CLOSE ---
+        View btnClose = dialog.findViewById(R.id.btn_close_detail);
+        if (btnClose != null) {
+            if (isFromExhibit) {
+                // Xóa (ẩn) dấu X đóng khi xem chi tiết từ Exhibit để đảm bảo vẻ đẹp sang trọng và thao tác kéo thả tự nhiên
+                btnClose.setVisibility(View.GONE);
+            } else {
+                btnClose.setVisibility(View.VISIBLE);
+                // Đóng hộp thoại chi tiết để giải phóng tài nguyên giao diện và quay về danh sách chính
+                btnClose.setOnClickListener(v -> dialog.dismiss());
+            }
+        }
         // --- TOP-RIGHT: GIFT (SEND) ---
         View btnSend = dialog.findViewById(R.id.btn_send_gift);
         if (btnSend != null) {

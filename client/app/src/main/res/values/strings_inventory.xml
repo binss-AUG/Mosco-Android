@@ -39,6 +39,7 @@
     </string-array>
 
     <!-- Collection & Album -->
+    <string name="collection_header_title">Collection</string>
     <string name="collection_tab_album">Album</string>
     <string name="collection_tab_mailbox">Mailbox</string>
     <string name="collection_tab_objets">Cards</string>

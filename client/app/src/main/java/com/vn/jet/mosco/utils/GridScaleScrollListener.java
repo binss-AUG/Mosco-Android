@@ -16,7 +16,6 @@ public class GridScaleScrollListener extends RecyclerView.OnScrollListener {
     public GridScaleScrollListener() {
         this(0.85f); // Thẻ sẽ bị thu nhỏ còn 85% khi ra rìa
     }
-
     public GridScaleScrollListener(float minScale) {
         this.minScale = minScale;
     }

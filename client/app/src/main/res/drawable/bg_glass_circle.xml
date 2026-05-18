@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Liquid Glass: Circle button for Friends/Mail/Shop -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:radius="@dimen/header_btn_corner" />
-    <solid android:color="@color/lg_glass_surface" />
+<!-- Liquid Glass: Circle glassmorphism surface -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/lg_glass_surface_elevated" />
     <stroke
         android:width="@dimen/lg_stroke_hairline"
-        android:color="@color/lg_glass_stroke_subtle" />
+        android:color="@color/lg_glass_stroke" />
 </shape>

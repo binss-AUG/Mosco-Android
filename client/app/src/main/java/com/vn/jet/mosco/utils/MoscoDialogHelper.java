@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.fragment.InventoryBottomSheet;
 import com.vn.jet.mosco.widget.MoscoButton;
+import com.vn.jet.mosco.widget.MoscoDialogManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
 import android.view.GestureDetector;
