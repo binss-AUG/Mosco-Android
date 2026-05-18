@@ -168,18 +168,16 @@ public class CardDisplayItem {
     // =====================================
 
     /**
-     * Tạo chuỗi hiển thị Name Tag theo format: [Tên] [ClassPrefix][Số]
-     * Ví dụ: JiYeon F503Z
+     * Tạo chuỗi hiển thị Name Tag theo format mới: [Tên] [SeasonPrefix] [Số]
+     * Ví dụ: Yooyeon + Binary02 + 501Z → "Yooyeon B2 501Z"
      */
     @androidx.annotation.NonNull
     public String getFormattedNameTag() {
         String memberStr = member != null ? member : "";
         String colNoStr = collectionNo != null ? collectionNo : "";
-        String classPrefix = "";
-        if (cardClass != null && !cardClass.isEmpty()) {
-            classPrefix = cardClass.substring(0, 1).toUpperCase();
-        }
-        String metaSuffix = (classPrefix + colNoStr).trim();
+        // Sử dụng Season Prefix thay vì Class Prefix
+        String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(season);
+        String metaSuffix = seasonPrefix.isEmpty() ? colNoStr : (seasonPrefix + " " + colNoStr).trim();
         String result = (memberStr + " " + metaSuffix).trim();
         return result.isEmpty() ? "" : result;
     }

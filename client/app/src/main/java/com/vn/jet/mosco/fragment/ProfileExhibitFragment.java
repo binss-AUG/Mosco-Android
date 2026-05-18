@@ -321,10 +321,14 @@ public class ProfileExhibitFragment extends Fragment {
 
             if (tvName != null) {
                 tvName.setVisibility(View.VISIBLE);
-                // [FIX] Binding đầy đủ Name (Member + CollectionNo)
+                // [FIX] Format mới: [Tên] [SeasonPrefix] [Số] — Ví dụ: Yooyeon B2 501Z
                 String member = cardData.optString("member", "");
                 String collectionNo = cardData.optString("collectionNo", "");
-                String name = member + (collectionNo.isEmpty() ? "" : " " + collectionNo);
+                String season = cardData.optString("season", "");
+                String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(season);
+                String name = seasonPrefix.isEmpty()
+                        ? (member + (collectionNo.isEmpty() ? "" : " " + collectionNo)).trim()
+                        : (member + " " + seasonPrefix + (collectionNo.isEmpty() ? "" : " " + collectionNo)).trim();
                 if (name.trim().isEmpty()) name = collectionId;
                 tvName.setText(name);
             }

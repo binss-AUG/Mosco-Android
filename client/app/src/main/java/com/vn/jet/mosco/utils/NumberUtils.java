@@ -34,6 +34,36 @@ public class NumberUtils {
     }
 
     /**
+     * Tạo tiền tố mùa rút gọn từ tên mùa đầy đủ.
+     * Quy tắc: Lấy ký tự đầu (Hoa) + số thứ tự trong tên mùa (bỏ số 0 đầu).
+     * Ví dụ: "Binary02" → "B2", "Apollo01" → "A1", "First" → "F"
+     *
+     * @param season Tên mùa đầy đủ từ server (Ví dụ: "Binary02")
+     * @return Tiền tố rút gọn (Ví dụ: "B2")
+     */
+    public static String formatSeasonPrefix(String season) {
+        if (season == null || season.isEmpty()) return "";
+
+        // Lấy ký tự đầu tiên (in hoa)
+        String firstChar = season.substring(0, 1).toUpperCase();
+
+        // Trích xuất số trong tên mùa (ví dụ: "Binary02" → "02" → "2")
+        String digits = season.replaceAll("[^0-9]", "");
+        if (!digits.isEmpty()) {
+            try {
+                // Chuyển "02" → 2 → "2" để bỏ số 0 đầu
+                String number = String.valueOf(Integer.parseInt(digits));
+                return firstChar + number;
+            } catch (NumberFormatException e) {
+                // Fallback: dùng digits thô
+                return firstChar + digits;
+            }
+        }
+
+        return firstChar;
+    }
+
+    /**
      * Định dạng số có dấu phân cách nghìn (Ví dụ: 1.000.000).
      * Cưỡng bức dùng dấu chấm (.) để thống nhất phong cách Luxury.
      */

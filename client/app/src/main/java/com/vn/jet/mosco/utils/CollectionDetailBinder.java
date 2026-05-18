@@ -245,7 +245,11 @@ public class CollectionDetailBinder {
         // 3. Bind Metadata (Title Center)
         TextView tvDetailName = dialog.findViewById(R.id.tv_detail_card_name);
         if (tvDetailName != null) {
-            String nameTag = entry.getMember() + " " + entry.getSeason() + " " + entry.getCollectionNo();
+            // Format mới: [Tên] [SeasonPrefix] [Số] — Ví dụ: Yooyeon B2 501Z
+            String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(entry.getSeason());
+            String nameTag = seasonPrefix.isEmpty()
+                    ? (entry.getMember() + " " + entry.getCollectionNo()).trim()
+                    : (entry.getMember() + " " + seasonPrefix + " " + entry.getCollectionNo()).trim();
             tvDetailName.setText(nameTag);
         }
         

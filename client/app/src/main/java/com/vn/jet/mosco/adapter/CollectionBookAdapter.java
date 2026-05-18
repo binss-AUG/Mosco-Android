@@ -93,25 +93,22 @@ public class CollectionBookAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             CollectionEntry entry = list.get(position);
             if (entry == null) return;
 
-            // Bind Card Name (Quick ID) - [Tên] [ClassPrefix][Số] để đồng bộ hệ thống
+            // Bind Card Name - Format mới: [Tên] [SeasonPrefix] [Số]
+            // Ví dụ: JiYeon + Binary02 + 503Z → "JiYeon B2 503Z"
             if (vh.tvNameTag != null) {
                 String member = entry.getMember() != null ? entry.getMember() : "";
                 String colNo = entry.getCollectionNo() != null ? entry.getCollectionNo() : "";
-                String cardClass = entry.getCardClass() != null ? entry.getCardClass() : "";
-                
-                // Thuật toán: [Tên] [Class Prefix][Số]
-                // Ví dụ: JiYeon + First + 503Z -> JiYeon F503Z
-                String cPrefix = cardClass.isEmpty() ? "" : cardClass.substring(0, 1).toUpperCase();
-                
-                String metaSuffix = (cPrefix + colNo).trim();
-                
+                String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(entry.getSeason());
+
+                String metaSuffix = seasonPrefix.isEmpty() ? colNo : (seasonPrefix + " " + colNo).trim();
+
                 String formattedName;
                 if (member.isEmpty() && metaSuffix.isEmpty()) {
                     formattedName = "Unknown";
                 } else {
                     formattedName = (member + " " + metaSuffix).trim();
                 }
-                
+
                 vh.tvNameTag.setText(formattedName);
                 vh.tvNameTag.setVisibility(View.VISIBLE);
             }

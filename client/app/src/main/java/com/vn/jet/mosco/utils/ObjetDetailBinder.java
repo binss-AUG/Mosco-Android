@@ -105,6 +105,7 @@ public class ObjetDetailBinder {
             String member = objet.getMember() != null ? objet.getMember() : "Unknown";
             String collectionNo = objet.getCollectionNo() != null ? objet.getCollectionNo() : "";
             String cardClass = objet.getTypeKey() != null ? objet.getTypeKey() : "";
+            String season = objet.getSeason() != null ? objet.getSeason() : "";
             int level = objet.getLevel();
             int exp = objet.getExp();
             int upgradeLevel = objet.getUpgradeLevel();
@@ -241,7 +242,12 @@ public class ObjetDetailBinder {
             // ── 4. Hiển thị Tiêu đề, Badge & Dual-tone Chip ─────────────
             TextView tvTitle = dialog.findViewById(R.id.tv_objet_title);
             if (tvTitle != null) {
-                tvTitle.setText(member + " " + collectionNo);
+                // Format mới: [Tên] [SeasonPrefix] [Số] — Ví dụ: Yooyeon B2 501Z
+                String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(season);
+                String titleText = seasonPrefix.isEmpty()
+                        ? (member + " " + collectionNo).trim()
+                        : (member + " " + seasonPrefix + " " + collectionNo).trim();
+                tvTitle.setText(titleText);
                 tvTitle.setTextColor(Color.WHITE);
             }
 

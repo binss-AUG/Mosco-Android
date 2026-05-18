@@ -246,14 +246,14 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             Objet item = displayObjets.get(position);
             if (item == null) return;
 
-            // Bind Card Name (Instant Metadata: Artist [Prefix]No format)
+            // Bind Card Name (Instant Metadata: Artist [SeasonPrefix] No format)
             if (itemHolder.tvNameTag != null) {
-                String classPrefix = "";
-                if (item.getTypeKey() != null && !item.getTypeKey().isEmpty()) {
-                    classPrefix = item.getTypeKey().substring(0, 1).toUpperCase();
-                }
-                String formattedName = (item.getMember() != null ? item.getMember() : "") + " " + classPrefix + (item.getCollectionNo() != null ? item.getCollectionNo() : "");
-                formattedName = formattedName.trim();
+                // Format mới: [Tên] [SeasonPrefix] [Số] — Ví dụ: Yooyeon B2 501Z
+                String seasonPrefix = com.vn.jet.mosco.utils.NumberUtils.formatSeasonPrefix(item.getSeason());
+                String colNo = item.getCollectionNo() != null ? item.getCollectionNo() : "";
+                String metaSuffix = seasonPrefix.isEmpty() ? colNo : (seasonPrefix + " " + colNo).trim();
+                String formattedName = ((item.getMember() != null ? item.getMember() : "") + " " + metaSuffix).trim();
+
                 
                 if (formattedName.isEmpty()) {
                     itemHolder.tvNameTag.setVisibility(View.INVISIBLE);
