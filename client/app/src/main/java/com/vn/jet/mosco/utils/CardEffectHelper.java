@@ -347,32 +347,34 @@ public class CardEffectHelper {
             shimmer.setTag(R.id.tv_materials_label, delayRunnable);
         }
 
-        // MẶC ĐỊNH LÀ LUÔN NỔI LÊN XUỐNG DẬP DỀNH (KHÔNG PHỤ THUỘC VÀO BOOLEAN)
-        ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
+        // c) Floating Animation (Dập dềnh lơ lửng nếu được yêu cầu)
+        if (applyFloating) {
+            ObjectAnimator floatingAnim = ObjectAnimator.ofFloat(cardView, "translationY", 0f, -dpToPx(context, 8f), 0f);
 
-        floatingAnim.setEvaluator(new TypeEvaluator<Float>() {
-            @Override
-            public Float evaluate(float fraction, Float startValue, Float endValue) {
-                float val = startValue + fraction * (endValue - startValue);
-                return (float) Math.round(val);
-            }
-        });
+            floatingAnim.setEvaluator(new TypeEvaluator<Float>() {
+                @Override
+                public Float evaluate(float fraction, Float startValue, Float endValue) {
+                    float val = startValue + fraction * (endValue - startValue);
+                    return (float) Math.round(val);
+                }
+            });
 
-        floatingAnim.addUpdateListener(animation -> {
-            View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
-            if (pseudoGlow != null) {
-                pseudoGlow.setTranslationY((float) Math.round((float) animation.getAnimatedValue()));
-            }
-        });
+            floatingAnim.addUpdateListener(animation -> {
+                View pseudoGlow = (View) cardView.getTag(R.id.view_progress_fill);
+                if (pseudoGlow != null) {
+                    pseudoGlow.setTranslationY((float) Math.round((float) animation.getAnimatedValue()));
+                }
+            });
 
-        floatingAnim.setDuration(2400); // 2.4s base
-        floatingAnim.setStartDelay((long) (Math.random() * 1000)); // Gợn sóng bất đồng bộ
-        floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-        floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
-        floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
+            floatingAnim.setDuration(2400); // 2.4s base
+            floatingAnim.setStartDelay((long) (Math.random() * 1000)); // Gợn sóng bất đồng bộ
+            floatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+            floatingAnim.setRepeatCount(ValueAnimator.INFINITE);
+            floatingAnim.setRepeatMode(ValueAnimator.REVERSE);
 
-        cardView.setTag(floatingAnim);
-        floatingAnim.start();
+            cardView.setTag(floatingAnim);
+            floatingAnim.start();
+        }
     }
 
     /**

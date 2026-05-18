@@ -1601,12 +1601,21 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             for (String id : ids) {
                 if (id == null || id.trim().isEmpty() || id.equals("null")) {
                     validIds.add("");
-                } else if (DatabaseLoader.cachedCollectionMap.containsKey(id)) {
-                    validIds.add(id);
                 } else {
-                    // Thẻ này thực sự không còn trong kho -> tự động tháo
-                    validIds.add("");
-                    needsUpdate = true;
+                    String realId = id;
+                    if (id.contains(":")) {
+                        String[] parts = id.split(":");
+                        if (parts.length > 0) {
+                            realId = parts[0];
+                        }
+                    }
+                    if (DatabaseLoader.cachedCollectionMap.containsKey(realId)) {
+                        validIds.add(id);
+                    } else {
+                        // Thẻ này thực sự không còn trong kho -> tự động tháo
+                        validIds.add("");
+                        needsUpdate = true;
+                    }
                 }
             }
         } else {
@@ -1734,7 +1743,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             View btnUnequip = cardView.findViewById(R.id.btn_unequip);
             if (btnUnequip != null) btnUnequip.setVisibility(View.GONE);
 
-            CardEffectHelper.applyEmptyStateGlow(cvContainer, true);
+            CardEffectHelper.applyEmptyStateGlow(cvContainer, false);
         } else {
             if (layoutEmpty != null) layoutEmpty.setVisibility(View.GONE);
             if (layoutCore != null) layoutCore.setVisibility(View.VISIBLE);
@@ -1775,7 +1784,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             String frontImageStr = cardData.optString("frontImage");
             Objet mockObj = new Objet(0, collectionId, frontImageStr, 1, 0, cardData.optInt("upgradeLevel", 0));
             
-            CardEffectHelper.apply(cvContainer, shimmer, mockObj, true);
+            CardEffectHelper.apply(cvContainer, shimmer, mockObj, false);
 
             if (ivLevel != null) {
                 int level = cardData.optInt("upgradeLevel", 0);

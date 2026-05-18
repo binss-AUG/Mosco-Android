@@ -404,8 +404,11 @@ public class GiftActivity extends MoscoBaseActivity {
     private void showSendConfirmDialog() {
         if (selectedObjet == null || selectedFriend == null) return;
 
-        // Tên đầy đủ (tên dài) của thẻ: collectionId (Ví dụ: binary02kaede205z)
-        String fullCardName = selectedObjet.getCollectionId();
+        // Tên đầy đủ của thẻ: Season + Member + CollectionNo
+        String fullCardName = (selectedObjet.getSeason() != null ? selectedObjet.getSeason() : "") + " "
+                + (selectedObjet.getMember() != null ? selectedObjet.getMember() : "") + " "
+                + (selectedObjet.getCollectionNo() != null ? selectedObjet.getCollectionNo() : "");
+        fullCardName = fullCardName.trim();
 
         String levelStr = selectedObjet.getLevel() > 0 ? " +" + selectedObjet.getLevel() : "";
 
@@ -569,10 +572,10 @@ public class GiftActivity extends MoscoBaseActivity {
                         }
 
                         // 3. Bind Info Text
-                        // Line 1: Name, Serial + Grade level (chữ IN HOA tên dài, ví dụ "BINARY02KAEDE205Z +1")
+                        // Line 1: Name, Serial + Grade level (chữ IN HOA, ví dụ "KAEDE BINARY02 205Z +1")
                         if (tvSuccessCardInfo != null) {
                             String levelStr = selectedObjet.getLevel() > 0 ? " +" + selectedObjet.getLevel() : "";
-                            String fullInfo = selectedObjet.getCollectionId() + levelStr;
+                            String fullInfo = selectedObjet.getFormattedNameTag() + levelStr;
                             tvSuccessCardInfo.setText(fullInfo.toUpperCase());
                         }
 

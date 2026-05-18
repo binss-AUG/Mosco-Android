@@ -90,6 +90,7 @@ public class MoscoButton extends AppCompatButton {
         applyStyleAndSize();
         setGravity(Gravity.CENTER);
         setAllCaps(false);
+        setSingleLine(true);
         setTypeface(getTypeface(), android.graphics.Typeface.BOLD);
         
         // Apply Liquid Glass Interaction Animator globally

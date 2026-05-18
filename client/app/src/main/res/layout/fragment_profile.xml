@@ -58,10 +58,7 @@
                     android:layout_marginStart="@dimen/spacing_md"
                     android:paddingEnd="@dimen/spacing_xxs"
                     android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:elevation="5dp"
-                    android:outlineProvider="none"
-                    android:background="@color/lg_background">
+                    android:clipToPadding="false">
 
                     <!-- Avatar Frame -->
                     <RelativeLayout
@@ -232,7 +229,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1.1"
                     android:layout_gravity="center_vertical"
-                    android:clipChildren="false"
+                    android:clipChildren="true"
                     android:clipToPadding="false"
                     android:paddingStart="@dimen/spacing_xxs">
 
@@ -242,7 +239,7 @@
                         android:layout_height="match_parent"
                         android:clipChildren="false"
                         android:clipToPadding="false"
-                        android:paddingHorizontal="24dp" />
+                        android:paddingHorizontal="14dp" />
 
                 </FrameLayout>
 
