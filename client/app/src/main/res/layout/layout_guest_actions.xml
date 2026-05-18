@@ -91,7 +91,6 @@
             app:icon="@drawable/ic_close"
             app:iconSize="14dp"
             app:iconPadding="0dp"
-            app:iconGravity="center"
             app:iconTint="@color/palette_red_accent"
             app:strokeColor="@color/palette_red_accent"
             app:cornerRadius="@dimen/radius_md"
