@@ -1194,17 +1194,11 @@ public class CollectionFragment extends Fragment {
          * 
          * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
          */
-        /**
-         * Smart Load: Ưu tiên nạp từ cache để UI hiện lên TỨC THÌ (Instant Load).
-         * 
-         * @param forceFromServer Nếu true sẽ bỏ qua cache, nạp thẳng từ API.
-         */
         private void loadObjets(boolean forceFromServer) {
             Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
             if (userId == null)
                 return;
 
-            // Hiển thị Skeleton nếu chưa có cache
             List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> cache = com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory;
             if (forceFromServer || cache == null || cache.isEmpty()) {
                 if (adapter != null) {
@@ -1215,7 +1209,8 @@ public class CollectionFragment extends Fragment {
             // ── 1. KIỂM TRA CACHE (INSTANT LOAD) ─────────────────────────
             if (!forceFromServer && cache != null && !cache.isEmpty()) {
                 android.util.Log.d("ObjetsFragment", "Instant Load from Galactic Cache: " + cache.size() + " items");
-                processAndDisplayInventory(cache);
+                // isSilent = false: lần đầu vào tab, chưa có gì trên screen cả → cho phép show skeleton nếu cần
+                processAndDisplayInventory(cache, false);
                 // Vẫn gọi ngầm để update nếu có gì mới (Silent Update)
             }
 
@@ -1228,7 +1223,6 @@ public class CollectionFragment extends Fragment {
                         retrofit2.Response<List<com.vn.jet.mosco.model.UserCard>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<com.vn.jet.mosco.model.UserCard> userCards = response.body();
-                        // Chuyển đổi list UserCard sang list Objet (Model cũ của UI)
                         new Thread(() -> {
                             List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items = new ArrayList<>(
                                     userCards.size());
@@ -1236,7 +1230,9 @@ public class CollectionFragment extends Fragment {
                                 items.add(com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem.fromUserCard(uc));
                             }
                             if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> processAndDisplayInventory(items));
+                                // Server response: đã có data trên màn hình rồi → silent refresh (isSilent = true)
+                                boolean hasCurrent = (originalObjets != null && !originalObjets.isEmpty());
+                                getActivity().runOnUiThread(() -> processAndDisplayInventory(items, hasCurrent));
                             }
                         }).start();
                     }
@@ -1257,17 +1253,16 @@ public class CollectionFragment extends Fragment {
 
         /**
          * Xử lý mapping và hiển thị dữ liệu lên RecyclerView.
+         * @param isSilent Nếu true: không hiển skeleton (silent refresh khi đã có data)
          */
-        private void processAndDisplayInventory(List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items) {
+        private void processAndDisplayInventory(List<com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem> items, boolean isSilent) {
             if (items == null)
                 return;
             new Thread(() -> {
-                // Chuyển đổi trực tiếp sang CardDisplayItem — bỏ bước trung gian qua Objet
                 List<com.vn.jet.mosco.model.CardDisplayItem> displayItems = new ArrayList<>();
                 for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem uc : items) {
                     com.vn.jet.mosco.model.CardDisplayItem displayItem = com.vn.jet.mosco.model.CardDisplayItem
                             .fromCacheItem(uc);
-                    // Chuẩn hóa cardClass qua mapping hệ thống
                     displayItem.setCardClass(mapClassToTypeKey(uc.cardClass));
                     displayItems.add(displayItem);
                 }
@@ -1275,24 +1270,25 @@ public class CollectionFragment extends Fragment {
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         originalObjets = displayItems;
-                        applyFilters();
+                        applyFilters(isSilent);
                     });
                 }
             }).start();
         }
 
         private void applyFilters() {
-            // Hiển thị Skeleton ngay lập tức (Luxury Feel)
-            if (adapter != null) {
+            applyFilters(false);
+        }
+
+        private void applyFilters(boolean isSilent) {
+            // Chỉ hiển Skeleton khi THỰC SỰ chưa có data (lần mở đầu tiên)
+            // Tránh flash khi đang refresh ngầm (silent update từ server)
+            if (!isSilent && adapter != null && (originalObjets == null || originalObjets.isEmpty())) {
                 adapter.setLoading(true);
             }
 
             new Thread(() -> {
-                // Độ trễ nhân tạo 250ms để mắt kịp cảm nhận Shimmer cao cấp
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException ignored) {
-                }
+                // Bỏ Thread.sleep(250) nhân tạo — gây flash kép khó chịu
 
                 List<com.vn.jet.mosco.model.CardDisplayItem> filtered = new ArrayList<>();
                 String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";

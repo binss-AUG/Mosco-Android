@@ -421,12 +421,13 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private void executeApplyFilters() {
         if (originalObjets == null || !isAdded()) return;
         
-        // Show Skeleton during filter/sort processing
-        if (adapter != null) adapter.setLoading(true);
+        // Chỉ hiển Skeleton khi thực sự chưa có data — tránh flash khi đang sort/filter data đã có
+        if (adapter != null && (originalObjets == null || originalObjets.isEmpty())) {
+            adapter.setLoading(true);
+        }
 
         filterExecutor.execute(() -> {
-            // Artificial delay for "Quiet Luxury" shimmer feel
-            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+            // Bỏ Thread.sleep(200) nhân tạo — gây flash khó chịu khi mở trang
 
             if (!isAdded()) {
                 isApplyingFilter = false;
