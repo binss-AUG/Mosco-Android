@@ -38,8 +38,17 @@ public class CreateAdminRunner implements CommandLineRunner {
     private final GachaHistoryRepository gachaHistoryRepository;
     private final com.vn.jet.mosco.spinserver.repository.StageSessionRepository sessionRepository;
     private final com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository;
+    private final com.vn.jet.mosco.spinserver.service.CardDataService cardDataService;
 
-    public CreateAdminRunner(UserRepository userRepository, UserCardRepository userCardRepository, UserItemRepository userItemRepository, ShopItemRepository shopItemRepository, com.vn.jet.mosco.spinserver.repository.UserMailRepository userMailRepository, GachaHistoryRepository gachaHistoryRepository, com.vn.jet.mosco.spinserver.repository.StageSessionRepository sessionRepository, com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository) {
+    public CreateAdminRunner(UserRepository userRepository, 
+                             UserCardRepository userCardRepository, 
+                             UserItemRepository userItemRepository, 
+                             ShopItemRepository shopItemRepository, 
+                             com.vn.jet.mosco.spinserver.repository.UserMailRepository userMailRepository, 
+                             GachaHistoryRepository gachaHistoryRepository, 
+                             com.vn.jet.mosco.spinserver.repository.StageSessionRepository sessionRepository, 
+                             com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository,
+                             com.vn.jet.mosco.spinserver.service.CardDataService cardDataService) {
         this.userRepository = userRepository;
         this.userCardRepository = userCardRepository;
         this.userItemRepository = userItemRepository;
@@ -48,6 +57,7 @@ public class CreateAdminRunner implements CommandLineRunner {
         this.gachaHistoryRepository = gachaHistoryRepository;
         this.sessionRepository = sessionRepository;
         this.memberRepository = memberRepository;
+        this.cardDataService = cardDataService;
     }
 
     @Override
@@ -135,8 +145,21 @@ public class CreateAdminRunner implements CommandLineRunner {
             System.out.println("Syncing missing cards for admin from database.json...");
             List<UserCard> existingCards = userCardRepository.findByUserId(admin.getId());
             java.util.Set<String> existingIds = new java.util.HashSet<>();
+            java.util.List<UserCard> cardsToDelete = new java.util.ArrayList<>();
+            
+            java.util.Map<String, com.fasterxml.jackson.databind.JsonNode> validMetadata = cardDataService.getAllCardMetadata();
+            
             for (UserCard c : existingCards) {
-                existingIds.add(c.getCollectionId());
+                if (validMetadata == null || !validMetadata.containsKey(c.getCollectionId())) {
+                    cardsToDelete.add(c);
+                } else {
+                    existingIds.add(c.getCollectionId());
+                }
+            }
+            
+            if (!cardsToDelete.isEmpty()) {
+                userCardRepository.deleteAll(cardsToDelete);
+                System.out.println("Cleaned up " + cardsToDelete.size() + " obsolete junk cards from admin's inventory.");
             }
 
             ClassPathResource dbResource = new ClassPathResource("database.json");
@@ -148,7 +171,7 @@ public class CreateAdminRunner implements CommandLineRunner {
                 JsonObject cardObj = element.getAsJsonObject();
                 if (cardObj.has("id")) {
                     String cardId = cardObj.get("id").getAsString();
-                    if (!existingIds.contains(cardId)) {
+                    if (validMetadata != null && validMetadata.containsKey(cardId) && !existingIds.contains(cardId)) {
                         // Mỗi cardId thêm 1 thẻ mới: Level 1, EXP 0, upgradeLevel 1 (+1)
                         // App không có +0 — upgradeLevel tối thiểu luôn là 1
                         allCards.add(new UserCard(admin, cardId, 1, 0, 1));
