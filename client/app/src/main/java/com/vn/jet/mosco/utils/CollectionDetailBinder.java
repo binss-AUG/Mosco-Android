@@ -75,12 +75,14 @@ public class CollectionDetailBinder {
         dialog.setContentView(R.layout.dialog_collection_detail);
         
         dialog.setOnDismissListener(d -> {
-            android.widget.VideoView vv = dialog.findViewById(R.id.vv_objet_detail_video);
-            if (vv != null) {
-                try {
-                    vv.stopPlayback();
-                } catch (Exception e) {}
-            }
+            try {
+                if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                    android.media.MediaPlayer mp = (android.media.MediaPlayer) dialog.getWindow().getDecorView().getTag();
+                    if (mp != null) {
+                        mp.release();
+                    }
+                }
+            } catch (Exception e) {}
             if (hasChanged[0] && onDismiss != null) onDismiss.run();
         });
         
@@ -125,45 +127,85 @@ public class CollectionDetailBinder {
             }
         }
 
-        // 1.5. Xử lý VideoView cho thẻ Motion (Apollo MP4s)
-        final android.widget.VideoView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
+        // 1.5. Xử lý TextureView cho thẻ Motion (Apollo MP4s)
+        final android.view.TextureView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
         final boolean isMotion = "Motion".equalsIgnoreCase(entry.getCardClass()) && entry.getFrontVideoUrl() != null && !entry.getFrontVideoUrl().isEmpty() && entry.isOwned();
+        final boolean[] isFlipped = {false};
 
         if (vvObjetVideo != null) {
             if (isMotion) {
-                vvObjetVideo.setVisibility(View.INVISIBLE);
+                // Ẩn hoàn toàn (GONE) để ExoPlayer không render black frame
+                // lên mặt TextureView trước khi video sẵn sàng
+                vvObjetVideo.setVisibility(View.GONE);
                 
-                // Thiết lập bo góc tròn hoàn hảo cho VideoView (Không bị lộ viền vuông)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    vvObjetVideo.setOutlineProvider(new android.view.ViewOutlineProvider() {
-                        @Override
-                        public void getOutline(View view, android.graphics.Outline outline) {
-                            float radius = view.getContext().getResources().getDimension(R.dimen.lg_radius_card);
-                            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
-                        }
-                    });
-                    vvObjetVideo.setClipToOutline(true);
-                }
-
                 try {
-                    String cachedUrl = com.vn.jet.mosco.MoscoApplication.getProxy(context).getProxyUrl(entry.getFrontVideoUrl());
-                    vvObjetVideo.setVideoURI(android.net.Uri.parse(cachedUrl));
-                    vvObjetVideo.setOnPreparedListener(mp -> {
-                        mp.setLooping(true);
-                        mp.setVideoScalingMode(android.media.MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-                        vvObjetVideo.setVisibility(View.VISIBLE);
-                        vvObjetVideo.start();
-                        if (ivCard != null) {
-                            ivCard.setVisibility(View.INVISIBLE);
+                    // Cấu hình LoadControl: bắt buộc buffer tối thiểu 1.5s trước khi phát
+                    // Đảm bảo video chạy mượt lần đầu tiên dù mạng chậm
+                    androidx.media3.exoplayer.DefaultLoadControl loadControl =
+                        new androidx.media3.exoplayer.DefaultLoadControl.Builder()
+                            .setBufferDurationsMs(
+                                5_000,   // minBufferMs: giữ ít nhất 5s trong bộ đệm
+                                30_000,  // maxBufferMs: tải trước tối đa 30s
+                                1_500,   // bufferForPlaybackMs: cần 1.5s trước khi bắt đầu phát
+                                2_000    // bufferForPlaybackAfterRebufferMs
+                            )
+                            .build();
+                    androidx.media3.exoplayer.ExoPlayer player = new androidx.media3.exoplayer.ExoPlayer.Builder(context)
+                            .setLoadControl(loadControl)
+                            .build();
+                    player.setVideoTextureView(vvObjetVideo);
+                    player.setVideoScalingMode(androidx.media3.common.C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                    player.setRepeatMode(androidx.media3.common.Player.REPEAT_MODE_ONE);
+                    // Không tự phát ngay: đợi đến STATE_READY để tránh giật lần đầu
+                    player.setPlayWhenReady(false);
+
+                    androidx.media3.common.MediaItem mediaItem = androidx.media3.common.MediaItem.fromUri(entry.getFrontVideoUrl());
+                    androidx.media3.datasource.DataSource.Factory cacheDataSourceFactory = com.vn.jet.mosco.MoscoApplication.getCacheDataSourceFactory(context);
+                    androidx.media3.exoplayer.source.MediaSource mediaSource = new androidx.media3.exoplayer.source.ProgressiveMediaSource.Factory(cacheDataSourceFactory)
+                            .createMediaSource(mediaItem);
+
+                    player.setMediaSource(mediaSource);
+                    
+                    player.addListener(new androidx.media3.common.Player.Listener() {
+                        @Override
+                        public void onPlaybackStateChanged(int playbackState) {
+                            if (playbackState == androidx.media3.common.Player.STATE_READY) {
+                                // Buffer đã đủ, bắt đầu phát mượt mà
+                                player.play();
+                                vvObjetVideo.setTag(R.id.vv_objet_detail_video, true);
+                                vvObjetVideo.setVisibility(View.VISIBLE);
+                                vvObjetVideo.setAlpha(1.0f);
+                                
+                                vvObjetVideo.postDelayed(() -> {
+                                    if (ivCard != null && !isFlipped[0]) {
+                                        ivCard.setVisibility(View.INVISIBLE);
+                                    }
+                                }, 200);
+                            }
+                        }
+                        
+                        @Override
+                        public void onPlayerError(androidx.media3.common.PlaybackException error) {
+                            if (ivCard != null) ivCard.setVisibility(View.VISIBLE);
+                            vvObjetVideo.setVisibility(View.GONE);
                         }
                     });
-                    vvObjetVideo.setOnErrorListener((mp, what, extra) -> {
-                        if (ivCard != null) {
-                            ivCard.setVisibility(View.VISIBLE);
-                        }
-                        vvObjetVideo.setVisibility(View.GONE);
-                        return true;
+
+                    dialog.getWindow().getDecorView().setTag(player);
+                    player.prepare();
+                    // Không gọi player.play() ở đây — đợi STATE_READY callback
+                    
+                    // Giải phóng tài nguyên ExoPlayer triệt để khi đóng dialog
+                    dialog.setOnDismissListener(d -> {
+                        try {
+                            androidx.media3.exoplayer.ExoPlayer p = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                            if (p != null) {
+                                p.release();
+                                dialog.getWindow().getDecorView().setTag(null);
+                            }
+                        } catch (Exception e) {}
                     });
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                     if (ivCard != null) {
@@ -241,7 +283,7 @@ public class CollectionDetailBinder {
             }
 
             if (cvCard != null) {
-                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel(), vvObjetVideo, isMotion);
+                setupInteractiveFlip(context, dialog, cvCard, ivCard, ivBack, ivLevel, entry.getUpgradeLevel(), vvObjetVideo, isMotion, isFlipped);
             }
         } else {
             // Nếu chưa sở hữu: Ẩn Shimmer để hiện diện lớp xám Sad
@@ -336,7 +378,7 @@ public class CollectionDetailBinder {
                                               MaterialCardView cvCard,
                                               ImageView ivFront, ImageView ivBack,
                                               ImageView ivLevel, int upgradeLevel,
-                                              android.widget.VideoView vvObjetVideo, boolean isMotion) {
+                                              android.view.TextureView vvObjetVideo, boolean isMotion, boolean[] isFlipped) {
         float density = context.getResources().getDisplayMetrics().density;
         android.util.TypedValue distVal = new android.util.TypedValue();
         context.getResources().getValue(R.dimen.flip_camera_distance_factor, distVal, true);
@@ -344,7 +386,6 @@ public class CollectionDetailBinder {
 
         // Đọc cấu hình độ nhạy xoay từ resource (không hardcode)
         final int flipSensitivity = context.getResources().getInteger(R.integer.card_flip_sensitivity);
-        final boolean[] isFlipped = {false};
         final float[] initialTouchX = {0f};
         final float[] startRotation = {0f};
         final ObjectAnimator[] snapAnim = {null};
@@ -394,9 +435,16 @@ public class CollectionDetailBinder {
                             if (ivLevel != null && upgradeLevel > 0) ivLevel.setVisibility(View.VISIBLE);
                             // MOTION VIDEO SUPPORT
                             if (vvObjetVideo != null && isMotion) {
-                                vvObjetVideo.setVisibility(View.VISIBLE);
-                                vvObjetVideo.start();
-                                if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                                        vvObjetVideo.setVisibility(View.VISIBLE);
+                                        try {
+                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                            if (mp != null) mp.play();
+                                        } catch (Exception e) {}
+                                        
+                                        // CHỈ Ẩn ảnh tĩnh nếu video đã thực sự tải xong
+                                        if (Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video))) {
+                                            if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                                        }
                             }
                         } else {
                             // Hiện mặt sau
@@ -410,8 +458,10 @@ public class CollectionDetailBinder {
                             if (ivLevel != null) ivLevel.setVisibility(View.GONE);
                             // MOTION VIDEO SUPPORT
                             if (vvObjetVideo != null) {
-
-                                vvObjetVideo.pause();
+                                try {
+                                    android.media.MediaPlayer mp = (android.media.MediaPlayer) dialog.getWindow().getDecorView().getTag();
+                                    if (mp != null) mp.pause();
+                                } catch (Exception e) {}
                             }
                         }
                     }
@@ -461,8 +511,15 @@ public class CollectionDetailBinder {
                                     // MOTION VIDEO SUPPORT
                                     if (vvObjetVideo != null && isMotion) {
                                         vvObjetVideo.setVisibility(View.VISIBLE);
-                                        vvObjetVideo.start();
-                                        if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                                        try {
+                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                            if (mp != null) mp.play();
+                                        } catch (Exception e) {}
+                                        
+                                        // CHỈ Ẩn ảnh tĩnh nếu video đã thực sự tải xong
+                                        if (Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video))) {
+                                            if (ivFront != null) ivFront.setVisibility(View.INVISIBLE);
+                                        }
                                     }
                                 } else {
                                     if (ivFront != null) ivFront.setVisibility(View.GONE);
@@ -473,8 +530,10 @@ public class CollectionDetailBinder {
                                     if (shimmerContainer != null) shimmerContainer.setVisibility(View.GONE);
                                     // MOTION VIDEO SUPPORT
                                     if (vvObjetVideo != null) {
-
-                                        vvObjetVideo.pause();
+                                        try {
+                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                            if (mp != null) mp.pause();
+                                        } catch (Exception e) {}
                                     }
                                 }
                             }

@@ -95,29 +95,44 @@
         app:layout_constraintStart_toStartOf="@id/dialog_glass_bg"
         app:layout_constraintEnd_toEndOf="@id/dialog_glass_bg">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Nested CardView để ép bo góc tuyệt đối lên TextureView và ảnh tĩnh -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:strokeColor="@color/transparent"
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="false"
+            app:cardBackgroundColor="@color/transparent"
+            android:clipChildren="true"
+            android:clipToPadding="true">
 
-            <include layout="@layout/layout_core_card" />
-
-            <!-- VideoView cho thẻ Motion (Apollo MP4s) -->
-            <VideoView
-                android:id="@+id/vv_objet_detail_video"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
+                android:layout_height="match_parent">
 
-            <!-- Card Back (for Flip) -->
-            <ImageView
-                android:id="@+id/iv_collection_back"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/objet_back_spin"
-                android:visibility="gone" />
+                <include layout="@layout/layout_core_card" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- TextureView cho thẻ Motion (Apollo MP4s) -->
+                <TextureView
+                    android:id="@+id/vv_objet_detail_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <!-- Card Back (for Flip) -->
+                <ImageView
+                    android:id="@+id/iv_collection_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/objet_back_spin"
+                    android:visibility="gone" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </com.google.android.material.card.MaterialCardView>
 

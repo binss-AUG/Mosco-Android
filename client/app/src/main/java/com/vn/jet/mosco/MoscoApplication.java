@@ -2,30 +2,55 @@ package com.vn.jet.mosco;
 
 import android.app.Application;
 import android.content.Context;
-import com.danikula.videocache.HttpProxyCacheServer;
+
+import androidx.media3.database.DatabaseProvider;
+import androidx.media3.database.StandaloneDatabaseProvider;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.datasource.cache.CacheDataSource;
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor;
+import androidx.media3.datasource.cache.SimpleCache;
+
+import java.io.File;
 
 /**
  * MoscoApplication — Quản lý toàn cục tài nguyên ứng dụng và Proxy đệm video cục bộ.
  */
 public class MoscoApplication extends Application {
 
-    private HttpProxyCacheServer proxy;
+    private static SimpleCache simpleCache;
+    private static DataSource.Factory cacheDataSourceFactory;
 
-    public static HttpProxyCacheServer getProxy(Context context) {
-        MoscoApplication app = (MoscoApplication) context.getApplicationContext();
-        return app.proxy == null ? (app.proxy = app.newProxy()) : app.proxy;
+    public static DataSource.Factory getCacheDataSourceFactory(Context context) {
+        if (cacheDataSourceFactory == null) {
+            MoscoApplication app = (MoscoApplication) context.getApplicationContext();
+            app.initCache();
+        }
+        return cacheDataSourceFactory;
     }
 
-    private HttpProxyCacheServer newProxy() {
-        return new HttpProxyCacheServer.Builder(this)
-                .maxCacheSize(512 * 1024 * 1024) // Tối đa 512MB bộ nhớ đệm cho Video Motion
-                .build();
+    private synchronized void initCache() {
+        if (simpleCache == null) {
+            File cacheDir = new File(getCacheDir(), "media_cache");
+            // Tối đa 512MB bộ nhớ đệm cho Video Motion
+            LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024);
+            DatabaseProvider databaseProvider = new StandaloneDatabaseProvider(this);
+            simpleCache = new SimpleCache(cacheDir, evictor, databaseProvider);
+
+            DataSource.Factory upstreamFactory = new DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true);
+            
+            cacheDataSourceFactory = new CacheDataSource.Factory()
+                    .setCache(simpleCache)
+                    .setUpstreamDataSourceFactory(upstreamFactory)
+                    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        // Khởi tạo proxy cục bộ để đệm video tự động
-        proxy = newProxy();
+        // Khởi tạo SimpleCache cho ExoPlayer
+        initCache();
     }
 }

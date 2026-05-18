@@ -67,16 +67,31 @@ public class CardAssetManager {
     public static String extractImageId(String url) {
         if (url == null || url.isEmpty()) return null;
         try {
-            String[] parts = url.split("/");
-            if (parts.length >= 2) return parts[parts.length - 2];
+            if (url.contains("imagedelivery.net")) {
+                String[] parts = url.split("/");
+                if (parts.length >= 2) return parts[parts.length - 2];
+            } else if (url.startsWith("http")) {
+                String[] parts = url.split("/");
+                if (parts.length > 0) {
+                    String lastPart = parts[parts.length - 1];
+                    int dotIndex = lastPart.lastIndexOf('.');
+                    if (dotIndex > 0) {
+                        return lastPart.substring(0, dotIndex);
+                    }
+                    return lastPart;
+                }
+            } else {
+                return url;
+            }
         } catch (Exception e) {
-            Log.w(TAG, "Lỗi trích xuất ImageId: " + url);
+            Log.w(TAG, "Lỗi trích xuất ImageId: " + url, e);
         }
         return null;
     }
 
     public static String convertToVariant(String url, String variant) {
         if (url == null || url.isEmpty()) return url;
+        if (!url.contains("imagedelivery.net")) return url;
         int lastSlash = url.lastIndexOf('/');
         if (lastSlash > 0) return url.substring(0, lastSlash + 1) + variant;
         return url;

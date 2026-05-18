@@ -1,6 +1,8 @@
 package com.vn.jet.mosco.spinserver.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -23,6 +26,12 @@ import java.util.Map;
 public class ConfigController {
 
     private static final String DB_FILE = "database.json";
+    
+    private final String dataDir;
+
+    public ConfigController(@Value("${ASSET_DATA_DIR:data/assets/}") String dataDir) {
+        this.dataDir = dataDir;
+    }
 
     /**
      * Trả về Version (mã MD5) của file database.json hiện tại trên Server.
@@ -31,7 +40,9 @@ public class ConfigController {
     public ResponseEntity<Map<String, String>> getDatabaseVersion() {
         Map<String, String> response = new HashMap<>();
         try {
-            Resource resource = new ClassPathResource(DB_FILE);
+            File externalFile = new File(dataDir, DB_FILE);
+            Resource resource = externalFile.exists() ? new FileSystemResource(externalFile) : new ClassPathResource(DB_FILE);
+            
             MessageDigest md = MessageDigest.getInstance("MD5");
             try (InputStream is = resource.getInputStream()) {
                 byte[] buffer = new byte[8192];
@@ -59,7 +70,9 @@ public class ConfigController {
     @GetMapping("/db-download")
     public ResponseEntity<Resource> downloadDatabase() {
         try {
-            Resource resource = new ClassPathResource(DB_FILE);
+            File externalFile = new File(dataDir, DB_FILE);
+            Resource resource = externalFile.exists() ? new FileSystemResource(externalFile) : new ClassPathResource(DB_FILE);
+            
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + DB_FILE + "\"")

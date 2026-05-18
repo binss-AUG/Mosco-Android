@@ -110,6 +110,6 @@ dependencies {
     // --- ZXing Android Embedded hỗ trợ Quét và Sinh mã QR tốc độ cao ---
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
-    // --- AndroidVideoCache để đệm video Motion ngoại tuyến (lành tính với server) ---
-    implementation 'io.github.carguo:gsyvideoplayer-androidvideocache:12.1.0'
+    // --- ExoPlayer (Media3) để trình chiếu video 60fps mượt mà và quản lý bộ nhớ đệm ---
+    implementation 'androidx.media3:media3-exoplayer:1.2.0'
 }
