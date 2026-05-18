@@ -135,7 +135,7 @@
     <string name="profile_btn_add_friend">ADD FRIEND</string>
     <string name="profile_btn_pending">PENDING</string>
     <string name="profile_btn_friends">FRIENDS</string>
-    <string name="profile_btn_message">MESSAGE</string>
+    <string name="profile_btn_message">CHAT</string>
     <string name="profile_email_placeholder">••••••••@••••.com</string>
     <string name="profile_msg_followed">Followed!</string>
     <string name="profile_msg_friend_request_sent">Friend request sent!</string>

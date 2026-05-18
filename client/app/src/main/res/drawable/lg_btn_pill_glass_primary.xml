@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pill Glass Primary: hình viên thuốc trong suốt kiểu Spin Now, nền glass + tint accent -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#26FFFFFF">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <corners android:radius="@dimen/lg_radius_button" />
+        </shape>
+    </item>
+    <item>
+        <layer-list>
+            <!-- Nền glass trong suốt với tint accent nhạt -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><solid android:color="@color/lg_glass_surface_elevated" /></shape></item>
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><solid android:color="@color/lg_accent_primary_alpha_25" /></shape></item>
+            <!-- Gradient sáng trên cùng như Spin Now -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><gradient android:angle="270" android:startColor="#26FFFFFF" android:endColor="#00FFFFFF" android:type="linear" /></shape></item>
+            <!-- Viền hairline -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_strong" /></shape></item>
+        </layer-list>
+    </item>
+</ripple>

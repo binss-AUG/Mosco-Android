@@ -103,6 +103,9 @@ public class FriendActivity extends MoscoBaseActivity {
 
         // Setup QR Code Button
         findViewById(R.id.btn_friend_qr).setOnClickListener(v -> showGalacticIdDialog());
+
+        // Tải số lượng yêu cầu ban đầu để hiển thị badge
+        fetchInitialRequestsCount();
     }
 
     @Override
@@ -425,7 +428,53 @@ public class FriendActivity extends MoscoBaseActivity {
         dialog.show();
     }
 
+    /**
+     * Cập nhật số lượng lời mời kết bạn (BadgeDrawable) trên Tab Lời mời (Requests)
+     */
+    public void updateRequestBadge(int count) {
+        TabLayout tabLayout = findViewById(R.id.tab_layout_friend);
+        if (tabLayout == null) return;
 
+        TabLayout.Tab tab = tabLayout.getTabAt(2); // Tab index 2 is requests
+        if (tab != null) {
+            if (count > 0) {
+                com.google.android.material.badge.BadgeDrawable badge = tab.getOrCreateBadge();
+                badge.setVisible(true);
+                badge.setNumber(count);
+                badge.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.palette_red_accent));
+                badge.setBadgeTextColor(android.graphics.Color.WHITE);
+            } else {
+                tab.removeBadge();
+            }
+        }
+    }
+
+    /**
+     * Tải số lượng lời mời kết bạn ban đầu để hiển thị Badge ngay lập tức khi mở màn hình.
+     */
+    private void fetchInitialRequestsCount() {
+        if (apiService == null) return;
+        apiService.getFriendRequests().enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray data = json.optJSONArray("data");
+                        int count = (data != null) ? data.length() : 0;
+                        updateRequestBadge(count);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi phân tích số lượng yêu cầu ban đầu", e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Lỗi kết nối tải yêu cầu kết bạn ban đầu", t);
+            }
+        });
+    }
 
     /**
      * PagerAdapter — 2 Tab con giống Collection.

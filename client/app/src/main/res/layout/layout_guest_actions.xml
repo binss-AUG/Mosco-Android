@@ -4,44 +4,43 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="@dimen/spacing_lg"
-    android:gravity="center_horizontal">
+    android:paddingTop="@dimen/spacing_sm"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:gravity="center_horizontal"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <!-- Row 1: Interaction & Communication (Like & Message ở trên) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginHorizontal="@dimen/spacing_xl"
-        android:layout_marginBottom="@dimen/spacing_xs">
+        android:gravity="center_vertical"
+        android:layout_marginBottom="@dimen/spacing_xs"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_like"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="@dimen/button_height_large"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="@dimen/spacing_xs"
+            android:layout_marginEnd="@dimen/spacing_xxs"
+            app:moscoStyle="primary"
+            app:moscoSize="small"
             android:text="@string/profile_btn_like"
-            android:backgroundTint="@color/lg_accent_primary"
-            android:textColor="@color/white"
-            app:cornerRadius="@dimen/lg_radius_button"
-            app:icon="@null" />
+            android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_direct_message"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="@dimen/button_height_large"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            app:moscoStyle="ghost"
+            app:moscoSize="small"
             android:text="@string/profile_btn_message"
-            android:textColor="@color/lg_text_secondary"
-            app:strokeColor="@color/lg_outline"
-            app:cornerRadius="@dimen/lg_radius_button"
-            app:icon="@drawable/ic_mailbox"
-            app:iconGravity="textStart"
-            app:iconTint="@color/lg_text_secondary" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Row 2: Relationship Management (Nút Add Friend nổi bật ở dưới) -->
@@ -49,37 +48,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginHorizontal="@dimen/spacing_xl">
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_add_friend"
-            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="0dp"
-            android:layout_height="@dimen/button_height_large"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
+            app:moscoStyle="primary"
+            app:moscoSize="small"
             android:text="@string/profile_btn_add_friend"
-            android:backgroundTint="@color/lg_accent_primary"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            app:cornerRadius="@dimen/lg_radius_button"
-            app:icon="@null" />
+            android:textStyle="bold" />
 
         <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
-        <com.google.android.material.button.MaterialButton
+        <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_decline_request"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="@dimen/button_height_large"
-            android:layout_height="@dimen/button_height_large"
-            android:layout_marginStart="@dimen/spacing_xs"
-            app:icon="@drawable/ic_close"
-            app:iconPadding="0dp"
-            app:iconGravity="textStart"
-            app:iconTint="@color/palette_red_accent"
-            app:strokeColor="@color/palette_red_accent"
-            app:cornerRadius="@dimen/lg_radius_button"
+            android:layout_width="@dimen/spacing_48dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_xxs"
+            app:moscoStyle="ghost"
+            app:moscoSize="small"
+            android:drawableStart="@drawable/ic_close"
+            android:drawableTint="@color/palette_red_accent"
+            android:paddingStart="14dp"
             android:visibility="gone" />
     </LinearLayout>
 
 </LinearLayout>
-

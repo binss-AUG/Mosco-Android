@@ -6,10 +6,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.vn.jet.mosco.fragment.ProfileGeneralFragment;
 import com.vn.jet.mosco.fragment.ProfileTrophyFragment;
-import com.vn.jet.mosco.fragment.ProfileExhibitFragment;
 
 /**
- * Adapter quản lý 3 Fragment (General, Trophy, Exhibit) của Profile V2.
+ * Adapter quản lý 2 Fragment (General, Trophy) của Profile.
  * Hỗ trợ Lazy Loading mặc định qua ViewPager2.
  */
 public class ProfileViewPagerAdapter extends FragmentStateAdapter {
@@ -26,8 +25,6 @@ public class ProfileViewPagerAdapter extends FragmentStateAdapter {
                 return new ProfileGeneralFragment();
             case 1:
                 return new ProfileTrophyFragment();
-            case 2:
-                return new ProfileExhibitFragment();
             default:
                 return new ProfileGeneralFragment();
         }
@@ -35,6 +32,6 @@ public class ProfileViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 2;
     }
 }

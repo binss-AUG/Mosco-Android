@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="view_upgrade_overlay" type="id" />
+    
+    <!-- Filter BottomSheet IDs to satisfy CollectionFragment compile-time references -->
+    <item name="layout_filter_header" type="id" />
+    <item name="ll_filter_sections_container" type="id" />
+    <item name="btn_filter_reset" type="id" />
+    <item name="sv_filter_content" type="id" />
+    <item name="fl_filter_content" type="id" />
+    <item name="btn_filter_clear" type="id" />
 </resources>

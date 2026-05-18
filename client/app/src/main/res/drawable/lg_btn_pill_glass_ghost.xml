@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pill Glass Ghost: hình viên thuốc trong suốt hoàn toàn, chỉ có viền hairline -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#1AFFFFFF">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <corners android:radius="@dimen/lg_radius_button" />
+        </shape>
+    </item>
+    <item>
+        <layer-list>
+            <!-- Nền glass trong suốt hoàn toàn -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><solid android:color="@color/lg_glass_surface_elevated" /></shape></item>
+            <!-- Gradient sáng trên cùng -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><gradient android:angle="270" android:startColor="#15FFFFFF" android:endColor="#00FFFFFF" android:type="linear" /></shape></item>
+            <!-- Viền hairline tinh tế -->
+            <item><shape android:shape="rectangle"><corners android:radius="@dimen/lg_radius_button" /><stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke" /></shape></item>
+        </layer-list>
+    </item>
+</ripple>

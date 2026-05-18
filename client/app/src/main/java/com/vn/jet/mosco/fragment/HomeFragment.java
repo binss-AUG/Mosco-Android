@@ -203,7 +203,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
 
-
     @Override
     public void onDestroyView() {
         for (android.animation.Animator animator : activeAnimators) {

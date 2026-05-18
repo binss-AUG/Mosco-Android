@@ -378,6 +378,9 @@ public class CollectionFragment extends Fragment {
                     if (action == android.view.MotionEvent.ACTION_DOWN) {
                         float y = ev.getY();
                         View header = bsView.findViewById(R.id.layout_filter_header);
+                        if (header == null) {
+                            header = bsView.findViewById(R.id.v_drag_handle);
+                        }
                         if (header != null && y > header.getBottom()) {
                             behavior.setDraggable(false);
                             getParent().requestDisallowInterceptTouchEvent(true);
@@ -427,9 +430,29 @@ public class CollectionFragment extends Fragment {
             sheet.post(() -> updatePinnedActions(sheet, bsView, ctx));
         });
 
-        LinearLayout llContainer = bsView.findViewById(R.id.ll_filter_sections_container);
+        LinearLayout llContainerTemp = bsView.findViewById(R.id.ll_filter_sections_container);
+        if (llContainerTemp == null) {
+            android.widget.FrameLayout flContent = bsView.findViewById(R.id.fl_filter_content);
+            if (flContent != null) {
+                android.widget.ScrollView sv = new android.widget.ScrollView(ctx);
+                sv.setVerticalScrollBarEnabled(false);
+                llContainerTemp = new LinearLayout(ctx);
+                llContainerTemp.setOrientation(LinearLayout.VERTICAL);
+                llContainerTemp.setPadding(0, 0, 0, dpToPx(ctx, 20));
+                sv.addView(llContainerTemp);
+                flContent.addView(sv, new android.widget.FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+        }
+        final LinearLayout llContainer = llContainerTemp;
         TextView btnApply = bsView.findViewById(R.id.btn_filter_apply);
         TextView btnReset = bsView.findViewById(R.id.btn_filter_reset);
+        if (btnReset == null) {
+            View clearBtn = bsView.findViewById(R.id.btn_filter_clear);
+            if (clearBtn instanceof TextView) {
+                btnReset = (TextView) clearBtn;
+            }
+        }
 
         Set<String> workingSet = new LinkedHashSet<>(currentSelections);
 
@@ -464,9 +487,9 @@ public class CollectionFragment extends Fragment {
                     sortRow.setOrientation(LinearLayout.HORIZONTAL);
                     sortRow.setGravity(Gravity.CENTER_VERTICAL);
 
-                    // Direction Toggle (↑↓) bên trái — [QUIET LUXURY] Sử dụng ic_arrow_upward cho nét vẽ mỏng thanh lịch
+                    // Direction Toggle (↑↓) bên trái — [QUIET LUXURY] Sử dụng ic_arrow_up cho nét vẽ mỏng thanh lịch
                     ImageView ivDir = new ImageView(ctx);
-                    ivDir.setImageResource(R.drawable.ic_arrow_upward);
+                    ivDir.setImageResource(R.drawable.ic_arrow_up);
                     ivDir.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, R.color.white));
                     ivDir.setRotation(workingAsc[0] ? 0f : 180f);
                     LinearLayout.LayoutParams dirLp = new LinearLayout.LayoutParams(
@@ -610,7 +633,8 @@ public class CollectionFragment extends Fragment {
             currentSelections.addAll(workingSet);
             // Cập nhật sort state về filterBar
             if (filterBar != null) {
-                filterBar.applySortFromBottomSheet(workingSort[0], workingAsc[0]);
+                filterBar.setSortText(workingSort[0]);
+                filterBar.setAscending(workingAsc[0]);
             }
             dialog.dismiss();
             if (onFilterApplied != null)
@@ -634,8 +658,17 @@ public class CollectionFragment extends Fragment {
             actions.setTranslationY(-offScreenAmount);
 
         View svContent = bsView.findViewById(R.id.sv_filter_content);
-        if (svContent instanceof ScrollView) {
-            ScrollView sv = (ScrollView) svContent;
+        if (svContent == null) {
+            android.widget.FrameLayout flContent = bsView.findViewById(R.id.fl_filter_content);
+            if (flContent != null && flContent.getChildCount() > 0) {
+                View child = flContent.getChildAt(0);
+                if (child instanceof android.widget.ScrollView) {
+                    svContent = child;
+                }
+            }
+        }
+        if (svContent instanceof android.widget.ScrollView) {
+            android.widget.ScrollView sv = (android.widget.ScrollView) svContent;
             sv.setPadding(sv.getPaddingLeft(), sv.getPaddingTop(), sv.getPaddingRight(),
                     dpToPx(ctx, 88) + offScreenAmount); // 88dp for actions area height
         }

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.vn.jet.mosco.FriendActivity;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.adapter.FriendRequestAdapter;
 import com.vn.jet.mosco.network.ApiClient;
@@ -203,6 +204,10 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
                             lastUpdatedTime = System.currentTimeMillis();
                             adapter.updateData(cachedRequests);
                             
+                            if (isAdded() && getActivity() instanceof FriendActivity) {
+                                ((FriendActivity) getActivity()).updateRequestBadge(cachedRequests.size());
+                            }
+                            
                             if (layoutEmpty != null) layoutEmpty.setVisibility(View.GONE);
                             if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
                             if (rvRequests != null) rvRequests.setVisibility(View.VISIBLE);
@@ -250,6 +255,10 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
                 tvEmpty.setText(getString(R.string.social_msg_no_requests));
             }
             if (rvRequests != null) rvRequests.setVisibility(View.GONE);
+
+            if (getActivity() instanceof FriendActivity) {
+                ((FriendActivity) getActivity()).updateRequestBadge(0);
+            }
         }
     }
 

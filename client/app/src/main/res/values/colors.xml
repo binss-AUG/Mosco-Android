@@ -44,6 +44,11 @@
     <color name="lg_accent_primary_dim">#B324A1DE</color>
     <color name="lg_accent_secondary_alpha_15">#26FFD952</color>
 
+    <!-- LG: Accent Warning (Gold/Yellow) -->
+    <color name="lg_accent_warning">@color/brand_secondary</color>
+    <color name="lg_accent_warning_alpha_25">#40FFD952</color>
+    <color name="lg_accent_warning_dim">#B3FFD952</color>
+
     <!-- LG: Navigation & Modal -->
     <color name="lg_nav_surface">#CC0F172A</color>
     <color name="lg_nav_indicator">#3324A1DE</color>
