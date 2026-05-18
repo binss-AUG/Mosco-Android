@@ -312,6 +312,8 @@ public class SpinFragment extends Fragment {
         if (getActivity() != null) {
             View navBar = getActivity().findViewById(R.id.bottom_navigation);
             if (navBar != null) navBar.setVisibility(show ? View.VISIBLE : View.GONE);
+            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+            if (customNavBar != null) customNavBar.setVisibility(show ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -326,6 +328,7 @@ public class SpinFragment extends Fragment {
         }
         dialogView.findViewById(R.id.btn_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
+            toggleBottomNavigation(false); // Ẩn thanh navigation menu ngay lập tức khi xác nhận
             com.vn.jet.mosco.widget.MoscoButton btnC = (com.vn.jet.mosco.widget.MoscoButton) v;
             btnC.setEnabled(false);
             btnC.setText(getString(R.string.spin_action_charging));
