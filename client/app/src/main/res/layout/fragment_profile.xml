@@ -39,13 +39,13 @@
                 android:id="@+id/layout_profile_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="210dp"
+                android:minHeight="240dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="36dp"
                 android:layout_marginBottom="4dp"
                 android:baselineAligned="false"
                 android:gravity="center_vertical"
-                android:clipChildren="false"
+                android:clipChildren="true"
                 android:clipToPadding="false">
 
                 <!-- Cột bên trái: Profile Info & Actions -->
@@ -229,7 +229,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1.1"
                     android:layout_gravity="center_vertical"
-                    android:clipChildren="true"
+                    android:clipChildren="false"
                     android:clipToPadding="false"
                     android:paddingStart="@dimen/spacing_xxs">
 
@@ -238,8 +238,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:paddingHorizontal="24dp" />
+                        android:clipToPadding="true"
+                        android:paddingHorizontal="6dp" />
 
                 </FrameLayout>
 
