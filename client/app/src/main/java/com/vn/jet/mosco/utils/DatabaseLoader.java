@@ -510,6 +510,13 @@ public class DatabaseLoader {
      */
     public static void enrichMetadata(Context context, UserInventoryItem item) {
         if (item == null || item.collectionId == null || context == null) return;
+        
+        // [CRITICAL FIX] Đảm bảo Master Data đã được nạp hoàn tất vào RAM (chặn luồng background)
+        // Nếu không có, Room Database Fallback sẽ thất bại khi tìm bằng UUID.
+        if (!isMasterDataLoaded) {
+            initMasterDataSync(context);
+        }
+        
         JSONObject master = findById(context, item.collectionId);
         if (master != null) {
             if (item.frontImage == null || item.frontImage.isEmpty() || "null".equalsIgnoreCase(item.frontImage)) {
@@ -550,6 +557,12 @@ public class DatabaseLoader {
      */
     public static void enrichMetadata(Context context, com.vn.jet.mosco.model.CardDisplayItem item) {
         if (item == null || item.getCollectionId() == null || context == null) return;
+        
+        // [CRITICAL FIX] Chờ Master Data tải xong
+        if (!isMasterDataLoaded) {
+            initMasterDataSync(context);
+        }
+        
         JSONObject master = findById(context, item.getCollectionId());
         if (master != null) {
             if (item.getFrontImage() == null || item.getFrontImage().isEmpty() || "null".equalsIgnoreCase(item.getFrontImage())) {
