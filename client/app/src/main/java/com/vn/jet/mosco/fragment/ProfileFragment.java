@@ -1601,18 +1601,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             for (String id : ids) {
                 if (id == null || id.trim().isEmpty() || id.equals("null")) {
                     validIds.add("");
+                } else if (DatabaseLoader.cachedCollectionMap.containsKey(id)) {
+                    validIds.add(id);
                 } else {
-                    String realId = id;
-                    if (id.contains(":")) {
-                        realId = id.split(":")[0];
-                    }
-                    if (DatabaseLoader.cachedCollectionMap.containsKey(realId)) {
-                        validIds.add(id);
-                    } else {
-                        // Thẻ này thực sự không còn trong kho -> tự động tháo
-                        validIds.add("");
-                        needsUpdate = true;
-                    }
+                    // Thẻ này thực sự không còn trong kho -> tự động tháo
+                    validIds.add("");
+                    needsUpdate = true;
                 }
             }
         } else {
@@ -1668,25 +1662,17 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         sheet.setShowcaseMode(true); 
         sheet.setOnCardSelectedListener(card -> {
             if (card != null) {
-                String encodedId = card.getCollectionId() + ":" + card.getUpgradeLevel() + ":" + card.getLevel();
-                updateShowcase(index, encodedId);
+                // Lưu ghép collectionId:upgradeLevel để truyền tải chính xác cấp thẻ của exhibit
+                updateShowcase(index, card.getCollectionId() + ":" + card.getUpgradeLevel());
             }
         });
         sheet.show(getChildFragmentManager(), "InventoryPicker");
     }
 
     private void updateShowcase(int index, String collectionId) {
-        String inputRealId = collectionId;
-        if (collectionId != null && collectionId.contains(":")) {
-            inputRealId = collectionId.split(":")[0];
-        }
         if (collectionId != null && !collectionId.isEmpty()) {
             for (String id : currentShowcaseIds) {
-                String existingRealId = id;
-                if (id != null && id.contains(":")) {
-                    existingRealId = id.split(":")[0];
-                }
-                if (inputRealId.equals(existingRealId)) {
+                if (collectionId.equals(id)) {
                     Toast.makeText(getContext(), R.string.showcase_msg_duplicate, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -1764,24 +1750,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             View coreAddPlus = cardView.findViewById(R.id.layout_add_objet_plus);
             if (coreAddPlus != null) coreAddPlus.setVisibility(View.GONE);
             
-            String realCollectionId = collectionId;
-            int upgradeLevel = 0;
-            int level = 1;
-            if (collectionId.contains(":")) {
-                String[] parts = collectionId.split(":");
-                if (parts.length > 0) realCollectionId = parts[0];
-                if (parts.length > 1) {
-                    try { upgradeLevel = Integer.parseInt(parts[1]); } catch (Exception ignored) {}
-                }
-                if (parts.length > 2) {
-                    try { level = Integer.parseInt(parts[2]); } catch (Exception ignored) {}
-                }
-            }
-
-            org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), realCollectionId);
+            org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), collectionId);
             if (cardData == null) {
                 DatabaseLoader.initMasterDataSync(getContext());
-                cardData = DatabaseLoader.findByCollectionId(getContext(), realCollectionId);
+                cardData = DatabaseLoader.findByCollectionId(getContext(), collectionId);
             }
 
             if (cardData == null) {
@@ -1801,15 +1773,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             }
 
             String frontImageStr = cardData.optString("frontImage");
-            Objet mockObj = new Objet(0, realCollectionId, frontImageStr, level, 0, upgradeLevel);
+            Objet mockObj = new Objet(0, collectionId, frontImageStr, 1, 0, cardData.optInt("upgradeLevel", 0));
             
             CardEffectHelper.apply(cvContainer, shimmer, mockObj, true);
 
             if (ivLevel != null) {
-                if (upgradeLevel > 0) {
+                int level = cardData.optInt("upgradeLevel", 0);
+                if (level > 0) {
                     ivLevel.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(getString(R.string.asset_grade_path) + upgradeLevel + ".png").into(ivLevel);
-                    LevelBadgeEffectHelper.apply(ivLevel, upgradeLevel);
+                    Glide.with(this).load(getString(R.string.asset_grade_path) + level + ".png").into(ivLevel);
+                    LevelBadgeEffectHelper.apply(ivLevel, level);
                 } else {
                     ivLevel.setVisibility(View.GONE);
                 }
@@ -1913,24 +1886,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     openInventoryPicker(position);
                 } else {
                     if (cardId != null && !cardId.isEmpty() && !cardId.equals("null")) {
-                        String realColId = cardId;
-                        int finalUpgradeLevel = 0;
-                        int finalLevel = 1;
-                        if (cardId.contains(":")) {
-                            String[] parts = cardId.split(":");
-                            if (parts.length > 0) realColId = parts[0];
-                            if (parts.length > 1) {
-                                try { finalUpgradeLevel = Integer.parseInt(parts[1]); } catch (Exception ignored) {}
-                            }
-                            if (parts.length > 2) {
-                                try { finalLevel = Integer.parseInt(parts[2]); } catch (Exception ignored) {}
-                            }
-                        }
-
-                        org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), realColId);
+                        org.json.JSONObject cardData = DatabaseLoader.findByCollectionId(getContext(), cardId);
                         if (cardData == null) {
                             DatabaseLoader.initMasterDataSync(getContext());
-                            cardData = DatabaseLoader.findByCollectionId(getContext(), realColId);
+                            cardData = DatabaseLoader.findByCollectionId(getContext(), cardId);
                         }
                         if (cardData != null) {
                             com.vn.jet.mosco.model.CollectionEntry entry = new com.vn.jet.mosco.model.CollectionEntry();
@@ -1943,12 +1902,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             entry.setBackgroundColor(cardData.optString("backgroundColor", ""));
                             entry.setBackImage(cardData.optString("backImage", ""));
                             entry.setOvr(cardData.optInt("ovr", 0));
-                            entry.setUpgradeLevel(finalUpgradeLevel > 0 ? finalUpgradeLevel : cardData.optInt("upgradeLevel", 0));
-                            entry.setLevel(finalLevel);
+                            entry.setUpgradeLevel(cardData.optInt("upgradeLevel", 0));
+                            entry.setLevel(cardData.optInt("level", 1));
                             entry.setOwned(true); // Đảm bảo hiệu ứng glow hoạt động và ẩn màn đen
 
-                            // Gọi CollectionDetailBinder với isAlbumMode = true để ẩn sạch các nút chức năng
-                            com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(getContext(), entry, true, null);
+                            // Gọi CollectionDetailBinder với isAlbumMode = true và isFromExhibit = true để ẩn sạch các nút chức năng và nút X, nhưng vẫn giữ badge level & hiệu ứng thẻ!
+                            com.vn.jet.mosco.utils.CollectionDetailBinder.showDetail(getContext(), entry, true, true, null);
                         }
                     }
                 }

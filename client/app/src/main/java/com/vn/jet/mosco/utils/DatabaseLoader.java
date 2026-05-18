@@ -702,30 +702,38 @@ public class DatabaseLoader {
         return cards;
     }
 
-    /**
-     * Finds a card by its unique ID.
-     * Cơ chế Hybrid: Tìm trong Master Data trước để lấy Metadata đầy đủ (backImage,
-     * artist...),
-     * sau đó nếu thẻ có trong Inventory thì ghi đè các thông số level/ovr động.
-     */
     public static JSONObject findById(Context context, String id) {
         if (id == null)
             return null;
 
+        String realId = id;
+        int forceUpgradeLevel = -1;
+        if (id.contains(":")) {
+            String[] parts = id.split(":");
+            if (parts.length > 0) {
+                realId = parts[0];
+            }
+            if (parts.length > 1) {
+                try {
+                    forceUpgradeLevel = Integer.parseInt(parts[1]);
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
         // 1. Lấy dữ liệu gốc từ Master Data (Để luôn có backImage, info gốc)
         JSONObject masterCard = null;
-        if (cachedMasterMap != null && cachedMasterMap.containsKey(id)) {
-            masterCard = cachedMasterMap.get(id);
+        if (cachedMasterMap != null && cachedMasterMap.containsKey(realId)) {
+            masterCard = cachedMasterMap.get(realId);
         }
 
         // [PHASE 4] Room Fallback
         if (masterCard == null && context != null) {
             try {
                 com.vn.jet.mosco.model.MasterObjetEntity entity = com.vn.jet.mosco.database.AppDatabase.getInstance(context)
-                        .masterObjetDao().findById(id);
+                        .masterObjetDao().findById(realId);
                 if (entity != null) {
                     masterCard = new JSONObject();
-                    masterCard.put("id", id);
+                    masterCard.put("id", realId);
                     masterCard.put("collectionId", entity.getCollectionId());
                     masterCard.put("member", entity.getMemberName());
                     masterCard.put("season", entity.getSeasonName());
@@ -736,7 +744,7 @@ public class DatabaseLoader {
                     
                     // Cập nhật lại Map để lần sau truy cập nhanh hơn
                     if (cachedMasterMap != null) {
-                        cachedMasterMap.put(id, masterCard);
+                        cachedMasterMap.put(realId, masterCard);
                     }
                 }
             } catch (Exception ignored) {}
@@ -744,29 +752,39 @@ public class DatabaseLoader {
 
         // 2. Kiểm tra dữ liệu thực tế trong Inventory (Level, OVR hiện tại)
         JSONObject inventoryCard = null;
-        if (cachedCollectionMap != null && cachedCollectionMap.containsKey(id)) {
-            inventoryCard = cachedCollectionMap.get(id);
+        if (cachedCollectionMap != null && cachedCollectionMap.containsKey(realId)) {
+            inventoryCard = cachedCollectionMap.get(realId);
         }
 
+        JSONObject result = masterCard;
         // Nếu không có Master, trả về Inventory (fallback)
-        if (masterCard == null)
-            return inventoryCard;
-
-        // Nếu có cả hai, ta clone Master và merge thông tin Inventory vào
-        if (inventoryCard != null) {
+        if (masterCard == null) {
+            result = inventoryCard;
+        } else if (inventoryCard != null) {
+            // Nếu có cả hai, ta clone Master và merge thông tin Inventory vào
             try {
                 // Ta dùng master làm gốc để hưởng backImage
                 JSONObject merged = new JSONObject(masterCard.toString());
                 merged.put("level", inventoryCard.optInt("level", 1));
                 merged.put("ovr", inventoryCard.optInt("ovr", 0));
                 merged.put("upgradeLevel", inventoryCard.optInt("upgradeLevel", 0));
-                return merged;
+                result = merged;
             } catch (Exception e) {
-                return inventoryCard;
+                result = inventoryCard;
             }
         }
 
-        return masterCard;
+        // Nếu có forceUpgradeLevel được truyền vào từ chuỗi Composite (ví dụ "collectionId:upgradeLevel")
+        // ta sẽ ghi đè upgradeLevel chính xác này vào JSONObject kết quả mà không làm ô nhiễm cache gốc!
+        if (forceUpgradeLevel >= 0 && result != null) {
+            try {
+                JSONObject cloned = new JSONObject(result.toString());
+                cloned.put("upgradeLevel", forceUpgradeLevel);
+                result = cloned;
+            } catch (Exception ignored) {}
+        }
+
+        return result;
     }
 
     /**
