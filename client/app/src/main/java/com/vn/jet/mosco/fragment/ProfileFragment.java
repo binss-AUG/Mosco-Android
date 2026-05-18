@@ -527,8 +527,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private void handleBackAction() {
         if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-            getParentFragmentManager().popBackStack();
-            com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
+            if (getActivity() != null) {
+                getActivity().getOnBackPressedDispatcher().onBackPressed();
+            } else {
+                getParentFragmentManager().popBackStack();
+                com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
+            }
         } else {
             // Nếu không có backstack (ví dụ mở từ tab), quay về Home
             if (getActivity() instanceof MainActivity) {
@@ -1529,6 +1533,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     @Override
     public void onResume() {
         super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setTopBarVisible(false);
+        }
         startCarousel();
         if (sessionManager != null) {
             notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
