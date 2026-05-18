@@ -89,8 +89,10 @@ public class CreateAdminRunner implements CommandLineRunner {
             admin.setPasswordHash(encoder.encode("admin123"));
         }
 
-        admin.setCoins(999999999L);
-        admin.setDiamonds(999999999L);
+        // 1 tỷ Gold và 1 tỷ Diamond cho tài khoản admin
+        admin.setCoins(1_000_000_000L);
+        admin.setDiamonds(1_000_000_000L);
+        admin.setTotalDiamonds(1_000_000_000L);
         userRepository.save(admin);
 
         // 🛑 CLEANUP STAGE DATA FOR ADMIN (As requested for re-testing)
@@ -101,10 +103,14 @@ public class CreateAdminRunner implements CommandLineRunner {
         }
         sessionRepository.deleteByUserId(admin.getId());
         
-        // Reset Card status
+        // Reset Card status và đảm bảo không có thẻ nào upgradeLevel = 0 (+0)
+        // App Mosco không tồn tại +0 — mức tối thiểu hợp lệ là +1
         java.util.List<com.vn.jet.mosco.spinserver.model.UserCard> adminCards = userCardRepository.findByUserId(admin.getId());
         for (com.vn.jet.mosco.spinserver.model.UserCard card : adminCards) {
             card.setStatus("AVAILABLE");
+            if (card.getUpgradeLevel() < 1) {
+                card.setUpgradeLevel(1);
+            }
         }
         userCardRepository.saveAll(adminCards);
 
@@ -143,7 +149,8 @@ public class CreateAdminRunner implements CommandLineRunner {
                 if (cardObj.has("id")) {
                     String cardId = cardObj.get("id").getAsString();
                     if (!existingIds.contains(cardId)) {
-                        // Mỗi cardId thêm 1 thẻ: Level 1, EXP 0, upgradeLevel 1
+                        // Mỗi cardId thêm 1 thẻ mới: Level 1, EXP 0, upgradeLevel 1 (+1)
+                        // App không có +0 — upgradeLevel tối thiểu luôn là 1
                         allCards.add(new UserCard(admin, cardId, 1, 0, 1));
                     }
                 }
