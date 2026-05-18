@@ -14,7 +14,7 @@
     <dimen name="home_avatar_stroke_hud">1.5dp</dimen>
     <dimen name="home_avatar_stroke">@dimen/home_avatar_stroke_hud</dimen>
     <dimen name="home_xp_bar_height">8dp</dimen>
-    <dimen name="home_banner_height">160dp</dimen>
+    <dimen name="home_banner_height">100dp</dimen>
     <dimen name="home_banner_margin_horizontal">16dp</dimen>
     <dimen name="home_banner_margin_bottom">12dp</dimen>
     <dimen name="home_showcase_margin_horizontal">20dp</dimen>
@@ -265,9 +265,9 @@
     <item name="upgrade_card_initial_scale" format="float" type="dimen">0.8</item>
 
     <!-- Custom Floating Bottom Navigation (Aesthetic Components - Generous Scales) -->
-    <dimen name="custom_nav_spin_glow_width">90dp</dimen>
-    <dimen name="custom_nav_spin_glow_height">90dp</dimen>
-    <dimen name="custom_nav_spin_pill_width">96dp</dimen>
-    <dimen name="custom_nav_spin_pill_height">48dp</dimen>
-    <dimen name="custom_nav_spin_icon_size">30dp</dimen>
+    <dimen name="custom_nav_spin_glow_width">96dp</dimen>
+    <dimen name="custom_nav_spin_glow_height">56dp</dimen>
+    <dimen name="custom_nav_spin_pill_width">76dp</dimen>
+    <dimen name="custom_nav_spin_pill_height">40dp</dimen>
+    <dimen name="custom_nav_spin_icon_size">24dp</dimen>
 </resources>

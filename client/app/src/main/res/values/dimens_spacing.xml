@@ -53,7 +53,7 @@
     <dimen name="lg_stroke_thin">1dp</dimen>
 
     <!-- LG: Navigation (Thanh điều hướng nổi tỉ lệ vàng rộng rãi) -->
-    <dimen name="lg_nav_height">68dp</dimen>
+    <dimen name="lg_nav_height">60dp</dimen>
     <dimen name="lg_nav_margin_horizontal">16dp</dimen>
     <dimen name="lg_nav_margin_bottom">12dp</dimen>
     <dimen name="lg_nav_icon_size">24dp</dimen>
