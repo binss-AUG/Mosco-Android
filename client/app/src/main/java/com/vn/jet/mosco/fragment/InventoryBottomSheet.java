@@ -223,9 +223,17 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 }
                 dismiss();
             });
+
+            // Ở chế độ chọn nhiều, có thanh nút bấm phía dưới -> Cần padding 80dp để tránh bị che khuất
+            int paddingBottom = getResources().getDimensionPixelSize(R.dimen.lg_content_bottom_clearance);
+            rvInventory.setPadding(rvInventory.getPaddingLeft(), rvInventory.getPaddingTop(), rvInventory.getPaddingRight(), paddingBottom);
         } else {
             if (layoutActionButtons != null) layoutActionButtons.setVisibility(View.GONE);
             if (tvTitle != null) tvTitle.setText(getString(R.string.inventory_title));
+
+            // Ở chế độ chọn đơn lẻ, không có thanh nút bấm -> Sát lề an toàn 24dp
+            int paddingBottom = getResources().getDimensionPixelSize(R.dimen.spacing_lg);
+            rvInventory.setPadding(rvInventory.getPaddingLeft(), rvInventory.getPaddingTop(), rvInventory.getPaddingRight(), paddingBottom);
         }
 
         loadRealInventory();
