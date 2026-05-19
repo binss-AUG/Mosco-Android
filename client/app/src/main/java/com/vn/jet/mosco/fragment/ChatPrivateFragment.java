@@ -77,6 +77,8 @@ public class ChatPrivateFragment extends Fragment {
     private LottieAnimationView lottieStreakIcon;
     private TextView tvHeaderName, tvHeaderStatus, tvStreakCount;
     private View btnStreakDetails;
+    private View layoutAddFriendBanner;
+    private TextView btnAddFriendChat;
 
     private SessionManager sessionManager;
     private GameApiService gameApiService;
@@ -142,6 +144,8 @@ public class ChatPrivateFragment extends Fragment {
         tvStreakCount = v.findViewById(R.id.tv_streak_count);
         lottieStreakIcon = v.findViewById(R.id.lottie_streak_icon);
         btnStreakDetails = v.findViewById(R.id.btn_streak_details);
+        layoutAddFriendBanner = v.findViewById(R.id.layout_add_friend_banner);
+        btnAddFriendChat = v.findViewById(R.id.btn_add_friend_chat);
 
         tvHeaderName.setText(partnerName);
         AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, partnerId, partnerAvatar);
@@ -166,6 +170,9 @@ public class ChatPrivateFragment extends Fragment {
         if (btnStreakDetails != null) {
             btnStreakDetails.setOnClickListener(v -> showCoupleStreakDialog());
         }
+        if (btnAddFriendChat != null) {
+            btnAddFriendChat.setOnClickListener(v -> sendFriendRequestInChat());
+        }
     }
 
     private void fetchStreakStatus() {
@@ -184,6 +191,9 @@ public class ChatPrivateFragment extends Fragment {
                         lottieStreakIcon.setVisibility(View.GONE);
                         tvStreakCount.setVisibility(View.GONE);
                         btnStreakDetails.setVisibility(View.GONE);
+                        if (layoutAddFriendBanner != null) {
+                            layoutAddFriendBanner.setVisibility(View.VISIBLE);
+                        }
                         return;
                     }
 
@@ -191,6 +201,9 @@ public class ChatPrivateFragment extends Fragment {
                     lottieStreakIcon.setVisibility(View.VISIBLE);
                     tvStreakCount.setVisibility(View.VISIBLE);
                     btnStreakDetails.setVisibility(View.VISIBLE);
+                    if (layoutAddFriendBanner != null) {
+                        layoutAddFriendBanner.setVisibility(View.GONE);
+                    }
                     
                     updateStreakUI(currentStreakData.getStreakCount(), "ACTIVE".equals(currentStreakData.getStatus()));
                 } else {
@@ -198,6 +211,9 @@ public class ChatPrivateFragment extends Fragment {
                     lottieStreakIcon.setVisibility(View.GONE);
                     tvStreakCount.setVisibility(View.GONE);
                     btnStreakDetails.setVisibility(View.GONE);
+                    if (layoutAddFriendBanner != null) {
+                        layoutAddFriendBanner.setVisibility(View.VISIBLE);
+                    }
                 }
             }
             @Override
@@ -577,6 +593,44 @@ public class ChatPrivateFragment extends Fragment {
             AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
         });
         WebSocketManager.getInstance().sendPrivateMessage(pm);
+    }
+
+    private void sendFriendRequestInChat() {
+        if (getContext() == null || partnerId == null) return;
+        
+        java.util.Map<String, Long> body = new java.util.HashMap<>();
+        body.put("addresseeId", partnerId);
+
+        gameApiService.addFriend(body).enqueue(new Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
+                try {
+                    String msg;
+                    if (response.isSuccessful() && response.body() != null) {
+                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
+                        msg = json.optString("message", "Đã gửi lời mời kết bạn!");
+                        if (btnAddFriendChat != null) {
+                            btnAddFriendChat.setText("Pending");
+                            btnAddFriendChat.setEnabled(false);
+                            btnAddFriendChat.setAlpha(0.6f);
+                        }
+                    } else if (response.errorBody() != null) {
+                        org.json.JSONObject json = new org.json.JSONObject(response.errorBody().string());
+                        msg = json.optString("message", "Không thể gửi lời mời!");
+                    } else {
+                        msg = "Có lỗi xảy ra!";
+                    }
+                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi gửi lời mời từ chat", e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi mạng, vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

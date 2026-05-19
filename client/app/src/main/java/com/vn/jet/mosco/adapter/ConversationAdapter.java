@@ -42,6 +42,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         private String partnerName;
         private String partnerAvatar;
         private boolean isOnline;
+        private boolean isStranger;
 
         public ConversationWrapper(PrivateChatMessage lastMessage, String partnerId, String partnerName, String partnerAvatar) {
             this.lastMessage = lastMessage;
@@ -55,10 +56,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         public String getPartnerName() { return partnerName; }
         public String getPartnerAvatar() { return partnerAvatar; }
         public boolean isOnline() { return isOnline; }
+        public boolean isStranger() { return isStranger; }
         
         public void setOnline(boolean online) { this.isOnline = online; }
         public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
         public void setPartnerAvatar(String partnerAvatar) { this.partnerAvatar = partnerAvatar; }
+        public void setStranger(boolean stranger) { this.isStranger = stranger; }
     }
 
     public ConversationAdapter(String myId, OnConversationClickListener listener) {
@@ -85,7 +88,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         // Đổ tên đối tác
         String name = wrapper.getPartnerName();
-        holder.tvName.setText(name != null ? name : "User " + wrapper.getPartnerId());
+        String displayName = name != null ? name : "User " + wrapper.getPartnerId();
+        if (wrapper.isStranger()) {
+            holder.tvName.setText(displayName + " • Stranger");
+        } else {
+            holder.tvName.setText(displayName);
+        }
 
         // Trạng thái online glow
         holder.viewOnline.setVisibility(wrapper.isOnline() ? View.VISIBLE : View.GONE);

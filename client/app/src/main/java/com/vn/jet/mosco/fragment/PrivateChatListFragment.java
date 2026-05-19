@@ -205,6 +205,12 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                         JSONObject json = new JSONObject(response.body().string());
                         JSONArray friendsArr = json.optJSONArray("data");
                         if (friendsArr != null) {
+                            java.util.Set<String> friendIds = new java.util.HashSet<>();
+                            for (int i = 0; i < friendsArr.length(); i++) {
+                                JSONObject friendObj = friendsArr.getJSONObject(i);
+                                friendIds.add(String.valueOf(friendObj.optLong("userId")));
+                            }
+
                             for (int i = 0; i < friendsArr.length(); i++) {
                                 JSONObject friendObj = friendsArr.getJSONObject(i);
                                 String friendId = String.valueOf(friendObj.optLong("userId"));
@@ -216,6 +222,7 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 for (ConversationAdapter.ConversationWrapper w : conversationsList) {
                                     if (w.getPartnerId().equals(friendId)) {
                                         w.setOnline(online);
+                                        w.setStranger(false);
                                         // ĐỒNG BỘ TRỰC TIẾP TÊN VÀ AVATAR TỪ DANH SÁCH BẠN BÈ MỚI NHẤT! (Sửa lỗi hiển thị "User #1")
                                         if (w.getPartnerName() == null || w.getPartnerName().startsWith("User #") || w.getPartnerName().startsWith("User ")) {
                                             w.setPartnerName(name);
@@ -232,7 +239,14 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                     ConversationAdapter.ConversationWrapper newWrapper = 
                                         new ConversationAdapter.ConversationWrapper(null, friendId, name, avatar);
                                     newWrapper.setOnline(online);
+                                    newWrapper.setStranger(false);
                                     conversationsList.add(newWrapper);
+                                }
+                            }
+
+                            for (ConversationAdapter.ConversationWrapper w : conversationsList) {
+                                if (!friendIds.contains(w.getPartnerId())) {
+                                    w.setStranger(true);
                                 }
                             }
                             // Re-filter so online matches

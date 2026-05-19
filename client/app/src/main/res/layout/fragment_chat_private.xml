@@ -142,6 +142,48 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- ADD FRIEND BANNER FOR STRANGERS -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_add_friend_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E293B"
+        android:paddingVertical="@dimen/spacing_sm"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layout_private_chat_header">
+
+        <TextView
+            android:id="@+id/tv_stranger_alert"
+            style="@style/MoscoText.Luxury.Label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Đây là người lạ. Hãy kết bạn trên Mosco!"
+            android:textColor="@color/white_60"
+            android:textSize="@dimen/text_size_body_xs"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_friend_chat"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/btn_add_friend_chat"
+            style="@style/MoscoText.Luxury.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/lg_surface_tab_unselected"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_xs"
+            android:text="Add Friend"
+            android:textColor="@color/galactic_accent_cyan"
+            android:textSize="@dimen/text_size_body_xs"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- MESSAGE LIST -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_private_chat"
@@ -149,7 +191,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="@dimen/spacing_md"
-        app:layout_constraintTop_toBottomOf="@id/layout_private_chat_header"
+        app:layout_constraintTop_toBottomOf="@id/layout_add_friend_banner"
         app:layout_constraintBottom_toTopOf="@id/layout_private_input" />
 
     <!-- INPUT BAR -->
