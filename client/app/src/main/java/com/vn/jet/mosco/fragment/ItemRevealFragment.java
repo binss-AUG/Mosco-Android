@@ -535,13 +535,9 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
-            android.transition.AutoTransition layoutTransition = new android.transition.AutoTransition();
-            layoutTransition.setDuration(400);
-            layoutTransition.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
-            android.transition.TransitionManager.beginDelayedTransition((ViewGroup) rootView, layoutTransition);
             if (rvCardHistory != null) {
                 rvCardHistory.setAlpha(0f);
-                rvCardHistory.setVisibility(View.INVISIBLE);
+                rvCardHistory.setVisibility(View.VISIBLE);
             }
 
             rootView.findViewById(R.id.tv_item_name).animate().alpha(0f)
@@ -684,9 +680,7 @@ public class ItemRevealFragment extends Fragment {
         }
 
         historyList.add(0, currentCard);
-        if (rvCardHistory.getVisibility() != View.VISIBLE) {
-            rvCardHistory.setVisibility(View.VISIBLE);
-            rvCardHistory.setAlpha(0f);
+        if (rvCardHistory.getAlpha() == 0f) {
             rvCardHistory.animate().alpha(1f).setDuration(300).start();
         }
         historyAdapter.notifyItemInserted(0);
