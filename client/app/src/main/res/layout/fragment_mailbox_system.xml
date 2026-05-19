@@ -1,74 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lg_background">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Top Row: Filter Bar & Count -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_filter_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:liftOnScroll="false">
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="@dimen/spacing_sm"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+        <!-- Filter Bar (Smart Pill) -->
+        <com.vn.jet.mosco.view.InventoryFilterBar
+            android:id="@+id/filter_bar_system_mails"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/inventory_filter_bar_height"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Mail Count -->
+        <TextView
+            android:id="@+id/tv_system_mails_count"
+            style="@style/MoscoText.Luxury.Body"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
-            app:layout_scrollFlags="scroll|enterAlways">
+            android:textColor="@color/lg_text_secondary"
+            android:textSize="@dimen/text_size_body_sm"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="0" />
 
-            <!-- Filter Bar (Smart Pill) -->
-            <com.vn.jet.mosco.view.InventoryFilterBar
-                android:id="@+id/filter_bar_system_mails"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/inventory_filter_bar_height"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Mail Count -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:id="@+id/tv_system_mails_count"
-                    style="@style/MoscoText.Luxury.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/lg_text_secondary"
-                    android:textSize="@dimen/text_size_body_sm"
-                    android:textStyle="bold"
-                    tools:text="0" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- RecyclerView respects AppBarLayout scrolling -->
+    <!-- RecyclerView fills the remaining height, constrained above the floating footer -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_system_mails"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/spacing_100dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:paddingBottom="@dimen/spacing_md"
+        app:layout_constraintTop_toBottomOf="@id/layout_filter_row"
+        app:layout_constraintBottom_toTopOf="@id/footer_receive_all"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_mailbox" />
 
     <!-- Floating Footer with Receive All button -->
     <FrameLayout
+        android:id="@+id/footer_receive_all"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         android:background="@drawable/lg_floating_footer_bg"
-        android:paddingTop="@dimen/spacing_xl"
-        android:paddingBottom="@dimen/spacing_sm">
+        android:paddingTop="@dimen/spacing_md"
+        android:paddingBottom="@dimen/spacing_sm"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_receive_all"
@@ -81,4 +78,4 @@
             android:textAllCaps="true" />
     </FrameLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
