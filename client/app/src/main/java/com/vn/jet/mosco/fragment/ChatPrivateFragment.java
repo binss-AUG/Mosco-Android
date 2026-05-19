@@ -173,23 +173,14 @@ public class ChatPrivateFragment extends Fragment {
             viewStatusDot.setVisibility(isOnline ? View.VISIBLE : View.GONE);
         }
         
-        // Fix Streak popping jitter: Show flame immediately for friends to reserve layout space
-        if (!isStranger) {
-            if (lottieStreakIcon != null) {
-                lottieStreakIcon.setVisibility(View.VISIBLE);
-                StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
-            }
-            if (tvStreakCount != null) {
-                tvStreakCount.setVisibility(View.VISIBLE);
-                tvStreakCount.setText("999");
-                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
-            }
-        }
+
 
         chatAdapter = new WorldChatAdapter();
         chatAdapter.setPrivateChat(true);
         chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
-        rvChat.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
+        rvChat.setLayoutManager(layoutManager);
         rvChat.setAdapter(chatAdapter);
 
         if (lottieStreakIcon != null) {
@@ -758,7 +749,7 @@ public class ChatPrivateFragment extends Fragment {
                                 chatAdapter.setPartnerOnline(isOnline);
                             }
                             if (tvHeaderStatus != null) {
-                                tvHeaderStatus.setText(isOnline ? "ONLINE" : "OFFLINE");
+                                tvHeaderStatus.setText(isOnline ? "Online" : "Offline");
                                 tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
                             }
                             if (viewStatusDot != null) {

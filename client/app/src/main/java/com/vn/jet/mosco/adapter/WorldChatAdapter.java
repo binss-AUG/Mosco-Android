@@ -29,6 +29,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private String currentUserId;
     private boolean isPartnerOnline = false;
     private boolean isPrivateChat = false;
+    private int lastAnimatedPosition = -1;
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -95,11 +96,16 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             messages.remove(0);
             notifyItemRemoved(0);
         }
-        notifyItemInserted(messages.size() - 1);
+        int newPos = messages.size() - 1;
+        notifyItemInserted(newPos);
+        if (newPos >= 1) {
+            notifyItemChanged(newPos - 1);
+        }
     }
 
     public void clear() {
         messages.clear();
+        lastAnimatedPosition = -1;
         notifyDataSetChanged();
     }
 
@@ -142,18 +148,18 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return;
         }
 
+        boolean isConsecutiveAbove = false;
+        if (position > 0) {
+            WorldChatMessage prevMsg = messages.get(position - 1);
+            if (!"DATE_SEPARATOR".equals(prevMsg.getSenderId()) && prevMsg.getSenderId().equals(msg.getSenderId())) {
+                isConsecutiveAbove = true;
+            }
+        }
+
         // --- 🔄 ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
         if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
             android.content.Context ctx = holder.itemView.getContext();
-            
-            boolean isConsecutiveAbove = false;
-            if (position > 0) {
-                WorldChatMessage prevMsg = messages.get(position - 1);
-                if (!"DATE_SEPARATOR".equals(prevMsg.getSenderId()) && prevMsg.getSenderId().equals(msg.getSenderId())) {
-                    isConsecutiveAbove = true;
-                }
-            }
             
             // Lấy từ Dimens hệ thống - Tuyệt đối không hardcode
             int consecutiveMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_consecutive);
@@ -226,8 +232,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
             if (selfHolder.layoutBubbleFrame != null) {
-                if (isConsecutiveBelowSelf) {
+                if (isConsecutiveAbove && isConsecutiveBelowSelf) {
                     selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_middle);
+                } else if (isConsecutiveAbove && !isConsecutiveBelowSelf) {
+                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
+                } else if (!isConsecutiveAbove && isConsecutiveBelowSelf) {
+                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_top);
                 } else {
                     selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
                 }
@@ -267,8 +277,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
             if (otherHolder.layoutBubbleFrame != null) {
-                if (isConsecutiveBelowOther) {
+                if (isConsecutiveAbove && isConsecutiveBelowOther) {
                     otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_middle);
+                } else if (isConsecutiveAbove && !isConsecutiveBelowOther) {
+                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
+                } else if (!isConsecutiveAbove && isConsecutiveBelowOther) {
+                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_top);
                 } else {
                     otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
                 }
@@ -282,6 +296,24 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     otherHolder.cardAvatar.setVisibility(View.VISIBLE);
                 }
             }
+        }
+
+        // --- 🔄 LIGHTWEIGHT HARDWARE-ACCELERATED FLOAT-UP ANIMATION ---
+        if (position > lastAnimatedPosition) {
+            lastAnimatedPosition = position;
+            float density = holder.itemView.getResources().getDisplayMetrics().density;
+            holder.itemView.setTranslationY(16f * density);
+            holder.itemView.setScaleX(0.96f);
+            holder.itemView.setScaleY(0.96f);
+            holder.itemView.setAlpha(0.6f);
+            holder.itemView.animate()
+                    .translationY(0f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(160)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
         }
     }
 
