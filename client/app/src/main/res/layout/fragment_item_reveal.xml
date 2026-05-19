@@ -87,12 +87,11 @@
         app:cardBackgroundColor="@android:color/transparent"
         app:layout_constraintDimensionRatio="1:1.54"
         app:layout_constraintWidth_percent="0.525"
-        app:layout_constraintTop_toBottomOf="@id/tv_item_name"
-        app:layout_constraintBottom_toTopOf="@id/tv_item_qty"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.45"
-        app:layout_constraintVertical_chainStyle="packed">
+        app:layout_constraintVertical_bias="0.43">
 
         <!-- 1. Metallic Background -->
         <View
@@ -148,7 +147,6 @@
         android:paddingVertical="3dp"
         tools:text="x7"
         app:layout_constraintTop_toBottomOf="@id/card_item"
-        app:layout_constraintBottom_toTopOf="@id/tv_item_info"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -165,7 +163,6 @@
         android:paddingHorizontal="@dimen/spacing_40dp"
         tools:text="Rates: 80% First, Welcome, 15% Double"
         app:layout_constraintTop_toBottomOf="@id/tv_item_qty"
-        app:layout_constraintBottom_toTopOf="@id/rv_card_history"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -178,12 +175,14 @@
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/spacing_md"
         android:clipChildren="false"
-        android:layout_marginBottom="@dimen/spacing_sm"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/card_item"
         app:layout_constraintBottom_toTopOf="@id/ll_buttons"
-        app:layout_constraintTop_toBottomOf="@id/tv_item_info"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.65" />
 
     <!-- ====== BUTTONS: Pinned to bottom ====== -->
     <LinearLayout
