@@ -65,10 +65,14 @@ public class ChatPrivateFragment extends Fragment {
     public static final String ARG_PARTNER_ID = "partner_id";
     public static final String ARG_PARTNER_NAME = "partner_name";
     public static final String ARG_PARTNER_AVATAR = "partner_avatar";
+    public static final String ARG_IS_ONLINE = "is_online";
+    public static final String ARG_IS_STRANGER = "is_stranger";
 
     private Long partnerId;
     private String partnerName;
     private String partnerAvatar;
+    private boolean isOnline;
+    private boolean isStranger;
 
     private RecyclerView rvChat;
     private WorldChatAdapter chatAdapter;
@@ -79,8 +83,6 @@ public class ChatPrivateFragment extends Fragment {
     private TextView tvHeaderName, tvHeaderStatus, tvStreakCount;
     private View btnStreakDetails;
     private View viewStatusDot;
-    private View layoutAddFriendBanner;
-    private TextView btnAddFriendChat;
 
     private SessionManager sessionManager;
     private GameApiService gameApiService;
@@ -92,16 +94,19 @@ public class ChatPrivateFragment extends Fragment {
     private CoupleStreakDto currentStreakData;
     private int lastCount = -1;
     private boolean lastActive = false;
+    private boolean hasAnimatedStreak = false;
 
     public ChatPrivateFragment() {
     }
 
-    public static ChatPrivateFragment newInstance(Long partnerId, String partnerName, String partnerAvatar) {
+    public static ChatPrivateFragment newInstance(Long partnerId, String partnerName, String partnerAvatar, boolean isOnline, boolean isStranger) {
         ChatPrivateFragment fragment = new ChatPrivateFragment();
         Bundle args = new Bundle();
         args.putLong(ARG_PARTNER_ID, partnerId);
         args.putString(ARG_PARTNER_NAME, partnerName);
         args.putString(ARG_PARTNER_AVATAR, partnerAvatar);
+        args.putBoolean(ARG_IS_ONLINE, isOnline);
+        args.putBoolean(ARG_IS_STRANGER, isStranger);
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,6 +122,8 @@ public class ChatPrivateFragment extends Fragment {
             }
             partnerName = name;
             partnerAvatar = getArguments().getString(ARG_PARTNER_AVATAR, "1");
+            isOnline = getArguments().getBoolean(ARG_IS_ONLINE, false);
+            isStranger = getArguments().getBoolean(ARG_IS_STRANGER, false);
         }
         sessionManager = new SessionManager(requireContext());
         gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
@@ -152,12 +159,32 @@ public class ChatPrivateFragment extends Fragment {
         lottieStreakIcon = v.findViewById(R.id.lottie_streak_icon);
         btnStreakDetails = v.findViewById(R.id.btn_streak_details);
         viewStatusDot = v.findViewById(R.id.view_private_status_dot);
-        layoutAddFriendBanner = v.findViewById(R.id.layout_add_friend_banner);
-        btnAddFriendChat = v.findViewById(R.id.btn_add_friend_chat);
 
-        tvHeaderName.setText(partnerName);
+        tvHeaderName.setText(isStranger ? partnerName + " • Stranger" : partnerName);
         tvHeaderName.setSelected(true);
         AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, partnerId, partnerAvatar);
+
+        // Preload UI to prevent jitter
+        if (tvHeaderStatus != null) {
+            tvHeaderStatus.setText(isOnline ? "ONLINE" : "OFFLINE");
+            tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
+        }
+        if (viewStatusDot != null) {
+            viewStatusDot.setVisibility(isOnline ? View.VISIBLE : View.GONE);
+        }
+        
+        // Fix Streak popping jitter: Show flame immediately for friends to reserve layout space
+        if (!isStranger) {
+            if (lottieStreakIcon != null) {
+                lottieStreakIcon.setVisibility(View.VISIBLE);
+                StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
+            }
+            if (tvStreakCount != null) {
+                tvStreakCount.setVisibility(View.VISIBLE);
+                tvStreakCount.setText("999");
+                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
+            }
+        }
 
         chatAdapter = new WorldChatAdapter();
         chatAdapter.setPrivateChat(true);
@@ -217,9 +244,6 @@ public class ChatPrivateFragment extends Fragment {
         if (btnStreakDetails != null) {
             btnStreakDetails.setOnClickListener(v -> showCoupleStreakDialog());
         }
-        if (btnAddFriendChat != null) {
-            btnAddFriendChat.setOnClickListener(v -> sendFriendRequestInChat());
-        }
     }
 
     private void fetchStreakStatus() {
@@ -238,9 +262,6 @@ public class ChatPrivateFragment extends Fragment {
                         lottieStreakIcon.setVisibility(View.GONE);
                         tvStreakCount.setVisibility(View.GONE);
                         btnStreakDetails.setVisibility(View.GONE);
-                        if (layoutAddFriendBanner != null) {
-                            layoutAddFriendBanner.setVisibility(View.VISIBLE);
-                        }
                         return;
                     }
 
@@ -248,9 +269,6 @@ public class ChatPrivateFragment extends Fragment {
                     lottieStreakIcon.setVisibility(View.VISIBLE);
                     tvStreakCount.setVisibility(View.VISIBLE);
                     btnStreakDetails.setVisibility(View.VISIBLE);
-                    if (layoutAddFriendBanner != null) {
-                        layoutAddFriendBanner.setVisibility(View.GONE);
-                    }
                     
                     updateStreakUI(currentStreakData.getStreakCount(), "ACTIVE".equals(currentStreakData.getStatus()));
                 } else {
@@ -258,9 +276,6 @@ public class ChatPrivateFragment extends Fragment {
                     lottieStreakIcon.setVisibility(View.GONE);
                     tvStreakCount.setVisibility(View.GONE);
                     btnStreakDetails.setVisibility(View.GONE);
-                    if (layoutAddFriendBanner != null) {
-                        layoutAddFriendBanner.setVisibility(View.VISIBLE);
-                    }
                 }
             }
             @Override
@@ -284,32 +299,104 @@ public class ChatPrivateFragment extends Fragment {
             }
         }
 
-        // Nếu qua ngày mới mà chưa tương tác (interactedToday = false), coi như inactive để xám lại
-        boolean visualActive = active && interactedToday;
-
-        if (count == lastCount && visualActive == lastActive) return;
-        
-        lastCount = count;
-        lastActive = visualActive;
-        
-        if (count == 0) {
-            tvStreakCount.setVisibility(View.GONE);
-        } else {
-            tvStreakCount.setVisibility(View.VISIBLE);
-            tvStreakCount.setText(String.valueOf(count));
-        }
-
-        if (lottieStreakIcon == null) return;
-
-        StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, visualActive);
-
-        if (visualActive && count >= 1000) {
-            startRGBStreakAnimation(lottieStreakIcon);
-        } else {
+        // State 1: Chưa đồng ý chuỗi (hoặc status != ACTIVE) -> giữ nguyên xám, không động, số 999
+        if (!active) {
+            if (tvStreakCount != null) {
+                tvStreakCount.setText("999");
+                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
+            }
+            if (lottieStreakIcon != null) {
+                StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
+            }
             stopRGBStreakAnimation();
+            return;
         }
-        
-        tvStreakCount.setTextColor(visualActive && count > 0 ? android.graphics.Color.WHITE : android.graphics.Color.GRAY);
+
+        // State 2: Đồng ý với nhau nhưng hôm nay chưa nhắn tin -> thay số 999 thành số hiện tại, ngọn lửa giữ nguyên xám và không động
+        if (!interactedToday) {
+            if (tvStreakCount != null) {
+                tvStreakCount.setText(String.valueOf(count));
+                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
+            }
+            if (lottieStreakIcon != null) {
+                StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
+            }
+            stopRGBStreakAnimation();
+            return;
+        }
+
+        // State 3: Trường hợp còn lại (đã đồng ý VÀ đã nhắn tin hôm nay) -> ngọn lửa fade-in màu vốn có từ dưới + chuyển động
+        if (tvStreakCount != null) {
+            tvStreakCount.setText(String.valueOf(count));
+            tvStreakCount.setTextColor(android.graphics.Color.WHITE);
+        }
+
+        if (lottieStreakIcon != null) {
+            // Ràng buộc Lottie: Đảm bảo frame min/max đúng
+            if (lottieStreakIcon.getMinFrame() != 0 || lottieStreakIcon.getMaxFrame() != 24) {
+                lottieStreakIcon.setMinAndMaxFrame(0, 24);
+            }
+            if (!lottieStreakIcon.isAnimating()) {
+                lottieStreakIcon.playAnimation();
+            }
+
+            if (!hasAnimatedStreak) {
+                hasAnimatedStreak = true;
+
+                // Pivot ở đáy trung tâm để ngọn lửa bùng cháy vươn lên từ dưới
+                float density = getResources().getDisplayMetrics().density;
+                float pivotX = lottieStreakIcon.getWidth() > 0 ? lottieStreakIcon.getWidth() / 2f : (28f * density) / 2f;
+                float pivotY = lottieStreakIcon.getHeight() > 0 ? lottieStreakIcon.getHeight() : (28f * density);
+                lottieStreakIcon.setPivotX(pivotX);
+                lottieStreakIcon.setPivotY(pivotY);
+
+                // Khởi tạo các thuộc tính chuyển động & xám ban đầu trước hoạt họa
+                lottieStreakIcon.setScaleX(0.5f);
+                lottieStreakIcon.setScaleY(0.5f);
+                lottieStreakIcon.setTranslationY(15f * density);
+                StreakColorHelper.applyStreakColorTransition(lottieStreakIcon, count, 0f);
+
+                android.animation.ValueAnimator transitionAnim = android.animation.ValueAnimator.ofFloat(0f, 1f);
+                transitionAnim.setDuration(1000); // 1 giây chuyển đổi mượt mà, luxury
+                transitionAnim.setInterpolator(new android.view.animation.DecelerateInterpolator());
+
+                transitionAnim.addUpdateListener(animation -> {
+                    float f = (float) animation.getAnimatedValue();
+                    
+                    // 1. Smoothly interpolate color matrix from grayscale (0.0) to level color (1.0)
+                    StreakColorHelper.applyStreakColorTransition(lottieStreakIcon, count, f);
+                    
+                    // 2. Smoothly scale and lift up from bottom
+                    lottieStreakIcon.setScaleX(0.5f + 0.5f * f);
+                    lottieStreakIcon.setScaleY(0.5f + 0.5f * f);
+                    lottieStreakIcon.setTranslationY((15f * density) * (1f - f));
+                });
+
+                transitionAnim.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator animation) {
+                        lottieStreakIcon.setScaleX(1f);
+                        lottieStreakIcon.setScaleY(1f);
+                        lottieStreakIcon.setTranslationY(0f);
+                        StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, true);
+                        
+                        if (count >= 1000) {
+                            startRGBStreakAnimation(lottieStreakIcon);
+                        } else {
+                            stopRGBStreakAnimation();
+                        }
+                    }
+                });
+                transitionAnim.start();
+            } else {
+                StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, true);
+                if (count >= 1000) {
+                    startRGBStreakAnimation(lottieStreakIcon);
+                } else {
+                    stopRGBStreakAnimation();
+                }
+            }
+        }
     }
 
     private void startRGBStreakAnimation(LottieAnimationView lottie) {
@@ -712,7 +799,8 @@ public class ChatPrivateFragment extends Fragment {
         if (displayName != null && !displayName.isEmpty()) {
             partnerName = displayName;
             if (tvHeaderName != null) {
-                tvHeaderName.setText(partnerName);
+                boolean isReallyStranger = stats.getFriendshipStatus() != 2;
+                tvHeaderName.setText(isReallyStranger ? partnerName + " • Stranger" : partnerName);
                 tvHeaderName.setSelected(true);
             }
         }
@@ -726,109 +814,17 @@ public class ChatPrivateFragment extends Fragment {
         int status = stats.getFriendshipStatus();
         if (status == 2) {
             // Friends
-            if (layoutAddFriendBanner != null) {
-                layoutAddFriendBanner.setVisibility(View.GONE);
-            }
             if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.VISIBLE);
             if (tvStreakCount != null) tvStreakCount.setVisibility(View.VISIBLE);
             if (btnStreakDetails != null) btnStreakDetails.setVisibility(View.VISIBLE);
         } else {
             // Stranger or Pending states
-            if (layoutAddFriendBanner != null) {
-                layoutAddFriendBanner.setVisibility(View.VISIBLE);
-            }
             if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.GONE);
             if (tvStreakCount != null) tvStreakCount.setVisibility(View.GONE);
             if (btnStreakDetails != null) btnStreakDetails.setVisibility(View.GONE);
-
-            TextView tvStrangerAlert = getView() != null ? getView().findViewById(R.id.tv_stranger_alert) : null;
-            if (tvStrangerAlert != null) {
-                if (status == 0) {
-                    tvStrangerAlert.setText(getString(R.string.chat_stranger_alert));
-                    if (btnAddFriendChat != null) {
-                        btnAddFriendChat.setVisibility(View.VISIBLE);
-                        btnAddFriendChat.setText(getString(R.string.chat_add_friend_btn));
-                        btnAddFriendChat.setEnabled(true);
-                        btnAddFriendChat.setAlpha(1.0f);
-                        btnAddFriendChat.setOnClickListener(v -> sendFriendRequestInChat());
-                    }
-                } else if (status == 1) {
-                    tvStrangerAlert.setText("Waiting for response...");
-                    if (btnAddFriendChat != null) {
-                        btnAddFriendChat.setVisibility(View.GONE);
-                    }
-                } else if (status == 3) {
-                    tvStrangerAlert.setText(displayName + " sent you a friend request");
-                    if (btnAddFriendChat != null) {
-                        btnAddFriendChat.setVisibility(View.VISIBLE);
-                        btnAddFriendChat.setText("Accept");
-                        btnAddFriendChat.setEnabled(true);
-                        btnAddFriendChat.setAlpha(1.0f);
-                        btnAddFriendChat.setOnClickListener(v -> acceptFriendRequestInChat());
-                    }
-                }
-            }
         }
     }
 
-    private void acceptFriendRequestInChat() {
-        if (getContext() == null || partnerId == null) return;
-        
-        gameApiService.acceptFriendByUser(partnerId).enqueue(new Callback<ApiResponse<Void>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
-                if (!isAdded() || getContext() == null) return;
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), getString(R.string.social_msg_request_accepted), Toast.LENGTH_SHORT).show();
-                    fetchPartnerRelationship();
-                    fetchStreakStatus();
-                } else {
-                    Toast.makeText(getContext(), getString(R.string.social_error_accept), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
-                if (isAdded()) {
-                    Toast.makeText(getContext(), getString(R.string.chat_add_friend_network_error), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    private void sendFriendRequestInChat() {
-        if (getContext() == null || partnerId == null) return;
-        
-        java.util.Map<String, Long> body = new java.util.HashMap<>();
-        body.put("addresseeId", partnerId);
-
-        gameApiService.addFriend(body).enqueue(new Callback<okhttp3.ResponseBody>() {
-            @Override
-            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
-                try {
-                    String msg;
-                    if (response.isSuccessful() && response.body() != null) {
-                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
-                        msg = json.optString("message", getString(R.string.chat_add_friend_success));
-                        fetchPartnerRelationship();
-                    } else if (response.errorBody() != null) {
-                        org.json.JSONObject json = new org.json.JSONObject(response.errorBody().string());
-                        msg = json.optString("message", getString(R.string.chat_add_friend_error));
-                    } else {
-                        msg = getString(R.string.chat_add_friend_unknown_error);
-                    }
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e(TAG, "Error sending friend request from chat", e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), getString(R.string.chat_add_friend_network_error), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     @Override
     public void onDestroyView() {

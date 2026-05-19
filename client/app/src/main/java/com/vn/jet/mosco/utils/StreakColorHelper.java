@@ -92,7 +92,7 @@ public class StreakColorHelper {
         }
     }
 
-    private static ColorMatrixColorFilter getStreakColorFilter(int streakValue) {
+    public static ColorMatrix getStreakColorMatrix(int streakValue) {
         float hueShift = 0f;
         boolean useFilter = true;
         float saturation = 1.0f;
@@ -100,34 +100,32 @@ public class StreakColorHelper {
         float[] customMatrix = null;
 
         if (streakValue >= 1000) {
-            // God Mode Base
             useFilter = true;
             brightness = 1.2f;
             saturation = 1.5f;
         } else if (streakValue >= 365) {
-            // ASH & BLOOD: Black/White mix with dark red accents
             customMatrix = new float[] {
-                0.3f, 0.3f, 0.3f, 0, 40,  // Red channel gets a boost of grey + red offset
-                0.2f, 0.2f, 0.2f, 0, 0,   // Green channel is muted grey
-                0.2f, 0.2f, 0.2f, 0, 0,   // Blue channel is muted grey
+                0.3f, 0.3f, 0.3f, 0, 40,
+                0.2f, 0.2f, 0.2f, 0, 0,
+                0.2f, 0.2f, 0.2f, 0, 0,
                 0,    0,    0,    1, 0
             };
         } else if (streakValue >= 200) {
-            hueShift = 260f; // Nebula Purple
+            hueShift = 260f;
         } else if (streakValue >= 100) {
-            hueShift = 320f; // Nebula Pink
+            hueShift = 320f;
         } else if (streakValue >= 30) {
-            hueShift = 200f; // Blue
+            hueShift = 200f;
         } else if (streakValue >= 10) {
-            saturation = 2.0f; // Intense Orange-Red
+            saturation = 2.0f;
             brightness = 0.9f;
         } else {
             useFilter = false;
         }
 
-        if (!useFilter) return null;
-
         ColorMatrix cm = new ColorMatrix();
+        if (!useFilter) return cm;
+
         if (customMatrix != null) {
             cm.set(customMatrix);
         } else {
@@ -147,7 +145,35 @@ public class StreakColorHelper {
                 cm.postConcat(new ColorMatrix(bMat));
             }
         }
+        return cm;
+    }
+
+    private static ColorMatrixColorFilter getStreakColorFilter(int streakValue) {
+        if (streakValue < 10) return null;
+        ColorMatrix cm = getStreakColorMatrix(streakValue);
         return new ColorMatrixColorFilter(cm);
+    }
+
+    /**
+     * Transition color of Lottie Streak from grayscale (0.0) to full color (1.0)
+     */
+    public static void applyStreakColorTransition(LottieAnimationView ivIcon, int streakValue, float fraction) {
+        if (ivIcon == null) return;
+        
+        ColorMatrix grayMatrix = new ColorMatrix();
+        grayMatrix.setSaturation(0f);
+        
+        ColorMatrix targetMatrix = getStreakColorMatrix(streakValue);
+        
+        float[] grayArray = grayMatrix.getArray();
+        float[] targetArray = targetMatrix.getArray();
+        float[] blendArray = new float[20];
+        for (int i = 0; i < 20; i++) {
+            blendArray[i] = grayArray[i] + fraction * (targetArray[i] - grayArray[i]);
+        }
+        
+        ColorMatrix blendMatrix = new ColorMatrix(blendArray);
+        ivIcon.addValueCallback(new KeyPath("**"), LottieProperty.COLOR_FILTER, new LottieValueCallback<>(new ColorMatrixColorFilter(blendMatrix)));
     }
 
     /**
