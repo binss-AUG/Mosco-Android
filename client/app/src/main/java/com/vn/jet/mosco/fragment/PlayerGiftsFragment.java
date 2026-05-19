@@ -54,6 +54,9 @@ public class PlayerGiftsFragment extends Fragment {
         tvPlayerGiftsCount = view.findViewById(R.id.tv_player_gifts_count);
 
         setupFilterBar();
+        if (filterBar != null) {
+            filterBar.setVisibility(View.GONE);
+        }
 
         rvPlayerGifts.setLayoutManager(new LinearLayoutManager(getContext()));
         giftHistoryAdapter = new GiftHistoryAdapter(filteredGifts, true);

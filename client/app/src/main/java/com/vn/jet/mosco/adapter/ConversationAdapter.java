@@ -84,9 +84,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         String name = wrapper.getPartnerName();
         holder.tvName.setText(name != null ? name : "User " + wrapper.getPartnerId());
 
-        // Đổ tin nhắn xem trước
-        holder.tvPreview.setText(msg.getContent());
-
         // Trạng thái online glow
         holder.viewOnline.setVisibility(wrapper.isOnline() ? View.VISIBLE : View.GONE);
 
@@ -99,10 +96,19 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
         AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, partnerIdLong, wrapper.getPartnerAvatar());
 
-        // Định dạng thời gian trôi qua (e.g., "5m ago", "1h ago")
-        long now = System.currentTimeMillis();
-        CharSequence timeStr = DateUtils.getRelativeTimeSpanString(msg.getTimestamp(), now, DateUtils.MINUTE_IN_MILLIS);
-        holder.tvTime.setText(timeStr);
+        // Đổ tin nhắn xem trước và thời gian
+        if (msg != null) {
+            holder.tvPreview.setText(msg.getContent());
+            // Định dạng thời gian trôi qua (e.g., "5m ago", "1h ago")
+            long now = System.currentTimeMillis();
+            CharSequence timeStr = DateUtils.getRelativeTimeSpanString(msg.getTimestamp(), now, DateUtils.MINUTE_IN_MILLIS);
+            holder.tvTime.setText(timeStr);
+            holder.tvTime.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvPreview.setText("Chạm để bắt đầu trò chuyện");
+            holder.tvTime.setText("");
+            holder.tvTime.setVisibility(View.GONE);
+        }
 
         // Click Debounce ngăn chặn click spam liên tục gây crash
         holder.itemView.setOnClickListener(new View.OnClickListener() {

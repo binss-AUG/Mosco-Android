@@ -64,6 +64,9 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         tvPrivateChatsCount = view.findViewById(R.id.tv_private_chats_count);
 
         setupFilterBar();
+        if (filterBar != null) {
+            filterBar.setVisibility(View.GONE);
+        }
 
         rvPrivateChats.setLayoutManager(new LinearLayoutManager(getContext()));
         
@@ -86,7 +89,6 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         filterBar.setListener(new InventoryFilterBar.OnFilterChangeListener() {
             @Override
             public void onFilterChanged(String sortOption, boolean isAscending) {
-                // Since this tab only has Online/Offline conceptually based on old code, we don't strictly sort by number here.
                 filterConversations();
             }
 
@@ -163,11 +165,23 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 JSONObject friendObj = friendsArr.getJSONObject(i);
                                 String friendId = String.valueOf(friendObj.optLong("userId"));
                                 boolean online = friendObj.optBoolean("online", false);
+                                String name = friendObj.optString("ingameName", "User #" + friendId);
+                                String avatar = friendObj.optString("avatarId", "");
                                 
+                                boolean found = false;
                                 for (ConversationAdapter.ConversationWrapper w : conversationsList) {
                                     if (w.getPartnerId().equals(friendId)) {
                                         w.setOnline(online);
+                                        found = true;
+                                        break;
                                     }
+                                }
+
+                                if (!found) {
+                                    ConversationAdapter.ConversationWrapper newWrapper = 
+                                        new ConversationAdapter.ConversationWrapper(null, friendId, name, avatar);
+                                    newWrapper.setOnline(online);
+                                    conversationsList.add(newWrapper);
                                 }
                             }
                             // Re-filter so online matches
@@ -192,8 +206,6 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         filteredConversationsList.clear();
         for (ConversationAdapter.ConversationWrapper wrapper : conversationsList) {
             filteredConversationsList.add(wrapper);
-            // In a real application, you might filter by 'wrapper.isOnline()' here
-            // if you mapped activeFilter to 1 for "Online Only".
         }
         
         conversationAdapter.updateData(filteredConversationsList);

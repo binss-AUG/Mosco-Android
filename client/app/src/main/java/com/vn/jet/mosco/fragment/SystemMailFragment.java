@@ -57,6 +57,9 @@ public class SystemMailFragment extends Fragment implements MailboxAdapter.OnMai
         tvSystemMailsCount = view.findViewById(R.id.tv_system_mails_count);
 
         setupFilterBar();
+        if (filterBar != null) {
+            filterBar.setVisibility(View.GONE);
+        }
 
         rvSystemMails.setLayoutManager(new LinearLayoutManager(getContext()));
         mailboxAdapter = new MailboxAdapter(filteredMailsList, this);
