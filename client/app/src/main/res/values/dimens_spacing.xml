@@ -63,4 +63,11 @@
 
     <!-- LG: Content clearance — khoảng trống dưới cùng để tránh bị floating nav che (Đã giảm 10%) -->
     <dimen name="lg_content_bottom_clearance">82dp</dimen>
+
+    <!-- ============================================= -->
+    <!-- CHAT BUBBLE SPACING TOKENS (NO HARDCODING)   -->
+    <!-- ============================================= -->
+    <dimen name="chat_spacing_consecutive">3dp</dimen>
+    <dimen name="chat_spacing_separated">14dp</dimen>
+    <dimen name="chat_spacing_bottom">2dp</dimen>
 </resources>

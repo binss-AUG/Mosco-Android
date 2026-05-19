@@ -145,7 +145,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         // --- 🔄 ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
         if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
-            float density = holder.itemView.getContext().getResources().getDisplayMetrics().density;
+            android.content.Context ctx = holder.itemView.getContext();
+            
             boolean isConsecutiveAbove = false;
             if (position > 0) {
                 WorldChatMessage prevMsg = messages.get(position - 1);
@@ -153,9 +154,14 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     isConsecutiveAbove = true;
                 }
             }
-            // Sát nhau 3dp cho cùng một người gửi, 14dp nếu đổi sang người khác
-            params.topMargin = (int) ((isConsecutiveAbove ? 3f : 14f) * density);
-            params.bottomMargin = (int) (2f * density);
+            
+            // Lấy từ Dimens hệ thống - Tuyệt đối không hardcode
+            int consecutiveMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_consecutive);
+            int separatedMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_separated);
+            int bottomMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_bottom);
+
+            params.topMargin = isConsecutiveAbove ? consecutiveMargin : separatedMargin;
+            params.bottomMargin = bottomMargin;
             holder.itemView.setLayoutParams(params);
         }
 

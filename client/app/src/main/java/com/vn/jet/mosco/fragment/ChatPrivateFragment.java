@@ -343,17 +343,20 @@ public class ChatPrivateFragment extends Fragment {
             if (!hasAnimatedStreak) {
                 hasAnimatedStreak = true;
 
+                // Lấy kích thước và offset từ Dimens hệ thống - Tuyệt đối không hardcode
+                float size28 = getResources().getDimension(R.dimen.spacing_28dp);
+                float offset15 = getResources().getDimension(R.dimen.spacing_15dp);
+
                 // Pivot ở đáy trung tâm để ngọn lửa bùng cháy vươn lên từ dưới
-                float density = getResources().getDisplayMetrics().density;
-                float pivotX = lottieStreakIcon.getWidth() > 0 ? lottieStreakIcon.getWidth() / 2f : (28f * density) / 2f;
-                float pivotY = lottieStreakIcon.getHeight() > 0 ? lottieStreakIcon.getHeight() : (28f * density);
+                float pivotX = lottieStreakIcon.getWidth() > 0 ? lottieStreakIcon.getWidth() / 2f : size28 / 2f;
+                float pivotY = lottieStreakIcon.getHeight() > 0 ? lottieStreakIcon.getHeight() : size28;
                 lottieStreakIcon.setPivotX(pivotX);
                 lottieStreakIcon.setPivotY(pivotY);
 
                 // Khởi tạo các thuộc tính chuyển động & xám ban đầu trước hoạt họa
                 lottieStreakIcon.setScaleX(0.5f);
                 lottieStreakIcon.setScaleY(0.5f);
-                lottieStreakIcon.setTranslationY(15f * density);
+                lottieStreakIcon.setTranslationY(offset15);
                 StreakColorHelper.applyStreakColorTransition(lottieStreakIcon, count, 0f);
 
                 android.animation.ValueAnimator transitionAnim = android.animation.ValueAnimator.ofFloat(0f, 1f);
@@ -369,7 +372,7 @@ public class ChatPrivateFragment extends Fragment {
                     // 2. Smoothly scale and lift up from bottom
                     lottieStreakIcon.setScaleX(0.5f + 0.5f * f);
                     lottieStreakIcon.setScaleY(0.5f + 0.5f * f);
-                    lottieStreakIcon.setTranslationY((15f * density) * (1f - f));
+                    lottieStreakIcon.setTranslationY(offset15 * (1f - f));
                 });
 
                 transitionAnim.addListener(new android.animation.AnimatorListenerAdapter() {
