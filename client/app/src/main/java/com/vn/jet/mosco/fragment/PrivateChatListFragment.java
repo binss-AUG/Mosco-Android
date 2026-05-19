@@ -91,6 +91,22 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // Cập nhật lại danh sách khi quay lại từ màn hình chat (vì onStart có thể không được gọi lại, hoặc tin nhắn đã gửi trong lúc Fragment này onStop)
+        loadConversationsLocalFirst();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            // Cập nhật lại danh sách nếu Fragment được hiện lại (trong trường hợp dùng add/hide)
+            loadConversationsLocalFirst();
+        }
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         // Hủy subscription khi Fragment không hiển thị để tránh memory leak
