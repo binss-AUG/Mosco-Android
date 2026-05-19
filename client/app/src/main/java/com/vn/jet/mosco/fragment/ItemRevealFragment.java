@@ -554,6 +554,7 @@ public class ItemRevealFragment extends Fragment {
             if (bgFade != null) {
                 bgFade.animate().cancel();
                 bgFade.setAlpha(0f);
+                bgFade.setBackground(null);
                 bgFade.setVisibility(View.GONE);
             }
 
@@ -1252,20 +1253,25 @@ public class ItemRevealFragment extends Fragment {
         try {
             GradientDrawable newGradient = createRadialBackground(newColor, w, h);
 
+            // Tối ưu hóa: Ngăn chặn khựt màu bằng cách dùng cơ chế cross-fade 2 drawable opaque
             bgFade.animate().cancel();
+            
+            android.graphics.drawable.Drawable currentFadeDrawable = bgFade.getBackground();
+            if (currentFadeDrawable != null) {
+                bgBase.setBackground(currentFadeDrawable);
+            } else {
+                bgBase.setBackgroundResource(R.drawable.lg_background_deep);
+            }
+
             bgFade.setBackground(newGradient);
-            bgFade.setVisibility(View.VISIBLE);
             bgFade.setAlpha(0f);
+            bgFade.setVisibility(View.VISIBLE);
+            bgBase.setVisibility(View.VISIBLE);
 
             bgFade.animate()
                     .alpha(1f)
-                    .setDuration(600)
+                    .setDuration(800) // 800ms chuyển màu mượt mà hơn
                     .setInterpolator(new AccelerateDecelerateInterpolator())
-                    .withEndAction(() -> {
-                        bgBase.setBackground(newGradient);
-                        bgFade.setAlpha(0f);
-                        bgFade.setVisibility(View.GONE);
-                    })
                     .start();
         } catch (Exception e) {
             // Safe fallback
@@ -1275,19 +1281,23 @@ public class ItemRevealFragment extends Fragment {
     private GradientDrawable createRadialBackground(int centerColor, float width, float height) {
         int endColor = ContextCompat.getColor(requireContext(), R.color.lg_background);
 
-        // Blending colors to match the premium home radial design
-        int colorCenter = androidx.core.graphics.ColorUtils.setAlphaComponent(centerColor, 80); // ~31%
-        int colorMid = androidx.core.graphics.ColorUtils.setAlphaComponent(centerColor, 25);    // ~10%
+        // Sử dụng opaque blending (blendARGB) thay vì setAlpha để tránh hiện tượng chồng lấn màu sắc,
+        // tạo chiều sâu luxury và làm vùng sáng ở tâm hội tụ tinh tế hơn.
+        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(endColor, centerColor, 0.32f);
+        int colorMid = androidx.core.graphics.ColorUtils.blendARGB(endColor, centerColor, 0.08f);
 
         GradientDrawable gd = new GradientDrawable();
         gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
 
-        float radius = Math.max(width, height);
+        // Thu nhỏ bán kính (75% min dimension) giúp vùng sáng tập trung đẹp mắt ngay sau thẻ,
+        // vùng rìa nhanh chóng tắt dần về màu tối sâu thẳm của vũ trụ (#0F172A).
+        float minDim = Math.min(width, height);
+        float radius = minDim * 0.75f;
         if (radius <= 0) {
-            radius = dpToPx(700);
+            radius = dpToPx(380);
         }
         gd.setGradientRadius(radius);
-        gd.setGradientCenter(0.5f, 0.40f); // 40% centerY matching home deep background style
+        gd.setGradientCenter(0.5f, 0.40f); // 40% centerY khớp với home background
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             gd.setColors(new int[] { colorCenter, colorMid, endColor });
