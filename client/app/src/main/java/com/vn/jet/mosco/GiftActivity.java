@@ -317,17 +317,56 @@ public class GiftActivity extends MoscoBaseActivity {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(android.text.Editable s) {
-                performSearch(s.toString());
+                filterFriendsOffline(s.toString());
             }
+        });
+
+        // Chỉ khi người dùng nhấn "Search" trên bàn phím ảo mới gọi Server tìm kiếm toàn cầu
+        etSearchFriend.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                String query = etSearchFriend.getText().toString().trim();
+                performGlobalSearch(query);
+                return true;
+            }
+            return false;
         });
     }
 
-    private void performSearch(String query) {
+    private void filterFriendsOffline(String query) {
         if (query == null || query.trim().isEmpty()) {
             friendSelectAdapter.updateData(allFriendsList);
             tvNoFriends.setVisibility(allFriendsList.isEmpty() ? View.VISIBLE : View.GONE);
             rvFriendSelect.setVisibility(allFriendsList.isEmpty() ? View.GONE : View.VISIBLE);
             return;
+        }
+
+        String lowerQuery = query.toLowerCase().trim();
+        List<JSONObject> filtered = new ArrayList<>();
+        for (JSONObject friend : allFriendsList) {
+            String name = friend.optString("ingameName", "").toLowerCase();
+            String username = friend.optString("username", "").toLowerCase();
+            if (name.contains(lowerQuery) || username.contains(lowerQuery)) {
+                filtered.add(friend);
+            }
+        }
+        friendSelectAdapter.updateData(filtered);
+        tvNoFriends.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        rvFriendSelect.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void performGlobalSearch(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            filterFriendsOffline("");
+            return;
+        }
+
+        // Tự động đóng bàn phím ảo để tăng diện tích hiển thị danh sách
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
         }
 
         apiService.searchUsers(query.trim()).enqueue(new Callback<ResponseBody>() {
@@ -355,6 +394,7 @@ public class GiftActivity extends MoscoBaseActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "Lỗi kết nối khi tìm kiếm", t);
+                Toast.makeText(GiftActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
             }
         });
     }
