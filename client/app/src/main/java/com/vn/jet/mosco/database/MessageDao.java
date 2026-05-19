@@ -59,6 +59,10 @@ public interface MessageDao {
      */
     @Query("SELECT avatarId FROM private_messages WHERE senderId = :partnerId LIMIT 1")
     String getPartnerAvatar(String partnerId);
+
+    @Query("SELECT COUNT(*) FROM private_messages WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0")
+    int getUnreadCount(String myId, String partnerId);
+
+    @Query("UPDATE private_messages SET isRead = 1 WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0")
+    void markAsRead(String myId, String partnerId);
 }
-
-

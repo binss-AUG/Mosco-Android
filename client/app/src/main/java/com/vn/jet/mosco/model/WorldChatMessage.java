@@ -10,11 +10,15 @@ public class WorldChatMessage {
     private long timestamp;
 
     public WorldChatMessage(String senderId, String senderName, String avatarId, String content) {
+        this(senderId, senderName, avatarId, content, System.currentTimeMillis());
+    }
+
+    public WorldChatMessage(String senderId, String senderName, String avatarId, String content, long timestamp) {
         this.senderId = senderId;
         this.senderName = senderName;
         this.avatarId = avatarId;
         this.content = content;
-        this.timestamp = System.currentTimeMillis();
+        this.timestamp = timestamp;
     }
 
     public String getSenderId() { return senderId; }

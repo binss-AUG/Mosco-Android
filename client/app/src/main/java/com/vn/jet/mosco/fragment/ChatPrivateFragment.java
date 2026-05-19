@@ -159,6 +159,43 @@ public class ChatPrivateFragment extends Fragment {
         if (lottieStreakIcon != null) {
             StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
         }
+
+        // Tự động trích xuất màu chủ đạo từ hình nền của Root View để áp dụng đồng bộ cho Header phẳng (Tỉ lệ vàng)
+        View layoutHeader = v.findViewById(R.id.layout_private_chat_header);
+        if (layoutHeader != null) {
+            int dominantColor = getDominantColor(v.getBackground());
+            layoutHeader.setBackgroundColor(dominantColor);
+        }
+
+        View btnMore = v.findViewById(R.id.btn_private_chat_more);
+        if (btnMore != null) {
+            btnMore.setOnClickListener(view -> {
+                android.widget.Toast.makeText(getContext(), "Options coming soon!", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    /**
+     * Trích xuất màu chủ đạo của Background bằng thuật toán downscale canvas 1x1 siêu nhanh và an toàn.
+     * Tại sao (WHY): Không phụ thuộc vào thư viện ngoài, xử lý tốt mọi loại Drawable (Color, Gradient, Bitmap),
+     * duy trì hiệu năng mượt mà 60fps khi mở màn hình chat.
+     */
+    private int getDominantColor(android.graphics.drawable.Drawable drawable) {
+        if (drawable == null) return android.graphics.Color.parseColor("#0B0F19");
+        if (drawable instanceof android.graphics.drawable.ColorDrawable) {
+            return ((android.graphics.drawable.ColorDrawable) drawable).getColor();
+        }
+        try {
+            android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(1, 1, android.graphics.Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+            drawable.setBounds(0, 0, 1, 1);
+            drawable.draw(canvas);
+            int color = bitmap.getPixel(0, 0);
+            bitmap.recycle();
+            return color;
+        } catch (Exception e) {
+            return android.graphics.Color.parseColor("#0B0F19");
+        }
     }
 
     private void setupListeners() {
@@ -423,13 +460,14 @@ public class ChatPrivateFragment extends Fragment {
         String myId = String.valueOf(sessionManager.getUserId());
         String partnerIdStr = String.valueOf(partnerId);
         AppExecutors.getInstance().diskIO().execute(() -> {
-            List<PrivateChatMessage> localMsgs = AppDatabase.getInstance(requireContext())
-                    .messageDao().getChatHistory(myId, partnerIdStr);
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            db.messageDao().markAsRead(myId, partnerIdStr);
+            List<PrivateChatMessage> localMsgs = db.messageDao().getChatHistory(myId, partnerIdStr);
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
                     chatAdapter.clear();
                     for (PrivateChatMessage pm : localMsgs) {
-                        chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent()));
+                        chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp()));
                     }
                     rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
                 });
@@ -513,7 +551,8 @@ public class ChatPrivateFragment extends Fragment {
                     message.getSenderId(), 
                     message.getSenderName(), 
                     message.getAvatarId(), 
-                    message.getContent()
+                    message.getContent(),
+                    message.getTimestamp()
                 ));
                 rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
             }
@@ -587,10 +626,11 @@ public class ChatPrivateFragment extends Fragment {
         String myId = String.valueOf(sessionManager.getUserId());
         String myName = sessionManager.getIngameName();
         String myAvatar = sessionManager.getAvatarId();
-        chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText));
+        long now = System.currentTimeMillis();
+        chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText, now));
         rvChat.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
         etInput.setText("");
-        PrivateChatMessage pm = new PrivateChatMessage(myId, String.valueOf(partnerId), myName, myAvatar, msgText, System.currentTimeMillis());
+        PrivateChatMessage pm = new PrivateChatMessage(myId, String.valueOf(partnerId), myName, myAvatar, msgText, now);
         AppExecutors.getInstance().diskIO().execute(() -> {
             AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
         });

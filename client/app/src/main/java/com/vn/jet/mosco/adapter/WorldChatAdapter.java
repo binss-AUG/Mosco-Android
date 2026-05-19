@@ -71,6 +71,9 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         WorldChatMessage msg = messages.get(position);
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
+        String timeStr = sdf.format(new java.util.Date(msg.getTimestamp()));
+
         if (holder instanceof SelfViewHolder) {
             SelfViewHolder selfHolder = (SelfViewHolder) holder;
             // Giải mã HTML Entities cho tin nhắn của mình
@@ -79,17 +82,65 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 selfHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
             }
-            AvatarUtils.loadAvatar(selfHolder.itemView.getContext(), selfHolder.ivAvatar, null, msg.getAvatarId());
+
+            if (selfHolder.ivAvatar != null) {
+                AvatarUtils.loadAvatar(selfHolder.itemView.getContext(), selfHolder.ivAvatar, null, msg.getAvatarId());
+            }
+
+            if (selfHolder.tvTime != null) {
+                selfHolder.tvTime.setText(timeStr);
+            }
+
+            // Tối ưu hiển thị Trạng thái Tin nhắn (✓✓ Double Checkmarks)
+            // Chỉ hiển thị trạng thái cho tin nhắn cuối cùng trong chuỗi tin nhắn của mình
+            boolean isLastSelfMessage = true;
+            for (int i = position + 1; i < messages.size(); i++) {
+                if (messages.get(i).getSenderId().equals(currentUserId)) {
+                    isLastSelfMessage = false;
+                    break;
+                }
+            }
+
+            if (isLastSelfMessage && selfHolder.tvStatus != null) {
+                selfHolder.tvStatus.setVisibility(View.VISIBLE);
+                
+                // Tìm tin nhắn mới nhất của đối phương
+                long partnerLastTs = 0;
+                for (int i = messages.size() - 1; i >= 0; i--) {
+                    if (!messages.get(i).getSenderId().equals(currentUserId)) {
+                        partnerLastTs = messages.get(i).getTimestamp();
+                        break;
+                    }
+                }
+
+                if (partnerLastTs >= msg.getTimestamp()) {
+                    selfHolder.tvStatus.setText("✓✓");
+                    selfHolder.tvStatus.setTextColor(android.graphics.Color.parseColor("#38BDF8")); // Cyan/blue checkmark for Seen
+                } else {
+                    selfHolder.tvStatus.setText("✓✓");
+                    selfHolder.tvStatus.setTextColor(android.graphics.Color.parseColor("#64748B")); // Slate/gray checkmark for Received
+                }
+            } else if (selfHolder.tvStatus != null) {
+                selfHolder.tvStatus.setVisibility(View.GONE);
+            }
         } else if (holder instanceof OtherViewHolder) {
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
             otherHolder.tvName.setText(msg.getSenderName());
+            
             // Giải mã HTML Entities cho tin nhắn của người khác
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
             } else {
                 otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
             }
-            AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null, msg.getAvatarId());
+
+            if (otherHolder.ivAvatar != null) {
+                AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null, msg.getAvatarId());
+            }
+
+            if (otherHolder.tvTime != null) {
+                otherHolder.tvTime.setText(timeStr);
+            }
         }
     }
 
@@ -105,22 +156,25 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class SelfViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar;
-        TextView tvContent;
+        TextView tvContent, tvStatus, tvTime;
         public SelfViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.iv_chat_avatar);
             tvContent = itemView.findViewById(R.id.tv_chat_content);
+            tvStatus = itemView.findViewById(R.id.tv_chat_status);
+            tvTime = itemView.findViewById(R.id.tv_chat_time);
         }
     }
 
     static class OtherViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar;
-        TextView tvName, tvContent;
+        TextView tvName, tvContent, tvTime;
         public OtherViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.iv_chat_avatar);
             tvName = itemView.findViewById(R.id.tv_chat_name);
             tvContent = itemView.findViewById(R.id.tv_chat_content);
+            tvTime = itemView.findViewById(R.id.tv_chat_time);
         }
     }
 }

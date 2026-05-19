@@ -214,13 +214,14 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
 
                             String name = dao.getPartnerName(partnerId);
                             String avatar = dao.getPartnerAvatar(partnerId);
-                            
+                            int unreadCount = dao.getUnreadCount(myId, partnerId);
                             ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
                                     msg,
                                     partnerId,
                                     name != null ? name : "User #" + partnerId,
                                     avatar
                             );
+                            wrapper.setUnreadCount(unreadCount);
                             uniqueWrappers.add(wrapper);
 
                             // Nếu tên là null hoặc chứa tên tạm "User #", ta tải thông tin người dùng từ server để đồng bộ đầy đủ (hỗ trợ cả người lạ)

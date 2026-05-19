@@ -43,6 +43,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         private String partnerAvatar;
         private boolean isOnline;
         private boolean isStranger;
+        private int unreadCount;
 
         public ConversationWrapper(PrivateChatMessage lastMessage, String partnerId, String partnerName, String partnerAvatar) {
             this.lastMessage = lastMessage;
@@ -57,11 +58,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         public String getPartnerAvatar() { return partnerAvatar; }
         public boolean isOnline() { return isOnline; }
         public boolean isStranger() { return isStranger; }
+        public int getUnreadCount() { return unreadCount; }
         
         public void setOnline(boolean online) { this.isOnline = online; }
         public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
         public void setPartnerAvatar(String partnerAvatar) { this.partnerAvatar = partnerAvatar; }
         public void setStranger(boolean stranger) { this.isStranger = stranger; }
+        public void setUnreadCount(int unreadCount) { this.unreadCount = unreadCount; }
     }
 
     public ConversationAdapter(String myId, OnConversationClickListener listener) {
@@ -70,8 +73,44 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public void updateData(List<ConversationWrapper> newList) {
+        if (this.list == null) {
+            this.list = new ArrayList<>(newList);
+            notifyDataSetChanged();
+            return;
+        }
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return list.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return java.util.Objects.equals(list.get(oldItemPosition).getPartnerId(), newList.get(newItemPosition).getPartnerId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                ConversationWrapper oldItem = list.get(oldItemPosition);
+                ConversationWrapper newItem = newList.get(newItemPosition);
+                return oldItem.isOnline() == newItem.isOnline()
+                        && oldItem.isStranger() == newItem.isStranger()
+                        && oldItem.getUnreadCount() == newItem.getUnreadCount()
+                        && java.util.Objects.equals(oldItem.getPartnerName(), newItem.getPartnerName())
+                        && java.util.Objects.equals(oldItem.getPartnerAvatar(), newItem.getPartnerAvatar())
+                        && (oldItem.getLastMessage() == null ? newItem.getLastMessage() == null : 
+                           (newItem.getLastMessage() != null 
+                            && oldItem.getLastMessage().getTimestamp() == newItem.getLastMessage().getTimestamp()
+                            && java.util.Objects.equals(oldItem.getLastMessage().getContent(), newItem.getLastMessage().getContent())));
+            }
+        });
         this.list = new ArrayList<>(newList);
-        notifyDataSetChanged();
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -97,7 +136,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
 
         // Trạng thái online glow
-        holder.viewOnline.setVisibility(wrapper.isOnline() ? View.VISIBLE : View.GONE);
+        if (wrapper.isOnline() && holder.cardAvatar != null) {
+            holder.cardAvatar.setStrokeColor(holder.itemView.getContext().getResources().getColor(R.color.brand_primary));
+            holder.cardAvatar.setStrokeWidth(4);
+            holder.viewOnline.setVisibility(View.VISIBLE);
+        } else if (holder.cardAvatar != null) {
+            holder.cardAvatar.setStrokeColor(holder.itemView.getContext().getResources().getColor(R.color.mosco_white_20));
+            holder.cardAvatar.setStrokeWidth(2);
+            holder.viewOnline.setVisibility(View.GONE);
+        }
 
         // Load Avatar
         long partnerIdLong;
@@ -111,11 +158,20 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         // Đổ tin nhắn xem trước và thời gian — phân biệt ai gửi (giống Messenger)
         if (msg != null) {
             String preview;
+            String rawContent = msg.getContent();
+            String decodedContent = "";
+            if (rawContent != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    decodedContent = android.text.Html.fromHtml(rawContent, android.text.Html.FROM_HTML_MODE_LEGACY).toString();
+                } else {
+                    decodedContent = android.text.Html.fromHtml(rawContent).toString();
+                }
+            }
             if (msg.getSenderId() != null && msg.getSenderId().equals(myId)) {
                 // Tôi gửi → hiện "You: nội dung"
-                preview = holder.itemView.getContext().getString(R.string.chat_preview_you_prefix) + msg.getContent();
+                preview = holder.itemView.getContext().getString(R.string.chat_preview_you_prefix) + decodedContent;
             } else {
-                preview = msg.getContent();
+                preview = decodedContent;
             }
             holder.tvPreview.setText(preview);
             long now = System.currentTimeMillis();
@@ -126,6 +182,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.tvPreview.setText(holder.itemView.getContext().getString(R.string.chat_preview_start));
             holder.tvTime.setText("");
             holder.tvTime.setVisibility(View.GONE);
+        }
+
+        // Đổ số lượng tin nhắn chưa đọc (Huy hiệu hình tròn màu vàng hổ phách)
+        if (wrapper.getUnreadCount() > 0) {
+            holder.tvUnreadBadge.setText(String.valueOf(wrapper.getUnreadCount()));
+            holder.tvUnreadBadge.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvUnreadBadge.setVisibility(View.GONE);
         }
 
         // Click Debounce ngăn chặn click spam liên tục gây crash
@@ -151,18 +215,22 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar;
+        com.google.android.material.card.MaterialCardView cardAvatar;
         View viewOnline;
         TextView tvName;
         TextView tvPreview;
         TextView tvTime;
+        TextView tvUnreadBadge;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivAvatar = itemView.findViewById(R.id.iv_conversation_avatar);
+            cardAvatar = itemView.findViewById(R.id.card_conversation_avatar);
             viewOnline = itemView.findViewById(R.id.view_online_status);
             tvName = itemView.findViewById(R.id.tv_conversation_partner_name);
             tvPreview = itemView.findViewById(R.id.tv_conversation_preview);
             tvTime = itemView.findViewById(R.id.tv_conversation_time);
+            tvUnreadBadge = itemView.findViewById(R.id.tv_conversation_unread_badge);
         }
     }
 }

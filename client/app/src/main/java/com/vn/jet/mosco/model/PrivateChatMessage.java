@@ -20,6 +20,8 @@ public class PrivateChatMessage {
     private String content;
     private long timestamp;
     
+    private boolean isRead = false;
+    
     @Ignore
     private String partnerName;
     @Ignore
@@ -62,6 +64,9 @@ public class PrivateChatMessage {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+
+    public boolean isRead() { return isRead; }
+    public void setRead(boolean read) { this.isRead = read; }
 
     public String getPartnerName() { return partnerName; }
     public void setPartnerName(String partnerName) { this.partnerName = partnerName; }

@@ -5,27 +5,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface"
+    android:background="@color/lg_background"
     android:clickable="true"
     android:focusable="true"
+    android:animateLayoutChanges="true"
     tools:context=".fragment.ChatPrivateFragment">
 
     <!-- HEADER SECTION -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_private_chat_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="@dimen/spacing_md"
-        android:paddingHorizontal="@dimen/spacing_lg"
-        android:background="@drawable/bg_private_chat_header"
+        android:layout_height="76dp"
+        android:paddingHorizontal="12dp"
+        android:background="#0B0F19"
         app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Button (Arrow left) -->
+        <ImageView
+            android:id="@+id/btn_close_private_chat"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <!-- Avatar with Status Dot -->
         <FrameLayout
             android:id="@+id/layout_private_avatar_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/btn_close_private_chat"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
             
@@ -59,9 +73,10 @@
             android:id="@+id/layout_private_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintStart_toEndOf="@id/layout_private_avatar_group"
-            app:layout_constraintEnd_toStartOf="@id/btn_close_private_chat"
+            app:layout_constraintEnd_toStartOf="@id/btn_private_chat_more"
             app:layout_constraintTop_toTopOf="@id/layout_private_avatar_group"
             app:layout_constraintBottom_toBottomOf="@id/layout_private_avatar_group">
 
@@ -128,16 +143,25 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- More Options Button (Vertical 3-dots) -->
         <ImageView
-            android:id="@+id/btn_close_private_chat"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_close"
-            android:padding="@dimen/spacing_sm"
+            android:id="@+id/btn_private_chat_more"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_more_options"
+            android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Bottom Separator for Premium visual boundary -->
+        <View
+            android:id="@+id/header_divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#1E293B"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
