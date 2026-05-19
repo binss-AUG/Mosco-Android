@@ -78,6 +78,7 @@ public class ChatPrivateFragment extends Fragment {
     private LottieAnimationView lottieStreakIcon;
     private TextView tvHeaderName, tvHeaderStatus, tvStreakCount;
     private View btnStreakDetails;
+    private View viewStatusDot;
     private View layoutAddFriendBanner;
     private TextView btnAddFriendChat;
 
@@ -150,13 +151,16 @@ public class ChatPrivateFragment extends Fragment {
         tvStreakCount = v.findViewById(R.id.tv_streak_count);
         lottieStreakIcon = v.findViewById(R.id.lottie_streak_icon);
         btnStreakDetails = v.findViewById(R.id.btn_streak_details);
+        viewStatusDot = v.findViewById(R.id.view_private_status_dot);
         layoutAddFriendBanner = v.findViewById(R.id.layout_add_friend_banner);
         btnAddFriendChat = v.findViewById(R.id.btn_add_friend_chat);
 
         tvHeaderName.setText(partnerName);
+        tvHeaderName.setSelected(true);
         AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, partnerId, partnerAvatar);
 
         chatAdapter = new WorldChatAdapter();
+        chatAdapter.setPrivateChat(true);
         chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
         rvChat.setLayoutManager(new LinearLayoutManager(getContext()));
         rvChat.setAdapter(chatAdapter);
@@ -667,6 +671,9 @@ public class ChatPrivateFragment extends Fragment {
                                 tvHeaderStatus.setText(isOnline ? "ONLINE" : "OFFLINE");
                                 tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
                             }
+                            if (viewStatusDot != null) {
+                                viewStatusDot.setVisibility(isOnline ? View.VISIBLE : View.GONE);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -706,6 +713,7 @@ public class ChatPrivateFragment extends Fragment {
             partnerName = displayName;
             if (tvHeaderName != null) {
                 tvHeaderName.setText(partnerName);
+                tvHeaderName.setSelected(true);
             }
         }
         if (stats.getAvatarId() != null && !stats.getAvatarId().isEmpty()) {

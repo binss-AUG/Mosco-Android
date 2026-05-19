@@ -84,11 +84,19 @@
                 android:id="@+id/tv_private_header_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                app:layout_constrainedWidth="true"
                 style="@style/MoscoText.Luxury.SubHeader"
                 android:textSize="@dimen/text_size_h3"
                 android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/lottie_streak_icon"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
                 tools:text="Con bò ăn cỏ" />
 
             <com.airbnb.lottie.LottieAnimationView
@@ -101,6 +109,8 @@
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:layout_constraintStart_toEndOf="@id/tv_private_header_name"
+                app:layout_constraintEnd_toStartOf="@id/tv_streak_count"
+                app:layout_constraintTop_toTopOf="@id/tv_private_header_name"
                 app:layout_constraintBottom_toBottomOf="@id/tv_private_header_name" />
 
             <TextView
@@ -115,8 +125,10 @@
                 android:textStyle="bold"
                 android:includeFontPadding="false"
                 app:layout_constraintStart_toEndOf="@id/lottie_streak_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tv_private_header_name"
                 app:layout_constraintBottom_toBottomOf="@id/tv_private_header_name"
-                tools:text="30" />
+                app:layout_constraintHorizontal_bias="0.0" />
 
             <TextView
                 android:id="@+id/tv_private_status_text"

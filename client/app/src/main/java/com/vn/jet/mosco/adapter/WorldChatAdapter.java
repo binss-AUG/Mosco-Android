@@ -28,9 +28,14 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final List<WorldChatMessage> messages = new ArrayList<>();
     private String currentUserId;
     private boolean isPartnerOnline = false;
+    private boolean isPrivateChat = false;
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
+    }
+
+    public void setPrivateChat(boolean privateChat) {
+        this.isPrivateChat = privateChat;
     }
 
     public void setPartnerOnline(boolean online) {
@@ -193,7 +198,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
             
             // Ép lineshow & hiển thị tên đối phương (bên góc trên trái)
-            otherHolder.tvName.setText(msg.getSenderName());
+            if (isPrivateChat) {
+                otherHolder.tvName.setVisibility(View.GONE);
+            } else {
+                otherHolder.tvName.setVisibility(View.VISIBLE);
+                otherHolder.tvName.setText(msg.getSenderName());
+            }
             
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
