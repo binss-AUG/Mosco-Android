@@ -149,7 +149,7 @@ public class PlayerGiftsFragment extends Fragment {
         giftHistoryAdapter.updateData(filteredGifts);
 
         if (tvPlayerGiftsCount != null) {
-            tvPlayerGiftsCount.setText(String.valueOf(filteredGifts.size()));
+            tvPlayerGiftsCount.setText(getString(R.string.mailbox_gift_count_unit, filteredGifts.size()));
         }
     }
 }

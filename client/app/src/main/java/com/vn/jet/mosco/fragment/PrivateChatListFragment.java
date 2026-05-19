@@ -359,6 +359,13 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
     private void filterConversations() {
         if (getContext() == null) return;
 
+        // Sắp xếp các cuộc hội thoại: tin nhắn mới nhất lên đầu, bạn bè chưa có tin nhắn ở dưới cùng
+        conversationsList.sort((a, b) -> {
+            long tsA = (a.getLastMessage() != null) ? a.getLastMessage().getTimestamp() : 0;
+            long tsB = (b.getLastMessage() != null) ? b.getLastMessage().getTimestamp() : 0;
+            return Long.compare(tsB, tsA);
+        });
+
         filteredConversationsList.clear();
         for (ConversationAdapter.ConversationWrapper wrapper : conversationsList) {
             filteredConversationsList.add(wrapper);

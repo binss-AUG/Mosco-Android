@@ -152,7 +152,7 @@ public class SystemMailFragment extends Fragment implements MailboxAdapter.OnMai
         mailboxAdapter.notifyDataSetChanged();
 
         if (tvSystemMailsCount != null) {
-            tvSystemMailsCount.setText(String.valueOf(filteredMailsList.size()));
+            tvSystemMailsCount.setText(getString(R.string.mailbox_system_count_unit, filteredMailsList.size()));
         }
     }
 

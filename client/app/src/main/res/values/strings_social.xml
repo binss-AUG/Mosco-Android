@@ -166,6 +166,8 @@
     <string name="chat_preview_start">Tap to start a conversation</string>
     <string name="chat_stranger_suffix"> • Stranger</string>
     <string name="chat_user_fallback_prefix">User </string>
+    <string name="mailbox_system_count_unit">%d Mails</string>
+    <string name="mailbox_gift_count_unit">%d Gifts</string>
 
     <!-- Add Friend Banner (Chat Screen) -->
     <string name="chat_stranger_alert">This is a stranger. Connect with them on Mosco!</string>

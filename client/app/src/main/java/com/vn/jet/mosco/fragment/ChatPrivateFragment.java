@@ -45,6 +45,7 @@ import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.StreakColorHelper;
 import com.vn.jet.mosco.utils.MoscoDialogHelper;
 import com.vn.jet.mosco.model.Objet;
+import com.vn.jet.mosco.model.UserStats;
 
 import java.util.List;
 import java.util.Objects;
@@ -520,6 +521,7 @@ public class ChatPrivateFragment extends Fragment {
 
         subscribeToStreakUpdates();
         fetchStreakStatus();
+        fetchPartnerRelationship();
     }
 
     private void subscribeToStreakUpdates() {
@@ -595,6 +597,115 @@ public class ChatPrivateFragment extends Fragment {
         WebSocketManager.getInstance().sendPrivateMessage(pm);
     }
 
+    private void fetchPartnerRelationship() {
+        if (getContext() == null || partnerId == null) return;
+        gameApiService.getUserStats(partnerId).enqueue(new Callback<UserStats>() {
+            @Override
+            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
+                if (!isAdded() || getContext() == null) return;
+                if (response.isSuccessful() && response.body() != null) {
+                    UserStats stats = response.body();
+                    updateRelationshipUI(stats);
+                }
+            }
+            @Override
+            public void onFailure(Call<UserStats> call, Throwable t) {
+                Log.e(TAG, "Failed to fetch relationship for partner " + partnerId, t);
+            }
+        });
+    }
+
+    private void updateRelationshipUI(UserStats stats) {
+        if (stats == null || !isAdded()) return;
+        
+        // Cập nhật tên và avatar từ UserStats nếu thay đổi
+        if (stats.getIngameName() != null && !stats.getIngameName().isEmpty()) {
+            partnerName = stats.getIngameName();
+            if (tvHeaderName != null) {
+                tvHeaderName.setText(partnerName);
+            }
+        }
+        if (stats.getAvatarId() != null && !stats.getAvatarId().isEmpty()) {
+            partnerAvatar = stats.getAvatarId();
+            if (ivHeaderAvatar != null) {
+                AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, partnerId, partnerAvatar);
+            }
+        }
+
+        int status = stats.getFriendshipStatus();
+        if (status == 2) {
+            // Friends
+            if (layoutAddFriendBanner != null) {
+                layoutAddFriendBanner.setVisibility(View.GONE);
+            }
+            if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.VISIBLE);
+            if (tvStreakCount != null) tvStreakCount.setVisibility(View.VISIBLE);
+            if (btnStreakDetails != null) btnStreakDetails.setVisibility(View.VISIBLE);
+        } else {
+            // Stranger or Pending states
+            if (layoutAddFriendBanner != null) {
+                layoutAddFriendBanner.setVisibility(View.VISIBLE);
+            }
+            if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.GONE);
+            if (tvStreakCount != null) tvStreakCount.setVisibility(View.GONE);
+            if (btnStreakDetails != null) btnStreakDetails.setVisibility(View.GONE);
+
+            TextView tvStrangerAlert = getView() != null ? getView().findViewById(R.id.tv_stranger_alert) : null;
+            if (tvStrangerAlert != null) {
+                if (status == 0) {
+                    tvStrangerAlert.setText(getString(R.string.chat_stranger_alert));
+                    if (btnAddFriendChat != null) {
+                        btnAddFriendChat.setVisibility(View.VISIBLE);
+                        btnAddFriendChat.setText(getString(R.string.chat_add_friend_btn));
+                        btnAddFriendChat.setEnabled(true);
+                        btnAddFriendChat.setAlpha(1.0f);
+                        btnAddFriendChat.setOnClickListener(v -> sendFriendRequestInChat());
+                    }
+                } else if (status == 1) {
+                    tvStrangerAlert.setText("Waiting for response...");
+                    if (btnAddFriendChat != null) {
+                        btnAddFriendChat.setVisibility(View.GONE);
+                    }
+                } else if (status == 3) {
+                    String displayName = stats.getIngameName() != null ? stats.getIngameName() : "User #" + partnerId;
+                    tvStrangerAlert.setText(displayName + " sent you a friend request");
+                    if (btnAddFriendChat != null) {
+                        btnAddFriendChat.setVisibility(View.VISIBLE);
+                        btnAddFriendChat.setText("Accept");
+                        btnAddFriendChat.setEnabled(true);
+                        btnAddFriendChat.setAlpha(1.0f);
+                        btnAddFriendChat.setOnClickListener(v -> acceptFriendRequestInChat());
+                    }
+                }
+            }
+        }
+    }
+
+    private void acceptFriendRequestInChat() {
+        if (getContext() == null || partnerId == null) return;
+        
+        gameApiService.acceptFriendByUser(partnerId).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                if (!isAdded() || getContext() == null) return;
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), getString(R.string.social_msg_request_accepted), Toast.LENGTH_SHORT).show();
+                    fetchPartnerRelationship();
+                    fetchStreakStatus();
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.social_error_accept), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), getString(R.string.chat_add_friend_network_error), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
     private void sendFriendRequestInChat() {
         if (getContext() == null || partnerId == null) return;
         
@@ -609,11 +720,7 @@ public class ChatPrivateFragment extends Fragment {
                     if (response.isSuccessful() && response.body() != null) {
                         org.json.JSONObject json = new org.json.JSONObject(response.body().string());
                         msg = json.optString("message", getString(R.string.chat_add_friend_success));
-                        if (btnAddFriendChat != null) {
-                            btnAddFriendChat.setText(getString(R.string.chat_add_friend_pending));
-                            btnAddFriendChat.setEnabled(false);
-                            btnAddFriendChat.setAlpha(0.6f);
-                        }
+                        fetchPartnerRelationship();
                     } else if (response.errorBody() != null) {
                         org.json.JSONObject json = new org.json.JSONObject(response.errorBody().string());
                         msg = json.optString("message", getString(R.string.chat_add_friend_error));

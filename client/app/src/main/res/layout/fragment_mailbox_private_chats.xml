@@ -26,7 +26,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Count -->
+        <!-- Count (Hidden) -->
         <TextView
             android:id="@+id/tv_private_chats_count"
             style="@style/MoscoText.Luxury.Body"
@@ -35,6 +35,7 @@
             android:textColor="@color/lg_text_secondary"
             android:textSize="@dimen/text_size_body_sm"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
