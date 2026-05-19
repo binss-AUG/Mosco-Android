@@ -171,7 +171,7 @@
             style="@style/MoscoText.Luxury.Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/lg_surface_tab_unselected"
+            android:background="@drawable/bg_btn_ghost_outlined"
             android:paddingHorizontal="@dimen/spacing_md"
             android:paddingVertical="@dimen/spacing_xs"
             android:text="Add Friend"
