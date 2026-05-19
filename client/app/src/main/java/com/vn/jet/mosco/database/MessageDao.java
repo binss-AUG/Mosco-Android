@@ -26,4 +26,39 @@ public interface MessageDao {
 
     @Query("DELETE FROM private_messages")
     void deleteAllMessages();
+
+    /**
+     * Lấy danh sách các cuộc hội thoại gần đây nhất của người dùng hiện tại.
+     * Tại sao (WHY): Gom nhóm theo từng đối tác trò chuyện (partnerId) bằng biểu thức CASE WHEN,
+     * tìm thời gian của tin nhắn mới nhất (MAX(timestamp)), sau đó INNER JOIN lại chính nó để lấy đầy đủ
+     * thông tin của tin nhắn mới nhất đó nhằm hiển thị lên danh sách Inbox một cách tối ưu.
+     */
+    @Query("SELECT m1.* FROM private_messages m1 " +
+           "INNER JOIN (" +
+           "    SELECT " +
+           "        CASE WHEN senderId = :myId THEN receiverId ELSE senderId END AS partnerId, " +
+           "        MAX(timestamp) AS max_ts " +
+           "    FROM private_messages " +
+           "    WHERE senderId = :myId OR receiverId = :myId " +
+           "    GROUP BY partnerId" +
+           ") m2 ON (" +
+           "    (m1.senderId = :myId AND m1.receiverId = m2.partnerId) OR " +
+           "    (m1.senderId = m2.partnerId AND m1.receiverId = :myId)" +
+           ") AND m1.timestamp = m2.max_ts " +
+           "ORDER BY m1.timestamp DESC")
+    List<PrivateChatMessage> getRecentConversations(String myId);
+
+    /**
+     * Lấy tên của đối tác từ tin nhắn họ gửi để hiển thị đúng tên trên danh sách cuộc hội thoại.
+     */
+    @Query("SELECT senderName FROM private_messages WHERE senderId = :partnerId LIMIT 1")
+    String getPartnerName(String partnerId);
+
+    /**
+     * Lấy Avatar ID của đối tác để hiển thị đúng Avatar trên danh sách cuộc hội thoại.
+     */
+    @Query("SELECT avatarId FROM private_messages WHERE senderId = :partnerId LIMIT 1")
+    String getPartnerAvatar(String partnerId);
 }
+
+

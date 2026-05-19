@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_header_glass_v2"
+    android:paddingHorizontal="@dimen/spacing_14dp"
+    android:paddingVertical="@dimen/radius_lg"
+    android:layout_marginBottom="@dimen/spacing_sm"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <!-- Avatar with Online Status Glow -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_avatar_container"
+        android:layout_width="@dimen/spacing_52dp"
+        android:layout_height="@dimen/spacing_52dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_conversation_avatar"
+            android:layout_width="@dimen/spacing_44dp"
+            android:layout_height="@dimen/spacing_44dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/lg_glass_surface_high"
+            app:strokeColor="@color/mosco_white_20"
+            app:strokeWidth="@dimen/stroke_thin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_conversation_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Status Dot Glow -->
+        <View
+            android:id="@+id/view_online_status"
+            android:layout_width="@dimen/radius_lg"
+            android:layout_height="@dimen/radius_lg"
+            android:background="@drawable/bg_status_online"
+            android:elevation="@dimen/spacing_2dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/card_conversation_avatar"
+            app:layout_constraintEnd_toEndOf="@id/card_conversation_avatar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Name + Last Message -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/spacing_14dp"
+        android:layout_marginEnd="@dimen/spacing_14dp"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
+        app:layout_constraintEnd_toStartOf="@id/tv_conversation_time"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tv_conversation_partner_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_md"
+            android:textStyle="bold"
+            android:fontWeight="700"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            tools:text="Partner Name" />
+
+        <TextView
+            android:id="@+id/tv_conversation_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.Body"
+            android:textColor="@color/mosco_white_30"
+            android:textSize="@dimen/text_size_caption"
+            android:layout_marginTop="@dimen/spacing_2dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            tools:text="Preview of last message goes here..." />
+    </LinearLayout>
+
+    <!-- Time Stamp -->
+    <TextView
+        android:id="@+id/tv_conversation_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_white_30"
+        android:textSize="@dimen/text_size_caption"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="5m ago" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

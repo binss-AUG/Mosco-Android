@@ -37,14 +37,22 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.utils.NumberUtils;
+import com.vn.jet.mosco.model.PrivateChatMessage;
 
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
 
 public class CollectionFragment extends Fragment {
 
@@ -852,12 +860,6 @@ public class CollectionFragment extends Fragment {
     // TAB 1: MAILBOX
     // ==========================================
     public static class MailboxFragment extends Fragment {
-        private final Set<String> mailboxFilter = new LinkedHashSet<>();
-        private String[] SORT_OPTIONS;
-        private MailboxAdapter adapter;
-        private TextView tvCount;
-        private List<com.vn.jet.mosco.model.UserMail> originalMails = new ArrayList<>();
-
         @Nullable
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -868,31 +870,110 @@ public class CollectionFragment extends Fragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
-            tvCount = view.findViewById(R.id.tv_mailbox_count_title);
-            SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
 
-            View sortBtn = view.findViewById(R.id.btn_sort_mailbox);
-            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_mailbox);
+            // Gắn sự kiện nút back để quay lại màn hình Collection trước đó
+            View backBtn = view.findViewById(R.id.btn_back_common);
+            if (backBtn != null) {
+                backBtn.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+            }
 
-            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
+            // Thiết lập tiêu đề thanh Header dùng chung
+            TextView tvTitle = view.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(getString(R.string.collection_tab_mailbox));
+            }
 
-            // Filter
-            View filterBtn = view.findViewById(R.id.btn_filter_mailbox);
-            filterBtn.setOnClickListener(
-                    v -> showFilterBottomSheet(this, buildMailboxCategories(), mailboxFilter, null, null, this::applyFilters));
+            TabLayout tabLayout = view.findViewById(R.id.tab_layout_mailbox);
+            ViewPager2 viewPager = view.findViewById(R.id.view_pager_mailbox);
 
-            // Receive All
+            if (viewPager != null && tabLayout != null) {
+                viewPager.setAdapter(new MailboxPagerAdapter(this));
+                viewPager.setUserInputEnabled(false); // Chặn vuốt tay để giữ tương tác mượt mà qua click tab
+
+                new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                    switch (position) {
+                        case 0: tab.setText("SYSTEM"); break;
+                        case 1: tab.setText("GIFTS"); break;
+                        case 2: tab.setText("INBOX"); break;
+                    }
+                }).attach();
+            }
+        }
+
+        private static class MailboxPagerAdapter extends FragmentStateAdapter {
+            public MailboxPagerAdapter(@NonNull Fragment fragment) {
+                super(fragment);
+            }
+
+            @NonNull
+            @Override
+            public Fragment createFragment(int position) {
+                switch (position) {
+                    case 0: return new SystemMailFragment();
+                    case 1: return new PlayerGiftsFragment();
+                    case 2: return new PrivateChatListFragment();
+                    default: return new SystemMailFragment();
+                }
+            }
+
+            @Override
+            public int getItemCount() {
+                return 3;
+            }
+        }
+    }
+
+    // ==========================================
+    // SUB-TAB 1: THƯ HỆ THỐNG (SYSTEM MAILS)
+    // ==========================================
+    public static class SystemMailFragment extends Fragment {
+        private final Set<String> mailboxFilter = new LinkedHashSet<>();
+        private MailboxAdapter adapter;
+        private TextView tvCount;
+        private List<com.vn.jet.mosco.model.UserMail> originalMails = new ArrayList<>();
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_mailbox_system, container, false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            tvCount = view.findViewById(R.id.tv_system_mails_count);
+
+            // Thiết lập Filter Bar (Smart Pill) cho danh sách thư hệ thống
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = view.findViewById(R.id.filter_bar_system_mails);
+            if (filterBar != null) {
+                filterBar.setSortOptions(new String[] { SORT_NEWEST, SORT_LOWEST_NO, SORT_HIGHEST_NO });
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void onFilterRequested() {
+                        // Gọi Bottom Sheet lọc nâng cao dùng chung trong hệ sinh thái Mosco
+                        showFilterBottomSheet(SystemMailFragment.this, buildMailboxCategories(), mailboxFilter, filterBar, filterBar.getSortOptions(), SystemMailFragment.this::applyFilters);
+                    }
+                });
+            }
+
+            // Nút "Nhận Tất Cả" (Receive All) dưới đáy màn hình
             View btnReceiveAll = view.findViewById(R.id.btn_receive_all);
             if (btnReceiveAll != null) {
                 btnReceiveAll.setOnClickListener(v -> receiveAll());
             }
 
-            // RecyclerView
-            RecyclerView rvMailbox = view.findViewById(R.id.rv_mailbox);
-            rvMailbox.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-            adapter = new MailboxAdapter(new ArrayList<>(), this::onMailClicked);
-            rvMailbox.setAdapter(adapter);
+            RecyclerView rvMailbox = view.findViewById(R.id.rv_system_mails);
+            if (rvMailbox != null) {
+                rvMailbox.setLayoutManager(new LinearLayoutManager(requireContext()));
+                adapter = new MailboxAdapter(new ArrayList<>(), this::onMailClicked);
+                rvMailbox.setAdapter(adapter);
+            }
 
             loadMailbox();
         }
@@ -919,9 +1000,6 @@ public class CollectionFragment extends Fragment {
             builder.show();
         }
 
-        /**
-         * Thực hiện gửi yêu cầu nhận quà lên Server.
-         */
         private void performClaim(com.vn.jet.mosco.model.UserMail mail) {
             com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
                     .getClient(requireContext())
@@ -938,9 +1016,7 @@ public class CollectionFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                    // Xử lý ngầm, không hiện thông báo nổi
-                }
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {}
             });
         }
 
@@ -1019,12 +1095,11 @@ public class CollectionFragment extends Fragment {
         private void applyFilters() {
             if (originalMails == null)
                 return;
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_mailbox) : null;
-            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = getView() != null ? getView().findViewById(R.id.filter_bar_system_mails) : null;
+            String currentSort = filterBar != null ? filterBar.getSortOption() : SORT_NEWEST;
 
             List<com.vn.jet.mosco.model.UserMail> filtered = new ArrayList<>();
             for (com.vn.jet.mosco.model.UserMail m : originalMails) {
-                // Chỉ hiển thị những thư CHƯA nhận quà để danh sách gọn gàng
                 if (!m.isReceived()) {
                     if (mailboxFilter.isEmpty()) {
                         filtered.add(m);
@@ -1051,6 +1126,332 @@ public class CollectionFragment extends Fragment {
 
             if (adapter != null)
                 adapter.updateData(filtered);
+            if (tvCount != null) {
+                tvCount.setText(String.valueOf(filtered.size()));
+            }
+        }
+    }
+
+    // ==========================================
+    // SUB-TAB 2: QUÀ ĐÃ NHẬN TỪ NGƯỜI CHƠI (PLAYER GIFTS)
+    // ==========================================
+    public static class PlayerGiftsFragment extends Fragment {
+        private final Set<String> giftFilter = new LinkedHashSet<>();
+        private com.vn.jet.mosco.adapter.GiftHistoryAdapter giftHistoryAdapter;
+        private TextView tvCount;
+        private List<JSONObject> originalGifts = new ArrayList<>();
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_mailbox_player_gifts, container, false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            tvCount = view.findViewById(R.id.tv_player_gifts_count);
+
+            // Cấu hình Filter Bar (Smart Pill) cho danh sách quà nhận từ bạn bè
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = view.findViewById(R.id.filter_bar_player_gifts);
+            if (filterBar != null) {
+                filterBar.setSortOptions(new String[] { SORT_NEWEST, SORT_LOWEST_NO, SORT_HIGHEST_NO });
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void onFilterRequested() {
+                        showFilterBottomSheet(PlayerGiftsFragment.this, buildMailboxCategories(), giftFilter, filterBar, filterBar.getSortOptions(), PlayerGiftsFragment.this::applyFilters);
+                    }
+                });
+            }
+
+            RecyclerView rvGifts = view.findViewById(R.id.rv_player_gifts);
+            if (rvGifts != null) {
+                rvGifts.setLayoutManager(new LinearLayoutManager(requireContext()));
+                giftHistoryAdapter = new com.vn.jet.mosco.adapter.GiftHistoryAdapter(new ArrayList<>(), true);
+                rvGifts.setAdapter(giftHistoryAdapter);
+            }
+
+            loadPlayerGifts();
+        }
+
+        private void loadPlayerGifts() {
+            if (giftHistoryAdapter != null) {
+                giftHistoryAdapter.setLoading(true);
+            }
+
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(requireContext())
+                    .create(com.vn.jet.mosco.network.GameApiService.class);
+
+            apiService.getReceivedGifts().enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                @Override
+                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
+                        retrofit2.Response<okhttp3.ResponseBody> response) {
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            JSONObject json = new JSONObject(response.body().string());
+                            JSONArray dataArr = json.optJSONArray("data");
+                            List<JSONObject> gifts = new ArrayList<>();
+                            if (dataArr != null) {
+                                for (int i = 0; i < dataArr.length(); i++) {
+                                    gifts.add(dataArr.getJSONObject(i));
+                                }
+                            }
+                            originalGifts = gifts;
+                            applyFilters();
+                        }
+                    } catch (Exception e) {
+                        Log.e("PlayerGiftsFragment", "Lỗi phân tích quà tặng bạn bè", e);
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                    Log.e("PlayerGiftsFragment", "Lỗi kết nối tải quà nhận", t);
+                }
+            });
+        }
+
+        private void applyFilters() {
+            if (originalGifts == null) return;
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = getView() != null ? getView().findViewById(R.id.filter_bar_player_gifts) : null;
+            String currentSort = filterBar != null ? filterBar.getSortOption() : SORT_NEWEST;
+
+            List<JSONObject> filtered = new ArrayList<>();
+            for (JSONObject g : originalGifts) {
+                if (giftFilter.isEmpty()) {
+                    filtered.add(g);
+                } else {
+                    filtered.add(g);
+                }
+            }
+
+            // Sắp xếp quà tặng theo thời gian hoặc độ hiếm cấp độ thẻ được tặng
+            filtered.sort((a, b) -> {
+                int res;
+                if (SORT_LOWEST_NO.equals(currentSort)) {
+                    res = Integer.compare(a.optInt("cardLevel", 0), b.optInt("cardLevel", 0));
+                } else if (SORT_HIGHEST_NO.equals(currentSort)) {
+                    res = Integer.compare(b.optInt("cardLevel", 0), a.optInt("cardLevel", 0));
+                } else {
+                    String ca = a.optString("createdAt", "");
+                    String cb = b.optString("createdAt", "");
+                    res = cb.compareTo(ca); // Mới nhất lên đầu
+                }
+                return res;
+            });
+
+            if (giftHistoryAdapter != null) {
+                giftHistoryAdapter.updateData(filtered);
+            }
+
+            View emptyView = getView() != null ? getView().findViewById(R.id.tv_no_gifts) : null;
+            if (emptyView != null) {
+                emptyView.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+
+            if (tvCount != null) {
+                tvCount.setText(String.valueOf(filtered.size()));
+            }
+        }
+    }
+
+    // ==========================================
+    // SUB-TAB 3: DANH SÁCH TIN NHẮN RIÊNG TƯ (CHAT INBOX)
+    // ==========================================
+    public static class PrivateChatListFragment extends Fragment {
+        private final Set<String> chatFilter = new LinkedHashSet<>();
+        private com.vn.jet.mosco.adapter.ConversationAdapter adapter;
+        private TextView tvCount;
+        private List<com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper> originalConversations = new ArrayList<>();
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_mailbox_private_chats, container, false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            tvCount = view.findViewById(R.id.tv_private_chats_count);
+
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = view.findViewById(R.id.filter_bar_private_chats);
+            if (filterBar != null) {
+                filterBar.setSortOptions(new String[] { SORT_NEWEST });
+                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
+                    @Override
+                    public void onFilterChanged(String sortOption, boolean isAscending) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void onFilterRequested() {
+                        showFilterBottomSheet(PrivateChatListFragment.this, buildMailboxCategories(), chatFilter, filterBar, filterBar.getSortOptions(), PrivateChatListFragment.this::applyFilters);
+                    }
+                });
+            }
+
+            RecyclerView rvChats = view.findViewById(R.id.rv_private_chats);
+            if (rvChats != null) {
+                rvChats.setLayoutManager(new LinearLayoutManager(requireContext()));
+            }
+
+            loadConversations();
+        }
+
+        private void loadConversations() {
+            Context context = getContext();
+            if (context == null) return;
+
+            String myId = String.valueOf(new com.vn.jet.mosco.utils.SessionManager(context).getUserId());
+            if (myId == null) return;
+
+            // Chạy ngầm trong luồng background (Background thread) để tránh chặn đứng Main Thread (ANR)
+            new Thread(() -> {
+                try {
+                    com.vn.jet.mosco.database.AppDatabase db = com.vn.jet.mosco.database.AppDatabase.getInstance(context);
+                    com.vn.jet.mosco.database.MessageDao dao = db.messageDao();
+                    List<PrivateChatMessage> lastMessages = dao.getRecentConversations(myId);
+
+                    List<com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper> wrappers = new ArrayList<>();
+                    for (PrivateChatMessage msg : lastMessages) {
+                        String partnerId = myId.equals(msg.getSenderId()) ? msg.getReceiverId() : msg.getSenderId();
+
+                        String partnerName = null;
+                        String partnerAvatar = null;
+
+                        if (myId.equals(msg.getSenderId())) {
+                            // Nếu tin nhắn cuối do mình gửi, tìm tên/avatar từ tin nhắn đối tác gửi trước đó
+                            partnerName = dao.getPartnerName(partnerId);
+                            partnerAvatar = dao.getPartnerAvatar(partnerId);
+                        } else {
+                            // Nếu tin nhắn cuối do đối tác gửi, lấy trực tiếp từ tin nhắn
+                            partnerName = msg.getSenderName();
+                            partnerAvatar = msg.getAvatarId();
+                        }
+
+                        if (partnerAvatar == null) partnerAvatar = "1";
+
+                        wrappers.add(new com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper(
+                                msg, partnerId, partnerName, partnerAvatar
+                        ));
+                    }
+
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (!isAdded()) return;
+                            originalConversations = wrappers;
+                            applyFilters();
+                            // Sau khi tải dữ liệu Local-First tức thì, chạy đồng bộ trạng thái online glow ngầm từ API
+                            fetchOnlineStatus();
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e("PrivateChatListFragment", "Lỗi tải danh sách tin nhắn riêng tư", e);
+                }
+            }).start();
+        }
+
+        private void fetchOnlineStatus() {
+            Context context = getContext();
+            if (context == null) return;
+
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
+                    .getClient(context).create(com.vn.jet.mosco.network.GameApiService.class);
+
+            apiService.getFriendList().enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                @Override
+                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
+                        retrofit2.Response<okhttp3.ResponseBody> response) {
+                    try {
+                        if (response.isSuccessful() && response.body() != null) {
+                            JSONObject json = new JSONObject(response.body().string());
+                            JSONArray friendsArr = json.optJSONArray("data");
+                            if (friendsArr != null) {
+                                Map<String, Boolean> onlineMap = new HashMap<>();
+                                for (int i = 0; i < friendsArr.length(); i++) {
+                                    JSONObject friendObj = friendsArr.getJSONObject(i);
+                                    String idStr = String.valueOf(friendObj.optLong("userId"));
+                                    boolean online = friendObj.optBoolean("online", false);
+                                    onlineMap.put(idStr, online);
+                                }
+
+                                boolean updated = false;
+                                for (com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper w : originalConversations) {
+                                    Boolean online = onlineMap.get(w.getPartnerId());
+                                    if (online != null && online != w.isOnline()) {
+                                        w.setOnline(online);
+                                        updated = true;
+                                    }
+                                }
+
+                                if (updated && adapter != null) {
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("PrivateChatListFragment", "Lỗi phân tích online status", e);
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {}
+            });
+        }
+
+        private void applyFilters() {
+            if (originalConversations == null) return;
+            com.vn.jet.mosco.view.InventoryFilterBar filterBar = getView() != null ? getView().findViewById(R.id.filter_bar_private_chats) : null;
+
+            List<com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper> filtered = new ArrayList<>();
+            for (com.vn.jet.mosco.adapter.ConversationAdapter.ConversationWrapper w : originalConversations) {
+                if (chatFilter.isEmpty()) {
+                    filtered.add(w);
+                } else {
+                    filtered.add(w);
+                }
+            }
+
+            // Mặc định sắp xếp theo thời gian tin nhắn mới nhất lên đầu
+            filtered.sort((a, b) -> Long.compare(b.getLastMessage().getTimestamp(), a.getLastMessage().getTimestamp()));
+
+            if (adapter == null) {
+                Context context = getContext();
+                if (context == null) return;
+                String myId = String.valueOf(new com.vn.jet.mosco.utils.SessionManager(context).getUserId());
+
+                adapter = new com.vn.jet.mosco.adapter.ConversationAdapter(myId, wrapper -> {
+                    long partnerId;
+                    try {
+                        partnerId = Long.parseLong(wrapper.getPartnerId());
+                    } catch (NumberFormatException e) {
+                        partnerId = -1L;
+                    }
+                    com.vn.jet.mosco.utils.NavigationUtils.openPrivateChat(requireActivity(), partnerId, wrapper.getPartnerName(), wrapper.getPartnerAvatar());
+                });
+
+                RecyclerView rv = getView().findViewById(R.id.rv_private_chats);
+                if (rv != null) {
+                    rv.setAdapter(adapter);
+                }
+            }
+
+            adapter.updateData(filtered);
+
+            View emptyView = getView() != null ? getView().findViewById(R.id.tv_no_chats) : null;
+            if (emptyView != null) {
+                emptyView.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+            }
+
             if (tvCount != null) {
                 tvCount.setText(String.valueOf(filtered.size()));
             }
