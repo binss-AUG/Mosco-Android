@@ -48,6 +48,7 @@ import com.vn.jet.mosco.model.Objet;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -438,6 +439,13 @@ public class ChatPrivateFragment extends Fragment {
     private void processServerMessages(List<PrivateChatMessage> serverMsgs) {
         String myId = String.valueOf(sessionManager.getUserId());
         String partnerIdStr = String.valueOf(partnerId);
+        List<Long> idsToAck = new ArrayList<>();
+        for (PrivateChatMessage sMsg : serverMsgs) {
+            if (sMsg.getId() > 0) {
+                idsToAck.add(sMsg.getId());
+            }
+        }
+
         AppExecutors.getInstance().diskIO().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(requireContext());
             List<PrivateChatMessage> localMsgs = db.messageDao().getChatHistory(myId, partnerIdStr);
@@ -455,6 +463,21 @@ public class ChatPrivateFragment extends Fragment {
                     hasNew = true;
                 }
             }
+
+            if (!idsToAck.isEmpty()) {
+                gameApiService.ackMessages(idsToAck).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                    @Override
+                    public void onResponse(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull retrofit2.Response<okhttp3.ResponseBody> response) {
+                        Log.d(TAG, "Successfully acknowledged " + idsToAck.size() + " messages on Server");
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull Throwable t) {
+                        Log.e(TAG, "Failed to ACK messages", t);
+                    }
+                });
+            }
+
             if (hasNew && isAdded()) {
                 requireActivity().runOnUiThread(this::loadHistory);
             }
