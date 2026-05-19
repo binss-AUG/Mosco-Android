@@ -84,10 +84,21 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         return view;
     }
 
+    private final androidx.fragment.app.FragmentManager.OnBackStackChangedListener backStackListener = () -> {
+        if (isAdded()) {
+            loadConversationsLocalFirst();
+        }
+    };
+
     @Override
     public void onStart() {
         super.onStart();
         subscribeToIncomingMessages();
+        try {
+            requireActivity().getSupportFragmentManager().addOnBackStackChangedListener(backStackListener);
+        } catch (Exception e) {
+            Log.e("PrivateChatList", "Failed to add backstack listener", e);
+        }
     }
 
     @Override
@@ -109,6 +120,11 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
     @Override
     public void onStop() {
         super.onStop();
+        try {
+            requireActivity().getSupportFragmentManager().removeOnBackStackChangedListener(backStackListener);
+        } catch (Exception e) {
+            Log.e("PrivateChatList", "Failed to remove backstack listener", e);
+        }
         // Hủy subscription khi Fragment không hiển thị để tránh memory leak
         if (privateMessageSubscription != null && !privateMessageSubscription.isDisposed()) {
             privateMessageSubscription.dispose();
