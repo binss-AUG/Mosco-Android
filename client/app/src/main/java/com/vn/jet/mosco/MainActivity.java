@@ -206,24 +206,10 @@ public class MainActivity extends MoscoBaseActivity {
             });
         }
         
-        View.OnClickListener openProfileListener = v -> {
-            com.vn.jet.mosco.utils.NavigationUtils.openProfile(this, null);
-        };
         if (ivHomeAvatar != null) {
-            ivHomeAvatar.setOnClickListener(openProfileListener);
-        }
-        View flAvatarGroup = findViewById(R.id.fl_avatar_group);
-        if (flAvatarGroup != null) {
-            flAvatarGroup.setOnClickListener(openProfileListener);
-        }
-        if (tvUsername != null) {
-            tvUsername.setOnClickListener(openProfileListener);
-        }
-        if (tvLevel != null) {
-            tvLevel.setOnClickListener(openProfileListener);
-        }
-        if (pbHomeXp != null) {
-            pbHomeXp.setOnClickListener(openProfileListener);
+            ivHomeAvatar.setOnClickListener(v -> {
+                com.vn.jet.mosco.utils.NavigationUtils.openProfile(this, null);
+            });
         }
     }
 

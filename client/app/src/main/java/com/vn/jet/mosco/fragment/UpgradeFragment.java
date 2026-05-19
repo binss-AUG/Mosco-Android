@@ -43,7 +43,6 @@ import com.vn.jet.mosco.model.ApiResponse;
 import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.UpgradeRequest;
 import com.vn.jet.mosco.model.UpgradeResponse;
-import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.CardEffectHelper;
@@ -945,20 +944,16 @@ public class UpgradeFragment extends Fragment {
                 .setDuration(animRevealOvershootDuration)
                 .withLayer()
                 .withEndAction(() -> {
-                    // Phát video MP4 cho thẻ kết quả dạng Motion nếu thành công
-                    boolean isMotion = mainCard != null && "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
-                    if (isSuccess && isMotion) {
-                        if (resultVideoPlayer != null) {
-                            resultVideoPlayer.release();
-                            resultVideoPlayer = null;
-                        }
-                        ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
-                        if (vvResultVideo != null && getContext() != null) {
-                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                                    getContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
-                        }
-                    } else {
-                        if (vvResultVideo != null) {
+                    // Video MP4 playback cho thẻ kết quả nâng cấp
+                    if (vvResultVideo != null) {
+                        if (isSuccess && mainCard != null && "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                            if (resultVideoPlayer != null) {
+                                resultVideoPlayer.release();
+                                resultVideoPlayer = null;
+                            }
+                            ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
+                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
+                        } else {
                             vvResultVideo.setVisibility(View.GONE);
                         }
                     }
@@ -1031,20 +1026,17 @@ public class UpgradeFragment extends Fragment {
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
 
-            // Khởi chạy trình phát video ExoPlayer cho thẻ Motion nếu có
+            // Video MP4 playback cho Motion Cards
             TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
-            boolean isMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
             if (vvMainVideo != null) {
                 if (mainVideoPlayer != null) {
                     mainVideoPlayer.release();
                     mainVideoPlayer = null;
                 }
-                if (isMotion) {
-                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                            requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
+                if ("Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
                 } else {
                     vvMainVideo.setVisibility(View.GONE);
-                    ivMainCardImage.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -1059,12 +1051,7 @@ public class UpgradeFragment extends Fragment {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 LevelBadgeEffectHelper.remove(ivCardLevelBadge);
             }
-            
-            // Tạo đối tượng Objet mock để truyền đúng frontVideoUrl và class cho CardEffectHelper
-            Objet mockObj = new Objet(mainCard.getId(), mainCard.getCollectionId(), mainCard.getFrontImage(), mainCard.getLevel(), mainCard.getExp(), mainCard.getUpgradeLevel());
-            mockObj.setFrontVideoUrl(mainCard.getFrontVideoUrl());
-            mockObj.setTypeKey(mainCard.getCardClass());
-            CardEffectHelper.apply(cardMain, shimmer, mockObj, true);
+            CardEffectHelper.apply(cardMain, shimmer, mainCard, true);
         }
 
 

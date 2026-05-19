@@ -7,8 +7,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.view.TextureView;
-import com.vn.jet.mosco.model.Objet;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -93,8 +91,26 @@ public class GiftActivity extends MoscoBaseActivity {
     private int currentStep = 1;
     private List<JSONObject> allFriendsList = new ArrayList<>();
 
-    private androidx.media3.exoplayer.ExoPlayer selectVideoPlayer;
+    // ExoPlayer cho Motion Cards
+    private androidx.media3.exoplayer.ExoPlayer step1VideoPlayer;
     private androidx.media3.exoplayer.ExoPlayer successVideoPlayer;
+
+    private void releaseGiftPlayers() {
+        if (step1VideoPlayer != null) {
+            step1VideoPlayer.release();
+            step1VideoPlayer = null;
+        }
+        if (successVideoPlayer != null) {
+            successVideoPlayer.release();
+            successVideoPlayer = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        releaseGiftPlayers();
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,28 +300,9 @@ public class GiftActivity extends MoscoBaseActivity {
         TextView tvCardOvr = cvSelectedCard.findViewById(R.id.card_tv_ovr);
         ImageView ivCardLevel = cvSelectedCard.findViewById(R.id.card_iv_level);
         View viewCardShimmer = cvSelectedCard.findViewById(R.id.view_card_shimmer);
-        TextureView vvCardVideo = cvSelectedCard.findViewById(R.id.card_vv_video);
         
         // Luồng tải ưu tiên: Thẻ đang chọn gửi quà dùng bản Original chất lượng cao
         com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivCardImage, selectedObjet.getFrontImage(), false);
-
-        if (selectVideoPlayer != null) {
-            selectVideoPlayer.release();
-            selectVideoPlayer = null;
-        }
-
-        boolean isMotion = "Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty();
-        if (vvCardVideo != null) {
-            if (isMotion) {
-                selectVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                        this, vvCardVideo, selectedObjet.getFrontVideoUrl(), ivCardImage);
-            } else {
-                vvCardVideo.setVisibility(View.GONE);
-                if (ivCardImage != null) {
-                    ivCardImage.setVisibility(View.VISIBLE);
-                }
-            }
-        }
 
         // HIỆU ỨNG SHOWCASE CAO CẤP (Bê nguyên từ HomeFragment)
         if (tvCardOvr != null) {
@@ -326,11 +323,22 @@ public class GiftActivity extends MoscoBaseActivity {
             }
         }
 
+        // Video MP4 playback cho Motion Cards
+        android.view.TextureView vvCardVideo = cvSelectedCard.findViewById(R.id.card_vv_video);
+        if (vvCardVideo != null) {
+            if (step1VideoPlayer != null) {
+                step1VideoPlayer.release();
+                step1VideoPlayer = null;
+            }
+            if ("Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
+                step1VideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(this, vvCardVideo, selectedObjet.getFrontVideoUrl(), ivCardImage);
+            } else {
+                vvCardVideo.setVisibility(View.GONE);
+            }
+        }
+
         // Hiệu ứng Shimmer + TriplesBorder + Neon Glow bao quanh
-        Objet mockObj = new Objet(selectedObjet.getId(), selectedObjet.getCollectionId(), selectedObjet.getFrontImage(), selectedObjet.getLevel(), 0, selectedObjet.getLevel());
-        mockObj.setFrontVideoUrl(selectedObjet.getFrontVideoUrl());
-        mockObj.setTypeKey(selectedObjet.getCardClass());
-        com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSelectedCard, viewCardShimmer, mockObj, true);
+        com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSelectedCard, viewCardShimmer, selectedObjet, true);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -510,17 +518,13 @@ public class GiftActivity extends MoscoBaseActivity {
                     com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
                 }
                 
+                // Reset trạng thái
+                selectedObjet = null;
+                selectedFriend = null;
                 if (successVideoPlayer != null) {
                     successVideoPlayer.release();
                     successVideoPlayer = null;
                 }
-                if (selectVideoPlayer != null) {
-                    selectVideoPlayer.release();
-                    selectVideoPlayer = null;
-                }
-                // Reset trạng thái
-                selectedObjet = null;
-                selectedFriend = null;
                 resetSendWizard();
                 goToStep(1);
             });
@@ -584,7 +588,6 @@ public class GiftActivity extends MoscoBaseActivity {
                             TextView tvSuccessCardOvr = cvSuccessSelectedCard.findViewById(R.id.card_tv_ovr);
                             ImageView ivSuccessCardLevel = cvSuccessSelectedCard.findViewById(R.id.card_iv_level);
                             View viewSuccessCardShimmer = cvSuccessSelectedCard.findViewById(R.id.view_card_shimmer);
-                            TextureView vvSuccessCardVideo = cvSuccessSelectedCard.findViewById(R.id.card_vv_video);
 
                             if (ivSuccessCardImage != null) {
                                 com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSuccessCardImage, selectedObjet.getFrontImage(), false);
@@ -604,29 +607,22 @@ public class GiftActivity extends MoscoBaseActivity {
                                 }
                             }
 
-                            if (successVideoPlayer != null) {
-                                successVideoPlayer.release();
-                                successVideoPlayer = null;
-                            }
-
-                            boolean isMotion = "Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty();
-                            if (vvSuccessCardVideo != null) {
-                                if (isMotion) {
-                                    successVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
-                                            GiftActivity.this, vvSuccessCardVideo, selectedObjet.getFrontVideoUrl(), ivSuccessCardImage);
+                            // Video MP4 playback cho Motion Cards màn hình thành công
+                            android.view.TextureView vvSuccessVideo = cvSuccessSelectedCard.findViewById(R.id.card_vv_video);
+                            if (vvSuccessVideo != null) {
+                                if (successVideoPlayer != null) {
+                                    successVideoPlayer.release();
+                                    successVideoPlayer = null;
+                                }
+                                if ("Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
+                                    successVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(GiftActivity.this, vvSuccessVideo, selectedObjet.getFrontVideoUrl(), ivSuccessCardImage);
                                 } else {
-                                    vvSuccessCardVideo.setVisibility(View.GONE);
-                                    if (ivSuccessCardImage != null) {
-                                        ivSuccessCardImage.setVisibility(View.VISIBLE);
-                                    }
+                                    vvSuccessVideo.setVisibility(View.GONE);
                                 }
                             }
 
                             // Bỏ floating bồng bềnh (applyFloating = false), kích hoạt viền phát sáng (applyGlow = true)
-                            Objet mockObj = new Objet(selectedObjet.getId(), selectedObjet.getCollectionId(), selectedObjet.getFrontImage(), selectedObjet.getLevel(), 0, selectedObjet.getLevel());
-                            mockObj.setFrontVideoUrl(selectedObjet.getFrontVideoUrl());
-                            mockObj.setTypeKey(selectedObjet.getCardClass());
-                            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSuccessSelectedCard, viewSuccessCardShimmer, mockObj, false, true);
+                            com.vn.jet.mosco.utils.CardEffectHelper.apply(cvSuccessSelectedCard, viewSuccessCardShimmer, selectedObjet, false, true);
                         }
 
                         // 3. Bind Info Text
@@ -809,6 +805,11 @@ public class GiftActivity extends MoscoBaseActivity {
             com.vn.jet.mosco.utils.CardEffectHelper.remove(cvSuccessSelectedCard, viewSuccessShimmer);
         }
 
+        if (step1VideoPlayer != null) {
+            step1VideoPlayer.release();
+            step1VideoPlayer = null;
+        }
+
         cvSelectCardBtn.setVisibility(View.VISIBLE);
         cvSelectedCard.setVisibility(View.GONE);
         btnStep1Next.setVisibility(View.GONE);
@@ -823,19 +824,6 @@ public class GiftActivity extends MoscoBaseActivity {
             goToStep(currentStep - 1);
         } else {
             super.onBackPressed();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (selectVideoPlayer != null) {
-            selectVideoPlayer.release();
-            selectVideoPlayer = null;
-        }
-        if (successVideoPlayer != null) {
-            successVideoPlayer.release();
-            successVideoPlayer = null;
         }
     }
 }
