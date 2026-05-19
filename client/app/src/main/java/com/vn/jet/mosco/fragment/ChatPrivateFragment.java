@@ -608,27 +608,27 @@ public class ChatPrivateFragment extends Fragment {
                     String msg;
                     if (response.isSuccessful() && response.body() != null) {
                         org.json.JSONObject json = new org.json.JSONObject(response.body().string());
-                        msg = json.optString("message", "Đã gửi lời mời kết bạn!");
+                        msg = json.optString("message", getString(R.string.chat_add_friend_success));
                         if (btnAddFriendChat != null) {
-                            btnAddFriendChat.setText("Pending");
+                            btnAddFriendChat.setText(getString(R.string.chat_add_friend_pending));
                             btnAddFriendChat.setEnabled(false);
                             btnAddFriendChat.setAlpha(0.6f);
                         }
                     } else if (response.errorBody() != null) {
                         org.json.JSONObject json = new org.json.JSONObject(response.errorBody().string());
-                        msg = json.optString("message", "Không thể gửi lời mời!");
+                        msg = json.optString("message", getString(R.string.chat_add_friend_error));
                     } else {
-                        msg = "Có lỗi xảy ra!";
+                        msg = getString(R.string.chat_add_friend_unknown_error);
                     }
                     Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Log.e(TAG, "Lỗi gửi lời mời từ chat", e);
+                    Log.e(TAG, "Error sending friend request from chat", e);
                 }
             }
 
             @Override
             public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi mạng, vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.chat_add_friend_network_error), Toast.LENGTH_SHORT).show();
             }
         });
     }

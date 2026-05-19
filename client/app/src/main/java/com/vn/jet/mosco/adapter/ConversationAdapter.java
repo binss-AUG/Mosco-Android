@@ -88,9 +88,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         // Đổ tên đối tác
         String name = wrapper.getPartnerName();
-        String displayName = name != null ? name : "User " + wrapper.getPartnerId();
+        String fallback = holder.itemView.getContext().getString(R.string.chat_user_fallback_prefix) + wrapper.getPartnerId();
+        String displayName = name != null ? name : fallback;
         if (wrapper.isStranger()) {
-            holder.tvName.setText(displayName + " • Stranger");
+            holder.tvName.setText(displayName + holder.itemView.getContext().getString(R.string.chat_stranger_suffix));
         } else {
             holder.tvName.setText(displayName);
         }
@@ -111,10 +112,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         if (msg != null) {
             String preview;
             if (msg.getSenderId() != null && msg.getSenderId().equals(myId)) {
-                // Tôi gửi → hiện "Bạn: nội dung"
-                preview = "Bạn: " + msg.getContent();
+                // Tôi gửi → hiện "You: nội dung"
+                preview = holder.itemView.getContext().getString(R.string.chat_preview_you_prefix) + msg.getContent();
             } else {
-                // Đối phương gửi → hiện thẳng nội dung (không cần tên vì đã có trên header)
                 preview = msg.getContent();
             }
             holder.tvPreview.setText(preview);
@@ -123,7 +123,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.tvTime.setText(timeStr);
             holder.tvTime.setVisibility(View.VISIBLE);
         } else {
-            holder.tvPreview.setText("Chạm để bắt đầu trò chuyện");
+            holder.tvPreview.setText(holder.itemView.getContext().getString(R.string.chat_preview_start));
             holder.tvTime.setText("");
             holder.tvTime.setVisibility(View.GONE);
         }
