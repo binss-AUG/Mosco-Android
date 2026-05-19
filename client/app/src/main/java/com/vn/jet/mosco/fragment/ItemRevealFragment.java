@@ -535,6 +535,15 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
+            android.transition.AutoTransition layoutTransition = new android.transition.AutoTransition();
+            layoutTransition.setDuration(400);
+            layoutTransition.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+            android.transition.TransitionManager.beginDelayedTransition((ViewGroup) rootView, layoutTransition);
+            if (rvCardHistory != null) {
+                rvCardHistory.setAlpha(0f);
+                rvCardHistory.setVisibility(View.INVISIBLE);
+            }
+
             rootView.findViewById(R.id.tv_item_name).animate().alpha(0f)
                     .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
             rootView.findViewById(R.id.tv_item_info).animate().alpha(0f)
