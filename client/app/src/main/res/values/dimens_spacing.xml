@@ -67,7 +67,7 @@
     <!-- ============================================= -->
     <!-- CHAT BUBBLE SPACING TOKENS (NO HARDCODING)   -->
     <!-- ============================================= -->
-    <dimen name="chat_spacing_consecutive">3dp</dimen>
-    <dimen name="chat_spacing_separated">14dp</dimen>
-    <dimen name="chat_spacing_bottom">2dp</dimen>
+    <dimen name="chat_spacing_consecutive">2dp</dimen>
+    <dimen name="chat_spacing_separated">12dp</dimen>
+    <dimen name="chat_spacing_bottom">0dp</dimen>
 </resources>

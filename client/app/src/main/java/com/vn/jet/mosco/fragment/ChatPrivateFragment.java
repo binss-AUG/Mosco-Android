@@ -166,7 +166,7 @@ public class ChatPrivateFragment extends Fragment {
 
         // Preload UI to prevent jitter
         if (tvHeaderStatus != null) {
-            tvHeaderStatus.setText(isOnline ? "ONLINE" : "OFFLINE");
+            tvHeaderStatus.setText(isOnline ? "Online" : "Offline");
             tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
         }
         if (viewStatusDot != null) {
