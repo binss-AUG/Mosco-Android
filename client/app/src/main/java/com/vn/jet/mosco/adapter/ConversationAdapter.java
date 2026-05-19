@@ -107,10 +107,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
         AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, partnerIdLong, wrapper.getPartnerAvatar());
 
-        // Đổ tin nhắn xem trước và thời gian
+        // Đổ tin nhắn xem trước và thời gian — phân biệt ai gửi (giống Messenger)
         if (msg != null) {
-            holder.tvPreview.setText(msg.getContent());
-            // Định dạng thời gian trôi qua (e.g., "5m ago", "1h ago")
+            String preview;
+            if (msg.getSenderId() != null && msg.getSenderId().equals(myId)) {
+                // Tôi gửi → hiện "Bạn: nội dung"
+                preview = "Bạn: " + msg.getContent();
+            } else {
+                // Đối phương gửi → hiện thẳng nội dung (không cần tên vì đã có trên header)
+                preview = msg.getContent();
+            }
+            holder.tvPreview.setText(preview);
             long now = System.currentTimeMillis();
             CharSequence timeStr = DateUtils.getRelativeTimeSpanString(msg.getTimestamp(), now, DateUtils.MINUTE_IN_MILLIS);
             holder.tvTime.setText(timeStr);

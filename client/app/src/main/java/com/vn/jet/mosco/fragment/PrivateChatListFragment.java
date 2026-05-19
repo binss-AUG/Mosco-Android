@@ -33,10 +33,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.reactivex.disposables.Disposable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import okhttp3.ResponseBody;
+import com.vn.jet.mosco.network.WebSocketManager;
+import com.vn.jet.mosco.utils.AppExecutors;
 
 /**
  * Fragment quản lý danh sách Hộp thư Chat cá nhân (Private Messages).
@@ -53,6 +56,8 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
     private TextView tvPrivateChatsCount;
 
     private int activeFilter = 0; // 0: All, 1: Online
+    // Subscription WebSocket để lắng nghe tin nhắn mới → tự refresh danh sách (giống Messenger)
+    private Disposable privateMessageSubscription;
 
     @Nullable
     @Override
@@ -77,6 +82,60 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         loadConversationsLocalFirst();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        subscribeToIncomingMessages();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Hủy subscription khi Fragment không hiển thị để tránh memory leak
+        if (privateMessageSubscription != null && !privateMessageSubscription.isDisposed()) {
+            privateMessageSubscription.dispose();
+            privateMessageSubscription = null;
+        }
+    }
+
+    /**
+     * Lắng nghe tin nhắn private đến qua WebSocket STOMP.
+     * Tại sao (WHY): Khi có tin nhắn mới (gửi/nhận), Room DB được cập nhật ngay,
+     * sau đó gọi lại loadConversationsLocalFirst() để refresh danh sách tức thì như Messenger.
+     */
+    private void subscribeToIncomingMessages() {
+        Context context = getContext();
+        if (context == null) return;
+        String myId = String.valueOf(new SessionManager(context).getUserId());
+
+        if (privateMessageSubscription != null && !privateMessageSubscription.isDisposed()) return;
+
+        privateMessageSubscription = WebSocketManager.getInstance()
+            .subscribeToPrivateChat(myId, message -> {
+                if (message == null || !isAdded()) return;
+                // Lưu vào Room DB ở luồng ngầm, sau đó reload danh sách ở luồng UI
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    try {
+                        AppDatabase db = AppDatabase.getInstance(context);
+                        if (db != null) {
+                            db.messageDao().insertMessage(message);
+                        }
+                    } catch (Exception e) {
+                        Log.e("PrivateChatListFragment", "Error saving incoming message", e);
+                    }
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (isAdded()) loadConversationsLocalFirst();
+                        });
+                    }
+                });
+            });
+    }
+
+    // PLACEHOLDER_RETURN — sẽ bị xóa sau khi merge với return view bên dưới
+    private void _dummy() {
     }
 
     private void setupFilterBar() {
