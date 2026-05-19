@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.TextureView;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
@@ -113,6 +114,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private android.os.Handler carouselHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private Runnable carouselRunnable;
     private long lastShowcaseClickTime = 0;
+
+    private final java.util.Map<Integer, androidx.media3.exoplayer.ExoPlayer> showcasePlayers = new java.util.HashMap<>();
 
     private Long targetUserId;
     private boolean isOwner;
@@ -1537,6 +1540,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             ((MainActivity) getActivity()).setTopBarVisible(false);
         }
         startCarousel();
+        for (androidx.media3.exoplayer.ExoPlayer player : showcasePlayers.values()) {
+            if (player != null) {
+                player.play();
+            }
+        }
         if (sessionManager != null) {
             notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
                 String.valueOf(sessionManager.getUserId()),
@@ -1559,6 +1567,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         stopCarousel();
         if (notificationSubscription != null && !notificationSubscription.isDisposed()) {
             notificationSubscription.dispose();
+        }
+        for (androidx.media3.exoplayer.ExoPlayer player : showcasePlayers.values()) {
+            if (player != null) {
+                player.pause();
+            }
         }
     }
 
@@ -1738,6 +1751,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             tvName.setVisibility(View.GONE);
         }
 
+        // Giải phóng player cũ tại vị trí này nếu có để tránh rò rỉ bộ nhớ
+        androidx.media3.exoplayer.ExoPlayer oldPlayer = showcasePlayers.remove(position);
+        if (oldPlayer != null) {
+            oldPlayer.release();
+        }
+
         if (collectionId == null || collectionId.isEmpty() || collectionId.equals("null")) {
             if (layoutEmpty != null) layoutEmpty.setVisibility(View.VISIBLE);
             if (layoutCore != null) layoutCore.setVisibility(View.GONE);
@@ -1751,6 +1770,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (btnUnequip != null) btnUnequip.setVisibility(View.GONE);
 
             CardEffectHelper.applyEmptyStateGlow(cvContainer, false);
+            
+            TextureView vvCardVideo = cardView.findViewById(R.id.card_vv_video);
+            if (vvCardVideo != null) {
+                vvCardVideo.setVisibility(View.GONE);
+            }
         } else {
             if (layoutEmpty != null) layoutEmpty.setVisibility(View.GONE);
             if (layoutCore != null) layoutCore.setVisibility(View.VISIBLE);
@@ -1788,8 +1812,37 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 ivBack.setImageResource(R.drawable.objet_back_spin);
             }
 
+            // Khởi chạy trình phát video ExoPlayer cho thẻ Motion nếu có
+            TextureView vvCardVideo = cardView.findViewById(R.id.card_vv_video);
+            String cardClass = cardData.optString("class", "");
+            String frontVideoUrl = cardData.optString("frontVideoUrl", "");
+            boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && !frontVideoUrl.isEmpty();
+
+            if (vvCardVideo != null) {
+                if (isMotion) {
+                    if (getContext() != null) {
+                        androidx.media3.exoplayer.ExoPlayer newPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                            getContext(),
+                            vvCardVideo,
+                            frontVideoUrl,
+                            ivImage
+                        );
+                        if (newPlayer != null) {
+                            showcasePlayers.put(position, newPlayer);
+                        }
+                    }
+                } else {
+                    vvCardVideo.setVisibility(View.GONE);
+                    if (ivImage != null) {
+                        ivImage.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+
             String frontImageStr = cardData.optString("frontImage");
             Objet mockObj = new Objet(0, collectionId, frontImageStr, 1, 0, cardData.optInt("upgradeLevel", 0));
+            mockObj.setFrontVideoUrl(frontVideoUrl);
+            mockObj.setTypeKey(cardClass);
             
             CardEffectHelper.apply(cvContainer, shimmer, mockObj, false);
 
@@ -1920,6 +1973,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             entry.setOvr(cardData.optInt("ovr", 0));
                             entry.setUpgradeLevel(cardData.optInt("upgradeLevel", 0));
                             entry.setLevel(cardData.optInt("level", 1));
+                            entry.setFrontVideoUrl(cardData.optString("frontVideoUrl", ""));
                             entry.setOwned(true); // Đảm bảo hiệu ứng glow hoạt động và ẩn màn đen
 
                             // Gọi CollectionDetailBinder với isAlbumMode = true và isFromExhibit = true để ẩn sạch các nút chức năng và nút X, nhưng vẫn giữ badge level & hiệu ứng thẻ!
@@ -1957,7 +2011,19 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             }
         }
 
+
         @Override
         public int getItemCount() { return ids.size(); }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        for (androidx.media3.exoplayer.ExoPlayer player : showcasePlayers.values()) {
+            if (player != null) {
+                player.release();
+            }
+        }
+        showcasePlayers.clear();
     }
 }

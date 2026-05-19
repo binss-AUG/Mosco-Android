@@ -43,6 +43,7 @@ import com.vn.jet.mosco.model.ApiResponse;
 import com.vn.jet.mosco.model.CardDisplayItem;
 import com.vn.jet.mosco.model.UpgradeRequest;
 import com.vn.jet.mosco.model.UpgradeResponse;
+import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.CardEffectHelper;
@@ -944,9 +945,22 @@ public class UpgradeFragment extends Fragment {
                 .setDuration(animRevealOvershootDuration)
                 .withLayer()
                 .withEndAction(() -> {
-                    // Không phát video MP4 trong UpgradeFragment để tránh giật lag
-                    if (vvResultVideo != null) {
-                        vvResultVideo.setVisibility(View.GONE);
+                    // Phát video MP4 cho thẻ kết quả dạng Motion nếu thành công
+                    boolean isMotion = mainCard != null && "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
+                    if (isSuccess && isMotion) {
+                        if (resultVideoPlayer != null) {
+                            resultVideoPlayer.release();
+                            resultVideoPlayer = null;
+                        }
+                        ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
+                        if (vvResultVideo != null && getContext() != null) {
+                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                    getContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
+                        }
+                    } else {
+                        if (vvResultVideo != null) {
+                            vvResultVideo.setVisibility(View.GONE);
+                        }
                     }
                 })
                 .start();
@@ -1017,10 +1031,21 @@ public class UpgradeFragment extends Fragment {
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
 
-            // Chỉ hiển thị ảnh tĩnh trong UpgradeFragment để tránh giật lag khi rèn đập thẻ
+            // Khởi chạy trình phát video ExoPlayer cho thẻ Motion nếu có
             TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
+            boolean isMotion = "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty();
             if (vvMainVideo != null) {
-                vvMainVideo.setVisibility(View.GONE);
+                if (mainVideoPlayer != null) {
+                    mainVideoPlayer.release();
+                    mainVideoPlayer = null;
+                }
+                if (isMotion) {
+                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                            requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
+                } else {
+                    vvMainVideo.setVisibility(View.GONE);
+                    ivMainCardImage.setVisibility(View.VISIBLE);
+                }
             }
 
             tvCardOvr.setVisibility(View.GONE);
@@ -1034,7 +1059,12 @@ public class UpgradeFragment extends Fragment {
                 ivCardLevelBadge.setVisibility(View.GONE);
                 LevelBadgeEffectHelper.remove(ivCardLevelBadge);
             }
-            CardEffectHelper.apply(cardMain, shimmer, mainCard, true);
+            
+            // Tạo đối tượng Objet mock để truyền đúng frontVideoUrl và class cho CardEffectHelper
+            Objet mockObj = new Objet(mainCard.getId(), mainCard.getCollectionId(), mainCard.getFrontImage(), mainCard.getLevel(), mainCard.getExp(), mainCard.getUpgradeLevel());
+            mockObj.setFrontVideoUrl(mainCard.getFrontVideoUrl());
+            mockObj.setTypeKey(mainCard.getCardClass());
+            CardEffectHelper.apply(cardMain, shimmer, mockObj, true);
         }
 
 

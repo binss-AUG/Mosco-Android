@@ -591,10 +591,24 @@ public class ItemRevealFragment extends Fragment {
                                 .setInterpolator(new OvershootInterpolator())
                                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
                                 .withEndAction(() -> {
-                                    // Không phát video MP4 trong ItemRevealFragment để tránh giật lag khi mở hộp
+                                    // Bật phát video MP4 cho thẻ Motion
+                                    String cardClass = topCardJson != null ? topCardJson.optString("class") : "";
+                                    String frontVideoUrl = topCardJson != null ? topCardJson.optString("frontVideoUrl") : "";
+                                    boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && frontVideoUrl != null && !frontVideoUrl.isEmpty();
+                                    
                                     TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
                                     if (vvItemVideoReveal != null) {
-                                        vvItemVideoReveal.setVisibility(View.GONE);
+                                        if (isMotion) {
+                                            isCardFlipped = false;
+                                            if (itemVideoPlayer != null) {
+                                                itemVideoPlayer.release();
+                                                itemVideoPlayer = null;
+                                            }
+                                            itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(
+                                                    requireContext(), vvItemVideoReveal, frontVideoUrl, ivItemImage);
+                                        } else {
+                                            vvItemVideoReveal.setVisibility(View.GONE);
+                                        }
                                     }
                                 })
                                 .start();
