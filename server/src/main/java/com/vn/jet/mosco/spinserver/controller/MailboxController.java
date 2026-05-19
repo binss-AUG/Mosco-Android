@@ -46,4 +46,23 @@ public class MailboxController {
             ));
         }
     }
+
+    /**
+     * Nhận toàn bộ quà từ các thư hệ thống chưa nhận (Claim All).
+     */
+    @PostMapping("/claim-all/{userId}")
+    public ResponseEntity<?> claimAllMails(@PathVariable Long userId) {
+        try {
+            mailboxService.claimAllMails(userId);
+            return ResponseEntity.ok().body(java.util.Map.of(
+                "status", 200,
+                "message", "Nhận tất cả quà thành công!"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of(
+                "status", 400,
+                "message", e.getMessage()
+            ));
+        }
+    }
 }

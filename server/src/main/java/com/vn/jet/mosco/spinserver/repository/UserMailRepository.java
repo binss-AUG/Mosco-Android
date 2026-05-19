@@ -20,4 +20,8 @@ public interface UserMailRepository extends JpaRepository<UserMail, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select m from UserMail m where m.id = :id")
     Optional<UserMail> findByIdForUpdate(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select m from UserMail m where m.user.id = :userId and m.received = false")
+    List<UserMail> findUnreceivedMailsForUpdate(@Param("userId") Long userId);
 }

@@ -157,39 +157,30 @@ public class SystemMailFragment extends Fragment implements MailboxAdapter.OnMai
         Context context = getContext();
         if (context == null) return;
 
-        List<UserMail> unreceivedMails = new ArrayList<>();
-        for (UserMail m : systemMailsList) {
-            if (!m.isReceived()) {
-                unreceivedMails.add(m);
-            }
-        }
-
-        if (unreceivedMails.isEmpty()) {
-            return;
-        }
+        Long userId = new SessionManager(context).getUserId();
+        if (userId == null) return;
 
         GameApiService api = ApiClient.getClient(context).create(GameApiService.class);
-        AtomicInteger remaining = new AtomicInteger(unreceivedMails.size());
-        for (UserMail mail : unreceivedMails) {
-            api.claimMail(mail.getId()).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        mail.setReceived(true);
+        api.claimAllMails(userId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    // Mark all current system mails as received locally
+                    for (UserMail m : systemMailsList) {
+                        m.setReceived(true);
                     }
-                    if (remaining.decrementAndGet() == 0) {
-                        filterMails();
-                    }
+                    filterMails();
+                    Toast.makeText(context, "Đã nhận thành công tất cả quà!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Nhận quà thất bại!", Toast.LENGTH_SHORT).show();
                 }
+            }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    if (remaining.decrementAndGet() == 0) {
-                        filterMails();
-                    }
-                }
-            });
-        }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(context, "Lỗi kết nối máy chủ!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
