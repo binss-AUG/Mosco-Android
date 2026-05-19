@@ -124,12 +124,18 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                             String name = dao.getPartnerName(partnerId);
                             String avatar = dao.getPartnerAvatar(partnerId);
                             
-                            uniqueWrappers.add(new ConversationAdapter.ConversationWrapper(
+                            ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
                                     msg,
                                     partnerId,
                                     name != null ? name : "User #" + partnerId,
                                     avatar
-                            ));
+                            );
+                            uniqueWrappers.add(wrapper);
+
+                            // Nếu tên là null hoặc chứa tên tạm "User #", ta tải thông tin người dùng từ server để đồng bộ đầy đủ (hỗ trợ cả người lạ)
+                            if (name == null || name.startsWith("User #") || name.startsWith("User ")) {
+                                fetchStrangerProfileFromServer(partnerId, wrapper);
+                            }
                         }
                     }
 
@@ -146,6 +152,44 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                 Log.e("PrivateChatListFragment", "Error loading local chat history", e);
             }
         }).start();
+    }
+
+    private void fetchStrangerProfileFromServer(String partnerId, ConversationAdapter.ConversationWrapper wrapper) {
+        Context context = getContext();
+        if (context == null) return;
+        try {
+            long partnerIdLong = Long.parseLong(partnerId);
+            GameApiService api = ApiClient.getClient(context).create(GameApiService.class);
+            api.getUserStats(partnerIdLong).enqueue(new Callback<com.vn.jet.mosco.model.UserStats>() {
+                @Override
+                public void onResponse(Call<com.vn.jet.mosco.model.UserStats> call, Response<com.vn.jet.mosco.model.UserStats> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        com.vn.jet.mosco.model.UserStats stats = response.body();
+                        String fullName = stats.getIngameName();
+                        String avatar = stats.getAvatarId();
+                        if (fullName != null && !fullName.isEmpty()) {
+                            wrapper.setPartnerName(fullName);
+                        }
+                        if (avatar != null && !avatar.isEmpty()) {
+                            wrapper.setPartnerAvatar(avatar);
+                        }
+                        // Cập nhật giao diện
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                filterConversations();
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<com.vn.jet.mosco.model.UserStats> call, Throwable t) {
+                    Log.e("PrivateChatListFragment", "Failed to fetch profile for stranger " + partnerId, t);
+                }
+            });
+        } catch (NumberFormatException e) {
+            Log.e("PrivateChatListFragment", "Invalid partnerId format for fetchStrangerProfile", e);
+        }
     }
 
     private void syncRealtimeOnlineStatuses() {
@@ -172,6 +216,13 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 for (ConversationAdapter.ConversationWrapper w : conversationsList) {
                                     if (w.getPartnerId().equals(friendId)) {
                                         w.setOnline(online);
+                                        // ĐỒNG BỘ TRỰC TIẾP TÊN VÀ AVATAR TỪ DANH SÁCH BẠN BÈ MỚI NHẤT! (Sửa lỗi hiển thị "User #1")
+                                        if (w.getPartnerName() == null || w.getPartnerName().startsWith("User #") || w.getPartnerName().startsWith("User ")) {
+                                            w.setPartnerName(name);
+                                        }
+                                        if (w.getPartnerAvatar() == null || w.getPartnerAvatar().isEmpty()) {
+                                            w.setPartnerAvatar(avatar);
+                                        }
                                         found = true;
                                         break;
                                     }

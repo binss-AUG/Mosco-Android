@@ -39,8 +39,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public static class ConversationWrapper {
         private final PrivateChatMessage lastMessage;
         private final String partnerId;
-        private final String partnerName;
-        private final String partnerAvatar;
+        private String partnerName;
+        private String partnerAvatar;
         private boolean isOnline;
 
         public ConversationWrapper(PrivateChatMessage lastMessage, String partnerId, String partnerName, String partnerAvatar) {
@@ -55,7 +55,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         public String getPartnerName() { return partnerName; }
         public String getPartnerAvatar() { return partnerAvatar; }
         public boolean isOnline() { return isOnline; }
+        
         public void setOnline(boolean online) { this.isOnline = online; }
+        public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
+        public void setPartnerAvatar(String partnerAvatar) { this.partnerAvatar = partnerAvatar; }
     }
 
     public ConversationAdapter(String myId, OnConversationClickListener listener) {
