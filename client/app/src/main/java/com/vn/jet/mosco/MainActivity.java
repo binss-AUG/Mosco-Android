@@ -146,6 +146,13 @@ public class MainActivity extends MoscoBaseActivity {
         }
     }
 
+    public void setBottomNavVisible(boolean visible) {
+        View customNav = findViewById(R.id.cl_custom_bottom_navigation);
+        if (customNav != null) {
+            customNav.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
     private void setupHeader() {
         tvCoins    = findViewById(R.id.tv_home_coins);
         tvDiamonds = findViewById(R.id.tv_home_diamonds);
