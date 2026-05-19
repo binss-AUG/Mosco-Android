@@ -535,22 +535,26 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
-            TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
-            View btnBack = rootView.findViewById(R.id.btn_back);
-            if (tvTitle != null && btnBack != null) {
-                android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
-                if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-                    androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
-                    lp.bottomToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-                    lp.topToTop = btnBack.getId();
-                    lp.bottomToBottom = btnBack.getId();
-                    lp.bottomMargin = 0;
-                    tvTitle.setLayoutParams(lp);
-                }
-            }
             if (rvCardHistory != null) {
                 rvCardHistory.setAlpha(0f);
                 rvCardHistory.setVisibility(View.VISIBLE);
+            }
+
+            View tvRevealCollId = rootView.findViewById(R.id.tv_reveal_collection_id);
+            if (tvRevealCollId != null) {
+                tvRevealCollId.setVisibility(View.INVISIBLE);
+                tvRevealCollId.setAlpha(0f);
+            }
+
+            View bgBase = rootView.findViewById(R.id.view_reveal_bg_base);
+            if (bgBase != null) {
+                bgBase.setBackgroundResource(R.drawable.lg_background_deep);
+            }
+            View bgFade = rootView.findViewById(R.id.view_reveal_bg_fade);
+            if (bgFade != null) {
+                bgFade.animate().cancel();
+                bgFade.setAlpha(0f);
+                bgFade.setVisibility(View.GONE);
             }
 
             rootView.findViewById(R.id.tv_item_name).animate().alpha(0f)
@@ -580,6 +584,8 @@ public class ItemRevealFragment extends Fragment {
         RevealedCard currentCard = revealedCards.get(currentRevealIndex);
         JSONObject topCardJson = currentCard.cardJson;
         int tierColor = currentCard.glowColor;
+
+        transitionBackgroundTo(tierColor);
 
         float shakeMild = getResources().getDimension(R.dimen.reveal_shake_mild);
         float shakeMildRepeat1 = shakeMild * getPercent(R.integer.reveal_phase2_shake_dampen_60_percent);
@@ -948,8 +954,12 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void showFinalRevealResults() {
+        if (getView() == null) return;
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
-        TextView tvTitle = getView().findViewById(R.id.tv_item_name);
+        TextView tvTitle = getView().findViewById(R.id.tv_reveal_collection_id);
+        if (tvTitle != null) {
+            tvTitle.setVisibility(View.VISIBLE);
+        }
         LinearLayout llButtons = getView().findViewById(R.id.ll_buttons);
 
         summaryCardBaseTranslationY = 0f;
@@ -989,16 +999,6 @@ public class ItemRevealFragment extends Fragment {
                         R.color.lg_text_secondary)),
                 0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
-
-        android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
-        if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
-            lp.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-            lp.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-            lp.bottomToTop = cardItem.getId();
-            lp.bottomMargin = (int) (24 * getResources().getDisplayMetrics().density);
-            tvTitle.setLayoutParams(lp);
-        }
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
         tvTitle.setShadowLayer(getResources().getDimension(R.dimen.reveal_title_shadow_radius), 0f,
@@ -1237,6 +1237,66 @@ public class ItemRevealFragment extends Fragment {
         hideLoadingOverlay(true);
     }
 
+    private void transitionBackgroundTo(int newColor) {
+        if (!isAdded() || getContext() == null) return;
+        View rootView = getView();
+        if (rootView == null) return;
+
+        View bgBase = rootView.findViewById(R.id.view_reveal_bg_base);
+        View bgFade = rootView.findViewById(R.id.view_reveal_bg_fade);
+        if (bgBase == null || bgFade == null) return;
+
+        float w = rootView.getWidth();
+        float h = rootView.getHeight();
+
+        try {
+            GradientDrawable newGradient = createRadialBackground(newColor, w, h);
+
+            bgFade.animate().cancel();
+            bgFade.setBackground(newGradient);
+            bgFade.setVisibility(View.VISIBLE);
+            bgFade.setAlpha(0f);
+
+            bgFade.animate()
+                    .alpha(1f)
+                    .setDuration(600)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .withEndAction(() -> {
+                        bgBase.setBackground(newGradient);
+                        bgFade.setAlpha(0f);
+                        bgFade.setVisibility(View.GONE);
+                    })
+                    .start();
+        } catch (Exception e) {
+            // Safe fallback
+        }
+    }
+
+    private GradientDrawable createRadialBackground(int centerColor, float width, float height) {
+        int endColor = ContextCompat.getColor(requireContext(), R.color.lg_background);
+
+        // Blending colors to match the premium home radial design
+        int colorCenter = androidx.core.graphics.ColorUtils.setAlphaComponent(centerColor, 80); // ~31%
+        int colorMid = androidx.core.graphics.ColorUtils.setAlphaComponent(centerColor, 25);    // ~10%
+
+        GradientDrawable gd = new GradientDrawable();
+        gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+
+        float radius = Math.max(width, height);
+        if (radius <= 0) {
+            radius = dpToPx(700);
+        }
+        gd.setGradientRadius(radius);
+        gd.setGradientCenter(0.5f, 0.40f); // 40% centerY matching home deep background style
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            gd.setColors(new int[] { colorCenter, colorMid, endColor });
+        } else {
+            gd.setColors(new int[] { colorCenter, endColor });
+        }
+        return gd;
+    }
+
     private int dpToPx(float dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
@@ -1319,6 +1379,7 @@ public class ItemRevealFragment extends Fragment {
 
         buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
         syncGlowToCard(cardItem);
+        transitionBackgroundTo(tierColor);
 
         TextureView vvItemVideo = rootView.findViewById(R.id.vv_item_video);
         if (vvItemVideo != null) {
@@ -1338,9 +1399,10 @@ public class ItemRevealFragment extends Fragment {
             activeParticleView.updateColor(tierColor);
         }
 
-        TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
+        TextView tvTitle = rootView.findViewById(R.id.tv_reveal_collection_id);
         View llButtons = rootView.findViewById(R.id.ll_buttons);
         if (tvTitle != null && llButtons != null && llButtons.getVisibility() == View.VISIBLE && getContext() != null) {
+            tvTitle.setVisibility(View.VISIBLE);
             String collectionId = topCardJson.optString(KEY_COLLECTION_ID, "");
             SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
             titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),

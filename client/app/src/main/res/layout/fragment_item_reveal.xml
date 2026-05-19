@@ -4,8 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_item_reveal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/lg_background">
+    android:layout_height="match_parent">
+
+    <!-- Layer 0: Background views for smooth transition -->
+    <View
+        android:id="@+id/view_reveal_bg_base"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/lg_background_deep" />
+
+    <View
+        android:id="@+id/view_reveal_bg_fade"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:visibility="gone" />
 
     <!-- Back Arrow (top left) -->
     <ImageView
@@ -39,6 +52,27 @@
         tools:text="Metal Pack"
         app:layout_constraintTop_toTopOf="@id/btn_back"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Dedicated Collection ID display above the card -->
+    <TextView
+        android:id="@+id/tv_reveal_collection_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Header"
+        android:textSize="@dimen/text_size_h1"
+        android:textStyle="bold"
+        android:fontWeight="700"
+        android:letterSpacing="-0.02"
+        android:shadowColor="@color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@id/card_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
