@@ -29,8 +29,8 @@ public class MailboxService {
      */
     @Transactional
     public void claimMail(Long mailId) {
-        // 1. Tìm thư trong DB
-        UserMail mail = userMailRepository.findById(mailId)
+        // 1. Tìm thư trong DB với Pessimistic Lock
+        UserMail mail = userMailRepository.findByIdForUpdate(mailId)
                 .orElseThrow(() -> new RuntimeException("Hệ thống không tìm thấy bức thư này!"));
 
         // 2. Kiểm tra trạng thái nhận
