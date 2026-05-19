@@ -967,22 +967,15 @@ public class ItemRevealFragment extends Fragment {
                     .start();
         }
 
-        String headline = getString(R.string.reveal_summary_headline);
-        String subtitle = getString(R.string.reveal_summary_subtitle, revealedCards.size());
-        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(headline + "\n" + subtitle);
-        titleBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_headline_size_percent)), 0,
-                headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titleBuilder.setSpan(
-                new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.palette_gold_medium)), 0,
-                headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        int subtitleStart = headline.length() + 1;
+        RevealedCard lastCard = revealedCards.get(revealedCards.size() - 1);
+        String collectionId = lastCard.cardJson.optString(KEY_COLLECTION_ID, "");
+        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
                 new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(),
                         R.color.lg_text_secondary)),
-                subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
@@ -1017,8 +1010,9 @@ public class ItemRevealFragment extends Fragment {
         com.vn.jet.mosco.widget.MoscoButton btnDone = getView().findViewById(R.id.btn_done);
 
         TextView tvItemQty = getView().findViewById(R.id.tv_item_qty);
-        tvItemQty.setText(getString(R.string.format_qty, NumberUtils.format(requireContext(), itemQty)));
-        tvItemQty.animate().alpha(1f).setDuration(300).start();
+        if (tvItemQty != null) {
+            tvItemQty.setVisibility(View.GONE);
+        }
 
         if (itemQty <= 0) {
             btnOpenOne.setVisibility(View.GONE);
@@ -1045,8 +1039,9 @@ public class ItemRevealFragment extends Fragment {
         llButtons.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms)).start();
 
         View btnBack = getView().findViewById(R.id.btn_back);
-        btnBack.bringToFront();
-        btnBack.animate().alpha(1f).setDuration(300).start();
+        if (btnBack != null) {
+            btnBack.setVisibility(View.GONE);
+        }
     }
 
     private int getCardTier(String cardClass) {
@@ -1319,6 +1314,20 @@ public class ItemRevealFragment extends Fragment {
 
         if (activeParticleView != null) {
             activeParticleView.updateColor(tierColor);
+        }
+
+        TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
+        View llButtons = rootView.findViewById(R.id.ll_buttons);
+        if (tvTitle != null && llButtons != null && llButtons.getVisibility() == View.VISIBLE && getContext() != null) {
+            String collectionId = topCardJson.optString(KEY_COLLECTION_ID, "");
+            SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
+            titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            titleBuilder.setSpan(
+                    new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(getContext(),
+                            R.color.lg_text_secondary)),
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tvTitle.setText(titleBuilder);
         }
     }
 

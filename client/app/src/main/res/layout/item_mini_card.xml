@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- item_mini_card.xml — Giao diện mini card hiển thị trong thanh cuộn ngang lịch sử mở pack -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
@@ -8,7 +8,7 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:paddingVertical="@dimen/spacing_6dp"
-    android:paddingHorizontal="2dp">
+    android:paddingHorizontal="6dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_mini_card"
@@ -18,10 +18,7 @@
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@android:color/transparent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_gravity="center">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -33,4 +30,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
