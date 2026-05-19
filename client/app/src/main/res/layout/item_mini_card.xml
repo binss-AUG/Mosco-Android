@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- item_mini_card.xml — Giao diện mini card hiển thị trong thanh cuộn ngang lịch sử mở pack -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:padding="16dp">
+    android:paddingVertical="@dimen/spacing_6dp"
+    android:paddingHorizontal="2dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_item_mini"
-        android:layout_width="60dp"
-        android:layout_height="92.4dp"
-        android:layout_gravity="center"
-        app:cardCornerRadius="6dp"
+        android:id="@+id/cv_mini_card"
+        android:layout_width="@dimen/mini_card_width"
+        android:layout_height="@dimen/mini_card_height"
+        app:cardCornerRadius="@dimen/radius_m"
         app:cardElevation="0dp"
         app:strokeWidth="0dp"
-        app:cardBackgroundColor="@android:color/transparent">
+        app:cardBackgroundColor="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Card Image -->
-        <ImageView
-            android:id="@+id/iv_card_image_mini"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent">
 
-        <!-- Shimmer Overlay -->
-        <View
-            android:id="@+id/view_card_shimmer_mini"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <include layout="@layout/layout_core_card" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

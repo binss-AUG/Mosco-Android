@@ -95,6 +95,11 @@
     <dimen name="item_reveal_result_image_corner">@dimen/lg_radius_card</dimen>
     <dimen name="item_reveal_result_stroke_width">1dp</dimen>
 
+    <!-- Mini Card Dimensions -->
+    <dimen name="mini_card_width">78dp</dimen>
+    <dimen name="mini_card_height">120dp</dimen>
+    <dimen name="mini_card_margin_horizontal">6dp</dimen>
+
     <!-- Inventory & Collection -->
     <dimen name="inventory_loader_size">120dp</dimen>
     <dimen name="inventory_padding">@dimen/spacing_md</dimen>
