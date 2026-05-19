@@ -1279,25 +1279,45 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private GradientDrawable createRadialBackground(int centerColor, float width, float height) {
-        int endColor = ContextCompat.getColor(requireContext(), R.color.lg_background);
+        /* 
+         * HƯỚNG DẪN TÙY CHỈNH NỀN (BACKGROUND TWEAKING GUIDE):
+         * 1. Độ sáng các vùng (Blend Ratios):
+         *    - Tính bằng ColorUtils.blendARGB(Color.BLACK, centerColor, tỷ_lệ_màu_thẻ)
+         *    - tỷ_lệ_màu_thẻ (0.0f đến 1.0f): Càng cao thì màu càng rực rỡ, càng thấp thì càng tối (gần Đen).
+         *    - Chỉnh `intensityCenter` để thay đổi độ chói lóa ngay sau thẻ.
+         *    - Chỉnh `intensityMid` để thay đổi độ lan tỏa ở vòng giữa màn hình.
+         *    - Chỉnh `intensityEdge` để thay đổi màu sắc ở viền màn hình (không nên để 0f vì sẽ thành đen hoàn toàn, để ~0.1f - 0.15f sẽ có màu sẫm tiệp với thẻ cực sang).
+         *
+         * 2. Bán kính tỏa (Radius):
+         *    - `radiusFactor`: Hệ số nhân với kích thước chiều ngắn nhất của màn hình.
+         *    - Tăng lên 1.0f -> Ánh sáng lan rộng ra toàn màn hình.
+         *    - Giảm xuống 0.5f -> Ánh sáng gom lại thành một đốm nhỏ ngay sau thẻ.
+         */
+         
+        float intensityCenter = 0.65f; // Độ rực rỡ tại tâm (65% màu thẻ, 35% Đen)
+        float intensityMid    = 0.30f; // Độ rực rỡ ở khoảng giữa (30% màu thẻ, 70% Đen)
+        float intensityEdge   = 0.12f; // Độ rực rỡ ở rìa màn hình (12% màu thẻ, 88% Đen)
+        
+        float radiusFactor    = 0.85f; // Bán kính tỏa (85% kích thước min màn hình)
 
-        // Sử dụng opaque blending (blendARGB) thay vì setAlpha để tránh hiện tượng chồng lấn màu sắc,
-        // tạo chiều sâu luxury và làm vùng sáng ở tâm hội tụ tinh tế hơn.
-        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(endColor, centerColor, 0.32f);
-        int colorMid = androidx.core.graphics.ColorUtils.blendARGB(endColor, centerColor, 0.08f);
+        // Tính toán màu sắc dựa trên tỷ lệ hòa trộn với màu Đen tuyệt đối
+        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityCenter);
+        int colorMid    = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityMid);
+        int endColor    = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityEdge);
 
         GradientDrawable gd = new GradientDrawable();
         gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
 
-        // Thu nhỏ bán kính (75% min dimension) giúp vùng sáng tập trung đẹp mắt ngay sau thẻ,
-        // vùng rìa nhanh chóng tắt dần về màu tối sâu thẳm của vũ trụ (#0F172A).
+        // Áp dụng bán kính
         float minDim = Math.min(width, height);
-        float radius = minDim * 0.75f;
+        float radius = minDim * radiusFactor;
         if (radius <= 0) {
             radius = dpToPx(380);
         }
         gd.setGradientRadius(radius);
-        gd.setGradientCenter(0.5f, 0.32f); // 32% centerY khớp với card_item (bias 0.18)
+        
+        // Tâm tỏa sáng: 0.5f (giữa chiều ngang), 0.32f (32% chiều dọc, khớp vị trí thẻ hiện tại)
+        gd.setGradientCenter(0.5f, 0.32f); 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             gd.setColors(new int[] { colorCenter, colorMid, endColor });
