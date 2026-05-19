@@ -11,12 +11,13 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -34,9 +35,6 @@ public class ChatController {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    /**
-     * Nhận tin nhắn từ client và broadcast tới tất cả mọi người ở topic /topic/world.
-     */
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/world")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
@@ -48,62 +46,87 @@ public class ChatController {
     }
 
     /**
-     * Nhận tin nhắn Private từ client và gửi trực tiếp tới receiver (và sender để sync).
+     * WHY: Try Redis (zero disk I/O) first. If Redis is not running, fall back to
+     * MySQL so chat is never interrupted — graceful degradation pattern.
      */
     @MessageMapping("/chat.private")
     public void sendPrivateMessage(@Payload com.vn.jet.mosco.spinserver.dto.PrivateChatMessage privateMessage) {
-        // 1. Sanitization
         String safeContent = HtmlUtils.htmlEscape(privateMessage.getContent());
         privateMessage.setContent(safeContent);
-        
-        // 2. Set timestamp
+
         long currentTimestamp = (privateMessage.getTimestamp() > 0) ? privateMessage.getTimestamp() : System.currentTimeMillis();
         privateMessage.setTimestamp(currentTimestamp);
-        
+
         long senderId = Long.parseLong(privateMessage.getSenderId());
         long receiverId = Long.parseLong(privateMessage.getReceiverId());
 
-        // 3. Sinh ID tin nhắn duy nhất bằng Redis Sequence (Distributed ID)
-        Long messageId = redisTemplate.opsForValue().increment("chat:msg:id:seq");
-        privateMessage.setId(String.valueOf(messageId));
-
-        // 4. Lưu vào Redis Transient Queue (Không tốn Disk I/O cho MySQL)
+        boolean redisSaved = false;
         try {
+            Long messageId = redisTemplate.opsForValue().increment("chat:msg:id:seq");
+            privateMessage.setId(String.valueOf(messageId));
             String msgJson = objectMapper.writeValueAsString(privateMessage);
             redisTemplate.opsForList().rightPush("chat:offline:" + receiverId, msgJson);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize private message to JSON", e);
+            redisSaved = true;
+        } catch (Exception e) {
+            log.warn("[ChatController] Redis unavailable, falling back to MySQL: {}", e.getMessage());
         }
 
-        // 5. Record Streak Interaction
+        if (!redisSaved) {
+            try {
+                PrivateMessage pm = PrivateMessage.builder()
+                    .senderId(senderId)
+                    .receiverId(receiverId)
+                    .senderName(privateMessage.getSenderName())
+                    .avatarId(privateMessage.getAvatarId())
+                    .content(safeContent)
+                    .timestamp(currentTimestamp)
+                    .build();
+                PrivateMessage saved = privateMessageRepository.save(pm);
+                privateMessage.setId(String.valueOf(saved.getId()));
+            } catch (Exception ex) {
+                log.error("[ChatController] MySQL fallback also failed: {}", ex.getMessage());
+            }
+        }
+
         try {
             coupleStreakService.recordInteraction(senderId, receiverId);
         } catch (Exception e) {
             log.error("Failed to record streak interaction: ", e);
         }
 
-        log.info("Private message from {} to {}: {}", privateMessage.getSenderId(), privateMessage.getReceiverId(), safeContent);
-        
+        log.info("Private message from {} to {}: {}", senderId, receiverId, safeContent);
         messagingTemplate.convertAndSend("/topic/private." + receiverId, privateMessage);
         messagingTemplate.convertAndSend("/topic/private." + senderId, privateMessage);
     }
 
     /**
-     * Fetch Chat History between two users from Redis In-Memory.
+     * WHY: Try Redis first for low-latency history. Fall back to MySQL if Redis is down.
      */
     @GetMapping("/api/chat/history")
     public com.vn.jet.mosco.spinserver.dto.ApiResponse<List<PrivateMessage>> getChatHistory(
-            @RequestParam("user1") Long user1, 
+            @RequestParam("user1") Long user1,
             @RequestParam("user2") Long user2) {
         List<PrivateMessage> history = new ArrayList<>();
 
-        // Lấy tin nhắn offline của cả user1 và user2
-        fetchOfflineMessages(user1, user2, history);
-        fetchOfflineMessages(user2, user1, history);
+        boolean redisOk = false;
+        try {
+            fetchOfflineMessages(user1, user2, history);
+            fetchOfflineMessages(user2, user1, history);
+            redisOk = true;
+        } catch (Exception e) {
+            log.warn("[ChatController] Redis unavailable for history, falling back to MySQL: {}", e.getMessage());
+        }
 
-        // Sắp xếp theo timestamp tăng dần
+        if (!redisOk) {
+            try {
+                List<PrivateMessage> mysqlHistory = privateMessageRepository.findChatHistory(user1, user2);
+                history.addAll(mysqlHistory);
+            } catch (Exception ex) {
+                log.error("[ChatController] MySQL fallback for history failed: {}", ex.getMessage());
+            }
+        }
+
         history.sort(Comparator.comparing(PrivateMessage::getTimestamp));
-
         return com.vn.jet.mosco.spinserver.dto.ApiResponse.success("Success", history);
     }
 
@@ -129,18 +152,18 @@ public class ChatController {
                         historyList.add(pm);
                     }
                 } catch (Exception e) {
-                    log.error("Lỗi parse tin nhắn từ Redis", e);
+                    log.error("Failed to parse message from Redis", e);
                 }
             }
         }
     }
 
     /**
-     * Xác nhận Client đã lưu thành công các tin nhắn Offline - Xóa khỏi hàng đợi Redis.
+     * WHY: If Redis is down, skip ACK gracefully — do not crash the server.
      */
-    @org.springframework.web.bind.annotation.PostMapping("/api/chat/ack")
+    @PostMapping("/api/chat/ack")
     public com.vn.jet.mosco.spinserver.dto.ApiResponse<Void> ackMessages(
-            @org.springframework.web.bind.annotation.RequestBody List<Long> messageIds,
+            @RequestBody List<Long> messageIds,
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
@@ -148,24 +171,27 @@ public class ChatController {
         }
 
         if (messageIds != null && !messageIds.isEmpty()) {
-            String key = "chat:offline:" + userId;
-            List<String> rawMsgs = redisTemplate.opsForList().range(key, 0, -1);
-            if (rawMsgs != null) {
-                // Xóa list cũ và ghi lại các tin nhắn chưa được Ack
-                redisTemplate.delete(key);
-                for (String raw : rawMsgs) {
-                    try {
-                        com.vn.jet.mosco.spinserver.dto.PrivateChatMessage dto = objectMapper.readValue(raw, com.vn.jet.mosco.spinserver.dto.PrivateChatMessage.class);
-                        long msgId = Long.parseLong(dto.getId());
-                        if (!messageIds.contains(msgId)) {
-                            redisTemplate.opsForList().rightPush(key, raw);
+            try {
+                String key = "chat:offline:" + userId;
+                List<String> rawMsgs = redisTemplate.opsForList().range(key, 0, -1);
+                if (rawMsgs != null) {
+                    redisTemplate.delete(key);
+                    for (String raw : rawMsgs) {
+                        try {
+                            com.vn.jet.mosco.spinserver.dto.PrivateChatMessage dto = objectMapper.readValue(raw, com.vn.jet.mosco.spinserver.dto.PrivateChatMessage.class);
+                            long msgId = Long.parseLong(dto.getId());
+                            if (!messageIds.contains(msgId)) {
+                                redisTemplate.opsForList().rightPush(key, raw);
+                            }
+                        } catch (Exception e) {
+                            log.error("Failed to parse message during ACK", e);
                         }
-                    } catch (Exception e) {
-                        log.error("Failed to parse message during ACK", e);
                     }
                 }
+                log.info("ACK: removed {} messages from Redis for user {}.", messageIds.size(), userId);
+            } catch (Exception e) {
+                log.warn("[ChatController] Redis unavailable during ACK, skipping gracefully: {}", e.getMessage());
             }
-            log.info("Acknowledged and removed {} synced messages from Redis for user {}.", messageIds.size(), userId);
         }
         return com.vn.jet.mosco.spinserver.dto.ApiResponse.success("Acknowledged", null);
     }
