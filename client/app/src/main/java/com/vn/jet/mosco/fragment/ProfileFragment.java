@@ -1000,7 +1000,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
                     @Override
                     public void onPositive() {
-                        exitConfirmationMode();
+                        discardEditMode();
                     }
                 });
     }
