@@ -1297,7 +1297,7 @@ public class ItemRevealFragment extends Fragment {
             radius = dpToPx(380);
         }
         gd.setGradientRadius(radius);
-        gd.setGradientCenter(0.5f, 0.40f); // 40% centerY khớp với home background
+        gd.setGradientCenter(0.5f, 0.32f); // 32% centerY khớp với card_item (bias 0.18)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             gd.setColors(new int[] { colorCenter, colorMid, endColor });

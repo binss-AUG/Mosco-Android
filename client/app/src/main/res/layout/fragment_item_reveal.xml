@@ -71,7 +71,7 @@
         android:shadowRadius="4"
         android:gravity="center"
         android:visibility="invisible"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toTopOf="@id/card_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -86,12 +86,12 @@
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:layout_constraintDimensionRatio="1:1.54"
-        app:layout_constraintWidth_percent="0.525"
+        app:layout_constraintWidth_percent="0.65"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.43">
+        app:layout_constraintVertical_bias="0.18">
 
         <!-- 1. Metallic Background -->
         <View
@@ -182,7 +182,7 @@
         app:layout_constraintBottom_toTopOf="@id/ll_buttons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.65" />
+        app:layout_constraintVertical_bias="0.75" />
 
     <!-- ====== BUTTONS: Pinned to bottom ====== -->
     <LinearLayout
