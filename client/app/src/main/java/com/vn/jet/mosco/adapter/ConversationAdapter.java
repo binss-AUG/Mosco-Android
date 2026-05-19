@@ -127,13 +127,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         // Đổ tên đối tác
         String name = wrapper.getPartnerName();
-        String fallback = holder.itemView.getContext().getString(R.string.chat_user_fallback_prefix) + wrapper.getPartnerId();
-        String displayName = name != null ? name : fallback;
-        if (wrapper.isStranger()) {
-            holder.tvName.setText(displayName + holder.itemView.getContext().getString(R.string.chat_stranger_suffix));
-        } else {
-            holder.tvName.setText(displayName);
-        }
+        String displayName = (name != null && !name.isEmpty()) ? name : "User";
+        holder.tvName.setText(displayName);
 
         // Trạng thái online glow
         if (wrapper.isOnline() && holder.cardAvatar != null) {

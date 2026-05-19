@@ -8,6 +8,7 @@ public class WorldChatMessage {
     private String avatarId;
     private String content;
     private long timestamp;
+    private int status = 0; // 0 = Sent, 1 = Received, 2 = Seen
 
     public WorldChatMessage(String senderId, String senderName, String avatarId, String content) {
         this(senderId, senderName, avatarId, content, System.currentTimeMillis());
@@ -26,4 +27,7 @@ public class WorldChatMessage {
     public String getAvatarId() { return avatarId; }
     public String getContent() { return content; }
     public long getTimestamp() { return timestamp; }
+    
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
 }

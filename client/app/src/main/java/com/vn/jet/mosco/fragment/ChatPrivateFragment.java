@@ -110,7 +110,11 @@ public class ChatPrivateFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             partnerId = getArguments().getLong(ARG_PARTNER_ID);
-            partnerName = getArguments().getString(ARG_PARTNER_NAME, "Unknown");
+            String name = getArguments().getString(ARG_PARTNER_NAME, "User");
+            if (name == null || name.isEmpty() || name.startsWith("User #") || name.equals("Unknown")) {
+                name = "User";
+            }
+            partnerName = name;
             partnerAvatar = getArguments().getString(ARG_PARTNER_AVATAR, "1");
         }
         sessionManager = new SessionManager(requireContext());
@@ -132,6 +136,7 @@ public class ChatPrivateFragment extends Fragment {
         super.onStart();
         syncWithServer();
         subscribeToUpdates();
+        fetchPartnerOnlineStatus();
     }
 
     private void initViews(View v) {
@@ -637,6 +642,42 @@ public class ChatPrivateFragment extends Fragment {
         WebSocketManager.getInstance().sendPrivateMessage(pm);
     }
 
+    private void fetchPartnerOnlineStatus() {
+        if (getContext() == null || partnerId == null) return;
+        gameApiService.getFriendList().enqueue(new Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
+                        org.json.JSONArray friendsArr = json.optJSONArray("data");
+                        if (friendsArr != null) {
+                            boolean isOnline = false;
+                            for (int i = 0; i < friendsArr.length(); i++) {
+                                org.json.JSONObject friendObj = friendsArr.getJSONObject(i);
+                                if (friendObj.optLong("userId") == partnerId) {
+                                    isOnline = friendObj.optBoolean("online", false);
+                                    break;
+                                }
+                            }
+                            if (chatAdapter != null) {
+                                chatAdapter.setPartnerOnline(isOnline);
+                            }
+                            if (tvHeaderStatus != null) {
+                                tvHeaderStatus.setText(isOnline ? "ONLINE" : "OFFLINE");
+                                tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error checking partner online status", e);
+                }
+            }
+            @Override
+            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {}
+        });
+    }
+
     private void fetchPartnerRelationship() {
         if (getContext() == null || partnerId == null) return;
         gameApiService.getUserStats(partnerId).enqueue(new Callback<UserStats>() {
@@ -658,9 +699,11 @@ public class ChatPrivateFragment extends Fragment {
     private void updateRelationshipUI(UserStats stats) {
         if (stats == null || !isAdded()) return;
         
-        // Cập nhật tên và avatar từ UserStats nếu thay đổi
-        if (stats.getIngameName() != null && !stats.getIngameName().isEmpty()) {
-            partnerName = stats.getIngameName();
+        String fullName = stats.getIngameName();
+        String username = stats.getUsername();
+        String displayName = (fullName != null && !fullName.isEmpty()) ? fullName : username;
+        if (displayName != null && !displayName.isEmpty()) {
+            partnerName = displayName;
             if (tvHeaderName != null) {
                 tvHeaderName.setText(partnerName);
             }
@@ -707,7 +750,6 @@ public class ChatPrivateFragment extends Fragment {
                         btnAddFriendChat.setVisibility(View.GONE);
                     }
                 } else if (status == 3) {
-                    String displayName = stats.getIngameName() != null ? stats.getIngameName() : "User #" + partnerId;
                     tvStrangerAlert.setText(displayName + " sent you a friend request");
                     if (btnAddFriendChat != null) {
                         btnAddFriendChat.setVisibility(View.VISIBLE);

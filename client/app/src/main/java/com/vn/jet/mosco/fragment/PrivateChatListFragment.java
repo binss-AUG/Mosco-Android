@@ -218,14 +218,14 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                             ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
                                     msg,
                                     partnerId,
-                                    name != null ? name : "User #" + partnerId,
+                                    (name != null && !name.isEmpty()) ? name : "User",
                                     avatar
                             );
                             wrapper.setUnreadCount(unreadCount);
                             uniqueWrappers.add(wrapper);
 
-                            // Nếu tên là null hoặc chứa tên tạm "User #", ta tải thông tin người dùng từ server để đồng bộ đầy đủ (hỗ trợ cả người lạ)
-                            if (name == null || name.startsWith("User #") || name.startsWith("User ")) {
+                            // Nếu chưa có tên hoặc là tên mặc định, ta tải thông tin người dùng từ server để đồng bộ đầy đủ
+                            if (name == null || name.isEmpty() || name.equals("User")) {
                                 fetchStrangerProfileFromServer(partnerId, wrapper);
                             }
                         }
@@ -256,21 +256,24 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                 @Override
                 public void onResponse(Call<com.vn.jet.mosco.model.UserStats> call, Response<com.vn.jet.mosco.model.UserStats> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        com.vn.jet.mosco.model.UserStats stats = response.body();
-                        String fullName = stats.getIngameName();
-                        String avatar = stats.getAvatarId();
-                        if (fullName != null && !fullName.isEmpty()) {
-                            wrapper.setPartnerName(fullName);
-                        }
-                        if (avatar != null && !avatar.isEmpty()) {
-                            wrapper.setPartnerAvatar(avatar);
-                        }
-                        // Cập nhật giao diện
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                filterConversations();
-                            });
-                        }
+                         com.vn.jet.mosco.model.UserStats stats = response.body();
+                         String fullName = stats.getIngameName();
+                         String username = stats.getUsername();
+                         String avatar = stats.getAvatarId();
+                         String displayName = (fullName != null && !fullName.isEmpty()) ? fullName : username;
+                         if (displayName == null || displayName.isEmpty()) {
+                             displayName = "User";
+                         }
+                         wrapper.setPartnerName(displayName);
+                         if (avatar != null && !avatar.isEmpty()) {
+                             wrapper.setPartnerAvatar(avatar);
+                         }
+                         // Cập nhật giao diện
+                         if (getActivity() != null) {
+                             getActivity().runOnUiThread(() -> {
+                                 filterConversations();
+                             });
+                         }
                     }
                 }
 
@@ -307,7 +310,9 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 JSONObject friendObj = friendsArr.getJSONObject(i);
                                 String friendId = String.valueOf(friendObj.optLong("userId"));
                                 boolean online = friendObj.optBoolean("online", false);
-                                String name = friendObj.optString("ingameName", "User #" + friendId);
+                                String username = friendObj.optString("username", "");
+                                String fullName = friendObj.optString("ingameName", "");
+                                String name = (!fullName.isEmpty()) ? fullName : (!username.isEmpty() ? username : "User");
                                 String avatar = friendObj.optString("avatarId", "");
                                 
                                 boolean found = false;
@@ -316,7 +321,7 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                         w.setOnline(online);
                                         w.setStranger(false);
                                         // ĐỒNG BỘ TRỰC TIẾP TÊN VÀ AVATAR TỪ DANH SÁCH BẠN BÈ MỚI NHẤT! (Sửa lỗi hiển thị "User #1")
-                                        if (w.getPartnerName() == null || w.getPartnerName().startsWith("User #") || w.getPartnerName().startsWith("User ")) {
+                                        if (w.getPartnerName() == null || w.getPartnerName().isEmpty() || w.getPartnerName().equals("User")) {
                                             w.setPartnerName(name);
                                         }
                                         if (w.getPartnerAvatar() == null || w.getPartnerAvatar().isEmpty()) {

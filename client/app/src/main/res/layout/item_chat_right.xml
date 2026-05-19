@@ -5,28 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:gravity="end|bottom"
     android:paddingHorizontal="@dimen/spacing_md"
-    android:paddingVertical="@dimen/spacing_xs"
-    android:gravity="bottom|end">
+    android:paddingVertical="@dimen/spacing_xs">
 
-    <!-- Chat Bubble Self (Right) -->
+    <!-- Flat Premium Message Frame (No Bubble, completely borderless and seamless) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_chat_bubble_self"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="6dp"
-        android:maxWidth="260dp"
-        android:layout_marginEnd="4dp">
+        android:background="@android:color/transparent"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:maxWidth="260dp">
 
-        <!-- Message text with bottom-right margin to fit time & checkmarks -->
+        <!-- Message text (Upper Left style, with bottom margin to reserve space) -->
         <TextView
             android:id="@+id/tv_chat_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#0F172A"
+            android:textColor="@color/white"
             android:textSize="15sp"
             android:lineSpacingExtra="2dp"
             android:layout_marginBottom="12dp"
@@ -36,7 +35,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Good morning! Japan looks amazing!" />
 
-        <!-- Time Stamp & Double Checkmark (✓✓) embedded inside bottom-right -->
+        <!-- Spacer + Time + Status Tick aligned at bottom right -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,23 +45,34 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
+            <!-- Subtle spacer -->
+            <View
+                android:layout_width="6dp"
+                android:layout_height="1dp" />
+
+            <!-- Time Stamp -->
             <TextView
                 android:id="@+id/tv_chat_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="9.5sp"
-                android:textColor="#475569"
+                android:textColor="#64748B"
                 tools:text="10:10" />
 
-            <TextView
-                android:id="@+id/tv_chat_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:layout_marginStart="4dp"
-                android:textColor="#0284C7"
-                tools:text="✓✓" />
+            <!-- Spacer -->
+            <View
+                android:layout_width="3dp"
+                android:layout_height="1dp" />
+
+            <!-- Status Ticks (ImageView loads ic_chat_tick_...) -->
+            <ImageView
+                android:id="@+id/iv_chat_status"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="@null"
+                tools:src="@drawable/ic_chat_tick_seen" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

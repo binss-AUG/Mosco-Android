@@ -59,6 +59,8 @@ public class ChatController {
 
         long senderId = Long.parseLong(privateMessage.getSenderId());
         long receiverId = Long.parseLong(privateMessage.getReceiverId());
+        
+        com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(senderId);
 
         boolean redisSaved = false;
         try {

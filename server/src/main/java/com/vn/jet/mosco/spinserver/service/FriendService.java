@@ -57,6 +57,7 @@ public class FriendService {
             entry.put("ingameName", friend.getIngameName() != null ? friend.getIngameName() : friend.getUsername());
             entry.put("level", friend.getLevel());
             entry.put("avatarId", friend.getAvatarId());
+            entry.put("online", com.vn.jet.mosco.spinserver.utils.UserSessionTracker.isOnline(friend.getId()));
             result.add(entry);
         }
         return result;
@@ -313,6 +314,7 @@ public class FriendService {
                     entry.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
                     entry.put("level", u.getLevel());
                     entry.put("avatarId", u.getAvatarId());
+                    entry.put("online", com.vn.jet.mosco.spinserver.utils.UserSessionTracker.isOnline(u.getId()));
                     return entry;
                 })
                 .collect(Collectors.toList());
@@ -347,6 +349,7 @@ public class FriendService {
                     entry.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
                     entry.put("level", u.getLevel());
                     entry.put("avatarId", u.getAvatarId());
+                    entry.put("online", com.vn.jet.mosco.spinserver.utils.UserSessionTracker.isOnline(u.getId()));
                     return entry;
                 })
                 .collect(Collectors.toList());

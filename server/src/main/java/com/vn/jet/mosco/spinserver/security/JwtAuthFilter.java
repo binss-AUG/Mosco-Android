@@ -68,6 +68,7 @@ public class JwtAuthFilter implements Filter {
 
             httpRequest.setAttribute("userId", userId);
             httpRequest.setAttribute("username", username);
+            com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(userId);
             logger.debug("JWT authenticated: userId={}, username={}", userId, username);
         } catch (Exception e) {
             logger.error("Failed to extract claims from JWT", e);
