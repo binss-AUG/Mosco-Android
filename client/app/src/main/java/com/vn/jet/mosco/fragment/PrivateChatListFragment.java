@@ -389,7 +389,7 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         if (getActivity() == null) return;
         try {
             long partnerId = Long.parseLong(wrapper.getPartnerId());
-            NavigationUtils.openPrivateChat(getActivity(), partnerId, wrapper.getPartnerName(), wrapper.getPartnerAvatar());
+            NavigationUtils.openPrivateChat(getActivity(), partnerId, wrapper.getPartnerName(), wrapper.getPartnerAvatar(), wrapper.isOnline(), wrapper.isStranger());
         } catch (NumberFormatException e) {
             Log.e("PrivateChatListFragment", "Invalid partner ID format", e);
         }

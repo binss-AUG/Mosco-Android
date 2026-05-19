@@ -6,12 +6,12 @@
     android:layout_height="wrap_content"
     android:background="@android:color/transparent"
     android:paddingHorizontal="@dimen/spacing_md"
-    android:paddingVertical="12dp"
+    android:paddingVertical="14dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
 
-    <!-- Avatar with Online Status Dot -->
+    <!-- Avatar Container -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_avatar_container"
         android:layout_width="56dp"
@@ -54,55 +54,57 @@
             app:layout_constraintEnd_toEndOf="@id/card_conversation_avatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Text Group: Name + Last Message Preview -->
-    <LinearLayout
+    <!-- Partner Name (Flattened & Constrained) -->
+    <TextView
+        android:id="@+id/tv_conversation_partner_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="16dp"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="@color/white"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
         app:layout_constraintEnd_toStartOf="@id/tv_conversation_time"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintTop_toTopOf="@id/layout_avatar_container"
+        app:layout_constraintBottom_toTopOf="@id/tv_conversation_preview"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Angel Curtis" />
 
-        <TextView
-            android:id="@+id/tv_conversation_partner_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/MoscoText.Luxury.SubHeader"
-            android:textSize="14sp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:textColor="@color/white"
-            tools:text="Angel Curtis" />
+    <!-- Message Preview (Flattened & Constrained) -->
+    <TextView
+        android:id="@+id/tv_conversation_preview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="#94A3B8"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@id/tv_conversation_partner_name"
+        app:layout_constraintEnd_toStartOf="@id/tv_conversation_unread_badge"
+        app:layout_constraintTop_toBottomOf="@id/tv_conversation_partner_name"
+        app:layout_constraintBottom_toBottomOf="@id/layout_avatar_container"
+        tools:text="Please help me find a good monitor for t..." />
 
-        <TextView
-            android:id="@+id/tv_conversation_preview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/MoscoText.Luxury.Body"
-            android:textColor="#94A3B8"
-            android:textSize="14sp"
-            android:layout_marginTop="3dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            tools:text="Please help me find a good monitor for t..." />
-    </LinearLayout>
-
-    <!-- Time Stamp -->
+    <!-- Time Stamp (Aligned perfectly with Partner Name) -->
     <TextView
         android:id="@+id/tv_conversation_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/MoscoText.Luxury.Body"
         android:textColor="#64748B"
-        android:textSize="12sp"
+        android:textSize="11.5sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="02:11" />
+        app:layout_constraintTop_toTopOf="@id/tv_conversation_partner_name"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_partner_name"
+        tools:text="1 hour ago" />
 
-    <!-- Unread Messages Badge (Amber/Yellow circle like Image 1) -->
+    <!-- Unread Messages Badge (Amber/Yellow circle) -->
     <TextView
         android:id="@+id/tv_conversation_unread_badge"
         android:layout_width="20dp"
@@ -114,9 +116,9 @@
         android:gravity="center"
         android:includeFontPadding="false"
         android:visibility="gone"
-        android:layout_marginTop="6dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_conversation_time"
+        app:layout_constraintTop_toTopOf="@id/tv_conversation_preview"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_preview"
         tools:text="2"
         tools:visibility="visible" />
 

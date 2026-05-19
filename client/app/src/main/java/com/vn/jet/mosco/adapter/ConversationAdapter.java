@@ -128,6 +128,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         // Đổ tên đối tác
         String name = wrapper.getPartnerName();
         String displayName = (name != null && !name.isEmpty()) ? name : "User";
+        if (wrapper.isStranger()) {
+            displayName += " • Stranger";
+        }
         holder.tvName.setText(displayName);
 
         // Trạng thái online glow

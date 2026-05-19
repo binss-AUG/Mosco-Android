@@ -162,7 +162,7 @@
     <string name="social_qr_camera_permission_required">Camera permission is required to scan QR codes.</string>
 
     <!-- Private Chat List - Stranger & Conversation Preview -->
-    <string name="chat_preview_you_prefix">You: </string>
+    <string name="chat_preview_you_prefix">You:\u0020</string>
     <string name="chat_preview_start">Tap to start a conversation</string>
     <string name="chat_stranger_suffix"> • Stranger</string>
     <string name="chat_user_fallback_prefix">User </string>

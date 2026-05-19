@@ -119,6 +119,10 @@ public class NavigationUtils {
      * @param partnerAvatar ID avatar của người dùng đó.
      */
     public static void openPrivateChat(FragmentActivity activity, Long partnerId, String partnerName, String partnerAvatar) {
+        openPrivateChat(activity, partnerId, partnerName, partnerAvatar, false, false);
+    }
+
+    public static void openPrivateChat(FragmentActivity activity, Long partnerId, String partnerName, String partnerAvatar, boolean isOnline, boolean isStranger) {
         if (activity == null || partnerId == null) return;
 
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
@@ -131,7 +135,7 @@ public class NavigationUtils {
         }
 
         com.vn.jet.mosco.fragment.ChatPrivateFragment fragment = 
-                com.vn.jet.mosco.fragment.ChatPrivateFragment.newInstance(partnerId, partnerName, partnerAvatar);
+                com.vn.jet.mosco.fragment.ChatPrivateFragment.newInstance(partnerId, partnerName, partnerAvatar, isOnline, isStranger);
 
         fragmentManager.beginTransaction()
                 .setCustomAnimations(
