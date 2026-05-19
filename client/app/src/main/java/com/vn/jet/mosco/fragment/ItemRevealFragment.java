@@ -535,11 +535,6 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
-            resetTitleConstraints(rootView);
-            TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
-            if (tvTitle != null) {
-                tvTitle.setText(itemName != null && !itemName.isEmpty() ? itemName : getString(R.string.reveal_default_item_name));
-            }
             if (rvCardHistory != null) {
                 rvCardHistory.setAlpha(0f);
                 rvCardHistory.setVisibility(View.VISIBLE);
@@ -939,30 +934,6 @@ public class ItemRevealFragment extends Fragment {
         float spreadSwirl;
     }
 
-    private void resetTitleConstraints(View rootView) {
-        TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
-        View btnBack = rootView.findViewById(R.id.btn_back);
-        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-        if (tvTitle != null && btnBack != null && cardItem != null) {
-            android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
-            if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
-                lp.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-                lp.topToTop = btnBack.getId();
-                lp.bottomToBottom = btnBack.getId();
-                lp.topMargin = 0;
-                tvTitle.setLayoutParams(lp);
-            }
-            android.view.ViewGroup.LayoutParams cardParams = cardItem.getLayoutParams();
-            if (cardParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) cardParams;
-                lp.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-                lp.topToBottom = tvTitle.getId();
-                cardItem.setLayoutParams(lp);
-            }
-        }
-    }
-
     private void showFinalRevealResults() {
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
         TextView tvTitle = getView().findViewById(R.id.tv_item_name);
@@ -1069,27 +1040,6 @@ public class ItemRevealFragment extends Fragment {
         View btnBack = getView().findViewById(R.id.btn_back);
         if (btnBack != null) {
             btnBack.setVisibility(View.GONE);
-        }
-
-        android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
-        if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
-            lp.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-            lp.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-            lp.topToBottom = cardItem.getId();
-            lp.startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            lp.endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            int margin = cardItem.getHeight() > 0 ? (int) (cardItem.getHeight() * 0.20) : (int) (getResources().getDimension(R.dimen.item_reveal_result_image_height) * 0.20);
-            lp.topMargin = margin;
-            tvTitle.setLayoutParams(lp);
-        }
-
-        android.view.ViewGroup.LayoutParams cardParams = cardItem.getLayoutParams();
-        if (cardParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) cardParams;
-            lp.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-            lp.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            cardItem.setLayoutParams(lp);
         }
     }
 
