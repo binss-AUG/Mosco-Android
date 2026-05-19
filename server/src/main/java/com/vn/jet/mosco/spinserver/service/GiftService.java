@@ -85,12 +85,6 @@ public class GiftService {
             return "Receiver does not exist!";
         }
 
-        // 4. Kiểm tra quan hệ bạn bè (phải ACCEPTED = status 1)
-        var friendship = friendshipRepository.findExistingFriendship(senderId, receiverId);
-        if (friendship.isEmpty() || friendship.get().getStatus() != 1) {
-            return "You are not friends! Gifts can only be sent to friends.";
-        }
-
         // 5. Kiểm tra thẻ thuộc về người gửi
         UserCard card = userCardRepository.findByIdAndUserId(cardId, senderId).orElse(null);
         if (card == null) {
@@ -102,11 +96,17 @@ public class GiftService {
             return "This card is equipped in your Formation! Please remove it before gifting.";
         }
 
-        // 7. Kiểm tra giới hạn gửi trong ngày (5/ngày)
+        // 7. Kiểm tra giới hạn gửi trong ngày của người gửi (5/ngày)
         LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        int todayCount = giftHistoryRepository.countBySenderIdAndCreatedAtAfter(senderId, startOfDay);
-        if (todayCount >= DAILY_GIFT_LIMIT) {
-            return "Daily limit reached (" + DAILY_GIFT_LIMIT + "/" + DAILY_GIFT_LIMIT + ")! Try again tomorrow.";
+        int todaySentCount = giftHistoryRepository.countBySenderIdAndCreatedAtAfter(senderId, startOfDay);
+        if (todaySentCount >= DAILY_GIFT_LIMIT) {
+            return "You have reached your daily gifting limit (5/5)! Please try again tomorrow.";
+        }
+
+        // 7.5. Kiểm tra giới hạn nhận trong ngày của người nhận (5/ngày)
+        int todayReceivedCount = giftHistoryRepository.countByReceiverIdAndCreatedAtAfter(receiverId, startOfDay);
+        if (todayReceivedCount >= DAILY_GIFT_LIMIT) {
+            return "The receiver has reached their daily limit for receiving gifts!";
         }
 
         // 8. Kiểm tra tài nguyên (36,000 Coin + 36 Diamond)

@@ -19,6 +19,11 @@ public interface GiftHistoryRepository extends JpaRepository<GiftHistory, Long> 
     int countBySenderIdAndCreatedAtAfter(Long senderId, LocalDateTime after);
 
     /**
+     * Đếm số lần nhận quà trong khoảng thời gian — phục vụ giới hạn daily limit nhận (5/ngày).
+     */
+    int countByReceiverIdAndCreatedAtAfter(Long receiverId, LocalDateTime after);
+
+    /**
      * Lấy lịch sử giao dịch liên quan đến user (cả gửi và nhận).
      * Sắp xếp mới nhất trước để hiển thị timeline.
      */

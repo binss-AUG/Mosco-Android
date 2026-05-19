@@ -204,28 +204,11 @@ public class GiftActivity extends MoscoBaseActivity {
     // ════════════════════════════════════════════════════════════════
 
     private void setupTabs() {
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.gift_tab_send));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.gift_tab_received));
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    layoutTabSend.setVisibility(View.VISIBLE);
-                    layoutTabReceived.setVisibility(View.GONE);
-                } else {
-                    layoutTabSend.setVisibility(View.GONE);
-                    layoutTabReceived.setVisibility(View.VISIBLE);
-                    loadReceivedGifts();
-                    markGiftsAsRead();
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
+        if (tabLayout != null) {
+            tabLayout.setVisibility(View.GONE);
+        }
+        layoutTabSend.setVisibility(View.VISIBLE);
+        layoutTabReceived.setVisibility(View.GONE);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -334,27 +317,46 @@ public class GiftActivity extends MoscoBaseActivity {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(android.text.Editable s) {
-                filterFriends(s.toString());
+                performSearch(s.toString());
             }
         });
     }
 
-    private void filterFriends(String query) {
+    private void performSearch(String query) {
         if (query == null || query.trim().isEmpty()) {
             friendSelectAdapter.updateData(allFriendsList);
+            tvNoFriends.setVisibility(allFriendsList.isEmpty() ? View.VISIBLE : View.GONE);
+            rvFriendSelect.setVisibility(allFriendsList.isEmpty() ? View.GONE : View.VISIBLE);
             return;
         }
 
-        String lowerQuery = query.toLowerCase().trim();
-        List<JSONObject> filtered = new ArrayList<>();
-        for (JSONObject friend : allFriendsList) {
-            String name = friend.optString("ingameName", "").toLowerCase();
-            String username = friend.optString("username", "").toLowerCase();
-            if (name.contains(lowerQuery) || username.contains(lowerQuery)) {
-                filtered.add(friend);
+        apiService.searchUsers(query.trim()).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray dataArr = json.optJSONArray("data");
+                        List<JSONObject> searchResults = new ArrayList<>();
+                        if (dataArr != null) {
+                            for (int i = 0; i < dataArr.length(); i++) {
+                                searchResults.add(dataArr.getJSONObject(i));
+                            }
+                        }
+                        friendSelectAdapter.updateData(searchResults);
+                        tvNoFriends.setVisibility(searchResults.isEmpty() ? View.VISIBLE : View.GONE);
+                        rvFriendSelect.setVisibility(searchResults.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi phân tích kết quả tìm kiếm", e);
+                }
             }
-        }
-        friendSelectAdapter.updateData(filtered);
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Lỗi kết nối khi tìm kiếm", t);
+            }
+        });
     }
 
     /**
@@ -471,7 +473,7 @@ public class GiftActivity extends MoscoBaseActivity {
                 // Hiện lại các Header của Activity đã ẩn trước đó
                 if (layoutHeaderGiftContainer != null) layoutHeaderGiftContainer.setVisibility(View.VISIBLE);
                 if (layoutDailyRemainingContainer != null) layoutDailyRemainingContainer.setVisibility(View.VISIBLE);
-                if (tabLayout != null) tabLayout.setVisibility(View.VISIBLE);
+                if (tabLayout != null) tabLayout.setVisibility(View.GONE);
                 
                 // Hiện lại màn hình chính của Send Wizard
                 if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.VISIBLE);
