@@ -535,6 +535,19 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
+            TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
+            View btnBack = rootView.findViewById(R.id.btn_back);
+            if (tvTitle != null && btnBack != null) {
+                android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
+                if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
+                    androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
+                    lp.bottomToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+                    lp.topToTop = btnBack.getId();
+                    lp.bottomToBottom = btnBack.getId();
+                    lp.bottomMargin = 0;
+                    tvTitle.setLayoutParams(lp);
+                }
+            }
             if (rvCardHistory != null) {
                 rvCardHistory.setAlpha(0f);
                 rvCardHistory.setVisibility(View.VISIBLE);
@@ -968,14 +981,24 @@ public class ItemRevealFragment extends Fragment {
 
         RevealedCard lastCard = revealedCards.get(revealedCards.size() - 1);
         String collectionId = lastCard.cardJson.optString(KEY_COLLECTION_ID, "");
-        SpannableStringBuilder titleBuilder = new SpannableStringBuilder("\n" + collectionId);
+        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
                 new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(),
                         R.color.lg_text_secondary)),
-                1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
+
+        android.view.ViewGroup.LayoutParams titleParams = tvTitle.getLayoutParams();
+        if (titleParams instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
+            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) titleParams;
+            lp.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+            lp.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+            lp.bottomToTop = cardItem.getId();
+            lp.bottomMargin = (int) (24 * getResources().getDisplayMetrics().density);
+            tvTitle.setLayoutParams(lp);
+        }
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
         tvTitle.setShadowLayer(getResources().getDimension(R.dimen.reveal_title_shadow_radius), 0f,
@@ -1319,13 +1342,13 @@ public class ItemRevealFragment extends Fragment {
         View llButtons = rootView.findViewById(R.id.ll_buttons);
         if (tvTitle != null && llButtons != null && llButtons.getVisibility() == View.VISIBLE && getContext() != null) {
             String collectionId = topCardJson.optString(KEY_COLLECTION_ID, "");
-            SpannableStringBuilder titleBuilder = new SpannableStringBuilder("\n" + collectionId);
+            SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
             titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                    1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleBuilder.setSpan(
                     new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(getContext(),
                             R.color.lg_text_secondary)),
-                    1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvTitle.setText(titleBuilder);
         }
     }
