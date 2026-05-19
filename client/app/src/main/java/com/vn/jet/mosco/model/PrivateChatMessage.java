@@ -20,6 +20,11 @@ public class PrivateChatMessage {
     private String content;
     private long timestamp;
     
+    @Ignore
+    private String partnerName;
+    @Ignore
+    private String partnerAvatar;
+    
     public PrivateChatMessage() {}
 
     @Ignore
@@ -57,4 +62,10 @@ public class PrivateChatMessage {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+
+    public String getPartnerName() { return partnerName; }
+    public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
+
+    public String getPartnerAvatar() { return partnerAvatar; }
+    public void setPartnerAvatar(String partnerAvatar) { this.partnerAvatar = partnerAvatar; }
 }

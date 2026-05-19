@@ -150,7 +150,7 @@ public class NavigationUtils {
         
         activity.getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
-                .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.CollectionFragment.MailboxFragment())
+                .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.MailboxFragment())
                 .addToBackStack("Mailbox")
                 .commit();
     }
