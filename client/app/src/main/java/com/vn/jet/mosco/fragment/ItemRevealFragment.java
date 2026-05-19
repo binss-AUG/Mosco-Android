@@ -253,7 +253,7 @@ public class ItemRevealFragment extends Fragment {
             rvCardHistory.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
             historyAdapter = new MiniCardAdapter();
             rvCardHistory.setAdapter(historyAdapter);
-            rvCardHistory.setVisibility(View.GONE);
+            rvCardHistory.setVisibility(View.INVISIBLE);
         }
 
         applyVisualEffects(cardItem, view);
@@ -334,7 +334,7 @@ public class ItemRevealFragment extends Fragment {
             historyAdapter.notifyDataSetChanged();
         }
         if (rvCardHistory != null) {
-            rvCardHistory.setVisibility(View.GONE);
+            rvCardHistory.setVisibility(View.INVISIBLE);
         }
 
         final int total = cards.size();

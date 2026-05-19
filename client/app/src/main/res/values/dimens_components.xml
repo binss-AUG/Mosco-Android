@@ -78,6 +78,7 @@
     <dimen name="reveal_summary_footer_marker_padding_top">8dp</dimen>
     <dimen name="reveal_summary_micro_lift">24dp</dimen>
     <dimen name="reveal_loading_overlay_elevation">100dp</dimen>
+    <dimen name="reveal_history_height">132dp</dimen>
     <dimen name="reveal_shake_mild">@dimen/spacing_12dp</dimen>
     <dimen name="reveal_shake_intense">18dp</dimen>
     <dimen name="reveal_card_float_y">8dp</dimen>
