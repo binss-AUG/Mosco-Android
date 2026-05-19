@@ -142,6 +142,23 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return;
         }
 
+        // --- 🔄 ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
+        if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+            float density = holder.itemView.getContext().getResources().getDisplayMetrics().density;
+            boolean isConsecutiveAbove = false;
+            if (position > 0) {
+                WorldChatMessage prevMsg = messages.get(position - 1);
+                if (!"DATE_SEPARATOR".equals(prevMsg.getSenderId()) && prevMsg.getSenderId().equals(msg.getSenderId())) {
+                    isConsecutiveAbove = true;
+                }
+            }
+            // Sát nhau 3dp cho cùng một người gửi, 14dp nếu đổi sang người khác
+            params.topMargin = (int) ((isConsecutiveAbove ? 3f : 14f) * density);
+            params.bottomMargin = (int) (2f * density);
+            holder.itemView.setLayoutParams(params);
+        }
+
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
         String timeStr = sdf.format(new java.util.Date(msg.getTimestamp()));
 
@@ -193,6 +210,22 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else if (selfHolder.ivStatus != null) {
                 selfHolder.ivStatus.setVisibility(View.GONE);
             }
+
+            // --- 🔄 ĐIỀU CHỈNH GÓC BO BONG BÓNG TỰ THÂN (SELF) ---
+            boolean isConsecutiveBelowSelf = false;
+            if (position + 1 < messages.size()) {
+                WorldChatMessage nextMsg = messages.get(position + 1);
+                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId()) && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                    isConsecutiveBelowSelf = true;
+                }
+            }
+            if (selfHolder.layoutBubbleFrame != null) {
+                if (isConsecutiveBelowSelf) {
+                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_middle);
+                } else {
+                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
+                }
+            }
             
         } else if (holder instanceof OtherViewHolder) {
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
@@ -218,6 +251,31 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             if (otherHolder.tvTime != null) {
                 otherHolder.tvTime.setText(timeStr);
             }
+
+            // --- 🔄 ĐIỀU CHỈNH GÓC BO BONG BÓNG ĐỐI TÁC (OTHER) ---
+            boolean isConsecutiveBelowOther = false;
+            if (position + 1 < messages.size()) {
+                WorldChatMessage nextMsg = messages.get(position + 1);
+                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId()) && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                    isConsecutiveBelowOther = true;
+                }
+            }
+            if (otherHolder.layoutBubbleFrame != null) {
+                if (isConsecutiveBelowOther) {
+                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_middle);
+                } else {
+                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
+                }
+            }
+
+            // --- 🔄 ẨN AVATAR LẶP LẠI VÔ LÝ (HIỂN THỊ DUY NHẤT Ở TIN NHẮN CUỐI CÙNG CỦA CỤM) ---
+            if (otherHolder.cardAvatar != null) {
+                if (isConsecutiveBelowOther) {
+                    otherHolder.cardAvatar.setVisibility(View.INVISIBLE); // Dùng INVISIBLE để giữ khoảng cách lề chuẩn
+                } else {
+                    otherHolder.cardAvatar.setVisibility(View.VISIBLE);
+                }
+            }
         }
     }
 
@@ -234,18 +292,22 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     static class SelfViewHolder extends RecyclerView.ViewHolder {
         TextView tvContent, tvTime;
         ImageView ivStatus;
+        View layoutBubbleFrame;
 
         public SelfViewHolder(@NonNull View itemView) {
             super(itemView);
             tvContent = itemView.findViewById(R.id.tv_chat_content);
             tvTime = itemView.findViewById(R.id.tv_chat_time);
             ivStatus = itemView.findViewById(R.id.iv_chat_status);
+            layoutBubbleFrame = itemView.findViewById(R.id.layout_bubble_frame);
         }
     }
 
     static class OtherViewHolder extends RecyclerView.ViewHolder {
         ImageView ivAvatar;
         TextView tvName, tvContent, tvTime;
+        View layoutBubbleFrame;
+        View cardAvatar;
 
         public OtherViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -253,6 +315,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvName = itemView.findViewById(R.id.tv_chat_name);
             tvContent = itemView.findViewById(R.id.tv_chat_content);
             tvTime = itemView.findViewById(R.id.tv_chat_time);
+            layoutBubbleFrame = itemView.findViewById(R.id.layout_bubble_frame);
+            cardAvatar = itemView.findViewById(R.id.card_chat_avatar);
         }
     }
 
