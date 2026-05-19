@@ -535,6 +535,11 @@ public class ItemRevealFragment extends Fragment {
         }
 
         if (currentRevealIndex == 0) {
+            resetTitleConstraints(rootView);
+            TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
+            if (tvTitle != null) {
+                tvTitle.setText(itemName != null && !itemName.isEmpty() ? itemName : getString(R.string.reveal_default_item_name));
+            }
             if (rvCardHistory != null) {
                 rvCardHistory.setAlpha(0f);
                 rvCardHistory.setVisibility(View.VISIBLE);
@@ -934,17 +939,36 @@ public class ItemRevealFragment extends Fragment {
         float spreadSwirl;
     }
 
+    private void resetTitleConstraints(View rootView) {
+        TextView tvTitle = rootView.findViewById(R.id.tv_item_name);
+        View btnBack = rootView.findViewById(R.id.btn_back);
+        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+        if (tvTitle != null && btnBack != null && cardItem != null) {
+            ConstraintLayout rootLayout = (ConstraintLayout) tvTitle.getParent();
+            androidx.constraintlayout.widget.ConstraintSet constraintSet = new androidx.constraintlayout.widget.ConstraintSet();
+            constraintSet.clone(rootLayout);
+            constraintSet.clear(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP);
+            constraintSet.clear(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM);
+            constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP, btnBack.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP);
+            constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM, btnBack.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM);
+            constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.START, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.START);
+            constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.END, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.END);
+            constraintSet.clear(cardItem.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP);
+            constraintSet.connect(cardItem.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP, tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM);
+            constraintSet.applyTo(rootLayout);
+        }
+    }
+
     private void showFinalRevealResults() {
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
         TextView tvTitle = getView().findViewById(R.id.tv_item_name);
         LinearLayout llButtons = getView().findViewById(R.id.ll_buttons);
 
-        int moveUpDistance = (int) getResources().getDimension(R.dimen.reveal_summary_micro_lift);
-        summaryCardBaseTranslationY = -moveUpDistance;
+        summaryCardBaseTranslationY = 0f;
         cardItem.animate()
                 .translationY(summaryCardBaseTranslationY)
-                .scaleX(getPercent(R.integer.reveal_card_summary_scale_percent))
-                .scaleY(getPercent(R.integer.reveal_card_summary_scale_percent))
+                .scaleX(1f)
+                .scaleY(1f)
                 .setDuration(getResources().getInteger(R.integer.reveal_summary_card_move_ms))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
@@ -952,8 +976,8 @@ public class ItemRevealFragment extends Fragment {
         if (currentGlowView != null) {
             currentGlowView.animate()
                     .translationY(summaryCardBaseTranslationY)
-                    .scaleX(getPercent(R.integer.reveal_card_summary_scale_percent))
-                    .scaleY(getPercent(R.integer.reveal_card_summary_scale_percent))
+                    .scaleX(1f)
+                    .scaleY(1f)
                     .setDuration(getResources().getInteger(R.integer.reveal_summary_card_move_ms))
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .start();
@@ -969,13 +993,13 @@ public class ItemRevealFragment extends Fragment {
 
         RevealedCard lastCard = revealedCards.get(revealedCards.size() - 1);
         String collectionId = lastCard.cardJson.optString(KEY_COLLECTION_ID, "");
-        SpannableStringBuilder titleBuilder = new SpannableStringBuilder("\n" + collectionId);
+        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
                 new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(),
                         R.color.lg_text_secondary)),
-                1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
@@ -1042,6 +1066,19 @@ public class ItemRevealFragment extends Fragment {
         if (btnBack != null) {
             btnBack.setVisibility(View.GONE);
         }
+
+        ConstraintLayout rootLayout = (ConstraintLayout) tvTitle.getParent();
+        androidx.constraintlayout.widget.ConstraintSet constraintSet = new androidx.constraintlayout.widget.ConstraintSet();
+        constraintSet.clone(rootLayout);
+        constraintSet.clear(cardItem.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP);
+        constraintSet.connect(cardItem.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.TOP);
+        constraintSet.clear(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP);
+        constraintSet.clear(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM);
+        int margin = cardItem.getHeight() > 0 ? (int) (cardItem.getHeight() * 0.20) : (int) (getResources().getDimension(R.dimen.item_reveal_result_image_height) * 0.20);
+        constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.TOP, cardItem.getId(), androidx.constraintlayout.widget.ConstraintSet.BOTTOM, margin);
+        constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.START, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.START);
+        constraintSet.connect(tvTitle.getId(), androidx.constraintlayout.widget.ConstraintSet.END, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.END);
+        constraintSet.applyTo(rootLayout);
     }
 
     private int getCardTier(String cardClass) {
@@ -1320,13 +1357,13 @@ public class ItemRevealFragment extends Fragment {
         View llButtons = rootView.findViewById(R.id.ll_buttons);
         if (tvTitle != null && llButtons != null && llButtons.getVisibility() == View.VISIBLE && getContext() != null) {
             String collectionId = topCardJson.optString(KEY_COLLECTION_ID, "");
-            SpannableStringBuilder titleBuilder = new SpannableStringBuilder("\n" + collectionId);
+            SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
             titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                    1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             titleBuilder.setSpan(
                     new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(getContext(),
                             R.color.lg_text_secondary)),
-                    1, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvTitle.setText(titleBuilder);
         }
     }
