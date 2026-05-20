@@ -59,8 +59,20 @@ public class JwtAuthFilter implements Filter {
             Long userId = jwtUtil.extractUserId(token);
             String username = jwtUtil.extractUsername(token);
 
-            com.vn.jet.mosco.spinserver.model.User user = userRepository.findById(userId).orElse(null);
-            if (user == null || user.getActiveToken() == null || !user.getActiveToken().equals(token)) {
+            // 1. Kiểm tra Active Token trong cache trước (Local-First RAM)
+            String cachedToken = com.vn.jet.mosco.spinserver.security.TokenCache.get(userId);
+            if (cachedToken == null) {
+                // Cache miss, truy vấn DB và đẩy vào Cache
+                com.vn.jet.mosco.spinserver.model.User user = userRepository.findById(userId).orElse(null);
+                if (user != null) {
+                    cachedToken = user.getActiveToken();
+                    if (cachedToken != null) {
+                        com.vn.jet.mosco.spinserver.security.TokenCache.put(userId, cachedToken);
+                    }
+                }
+            }
+
+            if (cachedToken == null || !cachedToken.equals(token)) {
                 logger.warn("Token mismatch for User ID {}. Account logged in on another device.", userId);
                 sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Tài khoản của bạn đã đăng nhập ở nơi khác. Vui lòng đăng nhập lại.");
                 return;
@@ -70,13 +82,15 @@ public class JwtAuthFilter implements Filter {
             httpRequest.setAttribute("username", username);
             com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(userId);
             logger.debug("JWT authenticated: userId={}, username={}", userId, username);
-        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException e) {
-            logger.error("Database connection error during JWT verification", e);
-            sendError(httpResponse, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Kết nối cơ sở dữ liệu tạm thời gián đoạn. Vui lòng thử lại sau.");
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            // Lỗi JWT thực sự (hết hạn, sai chữ ký, hỏng định dạng) -> Trả về 401
+            logger.warn("Invalid JWT token: {}", e.getMessage());
+            sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.");
             return;
         } catch (Exception e) {
-            logger.error("Failed to extract claims from JWT", e);
-            sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Malformed JWT token");
+            // Lỗi kết nối Database / Lỗi server nội bộ -> Trả về 500
+            logger.error("Internal server error or Database connection failure during JWT verification", e);
+            sendError(httpResponse, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Hệ thống đang bận, vui lòng thử lại sau.");
             return;
         }
 

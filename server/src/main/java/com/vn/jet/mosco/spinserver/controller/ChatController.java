@@ -30,6 +30,7 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final PrivateMessageRepository privateMessageRepository;
     private final CoupleStreakService coupleStreakService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/world")
@@ -57,26 +58,12 @@ public class ChatController {
         
         com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(senderId);
 
-        try {
-            PrivateMessage pm = PrivateMessage.builder()
-                .senderId(senderId)
-                .receiverId(receiverId)
-                .senderName(privateMessage.getSenderName())
-                .avatarId(privateMessage.getAvatarId())
-                .content(safeContent)
-                .timestamp(currentTimestamp)
-                .build();
-            PrivateMessage saved = privateMessageRepository.save(pm);
-            privateMessage.setId(String.valueOf(saved.getId()));
-        } catch (Exception ex) {
-            log.error("[ChatController] MySQL save failed: {}", ex.getMessage());
-        }
-
-        try {
-            coupleStreakService.recordInteraction(senderId, receiverId);
-        } catch (Exception e) {
-            log.error("Failed to record streak interaction: ", e);
-        }
+        // Phát tán Event bất đồng bộ để ghi DB và cập nhật streak ngầm dưới background
+        privateMessage.setId(String.valueOf(System.currentTimeMillis())); // Tạo ID tạm thời
+        eventPublisher.publishEvent(new com.vn.jet.mosco.spinserver.event.PrivateChatEvent(
+            this, senderId, receiverId, privateMessage.getSenderName(),
+            privateMessage.getAvatarId(), safeContent, currentTimestamp
+        ));
 
         log.info("Private message from {} to {}: {}", senderId, receiverId, safeContent);
         messagingTemplate.convertAndSend("/topic/private." + receiverId, privateMessage);
