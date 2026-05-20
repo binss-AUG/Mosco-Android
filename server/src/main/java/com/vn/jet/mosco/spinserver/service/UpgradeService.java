@@ -65,18 +65,29 @@ public class UpgradeService {
     public UpgradeResponse upgrade(UpgradeRequest request) {
         log.info("Bắt đầu tiến trình nâng cấp thẻ bài cho User: {}", request.getUserId());
 
-        // 1. Khóa thẻ chính (PESSIMISTIC_WRITE)
-        UserCard mainCard = userCardRepository.findWithLockById(request.getBaseCardId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ chính"));
+        // 1. Gom nhóm và sắp xếp ID để tránh Deadlock
+        java.util.Set<Long> uniqueCardIds = new java.util.TreeSet<>();
+        uniqueCardIds.add(request.getBaseCardId());
+        uniqueCardIds.addAll(request.getMaterialCardIds());
 
+        // 2. Khóa dòng theo thứ tự sắp xếp và kiểm tra quyền sở hữu
+        java.util.Map<Long, UserCard> lockedCards = new java.util.HashMap<>();
+        for (Long cardId : uniqueCardIds) {
+            UserCard card = userCardRepository.findWithLockById(cardId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ: " + cardId));
+            if (card.getUser() == null || !card.getUser().getId().equals(request.getUserId())) {
+                throw new RuntimeException("Bạn không sở hữu thẻ: " + cardId);
+            }
+            lockedCards.put(cardId, card);
+        }
+
+        UserCard mainCard = lockedCards.get(request.getBaseCardId());
         if (mainCard.getUpgradeLevel() >= 10) {
             throw new RuntimeException("Thẻ đã đạt cấp độ tối đa (+10)");
         }
 
-        // 2. Khóa và kiểm tra danh sách thẻ nguyên liệu
         List<UserCard> materials = request.getMaterialCardIds().stream()
-                .map(id -> userCardRepository.findWithLockById(id)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ nguyên liệu: " + id)))
+                .map(lockedCards::get)
                 .toList();
 
         if (materials.isEmpty() || materials.size() > 5) {
