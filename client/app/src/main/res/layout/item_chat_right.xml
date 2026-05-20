@@ -21,7 +21,7 @@
         android:paddingBottom="8dp"
         android:maxWidth="260dp">
 
-        <!-- Message text (Premium Inline Layout: paddingEnd reserves space for time & status) -->
+        <!-- Message text (Premium Inline Layout: paddingEnd reserves space for time) -->
         <TextView
             android:id="@+id/tv_chat_content"
             android:layout_width="wrap_content"
@@ -29,14 +29,14 @@
             android:textColor="@color/white"
             android:textSize="15sp"
             android:lineSpacingExtra="2dp"
-            android:paddingEnd="58dp"
+            android:paddingEnd="40dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="Good morning! Japan looks amazing!" />
 
-        <!-- Spacer + Time + Status Tick aligned at bottom right -->
+        <!-- Spacer + Time aligned at bottom right -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,20 +59,6 @@
                 android:textSize="9.5sp"
                 android:textColor="@color/mosco_white_60"
                 tools:text="10:10" />
-
-            <!-- Spacer -->
-            <View
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
-            <!-- Status Ticks (ImageView loads ic_chat_tick_...) -->
-            <ImageView
-                android:id="@+id/iv_chat_status"
-                android:layout_width="13dp"
-                android:layout_height="13dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="@null"
-                tools:src="@drawable/ic_chat_tick_seen" />
 
         </LinearLayout>
 

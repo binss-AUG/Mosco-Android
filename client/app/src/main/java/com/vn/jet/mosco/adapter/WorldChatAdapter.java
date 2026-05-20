@@ -26,10 +26,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_OTHER = 2;
     private static final int VIEW_TYPE_DATE_SEPARATOR = 3;
 
-    // Tại sao (WHY): Payload marker dùng cho partial update, chỉ vẽ lại icon tick trạng thái (Sent/Received/Seen)
-    // mà KHÔNG vẽ lại toàn bộ bong bóng chat → triệt để loại bỏ hiện tượng nhảy khung hình (frame jump).
-    private static final String PAYLOAD_STATUS = "PAYLOAD_STATUS";
-    
     // Tại sao (WHY): Payload marker để chỉ cập nhật hình dáng bong bóng (bo góc trên/dưới) khi có tin nhắn mới liền kề,
     // ngăn chặn việc full-rebind làm gián đoạn animation và mất scroll focus.
     private static final String PAYLOAD_BUBBLE = "PAYLOAD_BUBBLE";
@@ -46,30 +42,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void setPrivateChat(boolean privateChat) {
         this.isPrivateChat = privateChat;
-    }
-
-    public void setPartnerOnline(boolean online) {
-        if (this.isPartnerOnline != online) {
-            this.isPartnerOnline = online;
-            notifyLastSelfMessageStatus();
-        }
-    }
-
-    public void notifyStatusChanged() {
-        notifyLastSelfMessageStatus();
-    }
-
-    private void notifyLastSelfMessageStatus() {
-        // Tại sao (WHY): Chỉ cập nhật trạng thái cho tin nhắn Self CUỐI CÙNG vì chỉ tin nhắn cuối mới hiện icon Tick.
-        // Việc duyệt ngược và break ngay lập tức giúp tránh gọi notifyItemChanged hàng loạt, 
-        // loại bỏ hoàn toàn lỗi giật màn hình (focus nhảy lên trên) khi có cập nhật trạng thái seen/received.
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            WorldChatMessage msg = messages.get(i);
-            if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
-                notifyItemChanged(i, PAYLOAD_STATUS);
-                break;
-            }
-        }
     }
 
     private boolean isDifferentDay(long ts1, long ts2) {
@@ -169,13 +141,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty()) {
             boolean handled = false;
-            if (payloads.contains(PAYLOAD_STATUS) && holder instanceof SelfViewHolder) {
-                int adapterPos = holder.getAdapterPosition();
-                if (adapterPos >= 0 && adapterPos < messages.size()) {
-                    updateStatusTick((SelfViewHolder) holder, messages.get(adapterPos), adapterPos);
-                }
-                handled = true;
-            }
             if (payloads.contains(PAYLOAD_BUBBLE)) {
                 int adapterPos = holder.getAdapterPosition();
                 if (adapterPos >= 0 && adapterPos < messages.size()) {
@@ -242,9 +207,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 selfHolder.tvTime.setText(timeStr);
             }
 
-            // --- ĐỒNG BỘ TRẠNG THÁI TICK DƯỚI GÓC BÊN PHẢI ---
-            updateStatusTick(selfHolder, msg, position);
-
             // --- ĐIỀU CHỈNH GÓC BO BONG BÓNG TỰ THÂN (SELF) ---
             updateSelfBubbleShape(selfHolder, msg, position, isConsecutiveAbove);
 
@@ -306,50 +268,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.itemView.setAlpha(1f);
         }
     }
-
-    /**
-     * Tại sao (WHY): Trích xuất logic cập nhật icon tick trạng thái ra method riêng
-     * để dùng chung cho cả full bind lẫn payload partial update.
-     * Giúp payload update chỉ thay đổi icon tick mà không vẽ lại bong bóng → không nhảy khung.
-     */
-    private void updateStatusTick(SelfViewHolder selfHolder, WorldChatMessage msg, int position) {
-        boolean isLastSelfMessage = true;
-        for (int i = position + 1; i < messages.size(); i++) {
-            if (currentUserId != null && currentUserId.equals(messages.get(i).getSenderId())) {
-                isLastSelfMessage = false;
-                break;
-            }
-        }
-
-        if (isLastSelfMessage && selfHolder.ivStatus != null) {
-            selfHolder.ivStatus.setVisibility(View.VISIBLE);
-
-            // Tìm tin nhắn cuối của đối phương
-            long partnerLastTs = 0;
-            for (int i = messages.size() - 1; i >= 0; i--) {
-                if (!"DATE_SEPARATOR".equals(messages.get(i).getSenderId())
-                        && !messages.get(i).getSenderId().equals(currentUserId)) {
-                    partnerLastTs = messages.get(i).getTimestamp();
-                    break;
-                }
-            }
-
-            // Quy ước: Đã xem (Seen) nếu đối phương phản hồi sau đó, hoặc DTO ghi nhận trạng thái đã xem (seen = 2)
-            boolean isSeen = msg.getStatus() == 2 || (partnerLastTs >= msg.getTimestamp());
-
-            if (isSeen) {
-                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_seen);
-            } else if (isPartnerOnline) {
-                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_received);
-            } else {
-                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_sent);
-            }
-        } else if (selfHolder.ivStatus != null) {
-            selfHolder.ivStatus.setVisibility(View.GONE);
-        }
-    }
-
-    // (Removed duplicate notifyStatusChanged)
 
     private boolean checkConsecutiveAbove(WorldChatMessage msg, int position) {
         if (position > 0) {
@@ -426,14 +344,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class SelfViewHolder extends RecyclerView.ViewHolder {
         TextView tvContent, tvTime;
-        ImageView ivStatus;
         View layoutBubbleFrame;
 
         public SelfViewHolder(@NonNull View itemView) {
             super(itemView);
             tvContent = itemView.findViewById(R.id.tv_chat_content);
             tvTime = itemView.findViewById(R.id.tv_chat_time);
-            ivStatus = itemView.findViewById(R.id.iv_chat_status);
             layoutBubbleFrame = itemView.findViewById(R.id.layout_bubble_frame);
         }
     }

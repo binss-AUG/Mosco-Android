@@ -14,6 +14,9 @@ public interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(PrivateChatMessage message);
 
+    @Query("DELETE FROM private_messages WHERE senderId = :myId AND receiverId = :partnerId AND content = :content AND timestamp BETWEEN :minTs AND :maxTs")
+    void deleteTentativeMessage(String myId, String partnerId, String content, long minTs, long maxTs);
+
     /**
      * Lấy lịch sử trò chuyện giữa người dùng hiện tại và một đối tác cụ thể.
      * Cần lọc theo cả hai hướng (Gửi và Nhận) để tạo thành một cuộc hội thoại.

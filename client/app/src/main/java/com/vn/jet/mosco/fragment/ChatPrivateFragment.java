@@ -592,30 +592,8 @@ public class ChatPrivateFragment extends Fragment {
                     chatAdapter.clear();
                     long partnerLastTs = 0;
                     for (PrivateChatMessage pm : localMsgs) {
-                        // Tại sao (WHY): Không hiển thị tin nhắn điều khiển [SEEN] hệ thống lên bong bóng giao diện chat
-                        if (pm.getContent() != null && pm.getContent().startsWith("[SEEN]:")) {
-                            continue;
-                        }
                         chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp()));
-                        if (!pm.getSenderId().equals(myId)) {
-                            partnerLastTs = Math.max(partnerLastTs, pm.getTimestamp());
-                        }
                     }
-                    
-                    // Tại sao (WHY): Khi mở màn hình Private Chat, gửi thông báo đã xem cho tin nhắn mới nhất của đối tác 
-                    // để bên máy đối tác chuyển sang trạng thái đã xem (Seen) tức thì.
-                    if (partnerLastTs > 0) {
-                        PrivateChatMessage seenConfirm = new PrivateChatMessage(
-                            myId,
-                            partnerIdStr,
-                            sessionManager.getIngameName(),
-                            sessionManager.getAvatarId(),
-                            "[SEEN]:" + partnerLastTs,
-                            System.currentTimeMillis()
-                        );
-                        WebSocketManager.getInstance().sendPrivateMessage(seenConfirm);
-                    }
-
                     rvChat.post(() -> {
                         if (chatAdapter.getItemCount() > 0) {
                             rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
@@ -707,34 +685,7 @@ public class ChatPrivateFragment extends Fragment {
         chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
             if (message == null || !isAdded()) return;
 
-            // Trường hợp 1: Nhận tin nhắn từ đối phương báo rằng họ ĐÃ XEM tin nhắn của ta
-            if (message.getSenderId().equals(String.valueOf(partnerId)) && message.getContent() != null && message.getContent().startsWith("[SEEN]:")) {
-                try {
-                    String tsStr = message.getContent().substring("[SEEN]:".length());
-                    long seenTimestamp = Long.parseLong(tsStr);
-                    
-                    // Tại sao (WHY): Đồng bộ trạng thái đã xem (seen = 2) cho tất cả tin nhắn gửi đi có timestamp nhỏ hơn 
-                    // hoặc bằng timestamp được xác nhận, giúp chuyển đổi tick xanh tức thì không cần thoát ra vô lại.
-                    boolean updated = false;
-                    for (int i = 0; i < chatAdapter.getItemCount(); i++) {
-                        WorldChatMessage msg = chatAdapter.getMessageAt(i);
-                        if (msg != null && msg.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
-                            if (msg.getTimestamp() <= seenTimestamp && msg.getStatus() != 2) {
-                                msg.setStatus(2);
-                                updated = true;
-                            }
-                        }
-                    }
-                    if (updated) {
-                        requireActivity().runOnUiThread(() -> chatAdapter.notifyStatusChanged());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Lỗi phân tích timestamp Seen thời gian thực", e);
-                }
-                return; // Kết thúc sớm, không hiển thị làm bong bóng chat
-            }
-
-            // Trường hợp 2: Nhận tin nhắn chat bình thường từ đối phương
+            // Nhận tin nhắn chat bình thường từ đối phương
             if (message.getSenderId().equals(String.valueOf(partnerId))) {
                 // 1. Lưu ngay vào local Room DB để đảm bảo kiến trúc Local-First
                 // Tại sao (WHY): Đánh dấu đã đọc ngay vì người dùng đang ở trong phòng chat này.
@@ -889,9 +840,7 @@ public class ChatPrivateFragment extends Fragment {
                                     break;
                                 }
                             }
-                            if (chatAdapter != null) {
-                                chatAdapter.setPartnerOnline(isOnline);
-                            }
+                            // No status tick online update on adapter
                             if (tvHeaderStatus != null) {
                                 tvHeaderStatus.setText(isOnline ? "Online" : "Offline");
                                 tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
