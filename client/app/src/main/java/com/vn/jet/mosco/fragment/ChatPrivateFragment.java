@@ -43,6 +43,7 @@ import com.vn.jet.mosco.utils.AppExecutors;
 import com.vn.jet.mosco.utils.AvatarUtils;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.StreakColorHelper;
+import com.vn.jet.mosco.utils.ClickDebounce;
 import com.vn.jet.mosco.utils.MoscoDialogHelper;
 import com.vn.jet.mosco.model.Objet;
 import com.vn.jet.mosco.model.UserStats;
@@ -230,9 +231,9 @@ public class ChatPrivateFragment extends Fragment {
 
         View btnMore = v.findViewById(R.id.btn_private_chat_more);
         if (btnMore != null) {
-            btnMore.setOnClickListener(view -> {
+            btnMore.setOnClickListener(new ClickDebounce(view -> {
                 android.widget.Toast.makeText(getContext(), "Options coming soon!", android.widget.Toast.LENGTH_SHORT).show();
-            });
+            }));
         }
     }
 
@@ -260,14 +261,14 @@ public class ChatPrivateFragment extends Fragment {
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
+        btnBack.setOnClickListener(new ClickDebounce(v -> {
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {
                 getParentFragmentManager().popBackStack();
             }
-        });
-        btnSend.setOnClickListener(v -> sendMessage());
+        }));
+        btnSend.setOnClickListener(new ClickDebounce(300, v -> sendMessage()));
         if (btnStreakDetails != null) {
-            btnStreakDetails.setOnClickListener(v -> showCoupleStreakDialog());
+            btnStreakDetails.setOnClickListener(new ClickDebounce(v -> showCoupleStreakDialog()));
         }
     }
 
