@@ -108,6 +108,28 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    public void setMessages(List<WorldChatMessage> newMessages) {
+        messages.clear();
+        lastAnimatedPosition = -1;
+        List<WorldChatMessage> formatted = new ArrayList<>();
+        WorldChatMessage lastRealMsg = null;
+        for (WorldChatMessage msg : newMessages) {
+            if (lastRealMsg == null || isDifferentDay(lastRealMsg.getTimestamp(), msg.getTimestamp())) {
+                WorldChatMessage dateSep = new WorldChatMessage(
+                        "DATE_SEPARATOR",
+                        "",
+                        "",
+                        getFormattedDate(msg.getTimestamp()),
+                        msg.getTimestamp());
+                formatted.add(dateSep);
+            }
+            formatted.add(msg);
+            lastRealMsg = msg;
+        }
+        messages.addAll(formatted);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemViewType(int position) {
         WorldChatMessage msg = messages.get(position);

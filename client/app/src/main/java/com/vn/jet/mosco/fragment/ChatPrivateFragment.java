@@ -590,11 +590,11 @@ public class ChatPrivateFragment extends Fragment {
             List<PrivateChatMessage> localMsgs = db.messageDao().getChatHistory(myId, partnerIdStr);
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
-                    chatAdapter.clear();
-                    long partnerLastTs = 0;
+                    List<WorldChatMessage> newList = new ArrayList<>();
                     for (PrivateChatMessage pm : localMsgs) {
-                        chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp()));
+                        newList.add(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp()));
                     }
+                    chatAdapter.setMessages(newList);
                     rvChat.post(() -> {
                         if (chatAdapter.getItemCount() > 0) {
                             rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
@@ -683,6 +683,7 @@ public class ChatPrivateFragment extends Fragment {
         if (chatSubscription != null && !chatSubscription.isDisposed()) {
             chatSubscription.dispose();
         }
+        WebSocketManager.getInstance().connect();
         chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
             if (message == null || !isAdded()) return;
 
