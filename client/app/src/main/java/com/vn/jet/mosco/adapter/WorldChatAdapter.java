@@ -26,13 +26,19 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_OTHER = 2;
     private static final int VIEW_TYPE_DATE_SEPARATOR = 3;
 
+    // Tại sao (WHY): Payload marker dùng cho partial update, chỉ vẽ lại icon tick trạng thái (Sent/Received/Seen)
+    // mà KHÔNG vẽ lại toàn bộ bong bóng chat → triệt để loại bỏ hiện tượng nhảy khung hình (frame jump).
+    private static final String PAYLOAD_STATUS = "PAYLOAD_STATUS";
+    
+    // Tại sao (WHY): Payload marker để chỉ cập nhật hình dáng bong bóng (bo góc trên/dưới) khi có tin nhắn mới liền kề,
+    // ngăn chặn việc full-rebind làm gián đoạn animation và mất scroll focus.
+    private static final String PAYLOAD_BUBBLE = "PAYLOAD_BUBBLE";
+
     private final List<WorldChatMessage> messages = new ArrayList<>();
     private String currentUserId;
     private boolean isPartnerOnline = false;
     private boolean isPrivateChat = false;
     private int lastAnimatedPosition = -1;
-
-
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -45,8 +51,13 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setPartnerOnline(boolean online) {
         if (this.isPartnerOnline != online) {
             this.isPartnerOnline = online;
-            if (messages.size() > 0) {
-                notifyItemRangeChanged(0, messages.size());
+            // Tại sao (WHY): Chỉ cập nhật các tin nhắn của bản thân (Self) vì chỉ chúng có icon tick trạng thái.
+            // Dùng payload partial update thay vì notifyDataSetChanged() để giữ nguyên vị trí cuộn.
+            for (int i = 0; i < messages.size(); i++) {
+                WorldChatMessage msg = messages.get(i);
+                if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
+                    notifyItemChanged(i, PAYLOAD_STATUS);
+                }
             }
         }
     }
@@ -103,7 +114,9 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         int newPos = messages.size() - 1;
         notifyItemInserted(newPos);
         if (newPos >= 1) {
-            notifyItemChanged(newPos - 1);
+            // Tại sao (WHY): Chỉ dùng partial update (PAYLOAD_BUBBLE) để chỉnh sửa hình dáng góc bo 
+            // của tin nhắn liền kề trên, không rebind toàn bộ để tránh giật hình.
+            notifyItemChanged(newPos - 1, PAYLOAD_BUBBLE);
         }
     }
 
@@ -143,6 +156,37 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty()) {
+            boolean handled = false;
+            if (payloads.contains(PAYLOAD_STATUS) && holder instanceof SelfViewHolder) {
+                int adapterPos = holder.getAdapterPosition();
+                if (adapterPos >= 0 && adapterPos < messages.size()) {
+                    updateStatusTick((SelfViewHolder) holder, messages.get(adapterPos), adapterPos);
+                }
+                handled = true;
+            }
+            if (payloads.contains(PAYLOAD_BUBBLE)) {
+                int adapterPos = holder.getAdapterPosition();
+                if (adapterPos >= 0 && adapterPos < messages.size()) {
+                    WorldChatMessage msg = messages.get(adapterPos);
+                    boolean isConsecutiveAbove = checkConsecutiveAbove(msg, adapterPos);
+                    
+                    if (holder instanceof SelfViewHolder) {
+                        updateSelfBubbleShape((SelfViewHolder) holder, msg, adapterPos, isConsecutiveAbove);
+                    } else if (holder instanceof OtherViewHolder) {
+                        updateOtherBubbleShape((OtherViewHolder) holder, msg, adapterPos, isConsecutiveAbove);
+                    }
+                }
+                handled = true;
+            }
+            
+            if (handled) return;
+        }
+        onBindViewHolder(holder, position);
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         WorldChatMessage msg = messages.get(position);
 
@@ -152,13 +196,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return;
         }
 
-        boolean isConsecutiveAbove = false;
-        if (position > 0) {
-            WorldChatMessage prevMsg = messages.get(position - 1);
-            if (!"DATE_SEPARATOR".equals(prevMsg.getSenderId()) && prevMsg.getSenderId().equals(msg.getSenderId())) {
-                isConsecutiveAbove = true;
-            }
-        }
+        boolean isConsecutiveAbove = checkConsecutiveAbove(msg, position);
 
         // --- ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
         if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
@@ -174,10 +212,6 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             params.topMargin = isConsecutiveAbove ? consecutiveMargin : separatedMargin;
             params.bottomMargin = bottomMargin;
             holder.itemView.setLayoutParams(params);
-
-            // Tại sao (WHY): Ép lại padding ngang cố định từ Resource thay vì đọc getPadding() động 
-            // để phòng ngừa triệt để lỗi measure pass trả về 0 trong lúc layout chưa sẵn sàng trên Android 9 Emulator.
-            holder.itemView.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
         }
 
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
@@ -199,63 +233,10 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
 
             // --- ĐỒNG BỘ TRẠNG THÁI TICK DƯỚI GÓC BÊN PHẢI ---
-            boolean isLastSelfMessage = true;
-            for (int i = position + 1; i < messages.size(); i++) {
-                if (currentUserId != null && currentUserId.equals(messages.get(i).getSenderId())) {
-                    isLastSelfMessage = false;
-                    break;
-                }
-            }
-
-            if (isLastSelfMessage && selfHolder.ivStatus != null) {
-                selfHolder.ivStatus.setVisibility(View.VISIBLE);
-
-                // Tìm tin nhắn cuối của đối phương
-                long partnerLastTs = 0;
-                for (int i = messages.size() - 1; i >= 0; i--) {
-                    if (!"DATE_SEPARATOR".equals(messages.get(i).getSenderId())
-                            && !messages.get(i).getSenderId().equals(currentUserId)) {
-                        partnerLastTs = messages.get(i).getTimestamp();
-                        break;
-                    }
-                }
-
-                // Quy ước: Đã xem (Seen) nếu đối phương phản hồi sau đó, hoặc DTO ghi nhận
-                // trạng thái đã xem (seen = 2)
-                boolean isSeen = msg.getStatus() == 2 || (partnerLastTs >= msg.getTimestamp());
-
-                if (isSeen) {
-                    selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_seen);
-                } else if (isPartnerOnline) {
-                    selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_received);
-                } else {
-                    selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_sent);
-                }
-            } else if (selfHolder.ivStatus != null) {
-                selfHolder.ivStatus.setVisibility(View.GONE);
-            }
+            updateStatusTick(selfHolder, msg, position);
 
             // --- ĐIỀU CHỈNH GÓC BO BONG BÓNG TỰ THÂN (SELF) ---
-            boolean isConsecutiveBelowSelf = false;
-            if (position + 1 < messages.size()) {
-                WorldChatMessage nextMsg = messages.get(position + 1);
-                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
-                        && nextMsg.getSenderId().equals(msg.getSenderId())) {
-                    isConsecutiveBelowSelf = true;
-                }
-            }
-            if (selfHolder.layoutBubbleFrame != null) {
-                if (isConsecutiveAbove && isConsecutiveBelowSelf) {
-                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_middle);
-                } else if (isConsecutiveAbove && !isConsecutiveBelowSelf) {
-                    // Tại sao (WHY): Có tin nhắn nối tiếp ở trên nhưng không có ở dưới -> Đây là đáy cụm tin nhắn
-                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_bottom);
-                } else if (!isConsecutiveAbove && isConsecutiveBelowSelf) {
-                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_top);
-                } else {
-                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
-                }
-            }
+            updateSelfBubbleShape(selfHolder, msg, position, isConsecutiveAbove);
 
         } else if (holder instanceof OtherViewHolder) {
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
@@ -285,36 +266,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
 
             // --- ĐIỀU CHỈNH GÓC BO BONG BÓNG ĐỐI TÁC (OTHER) ---
-            boolean isConsecutiveBelowOther = false;
-            if (position + 1 < messages.size()) {
-                WorldChatMessage nextMsg = messages.get(position + 1);
-                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
-                        && nextMsg.getSenderId().equals(msg.getSenderId())) {
-                    isConsecutiveBelowOther = true;
-                }
-            }
-            if (otherHolder.layoutBubbleFrame != null) {
-                if (isConsecutiveAbove && isConsecutiveBelowOther) {
-                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_middle);
-                } else if (isConsecutiveAbove && !isConsecutiveBelowOther) {
-                    // Tại sao (WHY): Có tin nhắn nối tiếp ở trên nhưng không có ở dưới -> Đây là đáy cụm tin nhắn đối tác
-                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_bottom);
-                } else if (!isConsecutiveAbove && isConsecutiveBelowOther) {
-                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_top);
-                } else {
-                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
-                }
-            }
-
-            // --- ẨN AVATAR LẶP LẠI VÔ LÝ (HIỂN THỊ DUY NHẤT Ở TIN NHẮN CUỐI CÙNG CỦA CỤM)
-            // ---
-            if (otherHolder.cardAvatar != null) {
-                if (isConsecutiveBelowOther) {
-                    otherHolder.cardAvatar.setVisibility(View.INVISIBLE); // Dùng INVISIBLE để giữ khoảng cách lề chuẩn
-                } else {
-                    otherHolder.cardAvatar.setVisibility(View.VISIBLE);
-                }
-            }
+            updateOtherBubbleShape(otherHolder, msg, position, isConsecutiveAbove);
         }
 
         // --- LIGHTWEIGHT HARDWARE-ACCELERATED FLOAT-UP ANIMATION ---
@@ -333,6 +285,131 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .setDuration(160)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator())
                     .start();
+        } else {
+            // Tại sao (WHY): RESET hoàn toàn các thuộc tính animation nếu view được tái sử dụng 
+            // hoặc update lại. Nếu không reset, View sẽ kẹt ở trạng thái scaleX=0.96f làm bong bóng chat 
+            // trông nhỏ hơn, bị mờ, và bị lệch nghiêm trọng về một phía như lỗi đã báo cáo.
+            holder.itemView.animate().cancel();
+            holder.itemView.setTranslationY(0f);
+            holder.itemView.setScaleX(1f);
+            holder.itemView.setScaleY(1f);
+            holder.itemView.setAlpha(1f);
+        }
+    }
+
+    /**
+     * Tại sao (WHY): Trích xuất logic cập nhật icon tick trạng thái ra method riêng
+     * để dùng chung cho cả full bind lẫn payload partial update.
+     * Giúp payload update chỉ thay đổi icon tick mà không vẽ lại bong bóng → không nhảy khung.
+     */
+    private void updateStatusTick(SelfViewHolder selfHolder, WorldChatMessage msg, int position) {
+        boolean isLastSelfMessage = true;
+        for (int i = position + 1; i < messages.size(); i++) {
+            if (currentUserId != null && currentUserId.equals(messages.get(i).getSenderId())) {
+                isLastSelfMessage = false;
+                break;
+            }
+        }
+
+        if (isLastSelfMessage && selfHolder.ivStatus != null) {
+            selfHolder.ivStatus.setVisibility(View.VISIBLE);
+
+            // Tìm tin nhắn cuối của đối phương
+            long partnerLastTs = 0;
+            for (int i = messages.size() - 1; i >= 0; i--) {
+                if (!"DATE_SEPARATOR".equals(messages.get(i).getSenderId())
+                        && !messages.get(i).getSenderId().equals(currentUserId)) {
+                    partnerLastTs = messages.get(i).getTimestamp();
+                    break;
+                }
+            }
+
+            // Quy ước: Đã xem (Seen) nếu đối phương phản hồi sau đó, hoặc DTO ghi nhận trạng thái đã xem (seen = 2)
+            boolean isSeen = msg.getStatus() == 2 || (partnerLastTs >= msg.getTimestamp());
+
+            if (isSeen) {
+                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_seen);
+            } else if (isPartnerOnline) {
+                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_received);
+            } else {
+                selfHolder.ivStatus.setImageResource(R.drawable.ic_chat_tick_sent);
+            }
+        } else if (selfHolder.ivStatus != null) {
+            selfHolder.ivStatus.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Tại sao (WHY): Cung cấp phương thức cập nhật trạng thái Seen từ bên ngoài (ChatPrivateFragment)
+     * bằng payload partial update thay vì notifyDataSetChanged(), triệt để chống nhảy khung.
+     */
+    public void notifyStatusChanged() {
+        for (int i = 0; i < messages.size(); i++) {
+            WorldChatMessage msg = messages.get(i);
+            if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
+                notifyItemChanged(i, PAYLOAD_STATUS);
+            }
+        }
+    }
+
+    private boolean checkConsecutiveAbove(WorldChatMessage msg, int position) {
+        if (position > 0) {
+            WorldChatMessage prevMsg = messages.get(position - 1);
+            if (!"DATE_SEPARATOR".equals(prevMsg.getSenderId()) && prevMsg.getSenderId().equals(msg.getSenderId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateSelfBubbleShape(SelfViewHolder selfHolder, WorldChatMessage msg, int position, boolean isConsecutiveAbove) {
+        boolean isConsecutiveBelowSelf = false;
+        if (position + 1 < messages.size()) {
+            WorldChatMessage nextMsg = messages.get(position + 1);
+            if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
+                    && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                isConsecutiveBelowSelf = true;
+            }
+        }
+        if (selfHolder.layoutBubbleFrame != null) {
+            if (isConsecutiveAbove && isConsecutiveBelowSelf) {
+                selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_middle);
+            } else if (isConsecutiveAbove && !isConsecutiveBelowSelf) {
+                selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_bottom);
+            } else if (!isConsecutiveAbove && isConsecutiveBelowSelf) {
+                selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_top);
+            } else {
+                selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
+            }
+        }
+    }
+
+    private void updateOtherBubbleShape(OtherViewHolder otherHolder, WorldChatMessage msg, int position, boolean isConsecutiveAbove) {
+        boolean isConsecutiveBelowOther = false;
+        if (position + 1 < messages.size()) {
+            WorldChatMessage nextMsg = messages.get(position + 1);
+            if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
+                    && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                isConsecutiveBelowOther = true;
+            }
+        }
+        if (otherHolder.layoutBubbleFrame != null) {
+            if (isConsecutiveAbove && isConsecutiveBelowOther) {
+                otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_middle);
+            } else if (isConsecutiveAbove && !isConsecutiveBelowOther) {
+                otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_bottom);
+            } else if (!isConsecutiveAbove && isConsecutiveBelowOther) {
+                otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_top);
+            } else {
+                otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
+            }
+        }
+        if (otherHolder.cardAvatar != null) {
+            if (isConsecutiveBelowOther) {
+                otherHolder.cardAvatar.setVisibility(View.INVISIBLE); 
+            } else {
+                otherHolder.cardAvatar.setVisibility(View.VISIBLE);
+            }
         }
     }
 

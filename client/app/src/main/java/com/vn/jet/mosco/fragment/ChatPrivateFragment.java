@@ -726,11 +726,7 @@ public class ChatPrivateFragment extends Fragment {
                         }
                     }
                     if (updated) {
-                        requireActivity().runOnUiThread(() -> {
-                            if (chatAdapter.getItemCount() > 0) {
-                                chatAdapter.notifyItemRangeChanged(0, chatAdapter.getItemCount());
-                            }
-                        });
+                        requireActivity().runOnUiThread(() -> chatAdapter.notifyStatusChanged());
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Lỗi phân tích timestamp Seen thời gian thực", e);
@@ -860,13 +856,14 @@ public class ChatPrivateFragment extends Fragment {
         String myName = sessionManager.getIngameName();
         String myAvatar = sessionManager.getAvatarId();
         long now = System.currentTimeMillis();
-        chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText, now));
-        rvChat.post(() -> {
-            if (chatAdapter.getItemCount() > 0) {
-                rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
-            }
-        });
+        
+        // Tại sao (WHY): Reset text input TRƯỚC KHI thêm tin nhắn vào adapter.
+        // Điều này giúp bắt đầu quá trình resize (co lại) của EditText sớm hơn,
+        // tránh xung đột layout pass gây nhảy khung cuộn khi scrollToPosition chạy.
         etInput.setText("");
+        
+        chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText, now));
+        // AdapterDataObserver đã tự động gọi scrollToPosition khi có tin nhắn mới (isSelf == true).
         PrivateChatMessage pm = new PrivateChatMessage(myId, String.valueOf(partnerId), myName, myAvatar, msgText, now);
         AppExecutors.getInstance().diskIO().execute(() -> {
             AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
