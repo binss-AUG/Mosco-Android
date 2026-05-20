@@ -70,6 +70,10 @@ public class JwtAuthFilter implements Filter {
             httpRequest.setAttribute("username", username);
             com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(userId);
             logger.debug("JWT authenticated: userId={}, username={}", userId, username);
+        } catch (org.springframework.dao.DataAccessException | jakarta.persistence.PersistenceException e) {
+            logger.error("Database connection error during JWT verification", e);
+            sendError(httpResponse, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Kết nối cơ sở dữ liệu tạm thời gián đoạn. Vui lòng thử lại sau.");
+            return;
         } catch (Exception e) {
             logger.error("Failed to extract claims from JWT", e);
             sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Malformed JWT token");
