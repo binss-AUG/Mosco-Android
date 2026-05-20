@@ -149,9 +149,6 @@ public interface GameApiService {
     @GET("/api/rank/level")
     Call<ResponseBody> getRankByLevel();
 
-    /** Top 10 theo OVR (Objet to nhất). */
-    @GET("/api/rank/ovr")
-    Call<ResponseBody> getRankByOvr();
 
     /** Top 10 theo số thẻ không trùng. */
     @GET("/api/rank/collection")
