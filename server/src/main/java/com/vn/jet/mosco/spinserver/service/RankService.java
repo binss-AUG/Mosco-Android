@@ -47,14 +47,22 @@ public class RankService {
      * Cần được gọi mỗi khi User thay đổi chỉ số (Level up, nạp coin, cào thẻ...).
      */
     public void updateUserRank(User user, long maxOvr, long distinctCollection) {
-        ZSetOperations<String, String> zSet = redisTemplate.opsForZSet();
-        String userIdStr = user.getId().toString();
+        if (com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.isAvailable()) {
+            try {
+                ZSetOperations<String, String> zSet = redisTemplate.opsForZSet();
+                String userIdStr = user.getId().toString();
 
-        zSet.add(RANK_KEY_LEVEL, userIdStr, user.getExp());
-        zSet.add(RANK_KEY_OVR, userIdStr, maxOvr);
-        zSet.add(RANK_KEY_COLLECTION, userIdStr, distinctCollection);
-        zSet.add(RANK_KEY_WEALTH, userIdStr, user.getTotalDiamonds());
-        zSet.add(RANK_KEY_STREAK, userIdStr, user.getBestStreak());
+                zSet.add(RANK_KEY_LEVEL, userIdStr, user.getExp());
+                zSet.add(RANK_KEY_OVR, userIdStr, maxOvr);
+                zSet.add(RANK_KEY_COLLECTION, userIdStr, distinctCollection);
+                zSet.add(RANK_KEY_WEALTH, userIdStr, user.getTotalDiamonds());
+                zSet.add(RANK_KEY_STREAK, userIdStr, user.getBestStreak());
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportSuccess();
+            } catch (Exception e) {
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportFailure();
+                log.error("CRITICAL: Failed to update user rank on Redis: {}", e.getMessage());
+            }
+        }
     }
 
     public List<Map<String, Object>> getTopByLevel() {
@@ -122,6 +130,9 @@ public class RankService {
     }
 
     private List<Map<String, Object>> getTopFromRedis(String key) {
+        if (!com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.isAvailable()) {
+            return Collections.emptyList();
+        }
         try {
             Set<ZSetOperations.TypedTuple<String>> topEntries = redisTemplate.opsForZSet()
                     .reverseRangeWithScores(key, 0, 9);
@@ -130,7 +141,7 @@ public class RankService {
                 return Collections.emptyList();
             }
 
-            return topEntries.stream().map(tuple -> {
+            List<Map<String, Object>> list = topEntries.stream().map(tuple -> {
                 String value = tuple.getValue();
                 if (value == null) return new HashMap<String, Object>();
                 
@@ -156,7 +167,11 @@ public class RankService {
                     return new HashMap<String, Object>();
                 }
             }).filter(m -> !m.isEmpty()).collect(Collectors.toList());
+
+            com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportSuccess();
+            return list;
         } catch (Exception e) {
+            com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportFailure();
             log.error("CRITICAL: Redis connection or logic error for key {}: {}", key, e.getMessage());
             return Collections.emptyList();
         }

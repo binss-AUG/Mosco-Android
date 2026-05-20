@@ -234,6 +234,7 @@ public class AuthService {
             if (user.getBestStreak() < 1) {
                 user.setBestStreak(1);
             }
+            user.setLastLoginAt(now);
             System.out.println(">>> [STREAK] First interaction detected for user: " + user.getUsername() + ". Set streak to 1.");
         } else {
             java.time.LocalDate lastDate = user.getLastLoginAt().toLocalDate();

@@ -63,14 +63,18 @@ public class ChatController {
         com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(senderId);
 
         boolean redisSaved = false;
-        try {
-            Long messageId = redisTemplate.opsForValue().increment("chat:msg:id:seq");
-            privateMessage.setId(String.valueOf(messageId));
-            String msgJson = objectMapper.writeValueAsString(privateMessage);
-            redisTemplate.opsForList().rightPush("chat:offline:" + receiverId, msgJson);
-            redisSaved = true;
-        } catch (Exception e) {
-            log.warn("[ChatController] Redis unavailable, falling back to MySQL: {}", e.getMessage());
+        if (com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.isAvailable()) {
+            try {
+                Long messageId = redisTemplate.opsForValue().increment("chat:msg:id:seq");
+                privateMessage.setId(String.valueOf(messageId));
+                String msgJson = objectMapper.writeValueAsString(privateMessage);
+                redisTemplate.opsForList().rightPush("chat:offline:" + receiverId, msgJson);
+                redisSaved = true;
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportSuccess();
+            } catch (Exception e) {
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportFailure();
+                log.warn("[ChatController] Redis unavailable, falling back to MySQL: {}", e.getMessage());
+            }
         }
 
         if (!redisSaved) {
@@ -111,12 +115,16 @@ public class ChatController {
         List<PrivateMessage> history = new ArrayList<>();
 
         boolean redisOk = false;
-        try {
-            fetchOfflineMessages(user1, user2, history);
-            fetchOfflineMessages(user2, user1, history);
-            redisOk = true;
-        } catch (Exception e) {
-            log.warn("[ChatController] Redis unavailable for history, falling back to MySQL: {}", e.getMessage());
+        if (com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.isAvailable()) {
+            try {
+                fetchOfflineMessages(user1, user2, history);
+                fetchOfflineMessages(user2, user1, history);
+                redisOk = true;
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportSuccess();
+            } catch (Exception e) {
+                com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportFailure();
+                log.warn("[ChatController] Redis unavailable for history, falling back to MySQL: {}", e.getMessage());
+            }
         }
 
         if (!redisOk) {
@@ -173,26 +181,30 @@ public class ChatController {
         }
 
         if (messageIds != null && !messageIds.isEmpty()) {
-            try {
-                String key = "chat:offline:" + userId;
-                List<String> rawMsgs = redisTemplate.opsForList().range(key, 0, -1);
-                if (rawMsgs != null) {
-                    redisTemplate.delete(key);
-                    for (String raw : rawMsgs) {
-                        try {
-                            com.vn.jet.mosco.spinserver.dto.PrivateChatMessage dto = objectMapper.readValue(raw, com.vn.jet.mosco.spinserver.dto.PrivateChatMessage.class);
-                            long msgId = Long.parseLong(dto.getId());
-                            if (!messageIds.contains(msgId)) {
-                                redisTemplate.opsForList().rightPush(key, raw);
+            if (com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.isAvailable()) {
+                try {
+                    String key = "chat:offline:" + userId;
+                    List<String> rawMsgs = redisTemplate.opsForList().range(key, 0, -1);
+                    if (rawMsgs != null) {
+                        redisTemplate.delete(key);
+                        for (String raw : rawMsgs) {
+                            try {
+                                com.vn.jet.mosco.spinserver.dto.PrivateChatMessage dto = objectMapper.readValue(raw, com.vn.jet.mosco.spinserver.dto.PrivateChatMessage.class);
+                                long msgId = Long.parseLong(dto.getId());
+                                if (!messageIds.contains(msgId)) {
+                                    redisTemplate.opsForList().rightPush(key, raw);
+                                }
+                            } catch (Exception e) {
+                                log.error("Failed to parse message during ACK", e);
                             }
-                        } catch (Exception e) {
-                            log.error("Failed to parse message during ACK", e);
                         }
                     }
+                    com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportSuccess();
+                    log.info("ACK: removed {} messages from Redis for user {}.", messageIds.size(), userId);
+                } catch (Exception e) {
+                    com.vn.jet.mosco.spinserver.utils.RedisHealthTracker.reportFailure();
+                    log.warn("[ChatController] Redis unavailable during ACK, skipping gracefully: {}", e.getMessage());
                 }
-                log.info("ACK: removed {} messages from Redis for user {}.", messageIds.size(), userId);
-            } catch (Exception e) {
-                log.warn("[ChatController] Redis unavailable during ACK, skipping gracefully: {}", e.getMessage());
             }
         }
         return com.vn.jet.mosco.spinserver.dto.ApiResponse.success("Acknowledged", null);
