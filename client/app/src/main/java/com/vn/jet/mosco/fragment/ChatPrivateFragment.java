@@ -714,18 +714,7 @@ public class ChatPrivateFragment extends Fragment {
                     });
                 }
 
-                // 3. Gửi tin nhắn xác nhận ĐÃ XEM qua WebSocket đến đối phương để họ hiển thị tick xanh Seen tức thì
-                PrivateChatMessage seenConfirm = new PrivateChatMessage(
-                    String.valueOf(sessionManager.getUserId()),
-                    String.valueOf(partnerId),
-                    sessionManager.getIngameName(),
-                    sessionManager.getAvatarId(),
-                    "[SEEN]:" + message.getTimestamp(),
-                    System.currentTimeMillis()
-                );
-                WebSocketManager.getInstance().sendPrivateMessage(seenConfirm);
-
-                // 4. Cập nhật giao diện UI bong bóng chat
+                // 3. Cập nhật giao diện UI bong bóng chat
                 requireActivity().runOnUiThread(() -> {
                     chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
                         message.getSenderId(), 
