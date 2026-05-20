@@ -32,25 +32,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private boolean isPrivateChat = false;
     private int lastAnimatedPosition = -1;
 
-    public WorldChatAdapter() {
-        // Tại sao (WHY): Kích hoạt Stable IDs để RecyclerView ghi nhớ vị trí và trạng thái vẽ của các tin nhắn.
-        // Giúp loại bỏ hoàn toàn tình trạng mất tiêu điểm cuộn (scroll focus) hoặc nhảy khung khi cập nhật UI (trạng thái đã xem, tin nhắn mới).
-        setHasStableIds(true);
-    }
 
-    @Override
-    public long getItemId(int position) {
-        if (position < 0 || position >= messages.size()) {
-            return RecyclerView.NO_ID;
-        }
-        WorldChatMessage msg = messages.get(position);
-        if (msg == null) {
-            return RecyclerView.NO_ID;
-        }
-        // Tại sao (WHY): Tạo một mã hash 64-bit duy nhất dựa trên sender, timestamp và content để làm Stable ID.
-        String uniqueKey = msg.getSenderId() + "_" + msg.getTimestamp() + "_" + (msg.getContent() != null ? msg.getContent() : "");
-        return uniqueKey.hashCode();
-    }
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -63,7 +45,9 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setPartnerOnline(boolean online) {
         if (this.isPartnerOnline != online) {
             this.isPartnerOnline = online;
-            notifyDataSetChanged();
+            if (messages.size() > 0) {
+                notifyItemRangeChanged(0, messages.size());
+            }
         }
     }
 

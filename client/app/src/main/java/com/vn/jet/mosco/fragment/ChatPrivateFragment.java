@@ -726,7 +726,11 @@ public class ChatPrivateFragment extends Fragment {
                         }
                     }
                     if (updated) {
-                        requireActivity().runOnUiThread(() -> chatAdapter.notifyDataSetChanged());
+                        requireActivity().runOnUiThread(() -> {
+                            if (chatAdapter.getItemCount() > 0) {
+                                chatAdapter.notifyItemRangeChanged(0, chatAdapter.getItemCount());
+                            }
+                        });
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Lỗi phân tích timestamp Seen thời gian thực", e);
