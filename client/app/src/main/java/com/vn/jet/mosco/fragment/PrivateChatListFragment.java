@@ -208,32 +208,24 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                 AppDatabase db = AppDatabase.getInstance(context);
                 if (db != null) {
                     MessageDao dao = db.messageDao();
-                    List<PrivateChatMessage> lastMessages = dao.getRecentConversations(myId);
+                    List<com.vn.jet.mosco.model.ConversationSummary> summaries = dao.getRecentConversationsSummary(myId);
 
-                    Set<String> uniquePartners = new LinkedHashSet<>();
                     List<ConversationAdapter.ConversationWrapper> uniqueWrappers = new ArrayList<>();
 
-                    for (PrivateChatMessage msg : lastMessages) {
-                        String partnerId = (msg.getSenderId().equals(myId)) ? msg.getReceiverId() : msg.getSenderId();
-                        if (!uniquePartners.contains(partnerId)) {
-                            uniquePartners.add(partnerId);
+                    for (com.vn.jet.mosco.model.ConversationSummary sum : summaries) {
+                        String name = sum.getPartnerName();
+                        ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
+                                sum.getLastMessage(),
+                                sum.getPartnerId(),
+                                (name != null && !name.isEmpty()) ? name : "User",
+                                sum.getPartnerAvatar()
+                        );
+                        wrapper.setUnreadCount(sum.getUnreadCount());
+                        uniqueWrappers.add(wrapper);
 
-                            String name = dao.getPartnerName(partnerId);
-                            String avatar = dao.getPartnerAvatar(partnerId);
-                            int unreadCount = dao.getUnreadCount(myId, partnerId);
-                            ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
-                                    msg,
-                                    partnerId,
-                                    (name != null && !name.isEmpty()) ? name : "User",
-                                    avatar
-                            );
-                            wrapper.setUnreadCount(unreadCount);
-                            uniqueWrappers.add(wrapper);
-
-                            // Nếu chưa có tên hoặc là tên mặc định, ta tải thông tin người dùng từ server để đồng bộ đầy đủ
-                            if (name == null || name.isEmpty() || name.equals("User")) {
-                                fetchStrangerProfileFromServer(partnerId, wrapper);
-                            }
+                        // Nếu chưa có tên hoặc là tên mặc định, ta tải thông tin người dùng từ server để đồng bộ đầy đủ
+                        if (name == null || name.isEmpty() || name.equals("User")) {
+                            fetchStrangerProfileFromServer(sum.getPartnerId(), wrapper);
                         }
                     }
 
