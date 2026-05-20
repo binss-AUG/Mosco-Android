@@ -19,8 +19,9 @@ public interface MessageDao {
      * Cần lọc theo cả hai hướng (Gửi và Nhận) để tạo thành một cuộc hội thoại.
      */
     @Query("SELECT * FROM private_messages WHERE " +
-           "(senderId = :myId AND receiverId = :partnerId) OR " +
-           "(senderId = :partnerId AND receiverId = :myId) " +
+           "((senderId = :myId AND receiverId = :partnerId) OR " +
+           "(senderId = :partnerId AND receiverId = :myId)) " +
+           "AND content NOT LIKE '[SEEN]:%' " +
            "ORDER BY timestamp ASC")
     List<PrivateChatMessage> getChatHistory(String myId, String partnerId);
 
@@ -39,12 +40,13 @@ public interface MessageDao {
            "        CASE WHEN senderId = :myId THEN receiverId ELSE senderId END AS partnerId, " +
            "        MAX(timestamp) AS max_ts " +
            "    FROM private_messages " +
-           "    WHERE senderId = :myId OR receiverId = :myId " +
+           "    WHERE (senderId = :myId OR receiverId = :myId) AND content NOT LIKE '[SEEN]:%' " +
            "    GROUP BY partnerId" +
            ") m2 ON (" +
            "    (m1.senderId = :myId AND m1.receiverId = m2.partnerId) OR " +
            "    (m1.senderId = m2.partnerId AND m1.receiverId = :myId)" +
            ") AND m1.timestamp = m2.max_ts " +
+           "AND m1.content NOT LIKE '[SEEN]:%' " +
            "ORDER BY m1.timestamp DESC")
     List<PrivateChatMessage> getRecentConversations(String myId);
 
@@ -60,9 +62,9 @@ public interface MessageDao {
     @Query("SELECT avatarId FROM private_messages WHERE senderId = :partnerId LIMIT 1")
     String getPartnerAvatar(String partnerId);
 
-    @Query("SELECT COUNT(*) FROM private_messages WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0")
+    @Query("SELECT COUNT(*) FROM private_messages WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0 AND content NOT LIKE '[SEEN]:%'")
     int getUnreadCount(String myId, String partnerId);
 
-    @Query("UPDATE private_messages SET isRead = 1 WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0")
+    @Query("UPDATE private_messages SET isRead = 1 WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0 AND content NOT LIKE '[SEEN]:%'")
     void markAsRead(String myId, String partnerId);
 }

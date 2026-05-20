@@ -18,18 +18,39 @@ import java.util.List;
 
 /**
  * WorldChatAdapter - Adapter dùng chung cho World Chat và Private Chat.
- * Thiết kế phẳng cao cấp (Borderless Flat Premium UI) kèm phân tách ngày tháng (Date Separators).
+ * Thiết kế phẳng cao cấp (Borderless Flat Premium UI) kèm phân tách ngày tháng
+ * (Date Separators).
  */
 public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_SELF = 1;
     private static final int VIEW_TYPE_OTHER = 2;
     private static final int VIEW_TYPE_DATE_SEPARATOR = 3;
-    
+
     private final List<WorldChatMessage> messages = new ArrayList<>();
     private String currentUserId;
     private boolean isPartnerOnline = false;
     private boolean isPrivateChat = false;
     private int lastAnimatedPosition = -1;
+
+    public WorldChatAdapter() {
+        // Tại sao (WHY): Kích hoạt Stable IDs để RecyclerView ghi nhớ vị trí và trạng thái vẽ của các tin nhắn.
+        // Giúp loại bỏ hoàn toàn tình trạng mất tiêu điểm cuộn (scroll focus) hoặc nhảy khung khi cập nhật UI (trạng thái đã xem, tin nhắn mới).
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (position < 0 || position >= messages.size()) {
+            return RecyclerView.NO_ID;
+        }
+        WorldChatMessage msg = messages.get(position);
+        if (msg == null) {
+            return RecyclerView.NO_ID;
+        }
+        // Tại sao (WHY): Tạo một mã hash 64-bit duy nhất dựa trên sender, timestamp và content để làm Stable ID.
+        String uniqueKey = msg.getSenderId() + "_" + msg.getTimestamp() + "_" + (msg.getContent() != null ? msg.getContent() : "");
+        return uniqueKey.hashCode();
+    }
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -59,12 +80,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         java.util.Calendar calMsg = java.util.Calendar.getInstance();
         calMsg.setTimeInMillis(timestamp);
         java.util.Calendar calToday = java.util.Calendar.getInstance();
-        
+
         if (calMsg.get(java.util.Calendar.YEAR) == calToday.get(java.util.Calendar.YEAR)
                 && calMsg.get(java.util.Calendar.DAY_OF_YEAR) == calToday.get(java.util.Calendar.DAY_OF_YEAR)) {
             return "Today";
         }
-        
+
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE, MMM dd", java.util.Locale.ENGLISH);
         return sdf.format(new java.util.Date(timestamp));
     }
@@ -85,8 +106,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     "",
                     "",
                     getFormattedDate(msg.getTimestamp()),
-                    msg.getTimestamp()
-            );
+                    msg.getTimestamp());
             messages.add(dateSep);
             notifyItemInserted(messages.size() - 1);
         }
@@ -115,7 +135,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if ("DATE_SEPARATOR".equals(msg.getSenderId())) {
             return VIEW_TYPE_DATE_SEPARATOR;
         }
-        
+
         String senderId = msg.getSenderId();
         if (currentUserId != null && senderId != null && currentUserId.trim().equals(senderId.trim())) {
             return VIEW_TYPE_SELF;
@@ -156,19 +176,24 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
 
-        // --- 🔄 ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
+        // --- ĐIỀU CHỈNH KHOẢNG CÁCH DỌC DYNAMIC GIỮA CÁC TIN NHẮN (MARGIN TOP) ---
         if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
             android.content.Context ctx = holder.itemView.getContext();
-            
+
             // Lấy từ Dimens hệ thống - Tuyệt đối không hardcode
             int consecutiveMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_consecutive);
             int separatedMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_separated);
             int bottomMargin = ctx.getResources().getDimensionPixelSize(R.dimen.chat_spacing_bottom);
+            int paddingHorizontal = ctx.getResources().getDimensionPixelSize(R.dimen.spacing_md);
 
             params.topMargin = isConsecutiveAbove ? consecutiveMargin : separatedMargin;
             params.bottomMargin = bottomMargin;
             holder.itemView.setLayoutParams(params);
+
+            // Tại sao (WHY): Ép lại padding ngang cố định từ Resource thay vì đọc getPadding() động 
+            // để phòng ngừa triệt để lỗi measure pass trả về 0 trong lúc layout chưa sẵn sàng trên Android 9 Emulator.
+            holder.itemView.setPadding(paddingHorizontal, 0, paddingHorizontal, 0);
         }
 
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
@@ -176,10 +201,11 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (holder instanceof SelfViewHolder) {
             SelfViewHolder selfHolder = (SelfViewHolder) holder;
-            
+
             // Giải mã HTML Entities tránh hiển thị ký tự mã hóa
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                selfHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
+                selfHolder.tvContent
+                        .setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
             } else {
                 selfHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
             }
@@ -188,7 +214,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 selfHolder.tvTime.setText(timeStr);
             }
 
-            // --- 🔄 ĐỒNG BỘ TRẠNG THÁI TICK DƯỚI GÓC BÊN PHẢI ---
+            // --- ĐỒNG BỘ TRẠNG THÁI TICK DƯỚI GÓC BÊN PHẢI ---
             boolean isLastSelfMessage = true;
             for (int i = position + 1; i < messages.size(); i++) {
                 if (currentUserId != null && currentUserId.equals(messages.get(i).getSenderId())) {
@@ -199,17 +225,19 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             if (isLastSelfMessage && selfHolder.ivStatus != null) {
                 selfHolder.ivStatus.setVisibility(View.VISIBLE);
-                
+
                 // Tìm tin nhắn cuối của đối phương
                 long partnerLastTs = 0;
                 for (int i = messages.size() - 1; i >= 0; i--) {
-                    if (!"DATE_SEPARATOR".equals(messages.get(i).getSenderId()) && !messages.get(i).getSenderId().equals(currentUserId)) {
+                    if (!"DATE_SEPARATOR".equals(messages.get(i).getSenderId())
+                            && !messages.get(i).getSenderId().equals(currentUserId)) {
                         partnerLastTs = messages.get(i).getTimestamp();
                         break;
                     }
                 }
 
-                // Quy ước: Đã xem (Seen) nếu đối phương phản hồi sau đó, hoặc DTO ghi nhận trạng thái đã xem (seen = 2)
+                // Quy ước: Đã xem (Seen) nếu đối phương phản hồi sau đó, hoặc DTO ghi nhận
+                // trạng thái đã xem (seen = 2)
                 boolean isSeen = msg.getStatus() == 2 || (partnerLastTs >= msg.getTimestamp());
 
                 if (isSeen) {
@@ -223,11 +251,12 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 selfHolder.ivStatus.setVisibility(View.GONE);
             }
 
-            // --- 🔄 ĐIỀU CHỈNH GÓC BO BONG BÓNG TỰ THÂN (SELF) ---
+            // --- ĐIỀU CHỈNH GÓC BO BONG BÓNG TỰ THÂN (SELF) ---
             boolean isConsecutiveBelowSelf = false;
             if (position + 1 < messages.size()) {
                 WorldChatMessage nextMsg = messages.get(position + 1);
-                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId()) && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
+                        && nextMsg.getSenderId().equals(msg.getSenderId())) {
                     isConsecutiveBelowSelf = true;
                 }
             }
@@ -235,17 +264,18 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 if (isConsecutiveAbove && isConsecutiveBelowSelf) {
                     selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_middle);
                 } else if (isConsecutiveAbove && !isConsecutiveBelowSelf) {
-                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
+                    // Tại sao (WHY): Có tin nhắn nối tiếp ở trên nhưng không có ở dưới -> Đây là đáy cụm tin nhắn
+                    selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_bottom);
                 } else if (!isConsecutiveAbove && isConsecutiveBelowSelf) {
                     selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self_top);
                 } else {
                     selfHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_self);
                 }
             }
-            
+
         } else if (holder instanceof OtherViewHolder) {
             OtherViewHolder otherHolder = (OtherViewHolder) holder;
-            
+
             // Ép lineshow & hiển thị tên đối phương (bên góc trên trái)
             if (isPrivateChat) {
                 otherHolder.tvName.setVisibility(View.GONE);
@@ -253,26 +283,29 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 otherHolder.tvName.setVisibility(View.VISIBLE);
                 otherHolder.tvName.setText(msg.getSenderName());
             }
-            
+
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
+                otherHolder.tvContent
+                        .setText(android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY));
             } else {
                 otherHolder.tvContent.setText(android.text.Html.fromHtml(msg.getContent()));
             }
 
             if (otherHolder.ivAvatar != null) {
-                AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null, msg.getAvatarId());
+                AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null,
+                        msg.getAvatarId());
             }
 
             if (otherHolder.tvTime != null) {
                 otherHolder.tvTime.setText(timeStr);
             }
 
-            // --- 🔄 ĐIỀU CHỈNH GÓC BO BONG BÓNG ĐỐI TÁC (OTHER) ---
+            // --- ĐIỀU CHỈNH GÓC BO BONG BÓNG ĐỐI TÁC (OTHER) ---
             boolean isConsecutiveBelowOther = false;
             if (position + 1 < messages.size()) {
                 WorldChatMessage nextMsg = messages.get(position + 1);
-                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId()) && nextMsg.getSenderId().equals(msg.getSenderId())) {
+                if (!"DATE_SEPARATOR".equals(nextMsg.getSenderId())
+                        && nextMsg.getSenderId().equals(msg.getSenderId())) {
                     isConsecutiveBelowOther = true;
                 }
             }
@@ -280,7 +313,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 if (isConsecutiveAbove && isConsecutiveBelowOther) {
                     otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_middle);
                 } else if (isConsecutiveAbove && !isConsecutiveBelowOther) {
-                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other);
+                    // Tại sao (WHY): Có tin nhắn nối tiếp ở trên nhưng không có ở dưới -> Đây là đáy cụm tin nhắn đối tác
+                    otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_bottom);
                 } else if (!isConsecutiveAbove && isConsecutiveBelowOther) {
                     otherHolder.layoutBubbleFrame.setBackgroundResource(R.drawable.bg_chat_bubble_other_top);
                 } else {
@@ -288,7 +322,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
 
-            // --- 🔄 ẨN AVATAR LẶP LẠI VÔ LÝ (HIỂN THỊ DUY NHẤT Ở TIN NHẮN CUỐI CÙNG CỦA CỤM) ---
+            // --- ẨN AVATAR LẶP LẠI VÔ LÝ (HIỂN THỊ DUY NHẤT Ở TIN NHẮN CUỐI CÙNG CỦA CỤM)
+            // ---
             if (otherHolder.cardAvatar != null) {
                 if (isConsecutiveBelowOther) {
                     otherHolder.cardAvatar.setVisibility(View.INVISIBLE); // Dùng INVISIBLE để giữ khoảng cách lề chuẩn
@@ -298,7 +333,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
 
-        // --- 🔄 LIGHTWEIGHT HARDWARE-ACCELERATED FLOAT-UP ANIMATION ---
+        // --- LIGHTWEIGHT HARDWARE-ACCELERATED FLOAT-UP ANIMATION ---
         if (position > lastAnimatedPosition) {
             lastAnimatedPosition = position;
             float density = holder.itemView.getResources().getDisplayMetrics().density;
@@ -325,7 +360,9 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public int getItemCount() { return messages.size(); }
+    public int getItemCount() {
+        return messages.size();
+    }
 
     static class SelfViewHolder extends RecyclerView.ViewHolder {
         TextView tvContent, tvTime;

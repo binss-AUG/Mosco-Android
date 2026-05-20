@@ -173,7 +173,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             }
             holder.tvPreview.setText(preview);
             long now = System.currentTimeMillis();
-            CharSequence timeStr = DateUtils.getRelativeTimeSpanString(msg.getTimestamp(), now, DateUtils.MINUTE_IN_MILLIS);
+            long diff = now - msg.getTimestamp();
+            CharSequence timeStr;
+            if (diff < 60000) {
+                timeStr = "just now";
+            } else {
+                timeStr = DateUtils.getRelativeTimeSpanString(msg.getTimestamp(), now, DateUtils.MINUTE_IN_MILLIS);
+            }
             holder.tvTime.setText(timeStr);
             holder.tvTime.setVisibility(View.VISIBLE);
         } else {

@@ -86,6 +86,7 @@ public class ChatPrivateFragment extends Fragment {
 
     private SessionManager sessionManager;
     private GameApiService gameApiService;
+    private LinearLayoutManager layoutManager;
     private io.reactivex.disposables.Disposable chatSubscription;
     private io.reactivex.disposables.Disposable streakSubscription;
     private android.animation.ValueAnimator rgbAnimator;
@@ -178,10 +179,43 @@ public class ChatPrivateFragment extends Fragment {
         chatAdapter = new WorldChatAdapter();
         chatAdapter.setPrivateChat(true);
         chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setStackFromEnd(true);
         rvChat.setLayoutManager(layoutManager);
         rvChat.setAdapter(chatAdapter);
+
+        // Tại sao (WHY): Sử dụng AdapterDataObserver để lắng nghe sự thay đổi của Adapter,
+        // giúp cuộn màn hình xuống dưới cùng một cách mượt mà và tự động khi có tin nhắn mới (do ta gửi hoặc đối phương nhắn).
+        chatAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int lastVisible = layoutManager.findLastCompletelyVisibleItemPosition();
+                boolean isSelf = false;
+                if (chatAdapter.getItemCount() > 0) {
+                    WorldChatMessage lastMsg = chatAdapter.getMessageAt(chatAdapter.getItemCount() - 1);
+                    if (lastMsg != null && lastMsg.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
+                        isSelf = true;
+                    }
+                }
+                // Tự động cuộn nếu tin nhắn do chính mình gửi hoặc người dùng đang cuộn gần đáy
+                if (isSelf || lastVisible >= chatAdapter.getItemCount() - 2) {
+                    rvChat.post(() -> rvChat.scrollToPosition(chatAdapter.getItemCount() - 1));
+                }
+            }
+        });
+
+        // Tại sao (WHY): Lắng nghe sự co giãn kích thước của RecyclerView (khi bàn phím ảo mở lên),
+        // tự động cuộn bám đáy tin nhắn mới nhất để không bị bàn phím che mất vùng trò chuyện phẳng.
+        rvChat.addOnLayoutChangeListener((v1, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom) {
+                rvChat.postDelayed(() -> {
+                    if (chatAdapter.getItemCount() > 0) {
+                        rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
+                    }
+                }, 60);
+            }
+        });
 
         if (lottieStreakIcon != null) {
             StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
@@ -556,10 +590,37 @@ public class ChatPrivateFragment extends Fragment {
             if (isAdded()) {
                 requireActivity().runOnUiThread(() -> {
                     chatAdapter.clear();
+                    long partnerLastTs = 0;
                     for (PrivateChatMessage pm : localMsgs) {
+                        // Tại sao (WHY): Không hiển thị tin nhắn điều khiển [SEEN] hệ thống lên bong bóng giao diện chat
+                        if (pm.getContent() != null && pm.getContent().startsWith("[SEEN]:")) {
+                            continue;
+                        }
                         chatAdapter.addMessage(new WorldChatMessage(pm.getSenderId(), pm.getSenderName(), pm.getAvatarId(), pm.getContent(), pm.getTimestamp()));
+                        if (!pm.getSenderId().equals(myId)) {
+                            partnerLastTs = Math.max(partnerLastTs, pm.getTimestamp());
+                        }
                     }
-                    rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
+                    
+                    // Tại sao (WHY): Khi mở màn hình Private Chat, gửi thông báo đã xem cho tin nhắn mới nhất của đối tác 
+                    // để bên máy đối tác chuyển sang trạng thái đã xem (Seen) tức thì.
+                    if (partnerLastTs > 0) {
+                        PrivateChatMessage seenConfirm = new PrivateChatMessage(
+                            myId,
+                            partnerIdStr,
+                            sessionManager.getIngameName(),
+                            sessionManager.getAvatarId(),
+                            "[SEEN]:" + partnerLastTs,
+                            System.currentTimeMillis()
+                        );
+                        WebSocketManager.getInstance().sendPrivateMessage(seenConfirm);
+                    }
+
+                    rvChat.post(() -> {
+                        if (chatAdapter.getItemCount() > 0) {
+                            rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
+                        }
+                    });
                 });
             }
         });
@@ -596,14 +657,24 @@ public class ChatPrivateFragment extends Fragment {
             List<PrivateChatMessage> localMsgs = db.messageDao().getChatHistory(myId, partnerIdStr);
             boolean hasNew = false;
             for (PrivateChatMessage sMsg : serverMsgs) {
+                // Tại sao (WHY): Không lưu tin nhắn điều khiển [SEEN] hệ thống vào local DB
+                if (sMsg.getContent() != null && sMsg.getContent().startsWith("[SEEN]:")) {
+                    continue;
+                }
                 boolean exists = false;
                 for (PrivateChatMessage lMsg : localMsgs) {
-                    if (lMsg.getTimestamp() == sMsg.getTimestamp() && Objects.equals(lMsg.getContent(), sMsg.getContent())) {
+                    // Tại sao (WHY): So sánh khoảng cách thời gian (chênh lệch dưới 10 giây) thay vì bằng tuyệt đối
+                    // để khắc phục triệt để hiện tượng trùng lặp tin nhắn do độ phân giải mili giây giữa Client và MySQL Server.
+                    long diff = Math.abs(lMsg.getTimestamp() - sMsg.getTimestamp());
+                    if (diff < 10000 && Objects.equals(lMsg.getContent(), sMsg.getContent()) && lMsg.getSenderId().equals(sMsg.getSenderId())) {
                         exists = true;
                         break;
                     }
                 }
                 if (!exists) {
+                    // Tại sao (WHY): Đánh dấu đã đọc vì người dùng hiện đang ở trong phòng chat và nhìn thấy tin nhắn này.
+                    // Sửa triệt để lỗi quay ra Inbox vẫn báo 1 tin nhắn chưa đọc.
+                    sMsg.setRead(true);
                     db.messageDao().insertMessage(sMsg);
                     hasNew = true;
                 }
@@ -634,17 +705,85 @@ public class ChatPrivateFragment extends Fragment {
             chatSubscription.dispose();
         }
         chatSubscription = WebSocketManager.getInstance().subscribeToPrivateChat(String.valueOf(sessionManager.getUserId()), message -> {
-            // Chỉ thêm tin nhắn vào adapter nếu người gửi LÀ ĐỐI PHƯƠNG.
-            // Tránh duplicate vì tin nhắn của chính mình đã được thêm ngay khi gọi sendMessage()
+            if (message == null || !isAdded()) return;
+
+            // Trường hợp 1: Nhận tin nhắn từ đối phương báo rằng họ ĐÃ XEM tin nhắn của ta
+            if (message.getSenderId().equals(String.valueOf(partnerId)) && message.getContent() != null && message.getContent().startsWith("[SEEN]:")) {
+                try {
+                    String tsStr = message.getContent().substring("[SEEN]:".length());
+                    long seenTimestamp = Long.parseLong(tsStr);
+                    
+                    // Tại sao (WHY): Đồng bộ trạng thái đã xem (seen = 2) cho tất cả tin nhắn gửi đi có timestamp nhỏ hơn 
+                    // hoặc bằng timestamp được xác nhận, giúp chuyển đổi tick xanh tức thì không cần thoát ra vô lại.
+                    boolean updated = false;
+                    for (int i = 0; i < chatAdapter.getItemCount(); i++) {
+                        WorldChatMessage msg = chatAdapter.getMessageAt(i);
+                        if (msg != null && msg.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
+                            if (msg.getTimestamp() <= seenTimestamp && msg.getStatus() != 2) {
+                                msg.setStatus(2);
+                                updated = true;
+                            }
+                        }
+                    }
+                    if (updated) {
+                        requireActivity().runOnUiThread(() -> chatAdapter.notifyDataSetChanged());
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi phân tích timestamp Seen thời gian thực", e);
+                }
+                return; // Kết thúc sớm, không hiển thị làm bong bóng chat
+            }
+
+            // Trường hợp 2: Nhận tin nhắn chat bình thường từ đối phương
             if (message.getSenderId().equals(String.valueOf(partnerId))) {
-                chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
-                    message.getSenderId(), 
-                    message.getSenderName(), 
-                    message.getAvatarId(), 
-                    message.getContent(),
-                    message.getTimestamp()
-                ));
-                rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
+                // 1. Lưu ngay vào local Room DB để đảm bảo kiến trúc Local-First
+                // Tại sao (WHY): Đánh dấu đã đọc ngay vì người dùng đang ở trong phòng chat này.
+                // Tránh triệt để lỗi khi quay lại danh sách Inbox vẫn hiển thị vòng tròn chưa đọc.
+                message.setRead(true);
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    AppDatabase db = AppDatabase.getInstance(requireContext());
+                    db.messageDao().insertMessage(message);
+                });
+
+                // 2. Gửi lệnh ACK báo cho server biết đã nhận được tin nhắn
+                List<Long> idsToAck = new ArrayList<>();
+                if (message.getId() > 0) {
+                    idsToAck.add(message.getId());
+                }
+                if (!idsToAck.isEmpty()) {
+                    gameApiService.ackMessages(idsToAck).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                        @Override
+                        public void onResponse(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull retrofit2.Response<okhttp3.ResponseBody> response) {
+                            Log.d(TAG, "Gửi ACK thành công cho tin nhắn thời gian thực");
+                        }
+                        @Override
+                        public void onFailure(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull Throwable t) {
+                            Log.e(TAG, "Gửi ACK thất bại cho tin nhắn thời gian thực", t);
+                        }
+                    });
+                }
+
+                // 3. Gửi tin nhắn xác nhận ĐÃ XEM qua WebSocket đến đối phương để họ hiển thị tick xanh Seen tức thì
+                PrivateChatMessage seenConfirm = new PrivateChatMessage(
+                    String.valueOf(sessionManager.getUserId()),
+                    String.valueOf(partnerId),
+                    sessionManager.getIngameName(),
+                    sessionManager.getAvatarId(),
+                    "[SEEN]:" + message.getTimestamp(),
+                    System.currentTimeMillis()
+                );
+                WebSocketManager.getInstance().sendPrivateMessage(seenConfirm);
+
+                // 4. Cập nhật giao diện UI bong bóng chat
+                requireActivity().runOnUiThread(() -> {
+                    chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
+                        message.getSenderId(), 
+                        message.getSenderName(), 
+                        message.getAvatarId(), 
+                        message.getContent(),
+                        message.getTimestamp()
+                    ));
+                });
             }
         });
 
@@ -718,7 +857,11 @@ public class ChatPrivateFragment extends Fragment {
         String myAvatar = sessionManager.getAvatarId();
         long now = System.currentTimeMillis();
         chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText, now));
-        rvChat.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+        rvChat.post(() -> {
+            if (chatAdapter.getItemCount() > 0) {
+                rvChat.scrollToPosition(chatAdapter.getItemCount() - 1);
+            }
+        });
         etInput.setText("");
         PrivateChatMessage pm = new PrivateChatMessage(myId, String.valueOf(partnerId), myName, myAvatar, msgText, now);
         AppExecutors.getInstance().diskIO().execute(() -> {

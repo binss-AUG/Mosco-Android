@@ -147,6 +147,12 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         privateMessageSubscription = WebSocketManager.getInstance()
             .subscribeToPrivateChat(myId, message -> {
                 if (message == null || !isAdded()) return;
+
+                // Tại sao (WHY): Bỏ qua tin nhắn điều khiển [SEEN] hệ thống, không lưu vào DB và không hiển thị Inbox.
+                if (message.getContent() != null && message.getContent().startsWith("[SEEN]:")) {
+                    return;
+                }
+
                 // Lưu vào Room DB ở luồng ngầm, sau đó reload danh sách ở luồng UI
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     try {
