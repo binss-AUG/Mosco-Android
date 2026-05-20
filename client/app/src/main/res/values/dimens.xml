@@ -75,4 +75,5 @@
     <dimen name="elevation_m">4dp</dimen>
     <dimen name="elevation_l">8dp</dimen>
     <dimen name="elevation_xl">12dp</dimen>
+    <dimen name="chat_header_height">76dp</dimen>
 </resources>

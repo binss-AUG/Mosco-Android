@@ -98,6 +98,10 @@ public class ChatPrivateFragment extends Fragment {
     private boolean lastActive = false;
     private boolean hasAnimatedStreak = false;
 
+    private final List<Long> pendingAckIds = new ArrayList<>();
+    private final android.os.Handler ackHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable ackRunnable = this::sendBatchAck;
+
     public ChatPrivateFragment() {
     }
 
@@ -168,8 +172,10 @@ public class ChatPrivateFragment extends Fragment {
 
         // Preload UI to prevent jitter
         if (tvHeaderStatus != null) {
-            tvHeaderStatus.setText(isOnline ? "Online" : "Offline");
-            tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
+            tvHeaderStatus.setText(getString(isOnline ? R.string.status_online : R.string.status_offline));
+            if (getContext() != null) {
+                tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), isOnline ? R.color.status_online : R.color.lg_text_secondary));
+            }
         }
         if (viewStatusDot != null) {
             viewStatusDot.setVisibility(isOnline ? View.VISIBLE : View.GONE);
@@ -243,7 +249,11 @@ public class ChatPrivateFragment extends Fragment {
      * duy trì hiệu năng mượt mà 60fps khi mở màn hình chat.
      */
     private int getDominantColor(android.graphics.drawable.Drawable drawable) {
-        if (drawable == null) return android.graphics.Color.parseColor("#0B0F19");
+        int fallbackColor = 0xFF0B0F19; // Dự phòng mặc định (tương đương với màu R.color.mosco_chat_header_bg)
+        if (getContext() != null) {
+            fallbackColor = androidx.core.content.ContextCompat.getColor(getContext(), R.color.mosco_chat_header_bg);
+        }
+        if (drawable == null) return fallbackColor;
         if (drawable instanceof android.graphics.drawable.ColorDrawable) {
             return ((android.graphics.drawable.ColorDrawable) drawable).getColor();
         }
@@ -256,7 +266,7 @@ public class ChatPrivateFragment extends Fragment {
             bitmap.recycle();
             return color;
         } catch (Exception e) {
-            return android.graphics.Color.parseColor("#0B0F19");
+            return fallbackColor;
         }
     }
 
@@ -293,7 +303,6 @@ public class ChatPrivateFragment extends Fragment {
 
                     // Hiện lại nếu là bạn bè
                     lottieStreakIcon.setVisibility(View.VISIBLE);
-                    tvStreakCount.setVisibility(View.VISIBLE);
                     btnStreakDetails.setVisibility(View.VISIBLE);
                     
                     updateStreakUI(currentStreakData.getStreakCount(), "ACTIVE".equals(currentStreakData.getStatus()));
@@ -325,39 +334,53 @@ public class ChatPrivateFragment extends Fragment {
             }
         }
 
-        // State 1: Chưa đồng ý chuỗi (hoặc status != ACTIVE) -> giữ nguyên xám, không động, số 999
+        // State 1: Chưa tạo chuỗi (active == false) -> bắt đầu từ frame 0, kích thước chuẩn, đóng băng, không hiện số
         if (!active) {
             if (tvStreakCount != null) {
-                tvStreakCount.setText("999");
-                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
+                tvStreakCount.setVisibility(View.GONE);
             }
             if (lottieStreakIcon != null) {
+                lottieStreakIcon.setVisibility(View.VISIBLE);
+                lottieStreakIcon.setScaleX(1f);
+                lottieStreakIcon.setScaleY(1f);
+                lottieStreakIcon.setTranslationY(0f);
                 StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
             }
             stopRGBStreakAnimation();
             return;
         }
 
-        // State 2: Đồng ý với nhau nhưng hôm nay chưa nhắn tin -> thay số 999 thành số hiện tại, ngọn lửa giữ nguyên xám và không động
+        // State 2: Đã tạo chuỗi nhưng chưa nhắn tin hôm nay (interactedToday == false) -> tương tự State 1 nhưng hiện số đếm
         if (!interactedToday) {
             if (tvStreakCount != null) {
+                tvStreakCount.setVisibility(View.VISIBLE);
                 tvStreakCount.setText(String.valueOf(count));
-                tvStreakCount.setTextColor(android.graphics.Color.GRAY);
+                if (getContext() != null) {
+                    tvStreakCount.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.lg_text_secondary));
+                }
             }
             if (lottieStreakIcon != null) {
+                lottieStreakIcon.setVisibility(View.VISIBLE);
+                lottieStreakIcon.setScaleX(1f);
+                lottieStreakIcon.setScaleY(1f);
+                lottieStreakIcon.setTranslationY(0f);
                 StreakColorHelper.setupStreakLottie(lottieStreakIcon, 0, false);
             }
             stopRGBStreakAnimation();
             return;
         }
 
-        // State 3: Trường hợp còn lại (đã đồng ý VÀ đã nhắn tin hôm nay) -> ngọn lửa fade-in màu vốn có từ dưới + chuyển động
+        // State 3: Đã nhắn tin và đã active -> hiệu ứng phóng to từ baseline trong 200ms
         if (tvStreakCount != null) {
+            tvStreakCount.setVisibility(View.VISIBLE);
             tvStreakCount.setText(String.valueOf(count));
-            tvStreakCount.setTextColor(android.graphics.Color.WHITE);
+            if (getContext() != null) {
+                tvStreakCount.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), R.color.white));
+            }
         }
 
         if (lottieStreakIcon != null) {
+            lottieStreakIcon.setVisibility(View.VISIBLE);
             // Ràng buộc Lottie: Đảm bảo frame min/max đúng
             if (lottieStreakIcon.getMinFrame() != 0 || lottieStreakIcon.getMaxFrame() != 24) {
                 lottieStreakIcon.setMinAndMaxFrame(0, 24);
@@ -369,36 +392,34 @@ public class ChatPrivateFragment extends Fragment {
             if (!hasAnimatedStreak) {
                 hasAnimatedStreak = true;
 
-                // Lấy kích thước và offset từ Dimens hệ thống - Tuyệt đối không hardcode
+                // Lấy kích thước từ Dimens hệ thống - Tuyệt đối không hardcode
                 float size28 = getResources().getDimension(R.dimen.spacing_28dp);
-                float offset15 = getResources().getDimension(R.dimen.spacing_15dp);
 
-                // Pivot ở đáy trung tâm để ngọn lửa bùng cháy vươn lên từ dưới
+                // Pivot ở đáy trung tâm để ngọn lửa scale lên từ baseline
                 float pivotX = lottieStreakIcon.getWidth() > 0 ? lottieStreakIcon.getWidth() / 2f : size28 / 2f;
                 float pivotY = lottieStreakIcon.getHeight() > 0 ? lottieStreakIcon.getHeight() : size28;
                 lottieStreakIcon.setPivotX(pivotX);
                 lottieStreakIcon.setPivotY(pivotY);
 
-                // Khởi tạo các thuộc tính chuyển động & xám ban đầu trước hoạt họa
-                lottieStreakIcon.setScaleX(0.5f);
-                lottieStreakIcon.setScaleY(0.5f);
-                lottieStreakIcon.setTranslationY(offset15);
+                // Khởi tạo thuộc tính scale = 0 ban đầu trước hoạt họa
+                lottieStreakIcon.setScaleX(0f);
+                lottieStreakIcon.setScaleY(0f);
+                lottieStreakIcon.setTranslationY(0f);
                 StreakColorHelper.applyStreakColorTransition(lottieStreakIcon, count, 0f);
 
                 android.animation.ValueAnimator transitionAnim = android.animation.ValueAnimator.ofFloat(0f, 1f);
-                transitionAnim.setDuration(1000); // 1 giây chuyển đổi mượt mà, luxury
+                transitionAnim.setDuration(200); // 200ms theo yêu cầu (hiệu ứng mới)
                 transitionAnim.setInterpolator(new android.view.animation.DecelerateInterpolator());
 
                 transitionAnim.addUpdateListener(animation -> {
                     float f = (float) animation.getAnimatedValue();
                     
-                    // 1. Smoothly interpolate color matrix from grayscale (0.0) to level color (1.0)
+                    // 1. Chuyển đổi màu từ grayscale lên level color
                     StreakColorHelper.applyStreakColorTransition(lottieStreakIcon, count, f);
                     
-                    // 2. Smoothly scale and lift up from bottom
-                    lottieStreakIcon.setScaleX(0.5f + 0.5f * f);
-                    lottieStreakIcon.setScaleY(0.5f + 0.5f * f);
-                    lottieStreakIcon.setTranslationY(offset15 * (1f - f));
+                    // 2. Phóng to từ 0 lên 1 từ baseline
+                    lottieStreakIcon.setScaleX(f);
+                    lottieStreakIcon.setScaleY(f);
                 });
 
                 transitionAnim.addListener(new android.animation.AnimatorListenerAdapter() {
@@ -418,6 +439,9 @@ public class ChatPrivateFragment extends Fragment {
                 });
                 transitionAnim.start();
             } else {
+                lottieStreakIcon.setScaleX(1f);
+                lottieStreakIcon.setScaleY(1f);
+                lottieStreakIcon.setTranslationY(0f);
                 StreakColorHelper.setupStreakLottie(lottieStreakIcon, count, true);
                 if (count >= 1000) {
                     startRGBStreakAnimation(lottieStreakIcon);
@@ -698,22 +722,23 @@ public class ChatPrivateFragment extends Fragment {
                     db.messageDao().insertMessage(message);
                 });
 
-                // 2. Gửi lệnh ACK báo cho server biết đã nhận được tin nhắn
-                List<Long> idsToAck = new ArrayList<>();
+                // 2. Gộp ACK và gửi theo cụm (Batch ACK) để chống spam request HTTP lên Server
                 if (message.getId() > 0) {
-                    idsToAck.add(message.getId());
-                }
-                if (!idsToAck.isEmpty()) {
-                    gameApiService.ackMessages(idsToAck).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
-                        @Override
-                        public void onResponse(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull retrofit2.Response<okhttp3.ResponseBody> response) {
-                            Log.d(TAG, "Gửi ACK thành công cho tin nhắn thời gian thực");
+                    synchronized (pendingAckIds) {
+                        pendingAckIds.add(message.getId());
+                    }
+                    ackHandler.removeCallbacks(ackRunnable);
+                    boolean shouldSendImmediately = false;
+                    synchronized (pendingAckIds) {
+                        if (pendingAckIds.size() >= 10) {
+                            shouldSendImmediately = true;
                         }
-                        @Override
-                        public void onFailure(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull Throwable t) {
-                            Log.e(TAG, "Gửi ACK thất bại cho tin nhắn thời gian thực", t);
-                        }
-                    });
+                    }
+                    if (shouldSendImmediately) {
+                        sendBatchAck();
+                    } else {
+                        ackHandler.postDelayed(ackRunnable, 1500);
+                    }
                 }
 
                 // 3. Cập nhật giao diện UI bong bóng chat
@@ -782,6 +807,8 @@ public class ChatPrivateFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        sendBatchAck();
+        ackHandler.removeCallbacks(ackRunnable);
         if (currentStreakDialog != null && currentStreakDialog.isShowing()) {
             currentStreakDialog.dismiss();
             currentStreakDialog = null;
@@ -789,6 +816,26 @@ public class ChatPrivateFragment extends Fragment {
         if (chatSubscription != null) chatSubscription.dispose();
         if (streakSubscription != null) streakSubscription.dispose();
         if (rgbAnimator != null) rgbAnimator.cancel();
+    }
+
+    private void sendBatchAck() {
+        if (getContext() == null) return;
+        final List<Long> idsToAck;
+        synchronized (pendingAckIds) {
+            if (pendingAckIds.isEmpty()) return;
+            idsToAck = new ArrayList<>(pendingAckIds);
+            pendingAckIds.clear();
+        }
+        gameApiService.ackMessages(idsToAck).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull retrofit2.Response<okhttp3.ResponseBody> response) {
+                Log.d(TAG, "Gửi batch ACK thành công cho " + idsToAck.size() + " tin nhắn");
+            }
+            @Override
+            public void onFailure(@NonNull retrofit2.Call<okhttp3.ResponseBody> call, @NonNull Throwable t) {
+                Log.e(TAG, "Gửi batch ACK thất bại", t);
+            }
+        });
     }
 
     private void sendMessage() {
@@ -833,8 +880,10 @@ public class ChatPrivateFragment extends Fragment {
                             }
                             // No status tick online update on adapter
                             if (tvHeaderStatus != null) {
-                                tvHeaderStatus.setText(isOnline ? "Online" : "Offline");
-                                tvHeaderStatus.setTextColor(isOnline ? android.graphics.Color.parseColor("#10B981") : android.graphics.Color.parseColor("#94A3B8"));
+                                tvHeaderStatus.setText(getString(isOnline ? R.string.status_online : R.string.status_offline));
+                                if (getContext() != null) {
+                                    tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(getContext(), isOnline ? R.color.status_online : R.color.lg_text_secondary));
+                                }
                             }
                             if (viewStatusDot != null) {
                                 viewStatusDot.setVisibility(isOnline ? View.VISIBLE : View.GONE);
@@ -893,8 +942,12 @@ public class ChatPrivateFragment extends Fragment {
         if (status == 2) {
             // Friends
             if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.VISIBLE);
-            if (tvStreakCount != null) tvStreakCount.setVisibility(View.VISIBLE);
             if (btnStreakDetails != null) btnStreakDetails.setVisibility(View.VISIBLE);
+            if (currentStreakData != null) {
+                updateStreakUI(currentStreakData.getStreakCount(), "ACTIVE".equals(currentStreakData.getStatus()));
+            } else {
+                if (tvStreakCount != null) tvStreakCount.setVisibility(View.GONE);
+            }
         } else {
             // Stranger or Pending states
             if (lottieStreakIcon != null) lottieStreakIcon.setVisibility(View.GONE);
