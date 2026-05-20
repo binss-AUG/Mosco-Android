@@ -51,13 +51,23 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setPartnerOnline(boolean online) {
         if (this.isPartnerOnline != online) {
             this.isPartnerOnline = online;
-            // Tại sao (WHY): Chỉ cập nhật các tin nhắn của bản thân (Self) vì chỉ chúng có icon tick trạng thái.
-            // Dùng payload partial update thay vì notifyDataSetChanged() để giữ nguyên vị trí cuộn.
-            for (int i = 0; i < messages.size(); i++) {
-                WorldChatMessage msg = messages.get(i);
-                if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
-                    notifyItemChanged(i, PAYLOAD_STATUS);
-                }
+            notifyLastSelfMessageStatus();
+        }
+    }
+
+    public void notifyStatusChanged() {
+        notifyLastSelfMessageStatus();
+    }
+
+    private void notifyLastSelfMessageStatus() {
+        // Tại sao (WHY): Chỉ cập nhật trạng thái cho tin nhắn Self CUỐI CÙNG vì chỉ tin nhắn cuối mới hiện icon Tick.
+        // Việc duyệt ngược và break ngay lập tức giúp tránh gọi notifyItemChanged hàng loạt, 
+        // loại bỏ hoàn toàn lỗi giật màn hình (focus nhảy lên trên) khi có cập nhật trạng thái seen/received.
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            WorldChatMessage msg = messages.get(i);
+            if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
+                notifyItemChanged(i, PAYLOAD_STATUS);
+                break;
             }
         }
     }
@@ -339,18 +349,7 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    /**
-     * Tại sao (WHY): Cung cấp phương thức cập nhật trạng thái Seen từ bên ngoài (ChatPrivateFragment)
-     * bằng payload partial update thay vì notifyDataSetChanged(), triệt để chống nhảy khung.
-     */
-    public void notifyStatusChanged() {
-        for (int i = 0; i < messages.size(); i++) {
-            WorldChatMessage msg = messages.get(i);
-            if (msg != null && currentUserId != null && currentUserId.equals(msg.getSenderId())) {
-                notifyItemChanged(i, PAYLOAD_STATUS);
-            }
-        }
-    }
+    // (Removed duplicate notifyStatusChanged)
 
     private boolean checkConsecutiveAbove(WorldChatMessage msg, int position) {
         if (position > 0) {
