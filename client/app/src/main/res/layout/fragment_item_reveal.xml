@@ -20,21 +20,21 @@
         android:alpha="0"
         android:visibility="gone" />
 
-    <!-- Back Arrow (top left) -->
+    <!-- Close Button (top right) -->
     <ImageView
         android:id="@+id/btn_back"
         android:layout_width="@dimen/spacing_40dp"
         android:layout_height="@dimen/spacing_40dp"
-        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
         android:layout_marginTop="@dimen/spacing_sm"
-        android:src="@drawable/ic_back_arrow"
+        android:src="@drawable/ic_close"
         android:padding="@dimen/spacing_xs"
         app:tint="@color/white"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- ====== HEADER: Name aligned with back arrow ====== -->
     <TextView

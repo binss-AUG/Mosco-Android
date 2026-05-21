@@ -8,135 +8,173 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- ====================================================== -->
-    <!-- COMPACT SHOP HEADER (Seamless Integrated Block)         -->
-    <!-- ====================================================== -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_shop_header"
+    <!-- ====== PRODUCT GRID (Lowest Layer) ====== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_shop"
         android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:paddingHorizontal="@dimen/spacing_md"
-        android:background="@android:color/transparent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingTop="126dp"
+        android:paddingBottom="@dimen/lg_content_bottom_clearance"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        tools:listitem="@layout/item_shop_card" />
 
-        <!-- Nút Back (không viền background, kích thước nhỏ 70%) -->
-        <ImageView
-            android:id="@+id/btn_shop_back"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_back_arrow"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+    <!-- ====================================================== -->
+    <!-- STICKY HEADER & FILTER HUB (Highest Layer)            -->
+    <!-- ====================================================== -->
+    <LinearLayout
+        android:id="@+id/layout_sticky_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_glass_header_overlay"
+        android:elevation="30dp"
+        android:translationZ="30dp"
+        android:paddingBottom="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- 2 đơn vị tiền tệ (không viền background, icon + text tăng 20% cỡ) -->
-        <LinearLayout
-            android:id="@+id/ll_shop_currencies_container"
-            android:layout_width="wrap_content"
+        <!-- SYNCED HUD HEADER -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_header_shop"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:paddingHorizontal="@dimen/home_showcase_margin_horizontal"
+            android:paddingTop="@dimen/spacing_lg"
+            android:paddingBottom="8dp">
 
-            <!-- Diamond (Icon 26dp, Text 17sp Bold, không viền) -->
+            <ImageView
+                android:id="@+id/btn_shop_back"
+                android:layout_width="@dimen/spacing_40dp"
+                android:layout_height="@dimen/spacing_40dp"
+                android:src="@drawable/ic_back_arrow"
+                android:padding="@dimen/spacing_xs"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:tint="@color/white" />
+
             <LinearLayout
+                android:id="@+id/ll_shop_title_block"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="@dimen/home_header_pill_padding_h"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintStart_toEndOf="@id/btn_shop_back"
+                app:layout_constraintEnd_toStartOf="@id/ll_currencies_hud"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shop"
+                    style="@style/MoscoText.Luxury.SubHeader"
+                    android:textSize="@dimen/text_size_h3"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:textColor="@color/white" />
+                
+                <View
+                    android:id="@+id/view_header_accent"
+                    android:layout_width="@dimen/spacing_xl"
+                    android:layout_height="@dimen/stroke_thin"
+                    android:layout_marginTop="@dimen/spacing_xxs"
+                    android:background="@color/lg_accent_primary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_currencies_hud"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginEnd="14dp">
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/ic_item_diamond" />
-                <TextView
-                    android:id="@+id/tv_shop_diamonds_custom"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_header_asymmetric_glass"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textColor="@color/white"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    android:layout_height="24dp"
+                    android:paddingHorizontal="7dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_glass_circle"
+                    android:backgroundTint="#25000000">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_item_diamond" />
+                    <TextView
+                        android:id="@+id/tv_shop_diamonds_custom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
-            <!-- Coin (Icon 26dp, Text 17sp Bold, không viền) -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/ic_item_coin" />
-                <TextView
-                    android:id="@+id/tv_shop_coins_custom"
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="10dp"
+                    android:layout_marginHorizontal="5dp"
+                    android:background="@color/white_20" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="0"
-                    android:textColor="@color/white"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
+                    android:layout_height="24dp"
+                    android:paddingHorizontal="7dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_glass_circle"
+                    android:backgroundTint="#25000000">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_item_coin" />
+                    <TextView
+                        android:id="@+id/tv_shop_coins_custom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- PILL-STYLE TAB FILTER -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout_shop"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/transparent"
+            app:tabBackground="@drawable/bg_glass_chip_selector"
+            app:tabIndicatorHeight="0dp"
+            app:tabMode="scrollable"
+            app:tabRippleColor="@null"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/white_40"
+            app:tabTextAppearance="@style/MoscoTabTextAppearance"
+            app:tabPaddingStart="12dp"
+            app:tabPaddingEnd="12dp" />
 
-    <!-- ====================================================== -->
-    <!-- CATEGORY CHIPS (Styled like Filter Bar)                 -->
-    <!-- ====================================================== -->
-    <HorizontalScrollView
-        android:id="@+id/hsv_categories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_4dp"
-        android:layout_marginHorizontal="@dimen/spacing_md"
-        android:background="@drawable/lg_surface_filter_bar"
-        android:paddingHorizontal="@dimen/spacing_sm"
-        android:paddingVertical="@dimen/spacing_xs"
-        android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/cl_shop_header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:id="@+id/ll_chip_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView android:id="@+id/chip_all" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:state_selected="true" android:text="@string/shop_tab_all" />
-            <TextView android:id="@+id/chip_objet" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_objet" />
-            <TextView android:id="@+id/chip_pack" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_pack" />
-            <TextView android:id="@+id/chip_buff" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:layout_marginEnd="@dimen/spacing_sm" android:text="@string/shop_tab_buff" />
-            <TextView android:id="@+id/chip_resource" style="@style/FilterChipStyle" android:layout_height="@dimen/inventory_filter_bar_height" android:text="@string/shop_tab_resource" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- ====================================================== -->
-    <!-- PRODUCT GRID                                            -->
-    <!-- ====================================================== -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_shop"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/spacing_10dp"
-        android:layout_marginHorizontal="@dimen/spacing_10dp"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/lg_content_bottom_clearance"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/hsv_categories"
-        tools:listitem="@layout/item_shop_card" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

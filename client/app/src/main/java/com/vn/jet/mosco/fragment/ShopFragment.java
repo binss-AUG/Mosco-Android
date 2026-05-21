@@ -22,12 +22,12 @@ import com.bumptech.glide.Glide;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.ShopItem;
 import com.vn.jet.mosco.model.UserStats;
+import com.vn.jet.mosco.utils.AppConfig;
 import com.vn.jet.mosco.utils.NumberUtils;
+import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.BuyRequest;
 import com.vn.jet.mosco.network.GameApiService;
-import com.vn.jet.mosco.utils.NumberUtils;
-import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.widget.MoscoDialogManager;
 import com.vn.jet.mosco.widget.MoscoNotification;
 import com.vn.jet.mosco.widget.MoscoButton;
@@ -42,12 +42,12 @@ import retrofit2.Response;
 
 public class ShopFragment extends Fragment {
 
-    private LinearLayout chipContainer;
     private RecyclerView rvShop;
     private TextView tvShopDiamonds;
     private TextView tvShopCoins;
+    private com.google.android.material.tabs.TabLayout tabLayoutShop;
     private final List<String> categories = List.of("All", "OBJET", "PACK", "BUFF", "RESOURCE");
-    private int selectedChipIndex = 0;
+    private int selectedCategoryIndex = 0;
     
     private GameApiService apiService;
     private SessionManager sessionManager;
@@ -83,7 +83,11 @@ public class ShopFragment extends Fragment {
             });
         }
 
-        setupChips(view);
+        tvShopDiamonds = view.findViewById(R.id.tv_shop_diamonds_custom);
+        tvShopCoins = view.findViewById(R.id.tv_shop_coins_custom);
+        tabLayoutShop = view.findViewById(R.id.tab_layout_shop);
+
+        setupTabs(view);
         setupRecyclerView(view);
         
         fetchUserResources();
@@ -98,17 +102,8 @@ public class ShopFragment extends Fragment {
                 public void onResponse(Call<UserStats> call, Response<UserStats> response) {
                     if (response.isSuccessful() && response.body() != null && isAdded()) {
                         UserStats stats = response.body();
-                        View v = getView();
-                        if (v != null) {
-                            TextView tvDiamonds = v.findViewById(R.id.tv_shop_diamonds_custom);
-                            TextView tvCoins = v.findViewById(R.id.tv_shop_coins_custom);
-                            if (tvDiamonds != null) {
-                                tvDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
-                            }
-                            if (tvCoins != null) {
-                                tvCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
-                            }
-                        }
+                        if (tvShopDiamonds != null) tvShopDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
+                        if (tvShopCoins != null) tvShopCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
                     }
                 }
                 @Override
@@ -140,41 +135,30 @@ public class ShopFragment extends Fragment {
         });
     }
 
-    private void setupChips(@NonNull View root) {
-        chipContainer = root.findViewById(R.id.ll_chip_container);
-
-        for (int i = 0; i < chipContainer.getChildCount(); i++) {
-            final int index = i;
-            View chip = chipContainer.getChildAt(i);
-            chip.setOnClickListener(v -> selectChip(index));
+    private void setupTabs(@NonNull View root) {
+        if (tabLayoutShop == null) return;
+        
+        tabLayoutShop.removeAllTabs();
+        for (String cat : categories) {
+            tabLayoutShop.addTab(tabLayoutShop.newTab().setText(cat));
         }
-        selectChip(0); // Select "All" by default
-    }
 
-    private void selectChip(int index) {
-        selectedChipIndex = index;
-
-        for (int i = 0; i < chipContainer.getChildCount(); i++) {
-            View chip = chipContainer.getChildAt(i);
-            if (chip instanceof TextView) {
-                TextView tv = (TextView) chip;
-                if (i == index) {
-                    tv.setBackgroundResource(R.drawable.bg_shop_buy_btn);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_primary));
-                } else {
-                    tv.setBackgroundResource(R.drawable.bg_filter_chip);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.lg_text_secondary));
-                }
+        tabLayoutShop.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                selectedCategoryIndex = tab.getPosition();
+                filterItems();
             }
-        }
-        filterItems();
+            @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+        });
     }
-    
+
     private void filterItems() {
         if (allShopItems.isEmpty()) return;
         
         List<ShopItem> filteredList = new ArrayList<>();
-        String selectedCat = categories.get(Math.min(selectedChipIndex, categories.size() - 1));
+        String selectedCat = categories.get(Math.min(selectedCategoryIndex, categories.size() - 1));
         
         for (ShopItem item : allShopItems) {
             boolean matchesCategory = selectedCat.equals("All") || item.getType().equalsIgnoreCase(selectedCat);

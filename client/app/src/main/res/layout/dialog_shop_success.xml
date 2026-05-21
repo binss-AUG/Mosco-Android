@@ -4,70 +4,74 @@
     android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/bg_surface_solid"
-    android:padding="@dimen/spacing_lg">
+    android:background="@drawable/lg_glass_dialog_bg"
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center">
 
-        <!-- Success Icon Header -->
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/spacing_md"
-            android:src="@drawable/ic_check"
-            app:tint="@color/lg_accent_primary" />
+        <!-- Success Icon with Glow -->
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_glass_circle">
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check"
+                app:tint="@color/lg_accent_primary" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            style="@style/MoscoText.Luxury.SubHeader"
+            style="@style/MoscoText.Luxury.Header"
             android:text="@string/shop_dialog_success_title"
-            android:textSize="@dimen/text_size_h3"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:fontWeight="700" />
+            android:letterSpacing="-0.02" />
 
         <TextView
             android:id="@+id/tv_success_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/radius_lg"
+            android:layout_marginTop="12dp"
             android:textAlignment="center"
             style="@style/MoscoText.Luxury.Body"
             android:text="@string/common_msg_purchase_success"
-            android:textColor="@color/mosco_white_30"
-            android:textSize="@dimen/text_size_body_sm" />
+            android:textColor="@color/mosco_white_50"
+            android:textSize="14sp" />
 
         <!-- Navigation Actions -->
         <LinearLayout
             android:id="@+id/ll_actions_standard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:orientation="horizontal">
-
-            <com.vn.jet.mosco.widget.MoscoButton
-                android:id="@+id/btn_go_inventory"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:moscoStyle="secondary"
-                app:moscoSize="large"
-                android:text="@string/shop_dialog_action_inventory" />
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_use_now"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="@dimen/spacing_12dp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
                 app:moscoStyle="primary"
                 app:moscoSize="large"
                 android:text="@string/shop_dialog_action_use_now" />
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_go_inventory"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                app:moscoStyle="secondary"
+                app:moscoSize="large"
+                android:text="@string/shop_dialog_action_inventory" />
 
         </LinearLayout>
 
@@ -75,8 +79,8 @@
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_ok"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_height="56dp"
+            android:layout_marginTop="32dp"
             app:moscoStyle="primary"
             app:moscoSize="large"
             android:text="@string/action_ok"
