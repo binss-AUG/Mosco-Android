@@ -656,10 +656,8 @@ public class ItemRevealFragment extends Fragment {
 
                     onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
 
-                    // TẠI SAO: Bung các hạt năng lượng sau 50ms để đồng bộ hóa cảm giác.
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        createChaosParticles(tierColor, cardItem);
-                    }, 50); // TODO: CHỈNH THỜI GIAN TRỄ BUNG HẠT TẠI ĐÂY (50ms)
+                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức để tâm vụ nổ (dựa trên translationX) không bị lệch do animation rung lắc.
+                    createChaosParticles(tierColor, cardItem);
                     setupFlipGesture(cardItem);
 
                     // TẠI SAO: Tạo hiệu ứng rung lắc mạnh tại thời điểm bùng nổ thẻ mới để tăng cảm giác kịch tính của Gacha.
