@@ -26,7 +26,7 @@
         android:layout_width="@dimen/spacing_36dp"
         android:layout_height="@dimen/spacing_36dp"
         android:layout_marginStart="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_xxl"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:src="@drawable/ic_back_arrow"
         app:tint="@color/white"
         android:background="?android:attr/selectableItemBackgroundBorderless"

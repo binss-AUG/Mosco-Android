@@ -108,7 +108,8 @@ public class ItemRevealFragment extends Fragment {
     private List<RevealedCard> historyList = new ArrayList<>();
     private int currentRevealIndex = 0;
 
-    // Trình phát video ExoPlayer dành cho các thẻ Motion lật mở nhằm tăng hiệu năng 60fps trên giả lập Android 9
+    // Trình phát video ExoPlayer dành cho các thẻ Motion lật mở nhằm tăng hiệu năng
+    // 60fps trên giả lập Android 9
     private androidx.media3.exoplayer.ExoPlayer itemVideoPlayer;
     private boolean isCardFlipped = false;
 
@@ -134,9 +135,6 @@ public class ItemRevealFragment extends Fragment {
             itemVideoPlayer.play();
         }
     }
-
-
-
 
     // Components dynamic for Flip
     private ImageView backImageView;
@@ -250,7 +248,8 @@ public class ItemRevealFragment extends Fragment {
 
         rvCardHistory = view.findViewById(R.id.rv_card_history);
         if (rvCardHistory != null) {
-            rvCardHistory.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+            rvCardHistory
+                    .setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
             historyAdapter = new MiniCardAdapter();
             rvCardHistory.setAdapter(historyAdapter);
             rvCardHistory.setVisibility(View.INVISIBLE);
@@ -320,7 +319,8 @@ public class ItemRevealFragment extends Fragment {
 
         preloadAndExtractCards(cards, () -> {
             View rootView = getView();
-            if (rootView == null) return;
+            if (rootView == null)
+                return;
             MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
             cardItem.post(() -> hideLoadingOverlay(false, this::startRevealAnimationForCurrentIndex));
         });
@@ -350,7 +350,8 @@ public class ItemRevealFragment extends Fragment {
                 loadedCount[0]++;
                 if (loadedCount[0] == total) {
                     for (RevealedCard rc : tempArray) {
-                        if (rc != null) revealedCards.add(rc);
+                        if (rc != null)
+                            revealedCards.add(rc);
                     }
                     onComplete.run();
                 }
@@ -370,7 +371,8 @@ public class ItemRevealFragment extends Fragment {
                 loadedCount[0]++;
                 if (loadedCount[0] == total) {
                     for (RevealedCard rc : tempArray) {
-                        if (rc != null) revealedCards.add(rc);
+                        if (rc != null)
+                            revealedCards.add(rc);
                     }
                     onComplete.run();
                 }
@@ -387,14 +389,16 @@ public class ItemRevealFragment extends Fragment {
                             loadedCount[0]++;
                             if (loadedCount[0] == total) {
                                 for (RevealedCard rc : tempArray) {
-                                    if (rc != null) revealedCards.add(rc);
+                                    if (rc != null)
+                                        revealedCards.add(rc);
                                 }
                                 onComplete.run();
                             }
                         }
 
                         @Override
-                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {}
+                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
+                        }
 
                         @Override
                         public void onLoadFailed(@Nullable android.graphics.drawable.Drawable errorDrawable) {
@@ -404,7 +408,8 @@ public class ItemRevealFragment extends Fragment {
                             loadedCount[0]++;
                             if (loadedCount[0] == total) {
                                 for (RevealedCard rc : tempArray) {
-                                    if (rc != null) revealedCards.add(rc);
+                                    if (rc != null)
+                                        revealedCards.add(rc);
                                 }
                                 onComplete.run();
                             }
@@ -501,7 +506,8 @@ public class ItemRevealFragment extends Fragment {
 
     private void startRevealAnimationForCurrentIndex() {
         View rootView = getView();
-        if (rootView == null) return;
+        if (rootView == null)
+            return;
 
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
         if (floatingAnim != null) {
@@ -576,7 +582,8 @@ public class ItemRevealFragment extends Fragment {
 
     private void runPhase2AnimationForCurrentIndex() {
         View rootView = getView();
-        if (rootView == null) return;
+        if (rootView == null)
+            return;
 
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
         View lightLayer = rootView.findViewById(R.id.view_pack_flash_overlay);
@@ -586,6 +593,7 @@ public class ItemRevealFragment extends Fragment {
         JSONObject topCardJson = currentCard.cardJson;
         int tierColor = currentCard.glowColor;
 
+        // TẠI SAO: Đồng bộ hóa màu nền phía sau mượt mà theo tông màu của thẻ mới.
         transitionBackgroundTo(tierColor);
 
         float shakeMild = getResources().getDimension(R.dimen.reveal_shake_mild);
@@ -597,23 +605,61 @@ public class ItemRevealFragment extends Fragment {
         shake1Clean.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_mild_repeat));
         shake1Clean.start();
 
-        GradientDrawable metallicBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[] {
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_1),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_2),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_3),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_4)
-        });
-        lightLayer.setBackground(metallicBg);
+        // TẠI SAO: Đặt trực tiếp màu nền của lớp phủ là màu thẻ mới thay vì gradient đen, giúp chuyển tiếp màu thẻ mượt mà từ 0 -> 100% opacity.
+        lightLayer.setBackgroundColor(tierColor);
         lightLayer.setVisibility(View.VISIBLE);
         lightLayer.setAlpha(0f);
-        lightLayer.animate().alpha(getPercent(R.integer.reveal_phase2_overlay_alpha_percent))
-                .setDuration(getResources().getInteger(R.integer.reveal_phase2_metallic_ms)).withEndAction(() -> {
+        lightLayer.animate().alpha(1f)
+                .setDuration(getResources().getInteger(R.integer.reveal_phase2_metallic_ms))
+                .withEndAction(() -> {
 
-                    ObjectAnimator colorAnim = ObjectAnimator.ofArgb(lightLayer, "backgroundColor", Color.WHITE,
-                            tierColor);
-                    colorAnim.setDuration(getResources().getInteger(R.integer.reveal_phase2_flash_ms));
-                    colorAnim.start();
+                    // TẠI SAO: Khi lớp phủ màu mới đạt 100% độ đục, toàn bộ thẻ cũ đã bị che khuất. Đây là thời điểm an toàn tuyệt đối để thay đổi ảnh, viền phát sáng và bung hiệu ứng hạt ngay lập tức để tránh trễ nhịp.
+                    String imageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
+                    if (!imageUrl.isEmpty()) {
+                        Glide.with(this).load(imageUrl).into(ivItemImage);
+                    }
 
+                    TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+                    if (vvItemVideo != null) {
+                        vvItemVideo.setVisibility(View.GONE);
+                    }
+
+                    String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
+                    if (backImageView == null) {
+                        backImageView = new ImageView(requireContext());
+                        backImageView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+                        backImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                        backImageView.setScaleX(-1f);
+                        backImageView.setVisibility(View.GONE);
+                        cardItem.addView(backImageView);
+                    }
+                    if (!backImageUrl.isEmpty() && requireContext() != null) {
+                        Glide.with(this).load(backImageUrl).into(backImageView);
+                    }
+
+                    buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
+
+                    // TẠI SAO: Giảm dần độ đục của lớp màu (100% -> 0%) để làm hiển lộ dần thẻ mới đã được cập nhật bên dưới.
+                    if (lightLayer != null) {
+                        lightLayer.animate().alpha(0f).setDuration(400)
+                                .withEndAction(() -> lightLayer.setVisibility(View.GONE)).start();
+                    }
+
+                    syncGlowToCard(cardItem);
+
+                    // TẠI SAO: Đảm bảo ảnh thẻ luôn hiển thị rõ ràng, thiết lập tỉ lệ scale chuẩn cho cả thẻ đầu tiên.
+                    ivItemImage.setAlpha(1f);
+                    ivItemImage.setScaleX(1f);
+                    ivItemImage.setScaleY(1f);
+                    syncGlowToCard(cardItem);
+
+                    onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
+
+                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức trùng với thời điểm thay đổi hình ảnh để tạo cảm giác bùng nổ chân thực.
+                    createChaosParticles(tierColor, cardItem);
+                    setupFlipGesture(cardItem);
+
+                    // TẠI SAO: Tạo hiệu ứng rung lắc mạnh tại thời điểm bùng nổ thẻ mới để tăng cảm giác kịch tính của Gacha.
                     float shakeIntense = getResources().getDimension(R.dimen.reveal_shake_intense);
                     float shakeIntenseRepeat1 = shakeIntense
                             * getPercent(R.integer.reveal_phase2_shake_dampen_60_percent);
@@ -625,66 +671,11 @@ public class ItemRevealFragment extends Fragment {
                     shake2.setDuration(getResources().getInteger(R.integer.reveal_phase2_shake_intense_ms));
                     shake2.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_intense_repeat));
                     shake2.start();
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        String imageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
-                        if (!imageUrl.isEmpty()) {
-                            Glide.with(this).load(imageUrl).into(ivItemImage);
-                        }
-
-                        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
-                        if (vvItemVideo != null) {
-                            vvItemVideo.setVisibility(View.GONE);
-                        }
-
-                        String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
-                        if (backImageView == null) {
-                            backImageView = new ImageView(requireContext());
-                            backImageView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
-                            backImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                            backImageView.setScaleX(-1f);
-                            backImageView.setVisibility(View.GONE);
-                            cardItem.addView(backImageView);
-                        }
-                        if (!backImageUrl.isEmpty() && requireContext() != null) {
-                            Glide.with(this).load(backImageUrl).into(backImageView);
-                        }
-
-                        buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
-
-                        if (lightLayer != null) {
-                            lightLayer.animate().alpha(0f).setDuration(400)
-                                    .withEndAction(() -> lightLayer.setVisibility(View.GONE)).start();
-                        }
-
-                        syncGlowToCard(cardItem);
-
-                        if (currentRevealIndex == 0) {
-                            ivItemImage.setAlpha(0f);
-                            ivItemImage.setScaleX(1f);
-                            ivItemImage.setScaleY(1f);
-                            ivItemImage.animate().alpha(1f).setDuration(500)
-                                    .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
-                                    .setUpdateListener(animation -> syncGlowToCard(cardItem))
-                                    .withEndAction(() -> {
-                                        onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
-                                    })
-                                    .start();
-                        } else {
-                            ivItemImage.setAlpha(1f);
-                            ivItemImage.setScaleX(1f);
-                            ivItemImage.setScaleY(1f);
-                            syncGlowToCard(cardItem);
-                            onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
-                        }
-
-                        createChaosParticles(tierColor, cardItem);
-                        setupFlipGesture(cardItem);
-                    }, getResources().getInteger(R.integer.reveal_phase2_explosion_delay_ms));
                 }).start();
     }
 
-    private void onCardRevealComplete(JSONObject topCardJson, MaterialCardView cardItem, ImageView ivItemImage, RevealedCard currentCard) {
+    private void onCardRevealComplete(JSONObject topCardJson, MaterialCardView cardItem, ImageView ivItemImage,
+            RevealedCard currentCard) {
         TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
         if (vvItemVideoReveal != null) {
             String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
@@ -693,7 +684,8 @@ public class ItemRevealFragment extends Fragment {
                 if (itemVideoPlayer != null) {
                     itemVideoPlayer.release();
                 }
-                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvItemVideoReveal, videoUrl, ivItemImage);
+                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
+                        vvItemVideoReveal, videoUrl, ivItemImage);
             } else {
                 vvItemVideoReveal.setVisibility(View.GONE);
             }
@@ -707,10 +699,11 @@ public class ItemRevealFragment extends Fragment {
         rvCardHistory.scrollToPosition(0);
 
         if (currentRevealIndex < revealedCards.size() - 1) {
+            // TẠI SAO: Rút ngắn từ 1800ms xuống 1300ms để nhịp độ mở Gacha tự động dồn dập, mượt mà hơn.
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 currentRevealIndex++;
                 startRevealAnimationForCurrentIndex();
-            }, 1800);
+            }, 1300);
         } else {
             showFinalRevealResults();
         }
@@ -865,7 +858,6 @@ public class ItemRevealFragment extends Fragment {
         }
     }
 
-
     private void createChaosParticles(int color, View cardItem) {
         ViewGroup root = (ViewGroup) getView();
         if (root == null)
@@ -890,17 +882,24 @@ public class ItemRevealFragment extends Fragment {
         }
         particleView.setElevation(Math.max(0f, cardItem.getElevation() - dpToPx(2)));
 
-        // Đợi layout ổn định rồi mới map toạ độ card -> particle layer để tránh lệch
-        // tâm nổ.
+        // Đợi layout ổn định rồi mới lấy toạ độ tâm thẻ
+        // Không dùng getLocationOnScreen vì khi lật thẻ (rotateY), bounding box bị thay đổi
+        // khiến tâm vụ nổ bị tính sai lệch sang bên phải.
         particleView.post(() -> {
             if (particleView.getParent() == null || cardItem.getParent() == null)
                 return;
-            int[] cardLoc = new int[2];
-            int[] rootLoc = new int[2];
-            cardItem.getLocationOnScreen(cardLoc);
-            root.getLocationOnScreen(rootLoc);
-            float cx = (cardLoc[0] - rootLoc[0]) + (cardItem.getWidth() / 2f);
-            float cy = (cardLoc[1] - rootLoc[1]) + (cardItem.getHeight() / 2f);
+            
+            float cx = cardItem.getLeft() + (cardItem.getWidth() / 2f) + cardItem.getTranslationX();
+            float cy = cardItem.getTop() + (cardItem.getHeight() / 2f) + cardItem.getTranslationY();
+            
+            // Xử lý bù trừ tọa độ nếu cardItem không phải là con trực tiếp của root
+            View current = cardItem;
+            while (current.getParent() instanceof View && current.getParent() != root) {
+                current = (View) current.getParent();
+                cx += current.getLeft() - current.getScrollX() + current.getTranslationX();
+                cy += current.getTop() - current.getScrollY() + current.getTranslationY();
+            }
+
             particleView.startExplosion(color, cx, cy);
         });
     }
@@ -955,7 +954,8 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void showFinalRevealResults() {
-        if (getView() == null) return;
+        if (getView() == null)
+            return;
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
         TextView tvTitle = getView().findViewById(R.id.tv_reveal_collection_id);
         if (tvTitle != null) {
@@ -1059,7 +1059,8 @@ public class ItemRevealFragment extends Fragment {
 
         setActionButtonsEnabled(true);
         llButtons.bringToFront();
-        llButtons.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms)).start();
+        llButtons.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms))
+                .start();
 
         View btnBack = getView().findViewById(R.id.btn_back);
         if (btnBack != null) {
@@ -1239,13 +1240,16 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void transitionBackgroundTo(int newColor) {
-        if (!isAdded() || getContext() == null) return;
+        if (!isAdded() || getContext() == null)
+            return;
         View rootView = getView();
-        if (rootView == null) return;
+        if (rootView == null)
+            return;
 
         View bgBase = rootView.findViewById(R.id.view_reveal_bg_base);
         View bgFade = rootView.findViewById(R.id.view_reveal_bg_fade);
-        if (bgBase == null || bgFade == null) return;
+        if (bgBase == null || bgFade == null)
+            return;
 
         float w = rootView.getWidth();
         float h = rootView.getHeight();
@@ -1253,9 +1257,10 @@ public class ItemRevealFragment extends Fragment {
         try {
             GradientDrawable newGradient = createRadialBackground(newColor, w, h);
 
-            // Tối ưu hóa: Ngăn chặn khựt màu bằng cách dùng cơ chế cross-fade 2 drawable opaque
+            // Tối ưu hóa: Ngăn chặn khựt màu bằng cách dùng cơ chế cross-fade 2 drawable
+            // opaque
             bgFade.animate().cancel();
-            
+
             android.graphics.drawable.Drawable currentFadeDrawable = bgFade.getBackground();
             if (currentFadeDrawable != null) {
                 bgBase.setBackground(currentFadeDrawable);
@@ -1279,31 +1284,27 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private GradientDrawable createRadialBackground(int centerColor, float width, float height) {
-        /* 
+        /*
          * HƯỚNG DẪN TÙY CHỈNH NỀN (BACKGROUND TWEAKING GUIDE):
          * 1. Độ sáng các vùng (Blend Ratios):
-         *    - Tính bằng ColorUtils.blendARGB(Color.BLACK, centerColor, tỷ_lệ_màu_thẻ)
-         *    - tỷ_lệ_màu_thẻ (0.0f đến 1.0f): Càng cao thì màu càng rực rỡ, càng thấp thì càng tối (gần Đen).
-         *    - Chỉnh `intensityCenter` để thay đổi độ chói lóa ngay sau thẻ.
-         *    - Chỉnh `intensityMid` để thay đổi độ lan tỏa ở vòng giữa màn hình.
-         *    - Chỉnh `intensityEdge` để thay đổi màu sắc ở viền màn hình (không nên để 0f vì sẽ thành đen hoàn toàn, để ~0.1f - 0.15f sẽ có màu sẫm tiệp với thẻ cực sang).
-         *
-         * 2. Bán kính tỏa (Radius):
-         *    - `radiusFactor`: Hệ số nhân với kích thước chiều ngắn nhất của màn hình.
-         *    - Tăng lên 1.0f -> Ánh sáng lan rộng ra toàn màn hình.
-         *    - Giảm xuống 0.5f -> Ánh sáng gom lại thành một đốm nhỏ ngay sau thẻ.
+         * - Tính bằng ColorUtils.blendARGB(Color.BLACK, centerColor, tỷ_lệ_màu_thẻ)
+         * - tỷ_lệ_màu_thẻ (0.0f đến 1.0f): Càng cao thì màu càng rực rỡ, càng thấp thì
+         * càng tối (gần Đen).
          */
-         
-        float intensityCenter = 0.65f; // Độ rực rỡ tại tâm (65% màu thẻ, 35% Đen)
-        float intensityMid    = 0.30f; // Độ rực rỡ ở khoảng giữa (30% màu thẻ, 70% Đen)
-        float intensityEdge   = 0.12f; // Độ rực rỡ ở rìa màn hình (12% màu thẻ, 88% Đen)
-        
-        float radiusFactor    = 0.85f; // Bán kính tỏa (85% kích thước min màn hình)
+
+        float intensityCenter = 0.91f; // Độ rực rỡ tại tâm
+        float intensityMid = 0.35f; // Độ rực rỡ ở khoảng giữa
+        float intensityEdge = 0.25f; // Độ rực rỡ ở rìa màn hình
+
+        float radiusFactor = 0.85f; // Bán kính tỏa
 
         // Tính toán màu sắc dựa trên tỷ lệ hòa trộn với màu Đen tuyệt đối
-        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityCenter);
-        int colorMid    = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityMid);
-        int endColor    = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor, intensityEdge);
+        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityCenter);
+        int colorMid = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityMid);
+        int endColor = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityEdge);
 
         GradientDrawable gd = new GradientDrawable();
         gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
@@ -1315,9 +1316,9 @@ public class ItemRevealFragment extends Fragment {
             radius = dpToPx(380);
         }
         gd.setGradientRadius(radius);
-        
-        // Tâm tỏa sáng: 0.5f (giữa chiều ngang), 0.32f (32% chiều dọc, khớp vị trí thẻ hiện tại)
-        gd.setGradientCenter(0.5f, 0.32f); 
+
+        // Tâm tỏa sáng
+        gd.setGradientCenter(0.50f, 0.38f);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             gd.setColors(new int[] { colorCenter, colorMid, endColor });
@@ -1337,9 +1338,11 @@ public class ItemRevealFragment extends Fragment {
 
     private void swapCardWithFlipAnimation(RevealedCard targetCard) {
         View rootView = getView();
-        if (rootView == null) return;
+        if (rootView == null)
+            return;
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-        if (cardItem == null) return;
+        if (cardItem == null)
+            return;
 
         cardItem.setOnTouchListener(null);
 
@@ -1378,7 +1381,8 @@ public class ItemRevealFragment extends Fragment {
 
     private void updateCardContent(RevealedCard targetCard) {
         View rootView = getView();
-        if (rootView == null) return;
+        if (rootView == null)
+            return;
 
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
         ImageView ivItemImage = rootView.findViewById(R.id.iv_item_image);
@@ -1419,15 +1423,15 @@ public class ItemRevealFragment extends Fragment {
                 if (itemVideoPlayer != null) {
                     itemVideoPlayer.release();
                 }
-                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvItemVideo, videoUrl, ivItemImage);
+                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
+                        vvItemVideo, videoUrl, ivItemImage);
             } else {
                 vvItemVideo.setVisibility(View.GONE);
             }
         }
 
-        if (activeParticleView != null) {
-            activeParticleView.updateColor(tierColor);
-        }
+        // Khởi động lại hiệu ứng hạt (load animation từ đầu) giống hệt lúc mới mở thẻ
+        createChaosParticles(tierColor, cardItem);
 
         TextView tvTitle = rootView.findViewById(R.id.tv_reveal_collection_id);
         View llButtons = rootView.findViewById(R.id.ll_buttons);
@@ -1473,7 +1477,7 @@ public class ItemRevealFragment extends Fragment {
 
             RevealedCard card = historyList.get(position);
             JSONObject json = card.cardJson;
-            
+
             Objet objet = new Objet(0,
                     json.optString(KEY_COLLECTION_ID),
                     json.optString(KEY_FRONT_IMAGE),
@@ -1503,15 +1507,15 @@ public class ItemRevealFragment extends Fragment {
                     ivFront.setImageDrawable(null);
                 }
             }
-            
+
             CardEffectHelper.apply(cardContainer, shimmer, objet, false, true, card.glowColor);
-            
+
             if (cardContainer != null) {
                 cardContainer.setScaleX(1f);
                 cardContainer.setScaleY(1f);
                 cardContainer.setAlpha(1f);
             }
-            
+
             holder.itemView.setOnClickListener(v -> {
                 if (currentRevealIndex < revealedCards.size() - 1) {
                     return;
@@ -1585,7 +1589,10 @@ public class ItemRevealFragment extends Fragment {
             setBackgroundColor(Color.TRANSPARENT);
 
             paint.setColor(color);
-            paint.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
+            // HƯỚNG DẪN TÙY CHỈNH (TWEAKING GUIDE) - HIỆU ỨNG GLOW LUXURY:
+            // - Bán kính tỏa sáng (Glow Radius): 15f (Tăng/giảm số này để chỉnh độ rộng của vùng sáng bao quanh hạt).
+            // - Màu phát sáng: Dùng biến 'color' (màu tương ứng với thẻ).
+            paint.setShadowLayer(15f, 0f, 0f, color);
 
             particles.clear();
             for (int i = 0; i < config.particleCount; i++) {
@@ -1703,7 +1710,9 @@ public class ItemRevealFragment extends Fragment {
                 float speed = (float) (Math.random() * 35 + 15) * config.initialSpeedScale;
                 vx = (float) Math.cos(angle) * speed * config.ovalBurstX;
                 vy = (float) Math.sin(angle) * speed * config.ovalBurstY;
-                radius = (float) (Math.random() * 1.4f + 0.8f);
+                // HƯỚNG DẪN TÙY CHỈNH (TWEAKING GUIDE) - KÍCH THƯỚC HẠT:
+                // - Nhân thêm 3f để làm các hạt to gấp 3 lần. Thay đổi số 3f thành số khác nếu muốn điều chỉnh thêm.
+                radius = (float) (Math.random() * 1.4f + 0.8f) * 3f;
                 wanderSeedX = (float) (Math.random() * Math.PI * 2);
                 wanderSeedY = (float) (Math.random() * Math.PI * 2);
                 driftX = (float) (Math.random() * 1.6f - 0.8f);
@@ -1832,4 +1841,3 @@ public class ItemRevealFragment extends Fragment {
         }
     }
 }
-
