@@ -1000,7 +1000,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
                     @Override
                     public void onPositive() {
-                        exitConfirmationMode();
+                        discardEditMode();
                     }
                 });
     }
@@ -1534,6 +1534,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     public void onResume() {
         super.onResume();
         startCarousel();
+        if (showcaseAdapter != null) showcaseAdapter.playAllPlayers();
         if (sessionManager != null) {
             notificationSubscription = com.vn.jet.mosco.network.WebSocketManager.getInstance().subscribeToPrivateChat(
                 String.valueOf(sessionManager.getUserId()),
@@ -1554,8 +1555,17 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     public void onPause() {
         super.onPause();
         stopCarousel();
+        if (showcaseAdapter != null) showcaseAdapter.pauseAllPlayers();
         if (notificationSubscription != null && !notificationSubscription.isDisposed()) {
             notificationSubscription.dispose();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (showcaseAdapter != null) {
+            showcaseAdapter.releaseAllPlayers();
         }
     }
 
@@ -1785,6 +1795,21 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 ivBack.setImageResource(R.drawable.objet_back_spin);
             }
 
+            // Video MP4 playback cho Motion Cards
+            android.view.TextureView vvVideo = cardView.findViewById(R.id.card_vv_video);
+            if (vvVideo != null) {
+                String cardClass = cardData.optString("class", "");
+                String videoUrl = cardData.optString("frontVideoUrl", "");
+                if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+                    androidx.media3.exoplayer.ExoPlayer player = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(getContext(), vvVideo, videoUrl, ivImage);
+                    if (player != null && showcaseAdapter != null) {
+                        showcaseAdapter.putPlayer(position, player);
+                    }
+                } else {
+                    vvVideo.setVisibility(View.GONE);
+                }
+            }
+
             String frontImageStr = cardData.optString("frontImage");
             Objet mockObj = new Objet(0, collectionId, frontImageStr, 1, 0, cardData.optInt("upgradeLevel", 0));
             
@@ -1848,6 +1873,40 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // --- Showcase Pager Adapter ---
     private class ShowcasePagerAdapter extends RecyclerView.Adapter<ShowcaseViewHolder> {
         private final List<String> ids = new ArrayList<>();
+        private final java.util.Map<Integer, androidx.media3.exoplayer.ExoPlayer> playerMap = new java.util.HashMap<>();
+
+        public void putPlayer(int position, androidx.media3.exoplayer.ExoPlayer player) {
+            playerMap.put(position, player);
+        }
+
+        public void pauseAllPlayers() {
+            for (androidx.media3.exoplayer.ExoPlayer player : playerMap.values()) {
+                if (player != null) player.pause();
+            }
+        }
+
+        public void playAllPlayers() {
+            for (androidx.media3.exoplayer.ExoPlayer player : playerMap.values()) {
+                if (player != null) player.play();
+            }
+        }
+
+        public void releaseAllPlayers() {
+            for (androidx.media3.exoplayer.ExoPlayer player : playerMap.values()) {
+                if (player != null) player.release();
+            }
+            playerMap.clear();
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ShowcaseViewHolder holder) {
+            super.onViewRecycled(holder);
+            int position = holder.getBindingAdapterPosition();
+            if (position != RecyclerView.NO_POSITION && playerMap.containsKey(position)) {
+                androidx.media3.exoplayer.ExoPlayer player = playerMap.remove(position);
+                if (player != null) player.release();
+            }
+        }
 
         public ShowcasePagerAdapter(List<String> initialIds) { 
             if (initialIds != null) this.ids.addAll(initialIds); 
@@ -1892,6 +1951,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         @Override
         public void onBindViewHolder(@NonNull ShowcaseViewHolder holder, int position) {
             String cardId = (position < ids.size()) ? ids.get(position) : "";
+            
+            // Giải phóng player cũ nếu có trước khi tái sử dụng view
+            if (playerMap.containsKey(position)) {
+                androidx.media3.exoplayer.ExoPlayer oldPlayer = playerMap.remove(position);
+                if (oldPlayer != null) oldPlayer.release();
+            }
+
             bindCardView(holder.itemView, cardId, position);
             
             holder.itemView.setOnClickListener(v -> {
@@ -1917,6 +1983,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                             entry.setOvr(cardData.optInt("ovr", 0));
                             entry.setUpgradeLevel(cardData.optInt("upgradeLevel", 0));
                             entry.setLevel(cardData.optInt("level", 1));
+                            entry.setFrontVideoUrl(cardData.optString("frontVideoUrl", ""));
                             entry.setOwned(true); // Đảm bảo hiệu ứng glow hoạt động và ẩn màn đen
 
                             // Gọi CollectionDetailBinder với isAlbumMode = true và isFromExhibit = true để ẩn sạch các nút chức năng và nút X, nhưng vẫn giữ badge level & hiệu ứng thẻ!

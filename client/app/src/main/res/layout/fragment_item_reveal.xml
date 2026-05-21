@@ -4,8 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root_item_reveal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/lg_background">
+    android:layout_height="match_parent">
+
+    <!-- Layer 0: Background views for smooth transition -->
+    <View
+        android:id="@+id/view_reveal_bg_base"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/lg_background_deep" />
+
+    <View
+        android:id="@+id/view_reveal_bg_fade"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:visibility="gone" />
 
     <!-- Back Arrow (top left) -->
     <ImageView
@@ -13,7 +26,7 @@
         android:layout_width="@dimen/spacing_40dp"
         android:layout_height="@dimen/spacing_40dp"
         android:layout_marginStart="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_xxl"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:src="@drawable/ic_back_arrow"
         android:padding="@dimen/spacing_xs"
         app:tint="@color/white"
@@ -43,6 +56,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Dedicated Collection ID display above the card -->
+    <TextView
+        android:id="@+id/tv_reveal_collection_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Header"
+        android:textSize="@dimen/text_size_h1"
+        android:textStyle="bold"
+        android:fontWeight="700"
+        android:letterSpacing="-0.02"
+        android:shadowColor="@color/black"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toTopOf="@id/card_item"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- ====== CENTER ZONE: Image card centered on screen ====== -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_item"
@@ -53,49 +87,28 @@
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:layout_constraintDimensionRatio="1:1.54"
-        app:layout_constraintWidth_percent="0.525"
-        app:layout_constraintTop_toBottomOf="@id/tv_item_name"
-        app:layout_constraintBottom_toTopOf="@id/tv_item_qty"
+        app:layout_constraintWidth_percent="0.65"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.45"
-        app:layout_constraintVertical_chainStyle="packed">
+        app:layout_constraintVertical_bias="0.18">
 
-        <!-- 1. Metallic Background -->
-        <View
-            android:id="@+id/view_card_metallic_bg"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <!-- 2. Item Image -->
-        <ImageView
-            android:id="@+id/iv_item_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/item_shop_demo" />
+            <include layout="@layout/layout_core_card" />
 
-        <!-- Video Player for Motion cards (ExoPlayer) -->
-        <TextureView
-            android:id="@+id/vv_item_video"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            <!-- 4. Glow/Flash Overlay (Giữ lại để làm hiệu ứng lật thẻ) -->
+            <View
+                android:id="@+id/view_pack_flash_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:alpha="0" />
 
-
-        <!-- 3. Shimmer Overlay -->
-        <View
-            android:id="@+id/view_card_shimmer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- 4. Glow/Flash Overlay -->
-        <View
-            android:id="@+id/view_pack_flash_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:alpha="0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -115,7 +128,6 @@
         android:paddingVertical="3dp"
         tools:text="x7"
         app:layout_constraintTop_toBottomOf="@id/card_item"
-        app:layout_constraintBottom_toTopOf="@id/tv_item_info"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -132,9 +144,26 @@
         android:paddingHorizontal="@dimen/spacing_40dp"
         tools:text="Rates: 80% First, Welcome, 15% Double"
         app:layout_constraintTop_toBottomOf="@id/tv_item_qty"
-        app:layout_constraintBottom_toTopOf="@id/ll_buttons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ====== CARD HISTORY: Horizontal List ====== -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_card_history"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/reveal_history_height"
+        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:clipChildren="false"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/card_item"
+        app:layout_constraintBottom_toTopOf="@id/ll_buttons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.75" />
 
     <!-- ====== BUTTONS: Pinned to bottom ====== -->
     <LinearLayout

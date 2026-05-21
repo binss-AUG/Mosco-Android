@@ -779,6 +779,9 @@ public class DatabaseLoader {
                 merged.put("level", inventoryCard.optInt("level", 1));
                 merged.put("ovr", inventoryCard.optInt("ovr", 0));
                 merged.put("upgradeLevel", inventoryCard.optInt("upgradeLevel", 0));
+                if (inventoryCard.has("frontVideoUrl")) {
+                    merged.put("frontVideoUrl", inventoryCard.optString("frontVideoUrl", ""));
+                }
                 result = merged;
             } catch (Exception e) {
                 result = inventoryCard;
@@ -793,6 +796,22 @@ public class DatabaseLoader {
                 cloned.put("upgradeLevel", forceUpgradeLevel);
                 result = cloned;
             } catch (Exception ignored) {}
+        }
+
+        // Tự động generate frontVideoUrl cho thẻ Motion nếu bị thiếu (Dùng cho Profile người khác)
+        if (result != null) {
+            String cardClass = result.optString("class", result.optString("cardClass", ""));
+            if ("Motion".equalsIgnoreCase(cardClass) && (!result.has("frontVideoUrl") || result.optString("frontVideoUrl", "").isEmpty())) {
+                String colId = result.optString("collectionId", "");
+                if (!colId.isEmpty()) {
+                    String slug = colId.toLowerCase().replace(" ", "-");
+                    try {
+                        JSONObject finalCloned = new JSONObject(result.toString());
+                        finalCloned.put("frontVideoUrl", "https://cdn.apollo.cafe/mco/triples/" + slug + ".mp4");
+                        result = finalCloned;
+                    } catch (Exception ignored) {}
+                }
+            }
         }
 
         return result;

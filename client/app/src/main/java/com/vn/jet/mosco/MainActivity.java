@@ -264,6 +264,9 @@ public class MainActivity extends MoscoBaseActivity {
     }
 
     private UserStats cachedStats;
+    public UserStats getCachedStats() {
+        return cachedStats;
+    }
     public void loadUserData() {
         Long userId = sessionManager.getUserId();
         if (userId == null) return;

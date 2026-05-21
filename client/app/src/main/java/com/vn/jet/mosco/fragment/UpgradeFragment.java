@@ -903,9 +903,18 @@ public class UpgradeFragment extends Fragment {
                 .setDuration(animRevealOvershootDuration)
                 .withLayer()
                 .withEndAction(() -> {
-                    // Không phát video MP4 trong UpgradeFragment để tránh giật lag
+                    // Video MP4 playback cho thẻ kết quả nâng cấp
                     if (vvResultVideo != null) {
-                        vvResultVideo.setVisibility(View.GONE);
+                        if (isSuccess && mainCard != null && "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                            if (resultVideoPlayer != null) {
+                                resultVideoPlayer.release();
+                                resultVideoPlayer = null;
+                            }
+                            ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
+                            resultVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvResultVideo, mainCard.getFrontVideoUrl(), ivResultImage);
+                        } else {
+                            vvResultVideo.setVisibility(View.GONE);
+                        }
                     }
                 })
                 .start();
@@ -976,10 +985,18 @@ public class UpgradeFragment extends Fragment {
             // Luồng tải ưu tiên: Thẻ chính dùng bản Original
             com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivMainCardImage, mainCard.getFrontImage(), false);
 
-            // Chỉ hiển thị ảnh tĩnh trong UpgradeFragment để tránh giật lag khi rèn đập thẻ
+            // Video MP4 playback cho Motion Cards
             TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
             if (vvMainVideo != null) {
-                vvMainVideo.setVisibility(View.GONE);
+                if (mainVideoPlayer != null) {
+                    mainVideoPlayer.release();
+                    mainVideoPlayer = null;
+                }
+                if ("Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                    mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
+                } else {
+                    vvMainVideo.setVisibility(View.GONE);
+                }
             }
 
             tvCardOvr.setVisibility(View.GONE);
