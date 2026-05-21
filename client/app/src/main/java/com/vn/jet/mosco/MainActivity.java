@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import com.vn.jet.mosco.model.UserStats;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
@@ -116,9 +117,19 @@ public class MainActivity extends MoscoBaseActivity {
 
         // --- 🚀 EXIT CONFIRMATION SYSTEM ---
         setupExitConfirmation();
-        
-        // Mặc định hiện Header ở Home
-        setTopBarVisible(true);
+
+        // Đồng bộ UI lần đầu — nếu khởi tạo mới thì mặc định Home
+        if (savedInstanceState == null) {
+            setTopBarVisible(true, TOP_BAR_MODE_HOME);
+            setBottomNavVisible(true);
+        } else {
+            syncUiWithFragment();
+        }
+
+        // Listener trung tâm — tự động ẩn/hiện Header & Bottom Nav dựa trên BackStack
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(MainActivity.this::syncUiWithFragment, 100);
+        });
     }
     
     public void setTopBarVisible(boolean visible) {
@@ -144,6 +155,34 @@ public class MainActivity extends MoscoBaseActivity {
         if (clHeader != null) {
             clHeader.setVisibility(mode == TOP_BAR_MODE_SHOP ? View.GONE : View.VISIBLE);
         }
+    }
+
+    public void setBottomNavVisible(boolean visible) {
+        View customNav = findViewById(R.id.cl_custom_bottom_navigation);
+        if (customNav != null) {
+            customNav.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void syncUiWithFragment() {
+        boolean hasBackStack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        if (hasBackStack) {
+            setBottomNavVisible(false);
+            setTopBarVisible(false);
+        } else {
+            setBottomNavVisible(true);
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+            if (currentFragment != null) {
+                setTopBarVisible(currentFragment instanceof HomeFragment, TOP_BAR_MODE_HOME);
+            } else {
+                setTopBarVisible(false);
+            }
+        }
+    }
+
+    private void syncUiForTab(int itemId) {
+        setBottomNavVisible(true);
+        setTopBarVisible(itemId == R.id.nav_home, TOP_BAR_MODE_HOME);
     }
 
     private void setupHeader() {
@@ -281,7 +320,6 @@ public class MainActivity extends MoscoBaseActivity {
     }
 
     public void openShop() {
-        setTopBarVisible(true, TOP_BAR_MODE_SHOP);
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
                 .replace(R.id.frame_layout, new ShopFragment())
@@ -297,19 +335,6 @@ public class MainActivity extends MoscoBaseActivity {
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     getSupportFragmentManager().popBackStack();
                     com.vn.jet.mosco.utils.NavigationUtils.handleBackPress();
-                    
-                    // Sau khi pop, kiểm tra lại xem có đang ở Home không để hiện Top Bar
-                    // Đợi fragment chuyển xong
-                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
-                        if (currentFragment instanceof HomeFragment) {
-                            setTopBarVisible(true, TOP_BAR_MODE_HOME);
-                        } else if (currentFragment instanceof ShopFragment) {
-                            setTopBarVisible(true, TOP_BAR_MODE_SHOP);
-                        } else {
-                            setTopBarVisible(false);
-                        }
-                    }, 200);
                 } else {
                     showExitConfirmationDialog();
                 }
@@ -401,10 +426,11 @@ public class MainActivity extends MoscoBaseActivity {
 
             if (selectedFragment != null) {
                 lastNavClickTime = currentTime;
-                
-                // Hide header row everywhere except Home tab
-                setTopBarVisible(itemId == R.id.nav_home, TOP_BAR_MODE_HOME);
-                
+
+                // Clear backstack khi chuyển tab để tránh backstack stale
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                com.vn.jet.mosco.utils.NavigationUtils.clearProfileStack();
+
                 getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                         .replace(R.id.frame_layout, selectedFragment)
@@ -412,6 +438,9 @@ public class MainActivity extends MoscoBaseActivity {
 
                 // Update visual custom tabs state
                 updateCustomTabsVisualState(itemId);
+
+                // Đồng bộ Header & Bottom Nav
+                syncUiForTab(itemId);
                 return true;
             }
             return false;

@@ -73,6 +73,8 @@
     <color name="transparent">#00000000</color>
     <color name="mosco_success">#22C55E</color>
     <color name="mosco_link">@color/brand_primary</color>
+    <color name="mosco_chat_header_bg">#0B0F19</color>
+    <color name="status_online">#10B981</color>
 
     <!-- Legacy Brand -->
     <color name="mosco_primary">@color/brand_primary</color>

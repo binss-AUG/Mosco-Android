@@ -98,6 +98,7 @@ public class AuthService {
         String token = generateToken(newUser);
         newUser.setActiveToken(token);
         userRepository.save(newUser);
+        com.vn.jet.mosco.spinserver.security.TokenCache.put(newUser.getId(), token);
         
         return new AuthResponse(true, "Đăng ký tài khoản thành công!", newUser, token);
     }
@@ -214,6 +215,7 @@ public class AuthService {
 
         String token = generateToken(user);
         user.setActiveToken(token);
+        com.vn.jet.mosco.spinserver.security.TokenCache.put(user.getId(), token);
 
         updateStreak(user);
 
@@ -234,6 +236,7 @@ public class AuthService {
             if (user.getBestStreak() < 1) {
                 user.setBestStreak(1);
             }
+            user.setLastLoginAt(now);
             System.out.println(">>> [STREAK] First interaction detected for user: " + user.getUsername() + ". Set streak to 1.");
         } else {
             java.time.LocalDate lastDate = user.getLastLoginAt().toLocalDate();
@@ -352,6 +355,7 @@ public class AuthService {
         String jwtToken = generateToken(user);
         user.setActiveToken(jwtToken);
         userRepository.save(user);
+        com.vn.jet.mosco.spinserver.security.TokenCache.put(user.getId(), jwtToken);
         
         return new AuthResponse(true, "Đăng nhập thành công qua " + provider, user, jwtToken);
     }

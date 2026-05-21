@@ -5,35 +5,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/mosco_surface"
+    android:background="@color/lg_background"
     android:clickable="true"
     android:focusable="true"
+    android:animateLayoutChanges="true"
     tools:context=".fragment.ChatPrivateFragment">
 
     <!-- HEADER SECTION -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_private_chat_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="@dimen/spacing_md"
-        android:paddingHorizontal="@dimen/spacing_lg"
-        android:background="@drawable/bg_private_chat_header"
+        android:layout_height="@dimen/chat_header_height"
+        android:paddingHorizontal="@dimen/spacing_12dp"
+        android:background="@color/mosco_chat_header_bg"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Button (Arrow left) -->
+        <ImageView
+            android:id="@+id/btn_close_private_chat"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="@dimen/spacing_8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <!-- Avatar with Status Dot -->
         <FrameLayout
             android:id="@+id/layout_private_avatar_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="@dimen/spacing_8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toEndOf="@id/btn_close_private_chat"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
             
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_private_header_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:cardCornerRadius="24dp"
+                android:layout_width="@dimen/spacing_48dp"
+                android:layout_height="@dimen/spacing_48dp"
+                app:cardCornerRadius="@dimen/spacing_24dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@color/mosco_card_bg_variant"
                 app:strokeWidth="0dp">
@@ -47,10 +66,10 @@
 
             <View
                 android:id="@+id/view_private_status_dot"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
+                android:layout_width="@dimen/spacing_12dp"
+                android:layout_height="@dimen/spacing_12dp"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="2dp"
+                android:layout_margin="@dimen/spacing_2dp"
                 android:background="@drawable/bg_status_online" />
         </FrameLayout>
 
@@ -59,9 +78,12 @@
             android:id="@+id/layout_private_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginStart="@dimen/spacing_12dp"
+            android:layout_marginEnd="@dimen/spacing_8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             app:layout_constraintStart_toEndOf="@id/layout_private_avatar_group"
-            app:layout_constraintEnd_toStartOf="@id/btn_close_private_chat"
+            app:layout_constraintEnd_toStartOf="@id/btn_private_chat_more"
             app:layout_constraintTop_toTopOf="@id/layout_private_avatar_group"
             app:layout_constraintBottom_toBottomOf="@id/layout_private_avatar_group">
 
@@ -69,24 +91,34 @@
                 android:id="@+id/tv_private_header_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                app:layout_constrainedWidth="true"
                 style="@style/MoscoText.Luxury.SubHeader"
-                android:textSize="@dimen/text_size_h3"
+                android:textSize="15sp"
                 android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/lottie_streak_icon"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
                 tools:text="Con bò ăn cỏ" />
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottie_streak_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="@dimen/spacing_20dp"
+                android:layout_height="@dimen/spacing_20dp"
                 android:layout_marginStart="6dp"
                 android:visibility="gone"
                 app:lottie_rawRes="@raw/streak_animation"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:layout_constraintStart_toEndOf="@id/tv_private_header_name"
-                app:layout_constraintBottom_toBottomOf="@id/tv_private_header_name" />
+                app:layout_constraintEnd_toStartOf="@id/tv_streak_count"
+                app:layout_constraintBottom_toBottomOf="@id/tv_private_header_name"
+                android:layout_marginBottom="1.5dp" />
 
             <TextView
                 android:id="@+id/tv_streak_count"
@@ -95,13 +127,13 @@
                 android:layout_marginStart="2dp"
                 android:visibility="gone"
                 style="@style/MoscoText.Luxury.SubHeader"
-                android:textSize="@dimen/text_size_h3"
+                android:textSize="15sp"
                 android:textColor="@color/white"
-                android:textStyle="bold"
                 android:includeFontPadding="false"
                 app:layout_constraintStart_toEndOf="@id/lottie_streak_icon"
-                app:layout_constraintBottom_toBottomOf="@id/tv_private_header_name"
-                tools:text="30" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBaseline_toBaselineOf="@id/tv_private_header_name"
+                app:layout_constraintHorizontal_bias="0.0" />
 
             <TextView
                 android:id="@+id/tv_private_status_text"
@@ -128,16 +160,25 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- More Options Button (Vertical 3-dots) -->
         <ImageView
-            android:id="@+id/btn_close_private_chat"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_close"
-            android:padding="@dimen/spacing_sm"
+            android:id="@+id/btn_private_chat_more"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
+            android:src="@drawable/ic_more_options"
+            android:padding="@dimen/spacing_8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Bottom Separator for Premium visual boundary -->
+        <View
+            android:id="@+id/header_divider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_thin"
+            android:background="@color/mosco_surface"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

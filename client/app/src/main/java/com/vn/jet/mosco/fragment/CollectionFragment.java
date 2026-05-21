@@ -37,14 +37,22 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.utils.NumberUtils;
+import com.vn.jet.mosco.model.PrivateChatMessage;
 
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
 
 public class CollectionFragment extends Fragment {
 
@@ -875,14 +883,6 @@ public class CollectionFragment extends Fragment {
         return cats;
     }
 
-    private static List<FilterCategory> buildMailboxCategories() {
-        List<String> types = new ArrayList<>();
-        for (String s : new String[] { "Pack", "Objet", "Item" })
-            types.add(s);
-        List<FilterCategory> cats = new ArrayList<>();
-        cats.add(new FilterCategory("Type", types, false));
-        return cats;
-    }
 
     private static List<FilterCategory> buildItemsCategories() {
         List<String> types = new ArrayList<>();
@@ -922,280 +922,6 @@ public class CollectionFragment extends Fragment {
         }
     }
 
-    // ==========================================
-    // TAB 1: MAILBOX
-    // ==========================================
-    public static class MailboxFragment extends Fragment {
-        private final Set<String> mailboxFilter = new LinkedHashSet<>();
-        private String[] SORT_OPTIONS;
-        private MailboxAdapter adapter;
-        private TextView tvCount;
-        private List<com.vn.jet.mosco.model.UserMail> originalMails = new ArrayList<>();
-
-        @Nullable
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_collection_mailbox, container, false);
-        }
-
-        @Override
-        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-            super.onViewCreated(view, savedInstanceState);
-            tvCount = view.findViewById(R.id.tv_mailbox_count_title);
-            SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
-
-            View sortBtn = view.findViewById(R.id.btn_sort_mailbox);
-            LinearLayout dropdown = view.findViewById(R.id.dropdown_sort_mailbox);
-
-            setupSortDropdown(sortBtn, null, null, SORT_OPTIONS, dropdown, this::applyFilters);
-
-            // Filter
-            View filterBtn = view.findViewById(R.id.btn_filter_mailbox);
-            filterBtn.setOnClickListener(
-                    v -> showFilterBottomSheet(this, buildMailboxCategories(), mailboxFilter, null, null, this::applyFilters));
-
-            // Receive All
-            View btnReceiveAll = view.findViewById(R.id.btn_receive_all);
-            if (btnReceiveAll != null) {
-                btnReceiveAll.setOnClickListener(v -> receiveAll());
-            }
-
-            // RecyclerView
-            RecyclerView rvMailbox = view.findViewById(R.id.rv_mailbox);
-            rvMailbox.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-            adapter = new MailboxAdapter(new ArrayList<>(), this::onMailClicked);
-            rvMailbox.setAdapter(adapter);
-
-            loadMailbox();
-        }
-
-        private void onMailClicked(com.vn.jet.mosco.model.UserMail mail) {
-            String giftInfo = (mail.getItemCode() != null && mail.getQuantity() != null)
-                    ? getString(R.string.social_gift_summary_format, mail.getItemCode(),
-                            NumberUtils.format(requireContext(), mail.getQuantity()))
-                    : "";
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
-                    android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                    .setTitle(mail.getTitle())
-                    .setMessage(mail.getContent() + giftInfo);
-
-            if (!mail.isReceived()) {
-                builder.setPositiveButton(getString(R.string.mailbox_action_claim), (d, w) -> performClaim(mail));
-                builder.setNegativeButton(getString(R.string.mailbox_action_later), null);
-            } else {
-                builder.setPositiveButton(getString(R.string.mailbox_action_received), null);
-                builder.setNegativeButton(getString(R.string.mailbox_action_close), null);
-            }
-
-            builder.show();
-        }
-
-        /**
-         * Thực hiện gửi yêu cầu nhận quà lên Server.
-         */
-        private void performClaim(com.vn.jet.mosco.model.UserMail mail) {
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
-                    .getClient(requireContext())
-                    .create(com.vn.jet.mosco.network.GameApiService.class);
-
-            apiService.claimMail(mail.getId()).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
-                @Override
-                public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
-                        retrofit2.Response<okhttp3.ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        mail.setReceived(true);
-                        loadMailbox();
-                    }
-                }
-
-                @Override
-                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                    // Xử lý ngầm, không hiện thông báo nổi
-                }
-            });
-        }
-
-        private void receiveAll() {
-            if (originalMails == null || originalMails.isEmpty()) {
-                return;
-            }
-
-            List<com.vn.jet.mosco.model.UserMail> unreceivedMails = new ArrayList<>();
-            for (com.vn.jet.mosco.model.UserMail m : originalMails) {
-                if (!m.isReceived()) {
-                    unreceivedMails.add(m);
-                }
-            }
-
-            if (unreceivedMails.isEmpty()) {
-                return;
-            }
-
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
-                    .getClient(requireContext())
-                    .create(com.vn.jet.mosco.network.GameApiService.class);
-
-            java.util.concurrent.atomic.AtomicInteger count = new java.util.concurrent.atomic.AtomicInteger(unreceivedMails.size());
-
-            for (com.vn.jet.mosco.model.UserMail mail : unreceivedMails) {
-                apiService.claimMail(mail.getId()).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call,
-                            retrofit2.Response<okhttp3.ResponseBody> response) {
-                        if (response.isSuccessful()) {
-                            mail.setReceived(true);
-                        }
-                        checkCompletion();
-                    }
-
-                    @Override
-                    public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                        checkCompletion();
-                    }
-
-                    private void checkCompletion() {
-                        if (count.decrementAndGet() == 0) {
-                            loadMailbox(); // Reload list
-                        }
-                    }
-                });
-            }
-        }
-
-        private void loadMailbox() {
-            Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-            if (userId == null)
-                return;
-
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
-                    .getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
-            apiService.getUserMails(userId).enqueue(new retrofit2.Callback<List<com.vn.jet.mosco.model.UserMail>>() {
-                @Override
-                public void onResponse(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call,
-                        retrofit2.Response<List<com.vn.jet.mosco.model.UserMail>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        originalMails = response.body();
-                        applyFilters();
-                    }
-                }
-
-                @Override
-                public void onFailure(retrofit2.Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {
-                    Toast.makeText(requireContext(), getString(R.string.collection_msg_error_mailbox),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        private void applyFilters() {
-            if (originalMails == null)
-                return;
-            View sortBtn = getView() != null ? getView().findViewById(R.id.btn_sort_mailbox) : null;
-            String currentSort = (sortBtn instanceof TextView) ? ((TextView) sortBtn).getText().toString() : "Newest";
-
-            List<com.vn.jet.mosco.model.UserMail> filtered = new ArrayList<>();
-            for (com.vn.jet.mosco.model.UserMail m : originalMails) {
-                // Chỉ hiển thị những thư CHƯA nhận quà để danh sách gọn gàng
-                if (!m.isReceived()) {
-                    if (mailboxFilter.isEmpty()) {
-                        filtered.add(m);
-                    } else {
-                        // Tương lai: Lọc theo Type nếu cần
-                        filtered.add(m);
-                    }
-                }
-            }
-
-            filtered.sort((a, b) -> {
-                int res;
-                if (SORT_LOWEST_NO.equals(currentSort)) {
-                    res = Integer.compare(a.getQuantity() != null ? a.getQuantity() : 0,
-                            b.getQuantity() != null ? b.getQuantity() : 0);
-                } else if (SORT_HIGHEST_NO.equals(currentSort)) {
-                    res = Integer.compare(b.getQuantity() != null ? b.getQuantity() : 0,
-                            a.getQuantity() != null ? a.getQuantity() : 0);
-                } else {
-                    res = b.getId().compareTo(a.getId());
-                }
-                return res;
-            });
-
-            if (adapter != null)
-                adapter.updateData(filtered);
-            if (tvCount != null) {
-                tvCount.setText(String.valueOf(filtered.size()));
-            }
-        }
-    }
-
-    interface OnMailClickListener {
-        void onMailClick(com.vn.jet.mosco.model.UserMail mail);
-    }
-
-    private static class MailboxAdapter extends RecyclerView.Adapter<MailboxAdapter.ViewHolder> {
-        private List<com.vn.jet.mosco.model.UserMail> list;
-        private final OnMailClickListener listener;
-
-        public MailboxAdapter(List<com.vn.jet.mosco.model.UserMail> list, OnMailClickListener listener) {
-            this.list = list;
-            this.listener = listener;
-        }
-
-        public void updateData(List<com.vn.jet.mosco.model.UserMail> newList) {
-            this.list = newList;
-            notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(
-                    LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mailbox, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            com.vn.jet.mosco.model.UserMail mail = list.get(position);
-            holder.tvTitle.setText(mail.getTitle());
-            holder.tvQty.setText(mail.getQuantity() != null
-                    ? "x" + NumberUtils.format(holder.itemView.getContext(), mail.getQuantity())
-                    : "");
-            holder.tvDesc.setText(mail.getContent());
-
-            // Format time if possible, or use raw
-            holder.tvTime.setText(mail.getCreatedAt() != null ? mail.getCreatedAt().substring(0, 10) : "");
-
-            holder.ivIcon.setImageResource(R.drawable.item_shop_demo);
-            holder.itemView.setOnClickListener(v -> {
-                if (listener != null)
-                    listener.onMailClick(mail);
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return list.size();
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivIcon;
-            TextView tvTitle, tvQty, tvDesc, tvTime;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivIcon = itemView.findViewById(R.id.iv_mail_item);
-                tvTitle = itemView.findViewById(R.id.tv_mail_title);
-                tvQty = itemView.findViewById(R.id.tv_mail_qty);
-                tvDesc = itemView.findViewById(R.id.tv_mail_desc);
-                tvTime = itemView.findViewById(R.id.tv_mail_time);
-            }
-        }
-    }
-
-    // ==========================================
     // ==========================================
     // TAB 2: OBJETS (Data-Driven from Server & database.json)
     // ==========================================

@@ -141,4 +141,6 @@
     <string name="common_label_item_desc">Item Description</string>
     <string name="common_label_owned_format">Owned: %d</string>
     <string name="action_get">Get</string>
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
 </resources>

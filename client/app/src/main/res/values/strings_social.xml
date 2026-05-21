@@ -160,4 +160,21 @@
     <string name="social_qr_my_code_label">Scan to Add Friend</string>
     <string name="social_qr_scan_instruction">Align the QR code within the frame to scan.</string>
     <string name="social_qr_camera_permission_required">Camera permission is required to scan QR codes.</string>
+
+    <!-- Private Chat List - Stranger & Conversation Preview -->
+    <string name="chat_preview_you_prefix">You:\u0020</string>
+    <string name="chat_preview_start">Tap to start a conversation</string>
+    <string name="chat_stranger_suffix"> • Stranger</string>
+    <string name="chat_user_fallback_prefix">User </string>
+    <string name="mailbox_system_count_unit">%d Mails</string>
+    <string name="mailbox_gift_count_unit">%d Gifts</string>
+
+    <!-- Add Friend Banner (Chat Screen) -->
+    <string name="chat_stranger_alert">This is a stranger. Connect with them on Mosco!</string>
+    <string name="chat_add_friend_btn">Add Friend</string>
+    <string name="chat_add_friend_pending">Pending</string>
+    <string name="chat_add_friend_success">Friend request sent!</string>
+    <string name="chat_add_friend_error">Unable to send request!</string>
+    <string name="chat_add_friend_unknown_error">Something went wrong!</string>
+    <string name="chat_add_friend_network_error">Network error, please try again!</string>
 </resources>

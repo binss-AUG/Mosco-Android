@@ -98,7 +98,7 @@
         android:id="@+id/hsv_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_4dp"
         android:layout_marginHorizontal="@dimen/spacing_md"
         android:background="@drawable/lg_surface_filter_bar"
         android:paddingHorizontal="@dimen/spacing_sm"

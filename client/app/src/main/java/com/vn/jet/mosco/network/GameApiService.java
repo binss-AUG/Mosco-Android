@@ -73,6 +73,12 @@ public interface GameApiService {
     @POST("/api/mailbox/claim/{mailId}")
     Call<ResponseBody> claimMail(@Path("mailId") Long mailId);
 
+    /**
+     * Nhận toàn bộ quà từ thư hệ thống (Claim All).
+     */
+    @POST("/api/mailbox/claim-all/{userId}")
+    Call<ResponseBody> claimAllMails(@Path("userId") Long userId);
+
     @retrofit2.http.PUT("/api/user/update-profile")
     Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> updateProfile(@Body UpdateProfileRequest body);
 

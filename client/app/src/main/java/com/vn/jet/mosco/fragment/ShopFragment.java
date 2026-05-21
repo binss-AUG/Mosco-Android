@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.ShopItem;
 import com.vn.jet.mosco.model.UserStats;
+import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.BuyRequest;
 import com.vn.jet.mosco.network.GameApiService;
@@ -43,10 +44,10 @@ public class ShopFragment extends Fragment {
 
     private LinearLayout chipContainer;
     private RecyclerView rvShop;
+    private TextView tvShopDiamonds;
+    private TextView tvShopCoins;
     private final List<String> categories = List.of("All", "OBJET", "PACK", "BUFF", "RESOURCE");
     private int selectedChipIndex = 0;
-    
-    // Thanh top bar đã được chuyển sang MainActivity quản lý
     
     private GameApiService apiService;
     private SessionManager sessionManager;
@@ -133,6 +134,27 @@ public class ShopFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private void fetchUserResources() {
+        Long userId = sessionManager.getUserId();
+        if (userId == null) return;
+        apiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
+            @Override
+            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserStats stats = response.body();
+                    if (tvShopCoins != null)
+                        tvShopCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
+                    if (tvShopDiamonds != null)
+                        tvShopDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
+                }
+            }
+            @Override
+            public void onFailure(Call<UserStats> call, Throwable t) {
+                Log.e("ShopFragment", "Failed to fetch user stats", t);
+            }
+        });
     }
 
     private void fetchShopItems() {

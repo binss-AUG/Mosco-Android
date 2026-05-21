@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lg_background">
+
+    <!-- Top Row: Filter Bar & Count -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_filter_row_chats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="@dimen/spacing_sm"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Filter Bar (Smart Pill) -->
+        <com.vn.jet.mosco.view.InventoryFilterBar
+            android:id="@+id/filter_bar_private_chats"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/inventory_filter_bar_height"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Count (Hidden) -->
+        <TextView
+            android:id="@+id/tv_private_chats_count"
+            style="@style/MoscoText.Luxury.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/lg_text_secondary"
+            android:textSize="@dimen/text_size_body_sm"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- RecyclerView fills the remaining height -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_private_chats"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/spacing_md"
+        app:layout_constraintTop_toBottomOf="@id/layout_filter_row_chats"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_mailbox_conversation" />
+
+    <!-- Fallback empty state -->
+    <TextView
+        android:id="@+id/tv_no_chats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/social_empty_msg"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_white_30"
+        android:textSize="@dimen/text_size_body_md"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/layout_filter_row_chats"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

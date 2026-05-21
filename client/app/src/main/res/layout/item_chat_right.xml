@@ -1,40 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:gravity="end|bottom"
     android:paddingHorizontal="@dimen/spacing_md"
-    android:paddingVertical="@dimen/spacing_xs"
-    android:gravity="bottom|end">
+    android:paddingVertical="0dp">
 
-    <TextView
-        android:id="@+id/tv_chat_content"
+    <!-- Flat Premium Message Frame (No Bubble, completely borderless and seamless) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_bubble_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="260dp"
-        android:layout_marginEnd="@dimen/spacing_sm"
         android:background="@drawable/bg_chat_bubble_self"
-        android:paddingHorizontal="@dimen/spacing_md"
-        android:paddingVertical="@dimen/spacing_sm"
-        android:textColor="@color/white"
-        android:textSize="@dimen/text_size_body_sm" />
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:maxWidth="260dp">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_chat_avatar"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/mosco_card_bg_variant"
-        app:strokeWidth="0dp">
+        <!-- Message text (Premium Inline Layout: paddingEnd reserves space for time) -->
+        <TextView
+            android:id="@+id/tv_chat_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:lineSpacingExtra="2dp"
+            android:paddingEnd="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="Good morning! Japan looks amazing!" />
 
-        <ImageView
-            android:id="@+id/iv_chat_avatar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_user" />
-    </com.google.android.material.card.MaterialCardView>
+        <!-- Spacer + Time aligned at bottom right -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Subtle spacer -->
+            <View
+                android:layout_width="6dp"
+                android:layout_height="1dp" />
+
+            <!-- Time Stamp -->
+            <TextView
+                android:id="@+id/tv_chat_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="9.5sp"
+                android:textColor="@color/mosco_white_60"
+                tools:text="10:10" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:paddingHorizontal="@dimen/spacing_md"
+    android:paddingVertical="14dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <!-- Avatar Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_avatar_container"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_conversation_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+            app:strokeColor="@color/mosco_white_20"
+            app:strokeWidth="1.5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_conversation_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Status Dot Glow -->
+        <View
+            android:id="@+id/view_online_status"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:background="@drawable/bg_status_online"
+            android:elevation="4dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/card_conversation_avatar"
+            app:layout_constraintEnd_toEndOf="@id/card_conversation_avatar" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Partner Name (Flattened & Constrained) -->
+    <TextView
+        android:id="@+id/tv_conversation_partner_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="@color/white"
+        android:layout_marginStart="14dp"
+        app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
+        app:layout_constraintEnd_toStartOf="@id/lottie_streak_icon"
+        app:layout_constraintTop_toTopOf="@id/layout_avatar_container"
+        app:layout_constraintBottom_toTopOf="@id/tv_conversation_preview"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0.0"
+        tools:text="Angel Curtis" />
+
+    <!-- Lottie Streak Icon (Pê 100% từ header private chat) -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_streak_icon"
+        android:layout_width="@dimen/spacing_20dp"
+        android:layout_height="@dimen/spacing_20dp"
+        android:layout_marginStart="6dp"
+        android:visibility="gone"
+        app:lottie_rawRes="@raw/streak_animation"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:layout_constraintStart_toEndOf="@id/tv_conversation_partner_name"
+        app:layout_constraintEnd_toStartOf="@id/tv_streak_count"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_partner_name"
+        android:layout_marginBottom="1.5dp" />
+
+    <!-- Streak Count (Pê 100% từ header private chat) -->
+    <TextView
+        android:id="@+id/tv_streak_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:visibility="gone"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:includeFontPadding="false"
+        app:layout_constraintStart_toEndOf="@id/lottie_streak_icon"
+        app:layout_constraintEnd_toStartOf="@id/tv_conversation_time"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_conversation_partner_name"
+        app:layout_constraintHorizontal_bias="0.0" />
+
+    <!-- Message Preview (Flattened & Constrained) -->
+    <TextView
+        android:id="@+id/tv_conversation_preview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="#94A3B8"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@id/tv_conversation_partner_name"
+        app:layout_constraintEnd_toStartOf="@id/tv_conversation_unread_badge"
+        app:layout_constraintTop_toBottomOf="@id/tv_conversation_partner_name"
+        app:layout_constraintBottom_toBottomOf="@id/layout_avatar_container"
+        tools:text="Please help me find a good monitor for t..." />
+
+    <!-- Time Stamp (Aligned perfectly with Partner Name) -->
+    <TextView
+        android:id="@+id/tv_conversation_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="#64748B"
+        android:textSize="11.5sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_conversation_partner_name"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_partner_name"
+        tools:text="1 hour ago" />
+
+    <!-- Unread Messages Badge (Amber/Yellow circle) -->
+    <TextView
+        android:id="@+id/tv_conversation_unread_badge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/bg_unread_badge"
+        android:textColor="#0F172A"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_conversation_preview"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_preview"
+        tools:text="2"
+        tools:visibility="visible" />
+
+    <!-- Subtle bottom separator line (like Premium Messenger List) -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#1E293B"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/tv_conversation_partner_name"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

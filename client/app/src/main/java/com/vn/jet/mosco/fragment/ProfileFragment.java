@@ -276,7 +276,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             // Hiện lại nút điều hướng
             if (isOwner && btnMenu != null)
                 btnMenu.setVisibility(View.VISIBLE);
-            if (btnBack != null)
+            if (!isOwner && btnBack != null)
                 btnBack.setVisibility(View.VISIBLE);
             if (isOwner && btnEditMode != null)
                 btnEditMode.setVisibility(View.VISIBLE);
@@ -1533,9 +1533,6 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     @Override
     public void onResume() {
         super.onResume();
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setTopBarVisible(false);
-        }
         startCarousel();
         if (showcaseAdapter != null) showcaseAdapter.playAllPlayers();
         if (sessionManager != null) {

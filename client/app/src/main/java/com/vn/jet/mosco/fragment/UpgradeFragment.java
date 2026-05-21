@@ -186,21 +186,6 @@ public class UpgradeFragment extends Fragment {
         if (resultVideoPlayer != null) {
             resultVideoPlayer.play();
         }
-        // Ẩn thanh Top Bar (Header chính) khi ở màn hình Upgrade để tránh chồng chéo giao diện.
-        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
-            ((com.vn.jet.mosco.MainActivity) getActivity()).setTopBarVisible(false);
-        }
-        // Ẩn thanh Bottom Navigation và custom glass bottom navigation khi ở màn hình Upgrade để tối ưu không gian hiển thị.
-        if (getActivity() != null) {
-            View navBar = getActivity().findViewById(R.id.bottom_navigation);
-            if (navBar != null) {
-                navBar.setVisibility(View.GONE);
-            }
-            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
-            if (customNavBar != null) {
-                customNavBar.setVisibility(View.GONE);
-            }
-        }
         updateUI();
     }
 
@@ -217,33 +202,7 @@ public class UpgradeFragment extends Fragment {
         if (resultVideoPlayer != null) {
             resultVideoPlayer.pause();
         }
-        // Khôi phục hiển thị thanh Bottom Navigation và custom glass bottom navigation khi rời khỏi UpgradeFragment.
-        if (getActivity() != null) {
-            View navBar = getActivity().findViewById(R.id.bottom_navigation);
-            if (navBar != null) {
-                navBar.setVisibility(View.GONE); // Đảm bảo thanh gốc luôn GONE
-            }
-            View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
-            if (customNavBar != null) {
-                customNavBar.setVisibility(View.VISIBLE);
-            }
-        }
 
-        // Khôi phục hiển thị thanh Top Bar phù hợp với Fragment hiện tại sau khi thoát UpgradeFragment.
-        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
-            com.vn.jet.mosco.MainActivity mainActivity = (com.vn.jet.mosco.MainActivity) getActivity();
-            new Handler(Looper.getMainLooper()).post(() -> {
-                if (mainActivity.isFinishing() || mainActivity.isDestroyed()) return;
-                Fragment currentFragment = mainActivity.getSupportFragmentManager().findFragmentById(R.id.frame_layout);
-                if (currentFragment instanceof com.vn.jet.mosco.fragment.HomeFragment) {
-                    mainActivity.setTopBarVisible(true, com.vn.jet.mosco.MainActivity.TOP_BAR_MODE_HOME);
-                } else if (currentFragment instanceof com.vn.jet.mosco.fragment.ShopFragment) {
-                    mainActivity.setTopBarVisible(true, com.vn.jet.mosco.MainActivity.TOP_BAR_MODE_SHOP);
-                } else {
-                    mainActivity.setTopBarVisible(false);
-                }
-            });
-        }
     }
 
     public void setMainCard(CardDisplayItem card) {

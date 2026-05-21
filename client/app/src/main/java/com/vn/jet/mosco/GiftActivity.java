@@ -225,28 +225,11 @@ public class GiftActivity extends MoscoBaseActivity {
     // ════════════════════════════════════════════════════════════════
 
     private void setupTabs() {
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.gift_tab_send));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.gift_tab_received));
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    layoutTabSend.setVisibility(View.VISIBLE);
-                    layoutTabReceived.setVisibility(View.GONE);
-                } else {
-                    layoutTabSend.setVisibility(View.GONE);
-                    layoutTabReceived.setVisibility(View.VISIBLE);
-                    loadReceivedGifts();
-                    markGiftsAsRead();
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
+        if (tabLayout != null) {
+            tabLayout.setVisibility(View.GONE);
+        }
+        layoutTabSend.setVisibility(View.VISIBLE);
+        layoutTabReceived.setVisibility(View.GONE);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -369,14 +352,26 @@ public class GiftActivity extends MoscoBaseActivity {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override
             public void afterTextChanged(android.text.Editable s) {
-                filterFriends(s.toString());
+                filterFriendsOffline(s.toString());
             }
+        });
+
+        // Chỉ khi người dùng nhấn "Search" trên bàn phím ảo mới gọi Server tìm kiếm toàn cầu
+        etSearchFriend.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                String query = etSearchFriend.getText().toString().trim();
+                performGlobalSearch(query);
+                return true;
+            }
+            return false;
         });
     }
 
-    private void filterFriends(String query) {
+    private void filterFriendsOffline(String query) {
         if (query == null || query.trim().isEmpty()) {
             friendSelectAdapter.updateData(allFriendsList);
+            tvNoFriends.setVisibility(allFriendsList.isEmpty() ? View.VISIBLE : View.GONE);
+            rvFriendSelect.setVisibility(allFriendsList.isEmpty() ? View.GONE : View.VISIBLE);
             return;
         }
 
@@ -390,6 +385,53 @@ public class GiftActivity extends MoscoBaseActivity {
             }
         }
         friendSelectAdapter.updateData(filtered);
+        tvNoFriends.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        rvFriendSelect.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void performGlobalSearch(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            filterFriendsOffline("");
+            return;
+        }
+
+        // Tự động đóng bàn phím ảo để tăng diện tích hiển thị danh sách
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+
+        apiService.searchUsers(query.trim()).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JSONObject json = new JSONObject(response.body().string());
+                        JSONArray dataArr = json.optJSONArray("data");
+                        List<JSONObject> searchResults = new ArrayList<>();
+                        if (dataArr != null) {
+                            for (int i = 0; i < dataArr.length(); i++) {
+                                searchResults.add(dataArr.getJSONObject(i));
+                            }
+                        }
+                        friendSelectAdapter.updateData(searchResults);
+                        tvNoFriends.setVisibility(searchResults.isEmpty() ? View.VISIBLE : View.GONE);
+                        rvFriendSelect.setVisibility(searchResults.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Lỗi phân tích kết quả tìm kiếm", e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(TAG, "Lỗi kết nối khi tìm kiếm", t);
+                Toast.makeText(GiftActivity.this, R.string.common_error_network, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -506,7 +548,7 @@ public class GiftActivity extends MoscoBaseActivity {
                 // Hiện lại các Header của Activity đã ẩn trước đó
                 if (layoutHeaderGiftContainer != null) layoutHeaderGiftContainer.setVisibility(View.VISIBLE);
                 if (layoutDailyRemainingContainer != null) layoutDailyRemainingContainer.setVisibility(View.VISIBLE);
-                if (tabLayout != null) tabLayout.setVisibility(View.VISIBLE);
+                if (tabLayout != null) tabLayout.setVisibility(View.GONE);
                 
                 // Hiện lại màn hình chính của Send Wizard
                 if (layoutStepIndicator != null) layoutStepIndicator.setVisibility(View.VISIBLE);

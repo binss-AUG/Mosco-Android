@@ -97,6 +97,11 @@ public class NavigationUtils {
             Log.d(TAG, "Profile popped. Remaining stack: " + profileStackTags.size());
         }
     }
+
+    public static void clearProfileStack() {
+        profileStackTags.clear();
+        Log.d(TAG, "Profile stack cleared.");
+    }
     
     /**
      * Chuyển đổi sang một Fragment chính (Home, Rank, etc.) và dọn dẹp Stack Profile.
@@ -119,6 +124,10 @@ public class NavigationUtils {
      * @param partnerAvatar ID avatar của người dùng đó.
      */
     public static void openPrivateChat(FragmentActivity activity, Long partnerId, String partnerName, String partnerAvatar) {
+        openPrivateChat(activity, partnerId, partnerName, partnerAvatar, false, false);
+    }
+
+    public static void openPrivateChat(FragmentActivity activity, Long partnerId, String partnerName, String partnerAvatar, boolean isOnline, boolean isStranger) {
         if (activity == null || partnerId == null) return;
 
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
@@ -131,7 +140,7 @@ public class NavigationUtils {
         }
 
         com.vn.jet.mosco.fragment.ChatPrivateFragment fragment = 
-                com.vn.jet.mosco.fragment.ChatPrivateFragment.newInstance(partnerId, partnerName, partnerAvatar);
+                com.vn.jet.mosco.fragment.ChatPrivateFragment.newInstance(partnerId, partnerName, partnerAvatar, isOnline, isStranger);
 
         fragmentManager.beginTransaction()
                 .setCustomAnimations(
@@ -150,7 +159,7 @@ public class NavigationUtils {
         
         activity.getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
-                .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.CollectionFragment.MailboxFragment())
+                .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.MailboxFragment())
                 .addToBackStack("Mailbox")
                 .commit();
     }

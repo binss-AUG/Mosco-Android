@@ -103,6 +103,9 @@ public class User {
     @Transient
     private int friendshipStatus = 0; // 0: None, 1: Pending, 2: Friends
 
+    @Transient
+    private boolean online = false;
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
@@ -204,4 +207,7 @@ public class User {
 
     public int getFriendshipStatus() { return friendshipStatus; }
     public void setFriendshipStatus(int friendshipStatus) { this.friendshipStatus = friendshipStatus; }
+
+    public boolean isOnline() { return online; }
+    public void setOnline(boolean online) { this.online = online; }
 }

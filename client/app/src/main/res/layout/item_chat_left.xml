@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_md"
-    android:paddingVertical="@dimen/spacing_xs"
-    android:gravity="bottom">
+    android:paddingVertical="0dp"
+    android:gravity="top">
 
+    <!-- Avatar Left -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_chat_avatar"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        app:cardCornerRadius="14dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:cardBackgroundColor="@color/mosco_card_bg_variant"
-        app:strokeWidth="0dp">
+        app:strokeWidth="0dp"
+        android:layout_marginBottom="2dp">
 
         <ImageView
             android:id="@+id/iv_chat_avatar"
@@ -31,26 +34,61 @@
         android:layout_marginStart="@dimen/spacing_sm"
         android:orientation="vertical">
 
+        <!-- Partner Name above text (ellipsized on 1 line if long) -->
         <TextView
             android:id="@+id/tv_chat_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_xs"
+            android:layout_marginStart="4dp"
             android:layout_marginBottom="2dp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/galactic_accent_cyan"
-            android:textSize="@dimen/text_size_badge" />
+            android:textColor="@color/brand_primary"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:maxWidth="220dp"
+            tools:text="Angel Curtis" />
 
-        <TextView
-            android:id="@+id/tv_chat_content"
+        <!-- Flat Premium Message Frame (No Bubble, flat seamless dark merge) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_bubble_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="260dp"
             android:background="@drawable/bg_chat_bubble_other"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_body_sm" />
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:maxWidth="260dp">
+
+            <!-- Message text (Premium Inline Layout: paddingEnd reserves space for time stamp) -->
+            <TextView
+                android:id="@+id/tv_chat_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:lineSpacingExtra="2dp"
+                android:paddingEnd="42dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="Good morning! Japan looks amazing!" />
+
+            <!-- Time Stamp embedded inside bottom-right -->
+            <TextView
+                android:id="@+id/tv_chat_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="9.5sp"
+                android:textColor="@color/mosco_white_60"
+                android:layout_marginTop="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:text="10:10" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 </LinearLayout>

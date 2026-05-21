@@ -79,6 +79,8 @@ public class UserController {
             authService.updateStreak(user);
             userRepository.save(user);
 
+            user.setOnline(com.vn.jet.mosco.spinserver.utils.UserSessionTracker.isOnline(userId));
+
             // Bổ sung tính toán trạng thái mạng xã hội động nếu request được xác thực
             // Tại sao: Client dựa vào các trường này để cập nhật nút Like và Add Friend chính xác
             Long currentUserId = (Long) request.getAttribute("userId");
