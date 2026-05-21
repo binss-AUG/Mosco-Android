@@ -64,21 +64,11 @@ public class MailboxFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
-            com.vn.jet.mosco.MainActivity mainActivity = (com.vn.jet.mosco.MainActivity) getActivity();
-            mainActivity.setTopBarVisible(false);
-            mainActivity.setBottomNavVisible(false);
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
-            com.vn.jet.mosco.MainActivity mainActivity = (com.vn.jet.mosco.MainActivity) getActivity();
-            mainActivity.setTopBarVisible(true, com.vn.jet.mosco.MainActivity.TOP_BAR_MODE_HOME);
-            mainActivity.setBottomNavVisible(true);
-        }
     }
 
     private void setupCommonHeader(View root) {
@@ -88,6 +78,7 @@ public class MailboxFragment extends Fragment {
             if (tvTitle != null) {
                 tvTitle.setText(getString(R.string.collection_tab_mailbox));
             }
+            // Back arrow (đồng bộ với các sub-screen khác)
             ImageView btnBack = header.findViewById(R.id.btn_back_common);
             if (btnBack != null) {
                 btnBack.setOnClickListener(v -> {

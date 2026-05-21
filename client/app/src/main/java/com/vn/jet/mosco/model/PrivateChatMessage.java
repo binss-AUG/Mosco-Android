@@ -8,14 +8,7 @@ import androidx.room.Ignore;
  * Entity for Private Chat Messages (Local-First).
  * Stores messages exchanged between the current user and their friends.
  */
-@Entity(
-    tableName = "private_messages",
-    indices = {
-        @androidx.room.Index(value = {"senderId"}),
-        @androidx.room.Index(value = {"receiverId"}),
-        @androidx.room.Index(value = {"timestamp"})
-    }
-)
+@Entity(tableName = "private_messages")
 public class PrivateChatMessage {
     @PrimaryKey(autoGenerate = true)
     private long id;

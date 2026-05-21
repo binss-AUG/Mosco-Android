@@ -147,40 +147,48 @@
                 android:layout_marginTop="3dp"
                 android:layout_marginBottom="3dp" />
 
-            <!-- Bottom Row: Currencies (Vàng & Kim cương - Canh phải và margin nhau) -->
+            <!-- Bottom Row: Currencies (Weight-based - 50/50 split) -->
             <LinearLayout
                 android:id="@+id/ll_internal_currencies"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="end|center_vertical">
+                android:gravity="center_vertical">
                 
-                <!-- Diamond -->
+                <!-- Diamond group -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginEnd="16dp">
+                    android:gravity="center_vertical">
                     <ImageView 
                         android:layout_width="14dp" 
                         android:layout_height="14dp" 
                         android:src="@drawable/ic_item_diamond" />
                     <TextView 
                         android:id="@+id/tv_home_diamonds" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
                         android:layout_marginStart="4dp" 
                         android:text="0" 
+                        android:maxLines="1" 
+                        android:ellipsize="end" 
                         android:textColor="@color/white" 
                         android:textSize="12sp" 
-                        android:textStyle="bold" />
+                        android:textStyle="bold" 
+                        android:autoSizeTextType="uniform" 
+                        android:autoSizeMinTextSize="11sp" 
+                        android:autoSizeMaxTextSize="12sp" />
                 </LinearLayout>
                 
-                <!-- Coin -->
+                <!-- Coin group -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <ImageView 
@@ -189,13 +197,20 @@
                         android:src="@drawable/ic_item_coin" />
                     <TextView 
                         android:id="@+id/tv_home_coins" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
                         android:layout_marginStart="4dp" 
                         android:text="0" 
+                        android:maxLines="1" 
+                        android:ellipsize="end" 
                         android:textColor="@color/white" 
                         android:textSize="12sp" 
-                        android:textStyle="bold" />
+                        android:textStyle="bold" 
+                        android:autoSizeTextType="uniform" 
+                        android:autoSizeMinTextSize="11sp" 
+                        android:autoSizeMaxTextSize="12sp" />
                 </LinearLayout>
             </LinearLayout> 
         </LinearLayout>

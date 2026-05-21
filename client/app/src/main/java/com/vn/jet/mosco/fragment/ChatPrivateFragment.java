@@ -80,6 +80,7 @@ public class ChatPrivateFragment extends Fragment {
     private EditText etInput;
     private ImageView btnSend, btnBack;
     private ImageView ivHeaderAvatar;
+    private android.widget.FrameLayout layoutAvatarGroup;
     private LottieAnimationView lottieStreakIcon;
     private TextView tvHeaderName, tvHeaderStatus, tvStreakCount;
     private View btnStreakDetails;
@@ -159,6 +160,7 @@ public class ChatPrivateFragment extends Fragment {
         btnSend = v.findViewById(R.id.btn_private_send);
         btnBack = v.findViewById(R.id.btn_close_private_chat);
         ivHeaderAvatar = v.findViewById(R.id.iv_private_header_avatar);
+        layoutAvatarGroup = v.findViewById(R.id.layout_private_avatar_group);
         tvHeaderName = v.findViewById(R.id.tv_private_header_name);
         tvHeaderStatus = v.findViewById(R.id.tv_private_status_text);
         tvStreakCount = v.findViewById(R.id.tv_streak_count);
@@ -190,6 +192,11 @@ public class ChatPrivateFragment extends Fragment {
         layoutManager.setStackFromEnd(true);
         rvChat.setLayoutManager(layoutManager);
         rvChat.setAdapter(chatAdapter);
+        // Tại sao (WHY): Tắt DefaultItemAnimator để tránh xung đột với manual float-up animation
+        // trong onBindViewHolder. DefaultItemAnimator gây layout miscalculation khi
+        // notifyItemInserted + notifyItemChanged(payload) chạy đồng thời, dẫn đến
+        // khoảng trống bất thường giữa các bubble cuối.
+        rvChat.setItemAnimator(null);
 
         // Tại sao (WHY): Sử dụng AdapterDataObserver để lắng nghe sự thay đổi của Adapter,
         // giúp cuộn màn hình xuống dưới cùng một cách mượt mà và tự động khi có tin nhắn mới (do ta gửi hoặc đối phương nhắn).
@@ -279,6 +286,14 @@ public class ChatPrivateFragment extends Fragment {
         btnSend.setOnClickListener(new ClickDebounce(300, v -> sendMessage()));
         if (btnStreakDetails != null) {
             btnStreakDetails.setOnClickListener(new ClickDebounce(v -> showCoupleStreakDialog()));
+        }
+        // Tại sao (WHY): Cho phép người dùng bấm vào avatar người đang nhắn tin để xem Profile đầy đủ của họ
+        if (layoutAvatarGroup != null) {
+            layoutAvatarGroup.setOnClickListener(new ClickDebounce(v -> {
+                if (getActivity() != null && partnerId != null) {
+                    com.vn.jet.mosco.utils.NavigationUtils.openProfile(getActivity(), partnerId);
+                }
+            }));
         }
     }
 
@@ -393,7 +408,7 @@ public class ChatPrivateFragment extends Fragment {
                 hasAnimatedStreak = true;
 
                 // Lấy kích thước từ Dimens hệ thống - Tuyệt đối không hardcode
-                float size28 = getResources().getDimension(R.dimen.spacing_28dp);
+                float size28 = getResources().getDimension(R.dimen.spacing_20dp);
 
                 // Pivot ở đáy trung tâm để ngọn lửa scale lên từ baseline
                 float pivotX = lottieStreakIcon.getWidth() > 0 ? lottieStreakIcon.getWidth() / 2f : size28 / 2f;
@@ -679,6 +694,8 @@ public class ChatPrivateFragment extends Fragment {
                     // Sửa triệt để lỗi quay ra Inbox vẫn báo 1 tin nhắn chưa đọc.
                     sMsg.setRead(true);
                     db.messageDao().insertMessage(sMsg);
+                    // Tại sao (WHY): Cleanup message cũ để tránh heap overflow
+                    db.messageDao().trimConversation(myId, partnerIdStr, 200);
                     hasNew = true;
                 }
             }
@@ -713,13 +730,30 @@ public class ChatPrivateFragment extends Fragment {
 
             // Nhận tin nhắn chat bình thường từ đối phương
             if (message.getSenderId().equals(String.valueOf(partnerId))) {
+                // Tại sao (WHY): Chống duplicate khi WebSocket và HTTP sync cùng trả về
+                // 1 tin nhắn do race condition (message đã được processServerMessages thêm vào adapter)
+                com.vn.jet.mosco.model.WorldChatMessage newMsg = new com.vn.jet.mosco.model.WorldChatMessage(
+                    message.getSenderId(),
+                    message.getSenderName(),
+                    message.getAvatarId(),
+                    message.getContent(),
+                    message.getTimestamp()
+                );
+                if (isMessageAlreadyInAdapter(newMsg)) {
+                    return;
+                }
+
                 // 1. Lưu ngay vào local Room DB để đảm bảo kiến trúc Local-First
                 // Tại sao (WHY): Đánh dấu đã đọc ngay vì người dùng đang ở trong phòng chat này.
                 // Tránh triệt để lỗi khi quay lại danh sách Inbox vẫn hiển thị vòng tròn chưa đọc.
                 message.setRead(true);
+                final String cleanupMyId = String.valueOf(sessionManager.getUserId());
+                final String cleanupPartnerId = String.valueOf(partnerId);
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     AppDatabase db = AppDatabase.getInstance(requireContext());
                     db.messageDao().insertMessage(message);
+                    // Tại sao (WHY): Cleanup message cũ để tránh heap overflow
+                    db.messageDao().trimConversation(cleanupMyId, cleanupPartnerId, 200);
                 });
 
                 // 2. Gộp ACK và gửi theo cụm (Batch ACK) để chống spam request HTTP lên Server
@@ -743,13 +777,7 @@ public class ChatPrivateFragment extends Fragment {
 
                 // 3. Cập nhật giao diện UI bong bóng chat
                 requireActivity().runOnUiThread(() -> {
-                    chatAdapter.addMessage(new com.vn.jet.mosco.model.WorldChatMessage(
-                        message.getSenderId(), 
-                        message.getSenderName(), 
-                        message.getAvatarId(), 
-                        message.getContent(),
-                        message.getTimestamp()
-                    ));
+                    chatAdapter.addMessage(newMsg);
                 });
             }
         });
@@ -854,8 +882,12 @@ public class ChatPrivateFragment extends Fragment {
         chatAdapter.addMessage(new WorldChatMessage(myId, myName, myAvatar, msgText, now));
         // AdapterDataObserver đã tự động gọi scrollToPosition khi có tin nhắn mới (isSelf == true).
         PrivateChatMessage pm = new PrivateChatMessage(myId, String.valueOf(partnerId), myName, myAvatar, msgText, now);
+        final String partnerIdStr = String.valueOf(partnerId);
         AppExecutors.getInstance().diskIO().execute(() -> {
-            AppDatabase.getInstance(requireContext()).messageDao().insertMessage(pm);
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            db.messageDao().insertMessage(pm);
+            // Tại sao (WHY): Cleanup message cũ để tránh heap overflow khi tích lũy lâu dài
+            db.messageDao().trimConversation(myId, partnerIdStr, 200);
         });
         WebSocketManager.getInstance().sendPrivateMessage(pm);
     }
@@ -956,6 +988,27 @@ public class ChatPrivateFragment extends Fragment {
         }
     }
 
+    /**
+     * Tại sao (WHY): Kiểm tra tin nhắn đã tồn tại trong adapter chưa để tránh duplicate
+     * do race condition giữa WebSocket real-time và HTTP sync (processServerMessages).
+     * So sánh senderId, nội dung và thời gian với 5 tin nhắn cuối cùng trong adapter.
+     */
+    private boolean isMessageAlreadyInAdapter(com.vn.jet.mosco.model.WorldChatMessage newMsg) {
+        int count = chatAdapter.getItemCount();
+        if (count == 0) return false;
+        int start = Math.max(0, count - 10);
+        for (int i = count - 1; i >= start; i--) {
+            com.vn.jet.mosco.model.WorldChatMessage existing = chatAdapter.getMessageAt(i);
+            if (existing == null) continue;
+            if ("DATE_SEPARATOR".equals(existing.getSenderId())) continue;
+            if (existing.getSenderId().equals(newMsg.getSenderId())
+                    && existing.getContent().equals(newMsg.getContent())
+                    && Math.abs(existing.getTimestamp() - newMsg.getTimestamp()) < 5000) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void onDestroyView() {

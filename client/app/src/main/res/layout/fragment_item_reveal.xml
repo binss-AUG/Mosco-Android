@@ -10,11 +10,12 @@
     <!-- Back Arrow (top left) -->
     <ImageView
         android:id="@+id/btn_back"
-        android:layout_width="@dimen/spacing_36dp"
-        android:layout_height="@dimen/spacing_36dp"
+        android:layout_width="@dimen/spacing_40dp"
+        android:layout_height="@dimen/spacing_40dp"
         android:layout_marginStart="@dimen/spacing_md"
         android:layout_marginTop="@dimen/spacing_xxl"
         android:src="@drawable/ic_back_arrow"
+        android:padding="@dimen/spacing_xs"
         app:tint="@color/white"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:clickable="true"

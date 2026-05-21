@@ -97,6 +97,11 @@ public class NavigationUtils {
             Log.d(TAG, "Profile popped. Remaining stack: " + profileStackTags.size());
         }
     }
+
+    public static void clearProfileStack() {
+        profileStackTags.clear();
+        Log.d(TAG, "Profile stack cleared.");
+    }
     
     /**
      * Chuyển đổi sang một Fragment chính (Home, Rank, etc.) và dọn dẹp Stack Profile.

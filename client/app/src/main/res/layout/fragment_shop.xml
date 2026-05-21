@@ -9,19 +9,31 @@
     android:focusable="true">
 
     <!-- ====================================================== -->
+    <!-- COMMON HEADER (Back + Title)                            -->
+    <!-- ====================================================== -->
+    <include
+        android:id="@+id/layout_header_shop"
+        layout="@layout/layout_common_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ====================================================== -->
     <!-- CATEGORY CHIPS (Styled like Filter Bar)                 -->
     <!-- ====================================================== -->
     <HorizontalScrollView
         android:id="@+id/hsv_categories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_4dp"
         android:layout_marginHorizontal="@dimen/spacing_md"
         android:background="@drawable/lg_surface_filter_bar"
         android:paddingHorizontal="@dimen/spacing_sm"
         android:paddingVertical="@dimen/spacing_xs"
         android:scrollbars="none"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_shop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

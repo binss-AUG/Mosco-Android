@@ -26,13 +26,15 @@ public class RankService {
 
     @jakarta.annotation.PostConstruct
     public void repairTotalDiamonds() {
-        log.info("Checking and repairing totalDiamonds for existing users directly in DB...");
-        try {
-            int updatedCount = userRepository.repairTotalDiamondsDirectly();
-            log.info("TotalDiamonds repair completed. Updated users count: {}", updatedCount);
-        } catch (Exception e) {
-            log.error("Failed to repair totalDiamonds in DB startup job", e);
+        log.info("Checking and repairing totalDiamonds for existing users...");
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getTotalDiamonds() == 0 && user.getDiamonds() > 0) {
+                user.setTotalDiamonds(user.getDiamonds());
+                userRepository.save(user);
+            }
         }
+        log.info("TotalDiamonds repair completed.");
     }
 
     /**
@@ -54,6 +56,42 @@ public class RankService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Tính toán Top 10 OVR bằng cách tải tất cả thẻ bài của người chơi
+     * và tính OVR tối đa theo công thức của CardDataService.
+     */
+    public List<Map<String, Object>> getTopByOvr() {
+        try {
+            List<UserCard> allCards = userCardRepository.findAllWithUser();
+            Map<Long, Integer> userMaxOvr = new HashMap<>();
+            for (UserCard uc : allCards) {
+                if (uc.getUser() != null) {
+                    int ovr = cardDataService.getOvr(uc.getCollectionId(), uc.getUpgradeLevel());
+                    userMaxOvr.merge(uc.getUser().getId(), ovr, Math::max);
+                }
+            }
+
+            return userMaxOvr.entrySet().stream()
+                    .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                    .limit(10)
+                    .map(entry -> {
+                        User u = userRepository.findById(entry.getKey()).orElse(null);
+                        Map<String, Object> m = new HashMap<>();
+                        if (u != null) {
+                            m.put("userId", u.getId());
+                            m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+                            m.put("avatarId", u.getAvatarId());
+                            m.put("value", entry.getValue());
+                        }
+                        return m;
+                    })
+                    .filter(m -> !m.isEmpty())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Failed to fetch top OVR from DB: ", e);
+            return Collections.emptyList();
+        }
+    }
 
     public List<Map<String, Object>> getTopByCollection() {
         return userRepository.findTop10ByCollectionCount().stream().map(u -> {

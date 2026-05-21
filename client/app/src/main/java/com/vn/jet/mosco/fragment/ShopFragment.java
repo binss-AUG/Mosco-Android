@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.model.ShopItem;
 import com.vn.jet.mosco.model.UserStats;
+import com.vn.jet.mosco.utils.NumberUtils;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.BuyRequest;
 import com.vn.jet.mosco.network.GameApiService;
@@ -43,10 +44,10 @@ public class ShopFragment extends Fragment {
 
     private LinearLayout chipContainer;
     private RecyclerView rvShop;
+    private TextView tvShopDiamonds;
+    private TextView tvShopCoins;
     private final List<String> categories = List.of("All", "OBJET", "PACK", "BUFF", "RESOURCE");
     private int selectedChipIndex = 0;
-    
-    // Thanh top bar đã được chuyển sang MainActivity quản lý
     
     private GameApiService apiService;
     private SessionManager sessionManager;
@@ -67,7 +68,7 @@ public class ShopFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
-        // setupHeader(view); // Đã chuyển sang MainActivity
+        setupHeader(view);
         setupChips(view);
         setupRecyclerView(view);
         
@@ -75,11 +76,50 @@ public class ShopFragment extends Fragment {
         fetchShopItems();
     }
 
-    private void fetchUserResources() {
-        // Gọi MainActivity cập nhật lại dữ liệu trên thanh top bar dùng chung
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadUserData();
+    private void setupHeader(View root) {
+        View header = root.findViewById(R.id.layout_header_shop);
+        if (header != null) {
+            TextView tvTitle = header.findViewById(R.id.tv_header_title);
+            if (tvTitle != null) {
+                tvTitle.setText(getString(R.string.shop_header_title));
+            }
+            ImageView btnBack = header.findViewById(R.id.btn_back_common);
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> {
+                    if (getActivity() != null) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                });
+            }
+            // Bật currencies slot trên header
+            View actionsSlot = header.findViewById(R.id.fl_header_actions);
+            if (actionsSlot != null) {
+                actionsSlot.setVisibility(View.VISIBLE);
+            }
+            tvShopDiamonds = header.findViewById(R.id.tv_shop_diamonds);
+            tvShopCoins = header.findViewById(R.id.tv_shop_coins);
         }
+    }
+
+    private void fetchUserResources() {
+        Long userId = sessionManager.getUserId();
+        if (userId == null) return;
+        apiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
+            @Override
+            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserStats stats = response.body();
+                    if (tvShopCoins != null)
+                        tvShopCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
+                    if (tvShopDiamonds != null)
+                        tvShopDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
+                }
+            }
+            @Override
+            public void onFailure(Call<UserStats> call, Throwable t) {
+                Log.e("ShopFragment", "Failed to fetch user stats", t);
+            }
+        });
     }
 
     private void fetchShopItems() {

@@ -88,10 +88,16 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             notifyItemInserted(messages.size() - 1);
         }
 
+        // Tại sao (WHY): Giới hạn cache 50 messages để tránh heap overflow khi chat lâu dài.
+        // Kết hợp với Room DB trim (200 msg/conversation), cache in-memory chỉ giữ subset gần nhất.
         messages.add(msg);
-        if (messages.size() > 100) { // Tăng giới hạn cache mượt mà
+        if (messages.size() > 50) {
             messages.remove(0);
             notifyItemRemoved(0);
+            // Tại sao (WHY): Sau khi xóa message đầu cache, message mới ở position 0
+            // (trước đây là position 1) đã mất message liền kề phía trên.
+            // Cần update bubble shape từ "middle/top" sang "single/bottom".
+            notifyItemChanged(0, PAYLOAD_BUBBLE);
         }
         int newPos = messages.size() - 1;
         notifyItemInserted(newPos);
@@ -162,12 +168,24 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty()) {
-            boolean handled = false;
             if (payloads.contains(PAYLOAD_BUBBLE)) {
                 int adapterPos = holder.getAdapterPosition();
                 if (adapterPos >= 0 && adapterPos < messages.size()) {
                     WorldChatMessage msg = messages.get(adapterPos);
                     boolean isConsecutiveAbove = checkConsecutiveAbove(msg, adapterPos);
+                    
+                    // Tại sao (WHY): PAYLOAD_BUBBLE không chỉ update background hình dáng bubble
+                    // mà còn phải update margin (topMargin) vì cache trim có thể thay đổi
+                    // trạng thái consecutiveAbove của position 0 (từ true → false).
+                    if (holder.itemView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+                        int consecutiveMargin = holder.itemView.getContext().getResources().getDimensionPixelSize(R.dimen.chat_spacing_consecutive);
+                        int separatedMargin = holder.itemView.getContext().getResources().getDimensionPixelSize(R.dimen.chat_spacing_separated);
+                        int bottomMargin = holder.itemView.getContext().getResources().getDimensionPixelSize(R.dimen.chat_spacing_bottom);
+                        params.topMargin = isConsecutiveAbove ? consecutiveMargin : separatedMargin;
+                        params.bottomMargin = bottomMargin;
+                        holder.itemView.setLayoutParams(params);
+                    }
                     
                     if (holder instanceof SelfViewHolder) {
                         updateSelfBubbleShape((SelfViewHolder) holder, msg, adapterPos, isConsecutiveAbove);
@@ -175,10 +193,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         updateOtherBubbleShape((OtherViewHolder) holder, msg, adapterPos, isConsecutiveAbove);
                     }
                 }
-                handled = true;
+                return;
             }
-            
-            if (handled) return;
         }
         onBindViewHolder(holder, position);
     }

@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_md"
     android:paddingVertical="0dp"
-    android:gravity="bottom">
+    android:gravity="top">
 
     <!-- Avatar Left -->
     <com.google.android.material.card.MaterialCardView

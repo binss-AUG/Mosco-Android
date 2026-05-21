@@ -57,21 +57,54 @@
     <!-- Partner Name (Flattened & Constrained) -->
     <TextView
         android:id="@+id/tv_conversation_partner_name"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
         style="@style/MoscoText.Luxury.SubHeader"
         android:textSize="14sp"
         android:singleLine="true"
         android:ellipsize="end"
         android:textColor="@color/white"
         android:layout_marginStart="14dp"
-        android:layout_marginEnd="12dp"
         app:layout_constraintStart_toEndOf="@id/layout_avatar_container"
-        app:layout_constraintEnd_toStartOf="@id/tv_conversation_time"
+        app:layout_constraintEnd_toStartOf="@id/lottie_streak_icon"
         app:layout_constraintTop_toTopOf="@id/layout_avatar_container"
         app:layout_constraintBottom_toTopOf="@id/tv_conversation_preview"
         app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0.0"
         tools:text="Angel Curtis" />
+
+    <!-- Lottie Streak Icon (Pê 100% từ header private chat) -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_streak_icon"
+        android:layout_width="@dimen/spacing_20dp"
+        android:layout_height="@dimen/spacing_20dp"
+        android:layout_marginStart="6dp"
+        android:visibility="gone"
+        app:lottie_rawRes="@raw/streak_animation"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:layout_constraintStart_toEndOf="@id/tv_conversation_partner_name"
+        app:layout_constraintEnd_toStartOf="@id/tv_streak_count"
+        app:layout_constraintBottom_toBottomOf="@id/tv_conversation_partner_name"
+        android:layout_marginBottom="1.5dp" />
+
+    <!-- Streak Count (Pê 100% từ header private chat) -->
+    <TextView
+        android:id="@+id/tv_streak_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:visibility="gone"
+        style="@style/MoscoText.Luxury.SubHeader"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:includeFontPadding="false"
+        app:layout_constraintStart_toEndOf="@id/lottie_streak_icon"
+        app:layout_constraintEnd_toStartOf="@id/tv_conversation_time"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_conversation_partner_name"
+        app:layout_constraintHorizontal_bias="0.0" />
 
     <!-- Message Preview (Flattened & Constrained) -->
     <TextView

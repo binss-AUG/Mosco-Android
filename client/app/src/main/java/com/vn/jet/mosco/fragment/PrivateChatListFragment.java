@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.disposables.Disposable;
 import retrofit2.Call;
@@ -154,11 +157,16 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                 }
 
                 // Lưu vào Room DB ở luồng ngầm, sau đó reload danh sách ở luồng UI
+                final String incomingMyId = myId;
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     try {
                         AppDatabase db = AppDatabase.getInstance(context);
                         if (db != null) {
                             db.messageDao().insertMessage(message);
+                            // Tại sao (WHY): Cleanup message cũ để tránh heap overflow
+                            String partnerId = message.getSenderId().equals(incomingMyId)
+                                    ? message.getReceiverId() : message.getSenderId();
+                            db.messageDao().trimConversation(incomingMyId, partnerId, 200);
                         }
                     } catch (Exception e) {
                         Log.e("PrivateChatListFragment", "Error saving incoming message", e);
@@ -203,50 +211,161 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
         long myIdLong = new SessionManager(context).getUserId();
         String myId = String.valueOf(myIdLong);
 
-        new Thread(() -> {
+        AppExecutors.getInstance().diskIO().execute(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(context);
                 if (db != null) {
                     MessageDao dao = db.messageDao();
-                    List<com.vn.jet.mosco.model.ConversationSummary> summaries = dao.getRecentConversationsSummary(myId);
+                    List<PrivateChatMessage> lastMessages = dao.getRecentConversations(myId);
 
+                    Set<String> uniquePartners = new LinkedHashSet<>();
                     List<ConversationAdapter.ConversationWrapper> uniqueWrappers = new ArrayList<>();
 
-                    for (com.vn.jet.mosco.model.ConversationSummary sum : summaries) {
-                        String name = sum.getPartnerName();
-                        ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
-                                sum.getLastMessage(),
-                                sum.getPartnerId(),
-                                (name != null && !name.isEmpty()) ? name : "User",
-                                sum.getPartnerAvatar()
-                        );
-                        wrapper.setUnreadCount(sum.getUnreadCount());
-                        uniqueWrappers.add(wrapper);
+                    for (PrivateChatMessage msg : lastMessages) {
+                        String partnerId = (msg.getSenderId().equals(myId)) ? msg.getReceiverId() : msg.getSenderId();
+                        if (!uniquePartners.contains(partnerId)) {
+                            uniquePartners.add(partnerId);
 
-                        // Nếu chưa có tên hoặc là tên mặc định, ta tải thông tin người dùng từ server để đồng bộ đầy đủ
-                        if (name == null || name.isEmpty() || name.equals("User")) {
-                            fetchStrangerProfileFromServer(sum.getPartnerId(), wrapper);
+                            String name = dao.getPartnerName(partnerId);
+                            String avatar = dao.getPartnerAvatar(partnerId);
+                            int unreadCount = dao.getUnreadCount(myId, partnerId);
+
+                            // Tại sao (WHY): Tra cứu cache user_stats từ Room DB trước nếu DB private_messages chưa lưu kịp tên/avatar
+                            if (name == null || name.isEmpty() || name.equals("User")) {
+                                try {
+                                    long partnerIdLong = Long.parseLong(partnerId);
+                                    com.vn.jet.mosco.model.UserStats cachedStats = db.userStatsDao().getUserStatsSync(partnerIdLong);
+                                    if (cachedStats != null) {
+                                        String cachedName = cachedStats.getIngameName();
+                                        if (cachedName == null || cachedName.isEmpty()) {
+                                            cachedName = cachedStats.getUsername();
+                                        }
+                                        if (cachedName != null && !cachedName.isEmpty()) {
+                                            name = cachedName;
+                                        }
+                                        String cachedAvatar = cachedStats.getAvatarId();
+                                        if (cachedAvatar != null && !cachedAvatar.isEmpty()) {
+                                            avatar = cachedAvatar;
+                                        }
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e("PrivateChatListFragment", "Invalid partnerId format for local cache lookup", e);
+                                }
+                            }
+
+                            ConversationAdapter.ConversationWrapper wrapper = new ConversationAdapter.ConversationWrapper(
+                                    msg,
+                                    partnerId,
+                                    (name != null && !name.isEmpty()) ? name : "User",
+                                    avatar
+                            );
+                            wrapper.setUnreadCount(unreadCount);
+                            // Tại sao (WHY): Mặc định tất cả là stranger, tránh flash "User" → "User • Stranger"
+                            // khi syncRealtimeOnlineStatuses chạy xong (delay ~1-2s)
+                            wrapper.setStranger(true);
+                            uniqueWrappers.add(wrapper);
                         }
                     }
 
                     if (getActivity() != null) {
+                        final List<ConversationAdapter.ConversationWrapper> finalWrappers = uniqueWrappers;
                         getActivity().runOnUiThread(() -> {
+                            // === PASS 1: Show local data instantly ===
                             conversationsList.clear();
-                            conversationsList.addAll(uniqueWrappers);
+                            conversationsList.addAll(finalWrappers);
                             filterConversations();
-                            syncRealtimeOnlineStatuses();
+
+                            // === PREPARE BATCH: đếm số lượng API requests ===
+                            int profileCount = 0;
+                            for (ConversationAdapter.ConversationWrapper w : finalWrappers) {
+                                if ("User".equals(w.getPartnerName())) {
+                                    profileCount++;
+                                }
+                            }
+                            int totalRequests = finalWrappers.size() // streak cho mỗi partner
+                                    + profileCount                   // stranger profile
+                                    + 1;                             // friend list
+                            AtomicInteger pending = new AtomicInteger(totalRequests);
+
+                            // Bộ nhớ đệm kết quả từ các API — KHÔNG mutate wrapper giữa chừng
+                            ConcurrentHashMap<String, com.vn.jet.mosco.model.CoupleStreakDto> streakMap = new ConcurrentHashMap<>();
+                            ConcurrentHashMap<String, Boolean> onlineMap = new ConcurrentHashMap<>();
+                            ConcurrentLinkedQueue<String> friendIdsFromApi = new ConcurrentLinkedQueue<>();
+                            ConcurrentHashMap<String, String> friendNameMap = new ConcurrentHashMap<>();
+                            ConcurrentHashMap<String, String> profileNameMap = new ConcurrentHashMap<>();
+                            ConcurrentHashMap<String, String> friendAvatarMap = new ConcurrentHashMap<>();
+                            ConcurrentHashMap<String, String> profileAvatarMap = new ConcurrentHashMap<>();
+
+                            Runnable onBatchDone = () -> {
+                                if (pending.decrementAndGet() == 0) {
+                                    if (getActivity() != null) {
+                                        getActivity().runOnUiThread(() -> {
+                                            if (!isAdded()) return;
+                                            applyBatchUpdates(streakMap, onlineMap, friendIdsFromApi,
+                                                    friendNameMap, profileNameMap, friendAvatarMap, profileAvatarMap);
+                                        });
+                                    }
+                                }
+                            };
+
+                            // Fire streak API cho ALL partners
+                            for (ConversationAdapter.ConversationWrapper w : finalWrappers) {
+                                fetchStreakForConversation(myIdLong, w.getPartnerId(), streakMap, onBatchDone);
+                            }
+
+                            // Fire stranger profile API cho các partner có tên "User"
+                            for (ConversationAdapter.ConversationWrapper w : finalWrappers) {
+                                if ("User".equals(w.getPartnerName())) {
+                                    fetchStrangerProfileFromServer(w.getPartnerId(), profileNameMap, profileAvatarMap, onBatchDone);
+                                }
+                            }
+
+                            // Fire friend list API
+                            syncRealtimeOnlineStatuses(onlineMap, friendIdsFromApi, friendNameMap, friendAvatarMap, onBatchDone);
                         });
                     }
                 }
             } catch (Exception e) {
                 Log.e("PrivateChatListFragment", "Error loading local chat history", e);
             }
-        }).start();
+        });
     }
 
-    private void fetchStrangerProfileFromServer(String partnerId, ConversationAdapter.ConversationWrapper wrapper) {
+    private void fetchStreakForConversation(long myId, String partnerId,
+            ConcurrentHashMap<String, com.vn.jet.mosco.model.CoupleStreakDto> streakMap,
+            Runnable onDone) {
         Context context = getContext();
-        if (context == null) return;
+        if (context == null) { if (onDone != null) onDone.run(); return; }
+        try {
+            long partnerIdLong = Long.parseLong(partnerId);
+            GameApiService api = ApiClient.getClient(context).create(GameApiService.class);
+            api.checkCoupleStreak(myId, partnerIdLong).enqueue(new Callback<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>>() {
+                @Override
+                public void onResponse(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> call, Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                        streakMap.put(partnerId, response.body().getData());
+                    }
+                    if (onDone != null) onDone.run();
+                }
+
+                @Override
+                public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.CoupleStreakDto>> call, Throwable t) {
+                    Log.e("PrivateChatListFragment", "Failed to fetch streak for partner " + partnerId, t);
+                    if (onDone != null) onDone.run();
+                }
+            });
+        } catch (NumberFormatException e) {
+            Log.e("PrivateChatListFragment", "Invalid partnerId format for fetchStreakStatus", e);
+            if (onDone != null) onDone.run();
+        }
+    }
+
+    private void fetchStrangerProfileFromServer(String partnerId,
+            ConcurrentHashMap<String, String> nameMap,
+            ConcurrentHashMap<String, String> avatarMap,
+            Runnable onDone) {
+        Context context = getContext();
+        if (context == null) { if (onDone != null) onDone.run(); return; }
         try {
             long partnerIdLong = Long.parseLong(partnerId);
             GameApiService api = ApiClient.getClient(context).create(GameApiService.class);
@@ -262,32 +381,51 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                          if (displayName == null || displayName.isEmpty()) {
                              displayName = "User";
                          }
-                         wrapper.setPartnerName(displayName);
+                         nameMap.put(partnerId, displayName);
                          if (avatar != null && !avatar.isEmpty()) {
-                             wrapper.setPartnerAvatar(avatar);
+                             avatarMap.put(partnerId, avatar);
                          }
-                         // Cập nhật giao diện
-                         if (getActivity() != null) {
-                             getActivity().runOnUiThread(() -> {
-                                 filterConversations();
-                             });
-                         }
+
+                         // Tại sao (WHY): Cache thông tin stranger vừa tải xuống Room DB vĩnh viễn và đồng bộ vào bảng tin nhắn để lần sau load tức thì
+                         final String finalDisplayName = displayName;
+                         AppExecutors.getInstance().diskIO().execute(() -> {
+                             try {
+                                 AppDatabase dbInstance = AppDatabase.getInstance(context);
+                                 if (dbInstance != null) {
+                                     dbInstance.userStatsDao().insertUserStats(stats);
+                                     dbInstance.messageDao().updatePartnerName(partnerId, finalDisplayName);
+                                     if (avatar != null && !avatar.isEmpty()) {
+                                         dbInstance.messageDao().updatePartnerAvatar(partnerId, avatar);
+                                     }
+                                 }
+                             } catch (Exception e) {
+                                 Log.e("PrivateChatListFragment", "Error saving stranger stats to Room DB", e);
+                             }
+                         });
                     }
+                    if (onDone != null) onDone.run();
                 }
 
                 @Override
                 public void onFailure(Call<com.vn.jet.mosco.model.UserStats> call, Throwable t) {
                     Log.e("PrivateChatListFragment", "Failed to fetch profile for stranger " + partnerId, t);
+                    if (onDone != null) onDone.run();
                 }
             });
         } catch (NumberFormatException e) {
             Log.e("PrivateChatListFragment", "Invalid partnerId format for fetchStrangerProfile", e);
+            if (onDone != null) onDone.run();
         }
     }
 
-    private void syncRealtimeOnlineStatuses() {
+    private void syncRealtimeOnlineStatuses(
+            ConcurrentHashMap<String, Boolean> onlineMap,
+            ConcurrentLinkedQueue<String> friendIdsOut,
+            ConcurrentHashMap<String, String> nameMap,
+            ConcurrentHashMap<String, String> avatarMap,
+            Runnable onDone) {
         Context context = getContext();
-        if (context == null) return;
+        if (context == null) { if (onDone != null) onDone.run(); return; }
 
         GameApiService api = ApiClient.getClient(context).create(GameApiService.class);
         api.getFriendList().enqueue(new Callback<ResponseBody>() {
@@ -298,12 +436,6 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                         JSONObject json = new JSONObject(response.body().string());
                         JSONArray friendsArr = json.optJSONArray("data");
                         if (friendsArr != null) {
-                            java.util.Set<String> friendIds = new java.util.HashSet<>();
-                            for (int i = 0; i < friendsArr.length(); i++) {
-                                JSONObject friendObj = friendsArr.getJSONObject(i);
-                                friendIds.add(String.valueOf(friendObj.optLong("userId")));
-                            }
-
                             for (int i = 0; i < friendsArr.length(); i++) {
                                 JSONObject friendObj = friendsArr.getJSONObject(i);
                                 String friendId = String.valueOf(friendObj.optLong("userId"));
@@ -312,52 +444,104 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 String fullName = friendObj.optString("ingameName", "");
                                 String name = (!fullName.isEmpty()) ? fullName : (!username.isEmpty() ? username : "User");
                                 String avatar = friendObj.optString("avatarId", "");
-                                
-                                boolean found = false;
-                                for (ConversationAdapter.ConversationWrapper w : conversationsList) {
-                                    if (w.getPartnerId().equals(friendId)) {
-                                        w.setOnline(online);
-                                        w.setStranger(false);
-                                        // ĐỒNG BỘ TRỰC TIẾP TÊN VÀ AVATAR TỪ DANH SÁCH BẠN BÈ MỚI NHẤT! (Sửa lỗi hiển thị "User #1")
-                                        if (w.getPartnerName() == null || w.getPartnerName().isEmpty() || w.getPartnerName().equals("User")) {
-                                            w.setPartnerName(name);
-                                        }
-                                        if (w.getPartnerAvatar() == null || w.getPartnerAvatar().isEmpty()) {
-                                            w.setPartnerAvatar(avatar);
-                                        }
-                                        found = true;
-                                        break;
-                                    }
-                                }
 
-                                if (!found) {
-                                    ConversationAdapter.ConversationWrapper newWrapper = 
-                                        new ConversationAdapter.ConversationWrapper(null, friendId, name, avatar);
-                                    newWrapper.setOnline(online);
-                                    newWrapper.setStranger(false);
-                                    conversationsList.add(newWrapper);
+                                friendIdsOut.add(friendId);
+                                onlineMap.put(friendId, online);
+                                nameMap.put(friendId, name);
+                                if (avatar != null && !avatar.isEmpty()) {
+                                    avatarMap.put(friendId, avatar);
                                 }
                             }
-
-                            for (ConversationAdapter.ConversationWrapper w : conversationsList) {
-                                if (!friendIds.contains(w.getPartnerId())) {
-                                    w.setStranger(true);
-                                }
-                            }
-                            // Re-filter so online matches
-                            filterConversations();
                         }
                     }
                 } catch (Exception e) {
                     Log.e("PrivateChatListFragment", "Failed to parse friends online statuses", e);
                 }
+                if (onDone != null) onDone.run();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e("PrivateChatListFragment", "Failed to sync friends online statuses", t);
+                if (onDone != null) onDone.run();
             }
         });
+    }
+
+    /**
+     * Tại sao (WHY): Gom toàn bộ kết quả từ streak, stranger profile, friend list API
+     * vào 1 lần duy nhất. Tạo wrapper object mới để DiffUtil detect chính xác sự thay đổi
+     * so với danh sách cũ (local-only) — tránh 3 pass riêng lẻ gây jank.
+     */
+    private void applyBatchUpdates(
+            ConcurrentHashMap<String, com.vn.jet.mosco.model.CoupleStreakDto> streakMap,
+            ConcurrentHashMap<String, Boolean> onlineMap,
+            ConcurrentLinkedQueue<String> friendIdsFromApi,
+            ConcurrentHashMap<String, String> friendNameMap,
+            ConcurrentHashMap<String, String> profileNameMap,
+            ConcurrentHashMap<String, String> friendAvatarMap,
+            ConcurrentHashMap<String, String> profileAvatarMap) {
+        if (!isAdded()) return;
+
+        // Set để tra cứu nhanh friend IDs
+        java.util.HashSet<String> friendIdSet = new java.util.HashSet<>(friendIdsFromApi);
+
+        // Build danh sách wrapper mới với tất cả dữ liệu remote đã gom
+        List<ConversationAdapter.ConversationWrapper> finalList = new ArrayList<>();
+
+        // Xử lý các wrapper đã có trong conversationsList
+        for (ConversationAdapter.ConversationWrapper w : conversationsList) {
+            String pid = w.getPartnerId();
+            // Ưu tiên tên: friend list > stranger profile > original
+            String finalName = w.getPartnerName();
+            if (friendNameMap.containsKey(pid)) {
+                finalName = friendNameMap.get(pid);
+            } else if (profileNameMap.containsKey(pid)) {
+                finalName = profileNameMap.get(pid);
+            }
+            // Ưu tiên avatar: friend list > stranger profile > original
+            String finalAvatar = w.getPartnerAvatar();
+            if (friendAvatarMap.containsKey(pid)) {
+                finalAvatar = friendAvatarMap.get(pid);
+            } else if (profileAvatarMap.containsKey(pid)) {
+                finalAvatar = profileAvatarMap.get(pid);
+            }
+
+            ConversationAdapter.ConversationWrapper copy = new ConversationAdapter.ConversationWrapper(
+                    w.getLastMessage(), pid, finalName, finalAvatar);
+            copy.setOnline(onlineMap.getOrDefault(pid, false));
+            copy.setUnreadCount(w.getUnreadCount());
+            copy.setStreakData(streakMap.get(pid));
+            // isStranger = không có trong danh sách bạn bè từ API
+            copy.setStranger(!friendIdSet.contains(pid));
+            finalList.add(copy);
+        }
+
+        // Thêm bạn bè từ friend list API chưa có trong conversationsList
+        for (String friendId : friendIdsFromApi) {
+            boolean exists = false;
+            for (ConversationAdapter.ConversationWrapper w : finalList) {
+                if (w.getPartnerId().equals(friendId)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                String fName = friendNameMap.getOrDefault(friendId, "User");
+                String fAvatar = friendAvatarMap.getOrDefault(friendId, "");
+                ConversationAdapter.ConversationWrapper newWrapper =
+                        new ConversationAdapter.ConversationWrapper(null, friendId, fName, fAvatar);
+                newWrapper.setOnline(onlineMap.getOrDefault(friendId, false));
+                newWrapper.setStranger(false); // bạn bè
+                newWrapper.setStreakData(streakMap.get(friendId));
+                finalList.add(newWrapper);
+            }
+        }
+
+        // Thay thế danh sách cũ và gọi 1 filterConversations duy nhất
+        conversationsList.clear();
+        conversationsList.addAll(finalList);
+        filterConversations();
     }
 
     private void filterConversations() {

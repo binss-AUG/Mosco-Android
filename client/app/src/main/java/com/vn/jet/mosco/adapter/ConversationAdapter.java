@@ -44,6 +44,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         private boolean isOnline;
         private boolean isStranger;
         private int unreadCount;
+        private com.vn.jet.mosco.model.CoupleStreakDto streakData;
 
         public ConversationWrapper(PrivateChatMessage lastMessage, String partnerId, String partnerName, String partnerAvatar) {
             this.lastMessage = lastMessage;
@@ -59,12 +60,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         public boolean isOnline() { return isOnline; }
         public boolean isStranger() { return isStranger; }
         public int getUnreadCount() { return unreadCount; }
+        public com.vn.jet.mosco.model.CoupleStreakDto getStreakData() { return streakData; }
         
         public void setOnline(boolean online) { this.isOnline = online; }
         public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
         public void setPartnerAvatar(String partnerAvatar) { this.partnerAvatar = partnerAvatar; }
         public void setStranger(boolean stranger) { this.isStranger = stranger; }
         public void setUnreadCount(int unreadCount) { this.unreadCount = unreadCount; }
+        public void setStreakData(com.vn.jet.mosco.model.CoupleStreakDto streakData) { this.streakData = streakData; }
     }
 
     public ConversationAdapter(String myId, OnConversationClickListener listener) {
@@ -98,9 +101,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 ConversationWrapper oldItem = list.get(oldItemPosition);
                 ConversationWrapper newItem = newList.get(newItemPosition);
+                boolean streakSame = (oldItem.getStreakData() == null ? newItem.getStreakData() == null : 
+                                     (newItem.getStreakData() != null 
+                                      && oldItem.getStreakData().getStreakCount() == newItem.getStreakData().getStreakCount() 
+                                      && java.util.Objects.equals(oldItem.getStreakData().getStatus(), newItem.getStreakData().getStatus()) 
+                                      && java.util.Objects.equals(oldItem.getStreakData().getLastInteractionDate(), newItem.getStreakData().getLastInteractionDate())));
                 return oldItem.isOnline() == newItem.isOnline()
                         && oldItem.isStranger() == newItem.isStranger()
                         && oldItem.getUnreadCount() == newItem.getUnreadCount()
+                        && streakSame
                         && java.util.Objects.equals(oldItem.getPartnerName(), newItem.getPartnerName())
                         && java.util.Objects.equals(oldItem.getPartnerAvatar(), newItem.getPartnerAvatar())
                         && (oldItem.getLastMessage() == null ? newItem.getLastMessage() == null : 
@@ -196,6 +205,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.tvUnreadBadge.setVisibility(View.GONE);
         }
 
+        // Ràng buộc streak Lottie và text cho từng dòng trò chuyện (đồng bộ 100% với header private chat)
+        bindStreakUI(holder, wrapper.getStreakData());
+
         // Click Debounce ngăn chặn click spam liên tục gây crash
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             private long lastClickTime = 0;
@@ -212,6 +224,101 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         });
     }
 
+    /**
+     * Bắt và cập nhật giao diện chuỗi Streak cho dòng hội thoại.
+     * Tại sao (WHY): Tránh giật lag và đồng bộ trực tiếp các trạng thái ngọn lửa lôi cuốn
+     * theo đúng quy tắc hiển thị:
+     * - Chưa active: Ngọn lửa grayscale, đóng băng ở frame 0, không hiện số.
+     * - Đã active nhưng chưa nhắn tin hôm nay: Ngọn lửa grayscale, đóng băng frame 0, hiện số màu xám.
+     * - Đã nhắn tin hôm nay: Ngọn lửa màu rực rỡ theo cấp độ (Level color), chạy hoạt họa rực cháy.
+     */
+    private void bindStreakUI(ViewHolder holder, com.vn.jet.mosco.model.CoupleStreakDto streakData) {
+        if (holder.lottieStreak == null) return;
+
+        // Tại sao (WHY): Cache streak state để tránh restart Lottie animation liên tục.
+        // Nếu data không đổi, skip toàn bộ setup để khỏi giật.
+        if (holder.lottieStreak.getTag() instanceof String) {
+            String cachedKey = (String) holder.lottieStreak.getTag();
+            String currentKey = streakData != null
+                    ? streakData.getStreakCount() + "|" + streakData.getStatus() + "|" + streakData.getLastInteractionDate()
+                    : "null";
+            if (currentKey.equals(cachedKey)) return;
+        }
+
+        if (streakData == null || "NOT_FRIENDS".equals(streakData.getStatus())) {
+            holder.lottieStreak.setVisibility(View.GONE);
+            if (holder.tvStreakCount != null) {
+                holder.tvStreakCount.setVisibility(View.GONE);
+            }
+            holder.lottieStreak.setTag("NOT_FRIENDS");
+            return;
+        }
+
+        // Hiện Lottie streak
+        holder.lottieStreak.setVisibility(View.VISIBLE);
+        int count = streakData.getStreakCount();
+        boolean active = "ACTIVE".equals(streakData.getStatus());
+
+        boolean interactedToday = false;
+        if (streakData.getLastInteractionDate() != null) {
+            String lastDate = streakData.getLastInteractionDate();
+            String today = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
+            if (lastDate.startsWith(today)) {
+                interactedToday = true;
+            }
+        }
+
+        // State 1: Chưa tạo chuỗi (active == false) -> bắt đầu từ frame 0, kích thước chuẩn, đóng băng, không hiện số
+        if (!active) {
+            if (holder.tvStreakCount != null) {
+                holder.tvStreakCount.setVisibility(View.GONE);
+            }
+            holder.lottieStreak.setScaleX(1f);
+            holder.lottieStreak.setScaleY(1f);
+            holder.lottieStreak.setTranslationY(0f);
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(holder.lottieStreak, 0, false);
+            holder.lottieStreak.setTag(count + "|" + streakData.getStatus() + "|" + streakData.getLastInteractionDate());
+            return;
+        }
+
+        // State 2: Đã tạo chuỗi nhưng chưa nhắn tin hôm nay (interactedToday == false) -> tương tự State 1 nhưng hiện số đếm
+        if (!interactedToday) {
+            if (holder.tvStreakCount != null) {
+                holder.tvStreakCount.setVisibility(View.VISIBLE);
+                holder.tvStreakCount.setText(String.valueOf(count));
+                holder.tvStreakCount.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.lg_text_secondary));
+            }
+            holder.lottieStreak.setScaleX(1f);
+            holder.lottieStreak.setScaleY(1f);
+            holder.lottieStreak.setTranslationY(0f);
+            com.vn.jet.mosco.utils.StreakColorHelper.setupStreakLottie(holder.lottieStreak, 0, false);
+            holder.lottieStreak.setTag(count + "|" + streakData.getStatus() + "|" + streakData.getLastInteractionDate());
+            return;
+        }
+
+        // State 3: Đã nhắn tin và đã active -> hiệu ứng màu sắc rực rỡ và chạy animation mượt mà
+        if (holder.tvStreakCount != null) {
+            holder.tvStreakCount.setVisibility(View.VISIBLE);
+            holder.tvStreakCount.setText(String.valueOf(count));
+            holder.tvStreakCount.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.white));
+        }
+
+        // Đảm bảo frame của Lottie đúng và đang chạy
+        if (holder.lottieStreak.getMinFrame() != 0 || holder.lottieStreak.getMaxFrame() != 24) {
+            holder.lottieStreak.setMinAndMaxFrame(0, 24);
+        }
+        if (!holder.lottieStreak.isAnimating()) {
+            holder.lottieStreak.playAnimation();
+        }
+
+        // Reset scale và áp dụng màu sắc đầy đủ cho Lottie
+        holder.lottieStreak.setScaleX(1f);
+        holder.lottieStreak.setScaleY(1f);
+        holder.lottieStreak.setTranslationY(0f);
+        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(holder.lottieStreak, count);
+        holder.lottieStreak.setTag(count + "|" + streakData.getStatus() + "|" + streakData.getLastInteractionDate());
+    }
+
     @Override
     public int getItemCount() {
         return list.size();
@@ -225,6 +332,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         TextView tvPreview;
         TextView tvTime;
         TextView tvUnreadBadge;
+        com.airbnb.lottie.LottieAnimationView lottieStreak;
+        TextView tvStreakCount;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -235,6 +344,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             tvPreview = itemView.findViewById(R.id.tv_conversation_preview);
             tvTime = itemView.findViewById(R.id.tv_conversation_time);
             tvUnreadBadge = itemView.findViewById(R.id.tv_conversation_unread_badge);
+            lottieStreak = itemView.findViewById(R.id.lottie_streak_icon);
+            tvStreakCount = itemView.findViewById(R.id.tv_streak_count);
         }
     }
 }

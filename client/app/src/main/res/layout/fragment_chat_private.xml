@@ -41,6 +41,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintStart_toEndOf="@id/btn_close_private_chat"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
@@ -105,8 +108,8 @@
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottie_streak_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="@dimen/spacing_20dp"
+                android:layout_height="@dimen/spacing_20dp"
                 android:layout_marginStart="6dp"
                 android:visibility="gone"
                 app:lottie_rawRes="@raw/streak_animation"

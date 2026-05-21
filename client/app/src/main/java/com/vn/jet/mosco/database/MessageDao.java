@@ -53,27 +53,6 @@ public interface MessageDao {
            "ORDER BY m1.timestamp DESC")
     List<PrivateChatMessage> getRecentConversations(String myId);
 
-    @Query("SELECT m1.id, m1.senderId, m1.receiverId, m1.content, m1.timestamp, m1.isRead, m1.senderName, m1.avatarId, " +
-           "m2.partnerId, " +
-           "(SELECT senderName FROM private_messages WHERE senderId = m2.partnerId LIMIT 1) AS partnerName, " +
-           "(SELECT avatarId FROM private_messages WHERE senderId = m2.partnerId LIMIT 1) AS partnerAvatar, " +
-           "(SELECT COUNT(*) FROM private_messages WHERE senderId = m2.partnerId AND receiverId = :myId AND isRead = 0 AND content NOT LIKE '[SEEN]:%') AS unreadCount " +
-           "FROM private_messages m1 " +
-           "INNER JOIN (" +
-           "    SELECT " +
-           "        CASE WHEN senderId = :myId THEN receiverId ELSE senderId END AS partnerId, " +
-           "        MAX(timestamp) AS max_ts " +
-           "    FROM private_messages " +
-           "    WHERE (senderId = :myId OR receiverId = :myId) AND content NOT LIKE '[SEEN]:%' " +
-           "    GROUP BY partnerId" +
-           ") m2 ON (" +
-           "    (m1.senderId = :myId AND m1.receiverId = m2.partnerId) OR " +
-           "    (m1.senderId = m2.partnerId AND m1.receiverId = :myId)" +
-           ") AND m1.timestamp = m2.max_ts " +
-           "AND m1.content NOT LIKE '[SEEN]:%' " +
-           "ORDER BY m1.timestamp DESC")
-    List<com.vn.jet.mosco.model.ConversationSummary> getRecentConversationsSummary(String myId);
-
     /**
      * Lấy tên của đối tác từ tin nhắn họ gửi để hiển thị đúng tên trên danh sách cuộc hội thoại.
      */
@@ -91,4 +70,30 @@ public interface MessageDao {
 
     @Query("UPDATE private_messages SET isRead = 1 WHERE senderId = :partnerId AND receiverId = :myId AND isRead = 0 AND content NOT LIKE '[SEEN]:%'")
     void markAsRead(String myId, String partnerId);
+
+    /**
+     * Cập nhật tên và avatar của đối tác vào DB dựa trên senderId.
+     * Tại sao (WHY): Khi ta gửi tin nhắn ra trước thì DB không có row nào với senderId = partnerId,
+     * nên getPartnerName trả về null. Sau khi fetch từ server thì lưu vào đây để lần sau load được.
+     */
+    @Query("UPDATE private_messages SET senderName = :name WHERE senderId = :partnerId")
+    void updatePartnerName(String partnerId, String name);
+
+    @Query("UPDATE private_messages SET avatarId = :avatarId WHERE senderId = :partnerId")
+    void updatePartnerAvatar(String partnerId, String avatarId);
+
+    /**
+     * Tại sao (WHY): Giới hạn số message mỗi conversation trong Room DB để tránh heap overflow
+     * khi tích lũy quá nhiều tin nhắn theo thời gian. Giữ lại keepCount tin nhắn mới nhất,
+     * xóa các tin nhắn cũ hơn. Gọi sau mỗi lần insert message thành công.
+     */
+    @Query("DELETE FROM private_messages WHERE " +
+           "((senderId = :myId AND receiverId = :partnerId) OR (senderId = :partnerId AND receiverId = :myId)) " +
+           "AND id NOT IN (" +
+           "    SELECT id FROM private_messages " +
+           "    WHERE ((senderId = :myId AND receiverId = :partnerId) OR (senderId = :partnerId AND receiverId = :myId)) " +
+           "    ORDER BY timestamp DESC " +
+           "    LIMIT :keepCount" +
+           ")")
+    int trimConversation(String myId, String partnerId, int keepCount);
 }

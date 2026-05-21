@@ -12,6 +12,8 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
     java.util.Optional<UserCard> findByIdAndUserId(Long id, Long userId);
     void deleteByUser(com.vn.jet.mosco.spinserver.model.User user);
 
+    @org.springframework.data.jpa.repository.Query("SELECT uc FROM UserCard uc JOIN FETCH uc.user")
+    java.util.List<UserCard> findAllWithUser();
 
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("SELECT c FROM UserCard c WHERE c.id = :id")
