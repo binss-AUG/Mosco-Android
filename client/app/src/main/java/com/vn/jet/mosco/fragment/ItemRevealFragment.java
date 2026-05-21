@@ -908,7 +908,7 @@ public class ItemRevealFragment extends Fragment {
 
     private ParticleConfig buildParticleConfig() {
         ParticleConfig cfg = new ParticleConfig();
-        final float slowDownFactor = 1.6f; // Slow particle explosion by 60%
+        final float slowDownFactor = 0.9f; // Slow particle explosion by 0.9
         cfg.particleCount = getResources().getInteger(R.integer.reveal_particle_count);
         cfg.explosionPhaseMs = (long) (getResources().getInteger(R.integer.reveal_particle_explosion_phase_ms)
                 * slowDownFactor);
@@ -923,7 +923,7 @@ public class ItemRevealFragment extends Fragment {
         cfg.damping = getResources().getInteger(R.integer.reveal_particle_damping_permille) / 1000f;
         cfg.edgeBounce = getResources().getInteger(R.integer.reveal_particle_edge_bounce_percent) / 100f;
         cfg.maxSpeed = getResources().getInteger(R.integer.reveal_particle_max_speed_percent) / 100f;
-        cfg.initialSpeedScale = getResources().getInteger(R.integer.reveal_particle_initial_speed_percent) / 100f;
+        cfg.initialSpeedScale = (getResources().getInteger(R.integer.reveal_particle_initial_speed_percent) / 100f) * 1f;
         cfg.spreadPull = getResources().getInteger(R.integer.reveal_particle_spread_pull_permille) / 1000f;
         cfg.spreadSwirl = getResources().getInteger(R.integer.reveal_particle_spread_swirl_percent) / 100f;
         return cfg;
