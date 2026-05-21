@@ -190,6 +190,11 @@ public class ItemRevealFragment extends Fragment {
             View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
             if (customNavBar != null)
                 customNavBar.setVisibility(View.GONE);
+            
+            // Hide common header row (layout_home_header)
+            View headerRow = getActivity().findViewById(R.id.cl_header_row);
+            if (headerRow != null)
+                headerRow.setVisibility(View.GONE);
         }
 
         bindInitialUI(view);

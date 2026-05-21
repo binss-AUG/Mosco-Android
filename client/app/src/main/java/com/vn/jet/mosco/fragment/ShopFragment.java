@@ -122,18 +122,7 @@ public class ShopFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Khôi phục lại trạng thái hiển thị topbar của MainActivity khi rời Shop
-        if (getActivity() instanceof MainActivity) {
-            com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
-            if (bottomNav != null) {
-                int itemId = bottomNav.getSelectedItemId();
-                if (itemId == R.id.nav_home) {
-                    ((MainActivity) getActivity()).setTopBarVisible(true, MainActivity.TOP_BAR_MODE_HOME);
-                } else {
-                    ((MainActivity) getActivity()).setTopBarVisible(false);
-                }
-            }
-        }
+        // Reliance on MainActivity's synced UI state to handle layout_home_header visibility
     }
     private void fetchShopItems() {
         apiService.getShopItems().enqueue(new Callback<List<ShopItem>>() {
