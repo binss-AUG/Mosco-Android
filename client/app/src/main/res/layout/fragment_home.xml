@@ -43,8 +43,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_notification_ticker"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/home_notification_height"
-                android:layout_marginTop="@dimen/home_notification_margin_top"
+                android:layout_height="22dp"
+                android:layout_marginTop="4dp"
                 android:background="@color/transparent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -55,12 +55,12 @@
                     android:orientation="horizontal"
                     android:paddingHorizontal="@dimen/spacing_16dp">
 
-                    <TextView
+                    <com.vn.jet.mosco.utils.AlwaysMarqueeTextView
                         android:id="@+id/tv_home_notification"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/MoscoText.Luxury.Label"
-                        android:textSize="@dimen/home_notification_text_size"
+                        android:textSize="11sp"
                         android:textColor="@color/white_70"
                         android:singleLine="true"
                         android:ellipsize="marquee"
@@ -76,9 +76,9 @@
                 android:id="@+id/cv_banner_container"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="H,3.2:1"
+                app:layout_constraintDimensionRatio="H,3.8:1"
                 android:layout_marginHorizontal="@dimen/home_banner_margin_horizontal"
-                android:layout_marginTop="@dimen/spacing_12dp"
+                android:layout_marginTop="@dimen/spacing_8dp"
                 app:cardCornerRadius="@dimen/home_banner_corner"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@color/transparent"
@@ -98,10 +98,9 @@
                     android:id="@+id/layout_home_dashboard"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:layout_marginTop="8dp"
                     android:layout_marginHorizontal="@dimen/home_banner_margin_horizontal"
-                    android:layout_marginBottom="@dimen/spacing_lg"
-                    android:minHeight="280dp"
+                    android:layout_marginBottom="8dp"
                     android:clipChildren="false"
                     android:clipToPadding="false"
                     app:layout_constraintTop_toBottomOf="@id/ll_banner_dots"
@@ -117,16 +116,16 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:flow_verticalStyle="spread_inside"
+                        app:flow_verticalStyle="packed"
+                        app:flow_verticalGap="8dp"
                         app:flow_wrapMode="none"
                         app:constraint_referenced_ids="cv_module_streak,cv_module_daily,cv_module_upgrade" />
 
-                    <!-- DAILY CHECK-IN STREAK CARD (Premium Square Centered Layout) -->
+                    <!-- DAILY CHECK-IN STREAK CARD (Premium Responsive Layout) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cv_module_streak"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        app:layout_constraintDimensionRatio="1:1"
                         app:cardCornerRadius="@dimen/lg_radius_card"
                         app:cardElevation="0dp"
                         app:cardBackgroundColor="@android:color/transparent">
@@ -136,9 +135,9 @@
                             android:background="@drawable/bg_streak_module_glass">
 
                             <!-- Tiêu đề nhỏ dạng luxury ở GÓC TRÊN TRÁI -->
-                            <TextView
+                            <com.vn.jet.mosco.utils.AlwaysMarqueeTextView
                                 android:id="@+id/tv_streak_title_header"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:text="@string/home_streak_title"
                                 android:textColor="@color/white_40"
@@ -146,17 +145,23 @@
                                 android:fontFamily="@font/pretendard"
                                 android:letterSpacing="0.15"
                                 android:textStyle="bold"
-                                android:layout_marginStart="12dp"
-                                android:layout_marginTop="12dp"
+                                android:singleLine="true"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:scrollHorizontally="true"
+                                android:layout_marginStart="8dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
                                 app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.airbnb.lottie.LottieAnimationView
                                 android:id="@+id/lottie_module_streak"
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                app:layout_constraintWidth_percent="0.45"
-                                app:layout_constraintHeight_percent="0.45"
+                                app:layout_constraintWidth_percent="0.35"
+                                app:layout_constraintHeight_percent="0.35"
                                 app:lottie_rawRes="@raw/streak_animation"
                                 app:lottie_loop="true"
                                 app:lottie_autoPlay="true"
@@ -170,12 +175,16 @@
                                 android:id="@+id/tv_module_streak_val"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="0 DAYS"
                                 android:textColor="@color/white"
-                                android:textSize="16sp"
+                                android:textSize="13sp"
                                 android:fontFamily="@font/pretendard"
                                 android:textStyle="bold"
+                                app:layout_constrainedWidth="true"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="8sp"
+                                android:autoSizeMaxTextSize="13sp"
                                 app:layout_constraintTop_toBottomOf="@id/lottie_module_streak"
                                 app:layout_constraintBottom_toTopOf="@id/tv_module_streak_hint"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -185,8 +194,8 @@
                                 android:id="@+id/tv_module_streak_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginBottom="8dp"
+                                android:layout_marginTop="1dp"
+                                android:layout_marginBottom="4dp"
                                 android:text="@string/home_streak_action_hint"
                                 android:textColor="@color/brand_secondary"
                                 android:textSize="8sp"
@@ -199,12 +208,12 @@
                                 app:layout_constraintEnd_toEndOf="parent" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
-                <!-- DAILY CHECK-IN CARD (Square 1:1) -->
+
+                <!-- DAILY CHECK-IN CARD -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cv_module_daily"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="1:1"
                     app:cardCornerRadius="@dimen/lg_radius_card"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="@android:color/transparent"
@@ -216,9 +225,9 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_streak_module_glass">
 
-                        <TextView
+                        <com.vn.jet.mosco.utils.AlwaysMarqueeTextView
                             android:id="@+id/tv_daily_title_header"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/home_daily_header_title"
                             android:textColor="@color/white_40"
@@ -226,17 +235,23 @@
                             android:fontFamily="@font/pretendard"
                             android:letterSpacing="0.15"
                             android:textStyle="bold"
-                            android:layout_marginStart="12dp"
-                            android:layout_marginTop="12dp"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:scrollHorizontally="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
                             app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ImageView
                             android:id="@+id/iv_module_daily"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            app:layout_constraintWidth_percent="0.45"
-                            app:layout_constraintHeight_percent="0.45"
+                            app:layout_constraintWidth_percent="0.35"
+                            app:layout_constraintHeight_percent="0.35"
                             android:src="@drawable/ic_daily_calendar"
                             app:layout_constraintTop_toBottomOf="@id/tv_daily_title_header"
                             app:layout_constraintBottom_toTopOf="@id/tv_module_daily_val"
@@ -248,12 +263,16 @@
                             android:id="@+id/tv_module_daily_val"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="1dp"
                             android:text="@string/home_hud_daily"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/pretendard"
                             android:textStyle="bold"
+                            app:layout_constrainedWidth="true"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMinTextSize="8sp"
+                            android:autoSizeMaxTextSize="11sp"
                             app:layout_constraintTop_toBottomOf="@id/iv_module_daily"
                             app:layout_constraintBottom_toTopOf="@id/tv_module_daily_hint"
                             app:layout_constraintStart_toStartOf="parent"
@@ -263,8 +282,8 @@
                             android:id="@+id/tv_module_daily_hint"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginBottom="4dp"
                             android:text="@string/home_hud_daily_action"
                             android:textColor="@color/brand_secondary"
                             android:textSize="8sp"
@@ -278,12 +297,11 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- UPGRADE CARD (Square 1:1) -->
+                <!-- UPGRADE CARD -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cv_module_upgrade"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="1:1"
                     app:cardCornerRadius="@dimen/lg_radius_card"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="@android:color/transparent"
@@ -295,9 +313,9 @@
                         android:layout_height="match_parent"
                         android:background="@drawable/bg_streak_module_glass">
 
-                        <TextView
+                        <com.vn.jet.mosco.utils.AlwaysMarqueeTextView
                             android:id="@+id/tv_upgrade_title_header"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="@string/home_upgrade_header_title"
                             android:textColor="@color/white_40"
@@ -305,17 +323,23 @@
                             android:fontFamily="@font/pretendard"
                             android:letterSpacing="0.15"
                             android:textStyle="bold"
-                            android:layout_marginStart="12dp"
-                            android:layout_marginTop="12dp"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:scrollHorizontally="true"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
                             app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ImageView
                             android:id="@+id/iv_module_upgrade"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            app:layout_constraintWidth_percent="0.45"
-                            app:layout_constraintHeight_percent="0.45"
+                            app:layout_constraintWidth_percent="0.35"
+                            app:layout_constraintHeight_percent="0.35"
                             android:src="@drawable/ic_level_up"
                             app:layout_constraintTop_toBottomOf="@id/tv_upgrade_title_header"
                             app:layout_constraintBottom_toTopOf="@id/tv_module_upgrade_val"
@@ -327,12 +351,16 @@
                             android:id="@+id/tv_module_upgrade_val"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="1dp"
                             android:text="@string/home_hud_upgrade"
                             android:textColor="@color/white"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/pretendard"
                             android:textStyle="bold"
+                            app:layout_constrainedWidth="true"
+                            android:autoSizeTextType="uniform"
+                            android:autoSizeMinTextSize="8sp"
+                            android:autoSizeMaxTextSize="11sp"
                             app:layout_constraintTop_toBottomOf="@id/iv_module_upgrade"
                             app:layout_constraintBottom_toTopOf="@id/tv_module_upgrade_hint"
                             app:layout_constraintStart_toStartOf="parent"
@@ -342,8 +370,8 @@
                             android:id="@+id/tv_module_upgrade_hint"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_marginBottom="4dp"
                             android:text="@string/home_hud_upgrade_action"
                             android:textColor="@color/brand_secondary"
                             android:textSize="8sp"
@@ -357,11 +385,12 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- RANKING CARD -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cv_module_ranking"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginStart="@dimen/spacing_md"
+                    android:layout_marginStart="8dp"
                     app:cardCornerRadius="@dimen/lg_radius_card"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="@android:color/transparent"

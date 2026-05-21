@@ -135,28 +135,6 @@ public class ShopFragment extends Fragment {
             }
         }
     }
-
-    private void fetchUserResources() {
-        Long userId = sessionManager.getUserId();
-        if (userId == null) return;
-        apiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
-            @Override
-            public void onResponse(Call<UserStats> call, Response<UserStats> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserStats stats = response.body();
-                    if (tvShopCoins != null)
-                        tvShopCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
-                    if (tvShopDiamonds != null)
-                        tvShopDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
-                }
-            }
-            @Override
-            public void onFailure(Call<UserStats> call, Throwable t) {
-                Log.e("ShopFragment", "Failed to fetch user stats", t);
-            }
-        });
-    }
-
     private void fetchShopItems() {
         apiService.getShopItems().enqueue(new Callback<List<ShopItem>>() {
             @Override
