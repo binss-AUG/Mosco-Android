@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu_glass"
+    android:paddingVertical="@dimen/spacing_xs"
+    android:elevation="8dp">
+
+    <!-- Friends -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/popup_item_friends"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="@dimen/spacing_md">
+
+        <ImageView
+            android:id="@+id/iv_popup_friends"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_friends"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Friends"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:fontFamily="@font/pretendard_bold"
+            app:layout_constraintStart_toEndOf="@id/iv_popup_friends"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/popup_badge_friends"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_notification_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:minWidth="18dp"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="@dimen/spacing_sm"
+        android:background="@color/lg_glass_stroke_subtle" />
+
+    <!-- Mailbox -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/popup_item_mailbox"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="@dimen/spacing_md">
+
+        <ImageView
+            android:id="@+id/iv_popup_mailbox"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_bell_neon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Mailbox"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:fontFamily="@font/pretendard_bold"
+            app:layout_constraintStart_toEndOf="@id/iv_popup_mailbox"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/popup_badge_mailbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_notification_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:minWidth="18dp"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="@dimen/spacing_sm"
+        android:background="@color/lg_glass_stroke_subtle" />
+
+    <!-- Shop -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/popup_item_shop"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="@dimen/spacing_md">
+
+        <ImageView
+            android:id="@+id/iv_popup_shop"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_shop_bag"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Shop"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:fontFamily="@font/pretendard_bold"
+            app:layout_constraintStart_toEndOf="@id/iv_popup_shop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/popup_badge_shop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_notification_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:minWidth="18dp"
+            android:gravity="center"
+            android:text="N"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

@@ -96,6 +96,7 @@
             android:layout_marginEnd="16dp"
             android:clipChildren="false"
             android:clipToPadding="false"
+            app:layout_constrainedWidth="true"
             app:layout_constraintStart_toEndOf="@id/fl_avatar_group"
             app:layout_constraintEnd_toStartOf="@id/header_divider"
             app:layout_constraintTop_toTopOf="parent"
@@ -168,11 +169,9 @@
                         android:src="@drawable/ic_item_diamond" />
                     <TextView 
                         android:id="@+id/tv_home_diamonds" 
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:layout_marginStart="4dp" 
+                        android:layout_marginStart="3dp" 
                         android:text="0" 
                         android:maxLines="1" 
                         android:ellipsize="end" 
@@ -180,8 +179,8 @@
                         android:textSize="12sp" 
                         android:textStyle="bold" 
                         android:autoSizeTextType="uniform" 
-                        android:autoSizeMinTextSize="11sp" 
-                        android:autoSizeMaxTextSize="12sp" />
+                        android:autoSizeMinTextSize="8sp" 
+                        android:autoSizeMaxTextSize="13sp" />
                 </LinearLayout>
                 
                 <!-- Coin group -->
@@ -197,11 +196,9 @@
                         android:src="@drawable/ic_item_coin" />
                     <TextView 
                         android:id="@+id/tv_home_coins" 
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:layout_marginStart="4dp" 
+                        android:layout_marginStart="3dp" 
                         android:text="0" 
                         android:maxLines="1" 
                         android:ellipsize="end" 
@@ -209,8 +206,8 @@
                         android:textSize="12sp" 
                         android:textStyle="bold" 
                         android:autoSizeTextType="uniform" 
-                        android:autoSizeMinTextSize="11sp" 
-                        android:autoSizeMaxTextSize="12sp" />
+                        android:autoSizeMinTextSize="8sp" 
+                        android:autoSizeMaxTextSize="13sp" />
                 </LinearLayout>
             </LinearLayout> 
         </LinearLayout>
@@ -222,128 +219,22 @@
             android:layout_height="32dp"
             android:background="#26FFFFFF"
             android:layout_marginEnd="12dp"
-            app:layout_constraintEnd_toStartOf="@id/ll_header_buttons"
+            app:layout_constraintEnd_toStartOf="@id/btn_header_more"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- STANDARD MODE BUTTONS (3 Nút tròn nằm trọn vẹn trong Pill) -->
-        <LinearLayout
-            android:id="@+id/ll_header_buttons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clipChildren="false"
-            android:clipToPadding="false"
+        <!-- OVERFLOW BUTTON: không border, chỉ icon -->
+        <ImageView
+            android:id="@+id/btn_header_more"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_more_options"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <!-- Friends Button -->
-            <FrameLayout
-                android:id="@+id/btn_header_friends"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_glass_circle"
-                android:stateListAnimator="@animator/lg_btn_state_animator"
-                android:clickable="true"
-                android:focusable="true"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_friends" />
-                <TextView
-                    android:id="@+id/tv_badge_friends"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:background="@drawable/bg_notification_badge"
-                    android:paddingHorizontal="@dimen/header_badge_padding_h"
-                    android:paddingVertical="@dimen/header_badge_padding_v"
-                    android:minWidth="@dimen/header_badge_min_size"
-                    android:minHeight="@dimen/header_badge_min_size"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/header_badge_text_size"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </FrameLayout>
-
-            <!-- Mailbox Button -->
-            <FrameLayout
-                android:id="@+id/btn_header_mailbox"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_glass_circle"
-                android:stateListAnimator="@animator/lg_btn_state_animator"
-                android:clickable="true"
-                android:focusable="true"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_bell_neon" />
-                <TextView
-                    android:id="@+id/tv_badge_mailbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:background="@drawable/bg_notification_badge"
-                    android:paddingHorizontal="@dimen/header_badge_padding_h"
-                    android:paddingVertical="@dimen/header_badge_padding_v"
-                    android:minWidth="@dimen/header_badge_min_size"
-                    android:minHeight="@dimen/header_badge_min_size"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/header_badge_text_size"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </FrameLayout>
-
-            <!-- Shop Button -->
-            <FrameLayout
-                android:id="@+id/btn_header_shop"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/bg_glass_circle"
-                android:stateListAnimator="@animator/lg_btn_state_animator"
-                android:clickable="true"
-                android:focusable="true"
-                android:clipChildren="false"
-                android:clipToPadding="false">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_shop_bag" />
-                <TextView
-                    android:id="@+id/tv_badge_shop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:background="@drawable/bg_notification_badge"
-                    android:paddingHorizontal="@dimen/header_badge_padding_h"
-                    android:paddingVertical="@dimen/header_badge_padding_v"
-                    android:minWidth="@dimen/header_badge_min_size"
-                    android:minHeight="@dimen/header_badge_min_size"
-                    android:gravity="center"
-                    android:text="N"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/header_badge_text_size"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </FrameLayout>
-        </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- SHOP MODE CURRENCIES: Larger for visibility -->

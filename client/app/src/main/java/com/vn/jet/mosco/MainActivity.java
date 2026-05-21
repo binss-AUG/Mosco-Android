@@ -24,18 +24,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.PopupWindow;
+import android.graphics.drawable.ColorDrawable;
 import com.vn.jet.mosco.fragment.ShopFragment;
+import java.util.List;
+import com.vn.jet.mosco.model.UserMail;
 
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.vn.jet.mosco.fragment.CollectionFragment;
 import com.vn.jet.mosco.fragment.HomeFragment;
 import com.vn.jet.mosco.fragment.ProfileFragment;
 import com.vn.jet.mosco.fragment.SpinFragment;
 import com.vn.jet.mosco.fragment.UpgradeFragment;
-import java.util.List;
-import com.vn.jet.mosco.model.UserMail;
 
 /**
  * MainActivity - Main entry point for authenticated users.
@@ -55,15 +55,16 @@ public class MainActivity extends MoscoBaseActivity {
     private com.airbnb.lottie.LottieAnimationView lottieStreakAvatar;
     private View flStreakAvatar;
     private View btnHeaderBack;
-    private View llHeaderButtons;
+    private View btnHeaderMore;
     private View llShopCurrencies;
     private View llInternalCurrencies;
     private TextView tvShopCoins;
     private TextView tvShopDiamonds;
-    private TextView tvBadgeFriends;
-    private TextView tvBadgeMailbox;
-    private TextView tvBadgeShop;
-    
+
+    private int badgeFriendCount;
+    private int badgeMailCount;
+    private int badgeShopCount;
+
     public static final int TOP_BAR_MODE_HOME = 0;
     public static final int TOP_BAR_MODE_SHOP = 1;
     
@@ -146,7 +147,7 @@ public class MainActivity extends MoscoBaseActivity {
 
     private void updateTopBarMode(int mode) {
         if (btnHeaderBack != null) btnHeaderBack.setVisibility(mode == TOP_BAR_MODE_SHOP ? View.VISIBLE : View.GONE);
-        if (llHeaderButtons != null) llHeaderButtons.setVisibility(mode == TOP_BAR_MODE_HOME ? View.VISIBLE : View.GONE);
+        if (btnHeaderMore != null) btnHeaderMore.setVisibility(mode == TOP_BAR_MODE_HOME ? View.VISIBLE : View.GONE);
         if (llShopCurrencies != null) llShopCurrencies.setVisibility(mode == TOP_BAR_MODE_SHOP ? View.VISIBLE : View.GONE);
         if (llInternalCurrencies != null) llInternalCurrencies.setVisibility(mode == TOP_BAR_MODE_HOME ? View.VISIBLE : View.GONE);
         
@@ -200,14 +201,11 @@ public class MainActivity extends MoscoBaseActivity {
         lottieStreakAvatar = findViewById(R.id.lottie_streak_avatar);
         flStreakAvatar = findViewById(R.id.fl_streak_avatar);
         btnHeaderBack = findViewById(R.id.btn_header_back);
-        llHeaderButtons = findViewById(R.id.ll_header_buttons);
+        btnHeaderMore = findViewById(R.id.btn_header_more);
         llShopCurrencies = findViewById(R.id.ll_shop_currencies);
         llInternalCurrencies = findViewById(R.id.ll_internal_currencies);
         tvShopCoins = findViewById(R.id.tv_shop_coins);
         tvShopDiamonds = findViewById(R.id.tv_shop_diamonds);
-        tvBadgeFriends = findViewById(R.id.tv_badge_friends);
-        tvBadgeMailbox = findViewById(R.id.tv_badge_mailbox);
-        tvBadgeShop = findViewById(R.id.tv_badge_shop);
 
         if (btnHeaderBack != null) {
             btnHeaderBack.setOnClickListener(v -> {
@@ -224,24 +222,43 @@ public class MainActivity extends MoscoBaseActivity {
             });
         }
         
-        View btnFriends = findViewById(R.id.btn_header_friends);
-        if (btnFriends != null) {
-            btnFriends.setOnClickListener(v -> {
-                startActivity(new android.content.Intent(this, com.vn.jet.mosco.FriendActivity.class));
-            });
-        }
-        
-        View btnMailbox = findViewById(R.id.btn_header_mailbox);
-        if (btnMailbox != null) {
-            btnMailbox.setOnClickListener(v -> {
-                com.vn.jet.mosco.utils.NavigationUtils.openMailbox(this);
-            });
-        }
-        
-        View btnShop = findViewById(R.id.btn_header_shop);
-        if (btnShop != null) {
-            btnShop.setOnClickListener(v -> {
-                openShop();
+        // Overflow button: PopupWindow glass + badges + không làm dừng marquee
+        if (btnHeaderMore != null) {
+            btnHeaderMore.setOnClickListener(v -> {
+                if (tvUsername != null) tvUsername.setSelected(false);
+
+                View popupView = getLayoutInflater().inflate(R.layout.popup_header_overflow, null);
+                PopupWindow popup = new PopupWindow(popupView,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        true);
+                popup.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+                popup.setElevation(12f);
+                popup.setOutsideTouchable(true);
+
+                applyPopupBadges(popupView);
+
+                popupView.findViewById(R.id.popup_item_friends).setOnClickListener(btn -> {
+                    popup.dismiss();
+                    startActivity(new android.content.Intent(this, com.vn.jet.mosco.FriendActivity.class));
+                });
+                popupView.findViewById(R.id.popup_item_mailbox).setOnClickListener(btn -> {
+                    popup.dismiss();
+                    com.vn.jet.mosco.utils.NavigationUtils.openMailbox(this);
+                });
+                popupView.findViewById(R.id.popup_item_shop).setOnClickListener(btn -> {
+                    popup.dismiss();
+                    openShop();
+                });
+
+                popup.setOnDismissListener(() -> {
+                    if (tvUsername != null) tvUsername.setSelected(true);
+                });
+
+                // Tính toán offset động: Đẩy popup dịch sang trái 160dp để mép phải của popup căn thẳng hàng với mép phải của nút overflow.
+                int xoff = -(int) (v.getResources().getDisplayMetrics().density * 160);
+                int yoff = (int) (v.getResources().getDisplayMetrics().density * 8);
+                popup.showAsDropDown(v, xoff, yoff);
             });
         }
         
@@ -305,9 +322,7 @@ public class MainActivity extends MoscoBaseActivity {
                         if (!lottieStreakAvatar.isAnimating()) lottieStreakAvatar.playAnimation();
                         com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(lottieStreakAvatar, stats.getStreak());
                     }
-                    
-                    // Cập nhật thông báo
-                    updateHeaderBadges(-1, 0, 0); // Khởi tạo, mail/shop tạm là 0
+
                     fetchExtraNotificationCounts();
                     fetchFriendRequestsCount();
                 }
@@ -316,6 +331,70 @@ public class MainActivity extends MoscoBaseActivity {
             public void onFailure(Call<UserStats> call, Throwable t) {
                 Log.e("MainActivity", "Failed to fetch stats", t);
             }
+        });
+    }
+
+    private void applyPopupBadges(View popupView) {
+        TextView badgeFriends = popupView.findViewById(R.id.popup_badge_friends);
+        TextView badgeMailbox = popupView.findViewById(R.id.popup_badge_mailbox);
+        TextView badgeShop = popupView.findViewById(R.id.popup_badge_shop);
+        if (badgeFriends != null) {
+            if (badgeFriendCount > 0) {
+                badgeFriends.setText(badgeFriendCount > 99 ? "99+" : String.valueOf(badgeFriendCount));
+                badgeFriends.setVisibility(View.VISIBLE);
+            } else {
+                badgeFriends.setVisibility(View.GONE);
+            }
+        }
+        if (badgeMailbox != null) {
+            if (badgeMailCount > 0) {
+                badgeMailbox.setText(badgeMailCount > 99 ? "99+" : String.valueOf(badgeMailCount));
+                badgeMailbox.setVisibility(View.VISIBLE);
+            } else {
+                badgeMailbox.setVisibility(View.GONE);
+            }
+        }
+        if (badgeShop != null) {
+            if (badgeShopCount > 0) {
+                badgeShop.setText("N");
+                badgeShop.setVisibility(View.VISIBLE);
+            } else {
+                badgeShop.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void fetchExtraNotificationCounts() {
+        gameApiService.getUserMails(sessionManager.getUserId()).enqueue(new Callback<List<com.vn.jet.mosco.model.UserMail>>() {
+            @Override
+            public void onResponse(Call<List<com.vn.jet.mosco.model.UserMail>> call, Response<List<com.vn.jet.mosco.model.UserMail>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int unread = 0;
+                    for (com.vn.jet.mosco.model.UserMail mail : response.body()) {
+                        if (!mail.isReceived()) unread++;
+                    }
+                    badgeMailCount = unread;
+                }
+            }
+            @Override public void onFailure(Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {}
+        });
+    }
+
+    private void fetchFriendRequestsCount() {
+        if (gameApiService == null) return;
+        gameApiService.getFriendRequests().enqueue(new Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
+                        org.json.JSONArray data = json.optJSONArray("data");
+                        badgeFriendCount = (data != null) ? data.length() : 0;
+                    }
+                } catch (Exception ignored) {}
+            }
+            @Override
+            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {}
         });
     }
 
@@ -509,83 +588,4 @@ public class MainActivity extends MoscoBaseActivity {
         }
     }
 
-    private void updateHeaderBadges(int friendsCount, int mailCount, int shopNewCount) {
-        if (tvBadgeFriends != null && friendsCount != -1) {
-            if (friendsCount > 0) {
-                tvBadgeFriends.setText(friendsCount > 99 ? "99+" : String.valueOf(friendsCount));
-                tvBadgeFriends.setVisibility(View.VISIBLE);
-                animateBadgePop(tvBadgeFriends);
-            } else {
-                tvBadgeFriends.setVisibility(View.GONE);
-            }
-        }
-
-        if (tvBadgeMailbox != null && mailCount != -1) {
-            if (mailCount > 0) {
-                tvBadgeMailbox.setText(mailCount > 99 ? "99+" : String.valueOf(mailCount));
-                tvBadgeMailbox.setVisibility(View.VISIBLE);
-                animateBadgePop(tvBadgeMailbox);
-            } else {
-                tvBadgeMailbox.setVisibility(View.GONE);
-            }
-        }
-
-        if (tvBadgeShop != null && shopNewCount != -1) {
-            if (shopNewCount > 0) {
-                tvBadgeShop.setText("N");
-                tvBadgeShop.setVisibility(View.VISIBLE);
-            } else {
-                tvBadgeShop.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    private void animateBadgePop(View badge) {
-        badge.setScaleX(0.5f);
-        badge.setScaleY(0.5f);
-        badge.setAlpha(0f);
-        badge.animate()
-            .scaleX(1f)
-            .scaleY(1f)
-            .alpha(1f)
-            .setDuration(180)
-            .setInterpolator(new android.view.animation.OvershootInterpolator())
-            .start();
-    }
-
-    private void fetchExtraNotificationCounts() {
-        // Mock fetch or call actual APIs
-        gameApiService.getUserMails(sessionManager.getUserId()).enqueue(new Callback<List<com.vn.jet.mosco.model.UserMail>>() {
-            @Override
-            public void onResponse(Call<List<com.vn.jet.mosco.model.UserMail>> call, Response<List<com.vn.jet.mosco.model.UserMail>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    int unread = 0;
-                    for (com.vn.jet.mosco.model.UserMail mail : response.body()) {
-                        if (!mail.isReceived()) unread++;
-                    }
-                    updateHeaderBadges(-1, unread, -1);
-                }
-            }
-            @Override public void onFailure(Call<List<com.vn.jet.mosco.model.UserMail>> call, Throwable t) {}
-        });
-    }
-
-    private void fetchFriendRequestsCount() {
-        if (gameApiService == null) return;
-        gameApiService.getFriendRequests().enqueue(new Callback<okhttp3.ResponseBody>() {
-            @Override
-            public void onResponse(Call<okhttp3.ResponseBody> call, Response<okhttp3.ResponseBody> response) {
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        org.json.JSONObject json = new org.json.JSONObject(response.body().string());
-                        org.json.JSONArray data = json.optJSONArray("data");
-                        int count = (data != null) ? data.length() : 0;
-                        updateHeaderBadges(count, -1, -1);
-                    }
-                } catch (Exception ignored) {}
-            }
-            @Override
-            public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {}
-        });
-    }
 }
