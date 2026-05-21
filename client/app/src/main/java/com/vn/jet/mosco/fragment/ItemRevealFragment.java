@@ -656,7 +656,7 @@ public class ItemRevealFragment extends Fragment {
 
                     onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
 
-                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức để tâm vụ nổ (dựa trên translationX) không bị lệch do animation rung lắc.
+                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức trùng với thời điểm thay đổi hình ảnh để tạo cảm giác bùng nổ chân thực.
                     createChaosParticles(tierColor, cardItem);
                     setupFlipGesture(cardItem);
 
@@ -910,7 +910,8 @@ public class ItemRevealFragment extends Fragment {
         ParticleConfig cfg = new ParticleConfig();
         final float slowDownFactor = 1.6f; // Slow particle explosion by 60%
         cfg.particleCount = getResources().getInteger(R.integer.reveal_particle_count);
-        cfg.explosionPhaseMs = 200L; // TODO: CHỈNH THỜI GIAN PHA ĐẦU TIÊN CỦA VỤ NỔ HẠT TẠI ĐÂY (200ms)
+        cfg.explosionPhaseMs = (long) (getResources().getInteger(R.integer.reveal_particle_explosion_phase_ms)
+                * slowDownFactor);
         cfg.ovalBurstX = getResources().getInteger(R.integer.reveal_particle_oval_burst_x_percent) / 100f;
         cfg.ovalBurstY = getResources().getInteger(R.integer.reveal_particle_oval_burst_y_percent) / 100f;
         cfg.regionMarginXRatio = getResources().getInteger(R.integer.reveal_particle_region_margin_x_percent) / 100f;
