@@ -1048,7 +1048,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         this.lastImageUrl = imageUrl; // Lưu lại để quay lại bước này nếu người dùng hủy Preview
 
         Uri sourceUri = Uri.parse(imageUrl);
-        File destinationFile = new File(requireContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
+        File destinationFile = new File(requireContext().getFilesDir(), getString(R.string.avatar_crop_cache_name) + "_temp");
         Uri destinationUri = Uri.fromFile(destinationFile);
 
         com.yalantis.ucrop.UCrop.Options options = new com.yalantis.ucrop.UCrop.Options();
@@ -1157,11 +1157,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (savedAvatarIdBeforeEdit != null && sessionManager != null) {
             sessionManager.setAvatarId(savedAvatarIdBeforeEdit);
         }
-        // Xóa file crop để loadAvatar lấy lại ảnh gốc từ server/local card
-        if (isAdded() && getContext() != null) {
-            File croppedFile = new File(getContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
-            if (croppedFile.exists())
-                croppedFile.delete();
+        // Xóa file crop TẠM THỜI (temp) thay vì xóa cache gốc
+        if (lastCroppedUri != null) {
+            File tempFile = new File(lastCroppedUri.getPath());
+            if (tempFile.exists()) tempFile.delete();
+            lastCroppedUri = null;
         }
         loadAvatar();
 
@@ -1211,6 +1211,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         String cropParams = sessionManager.getAvatarCropParams();
         if (cropParams != null)
             request.setAvatarCropParams(cropParams);
+
+        // Chuyển file temp thành cache chính thức nếu có ảnh crop mới
+        if (lastCroppedUri != null && getContext() != null) {
+            File tempFile = new File(lastCroppedUri.getPath());
+            File realFile = new File(getContext().getFilesDir(), getString(R.string.avatar_crop_cache_name));
+            if (tempFile.exists()) {
+                tempFile.renameTo(realFile);
+            }
+            lastCroppedUri = null;
+        }
 
         if (gameApiService != null && getContext() != null) {
             // Capture ApplicationContext trước khi gửi vào callback bất đồng bộ — tránh NPE
@@ -1413,12 +1423,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             dialog.getWindow().setDimAmount(0.85f);
         }
 
-        String finalUrl = card.optString("frontImage");
-        Glide.with(this)
-                .load(finalUrl)
-                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
-                .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(finalUrl))
-                .into(ivZoom);
+        // Sử dụng AvatarUtils để hiển thị avatar đã crop thủ công (không bị random crop khác vị trí đã chọn)
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivZoom, targetUserId, avatarId);
 
         dialogView.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
