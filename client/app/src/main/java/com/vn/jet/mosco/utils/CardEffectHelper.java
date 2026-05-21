@@ -122,7 +122,7 @@ public class CardEffectHelper {
         if (cardView == null || item == null)
             return;
         applyInternal(cardView, shimmer, String.valueOf(item.getId()), item.getFrontImage(), applyFloating, applyGlow,
-                forcedGlowColor);
+                forcedGlowColor, item.getUpgradeLevel());
     }
 
     /**
@@ -132,7 +132,7 @@ public class CardEffectHelper {
             boolean applyFloating) {
         if (cardView == null || entry == null)
             return;
-        applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true, null);
+        applyInternal(cardView, shimmer, entry.getCollectionId(), entry.getFrontImage(), applyFloating, true, null, entry.getUpgradeLevel());
     }
 
     public static void apply(MaterialCardView cardView, View shimmer, Objet card, boolean applyFloating) {
@@ -149,14 +149,14 @@ public class CardEffectHelper {
         if (cardView == null || card == null)
             return;
         applyInternal(cardView, shimmer, card.getIdString(), card.getImageUrl(), applyFloating, applyGlow,
-                forcedGlowColor);
+                forcedGlowColor, card.getCardLevel());
     }
 
     /**
      * Logic chung để xử lý hiệu ứng Hào quang, Shimmer và Lơ lửng.
      */
     private static void applyInternal(MaterialCardView cardView, View shimmer, String id, String imageUrl,
-            boolean applyFloating, boolean applyGlow, Integer forcedGlowColor) {
+            boolean applyFloating, boolean applyGlow, Integer forcedGlowColor, int upgradeLevel) {
         Context context = cardView.getContext();
 
         String currentCardId = (String) cardView.getTag(R.id.card_main);
@@ -175,6 +175,22 @@ public class CardEffectHelper {
             maskPaint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.DST_OUT));
             triplesBorder.setLayerType(View.LAYER_TYPE_HARDWARE, maskPaint);
             triplesBorder.setVisibility(View.VISIBLE);
+        }
+        // =========================================================================================
+
+        // ÁP DỤNG CẤP THẺ (LEVEL BADGE) TOÀN CỤC
+        // ==========================================
+        android.widget.ImageView ivLevel = cardView.findViewById(R.id.card_iv_level);
+        if (ivLevel != null) {
+            if (upgradeLevel > 0) {
+                String assetPath = context.getString(R.string.asset_grade_path) + upgradeLevel + ".png";
+                Glide.with(context).load(assetPath).into(ivLevel);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.apply(ivLevel, upgradeLevel);
+                ivLevel.setVisibility(View.VISIBLE);
+            } else {
+                ivLevel.setVisibility(View.GONE);
+                com.vn.jet.mosco.utils.LevelBadgeEffectHelper.remove(ivLevel);
+            }
         }
         // =========================================================================================
 
@@ -216,7 +232,9 @@ public class CardEffectHelper {
                                 hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
                                 int glowColor = (forcedGlowColor != null) ? forcedGlowColor : Color.HSVToColor(hsv);
 
-                                cardView.setStrokeColor(extractedColor);
+                                // TẠI SAO: Đảm bảo viền nét đứt (stroke) của thẻ cũng dùng forcedGlowColor nếu có (tránh lỗi sai màu viền ở Minicard).
+                                int strokeColor = (forcedGlowColor != null) ? forcedGlowColor : extractedColor;
+                                cardView.setStrokeColor(strokeColor);
 
                                 ViewGroup parent = (ViewGroup) cardView.getParent();
                                 if (parent != null) {

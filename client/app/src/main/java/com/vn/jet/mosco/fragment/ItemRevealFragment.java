@@ -199,7 +199,7 @@ public class ItemRevealFragment extends Fragment {
         TextView tvItemName = view.findViewById(R.id.tv_item_name);
         TextView tvItemInfo = view.findViewById(R.id.tv_item_info);
         TextView tvItemQty = view.findViewById(R.id.tv_item_qty);
-        ImageView ivItemImage = view.findViewById(R.id.iv_item_image);
+        ImageView ivItemImage = view.findViewById(R.id.card_iv_image);
         MaterialCardView cardItem = view.findViewById(R.id.card_item);
         com.vn.jet.mosco.widget.MoscoButton btnOpenOne = view.findViewById(R.id.btn_open_one);
         com.vn.jet.mosco.widget.MoscoButton btnOpenAll = view.findViewById(R.id.btn_open_all);
@@ -521,7 +521,7 @@ public class ItemRevealFragment extends Fragment {
         cardItem.setScaleX(1f);
         cardItem.setScaleY(1f);
 
-        ImageView ivItemImage = rootView.findViewById(R.id.iv_item_image);
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
         if (currentRevealIndex == 0) {
             if (itemImage != null && !itemImage.isEmpty()) {
                 Glide.with(this).load(itemImage).placeholder(R.drawable.item_shop_demo).into(ivItemImage);
@@ -587,7 +587,7 @@ public class ItemRevealFragment extends Fragment {
 
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
         View lightLayer = rootView.findViewById(R.id.view_pack_flash_overlay);
-        ImageView ivItemImage = rootView.findViewById(R.id.iv_item_image);
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
 
         RevealedCard currentCard = revealedCards.get(currentRevealIndex);
         JSONObject topCardJson = currentCard.cardJson;
@@ -603,6 +603,7 @@ public class ItemRevealFragment extends Fragment {
                 shakeMildRepeat1, -shakeMildRepeat1, shakeMildRepeat2, -shakeMildRepeat2, 0f);
         shake1Clean.setDuration(getResources().getInteger(R.integer.reveal_phase2_shake_mild_ms));
         shake1Clean.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_mild_repeat));
+        shake1Clean.addUpdateListener(animation -> syncGlowToCard(cardItem));
         shake1Clean.start();
 
         // TẠI SAO: Đặt trực tiếp màu nền của lớp phủ là màu thẻ mới thay vì gradient đen, giúp chuyển tiếp màu thẻ mượt mà từ 0 -> 100% opacity.
@@ -619,7 +620,7 @@ public class ItemRevealFragment extends Fragment {
                         Glide.with(this).load(imageUrl).into(ivItemImage);
                     }
 
-                    TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+                    TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
                     if (vvItemVideo != null) {
                         vvItemVideo.setVisibility(View.GONE);
                     }
@@ -655,8 +656,10 @@ public class ItemRevealFragment extends Fragment {
 
                     onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
 
-                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức trùng với thời điểm thay đổi hình ảnh để tạo cảm giác bùng nổ chân thực.
-                    createChaosParticles(tierColor, cardItem);
+                    // TẠI SAO: Bung các hạt năng lượng sau 50ms để đồng bộ hóa cảm giác.
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        createChaosParticles(tierColor, cardItem);
+                    }, 50); // TODO: CHỈNH THỜI GIAN TRỄ BUNG HẠT TẠI ĐÂY (50ms)
                     setupFlipGesture(cardItem);
 
                     // TẠI SAO: Tạo hiệu ứng rung lắc mạnh tại thời điểm bùng nổ thẻ mới để tăng cảm giác kịch tính của Gacha.
@@ -670,13 +673,14 @@ public class ItemRevealFragment extends Fragment {
                             shakeIntenseRepeat2, 0f);
                     shake2.setDuration(getResources().getInteger(R.integer.reveal_phase2_shake_intense_ms));
                     shake2.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_intense_repeat));
+                    shake2.addUpdateListener(animation -> syncGlowToCard(cardItem));
                     shake2.start();
                 }).start();
     }
 
     private void onCardRevealComplete(JSONObject topCardJson, MaterialCardView cardItem, ImageView ivItemImage,
             RevealedCard currentCard) {
-        TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+        TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
         if (vvItemVideoReveal != null) {
             String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
             String videoUrl = topCardJson.optString("frontVideoUrl", "");
@@ -750,7 +754,7 @@ public class ItemRevealFragment extends Fragment {
         final float[] startRotation = { 0f };
         final boolean[] isFlipped = { false };
         final ValueAnimator[] snapAnim = { null };
-        ImageView ivFront = getView().findViewById(R.id.iv_item_image);
+        ImageView ivFront = getView().findViewById(R.id.card_iv_image);
 
         cardItem.setOnTouchListener((v, event) -> {
             switch (event.getActionMasked()) {
@@ -827,7 +831,7 @@ public class ItemRevealFragment extends Fragment {
 
     private void updateVisibilitySync(ImageView ivFront, boolean showBack) {
         isCardFlipped = showBack;
-        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
         if (!showBack) {
             if (itemVideoPlayer != null) {
                 itemVideoPlayer.play();
@@ -908,8 +912,7 @@ public class ItemRevealFragment extends Fragment {
         ParticleConfig cfg = new ParticleConfig();
         final float slowDownFactor = 1.6f; // Slow particle explosion by 60%
         cfg.particleCount = getResources().getInteger(R.integer.reveal_particle_count);
-        cfg.explosionPhaseMs = (long) (getResources().getInteger(R.integer.reveal_particle_explosion_phase_ms)
-                * slowDownFactor);
+        cfg.explosionPhaseMs = 200L; // TODO: CHỈNH THỜI GIAN PHA ĐẦU TIÊN CỦA VỤ NỔ HẠT TẠI ĐÂY (200ms)
         cfg.ovalBurstX = getResources().getInteger(R.integer.reveal_particle_oval_burst_x_percent) / 100f;
         cfg.ovalBurstY = getResources().getInteger(R.integer.reveal_particle_oval_burst_y_percent) / 100f;
         cfg.regionMarginXRatio = getResources().getInteger(R.integer.reveal_particle_region_margin_x_percent) / 100f;
@@ -1348,15 +1351,8 @@ public class ItemRevealFragment extends Fragment {
 
         float currentScaleX = cardItem.getScaleX();
         float currentScaleY = cardItem.getScaleY();
-        float targetScaleX = currentScaleX * 0.9f;
-        float targetScaleY = currentScaleY * 0.9f;
 
-        cardItem.animate()
-                .scaleX(targetScaleX)
-                .scaleY(targetScaleY)
-                .rotationY(90f)
-                .setDuration(250)
-                .setInterpolator(new AccelerateInterpolator())
+        cardItem.animate().scaleX(0f).rotationY(90f).setDuration(150)
                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
                 .withEndAction(() -> {
                     updateCardContent(targetCard);
@@ -1368,7 +1364,7 @@ public class ItemRevealFragment extends Fragment {
                             .scaleX(currentScaleX)
                             .scaleY(currentScaleY)
                             .rotationY(0f)
-                            .setDuration(250)
+                            .setDuration(150) // TODO: CHỈNH THỜI GIAN NỬA VÒNG LẬT THẺ TẠI ĐÂY (150ms)
                             .setInterpolator(new DecelerateInterpolator())
                             .setUpdateListener(animation -> syncGlowToCard(cardItem))
                             .withEndAction(() -> {
@@ -1385,7 +1381,7 @@ public class ItemRevealFragment extends Fragment {
             return;
 
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-        ImageView ivItemImage = rootView.findViewById(R.id.iv_item_image);
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
 
         JSONObject topCardJson = targetCard.cardJson;
         int tierColor = targetCard.glowColor;
@@ -1415,7 +1411,7 @@ public class ItemRevealFragment extends Fragment {
         syncGlowToCard(cardItem);
         transitionBackgroundTo(tierColor);
 
-        TextureView vvItemVideo = rootView.findViewById(R.id.vv_item_video);
+        TextureView vvItemVideo = rootView.findViewById(R.id.card_vv_video);
         if (vvItemVideo != null) {
             String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
             String videoUrl = topCardJson.optString("frontVideoUrl", "");

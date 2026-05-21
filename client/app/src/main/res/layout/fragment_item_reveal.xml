@@ -93,41 +93,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.18">
 
-        <!-- 1. Metallic Background -->
-        <View
-            android:id="@+id/view_card_metallic_bg"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <!-- 2. Item Image -->
-        <ImageView
-            android:id="@+id/iv_item_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/item_shop_demo" />
+            <include layout="@layout/layout_core_card" />
 
-        <!-- Video Player for Motion cards (ExoPlayer) -->
-        <TextureView
-            android:id="@+id/vv_item_video"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
+            <!-- 4. Glow/Flash Overlay (Giữ lại để làm hiệu ứng lật thẻ) -->
+            <View
+                android:id="@+id/view_pack_flash_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:alpha="0" />
 
-
-        <!-- 3. Shimmer Overlay -->
-        <View
-            android:id="@+id/view_card_shimmer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- 4. Glow/Flash Overlay -->
-        <View
-            android:id="@+id/view_pack_flash_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:alpha="0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
