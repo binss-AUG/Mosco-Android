@@ -4,164 +4,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Luxury Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_collection_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:paddingTop="@dimen/spacing_xl"
+        android:paddingBottom="@dimen/spacing_md"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Topbar HUD thu gọn bên trái -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_collect_hud"
-            android:layout_width="0dp"
-            android:layout_height="46dp"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginEnd="@dimen/spacing_sm"
-            android:background="@drawable/bg_header_asymmetric_glass"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_shop"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- Avatar -->
-            <FrameLayout
-                android:id="@+id/fl_collect_avatar_group"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-                
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_collect_avatar"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                    app:strokeColor="@color/white_25"
-                    app:strokeWidth="1dp"
-                    android:src="@drawable/ic_user" />
-            </FrameLayout>
-
-            <!-- Text & Progress & Currencies container -->
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tv_collection_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="10dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                app:layout_constraintStart_toEndOf="@id/fl_collect_avatar_group"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <!-- Row 1: Username & Level -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    
-                    <TextView
-                        android:id="@+id/tv_collect_username"
-                        style="@style/MoscoText.Luxury.SubHeader"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/placeholder_commander"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:ellipsize="marquee"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:singleLine="true" />
-                        
-                    <TextView
-                        android:id="@+id/tv_collect_level"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="LV.1"
-                        android:textColor="@color/lg_text_secondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Row 2: XP Bar -->
-                <ProgressBar
-                    android:id="@+id/pb_collect_xp"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="3dp"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/bg_xp_progress"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp" />
-
-                <!-- Row 3: Currencies -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="end|center_vertical">
-                    
-                    <!-- Diamond -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginEnd="10dp">
-                        <ImageView 
-                            android:layout_width="12dp" 
-                            android:layout_height="12dp" 
-                            android:src="@drawable/ic_item_diamond" />
-                        <TextView 
-                            android:id="@+id/tv_collect_diamonds" 
-                            android:layout_width="wrap_content" 
-                            android:layout_height="wrap_content" 
-                            android:layout_marginStart="3dp" 
-                            android:text="0" 
-                            android:textColor="@color/white" 
-                            android:textSize="12sp" 
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                    
-                    <!-- Coin -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-                        <ImageView 
-                            android:layout_width="12dp" 
-                            android:layout_height="12dp" 
-                            android:src="@drawable/ic_item_coin" />
-                        <TextView 
-                            android:id="@+id/tv_collect_coins" 
-                            android:layout_width="wrap_content" 
-                            android:layout_height="wrap_content" 
-                            android:layout_marginStart="3dp" 
-                            android:text="0" 
-                            android:textColor="@color/white" 
-                            android:textSize="12sp" 
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:text="Collection"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:letterSpacing="0.1" />
+            
+            <View
+                android:id="@+id/view_header_accent"
+                android:layout_width="@dimen/spacing_xxl"
+                android:layout_height="@dimen/spacing_2dp"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:background="@color/lg_accent_primary" />
+        </LinearLayout>
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_shop"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/spacing_lg"
-            app:moscoStyle="primary"
-            app:moscoSize="small"
+            android:layout_height="36dp"
+            app:moscoStyle="secondary"
             android:text="Shop"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -100,8 +100,7 @@ public class CollectionFragment extends Fragment {
             });
         }
 
-        loadTopBarData(view);
-
+        // Header has been unified, skipping redundant HUD logic.
         CollectionPagerAdapter adapter = new CollectionPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.setUserInputEnabled(false);
@@ -123,80 +122,7 @@ public class CollectionFragment extends Fragment {
         }
     }
 
-    private void loadTopBarData(View view) {
-        if (getContext() == null) return;
-        Context ctx = getContext();
-        com.vn.jet.mosco.utils.SessionManager sessionManager = new com.vn.jet.mosco.utils.SessionManager(ctx);
-        Long userId = sessionManager.getUserId();
-        if (userId != null) {
-            // Tải lập tức dữ liệu từ cache của MainActivity để đảm bảo Instant UX (không bị trễ/hiện 0 tiền)
-            if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
-                com.vn.jet.mosco.model.UserStats cached = ((com.vn.jet.mosco.MainActivity) getActivity()).getCachedStats();
-                if (cached != null) {
-                    bindTopBarData(view, cached, sessionManager, userId);
-                } else {
-                    // Nếu chưa có cache, tải tạm username và avatar từ session trước
-                    TextView tvUsername = view.findViewById(R.id.tv_collect_username);
-                    ImageView ivAvatar = view.findViewById(R.id.iv_collect_avatar);
-                    String displayName = sessionManager.getIngameName();
-                    if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
-                    if (tvUsername != null) {
-                        tvUsername.setText(displayName);
-                        tvUsername.setSelected(true);
-                    }
-                    String avatarId = sessionManager.getAvatarId();
-                    com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(ctx, ivAvatar, userId, avatarId);
-                }
-            }
 
-            // Đồng thời chạy API ngầm để cập nhật dữ liệu mới nhất từ server
-            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(ctx).create(com.vn.jet.mosco.network.GameApiService.class);
-            apiService.getUserStats(userId).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.UserStats>() {
-                @Override
-                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, retrofit2.Response<com.vn.jet.mosco.model.UserStats> response) {
-                    if (response.isSuccessful() && response.body() != null && isAdded()) {
-                        com.vn.jet.mosco.model.UserStats stats = response.body();
-                        bindTopBarData(view, stats, sessionManager, userId);
-                    }
-                }
-                @Override
-                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, Throwable t) {
-                    android.util.Log.e("CollectionFragment", "Failed to load topbar stats", t);
-                }
-            });
-        }
-    }
-
-    private void bindTopBarData(View view, com.vn.jet.mosco.model.UserStats stats, com.vn.jet.mosco.utils.SessionManager sessionManager, long userId) {
-        if (getContext() == null) return;
-        Context ctx = getContext();
-        TextView tvCoins = view.findViewById(R.id.tv_collect_coins);
-        TextView tvDiamonds = view.findViewById(R.id.tv_collect_diamonds);
-        TextView tvUsername = view.findViewById(R.id.tv_collect_username);
-        TextView tvLevel = view.findViewById(R.id.tv_collect_level);
-        android.widget.ProgressBar pbXp = view.findViewById(R.id.pb_collect_xp);
-        ImageView ivAvatar = view.findViewById(R.id.iv_collect_avatar);
-
-        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(ctx, stats.getCoins()));
-        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(ctx, stats.getDiamonds()));
-        
-        String displayName = sessionManager.getIngameName();
-        if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
-        if (tvUsername != null) {
-            tvUsername.setText(displayName);
-            tvUsername.setSelected(true);
-        }
-        
-        if (tvLevel != null) tvLevel.setText(getString(R.string.format_level, stats.getLevel()));
-        
-        long nextLevelXp = stats.getLevel() * 1000L;
-        if (nextLevelXp == 0) nextLevelXp = 1000;
-        int progress = (int) ((stats.getExp() * 100) / nextLevelXp);
-        if (pbXp != null) pbXp.setProgress(progress);
-        
-        String avatarId = sessionManager.getAvatarId();
-        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(ctx, ivAvatar, userId, avatarId);
-    }
 
     // ==========================================
     // SHARED HELPER: Sort Dropdown (custom popup)
