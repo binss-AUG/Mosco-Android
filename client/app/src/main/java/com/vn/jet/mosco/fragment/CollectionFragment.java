@@ -76,33 +76,23 @@ public class CollectionFragment extends Fragment {
         // Nạp Master Data (database.json) ở background sớm để Album/Objets mượt mà
         com.vn.jet.mosco.utils.DatabaseLoader.initMasterData(requireContext());
 
-        // [QUIET LUXURY] Đồng bộ tiêu đề màn hình Collection dùng chung layout_common_header và ẩn nút Back
+        // Khởi tạo layout header tùy biến cho Collection (được tối giản sát cạnh trên màn hình)
         View headerView = view.findViewById(R.id.layout_collection_header);
-        if (headerView != null) {
-            TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
-            if (tvTitle != null) {
-                tvTitle.setText(R.string.collection_header_title);
-            }
-            View btnBack = headerView.findViewById(R.id.btn_back_common);
-            if (btnBack != null) {
-                btnBack.setVisibility(View.GONE);
-            }
-        }
 
         tabLayout = view.findViewById(R.id.tab_layout_collection);
         viewPager = view.findViewById(R.id.view_pager_collection);
 
-        View btnShop = view.findViewById(R.id.btn_shop);
+        com.vn.jet.mosco.widget.MoscoButton btnShop = view.findViewById(R.id.btn_shop);
         if (btnShop != null) {
+            btnShop.setTextSize(10.4f); // Chữ Shop nhỏ đi 80% so với mặc định (13sp)
             btnShop.setOnClickListener(v -> {
-                if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frame_layout, new ShopFragment())
-                            .addToBackStack(null)
-                            .commit();
+                if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+                    ((com.vn.jet.mosco.MainActivity) getActivity()).openShop();
                 }
             });
         }
+
+        loadTopBarData(view);
 
         CollectionPagerAdapter adapter = new CollectionPagerAdapter(this);
         viewPager.setAdapter(adapter);
@@ -123,6 +113,81 @@ public class CollectionFragment extends Fragment {
             // Default to Cards (index 0)
             viewPager.setCurrentItem(0, false);
         }
+    }
+
+    private void loadTopBarData(View view) {
+        if (getContext() == null) return;
+        Context ctx = getContext();
+        com.vn.jet.mosco.utils.SessionManager sessionManager = new com.vn.jet.mosco.utils.SessionManager(ctx);
+        Long userId = sessionManager.getUserId();
+        if (userId != null) {
+            // Tải lập tức dữ liệu từ cache của MainActivity để đảm bảo Instant UX (không bị trễ/hiện 0 tiền)
+            if (getActivity() instanceof com.vn.jet.mosco.MainActivity) {
+                com.vn.jet.mosco.model.UserStats cached = ((com.vn.jet.mosco.MainActivity) getActivity()).getCachedStats();
+                if (cached != null) {
+                    bindTopBarData(view, cached, sessionManager, userId);
+                } else {
+                    // Nếu chưa có cache, tải tạm username và avatar từ session trước
+                    TextView tvUsername = view.findViewById(R.id.tv_collect_username);
+                    ImageView ivAvatar = view.findViewById(R.id.iv_collect_avatar);
+                    String displayName = sessionManager.getIngameName();
+                    if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
+                    if (tvUsername != null) {
+                        tvUsername.setText(displayName);
+                        tvUsername.setSelected(true);
+                    }
+                    String avatarId = sessionManager.getAvatarId();
+                    com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(ctx, ivAvatar, userId, avatarId);
+                }
+            }
+
+            // Đồng thời chạy API ngầm để cập nhật dữ liệu mới nhất từ server
+            com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(ctx).create(com.vn.jet.mosco.network.GameApiService.class);
+            apiService.getUserStats(userId).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.UserStats>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, retrofit2.Response<com.vn.jet.mosco.model.UserStats> response) {
+                    if (response.isSuccessful() && response.body() != null && isAdded()) {
+                        com.vn.jet.mosco.model.UserStats stats = response.body();
+                        bindTopBarData(view, stats, sessionManager, userId);
+                    }
+                }
+                @Override
+                public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.UserStats> call, Throwable t) {
+                    android.util.Log.e("CollectionFragment", "Failed to load topbar stats", t);
+                }
+            });
+        }
+    }
+
+    private void bindTopBarData(View view, com.vn.jet.mosco.model.UserStats stats, com.vn.jet.mosco.utils.SessionManager sessionManager, long userId) {
+        if (getContext() == null) return;
+        Context ctx = getContext();
+        TextView tvCoins = view.findViewById(R.id.tv_collect_coins);
+        TextView tvDiamonds = view.findViewById(R.id.tv_collect_diamonds);
+        TextView tvUsername = view.findViewById(R.id.tv_collect_username);
+        TextView tvLevel = view.findViewById(R.id.tv_collect_level);
+        android.widget.ProgressBar pbXp = view.findViewById(R.id.pb_collect_xp);
+        ImageView ivAvatar = view.findViewById(R.id.iv_collect_avatar);
+
+        if (tvCoins != null) tvCoins.setText(com.vn.jet.mosco.utils.NumberUtils.format(ctx, stats.getCoins()));
+        if (tvDiamonds != null) tvDiamonds.setText(com.vn.jet.mosco.utils.NumberUtils.format(ctx, stats.getDiamonds()));
+        
+        String displayName = sessionManager.getIngameName();
+        if (displayName == null || displayName.isEmpty()) displayName = sessionManager.getUsername();
+        if (tvUsername != null) {
+            tvUsername.setText(displayName);
+            tvUsername.setSelected(true);
+        }
+        
+        if (tvLevel != null) tvLevel.setText(getString(R.string.format_level, stats.getLevel()));
+        
+        long nextLevelXp = stats.getLevel() * 1000L;
+        if (nextLevelXp == 0) nextLevelXp = 1000;
+        int progress = (int) ((stats.getExp() * 100) / nextLevelXp);
+        if (pbXp != null) pbXp.setProgress(progress);
+        
+        String avatarId = sessionManager.getAvatarId();
+        com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(ctx, ivAvatar, userId, avatarId);
     }
 
     // ==========================================
@@ -697,12 +762,21 @@ public class CollectionFragment extends Fragment {
         iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         String finalUrl = item.imageUrl;
+        if (name != null && !name.isEmpty()) {
+            java.util.List<String> officialList = com.vn.jet.mosco.utils.AppConfig.OFFICIAL_ARTISTS;
+            for (int i = 0; i < officialList.size(); i++) {
+                if (officialList.get(i).equalsIgnoreCase(name.trim())) {
+                    finalUrl = "https://static.cosmo.fans/uploads/member-profile/2025-05-01/S" + (i + 1) + ".jpg";
+                    break;
+                }
+            }
+        }
         if (finalUrl != null && !finalUrl.isEmpty()) {
             Glide.with(ctx)
                     .load(finalUrl)
                     .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.item_shop_demo)
-                    .transform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(finalUrl))
+                    .centerCrop()
                     .into(iv);
         } else {
             iv.setImageResource(R.drawable.item_shop_demo);
@@ -788,9 +862,9 @@ public class CollectionFragment extends Fragment {
         }
 
         List<FilterCategory> cats = new ArrayList<>();
-        cats.add(new FilterCategory(context.getString(R.string.filter_tab_artist), artists));
-        cats.add(new FilterCategory(context.getString(R.string.filter_tab_season), seasons, false));
         cats.add(new FilterCategory(context.getString(R.string.filter_tab_class), classes, false));
+        cats.add(new FilterCategory(context.getString(R.string.filter_tab_season), seasons, false));
+        cats.add(new FilterCategory(context.getString(R.string.filter_tab_artist), artists));
         return cats;
     }
 

@@ -67,7 +67,21 @@ public class ShopFragment extends Fragment {
         sessionManager = new SessionManager(requireContext());
         apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 
-        // setupHeader(view); // Đã chuyển sang MainActivity
+        // Luôn ẩn topbar dùng chung của MainActivity khi vào Shop để dùng header tích hợp liền khối
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setTopBarVisible(false);
+        }
+
+        // Setup sự kiện nút Back (không viền) quay lại màn hình trước
+        View btnBack = view.findViewById(R.id.btn_shop_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    getActivity().getOnBackPressedDispatcher().onBackPressed();
+                }
+            });
+        }
+
         setupChips(view);
         setupRecyclerView(view);
         
@@ -76,9 +90,48 @@ public class ShopFragment extends Fragment {
     }
 
     private void fetchUserResources() {
-        // Gọi MainActivity cập nhật lại dữ liệu trên thanh top bar dùng chung
+        Long userId = sessionManager.getUserId();
+        if (userId != null && isAdded()) {
+            apiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
+                @Override
+                public void onResponse(Call<UserStats> call, Response<UserStats> response) {
+                    if (response.isSuccessful() && response.body() != null && isAdded()) {
+                        UserStats stats = response.body();
+                        View v = getView();
+                        if (v != null) {
+                            TextView tvDiamonds = v.findViewById(R.id.tv_shop_diamonds_custom);
+                            TextView tvCoins = v.findViewById(R.id.tv_shop_coins_custom);
+                            if (tvDiamonds != null) {
+                                tvDiamonds.setText(NumberUtils.format(requireContext(), stats.getDiamonds()));
+                            }
+                            if (tvCoins != null) {
+                                tvCoins.setText(NumberUtils.format(requireContext(), stats.getCoins()));
+                            }
+                        }
+                    }
+                }
+                @Override
+                public void onFailure(Call<UserStats> call, Throwable t) {
+                    Log.e("ShopFragment", "Failed to load user stats in Shop", t);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Khôi phục lại trạng thái hiển thị topbar của MainActivity khi rời Shop
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).loadUserData();
+            com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNav != null) {
+                int itemId = bottomNav.getSelectedItemId();
+                if (itemId == R.id.nav_home) {
+                    ((MainActivity) getActivity()).setTopBarVisible(true, MainActivity.TOP_BAR_MODE_HOME);
+                } else {
+                    ((MainActivity) getActivity()).setTopBarVisible(false);
+                }
+            }
         }
     }
 

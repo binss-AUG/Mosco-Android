@@ -301,15 +301,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <!-- Unified Card Content (Same proportions as Upgrade Fragment) -->
-                    <include layout="@layout/layout_core_card" />
-
                     <!-- TextureView cho thẻ Motion (Apollo MP4s) -->
                     <TextureView
                         android:id="@+id/vv_objet_detail_video"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:visibility="gone" />
+
+                    <!-- Unified Card Content (Same proportions as Upgrade Fragment) -->
+                    <include layout="@layout/layout_core_card" />
 
                     <!-- 2b. Back Face (Hiện khi Flip 3D, mặc định ẩn) -->
                     <ImageView

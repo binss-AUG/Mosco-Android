@@ -130,6 +130,7 @@
                                 android:textSize="@dimen/text_10sp"
                                 android:paddingHorizontal="@dimen/spacing_xs"
                                 android:paddingVertical="1dp"
+                                android:textColor="@color/white"
                                 android:text="@string/placeholder_empty" />
                         </com.google.android.material.card.MaterialCardView>
 

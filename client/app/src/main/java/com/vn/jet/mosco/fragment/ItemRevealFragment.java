@@ -43,11 +43,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import android.view.animation.DecelerateInterpolator;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
@@ -103,7 +102,14 @@ public class ItemRevealFragment extends Fragment {
     private View skeletonLoadingView; // "Quiet Luxury" Objet Skeleton
     private ChaosParticleView activeParticleView;
 
-    // Trình phát video ExoPlayer dành cho các thẻ Motion lật mở nhằm tăng hiệu năng 60fps trên giả lập Android 9
+    private RecyclerView rvCardHistory;
+    private MiniCardAdapter historyAdapter;
+    private List<RevealedCard> revealedCards = new ArrayList<>();
+    private List<RevealedCard> historyList = new ArrayList<>();
+    private int currentRevealIndex = 0;
+
+    // Trình phát video ExoPlayer dành cho các thẻ Motion lật mở nhằm tăng hiệu năng
+    // 60fps trên giả lập Android 9
     private androidx.media3.exoplayer.ExoPlayer itemVideoPlayer;
     private boolean isCardFlipped = false;
 
@@ -129,9 +135,6 @@ public class ItemRevealFragment extends Fragment {
             itemVideoPlayer.play();
         }
     }
-
-
-
 
     // Components dynamic for Flip
     private ImageView backImageView;
@@ -196,7 +199,7 @@ public class ItemRevealFragment extends Fragment {
         TextView tvItemName = view.findViewById(R.id.tv_item_name);
         TextView tvItemInfo = view.findViewById(R.id.tv_item_info);
         TextView tvItemQty = view.findViewById(R.id.tv_item_qty);
-        ImageView ivItemImage = view.findViewById(R.id.iv_item_image);
+        ImageView ivItemImage = view.findViewById(R.id.card_iv_image);
         MaterialCardView cardItem = view.findViewById(R.id.card_item);
         com.vn.jet.mosco.widget.MoscoButton btnOpenOne = view.findViewById(R.id.btn_open_one);
         com.vn.jet.mosco.widget.MoscoButton btnOpenAll = view.findViewById(R.id.btn_open_all);
@@ -242,6 +245,15 @@ public class ItemRevealFragment extends Fragment {
         btnOpenOne.setOnClickListener(v -> startPackOpening(false));
         btnOpenAll.setOnClickListener(v -> startPackOpening(true));
         btnDone.setOnClickListener(v -> goBack());
+
+        rvCardHistory = view.findViewById(R.id.rv_card_history);
+        if (rvCardHistory != null) {
+            rvCardHistory
+                    .setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+            historyAdapter = new MiniCardAdapter();
+            rvCardHistory.setAdapter(historyAdapter);
+            rvCardHistory.setVisibility(View.INVISIBLE);
+        }
 
         applyVisualEffects(cardItem, view);
     }
@@ -305,88 +317,83 @@ public class ItemRevealFragment extends Fragment {
             return;
         }
 
-        JSONObject topCardJsonObj = null;
-        List<Map<String, Object>> bulkCards = cards;
+        preloadAndExtractCards(cards, () -> {
+            View rootView = getView();
+            if (rootView == null)
+                return;
+            MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+            cardItem.post(() -> hideLoadingOverlay(false, this::startRevealAnimationForCurrentIndex));
+        });
+    }
 
-        if (quantity == 1) {
-            Map<String, Object> firstRoll = cards.get(0);
-            Map<String, Object> cardData = (Map<String, Object>) firstRoll.get(KEY_CARD_DATA);
-            if (cardData != null)
-                topCardJsonObj = new JSONObject(cardData);
-        } else {
-            Map<String, Object> bestCard = cards.get(0);
-            int maxTier = -1;
-            for (Map<String, Object> roll : cards) {
-                Map<String, Object> data = (Map<String, Object>) roll.get(KEY_CARD_DATA);
-                if (data != null) {
-                    int tier = getCardTier(String.valueOf(data.get(KEY_CARD_CLASS)));
-                    if (tier > maxTier) {
-                        maxTier = tier;
-                        bestCard = roll;
+    private void preloadAndExtractCards(List<Map<String, Object>> cards, Runnable onComplete) {
+        revealedCards.clear();
+        historyList.clear();
+        currentRevealIndex = 0;
+        if (historyAdapter != null) {
+            historyAdapter.notifyDataSetChanged();
+        }
+        if (rvCardHistory != null) {
+            rvCardHistory.setVisibility(View.INVISIBLE);
+        }
+
+        final int total = cards.size();
+        final RevealedCard[] tempArray = new RevealedCard[total];
+        final int[] loadedCount = { 0 };
+
+        for (int i = 0; i < total; i++) {
+            final int index = i;
+            Map<String, Object> cardMap = cards.get(index);
+            Map<String, Object> cardData = (Map<String, Object>) cardMap.get(KEY_CARD_DATA);
+            if (cardData == null) {
+                tempArray[index] = new RevealedCard(new JSONObject(), Color.WHITE);
+                loadedCount[0]++;
+                if (loadedCount[0] == total) {
+                    for (RevealedCard rc : tempArray) {
+                        if (rc != null)
+                            revealedCards.add(rc);
                     }
+                    onComplete.run();
                 }
+                continue;
             }
-            Map<String, Object> bestData = (Map<String, Object>) bestCard.get(KEY_CARD_DATA);
-            if (bestData != null)
-                topCardJsonObj = new JSONObject(bestData);
-        }
 
-        final JSONObject topCardJson = topCardJsonObj;
-        if (topCardJson == null) {
-            hideLoadingOverlay(true);
-            goBack();
-            return;
-        }
+            final JSONObject cardJson = new JSONObject(cardData);
+            String imageUrl = cardJson.optString(KEY_FRONT_IMAGE, "");
+            String backImageUrl = cardJson.optString(KEY_BACK_IMAGE, "");
 
-        // PRELOAD IMAGE STRICTLY BEFORE PHASE 2
-        String frontImageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
-        String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
-
-        if (!backImageUrl.isEmpty()) {
-            Glide.with(this).load(backImageUrl).preload();
-        }
-
-        final boolean[] frontLoaded = { false };
-        final boolean[] backLoaded = { backImageUrl.isEmpty() };
-        Runnable tryStartPhase2 = () -> {
-            if (frontLoaded[0] && backLoaded[0]) {
-                View rootView = getView();
-                if (rootView == null)
-                    return;
-                MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-                // Đảm bảo Android đã layout xong trước khi chạy reveal nặng.
-                cardItem.post(() -> hideLoadingOverlay(false, () -> startRevealAnimation(topCardJson, bulkCards)));
+            if (!backImageUrl.isEmpty()) {
+                Glide.with(this).load(backImageUrl).preload();
             }
-        };
 
-        Glide.with(this).asBitmap().load(frontImageUrl)
-                .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource,
-                            @Nullable com.bumptech.glide.request.transition.Transition<? super Bitmap> transition) {
-                        frontLoaded[0] = true;
-                        tryStartPhase2.run();
+            if (imageUrl.isEmpty()) {
+                tempArray[index] = new RevealedCard(cardJson, Color.WHITE);
+                loadedCount[0]++;
+                if (loadedCount[0] == total) {
+                    for (RevealedCard rc : tempArray) {
+                        if (rc != null)
+                            revealedCards.add(rc);
                     }
+                    onComplete.run();
+                }
+                continue;
+            }
 
-                    @Override
-                    public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
-                    }
-
-                    @Override
-                    public void onLoadFailed(@Nullable android.graphics.drawable.Drawable errorDrawable) {
-                        frontLoaded[0] = true; // fallback
-                        tryStartPhase2.run();
-                    }
-                });
-
-        if (!backImageUrl.isEmpty()) {
-            Glide.with(this).asBitmap().load(backImageUrl)
+            Glide.with(this).asBitmap().load(imageUrl)
                     .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource,
                                 @Nullable com.bumptech.glide.request.transition.Transition<? super Bitmap> transition) {
-                            backLoaded[0] = true;
-                            tryStartPhase2.run();
+                            int glowColor = extractColorFromBitmap(resource);
+                            tempArray[index] = new RevealedCard(cardJson, glowColor);
+                            loadedCount[0]++;
+                            if (loadedCount[0] == total) {
+                                for (RevealedCard rc : tempArray) {
+                                    if (rc != null)
+                                        revealedCards.add(rc);
+                                }
+                                onComplete.run();
+                            }
                         }
 
                         @Override
@@ -395,39 +402,36 @@ public class ItemRevealFragment extends Fragment {
 
                         @Override
                         public void onLoadFailed(@Nullable android.graphics.drawable.Drawable errorDrawable) {
-                            backLoaded[0] = true;
-                            tryStartPhase2.run();
+                            int tier = getCardTier(cardJson.optString(KEY_CARD_CLASS, ""));
+                            int glowColor = getAuraColorForTier(tier);
+                            tempArray[index] = new RevealedCard(cardJson, glowColor);
+                            loadedCount[0]++;
+                            if (loadedCount[0] == total) {
+                                for (RevealedCard rc : tempArray) {
+                                    if (rc != null)
+                                        revealedCards.add(rc);
+                                }
+                                onComplete.run();
+                            }
                         }
                     });
         }
     }
 
-    private void startRevealAnimation(JSONObject topCardJson, List<Map<String, Object>> bulkCards) {
-        View rootView = getView();
-        if (rootView == null)
-            return;
-
-        rootView.findViewById(R.id.tv_item_name).animate().alpha(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
-        rootView.findViewById(R.id.tv_item_info).animate().alpha(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
-        rootView.findViewById(R.id.tv_item_qty).animate().alpha(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
-        rootView.findViewById(R.id.ll_buttons).animate().alpha(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
-        rootView.findViewById(R.id.btn_back).animate().alpha(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
-
-        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-        if (floatingAnim != null)
-            floatingAnim.cancel();
-        float introScale = getPercent(R.integer.reveal_card_intro_scale_percent);
-        cardItem.animate()
-                .scaleX(introScale).scaleY(introScale).translationY(0f)
-                .setDuration(getResources().getInteger(R.integer.reveal_card_scale_ms))
-                .setInterpolator(new AccelerateInterpolator())
-                .withEndAction(() -> runPhase2Animation(topCardJson, bulkCards))
-                .start();
+    private int extractColorFromBitmap(Bitmap bitmap) {
+        if (bitmap == null || bitmap.isRecycled()) {
+            return Color.WHITE;
+        }
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        if (w < 3 || h < 3) {
+            return Color.WHITE;
+        }
+        int pixel = bitmap.getPixel(w - 2, h / 2);
+        float[] hsv = new float[3];
+        Color.colorToHSV(pixel, hsv);
+        hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
+        return Color.HSVToColor(hsv);
     }
 
     private void showLoadingOverlay() {
@@ -500,15 +504,98 @@ public class ItemRevealFragment extends Fragment {
         rootView.findViewById(R.id.btn_back).setEnabled(enabled);
     }
 
-    private void runPhase2Animation(JSONObject topCardJson, List<Map<String, Object>> bulkCards) {
-        MaterialCardView cardItem = getView().findViewById(R.id.card_item);
-        View lightLayer = getView().findViewById(R.id.view_pack_flash_overlay);
-        ImageView ivItemImage = getView().findViewById(R.id.iv_item_image);
+    private void startRevealAnimationForCurrentIndex() {
+        View rootView = getView();
+        if (rootView == null)
+            return;
 
-        int tier = getCardTier(topCardJson.optString(KEY_CARD_CLASS, "Welcome"));
-        int tierColor = getAuraColorForTier(tier);
+        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+        if (floatingAnim != null) {
+            floatingAnim.cancel();
+        }
 
-        // 1. Rung nhẹ Pack
+        cardItem.setRotationX(0f);
+        cardItem.setRotationY(0f);
+        cardItem.setTranslationX(0f);
+        cardItem.setTranslationY(0f);
+        cardItem.setScaleX(1f);
+        cardItem.setScaleY(1f);
+
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
+        if (currentRevealIndex == 0) {
+            if (itemImage != null && !itemImage.isEmpty()) {
+                Glide.with(this).load(itemImage).placeholder(R.drawable.item_shop_demo).into(ivItemImage);
+            } else {
+                ivItemImage.setImageResource(R.drawable.item_shop_demo);
+            }
+        }
+
+        if (backImageView != null) {
+            backImageView.setVisibility(View.GONE);
+        }
+        isCardFlipped = false;
+        releaseItemPlayer();
+
+        if (shimmerView != null) {
+            CardEffectHelper.remove(cardItem, shimmerView);
+        }
+
+        if (currentRevealIndex == 0) {
+            if (rvCardHistory != null) {
+                rvCardHistory.setAlpha(0f);
+                rvCardHistory.setVisibility(View.VISIBLE);
+            }
+
+            View tvRevealCollId = rootView.findViewById(R.id.tv_reveal_collection_id);
+            if (tvRevealCollId != null) {
+                tvRevealCollId.setVisibility(View.INVISIBLE);
+                tvRevealCollId.setAlpha(0f);
+            }
+
+            View bgBase = rootView.findViewById(R.id.view_reveal_bg_base);
+            if (bgBase != null) {
+                bgBase.setBackgroundResource(R.drawable.lg_background_deep);
+            }
+            View bgFade = rootView.findViewById(R.id.view_reveal_bg_fade);
+            if (bgFade != null) {
+                bgFade.animate().cancel();
+                bgFade.setAlpha(0f);
+                bgFade.setBackground(null);
+                bgFade.setVisibility(View.GONE);
+            }
+
+            rootView.findViewById(R.id.tv_item_name).animate().alpha(0f)
+                    .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
+            rootView.findViewById(R.id.tv_item_info).animate().alpha(0f)
+                    .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
+            rootView.findViewById(R.id.tv_item_qty).animate().alpha(0f)
+                    .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
+            rootView.findViewById(R.id.ll_buttons).animate().alpha(0f)
+                    .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
+            rootView.findViewById(R.id.btn_back).animate().alpha(0f)
+                    .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
+        }
+
+        summaryCardBaseTranslationY = 0f;
+        runPhase2AnimationForCurrentIndex();
+    }
+
+    private void runPhase2AnimationForCurrentIndex() {
+        View rootView = getView();
+        if (rootView == null)
+            return;
+
+        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+        View lightLayer = rootView.findViewById(R.id.view_pack_flash_overlay);
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
+
+        RevealedCard currentCard = revealedCards.get(currentRevealIndex);
+        JSONObject topCardJson = currentCard.cardJson;
+        int tierColor = currentCard.glowColor;
+
+        // TẠI SAO: Đồng bộ hóa màu nền phía sau mượt mà theo tông màu của thẻ mới.
+        transitionBackgroundTo(tierColor);
+
         float shakeMild = getResources().getDimension(R.dimen.reveal_shake_mild);
         float shakeMildRepeat1 = shakeMild * getPercent(R.integer.reveal_phase2_shake_dampen_60_percent);
         float shakeMildRepeat2 = shakeMild * getPercent(R.integer.reveal_phase2_shake_dampen_30_percent);
@@ -516,25 +603,64 @@ public class ItemRevealFragment extends Fragment {
                 shakeMildRepeat1, -shakeMildRepeat1, shakeMildRepeat2, -shakeMildRepeat2, 0f);
         shake1Clean.setDuration(getResources().getInteger(R.integer.reveal_phase2_shake_mild_ms));
         shake1Clean.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_mild_repeat));
+        shake1Clean.addUpdateListener(animation -> syncGlowToCard(cardItem));
         shake1Clean.start();
 
-        // 2. Tụ sáng ngầm (Blurry Metallic Effect)
-        GradientDrawable metallicBg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[] {
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_1),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_2),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_3),
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_metallic_4)
-        });
-        lightLayer.setBackground(metallicBg);
-        lightLayer.animate().alpha(getPercent(R.integer.reveal_phase2_overlay_alpha_percent))
-                .setDuration(getResources().getInteger(R.integer.reveal_phase2_metallic_ms)).withEndAction(() -> {
+        // TẠI SAO: Đặt trực tiếp màu nền của lớp phủ là màu thẻ mới thay vì gradient đen, giúp chuyển tiếp màu thẻ mượt mà từ 0 -> 100% opacity.
+        lightLayer.setBackgroundColor(tierColor);
+        lightLayer.setVisibility(View.VISIBLE);
+        lightLayer.setAlpha(0f);
+        lightLayer.animate().alpha(1f)
+                .setDuration(getResources().getInteger(R.integer.reveal_phase2_metallic_ms))
+                .withEndAction(() -> {
 
-                    // 3. Flash mạnh và Rung dữ dội
-                    ObjectAnimator colorAnim = ObjectAnimator.ofArgb(lightLayer, "backgroundColor", Color.WHITE,
-                            tierColor);
-                    colorAnim.setDuration(getResources().getInteger(R.integer.reveal_phase2_flash_ms));
-                    colorAnim.start();
+                    // TẠI SAO: Khi lớp phủ màu mới đạt 100% độ đục, toàn bộ thẻ cũ đã bị che khuất. Đây là thời điểm an toàn tuyệt đối để thay đổi ảnh, viền phát sáng và bung hiệu ứng hạt ngay lập tức để tránh trễ nhịp.
+                    String imageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
+                    if (!imageUrl.isEmpty()) {
+                        Glide.with(this).load(imageUrl).into(ivItemImage);
+                    }
 
+                    TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
+                    if (vvItemVideo != null) {
+                        vvItemVideo.setVisibility(View.GONE);
+                    }
+
+                    String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
+                    if (backImageView == null) {
+                        backImageView = new ImageView(requireContext());
+                        backImageView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+                        backImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                        backImageView.setScaleX(-1f);
+                        backImageView.setVisibility(View.GONE);
+                        cardItem.addView(backImageView);
+                    }
+                    if (!backImageUrl.isEmpty() && requireContext() != null) {
+                        Glide.with(this).load(backImageUrl).into(backImageView);
+                    }
+
+                    buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
+
+                    // TẠI SAO: Giảm dần độ đục của lớp màu (100% -> 0%) để làm hiển lộ dần thẻ mới đã được cập nhật bên dưới.
+                    if (lightLayer != null) {
+                        lightLayer.animate().alpha(0f).setDuration(400)
+                                .withEndAction(() -> lightLayer.setVisibility(View.GONE)).start();
+                    }
+
+                    syncGlowToCard(cardItem);
+
+                    // TẠI SAO: Đảm bảo ảnh thẻ luôn hiển thị rõ ràng, thiết lập tỉ lệ scale chuẩn cho cả thẻ đầu tiên.
+                    ivItemImage.setAlpha(1f);
+                    ivItemImage.setScaleX(1f);
+                    ivItemImage.setScaleY(1f);
+                    syncGlowToCard(cardItem);
+
+                    onCardRevealComplete(topCardJson, cardItem, ivItemImage, currentCard);
+
+                    // TẠI SAO: Bung các hạt năng lượng ngay lập tức trùng với thời điểm thay đổi hình ảnh để tạo cảm giác bùng nổ chân thực.
+                    createChaosParticles(tierColor, cardItem);
+                    setupFlipGesture(cardItem);
+
+                    // TẠI SAO: Tạo hiệu ứng rung lắc mạnh tại thời điểm bùng nổ thẻ mới để tăng cảm giác kịch tính của Gacha.
                     float shakeIntense = getResources().getDimension(R.dimen.reveal_shake_intense);
                     float shakeIntenseRepeat1 = shakeIntense
                             * getPercent(R.integer.reveal_phase2_shake_dampen_60_percent);
@@ -545,70 +671,44 @@ public class ItemRevealFragment extends Fragment {
                             shakeIntenseRepeat2, 0f);
                     shake2.setDuration(getResources().getInteger(R.integer.reveal_phase2_shake_intense_ms));
                     shake2.setRepeatCount(getResources().getInteger(R.integer.reveal_phase2_shake_intense_repeat));
+                    shake2.addUpdateListener(animation -> syncGlowToCard(cardItem));
                     shake2.start();
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        // THAY ĐỔI RUỘT CARD THÀNH OBJET CARD
-                        String imageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
-                        if (!imageUrl.isEmpty())
-                            Glide.with(this).load(imageUrl).into(ivItemImage);
-
-                        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
-                        if (vvItemVideo != null) {
-                            vvItemVideo.setVisibility(View.GONE);
-                        }
-
-
-                        // Tạo mặt sau (Back Image) cho FLIP 3D
-                        String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
-                        if (backImageView == null) {
-                            backImageView = new ImageView(requireContext());
-                            backImageView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
-                            backImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                            backImageView.setScaleX(-1f);
-                            backImageView.setVisibility(View.GONE);
-                            cardItem.addView(backImageView);
-                        }
-                        if (!backImageUrl.isEmpty() && requireContext() != null) {
-                            Glide.with(this).load(backImageUrl).into(backImageView);
-                        }
-
-                        buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
-
-                        // Xóa bỏ lớp flash overlay sau khi đã lật thẻ để tránh ám màu (Fix lỗi ảnh 1)
-                        if (lightLayer != null) {
-                            lightLayer.animate().alpha(0f).setDuration(400)
-                                    .withEndAction(() -> lightLayer.setVisibility(View.GONE)).start();
-                        }
-
-                        // SYNC GLOW STATE IMMEDIATELY (Đồng bộ ngay lập tức để tránh 'trễ' hiệu ứng)
-                        syncGlowToCard(cardItem);
-
-                        ivItemImage.setAlpha(0f);
-                        ivItemImage.setScaleX(0.8f);
-                        ivItemImage.setScaleY(0.8f);
-                        ivItemImage.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(500)
-                                .setInterpolator(new OvershootInterpolator())
-                                .setUpdateListener(animation -> syncGlowToCard(cardItem))
-                                .withEndAction(() -> {
-                                    // Không phát video MP4 trong ItemRevealFragment để tránh giật lag khi mở hộp
-                                    TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
-                                    if (vvItemVideoReveal != null) {
-                                        vvItemVideoReveal.setVisibility(View.GONE);
-                                    }
-                                })
-                                .start();
-
-                        // Kích hoạt Thiên Hà Hạt
-                        createChaosParticles(tierColor, cardItem);
-                        setupFlipGesture(cardItem);
-
-                        long summaryDelayMs = getSummaryRevealDelayMs();
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            showBulkSummaryResult(bulkCards, topCardJson);
-                        }, summaryDelayMs);
-                    }, getResources().getInteger(R.integer.reveal_phase2_explosion_delay_ms));
                 }).start();
+    }
+
+    private void onCardRevealComplete(JSONObject topCardJson, MaterialCardView cardItem, ImageView ivItemImage,
+            RevealedCard currentCard) {
+        TextureView vvItemVideoReveal = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
+        if (vvItemVideoReveal != null) {
+            String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
+            String videoUrl = topCardJson.optString("frontVideoUrl", "");
+            if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+                if (itemVideoPlayer != null) {
+                    itemVideoPlayer.release();
+                }
+                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
+                        vvItemVideoReveal, videoUrl, ivItemImage);
+            } else {
+                vvItemVideoReveal.setVisibility(View.GONE);
+            }
+        }
+
+        historyList.add(0, currentCard);
+        if (rvCardHistory.getAlpha() == 0f) {
+            rvCardHistory.animate().alpha(1f).setDuration(300).start();
+        }
+        historyAdapter.notifyItemInserted(0);
+        rvCardHistory.scrollToPosition(0);
+
+        if (currentRevealIndex < revealedCards.size() - 1) {
+            // TẠI SAO: Rút ngắn từ 1800ms xuống 1300ms để nhịp độ mở Gacha tự động dồn dập, mượt mà hơn.
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                currentRevealIndex++;
+                startRevealAnimationForCurrentIndex();
+            }, 1300);
+        } else {
+            showFinalRevealResults();
+        }
     }
 
     private void buildPremiumRevealEffects(MaterialCardView cardItem, JSONObject topCardJson, int forcedGlowColor) {
@@ -626,7 +726,6 @@ public class ItemRevealFragment extends Fragment {
         heroObjet.setBackgroundColor(topCardJson.optString(KEY_BACKGROUND_COLOR));
         heroObjet.setTextColor(topCardJson.optString(KEY_TEXT_COLOR));
         heroObjet.setFrontVideoUrl(topCardJson.optString("frontVideoUrl", ""));
-
 
         this.shimmerView = getView().findViewById(R.id.view_card_shimmer);
         Integer glowColorArg = (forcedGlowColor == 0) ? null : forcedGlowColor;
@@ -653,7 +752,7 @@ public class ItemRevealFragment extends Fragment {
         final float[] startRotation = { 0f };
         final boolean[] isFlipped = { false };
         final ValueAnimator[] snapAnim = { null };
-        ImageView ivFront = getView().findViewById(R.id.iv_item_image);
+        ImageView ivFront = getView().findViewById(R.id.card_iv_image);
 
         cardItem.setOnTouchListener((v, event) -> {
             switch (event.getActionMasked()) {
@@ -730,7 +829,7 @@ public class ItemRevealFragment extends Fragment {
 
     private void updateVisibilitySync(ImageView ivFront, boolean showBack) {
         isCardFlipped = showBack;
-        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.vv_item_video) : null;
+        TextureView vvItemVideo = getView() != null ? getView().findViewById(R.id.card_vv_video) : null;
         if (!showBack) {
             if (itemVideoPlayer != null) {
                 itemVideoPlayer.play();
@@ -761,7 +860,6 @@ public class ItemRevealFragment extends Fragment {
         }
     }
 
-
     private void createChaosParticles(int color, View cardItem) {
         ViewGroup root = (ViewGroup) getView();
         if (root == null)
@@ -786,24 +884,31 @@ public class ItemRevealFragment extends Fragment {
         }
         particleView.setElevation(Math.max(0f, cardItem.getElevation() - dpToPx(2)));
 
-        // Đợi layout ổn định rồi mới map toạ độ card -> particle layer để tránh lệch
-        // tâm nổ.
+        // Đợi layout ổn định rồi mới lấy toạ độ tâm thẻ
+        // Không dùng getLocationOnScreen vì khi lật thẻ (rotateY), bounding box bị thay đổi
+        // khiến tâm vụ nổ bị tính sai lệch sang bên phải.
         particleView.post(() -> {
             if (particleView.getParent() == null || cardItem.getParent() == null)
                 return;
-            int[] cardLoc = new int[2];
-            int[] rootLoc = new int[2];
-            cardItem.getLocationOnScreen(cardLoc);
-            root.getLocationOnScreen(rootLoc);
-            float cx = (cardLoc[0] - rootLoc[0]) + (cardItem.getWidth() / 2f);
-            float cy = (cardLoc[1] - rootLoc[1]) + (cardItem.getHeight() / 2f);
+            
+            float cx = cardItem.getLeft() + (cardItem.getWidth() / 2f) + cardItem.getTranslationX();
+            float cy = cardItem.getTop() + (cardItem.getHeight() / 2f) + cardItem.getTranslationY();
+            
+            // Xử lý bù trừ tọa độ nếu cardItem không phải là con trực tiếp của root
+            View current = cardItem;
+            while (current.getParent() instanceof View && current.getParent() != root) {
+                current = (View) current.getParent();
+                cx += current.getLeft() - current.getScrollX() + current.getTranslationX();
+                cy += current.getTop() - current.getScrollY() + current.getTranslationY();
+            }
+
             particleView.startExplosion(color, cx, cy);
         });
     }
 
     private ParticleConfig buildParticleConfig() {
         ParticleConfig cfg = new ParticleConfig();
-        final float slowDownFactor = 1.6f; // Slow particle explosion by 60%
+        final float slowDownFactor = 0.9f; // Slow particle explosion by 0.9
         cfg.particleCount = getResources().getInteger(R.integer.reveal_particle_count);
         cfg.explosionPhaseMs = (long) (getResources().getInteger(R.integer.reveal_particle_explosion_phase_ms)
                 * slowDownFactor);
@@ -818,7 +923,7 @@ public class ItemRevealFragment extends Fragment {
         cfg.damping = getResources().getInteger(R.integer.reveal_particle_damping_permille) / 1000f;
         cfg.edgeBounce = getResources().getInteger(R.integer.reveal_particle_edge_bounce_percent) / 100f;
         cfg.maxSpeed = getResources().getInteger(R.integer.reveal_particle_max_speed_percent) / 100f;
-        cfg.initialSpeedScale = getResources().getInteger(R.integer.reveal_particle_initial_speed_percent) / 100f;
+        cfg.initialSpeedScale = (getResources().getInteger(R.integer.reveal_particle_initial_speed_percent) / 100f) * 1f;
         cfg.spreadPull = getResources().getInteger(R.integer.reveal_particle_spread_pull_permille) / 1000f;
         cfg.spreadSwirl = getResources().getInteger(R.integer.reveal_particle_spread_swirl_percent) / 100f;
         return cfg;
@@ -850,19 +955,21 @@ public class ItemRevealFragment extends Fragment {
         float spreadSwirl;
     }
 
-    private void showBulkSummaryResult(List<Map<String, Object>> bulkCards, JSONObject topCardJson) {
+    private void showFinalRevealResults() {
+        if (getView() == null)
+            return;
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
-        TextView tvTitle = getView().findViewById(R.id.tv_item_name);
-        com.vn.jet.mosco.widget.MoscoButton btnDone = getView().findViewById(R.id.btn_done);
+        TextView tvTitle = getView().findViewById(R.id.tv_reveal_collection_id);
+        if (tvTitle != null) {
+            tvTitle.setVisibility(View.VISIBLE);
+        }
         LinearLayout llButtons = getView().findViewById(R.id.ll_buttons);
 
-        // --- 1. Micro-lift card: giữ near-center, tránh jump theo trục Y ---
-        int moveUpDistance = (int) getResources().getDimension(R.dimen.reveal_summary_micro_lift);
-        summaryCardBaseTranslationY = -moveUpDistance;
+        summaryCardBaseTranslationY = 0f;
         cardItem.animate()
                 .translationY(summaryCardBaseTranslationY)
-                .scaleX(getPercent(R.integer.reveal_card_summary_scale_percent))
-                .scaleY(getPercent(R.integer.reveal_card_summary_scale_percent))
+                .scaleX(1f)
+                .scaleY(1f)
                 .setDuration(getResources().getInteger(R.integer.reveal_summary_card_move_ms))
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .setUpdateListener(animation -> syncGlowToCard(cardItem))
@@ -870,8 +977,8 @@ public class ItemRevealFragment extends Fragment {
         if (currentGlowView != null) {
             currentGlowView.animate()
                     .translationY(summaryCardBaseTranslationY)
-                    .scaleX(getPercent(R.integer.reveal_card_summary_scale_percent))
-                    .scaleY(getPercent(R.integer.reveal_card_summary_scale_percent))
+                    .scaleX(1f)
+                    .scaleY(1f)
                     .setDuration(getResources().getInteger(R.integer.reveal_summary_card_move_ms))
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .start();
@@ -885,23 +992,15 @@ public class ItemRevealFragment extends Fragment {
                     .start();
         }
 
-        // --- 2. Premium title: cleaner typography + safe top spacing ---
-        String headline = getString(R.string.reveal_summary_headline);
-        String subtitle = getString(R.string.reveal_summary_subtitle, bulkCards.size());
-        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(headline + "\n" + subtitle);
-        titleBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_headline_size_percent)), 0,
-                headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titleBuilder.setSpan(
-                new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.palette_gold_medium)), 0,
-                headline.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        int subtitleStart = headline.length() + 1;
+        RevealedCard lastCard = revealedCards.get(revealedCards.size() - 1);
+        String collectionId = lastCard.cardJson.optString(KEY_COLLECTION_ID, "");
+        SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
         titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
-                subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         titleBuilder.setSpan(
                 new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(requireContext(),
                         R.color.lg_text_secondary)),
-                subtitleStart, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvTitle.setText(titleBuilder);
         tvTitle.setGravity(Gravity.CENTER);
         tvTitle.setLineSpacing(getResources().getDimension(R.dimen.reveal_title_line_spacing_extra), 1.0f);
@@ -928,192 +1027,47 @@ public class ItemRevealFragment extends Fragment {
                         .start())
                 .start();
 
-        // --- 3. Summary Glass Container ---
-        LinearLayout summaryContainer = new LinearLayout(requireContext());
-        summaryContainer.setOrientation(LinearLayout.VERTICAL);
-        summaryContainer.setAlpha(0f);
+        llButtons.setAlpha(0f);
+        llButtons.setVisibility(View.VISIBLE);
 
-        GradientDrawable glassBg = new GradientDrawable();
-        glassBg.setColor(ContextCompat.getColor(requireContext(), R.color.mosco_overlay_dark));
-        glassBg.setCornerRadius(getResources().getDimension(R.dimen.reveal_summary_corner_radius));
-        glassBg.setStroke((int) getResources().getDimension(R.dimen.reveal_summary_stroke_width),
-                ContextCompat.getColor(requireContext(), R.color.mosco_white_20));
-        summaryContainer.setBackground(glassBg);
+        com.vn.jet.mosco.widget.MoscoButton btnOpenOne = getView().findViewById(R.id.btn_open_one);
+        com.vn.jet.mosco.widget.MoscoButton btnOpenAll = getView().findViewById(R.id.btn_open_all);
+        com.vn.jet.mosco.widget.MoscoButton btnDone = getView().findViewById(R.id.btn_done);
 
-        // Header
-        TextView tvHeader = new TextView(requireContext());
-        tvHeader.setText(getString(R.string.reveal_summary_title_collapse));
-        tvHeader.setTextColor(Color.WHITE);
-        tvHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                getResources().getDimension(R.dimen.reveal_summary_header_text_size));
-        tvHeader.setGravity(Gravity.CENTER);
-        int headerPaddingHorizontal = (int) getResources()
-                .getDimension(R.dimen.reveal_summary_header_padding_horizontal);
-        tvHeader.setPadding(
-                headerPaddingHorizontal,
-                (int) getResources().getDimension(R.dimen.reveal_summary_header_padding_top),
-                headerPaddingHorizontal,
-                (int) getResources().getDimension(R.dimen.reveal_summary_header_padding_bottom));
-        tvHeader.setTypeface(Typeface.DEFAULT_BOLD);
-        tvHeader.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.spacing_8dp));
-        tvHeader.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_down, 0);
-        summaryContainer.addView(tvHeader);
-
-        View div = new View(requireContext());
-        div.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.mosco_white_15));
-        LinearLayout.LayoutParams divLp = new LinearLayout.LayoutParams(
-                (int) getResources().getDimension(R.dimen.reveal_summary_divider_width),
-                (int) getResources().getDimension(R.dimen.reveal_summary_divider_height));
-        divLp.gravity = Gravity.CENTER;
-        div.setLayoutParams(divLp);
-        summaryContainer.addView(div);
-
-        // Scrollable List
-        android.widget.ScrollView scrollView = new android.widget.ScrollView(requireContext());
-        scrollView.setVerticalScrollBarEnabled(false);
-        int expandedHeight = (int) getResources().getDimension(R.dimen.reveal_summary_list_height);
-        int collapsedHeight = (int) getResources().getDimension(R.dimen.reveal_summary_list_collapsed_height);
-        summaryContainer.addView(scrollView, new LinearLayout.LayoutParams(-1, expandedHeight));
-
-        LinearLayout listLayout = new LinearLayout(requireContext());
-        listLayout.setOrientation(LinearLayout.VERTICAL);
-        listLayout.setPadding(
-                (int) getResources().getDimension(R.dimen.reveal_summary_list_padding_horizontal),
-                (int) getResources().getDimension(R.dimen.reveal_summary_list_padding_top),
-                (int) getResources().getDimension(R.dimen.reveal_summary_list_padding_horizontal),
-                (int) getResources().getDimension(R.dimen.reveal_summary_list_padding_bottom));
-        scrollView.addView(listLayout);
-
-        // Data processing for list
-        Map<String, Integer> cardCounts = new HashMap<>();
-        Map<String, Integer> cardTiers = new HashMap<>();
-        for (Map<String, Object> roll : bulkCards) {
-            Map<String, Object> data = (Map<String, Object>) roll.get("cardData");
-            if (data != null) {
-                String name = String.valueOf(data.get("collectionId"));
-                String cardClass = String.valueOf(data.get("class"));
-                cardCounts.put(name, cardCounts.getOrDefault(name, 0) + 1);
-                cardTiers.put(name, getCardTier(cardClass));
-            }
+        TextView tvItemQty = getView().findViewById(R.id.tv_item_qty);
+        if (tvItemQty != null) {
+            tvItemQty.setVisibility(View.GONE);
         }
 
-        for (Map.Entry<String, Integer> entry : cardCounts.entrySet()) {
-            LinearLayout row = new LinearLayout(requireContext());
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            row.setPadding(0, (int) getResources().getDimension(R.dimen.reveal_summary_row_padding_vertical), 0,
-                    (int) getResources().getDimension(R.dimen.reveal_summary_row_padding_vertical));
-            row.setGravity(Gravity.CENTER_VERTICAL);
-
-            View colorIndicator = new View(requireContext());
-            int targetTier = cardTiers.getOrDefault(entry.getKey(), 1);
-            GradientDrawable indicatorBg = new GradientDrawable();
-            indicatorBg.setShape(GradientDrawable.OVAL);
-            if (targetTier == 4) {
-                indicatorBg.setColors(new int[] {
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_tier_4_primary),
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_tier_4_secondary)
-                });
-            } else if (targetTier == 3) {
-                indicatorBg.setColors(new int[] {
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white),
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_tier_3_secondary)
-                });
-            } else if (targetTier == 2) {
-                indicatorBg.setColor(
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_tier_2));
-            } else {
-                indicatorBg.setColor(
-                        androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_tier_1));
-            }
-
-            colorIndicator.setBackground(indicatorBg);
-            colorIndicator.setLayoutParams(new LinearLayout.LayoutParams(
-                    (int) getResources().getDimension(R.dimen.reveal_summary_indicator_size),
-                    (int) getResources().getDimension(R.dimen.reveal_summary_indicator_size)));
-
-            TextView tvName = new TextView(requireContext());
-            tvName.setText(entry.getKey());
-            tvName.setTextColor(Color.WHITE);
-            tvName.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    getResources().getDimension(R.dimen.reveal_summary_name_text_size));
-            tvName.setPadding((int) getResources().getDimension(R.dimen.reveal_summary_name_padding_start), 0,
-                    (int) getResources().getDimension(R.dimen.reveal_summary_name_padding_end), 0);
-            tvName.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-            tvName.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1.0f));
-
-            TextView tvQty = new TextView(requireContext());
-            tvQty.setText(getString(R.string.format_qty_int, entry.getValue()));
-            tvQty.setTextColor(
-                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.reveal_summary_qty_text));
-            tvQty.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    getResources().getDimension(R.dimen.reveal_summary_qty_text_size));
-            tvQty.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-
-            row.addView(colorIndicator);
-            row.addView(tvName);
-            row.addView(tvQty);
-            listLayout.addView(row);
-        }
-
-        // --- 4. Style the "Collect All" button ---
-        llButtons.setAlpha(1f); // Đảm bảo hiện lại layout nút đã bị ẩn lúc nãy
-        View btnOpenOne = getView().findViewById(R.id.btn_open_one);
-        View btnOpenAll = getView().findViewById(R.id.btn_open_all);
-        if (btnOpenOne != null)
+        if (itemQty <= 0) {
             btnOpenOne.setVisibility(View.GONE);
-        if (btnOpenAll != null)
             btnOpenAll.setVisibility(View.GONE);
-        btnDone.setVisibility(View.VISIBLE);
-        btnDone.setText(getString(R.string.reveal_action_collect_all, bulkCards.size()));
-        // MoscoButton tự quản lý style/radius qua XML attrs (moscoStyle="primary")
-        btnDone.setAlpha(getPercent(R.integer.reveal_overlay_alpha_hidden_percent));
-        btnDone.animate().alpha(getPercent(R.integer.reveal_alpha_visible_percent))
-                .setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms)).start();
+            btnDone.setVisibility(View.VISIBLE);
+            btnDone.setText(getString(R.string.reveal_action_collect_all, revealedCards.size()));
+            btnDone.setOnClickListener(v -> goBack());
+        } else {
+            btnDone.setVisibility(View.GONE);
+            btnOpenOne.setVisibility(View.VISIBLE);
 
+            if (itemQty > 1) {
+                btnOpenAll.setVisibility(View.VISIBLE);
+                final int maxOpenQuantity = getResources().getInteger(R.integer.reveal_open_pack_max_quantity);
+                int openAllDisplayQty = Math.min(itemQty, maxOpenQuantity);
+                btnOpenAll.setText(getString(R.string.reveal_action_open_all, openAllDisplayQty));
+            } else {
+                btnOpenAll.setVisibility(View.GONE);
+            }
+        }
+
+        setActionButtonsEnabled(true);
         llButtons.bringToFront();
-        btnDone.setOnClickListener(v -> goBack());
-
-        // Add container to root
-        ViewGroup root = (ViewGroup) getView();
-        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-        lp.topToBottom = cardItem.getId();
-        // Cho list chạy "dưới" FAB theo trục Z để tiết kiệm diện tích hiển thị card
-        // trung tâm.
-        lp.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        lp.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        lp.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-        int negMargin = (int) getResources().getDimension(R.dimen.reveal_summary_negative_margin);
-        int summarySideMargin = (int) getResources().getDimension(R.dimen.reveal_summary_margin_side);
-        lp.setMargins(summarySideMargin, -negMargin, summarySideMargin, 0);
-
-        root.addView(summaryContainer, lp);
-        summaryContainer.animate()
-                .alpha(getPercent(R.integer.reveal_alpha_visible_percent))
-                .translationY(-getResources().getDimension(R.dimen.reveal_summary_translation_y))
-                .setDuration(getResources().getInteger(R.integer.reveal_summary_container_fade_ms))
+        llButtons.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms))
                 .start();
 
-        // Footer spacer lớn để item cuối không bị FAB che khi cuộn tới cuối danh sách.
-        View listFooterSpacer = new View(requireContext());
-        listFooterSpacer.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                (int) getResources().getDimension(R.dimen.reveal_summary_footer_spacer_height)));
-        TextView footerMarker = new TextView(requireContext());
-        footerMarker.setText(getString(R.string.reveal_summary_footer_marker));
-        footerMarker.setGravity(Gravity.CENTER);
-        footerMarker.setTextColor(
-                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.lg_text_secondary));
-        footerMarker.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                getResources().getDimension(R.dimen.reveal_summary_footer_marker_text_size));
-        footerMarker.setPadding(0, (int) getResources().getDimension(R.dimen.reveal_summary_footer_marker_padding_top),
-                0, 0);
-        listLayout.addView(footerMarker);
-        listLayout.addView(listFooterSpacer);
-
-        setupSummaryPanelInteractions(tvHeader, scrollView, expandedHeight, collapsedHeight);
-
-        llButtons.bringToFront(); // Đảm bảo nút Collect All luôn nằm trên màng mờ Summary
+        View btnBack = getView().findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            btnBack.setVisibility(View.GONE);
+        }
     }
 
     private int getCardTier(String cardClass) {
@@ -1287,6 +1241,95 @@ public class ItemRevealFragment extends Fragment {
         hideLoadingOverlay(true);
     }
 
+    private void transitionBackgroundTo(int newColor) {
+        if (!isAdded() || getContext() == null)
+            return;
+        View rootView = getView();
+        if (rootView == null)
+            return;
+
+        View bgBase = rootView.findViewById(R.id.view_reveal_bg_base);
+        View bgFade = rootView.findViewById(R.id.view_reveal_bg_fade);
+        if (bgBase == null || bgFade == null)
+            return;
+
+        float w = rootView.getWidth();
+        float h = rootView.getHeight();
+
+        try {
+            GradientDrawable newGradient = createRadialBackground(newColor, w, h);
+
+            // Tối ưu hóa: Ngăn chặn khựt màu bằng cách dùng cơ chế cross-fade 2 drawable
+            // opaque
+            bgFade.animate().cancel();
+
+            android.graphics.drawable.Drawable currentFadeDrawable = bgFade.getBackground();
+            if (currentFadeDrawable != null) {
+                bgBase.setBackground(currentFadeDrawable);
+            } else {
+                bgBase.setBackgroundResource(R.drawable.lg_background_deep);
+            }
+
+            bgFade.setBackground(newGradient);
+            bgFade.setAlpha(0f);
+            bgFade.setVisibility(View.VISIBLE);
+            bgBase.setVisibility(View.VISIBLE);
+
+            bgFade.animate()
+                    .alpha(1f)
+                    .setDuration(800) // 800ms chuyển màu mượt mà hơn
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+        } catch (Exception e) {
+            // Safe fallback
+        }
+    }
+
+    private GradientDrawable createRadialBackground(int centerColor, float width, float height) {
+        /*
+         * HƯỚNG DẪN TÙY CHỈNH NỀN (BACKGROUND TWEAKING GUIDE):
+         * 1. Độ sáng các vùng (Blend Ratios):
+         * - Tính bằng ColorUtils.blendARGB(Color.BLACK, centerColor, tỷ_lệ_màu_thẻ)
+         * - tỷ_lệ_màu_thẻ (0.0f đến 1.0f): Càng cao thì màu càng rực rỡ, càng thấp thì
+         * càng tối (gần Đen).
+         */
+
+        float intensityCenter = 0.91f; // Độ rực rỡ tại tâm
+        float intensityMid = 0.35f; // Độ rực rỡ ở khoảng giữa
+        float intensityEdge = 0.25f; // Độ rực rỡ ở rìa màn hình
+
+        float radiusFactor = 0.85f; // Bán kính tỏa
+
+        // Tính toán màu sắc dựa trên tỷ lệ hòa trộn với màu Đen tuyệt đối
+        int colorCenter = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityCenter);
+        int colorMid = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityMid);
+        int endColor = androidx.core.graphics.ColorUtils.blendARGB(android.graphics.Color.BLACK, centerColor,
+                intensityEdge);
+
+        GradientDrawable gd = new GradientDrawable();
+        gd.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+
+        // Áp dụng bán kính
+        float minDim = Math.min(width, height);
+        float radius = minDim * radiusFactor;
+        if (radius <= 0) {
+            radius = dpToPx(380);
+        }
+        gd.setGradientRadius(radius);
+
+        // Tâm tỏa sáng
+        gd.setGradientCenter(0.50f, 0.38f);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            gd.setColors(new int[] { colorCenter, colorMid, endColor });
+        } else {
+            gd.setColors(new int[] { colorCenter, endColor });
+        }
+        return gd;
+    }
+
     private int dpToPx(float dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
@@ -1295,83 +1338,197 @@ public class ItemRevealFragment extends Fragment {
         return getResources().getInteger(integerResId) / 100f;
     }
 
-    private void setupSummaryPanelInteractions(TextView header, View panel, int expandedHeight, int collapsedHeight) {
-        if (header == null || panel == null)
+    private void swapCardWithFlipAnimation(RevealedCard targetCard) {
+        View rootView = getView();
+        if (rootView == null)
             return;
-        final int[] currentHeight = { expandedHeight };
-        final boolean[] isCollapsed = { false };
-        final float[] downY = { 0f };
-        final int[] startHeight = { expandedHeight };
-        final boolean[] isDragging = { false };
-        final int dragThresholdPx = dpToPx(getResources().getInteger(R.integer.reveal_summary_panel_drag_threshold_dp));
+        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+        if (cardItem == null)
+            return;
 
-        header.setOnClickListener(v -> {
-            int targetHeight = isCollapsed[0] ? expandedHeight : collapsedHeight;
-            ValueAnimator animator = ValueAnimator.ofInt(currentHeight[0], targetHeight);
-            animator.setDuration(getResources().getInteger(R.integer.reveal_summary_panel_resize_ms));
-            animator.addUpdateListener(animation -> {
-                int value = (int) animation.getAnimatedValue();
-                ViewGroup.LayoutParams lp = panel.getLayoutParams();
-                lp.height = value;
-                panel.setLayoutParams(lp);
-                currentHeight[0] = value;
-            });
-            animator.start();
-            isCollapsed[0] = !isCollapsed[0];
-            header.setText(getString(
-                    isCollapsed[0] ? R.string.reveal_summary_title_expand : R.string.reveal_summary_title_collapse));
-            header.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    0, 0, isCollapsed[0] ? R.drawable.ic_arrow_up : R.drawable.ic_arrow_down, 0);
-        });
+        cardItem.setOnTouchListener(null);
 
-        header.setOnTouchListener((v, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    downY[0] = event.getRawY();
-                    startHeight[0] = currentHeight[0];
-                    isDragging[0] = false;
-                    return false;
-                case MotionEvent.ACTION_MOVE:
-                    float deltaY = downY[0] - event.getRawY();
-                    if (Math.abs(deltaY) > dragThresholdPx) {
-                        isDragging[0] = true;
-                    }
-                    if (isDragging[0]) {
-                        int target = clamp(startHeight[0] + Math.round(deltaY), collapsedHeight, expandedHeight);
-                        ViewGroup.LayoutParams lp = panel.getLayoutParams();
-                        lp.height = target;
-                        panel.setLayoutParams(lp);
-                        currentHeight[0] = target;
-                        return true;
-                    }
-                    return false;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    if (isDragging[0]) {
-                        int middle = collapsedHeight + ((expandedHeight - collapsedHeight) / 2);
-                        int snapTarget = currentHeight[0] >= middle ? expandedHeight : collapsedHeight;
-                        ValueAnimator settle = ValueAnimator.ofInt(currentHeight[0], snapTarget);
-                        settle.setDuration(getResources().getInteger(R.integer.reveal_summary_panel_resize_ms));
-                        settle.addUpdateListener(animation -> {
-                            int value = (int) animation.getAnimatedValue();
-                            ViewGroup.LayoutParams lp = panel.getLayoutParams();
-                            lp.height = value;
-                            panel.setLayoutParams(lp);
-                            currentHeight[0] = value;
-                        });
-                        settle.start();
-                        isCollapsed[0] = (snapTarget == collapsedHeight);
-                        header.setText(getString(isCollapsed[0] ? R.string.reveal_summary_title_expand
-                                : R.string.reveal_summary_title_collapse));
-                        header.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                                0, 0, isCollapsed[0] ? R.drawable.ic_arrow_up : R.drawable.ic_arrow_down, 0);
-                        return true;
-                    }
-                    return false;
-                default:
-                    return false;
+        float currentScaleX = cardItem.getScaleX();
+        float currentScaleY = cardItem.getScaleY();
+
+        cardItem.animate().scaleX(0f).rotationY(90f).setDuration(150)
+                .setUpdateListener(animation -> syncGlowToCard(cardItem))
+                .withEndAction(() -> {
+                    updateCardContent(targetCard);
+
+                    cardItem.setRotationY(-90f);
+                    syncGlowToCard(cardItem);
+
+                    cardItem.animate()
+                            .scaleX(currentScaleX)
+                            .scaleY(currentScaleY)
+                            .rotationY(0f)
+                            .setDuration(150) // TODO: CHỈNH THỜI GIAN NỬA VÒNG LẬT THẺ TẠI ĐÂY (150ms)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .setUpdateListener(animation -> syncGlowToCard(cardItem))
+                            .withEndAction(() -> {
+                                setupFlipGesture(cardItem);
+                            })
+                            .start();
+                })
+                .start();
+    }
+
+    private void updateCardContent(RevealedCard targetCard) {
+        View rootView = getView();
+        if (rootView == null)
+            return;
+
+        MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
+        ImageView ivItemImage = rootView.findViewById(R.id.card_iv_image);
+
+        JSONObject topCardJson = targetCard.cardJson;
+        int tierColor = targetCard.glowColor;
+
+        isCardFlipped = false;
+        if (backImageView != null) {
+            backImageView.setVisibility(View.GONE);
+            String backImageUrl = topCardJson.optString(KEY_BACK_IMAGE, "");
+            if (!backImageUrl.isEmpty() && requireContext() != null) {
+                Glide.with(this).load(backImageUrl).into(backImageView);
             }
-        });
+        }
+
+        releaseItemPlayer();
+
+        String imageUrl = topCardJson.optString(KEY_FRONT_IMAGE, "");
+        if (!imageUrl.isEmpty()) {
+            Glide.with(this).load(imageUrl).into(ivItemImage);
+        }
+        ivItemImage.setVisibility(View.VISIBLE);
+
+        if (shimmerView != null) {
+            CardEffectHelper.remove(cardItem, shimmerView);
+        }
+
+        buildPremiumRevealEffects(cardItem, topCardJson, tierColor);
+        syncGlowToCard(cardItem);
+        transitionBackgroundTo(tierColor);
+
+        TextureView vvItemVideo = rootView.findViewById(R.id.card_vv_video);
+        if (vvItemVideo != null) {
+            String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
+            String videoUrl = topCardJson.optString("frontVideoUrl", "");
+            if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+                if (itemVideoPlayer != null) {
+                    itemVideoPlayer.release();
+                }
+                itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
+                        vvItemVideo, videoUrl, ivItemImage);
+            } else {
+                vvItemVideo.setVisibility(View.GONE);
+            }
+        }
+
+        // Khởi động lại hiệu ứng hạt (load animation từ đầu) giống hệt lúc mới mở thẻ
+        createChaosParticles(tierColor, cardItem);
+
+        TextView tvTitle = rootView.findViewById(R.id.tv_reveal_collection_id);
+        View llButtons = rootView.findViewById(R.id.ll_buttons);
+        if (tvTitle != null && llButtons != null && llButtons.getVisibility() == View.VISIBLE && getContext() != null) {
+            tvTitle.setVisibility(View.VISIBLE);
+            String collectionId = topCardJson.optString(KEY_COLLECTION_ID, "");
+            SpannableStringBuilder titleBuilder = new SpannableStringBuilder(collectionId);
+            titleBuilder.setSpan(new RelativeSizeSpan(getPercent(R.integer.reveal_title_subtitle_size_percent)),
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            titleBuilder.setSpan(
+                    new ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(getContext(),
+                            R.color.lg_text_secondary)),
+                    0, titleBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tvTitle.setText(titleBuilder);
+        }
+    }
+
+    private static class RevealedCard {
+        final JSONObject cardJson;
+        int glowColor;
+        boolean hasPlayedSlamAnimation = false;
+
+        RevealedCard(JSONObject cardJson, int glowColor) {
+            this.cardJson = cardJson;
+            this.glowColor = glowColor;
+        }
+    }
+
+    private class MiniCardAdapter extends RecyclerView.Adapter<MiniCardAdapter.ViewHolder> {
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mini_card, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.itemView.animate().cancel();
+            holder.itemView.setScaleX(1f);
+            holder.itemView.setScaleY(1f);
+            holder.itemView.setAlpha(1f);
+
+            RevealedCard card = historyList.get(position);
+            JSONObject json = card.cardJson;
+
+            Objet objet = new Objet(0,
+                    json.optString(KEY_COLLECTION_ID),
+                    json.optString(KEY_FRONT_IMAGE),
+                    json.optInt(KEY_LEVEL, 1),
+                    0,
+                    json.optInt(KEY_UPGRADE_LEVEL, 1));
+            objet.setMember(json.optString(KEY_MEMBER));
+            objet.setSeason(json.optString(KEY_SEASON));
+            objet.setBackgroundColor(json.optString(KEY_BACKGROUND_COLOR));
+            objet.setTextColor(json.optString(KEY_TEXT_COLOR));
+            objet.setFrontVideoUrl(json.optString("frontVideoUrl", ""));
+
+            MaterialCardView cardContainer = holder.itemView.findViewById(R.id.cv_mini_card);
+            View shimmer = holder.itemView.findViewById(R.id.view_card_shimmer);
+            ImageView ivFront = holder.itemView.findViewById(R.id.card_iv_image);
+            View skeleton = holder.itemView.findViewById(R.id.layout_card_skeleton);
+
+            if (skeleton != null) {
+                skeleton.setVisibility(View.GONE);
+            }
+            if (ivFront != null) {
+                ivFront.setVisibility(View.VISIBLE);
+                String imageUrl = json.optString(KEY_FRONT_IMAGE, "");
+                if (!imageUrl.isEmpty()) {
+                    Glide.with(holder.itemView.getContext()).load(imageUrl).into(ivFront);
+                } else {
+                    ivFront.setImageDrawable(null);
+                }
+            }
+
+            CardEffectHelper.apply(cardContainer, shimmer, objet, false, true, card.glowColor);
+
+            if (cardContainer != null) {
+                cardContainer.setScaleX(1f);
+                cardContainer.setScaleY(1f);
+                cardContainer.setAlpha(1f);
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                if (currentRevealIndex < revealedCards.size() - 1) {
+                    return;
+                }
+                swapCardWithFlipAnimation(card);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return historyList.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ViewHolder(@NonNull View itemView) {
+                super(itemView);
+            }
+        }
     }
 
     private int clamp(int value, int min, int max) {
@@ -1412,6 +1569,12 @@ public class ItemRevealFragment extends Fragment {
             this.config = config;
         }
 
+        public void updateColor(int color) {
+            this.explodeColor = color;
+            this.paint.setColor(color);
+            invalidate();
+        }
+
         public void startExplosion(int color, float cx, float cy) {
             this.explodeColor = color;
             this.centerX = cx;
@@ -1421,7 +1584,10 @@ public class ItemRevealFragment extends Fragment {
             setBackgroundColor(Color.TRANSPARENT);
 
             paint.setColor(color);
-            paint.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
+            // HƯỚNG DẪN TÙY CHỈNH (TWEAKING GUIDE) - HIỆU ỨNG GLOW LUXURY:
+            // - Bán kính tỏa sáng (Glow Radius): 15f (Tăng/giảm số này để chỉnh độ rộng của vùng sáng bao quanh hạt).
+            // - Màu phát sáng: Dùng biến 'color' (màu tương ứng với thẻ).
+            paint.setShadowLayer(15f, 0f, 0f, color);
 
             particles.clear();
             for (int i = 0; i < config.particleCount; i++) {
@@ -1539,7 +1705,9 @@ public class ItemRevealFragment extends Fragment {
                 float speed = (float) (Math.random() * 35 + 15) * config.initialSpeedScale;
                 vx = (float) Math.cos(angle) * speed * config.ovalBurstX;
                 vy = (float) Math.sin(angle) * speed * config.ovalBurstY;
-                radius = (float) (Math.random() * 1.4f + 0.8f);
+                // HƯỚNG DẪN TÙY CHỈNH (TWEAKING GUIDE) - KÍCH THƯỚC HẠT:
+                // - Nhân thêm 3f để làm các hạt to gấp 3 lần. Thay đổi số 3f thành số khác nếu muốn điều chỉnh thêm.
+                radius = (float) (Math.random() * 1.4f + 0.8f) * 3f;
                 wanderSeedX = (float) (Math.random() * Math.PI * 2);
                 wanderSeedY = (float) (Math.random() * Math.PI * 2);
                 driftX = (float) (Math.random() * 1.6f - 0.8f);
@@ -1668,4 +1836,3 @@ public class ItemRevealFragment extends Fragment {
         }
     }
 }
-

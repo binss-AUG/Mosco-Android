@@ -495,7 +495,7 @@ public class CollectionDetailBinder {
                             // MOTION VIDEO SUPPORT
                             if (vvObjetVideo != null) {
                                 try {
-                                    android.media.MediaPlayer mp = (android.media.MediaPlayer) dialog.getWindow().getDecorView().getTag();
+                                    androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
                                     if (mp != null) mp.pause();
                                 } catch (Exception e) {}
                             }
