@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -155,6 +156,8 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      * Cập nhật toàn bộ danh sách — reset phân trang về trang 1.
      */
     public void updateData(@NonNull List<CardDisplayItem> newItems) {
+        boolean wasLoading = this.isLoading;
+
         this.allItems.clear();
         this.allItems.addAll(newItems);
         this.currentFilteredList = new ArrayList<>(newItems);
@@ -162,13 +165,58 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.isPagingLoading = false;
         this.isLoading = false;
 
-        this.displayItems.clear();
+        List<CardDisplayItem> newDisplayItems = new ArrayList<>();
         int maxLimit = Math.min(currentLimit, currentFilteredList.size());
         if (maxLimit > 0) {
-            this.displayItems.addAll(currentFilteredList.subList(0, maxLimit));
+            newDisplayItems.addAll(currentFilteredList.subList(0, maxLimit));
         }
 
-        notifyDataSetChanged();
+        if (wasLoading) {
+            // Nếu trước đó đang ở trạng thái skeleton loading, thực hiện đổi toàn bộ layout sang danh sách thật
+            this.displayItems.clear();
+            this.displayItems.addAll(newDisplayItems);
+            notifyDataSetChanged();
+        } else {
+            // Sử dụng DiffUtil để so sánh chính xác phần tử thay đổi, loại bỏ hiện tượng giật ẩn hiện khi nạp/cập nhật dữ liệu từ cache và server
+            final List<CardDisplayItem> oldDisplayItems = new ArrayList<>(this.displayItems);
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return oldDisplayItems.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newDisplayItems.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    CardDisplayItem oldItem = oldDisplayItems.get(oldItemPosition);
+                    CardDisplayItem newItem = newDisplayItems.get(newItemPosition);
+                    if (oldItem == null || newItem == null) return false;
+                    return oldItem.getId() == newItem.getId();
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    CardDisplayItem oldItem = oldDisplayItems.get(oldItemPosition);
+                    CardDisplayItem newItem = newDisplayItems.get(newItemPosition);
+                    if (oldItem == null || newItem == null) return false;
+                    return oldItem.isOwned() == newItem.isOwned()
+                            && oldItem.getUpgradeLevel() == newItem.getUpgradeLevel()
+                            && oldItem.getLevel() == newItem.getLevel()
+                            && oldItem.getOvr() == newItem.getOvr()
+                            && (oldItem.getFrontImage() != null ? oldItem.getFrontImage().equals(newItem.getFrontImage()) : newItem.getFrontImage() == null)
+                            && (oldItem.getMember() != null ? oldItem.getMember().equals(newItem.getMember()) : newItem.getMember() == null)
+                            && (oldItem.getStatus() != null ? oldItem.getStatus().equals(newItem.getStatus()) : newItem.getStatus() == null);
+                }
+            });
+
+            this.displayItems.clear();
+            this.displayItems.addAll(newDisplayItems);
+            diffResult.dispatchUpdatesTo(this);
+        }
     }
 
     /**

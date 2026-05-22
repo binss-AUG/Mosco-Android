@@ -104,6 +104,7 @@ public class CollectionFragment extends Fragment {
         CollectionPagerAdapter adapter = new CollectionPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.setUserInputEnabled(false);
+        viewPager.setOffscreenPageLimit(2); // Giữ cả 3 tab trong bộ nhớ để triệt tiêu hoàn toàn giật/flicker khi chuyển tab
 
         String[] tabs = getResources().getStringArray(R.array.collection_tabs);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
@@ -928,7 +929,9 @@ public class CollectionFragment extends Fragment {
             rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
             // [QUIET LUXURY] Hiệu ứng thẻ mờ dần và nhỏ lại ở 2 viền
-            rvObjets.addOnScrollListener(new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f));
+            com.vn.jet.mosco.utils.GridScaleScrollListener scaleListener = new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f);
+            rvObjets.addOnScrollListener(scaleListener);
+            rvObjets.addOnLayoutChangeListener(scaleListener);
             // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
             com.vn.jet.mosco.utils.ViewUtils.limitFlingVelocity(rvObjets);
 
@@ -1410,8 +1413,36 @@ public class CollectionFragment extends Fragment {
         }
 
         public void updateData(List<com.vn.jet.mosco.model.UserItem> newList) {
+            // [QUIET LUXURY] Sử dụng DiffUtil thay thế notifyDataSetChanged() để loại bỏ giật hình khi nạp danh sách items
+            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return list != null ? list.size() : 0;
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newList != null ? newList.size() : 0;
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    com.vn.jet.mosco.model.UserItem oldItem = list.get(oldItemPosition);
+                    com.vn.jet.mosco.model.UserItem newItem = newList.get(newItemPosition);
+                    return oldItem.getId() != null && oldItem.getId().equals(newItem.getId());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    com.vn.jet.mosco.model.UserItem oldItem = list.get(oldItemPosition);
+                    com.vn.jet.mosco.model.UserItem newItem = newList.get(newItemPosition);
+                    return (oldItem.getName() != null ? oldItem.getName().equals(newItem.getName()) : newItem.getName() == null)
+                            && (oldItem.getQuantity() != null ? oldItem.getQuantity().equals(newItem.getQuantity()) : newItem.getQuantity() == null)
+                            && (oldItem.getImageUri() != null ? oldItem.getImageUri().equals(newItem.getImageUri()) : newItem.getImageUri() == null);
+                }
+            });
             this.list = newList;
-            notifyDataSetChanged();
+            diffResult.dispatchUpdatesTo(this);
         }
 
         @NonNull

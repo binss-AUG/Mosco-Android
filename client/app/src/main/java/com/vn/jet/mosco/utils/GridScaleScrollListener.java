@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * Các item ở tâm màn hình có kích thước 100%.
  * Các item trượt sát lên viền trên hoặc viền dưới sẽ từ từ thu nhỏ và mờ đi.
  */
-public class GridScaleScrollListener extends RecyclerView.OnScrollListener {
+public class GridScaleScrollListener extends RecyclerView.OnScrollListener implements View.OnLayoutChangeListener {
 
     private final float minScale;
 
@@ -26,6 +26,20 @@ public class GridScaleScrollListener extends RecyclerView.OnScrollListener {
         applyScaleEffect(recyclerView);
     }
 
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                               int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        if (v instanceof RecyclerView) {
+            final RecyclerView recyclerView = (RecyclerView) v;
+            // Sử dụng post để trì hoãn việc tính toán cho đến khi toàn bộ lượt layout của RecyclerView và các item con hoàn tất
+            recyclerView.post(() -> {
+                if (recyclerView.isAttachedToWindow()) {
+                    applyScaleEffect(recyclerView);
+                }
+            });
+        }
+    }
+
     public void applyScaleEffect(RecyclerView recyclerView) {
         int height = recyclerView.getHeight();
         if (height == 0) return;
@@ -35,6 +49,15 @@ public class GridScaleScrollListener extends RecyclerView.OnScrollListener {
 
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View child = recyclerView.getChildAt(i);
+            
+            // Tránh tính toán sai lệch khi view chưa được đo đạc và định vị (layout) hoàn chỉnh
+            if (child.getHeight() == 0) {
+                child.setScaleX(1f);
+                child.setScaleY(1f);
+                child.setAlpha(1f);
+                continue;
+            }
+
             int childCenterY = child.getTop() + child.getHeight() / 2;
 
             // Tính khoảng cách từ tâm thẻ tới tâm danh sách
