@@ -226,6 +226,7 @@
                         android:layout_height="wrap_content"
                         app:indicatorColor="@color/lg_accent_primary"
                         app:trackColor="@color/white_10"
+                        app:trackThickness="@dimen/spacing_6dp"
                         app:trackCornerRadius="@dimen/spacing_xs"
                         android:progress="0" />
                         

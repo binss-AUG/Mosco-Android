@@ -36,6 +36,8 @@
             android:id="@+id/tv_reward_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_24dp"
+            android:gravity="center"
             style="@style/MoscoText.Luxury.RewardTitle"
             android:text="@string/stage_reward_dialog_title" />
 
@@ -44,6 +46,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/stage_reward_subtitle_margin_top"
+            android:layout_marginHorizontal="@dimen/spacing_24dp"
+            android:gravity="center"
             style="@style/MoscoText.Luxury.Body"
             android:text="@string/stage_reward_dialog_subtitle"
             android:textColor="@color/white"
@@ -137,6 +141,7 @@
             android:id="@+id/tv_reward_tap_to_continue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             style="@style/MoscoText.Luxury.RewardTap"
             android:text="@string/common_msg_tap_to_continue" />
 
@@ -145,6 +150,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_xs"
+            android:gravity="center"
             style="@style/MoscoText.Luxury.Body"
             android:text="@string/stage_reward_footer_hint"
             android:textSize="@dimen/text_size_body_xs"

@@ -46,7 +46,7 @@
     <string name="stage_dialog_speedup_title">SPEED UP PERFORMANCE</string>
     <string name="stage_dialog_speedup_msg">Instantly complete this performance for %d Diamonds? All rewards will be collected immediately.</string>
     <string name="stage_btn_abort">CANCEL</string>
-    <string name="stage_btn_speed_up">BOOST NOW</string>
+    <string name="stage_btn_speed_up">BOOST</string>
     <string name="stage_btn_claim">CLAIM REWARDS</string>
     
     <!-- Status Feedback -->

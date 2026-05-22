@@ -154,12 +154,16 @@ public class StageFragment extends Fragment {
     private void updateTimerUI(MapViewHolder holder, com.vn.jet.mosco.dto.StageSessionResponse session) {
         long msPerHour = getResources().getInteger(R.integer.ms_per_hour);
         long totalMs = session.getDurationHours() * msPerHour;
-        long elapsedMs = System.currentTimeMillis() - session.getStartTimeMillis();
-        long remainingMs = session.getEndTimeMillis() - System.currentTimeMillis();
+        
+        // Hạn chế lỗi chênh lệch thời gian hệ thống thiết bị (local) với Server dẫn đến elapsedMs bị âm
+        long now = System.currentTimeMillis();
+        long elapsedMs = Math.max(0, now - session.getStartTimeMillis());
+        long remainingMs = session.getEndTimeMillis() - now;
 
         if (remainingMs > 0) {
-            int progress = (int) ((elapsedMs * 100) / totalMs);
-            holder.pbTime.setProgress(Math.min(100, progress));
+            // Đảm bảo không xảy ra ArithmeticException nếu totalMs = 0 và giới hạn progress luôn trong khoảng [0, 100] để tránh lỗi hiển thị lệch của LinearProgressIndicator
+            int progress = totalMs > 0 ? (int) ((elapsedMs * 100) / totalMs) : 0;
+            holder.pbTime.setProgress(Math.max(0, Math.min(100, progress)));
             
             long seconds = (remainingMs / 1000) % 60;
             long minutes = (remainingMs / (1000 * 60)) % 60;
