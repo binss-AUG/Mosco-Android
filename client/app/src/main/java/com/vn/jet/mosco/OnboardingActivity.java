@@ -110,10 +110,13 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     private void setupDots() {
+        int dotWidth = getResources().getDimensionPixelSize(R.dimen.page_indicator_width);
+        int dotHeight = getResources().getDimensionPixelSize(R.dimen.page_indicator_height);
+        int dotSpacing = getResources().getDimensionPixelSize(R.dimen.page_indicator_spacing);
+
         ImageView[] dots = new ImageView[adapter.getItemCount()];
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(8, 0, 8, 0);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(dotWidth, dotHeight);
+        layoutParams.setMargins(dotSpacing, 0, dotSpacing, 0);
 
         for (int i = 0; i < dots.length; i++) {
             dots[i] = new ImageView(getApplicationContext());
@@ -125,12 +128,22 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private void setCurrentDot(int index) {
         int childCount = layoutDots.getChildCount();
+        int duration = getResources().getInteger(R.integer.daily_indicator_scale_duration);
+        float activeScale = getResources().getInteger(R.integer.daily_indicator_scale_active_percent) / 100f;
+        float inactiveScale = getResources().getInteger(R.integer.daily_indicator_scale_inactive_percent) / 100f;
+
         for (int i = 0; i < childCount; i++) {
             ImageView imageView = (ImageView) layoutDots.getChildAt(i);
+            if (imageView == null) continue;
+
             if (i == index) {
                 imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.bg_dot_active));
+                // Ép hiệu ứng scaleX co giãn dẹt theo tỷ lệ để tạo sự sinh động khi page được chọn
+                imageView.animate().scaleX(activeScale).setDuration(duration).start();
             } else {
                 imageView.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.bg_dot_inactive));
+                // Trả scaleX về nguyên bản khi page bị bỏ chọn để dot thu gọn lại thành thanh dẹt cơ bản
+                imageView.animate().scaleX(inactiveScale).setDuration(duration).start();
             }
         }
     }

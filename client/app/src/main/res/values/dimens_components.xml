@@ -42,6 +42,12 @@
     <dimen name="home_chat_send_icon_size">24dp</dimen>
     <dimen name="home_chat_text_size">13sp</dimen>
 
+    <!-- Page Indicators -->
+    <dimen name="page_indicator_width">12dp</dimen>
+    <dimen name="page_indicator_height">4dp</dimen>
+    <dimen name="page_indicator_radius">2dp</dimen>
+    <dimen name="page_indicator_spacing">4dp</dimen>
+
     <!-- Pack Reveal & Gacha -->
     <dimen name="reveal_loading_size">90dp</dimen>
     <dimen name="reveal_card_initial_elevation_y">250dp</dimen>

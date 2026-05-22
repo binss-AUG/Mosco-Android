@@ -231,7 +231,8 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             // Tạo drawable động để đổi màu dot tương ứng với từng buổi sáng/trưa/tối
             android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
             drawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-            drawable.setCornerRadius(getResources().getDimension(R.dimen.spacing_2dp));
+            // Đồng bộ corner radius bằng cách lấy giá trị chuẩn từ resources thay vì hardcode 2dp
+            drawable.setCornerRadius(getResources().getDimension(R.dimen.page_indicator_radius));
             
             int baseColor = accentColors[i];
             int alpha = (i == activePos) ? activeAlpha : inactiveAlpha;

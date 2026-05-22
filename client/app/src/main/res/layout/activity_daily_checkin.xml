@@ -99,22 +99,22 @@
         
         <View
             android:id="@+id/dot_0"
-            android:layout_width="@dimen/home_header_pill_divider_v"
-            android:layout_height="@dimen/handle_height"
+            android:layout_width="@dimen/page_indicator_width"
+            android:layout_height="@dimen/page_indicator_height"
             android:background="@drawable/bg_indicator_active"
-            android:layout_marginHorizontal="@dimen/spacing_xxs" />
+            android:layout_marginHorizontal="@dimen/page_indicator_spacing" />
         <View
             android:id="@+id/dot_1"
-            android:layout_width="@dimen/home_header_pill_divider_v"
-            android:layout_height="@dimen/handle_height"
+            android:layout_width="@dimen/page_indicator_width"
+            android:layout_height="@dimen/page_indicator_height"
             android:background="@drawable/bg_indicator_inactive"
-            android:layout_marginHorizontal="@dimen/spacing_xxs" />
+            android:layout_marginHorizontal="@dimen/page_indicator_spacing" />
         <View
             android:id="@+id/dot_2"
-            android:layout_width="@dimen/home_header_pill_divider_v"
-            android:layout_height="@dimen/handle_height"
+            android:layout_width="@dimen/page_indicator_width"
+            android:layout_height="@dimen/page_indicator_height"
             android:background="@drawable/bg_indicator_inactive"
-            android:layout_marginHorizontal="@dimen/spacing_xxs" />
+            android:layout_marginHorizontal="@dimen/page_indicator_spacing" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

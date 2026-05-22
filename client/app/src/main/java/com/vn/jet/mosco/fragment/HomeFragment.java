@@ -641,23 +641,40 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private void buildDotIndicators(int count) {
         if (llBannerDots == null || requireContext() == null) return;
         llBannerDots.removeAllViews();
-        int dotSize = getResources().getDimensionPixelSize(R.dimen.home_dot_size);
-        int dotSpacing = getResources().getDimensionPixelSize(R.dimen.home_dot_spacing);
+        int dotWidth = getResources().getDimensionPixelSize(R.dimen.page_indicator_width);
+        int dotHeight = getResources().getDimensionPixelSize(R.dimen.page_indicator_height);
+        int dotSpacing = getResources().getDimensionPixelSize(R.dimen.page_indicator_spacing);
+        float activeScale = getResources().getInteger(R.integer.daily_indicator_scale_active_percent) / 100f;
+        float inactiveScale = getResources().getInteger(R.integer.daily_indicator_scale_inactive_percent) / 100f;
+
         for (int i = 0; i < count; i++) {
             View dot = new View(requireContext());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotWidth, dotHeight);
             params.setMargins(dotSpacing, 0, dotSpacing, 0);
             dot.setLayoutParams(params);
             dot.setBackgroundResource(i == 0 ? R.drawable.bg_dot_active : R.drawable.bg_dot_inactive);
+            
+            // Thiết lập giá trị scale ban đầu cho các dot để tránh bị khựng hình khi mới load banner lần đầu
+            dot.setScaleX(i == 0 ? activeScale : inactiveScale);
+            
             llBannerDots.addView(dot);
         }
     }
 
     private void updateDotIndicators(int activePosition) {
         if (llBannerDots == null) return;
+        int duration = getResources().getInteger(R.integer.daily_indicator_scale_duration);
+        float activeScale = getResources().getInteger(R.integer.daily_indicator_scale_active_percent) / 100f;
+        float inactiveScale = getResources().getInteger(R.integer.daily_indicator_scale_inactive_percent) / 100f;
+
         for (int i = 0; i < llBannerDots.getChildCount(); i++) {
             View dot = llBannerDots.getChildAt(i);
-            if (dot != null) dot.setBackgroundResource(i == activePosition ? R.drawable.bg_dot_active : R.drawable.bg_dot_inactive);
+            if (dot != null) {
+                dot.setBackgroundResource(i == activePosition ? R.drawable.bg_dot_active : R.drawable.bg_dot_inactive);
+                // Áp dụng animation scaleX co giãn dẹt cho indicator khi banner thay đổi (auto-scroll hoặc manual drag)
+                dot.animate().scaleX(i == activePosition ? activeScale : inactiveScale)
+                        .setDuration(duration).start();
+            }
         }
     }
 

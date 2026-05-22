@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/lg_text_disabled" />
-    <size android:width="@dimen/spacing_sm" android:height="@dimen/spacing_sm" />
+    android:shape="rectangle">
+    <corners android:radius="@dimen/page_indicator_radius" />
+    <solid android:color="@color/mosco_white_30" />
 </shape>
-

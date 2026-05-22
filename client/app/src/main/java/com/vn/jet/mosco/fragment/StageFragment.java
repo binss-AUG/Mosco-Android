@@ -251,8 +251,16 @@ public class StageFragment extends Fragment {
         currentMapId = maps.get(position).id;
         
         // Update Dots
+        int duration = getResources().getInteger(R.integer.daily_indicator_scale_duration);
+        float activeScale = getResources().getInteger(R.integer.daily_indicator_scale_active_percent) / 100f;
+        float inactiveScale = getResources().getInteger(R.integer.daily_indicator_scale_inactive_percent) / 100f;
+
         for (int i = 0; i < dots.length; i++) {
+            if (dots[i] == null) continue;
             dots[i].setBackgroundResource(i == position ? R.drawable.bg_indicator_active : R.drawable.bg_indicator_inactive);
+            // Áp dụng animation scaleX co giãn dẹt cho indicators của bản đồ khi chuyển map
+            dots[i].animate().scaleX(i == position ? activeScale : inactiveScale)
+                    .setDuration(duration).start();
         }
 
         // Animate Background Overlay Color
