@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_dialog_galactic"
+    android:padding="@dimen/spacing_lg">
+
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_h3"
+        android:textStyle="bold"
+        android:letterSpacing="0.1" />
+
+    <TextView
+        android:id="@+id/tv_dialog_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:gravity="center"
+        android:textColor="@color/white_70"
+        android:textSize="@dimen/text_size_body_md"
+        android:lineSpacingExtra="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Cancel Card Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btn_dialog_cancel"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/stage_button_height"
+            android:layout_weight="1"
+            app:cardCornerRadius="@dimen/stage_button_corner"
+            app:cardBackgroundColor="@color/white_05"
+            app:strokeColor="@color/white_10"
+            app:strokeWidth="@dimen/stroke_thin"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/action_cancel"
+                android:textColor="@color/white_70"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_size_body_md" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:layout_width="@dimen/spacing_md"
+            android:layout_height="0dp" />
+
+        <!-- Confirm Card Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btn_dialog_confirm"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/stage_button_height"
+            android:layout_weight="1.2"
+            app:cardCornerRadius="@dimen/stage_button_corner"
+            app:cardBackgroundColor="@color/lg_accent_primary"
+            app:strokeColor="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+            
+            <TextView
+                android:id="@+id/tv_btn_confirm_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/action_confirm"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="@dimen/text_size_body_md" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</LinearLayout>

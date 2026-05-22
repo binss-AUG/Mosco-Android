@@ -474,12 +474,32 @@ public class StageFragment extends Fragment {
     }
 
     private void showAbortConfirmation(com.vn.jet.mosco.dto.StageSessionResponse session) {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.GalacticDialogTheme)
-            .setTitle(R.string.stage_dialog_abort_title)
-            .setMessage(R.string.stage_dialog_abort_msg)
-            .setPositiveButton(R.string.action_confirm, (dialog, which) -> abortMission(session.getId()))
-            .setNegativeButton(R.string.action_cancel, null)
-            .show();
+        android.app.Dialog dialog = new android.app.Dialog(requireContext(), R.style.GalacticDialogTheme);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_stage_confirm, null);
+        dialog.setContentView(dialogView);
+        dialog.setCancelable(true);
+
+        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        TextView tvMsg = dialogView.findViewById(R.id.tv_dialog_msg);
+        tvTitle.setText(R.string.stage_dialog_abort_title);
+        tvMsg.setText(R.string.stage_dialog_abort_msg);
+
+        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());
+        
+        View btnConfirm = dialogView.findViewById(R.id.btn_dialog_confirm);
+        TextView tvBtnConfirm = dialogView.findViewById(R.id.tv_btn_confirm_text);
+        tvBtnConfirm.setText(R.string.action_confirm);
+        btnConfirm.setOnClickListener(v -> {
+            abortMission(session.getId());
+            dialog.dismiss();
+        });
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dialog.show();
     }
 
     private void showSpeedUpConfirmation(com.vn.jet.mosco.dto.StageSessionResponse session) {
@@ -490,12 +510,32 @@ public class StageFragment extends Fragment {
         long hoursLeft = (remainingMs / msPerHour) + 1;
         int cost = (int) (hoursLeft * speedUpCost);
 
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.GalacticDialogTheme)
-            .setTitle(R.string.stage_dialog_speedup_title)
-            .setMessage(getString(R.string.stage_dialog_speedup_msg, cost))
-            .setPositiveButton(R.string.stage_btn_speed_up, (dialog, which) -> speedUpMission(session.getId()))
-            .setNegativeButton(R.string.action_cancel, null)
-            .show();
+        android.app.Dialog dialog = new android.app.Dialog(requireContext(), R.style.GalacticDialogTheme);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_stage_confirm, null);
+        dialog.setContentView(dialogView);
+        dialog.setCancelable(true);
+
+        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        TextView tvMsg = dialogView.findViewById(R.id.tv_dialog_msg);
+        tvTitle.setText(R.string.stage_dialog_speedup_title);
+        tvMsg.setText(getString(R.string.stage_dialog_speedup_msg, cost));
+
+        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());
+        
+        View btnConfirm = dialogView.findViewById(R.id.btn_dialog_confirm);
+        TextView tvBtnConfirm = dialogView.findViewById(R.id.tv_btn_confirm_text);
+        tvBtnConfirm.setText(R.string.stage_btn_speed_up);
+        btnConfirm.setOnClickListener(v -> {
+            speedUpMission(session.getId());
+            dialog.dismiss();
+        });
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        dialog.show();
     }
 
     private void abortMission(Long sessionId) {
@@ -525,7 +565,7 @@ public class StageFragment extends Fragment {
                         loadActiveSessions();
                     } else {
                         try {
-                            String error = response.errorBody() != null ? response.errorBody().string() : "Error";
+                            String error = response.errorBody() != null ? response.errorBody().string() : getString(R.string.common_error_unknown);
                             Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
                         } catch (Exception e) {}
                     }
