@@ -747,6 +747,8 @@ public class UpgradeFragment extends Fragment {
                         CardDisplayItem tempItem = new CardDisplayItem();
                         tempItem.setOvr(result.getNewOvr());
                         tempItem.setLevel(result.getNewLevel());
+                        // Thiết lập upgradeLevel để CardEffectHelper hiển thị huy hiệu cấp cộng (+ level) chính xác thay vì mặc định về 0
+                        tempItem.setUpgradeLevel(result.getNewLevel());
                         tempItem.setFrontImage(mainCard.getFrontImage());
                         tempItem.setOwned(true);
                         CardEffectHelper.apply(resultCard, shimmer, tempItem, true, result.isSuccess());
