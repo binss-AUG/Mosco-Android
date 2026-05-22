@@ -99,4 +99,32 @@
     <integer name="upgrade_anim_overlay_fade_duration">150</integer>
     <integer name="upgrade_anim_video_fade_duration">150</integer>
     <integer name="upgrade_anim_result_text_slide_duration">300</integer>
+
+    <!-- Daily Check-in UI Constants -->
+    <integer name="daily_floating_anim_duration">2200</integer>
+    <integer name="daily_coins_morning">500</integer>
+    <integer name="daily_coins_afternoon">800</integer>
+    <integer name="daily_coins_evening">1200</integer>
+    <integer name="daily_slot_morning">1</integer>
+    <integer name="daily_slot_afternoon">2</integer>
+    <integer name="daily_slot_evening">3</integer>
+    <integer name="daily_transformer_rotation">-12</integer>
+    <integer name="daily_transformer_translation_divisor">35</integer> <!-- Chiếm 3.5 sau khi chia cho 10 -->
+    <integer name="daily_transformer_scale_base_percent">85</integer>
+    <integer name="daily_transformer_scale_factor_percent">15</integer>
+    <integer name="daily_bg_overlay_alpha_percent">85</integer>
+    <integer name="daily_dot_active_alpha">255</integer>
+    <integer name="daily_dot_inactive_alpha">76</integer>
+    <integer name="daily_indicator_scale_active_percent">140</integer>
+    <integer name="daily_indicator_scale_inactive_percent">100</integer>
+    <integer name="daily_indicator_scale_duration">250</integer>
+    <integer name="daily_reward_dim_alpha_percent">40</integer>
+    <integer name="daily_card_bg_alpha">18</integer>
+    <integer name="daily_card_stroke_alpha">76</integer>
+    <integer name="daily_btn_claimed_bg_alpha">20</integer>
+    <integer name="daily_btn_claimed_stroke_alpha">60</integer>
+    <integer name="daily_btn_claimed_text_alpha">102</integer>
+    <integer name="daily_btn_locked_bg_alpha">40</integer>
+    <integer name="daily_btn_locked_stroke_alpha">30</integer>
+    <integer name="daily_btn_locked_text_alpha">76</integer>
 </resources>

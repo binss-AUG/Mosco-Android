@@ -71,6 +71,9 @@
     <string name="daily_msg_reward_subtitle">Your reward for staying consistent with Mosco.</string>
     <string name="daily_msg_footer_hint">Come back in the next session for more rewards!</string>
     <string name="daily_error_claim">Cannot check in. Please try again later.</string>
+    <string name="daily_time_morning">06:00 - 11:59</string>
+    <string name="daily_time_afternoon">12:00 - 17:59</string>
+    <string name="daily_time_evening">18:00 - 23:59</string>
 
     <!-- Common Errors & Notifications -->
     <string name="formation_error_duplicate_artist">A squad cannot contain two cards by the same artist!</string>

@@ -76,4 +76,7 @@
     <dimen name="elevation_l">8dp</dimen>
     <dimen name="elevation_xl">12dp</dimen>
     <dimen name="chat_header_height">76dp</dimen>
+
+    <!-- Daily Check-in floating translation -->
+    <dimen name="daily_floating_translation_y">-15dp</dimen>
 </resources>
