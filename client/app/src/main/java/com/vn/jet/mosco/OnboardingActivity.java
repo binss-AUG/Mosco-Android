@@ -68,10 +68,21 @@ public class OnboardingActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 setCurrentDot(position);
+                
+                // Cập nhật nhãn nút động dựa trên trang hiện tại để tối ưu trải nghiệm (UX)
+                if (adapter != null) {
+                    if (position == adapter.getItemCount() - 1) {
+                        btnNext.setText(R.string.action_get_started);
+                    } else {
+                        btnNext.setText(R.string.action_next);
+                    }
+                }
             }
         });
 
-        btnNext.setOnClickListener(new ClickDebounce() {
+        // Sử dụng ClickDebounce với khoảng chờ 300ms (thay vì mặc định 1000ms) để phản hồi click cực nhạy
+        // nhưng vẫn đủ ngăn chặn việc nhấp đúp (double-click) gây nhảy trang liên tiếp quá nhanh.
+        btnNext.setOnClickListener(new ClickDebounce(300) {
             @Override
             public void onDebouncedClick(View v) {
                 if (viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {

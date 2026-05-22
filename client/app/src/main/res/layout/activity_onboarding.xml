@@ -35,7 +35,7 @@
         android:layout_marginBottom="@dimen/spacing_xl"
         app:moscoStyle="primary"
         app:moscoSize="large"
-        android:text="@string/action_get_started"
+        android:text="@string/action_next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
