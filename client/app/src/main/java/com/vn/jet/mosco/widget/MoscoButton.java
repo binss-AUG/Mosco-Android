@@ -37,13 +37,22 @@ public class MoscoButton extends AppCompatButton {
     public static final int SHAPE_PILL = 0;
     public static final int SHAPE_SQUARE = 1;
 
-    private static final long DEBOUNCE_TIME = 600L;
+    private static final long DEFAULT_DEBOUNCE_TIME = 600L;
+    private long debounceTime = DEFAULT_DEBOUNCE_TIME;
     private long lastClickTime = 0;
 
     private int currentStyle = STYLE_PRIMARY;
     private int currentSize = SIZE_LARGE;
     private int currentShape = SHAPE_PILL;
     private boolean isInitialized = false;
+
+    /**
+     * Thiết lập khoảng thời gian debounce (chống click spam) cho nút.
+     * Tại sao: Cho phép tắt hoàn toàn hoặc giảm debounce đối với các nút chuyển trang/onboarding cần độ nhạy tức thì.
+     */
+    public void setDebounceTime(long debounceTime) {
+        this.debounceTime = debounceTime;
+    }
 
     public void setMoscoStyle(int style) {
         this.currentStyle = style;
@@ -197,7 +206,7 @@ public class MoscoButton extends AppCompatButton {
         // Xử lý Click Debounce tránh việc spam API gây ra lỗi race condition/double-spending
         super.setOnClickListener(v -> {
             long currentTime = SystemClock.elapsedRealtime();
-            if (currentTime - lastClickTime < DEBOUNCE_TIME) return;
+            if (currentTime - lastClickTime < debounceTime) return;
             lastClickTime = currentTime;
             l.onClick(v);
         });

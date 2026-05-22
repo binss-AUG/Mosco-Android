@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import com.vn.jet.mosco.widget.MoscoButton;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -26,7 +27,7 @@ public class OnboardingActivity extends AppCompatActivity {
 
     private OnboardingAdapter adapter;
     private LinearLayout layoutDots;
-    private Button btnNext;
+    private MoscoButton btnNext;
     private ViewPager2 viewPager;
     
     
@@ -43,6 +44,7 @@ public class OnboardingActivity extends AppCompatActivity {
 
         layoutDots = findViewById(R.id.layout_dots);
         btnNext = findViewById(R.id.btn_next);
+        btnNext.setDebounceTime(0); // Tắt hoàn toàn click debounce để nút phản hồi tức thì
         viewPager = findViewById(R.id.viewPager);
         
 
