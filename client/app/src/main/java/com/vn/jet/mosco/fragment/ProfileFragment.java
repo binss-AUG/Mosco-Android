@@ -552,13 +552,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (stats == null)
                 return;
 
-            // Update Like Button (Cân bằng viền mờ sang trọng với nút Message)
+            // Update Like Button
             if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
                     btnLike.setText(R.string.profile_btn_liked);
-                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
+                    // Tại sao: Sử dụng style secondary (outlined) dạng vuông để người dùng nhận biết đã thích thành công, giảm bớt độ nổi bật so với nút chưa thích
+                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_SECONDARY);
                 } else {
                     btnLike.setText(R.string.profile_btn_like);
+                    // Tại sao: Dùng primary dạng vuông để tạo điểm nhấn nổi bật thúc đẩy người dùng tương tác thích trang cá nhân
                     btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
                 }
             }
@@ -572,18 +574,22 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 switch (stats.getFriendshipStatus()) {
                     case 3: // Nhận được lời mời -> Hiển thị nút Chấp nhận
                         btnFriend.setText(R.string.social_action_accept);
-                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
+                        // Tại sao: Sử dụng pill outlined (secondary) tương tự nút Pending theo phản hồi thiết kế để cụm nút nhìn nhẹ nhàng, hài hòa hơn
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_SECONDARY);
                         break;
                     case 1: // Pending (Đã gửi lời mời)
                         btnFriend.setText(R.string.profile_btn_pending);
-                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_WARNING);
+                        // Tại sao: Sử dụng pill outlined (secondary) để chỉ trạng thái đang đợi phản hồi, không quá nổi bật nhưng vẫn rõ ràng
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_SECONDARY);
                         break;
                     case 2: // Friends
                         btnFriend.setText(R.string.profile_btn_friends);
-                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_GHOST);
+                        // Tại sao: Sử dụng style primary_dim (màu xanh variant đậm đặc) để thể hiện mối quan hệ bạn bè đã được thiết lập chính thức
+                        btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY_DIM);
                         break;
                     default: // None
                         btnFriend.setText(R.string.profile_btn_add_friend);
+                        // Tại sao: Sử dụng pill primary để khuyến khích hành động gửi kết bạn của người dùng
                         btnFriend.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
                         break;
                 }

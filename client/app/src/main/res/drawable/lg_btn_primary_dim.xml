@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#3DFFFFFF">
+    <!-- Mask hạn chế hiệu ứng ripple trong phạm vi góc bo tròn -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/lg_radius_button" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+    <item>
+        <selector>
+            <!-- Trạng thái vô hiệu hóa (Disabled) -->
+            <item android:state_enabled="false">
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/lg_radius_button" />
+                    <solid android:color="#1F94A3B8" />
+                    <stroke android:width="@dimen/lg_stroke_hairline" android:color="#0DFFFFFF" />
+                </shape>
+            </item>
+
+            <!-- Trạng thái được chọn hoặc rê chuột qua (Focused / Hovered) -->
+            <!-- Tại sao: Thêm lớp phủ trắng mờ 10% (#1AFFFFFF) và viền trắng sáng để tạo phản hồi thị giác tốt trong chế độ Dark Mode -->
+            <item android:state_focused="true">
+                <layer-list>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <solid android:color="@color/brand_primary_variant" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <solid android:color="#1AFFFFFF" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/white" />
+                        </shape>
+                    </item>
+                </layer-list>
+            </item>
+
+            <item android:state_hovered="true">
+                <layer-list>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <solid android:color="@color/brand_primary_variant" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <solid android:color="#1AFFFFFF" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/white" />
+                        </shape>
+                    </item>
+                </layer-list>
+            </item>
+
+            <!-- Trạng thái mặc định (Default State) -->
+            <!-- Tại sao: Sử dụng màu nền đặc brand_primary_variant đục kết hợp với gradient trắng mờ và viền stroke mảnh của kính để tạo hiệu ứng Liquid Glass đặc trưng nhưng đậm màu hơn -->
+            <item>
+                <layer-list>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <solid android:color="@color/brand_primary_variant" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <gradient android:angle="270" android:startColor="#26FFFFFF" android:endColor="#00FFFFFF" android:type="linear" />
+                        </shape>
+                    </item>
+                    <item>
+                        <shape android:shape="rectangle">
+                            <corners android:radius="@dimen/lg_radius_button" />
+                            <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_strong" />
+                        </shape>
+                    </item>
+                </layer-list>
+            </item>
+        </selector>
+    </item>
+</ripple>

@@ -26,6 +26,7 @@ public class MoscoButton extends AppCompatButton {
     public static final int STYLE_GHOST = 2;
     public static final int STYLE_DESTRUCTIVE = 3;
     public static final int STYLE_WARNING = 4;
+    public static final int STYLE_PRIMARY_DIM = 5;
     
     // Constants cho Size
     public static final int SIZE_LARGE = 0;
@@ -42,6 +43,7 @@ public class MoscoButton extends AppCompatButton {
     private int currentStyle = STYLE_PRIMARY;
     private int currentSize = SIZE_LARGE;
     private int currentShape = SHAPE_PILL;
+    private boolean isInitialized = false;
 
     public void setMoscoStyle(int style) {
         this.currentStyle = style;
@@ -54,6 +56,7 @@ public class MoscoButton extends AppCompatButton {
         else if ("ghost".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_GHOST);
         else if ("destructive".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_DESTRUCTIVE);
         else if ("warning".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_WARNING);
+        else if ("primary_dim".equalsIgnoreCase(styleName)) setMoscoStyle(STYLE_PRIMARY_DIM);
     }
 
     public void setMoscoSize(int size) {
@@ -101,6 +104,7 @@ public class MoscoButton extends AppCompatButton {
             a.recycle();
         }
 
+        isInitialized = true;
         applyStyleAndSize();
         setGravity(Gravity.CENTER);
         setAllCaps(false);
@@ -140,7 +144,13 @@ public class MoscoButton extends AppCompatButton {
         setHeight(height);
         setMinimumHeight(height);
         setTextSize(textSize);
-        setPadding(paddingSide, 0, paddingSide, 0);
+
+        // Tại sao: Nếu nút rỗng (chỉ có icon), triệt tiêu padding trái/phải để icon được căn giữa trọn vẹn
+        if (getText() == null || getText().toString().trim().isEmpty()) {
+            setPadding(0, 0, 0, 0);
+        } else {
+            setPadding(paddingSide, 0, paddingSide, 0);
+        }
 
         boolean isSquare = currentShape == SHAPE_SQUARE;
         int bgResId;
@@ -163,6 +173,10 @@ public class MoscoButton extends AppCompatButton {
             case STYLE_WARNING:
                 bgResId = isSquare ? R.drawable.lg_btn_warning_square : R.drawable.lg_btn_warning;
                 textColorResId = R.color.colors_button_text_warning;
+                break;
+            case STYLE_PRIMARY_DIM:
+                bgResId = isSquare ? R.drawable.lg_btn_primary_dim_square : R.drawable.lg_btn_primary_dim;
+                textColorResId = R.color.colors_button_text_primary;
                 break;
             case STYLE_PRIMARY:
             default:
@@ -195,5 +209,14 @@ public class MoscoButton extends AppCompatButton {
         super.setEnabled(enabled);
         // Thay đổi độ mờ đục để người dùng dễ nhận biết trạng thái vô hiệu hóa
         setAlpha(enabled ? 1.0f : 0.5f);
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        // Tại sao: Tự động cập nhật lại kích thước và padding khi thay đổi văn bản giữa nút chữ và nút icon
+        if (isInitialized) {
+            applyStyleAndSize();
+        }
     }
 }

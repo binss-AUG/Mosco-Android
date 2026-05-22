@@ -9,6 +9,7 @@
             <enum name="ghost" value="2" />        <!-- Nút ẩn (Text Only) -->
             <enum name="destructive" value="3" />  <!-- Nút cảnh báo (Red) -->
             <enum name="warning" value="4" />      <!-- Nút cảnh báo (Vàng/Cam) -->
+            <enum name="primary_dim" value="5" />  <!-- Nút primary đục màu đậm hơn -->
         </attr>
         
         <!-- Phân loại theo kích thước -->

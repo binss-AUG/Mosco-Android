@@ -38,7 +38,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:moscoStyle="ghost"
+            app:moscoStyle="secondary"
             app:moscoSize="small"
             app:moscoShape="square"
             android:text="@string/profile_btn_message"
@@ -68,15 +68,16 @@
         <!-- Nút Decline nhỏ (Dấu X) xuất hiện khi đang là người nhận lời mời (friendshipStatus = 3) -->
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_decline_request"
-            android:layout_width="@dimen/spacing_48dp"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/spacing_32dp"
+            android:layout_height="@dimen/spacing_32dp"
             android:layout_marginStart="@dimen/spacing_xxs"
             app:moscoStyle="ghost"
             app:moscoSize="small"
-            app:moscoShape="square"
+            app:moscoShape="pill"
             android:drawableStart="@drawable/ic_close"
             android:drawableTint="@color/palette_red_accent"
-            android:paddingStart="14dp"
+            android:padding="0dp"
+            android:paddingStart="4dp"
             android:visibility="gone" />
     </LinearLayout>
 
