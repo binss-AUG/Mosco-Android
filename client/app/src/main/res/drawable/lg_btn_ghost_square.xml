@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Tại sao: Chuyển sang thiết kế phẳng đơn lớp dạng vuông bo 12dp để tối ưu hóa hiệu năng render trên giả lập Android 9 (API 28), dạng chữ trong suốt (ghost) -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#1AFFFFFF">
-    <!-- Mask to restrict ripple to corners -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/radius_lg" />
@@ -10,7 +10,6 @@
 
     <item>
         <selector>
-            <!-- Disabled State -->
             <item android:state_enabled="false">
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/radius_lg" />
@@ -18,24 +17,27 @@
                 </shape>
             </item>
 
-            <!-- Focused / Hovered State -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/radius_lg" />
+                    <solid android:color="#0DFFFFFF" />
+                </shape>
+            </item>
+
             <item android:state_focused="true">
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/radius_lg" />
-                    <solid android:color="@color/lg_glass_surface" />
-                    <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
+                    <solid android:color="#0DFFFFFF" />
                 </shape>
             </item>
 
             <item android:state_hovered="true">
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/radius_lg" />
-                    <solid android:color="@color/lg_glass_surface" />
-                    <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
+                    <solid android:color="#0DFFFFFF" />
                 </shape>
             </item>
 
-            <!-- Default State -->
             <item>
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/radius_lg" />

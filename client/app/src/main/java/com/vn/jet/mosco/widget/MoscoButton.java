@@ -111,9 +111,8 @@ public class MoscoButton extends AppCompatButton {
         setSingleLine(true);
         setTypeface(getTypeface(), android.graphics.Typeface.BOLD);
         
-        // Sử dụng StateListAnimator toàn cục cho hiệu ứng nâng/đè của thiết kế Liquid Glass
-        android.animation.StateListAnimator animator = android.animation.AnimatorInflater.loadStateListAnimator(getContext(), R.animator.lg_btn_state_animator);
-        setStateListAnimator(animator);
+        // Tại sao: Vô hiệu hóa StateListAnimator động để tối ưu hiệu năng click trên Android 9 Emulator, loại bỏ giật lag đổ bóng Z
+        setStateListAnimator(null);
     }
 
     private void applyStyleAndSize() {

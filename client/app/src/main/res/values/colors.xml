@@ -7,7 +7,9 @@
     <!-- Brand -->
     <color name="brand_primary">#24A1DE</color>
     <color name="brand_primary_variant">#1A7AAB</color>
+    <color name="brand_primary_darker">#115273</color>
     <color name="brand_secondary">#FFD952</color>
+    <color name="brand_secondary_pressed">#E6C242</color>
 
     <!-- Semantic -->
     <color name="semantic_background">#0F172A</color>

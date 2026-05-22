@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Tại sao: Chuyển sang thiết kế phẳng đơn lớp để tối ưu hóa hiệu năng render trên giả lập Android 9 (API 28), dạng viền (outlined) trong suốt -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#20FFFFFF">
-    <!-- Mask to restrict ripple to corners -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
             <corners android:radius="@dimen/lg_radius_button" />
@@ -10,90 +10,44 @@
 
     <item>
         <selector>
-            <!-- Disabled State -->
             <item android:state_enabled="false">
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/lg_radius_button" />
                     <solid android:color="@android:color/transparent" />
-                    <stroke android:width="@dimen/lg_stroke_hairline" android:color="#0DFFFFFF" />
+                    <stroke android:width="@dimen/lg_stroke_thin" android:color="#4D94A3B8" />
                 </shape>
             </item>
 
-            <!-- Focused / Hovered State -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/lg_radius_button" />
+                    <solid android:color="#1AFFFFFF" />
+                    <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/brand_primary" />
+                </shape>
+            </item>
+
             <item android:state_focused="true">
-                <layer-list>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_nav_surface" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_glass_surface_high" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/white" />
-                        </shape>
-                    </item>
-                </layer-list>
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/lg_radius_button" />
+                    <solid android:color="#1AFFFFFF" />
+                    <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/brand_primary" />
+                </shape>
             </item>
 
             <item android:state_hovered="true">
-                <layer-list>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_nav_surface" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_glass_surface_high" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/white" />
-                        </shape>
-                    </item>
-                </layer-list>
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/lg_radius_button" />
+                    <solid android:color="#1AFFFFFF" />
+                    <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/brand_primary" />
+                </shape>
             </item>
 
-            <!-- Default State -->
             <item>
-                <layer-list>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_nav_surface" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <solid android:color="@color/lg_glass_surface_elevated" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <gradient android:angle="270" android:startColor="#1AFFFFFF" android:endColor="#00FFFFFF" android:type="linear" />
-                        </shape>
-                    </item>
-                    <item>
-                        <shape android:shape="rectangle">
-                            <corners android:radius="@dimen/lg_radius_button" />
-                            <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke" />
-                        </shape>
-                    </item>
-                </layer-list>
+                <shape android:shape="rectangle">
+                    <corners android:radius="@dimen/lg_radius_button" />
+                    <solid android:color="@android:color/transparent" />
+                    <stroke android:width="@dimen/lg_stroke_thin" android:color="@color/brand_primary" />
+                </shape>
             </item>
         </selector>
     </item>
