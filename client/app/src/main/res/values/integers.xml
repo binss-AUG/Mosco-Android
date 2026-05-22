@@ -112,7 +112,7 @@
     <integer name="daily_transformer_translation_divisor">35</integer> <!-- Chiếm 3.5 sau khi chia cho 10 -->
     <integer name="daily_transformer_scale_base_percent">85</integer>
     <integer name="daily_transformer_scale_factor_percent">15</integer>
-    <integer name="daily_bg_overlay_alpha_percent">85</integer>
+    <integer name="daily_bg_overlay_alpha_percent">100</integer>
     <integer name="daily_dot_active_alpha">255</integer>
     <integer name="daily_dot_inactive_alpha">76</integer>
     <integer name="daily_indicator_scale_active_percent">140</integer>

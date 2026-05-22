@@ -14,8 +14,8 @@
         android:id="@+id/view_bg_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0"
-        android:background="@color/black" />
+        android:alpha="1"
+        android:background="@color/daily_morning_bg" />
 
     <!-- Luxury Header -->
     <androidx.constraintlayout.widget.ConstraintLayout

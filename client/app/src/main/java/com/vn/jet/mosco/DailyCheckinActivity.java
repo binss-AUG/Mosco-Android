@@ -97,6 +97,11 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             ContextCompat.getColor(this, R.color.daily_evening_accent)
         };
 
+        // Thiết lập trạng thái màu sắc ban đầu để tránh giật hình khi mới vào
+        viewBgOverlay.setBackgroundColor(bgColors[0]);
+        viewBgOverlay.setAlpha(1.0f);
+        viewHeaderAccent.setBackgroundColor(accentColors[0]);
+
         // Đọc trước các thông số giao diện để tránh lookup từ XML trong vòng lặp Render/Scroll
         transformerScaleBase = getResources().getInteger(R.integer.daily_transformer_scale_base_percent) / 100f;
         transformerScaleFactor = getResources().getInteger(R.integer.daily_transformer_scale_factor_percent) / 100f;
@@ -396,9 +401,15 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             holder.ivBanner.setImageResource(data.bannerRes);
             holder.ivBanner.setColorFilter(0, android.graphics.PorterDuff.Mode.SRC_OVER);
             
-            // Đặc biệt: Khôi phục giao diện kính mờ mặc định của Card theo yêu cầu của Sếp (không tô màu theo buổi)
-            holder.cvCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white_05));
-            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white_20)));
+            // Tải alpha từ tài nguyên để tránh giá trị cứng trong code
+            int bgAlpha = context.getResources().getInteger(R.integer.daily_card_bg_alpha);
+            int strokeAlpha = context.getResources().getInteger(R.integer.daily_card_stroke_alpha);
+
+            // Đặc biệt: Thiết lập màu nền card và viền card theo màu chủ đạo của buổi với alpha thấp (kính mờ pha sắc màu)
+            int cardBg = ColorUtils.setAlphaComponent(data.accentColor, bgAlpha);
+            int cardStroke = ColorUtils.setAlphaComponent(data.accentColor, strokeAlpha);
+            holder.cvCard.setCardBackgroundColor(cardBg);
+            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(cardStroke));
             
             updateButton(holder, data.status, data.accentColor);
 
