@@ -3,7 +3,7 @@
     <!-- Mask to restrict ripple to corners -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/lg_radius_button" />
+            <corners android:radius="@dimen/radius_lg" />
             <solid android:color="@android:color/white" />
         </shape>
     </item>
@@ -13,7 +13,7 @@
             <!-- Disabled State -->
             <item android:state_enabled="false">
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/lg_radius_button" />
+                    <corners android:radius="@dimen/radius_lg" />
                     <solid android:color="@android:color/transparent" />
                 </shape>
             </item>
@@ -21,7 +21,7 @@
             <!-- Focused / Hovered State -->
             <item android:state_focused="true">
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/lg_radius_button" />
+                    <corners android:radius="@dimen/radius_lg" />
                     <solid android:color="@color/lg_glass_surface" />
                     <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
                 </shape>
@@ -29,7 +29,7 @@
 
             <item android:state_hovered="true">
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/lg_radius_button" />
+                    <corners android:radius="@dimen/radius_lg" />
                     <solid android:color="@color/lg_glass_surface" />
                     <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/lg_glass_stroke_subtle" />
                 </shape>
@@ -38,7 +38,7 @@
             <!-- Default State -->
             <item>
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/lg_radius_button" />
+                    <corners android:radius="@dimen/radius_lg" />
                     <solid android:color="@android:color/transparent" />
                 </shape>
             </item>

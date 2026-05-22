@@ -29,6 +29,7 @@
             android:layout_marginEnd="@dimen/spacing_xxs"
             app:moscoStyle="primary"
             app:moscoSize="small"
+            app:moscoShape="square"
             android:text="@string/profile_btn_like"
             android:textStyle="bold" />
 
@@ -39,6 +40,7 @@
             android:layout_weight="1"
             app:moscoStyle="ghost"
             app:moscoSize="small"
+            app:moscoShape="square"
             android:text="@string/profile_btn_message"
             android:textStyle="bold" />
     </LinearLayout>
@@ -59,6 +61,7 @@
             android:layout_weight="1"
             app:moscoStyle="primary"
             app:moscoSize="small"
+            app:moscoShape="pill"
             android:text="@string/profile_btn_add_friend"
             android:textStyle="bold" />
 
@@ -70,6 +73,7 @@
             android:layout_marginStart="@dimen/spacing_xxs"
             app:moscoStyle="ghost"
             app:moscoSize="small"
+            app:moscoShape="square"
             android:drawableStart="@drawable/ic_close"
             android:drawableTint="@color/palette_red_accent"
             android:paddingStart="14dp"

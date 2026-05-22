@@ -8,6 +8,7 @@
             <enum name="secondary" value="1" />    <!-- Nút phụ (Outlined/Stroke) -->
             <enum name="ghost" value="2" />        <!-- Nút ẩn (Text Only) -->
             <enum name="destructive" value="3" />  <!-- Nút cảnh báo (Red) -->
+            <enum name="warning" value="4" />      <!-- Nút cảnh báo (Vàng/Cam) -->
         </attr>
         
         <!-- Phân loại theo kích thước -->
@@ -15,6 +16,12 @@
             <enum name="large" value="0" />        <!-- 56dp - Pill shape -->
             <enum name="medium" value="1" />       <!-- 48dp - Rounded -->
             <enum name="small" value="2" />        <!-- 32dp - Compact -->
+        </attr>
+
+        <!-- Phân loại theo hình dạng -->
+        <attr name="moscoShape" format="enum">
+            <enum name="pill" value="0" />         <!-- Bo tròn hoàn toàn (33dp radius) -->
+            <enum name="square" value="1" />       <!-- Vuông vức bo nhẹ (12dp radius) -->
         </attr>
     </declare-styleable>
 </resources>

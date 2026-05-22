@@ -62,6 +62,7 @@
                 android:layout_height="56dp"
                 app:moscoStyle="primary"
                 app:moscoSize="large"
+                app:moscoShape="square"
                 android:text="@string/shop_dialog_action_use_now" />
 
             <com.vn.jet.mosco.widget.MoscoButton
@@ -71,6 +72,7 @@
                 android:layout_marginTop="12dp"
                 app:moscoStyle="secondary"
                 app:moscoSize="large"
+                app:moscoShape="square"
                 android:text="@string/shop_dialog_action_inventory" />
 
         </LinearLayout>
@@ -83,6 +85,7 @@
             android:layout_marginTop="32dp"
             app:moscoStyle="primary"
             app:moscoSize="large"
+            app:moscoShape="square"
             android:text="@string/action_ok"
             android:visibility="gone" />
 
