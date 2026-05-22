@@ -80,11 +80,11 @@ public class OnboardingActivity extends AppCompatActivity {
             }
         });
 
-        // Sử dụng ClickDebounce với khoảng chờ 300ms (thay vì mặc định 1000ms) để phản hồi click cực nhạy
-        // nhưng vẫn đủ ngăn chặn việc nhấp đúp (double-click) gây nhảy trang liên tiếp quá nhanh.
-        btnNext.setOnClickListener(new ClickDebounce(300) {
+        // Loại bỏ hoàn toàn ClickDebounce và sử dụng View.OnClickListener thông thường
+        // để nút bấm phản hồi tức thì, chuyển trang hoặc mở SignInActivity ngay lập tức khi click.
+        btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDebouncedClick(View v) {
+            public void onClick(View v) {
                 if (viewPager.getCurrentItem() + 1 < adapter.getItemCount()) {
                     viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
                 } else {
