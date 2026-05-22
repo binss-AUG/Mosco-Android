@@ -390,7 +390,9 @@ public class CollectionDetailBinder {
 
     private static void updatePinUI(Context context, String cardId, ImageView ivPin) {
         boolean isPinned = PinManager.isPinned(context, cardId);
-        ivPin.setColorFilter(isPinned ? Color.parseColor("#FFD700") : Color.parseColor("#99FFFFFF")); // Gold if pinned
+        int pinGoldColor = androidx.core.content.ContextCompat.getColor(context, R.color.collection_pin_gold);
+        int pinUnselectedColor = androidx.core.content.ContextCompat.getColor(context, R.color.collection_pin_unselected);
+        ivPin.setColorFilter(isPinned ? pinGoldColor : pinUnselectedColor); // Gold if pinned
     }
 
     /**

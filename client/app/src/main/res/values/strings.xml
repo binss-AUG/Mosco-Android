@@ -15,4 +15,11 @@
     <string name="mailbox_tab_private_chats">CHATS</string>
     <string name="mailbox_tab_unread">UNREAD</string>
     <string name="mailbox_tab_read">READ</string>
+    
+    <!-- Shop payment labels -->
+    <string name="shop_label_total_investment">TOTAL INVESTMENT</string>
+    <string name="shop_btn_complete_order">Complete Order</string>
+    
+    <!-- Friend constants -->
+    <string name="friend_default_avatar_id">1</string>
 </resources>

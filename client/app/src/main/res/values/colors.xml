@@ -284,4 +284,8 @@
     <color name="palette_blue_powder">@color/semantic_surface</color>
     <color name="palette_pink_soft_alt">@color/semantic_surface</color>
     <color name="couple_streak_card_bg">@color/semantic_surface</color>
+    
+    <!-- Pinned star icon color filter in Album Detail -->
+    <color name="collection_pin_gold">#FFD700</color>
+    <color name="collection_pin_unselected">#99FFFFFF</color>
 </resources>

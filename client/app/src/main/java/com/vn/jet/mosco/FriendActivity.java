@@ -134,7 +134,7 @@ public class FriendActivity extends MoscoBaseActivity {
 
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             private java.util.Timer timer = new java.util.Timer();
-            private final long DELAY = 300; 
+            private final long DELAY = getResources().getInteger(R.integer.friend_search_delay); 
 
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -352,7 +352,8 @@ public class FriendActivity extends MoscoBaseActivity {
             com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
                     com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
             int screenHeight = getResources().getDisplayMetrics().heightPixels;
-            int targetHeight = (int) (screenHeight * 0.85); // 85% cho sang
+            float previewHeightPercent = getResources().getInteger(R.integer.friend_preview_height_percent) / 100f;
+            int targetHeight = (int) (screenHeight * previewHeightPercent); // 85% cho sang
             
             bottomSheet.getLayoutParams().height = targetHeight;
             behavior.setPeekHeight(targetHeight);
@@ -377,7 +378,7 @@ public class FriendActivity extends MoscoBaseActivity {
         tvName.setText(name.toUpperCase());
         tvLevel.setText(String.valueOf(level));
         tvObjets.setText(String.valueOf(user.optInt("objetsCount", 0))); 
-        tvId.setText(String.valueOf(10000000 + id));
+        tvId.setText(String.valueOf(getResources().getInteger(R.integer.friend_id_offset) + id));
         
         String rawDate = user.optString("createdAt", getString(R.string.placeholder_empty));
         tvJoinDate.setText(rawDate.split("T")[0]);
@@ -386,7 +387,7 @@ public class FriendActivity extends MoscoBaseActivity {
         viewStatusDot.setBackgroundResource(isOnline ? R.drawable.bg_status_online : R.drawable.bg_dot_inactive);
 
         // Avatar
-        String avatarId = user.optString("avatarId", "1");
+        String avatarId = user.optString("avatarId", getString(R.string.friend_default_avatar_id));
         JSONObject card = com.vn.jet.mosco.utils.DatabaseLoader.findByCollectionId(this, avatarId);
         if (card != null) {
             String imgUrl = card.optString("frontImage", "");
@@ -442,7 +443,7 @@ public class FriendActivity extends MoscoBaseActivity {
                 badge.setVisible(true);
                 badge.setNumber(count);
                 badge.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.palette_red_accent));
-                badge.setBadgeTextColor(android.graphics.Color.WHITE);
+                badge.setBadgeTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
             } else {
                 tab.removeBadge();
             }

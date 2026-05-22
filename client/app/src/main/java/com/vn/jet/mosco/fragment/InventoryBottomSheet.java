@@ -171,7 +171,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         rvInventory.setItemViewCacheSize(20);
         // [QUIET LUXURY] ĐÃ GỠ BỎ Drawing Cache (Nguyên nhân gây OOM/Crash khi lướt nhanh)
         rvInventory.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        com.vn.jet.mosco.utils.GridScaleScrollListener scaleListener = new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f);
+        float minScale = getResources().getInteger(R.integer.grid_scale_min_percent) / 100f;
+        com.vn.jet.mosco.utils.GridScaleScrollListener scaleListener = new com.vn.jet.mosco.utils.GridScaleScrollListener(minScale);
         rvInventory.addOnScrollListener(scaleListener);
         rvInventory.addOnLayoutChangeListener(scaleListener);
 

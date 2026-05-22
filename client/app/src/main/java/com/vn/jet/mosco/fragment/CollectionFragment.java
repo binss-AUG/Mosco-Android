@@ -929,7 +929,8 @@ public class CollectionFragment extends Fragment {
             rvObjets = view.findViewById(R.id.rv_objets);
             rvObjets.setLayoutManager(new GridLayoutManager(requireContext(), 3));
             // [QUIET LUXURY] Hiệu ứng thẻ mờ dần và nhỏ lại ở 2 viền
-            com.vn.jet.mosco.utils.GridScaleScrollListener scaleListener = new com.vn.jet.mosco.utils.GridScaleScrollListener(0.85f);
+            float minScale = getResources().getInteger(R.integer.grid_scale_min_percent) / 100f;
+            com.vn.jet.mosco.utils.GridScaleScrollListener scaleListener = new com.vn.jet.mosco.utils.GridScaleScrollListener(minScale);
             rvObjets.addOnScrollListener(scaleListener);
             rvObjets.addOnLayoutChangeListener(scaleListener);
             // [QUIET LUXURY] Áp dụng phanh ABS: Giới hạn tốc độ lướt
