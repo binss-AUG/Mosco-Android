@@ -42,7 +42,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 app:moscoStyle="ghost"
-                app:moscoSize="large"
+                app:moscoSize="medium"
+                app:moscoShape="square"
                 android:text="@string/action_cancel" />
 
             <com.vn.jet.mosco.widget.MoscoButton
@@ -52,7 +53,8 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/spacing_12dp"
                 app:moscoStyle="primary"
-                app:moscoSize="large"
+                app:moscoSize="medium"
+                app:moscoShape="square"
                 android:text="@string/action_confirm" />
 
         </LinearLayout>

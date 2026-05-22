@@ -52,7 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 app:moscoStyle="ghost"
-                app:moscoSize="large"
+                app:moscoSize="medium"
+                app:moscoShape="square"
                 android:text="@string/dialog_btn_stay" />
 
             <com.vn.jet.mosco.widget.MoscoButton
@@ -62,7 +63,8 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/spacing_12dp"
                 app:moscoStyle="destructive"
-                app:moscoSize="large"
+                app:moscoSize="medium"
+                app:moscoShape="square"
                 android:text="@string/dialog_btn_exit" />
 
         </LinearLayout>

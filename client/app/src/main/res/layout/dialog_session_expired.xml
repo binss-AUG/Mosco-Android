@@ -55,7 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_24dp"
             app:moscoStyle="primary"
-            app:moscoSize="large"
+            app:moscoSize="medium"
+            app:moscoShape="square"
             android:text="@string/dialog_session_expired_btn" />
 
     </LinearLayout>

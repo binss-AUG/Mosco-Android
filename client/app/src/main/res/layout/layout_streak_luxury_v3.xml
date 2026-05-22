@@ -349,21 +349,23 @@
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_action_left"
             android:layout_width="0dp"
-            android:layout_height="@dimen/couple_streak_button_height"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_xs"
             android:visibility="gone"
             app:moscoStyle="secondary"
-            app:moscoSize="large" />
+            app:moscoSize="medium"
+            app:moscoShape="square" />
 
         <!-- Main Action Button -->
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_action_right"
             android:layout_width="0dp"
-            android:layout_height="@dimen/couple_streak_button_height"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
             app:moscoStyle="primary"
-            app:moscoSize="large"
+            app:moscoSize="medium"
+            app:moscoShape="square"
             android:text="@string/couple_streak_action_share_connection" />
     </LinearLayout>
 

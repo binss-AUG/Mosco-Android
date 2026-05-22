@@ -74,6 +74,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:moscoStyle="ghost"
+            app:moscoSize="medium"
+            app:moscoShape="square"
             android:text="RECALIBRATE" />
 
     </LinearLayout>

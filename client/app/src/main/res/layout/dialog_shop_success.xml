@@ -59,19 +59,19 @@
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_use_now"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
                 app:moscoStyle="primary"
-                app:moscoSize="large"
+                app:moscoSize="medium"
                 app:moscoShape="square"
                 android:text="@string/shop_dialog_action_use_now" />
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_go_inventory"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 app:moscoStyle="secondary"
-                app:moscoSize="large"
+                app:moscoSize="medium"
                 app:moscoShape="square"
                 android:text="@string/shop_dialog_action_inventory" />
 
@@ -81,10 +81,10 @@
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_ok"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             app:moscoStyle="primary"
-            app:moscoSize="large"
+            app:moscoSize="medium"
             app:moscoShape="square"
             android:text="@string/action_ok"
             android:visibility="gone" />

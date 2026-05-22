@@ -126,7 +126,8 @@
                 android:layout_weight="1"
                 android:text="@string/action_cancel"
                 app:moscoStyle="ghost"
-                app:moscoSize="large" />
+                app:moscoSize="medium"
+                app:moscoShape="square" />
 
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_save"
@@ -136,7 +137,8 @@
                 android:layout_marginStart="@dimen/spacing_12dp"
                 android:text="@string/action_save"
                 app:moscoStyle="primary"
-                app:moscoSize="large" />
+                app:moscoSize="medium"
+                app:moscoShape="square" />
 
         </LinearLayout>
     </LinearLayout>
