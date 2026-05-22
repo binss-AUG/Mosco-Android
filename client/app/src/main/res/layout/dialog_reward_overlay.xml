@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/stage_reward_panel_margin_top"
             android:layout_marginHorizontal="@dimen/stage_reward_panel_margin_horizontal"
-            app:cardBackgroundColor="@color/glass_white_10"
+            app:cardBackgroundColor="@color/semantic_surface"
             app:cardCornerRadius="@dimen/stage_reward_panel_corner"
             app:cardElevation="0dp"
             app:strokeColor="@color/glass_white_20"
