@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -166,7 +167,17 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
 
     private void updateIndicators(int activePos) {
         for (int i = 0; i < dots.length; i++) {
-            dots[i].setBackgroundResource(i == activePos ? R.drawable.bg_indicator_active : R.drawable.bg_indicator_inactive);
+            // Tạo drawable động để đổi màu dot tương ứng với từng buổi sáng/trưa/tối
+            android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+            drawable.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            drawable.setCornerRadius(getResources().getDimension(R.dimen.spacing_2dp));
+            
+            int baseColor = accentColors[i];
+            int alpha = (i == activePos) ? 255 : 76; // 100% vs 30% alpha
+            int color = ColorUtils.setAlphaComponent(baseColor, alpha);
+            drawable.setColor(color);
+            dots[i].setBackground(drawable);
+            
             dots[i].animate().scaleX(i == activePos ? 1.4f : 1.0f).setDuration(250).start();
         }
     }
@@ -326,9 +337,11 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             holder.ivBanner.setImageResource(data.bannerRes);
             holder.ivBanner.setColorFilter(0, android.graphics.PorterDuff.Mode.SRC_OVER);
             
-            // Đặc biệt: Đồng bộ viền (stroke) với màu chủ đạo của buổi
-            // Đồng bộ viền Luxury trắng trong suốt (đã set trong XML)
-            // holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(data.accentColor));
+            // Đặc biệt: Thiết lập màu nền card và viền card theo màu chủ đạo của buổi
+            int cardBg = ColorUtils.setAlphaComponent(data.accentColor, 18); // 7% alpha
+            int cardStroke = ColorUtils.setAlphaComponent(data.accentColor, 76); // 30% alpha
+            holder.cvCard.setCardBackgroundColor(cardBg);
+            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(cardStroke));
             
             updateButton(holder, data.status, data.accentColor);
 
@@ -338,16 +351,22 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
         private void updateButton(VH holder, String status, int accentColor) {
             holder.btnClaim.setClickable(false);
             holder.btnClaim.setEnabled(false);
+            holder.btnClaim.setStrokeWidth((int) getResources().getDimension(R.dimen.stroke_thin));
             
             switch (status) {
                 case "claimed":
                     holder.tvClaimText.setText(getString(R.string.daily_status_claimed));
-                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.lg_background_mid));
-                    holder.btnClaim.setAlpha(0.6f);
+                    // Đồng bộ màu của buổi với alpha thấp và stroke nét hơn
+                    holder.btnClaim.setCardBackgroundColor(ColorUtils.setAlphaComponent(accentColor, 20)); // 8% alpha
+                    holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(ColorUtils.setAlphaComponent(accentColor, 60))); // 24% alpha
+                    holder.tvClaimText.setTextColor(ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 102)); // 40% alpha
+                    holder.btnClaim.setAlpha(1.0f); // Không dùng alpha tổng để giữ độ sắc nét viền
                     break;
                 case "available":
                     holder.tvClaimText.setText(getString(R.string.daily_action_claim));
                     holder.btnClaim.setCardBackgroundColor(accentColor);
+                    holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+                    holder.tvClaimText.setTextColor(android.graphics.Color.WHITE);
                     holder.btnClaim.setAlpha(1.0f);
                     holder.btnClaim.setClickable(true);
                     holder.btnClaim.setEnabled(true);
@@ -355,8 +374,11 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
                 case "locked":
                 default:
                     holder.tvClaimText.setText(getString(R.string.daily_action_claim));
-                    holder.btnClaim.setCardBackgroundColor(ContextCompat.getColor(DailyCheckinActivity.this, R.color.mosco_input_bg));
-                    holder.btnClaim.setAlpha(0.35f);
+                    // Đồng bộ màu của buổi ở trạng thái khóa với opacity mờ
+                    holder.btnClaim.setCardBackgroundColor(ColorUtils.setAlphaComponent(accentColor, 40)); // 15% alpha
+                    holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(ColorUtils.setAlphaComponent(accentColor, 30))); // 12% alpha
+                    holder.tvClaimText.setTextColor(ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, 76)); // 30% alpha
+                    holder.btnClaim.setAlpha(1.0f);
                     break;
             }
         }

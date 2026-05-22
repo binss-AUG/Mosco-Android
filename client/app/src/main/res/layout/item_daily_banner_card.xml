@@ -36,6 +36,7 @@
 
         <!-- Time Chip (Floating Glass) -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_time_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_lg"
@@ -64,7 +65,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/daily_info_padding_h"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/cv_time_chip"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintVertical_bias="1.0">
+
 
             <TextView
                 android:id="@+id/tv_session_title"
@@ -159,7 +164,10 @@
                 android:layout_marginTop="@dimen/spacing_lg"
                 app:cardCornerRadius="@dimen/daily_button_corner"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/lg_accent_secondary">
+                app:cardBackgroundColor="@color/lg_accent_secondary"
+                app:strokeWidth="@dimen/stroke_thin"
+                app:strokeColor="@android:color/transparent">
+
                 
                 <TextView
                     android:id="@+id/tv_claim_text"
