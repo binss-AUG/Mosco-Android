@@ -226,11 +226,11 @@
 
     <!-- Legacy / Module Specific -->
     <color name="daily_morning_accent">@color/brand_primary</color>
-    <color name="daily_morning_bg">@color/semantic_background</color>
+    <color name="daily_morning_bg">#0B253A</color>
     <color name="daily_noon_accent">@color/brand_secondary</color>
-    <color name="daily_noon_bg">@color/semantic_surface</color>
+    <color name="daily_noon_bg">#291E0B</color>
     <color name="daily_evening_accent">#A855F7</color>
-    <color name="daily_evening_bg">@color/semantic_background</color>
+    <color name="daily_evening_bg">#1C0F2B</color>
     
     <color name="stage_map_1_accent">@color/brand_primary</color>
     <color name="stage_map_1_bg">@color/semantic_background</color>

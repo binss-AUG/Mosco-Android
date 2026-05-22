@@ -201,6 +201,10 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
                     
                     int accentColor = (int) evaluator.evaluate(positionOffset, accentColors[position], accentColors[position + 1]);
                     viewHeaderAccent.setBackgroundColor(accentColor);
+                } else if (position == bgColors.length - 1) {
+                    viewBgOverlay.setBackgroundColor(bgColors[position]);
+                    viewBgOverlay.setAlpha(bgOverlayAlpha);
+                    viewHeaderAccent.setBackgroundColor(accentColors[position]);
                 }
             }
 
@@ -392,15 +396,9 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             holder.ivBanner.setImageResource(data.bannerRes);
             holder.ivBanner.setColorFilter(0, android.graphics.PorterDuff.Mode.SRC_OVER);
             
-            // Tải alpha từ tài nguyên để tránh giá trị cứng trong code
-            int bgAlpha = context.getResources().getInteger(R.integer.daily_card_bg_alpha);
-            int strokeAlpha = context.getResources().getInteger(R.integer.daily_card_stroke_alpha);
-
-            // Đặc biệt: Thiết lập màu nền card và viền card theo màu chủ đạo của buổi
-            int cardBg = ColorUtils.setAlphaComponent(data.accentColor, bgAlpha);
-            int cardStroke = ColorUtils.setAlphaComponent(data.accentColor, strokeAlpha);
-            holder.cvCard.setCardBackgroundColor(cardBg);
-            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(cardStroke));
+            // Đặc biệt: Khôi phục giao diện kính mờ mặc định của Card theo yêu cầu của Sếp (không tô màu theo buổi)
+            holder.cvCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.white_05));
+            holder.cvCard.setStrokeColor(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white_20)));
             
             updateButton(holder, data.status, data.accentColor);
 
