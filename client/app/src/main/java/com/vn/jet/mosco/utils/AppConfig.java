@@ -35,10 +35,10 @@ public class AppConfig {
             "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
 
     // 5. Cấu hình kiểm thử và gỡ lỗi (Debug Config)
-    // Tại sao (WHY): Cho phép kiểm thử hiệu ứng Shimmer/Skeleton bằng cách kéo dài thời gian tải API
-    // mà không ảnh hưởng tới luồng production thực tế khi release.
-    public static final boolean DEBUG_MODE = true;
-    public static final boolean DEBUG_SIMULATE_DELAY = true;
+    // Tại sao (WHY): Tắt chế độ DEBUG và giả lập trễ mạng để ứng dụng chạy với tốc độ tối đa của máy chủ,
+    // mang lại trải nghiệm thực tế mượt mà cho người dùng.
+    public static final boolean DEBUG_MODE = false;
+    public static final boolean DEBUG_SIMULATE_DELAY = false;
 
     // Tránh khởi tạo đối tượng
     private AppConfig() {
