@@ -236,7 +236,7 @@
                     android:clipChildren="true"
                     android:clipToPadding="false"
                     android:paddingStart="@dimen/spacing_xxs"
-                    android:tag="skeleton_leaf">
+                    android:tag="skeleton_ignore">
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vp_showcase"
@@ -244,7 +244,20 @@
                         android:layout_height="match_parent"
                         android:clipChildren="false"
                         android:clipToPadding="false"
-                        android:paddingHorizontal="14dp" />
+                        android:paddingHorizontal="14dp"
+                        android:tag="skeleton_ignore" />
+
+                    <!-- TẠI SAO: Khung xương (Skeleton) cho thẻ bài Objekt đang nạp dữ liệu ở profile.
+                         Tái sử dụng layout item_inventory_shimmer giúp hiển thị chính xác tỷ lệ 1:1.54 
+                         của Objekt thực tế và chạy shimmer động cực kỳ cao cấp. -->
+                    <include
+                        android:id="@+id/layout_showcase_skeleton"
+                        layout="@layout/item_inventory_shimmer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="14dp"
+                        android:visibility="gone" />
 
                 </FrameLayout>
 

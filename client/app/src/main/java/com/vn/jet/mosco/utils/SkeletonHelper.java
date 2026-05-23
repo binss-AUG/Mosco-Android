@@ -87,7 +87,6 @@ public class SkeletonHelper {
             // Lưu giữ trạng thái nguyên bản để phục hồi sau này, tránh rò rỉ bộ nhớ
             tv.setTag(R.id.tag_original_text_color, tv.getCurrentTextColor());
             tv.setTag(R.id.tag_original_background, tv.getBackground());
-            tv.setTag(R.id.tag_original_text, tv.getText());
             tv.setTag(R.id.tag_is_skeletonized, true);
 
             // Ẩn nội dung chữ thật bằng màu trong suốt nhưng vẫn giữ nguyên diện tích layout cũ
@@ -98,7 +97,12 @@ public class SkeletonHelper {
             // giúp khối xám hiển thị rõ nét trên màn hình và không bị co rút về 0px.
             CharSequence currentText = tv.getText();
             if (currentText == null || currentText.length() == 0) {
+                // TẠI SAO: Đánh dấu text gốc rỗng bằng cách sử dụng tag có sẵn R.id.tag_original_text
+                // để khôi phục chính xác về rỗng sau khi restore, tránh ghi đè dữ liệu mới của API.
+                tv.setTag(R.id.tag_original_text, Boolean.TRUE);
                 tv.setText("  00  ");
+            } else {
+                tv.setTag(R.id.tag_original_text, Boolean.FALSE);
             }
 
             // Gán background xám bo tròn giả lập thanh text đang tải
@@ -106,6 +110,15 @@ public class SkeletonHelper {
 
         } else if (view instanceof ImageView) {
             ImageView iv = (ImageView) view;
+
+            // TẠI SAO: Kiểm tra xem có phải LottieAnimationView hay không để tránh gọi setImageDrawable(null)
+            // làm mất vĩnh viễn composition của Lottie. Ta chỉ ẩn nó đi bằng View.INVISIBLE.
+            if (view.getClass().getName().contains("LottieAnimationView")) {
+                iv.setTag(R.id.tag_original_visibility, iv.getVisibility());
+                iv.setTag(R.id.tag_is_skeletonized, true);
+                iv.setVisibility(View.INVISIBLE);
+                return;
+            }
 
             iv.setTag(R.id.tag_original_image_drawable, iv.getDrawable());
             iv.setTag(R.id.tag_original_background, iv.getBackground());
@@ -174,14 +187,27 @@ public class SkeletonHelper {
                 Object origBgObj = tv.getTag(R.id.tag_original_background);
                 tv.setBackground(origBgObj instanceof Drawable ? (Drawable) origBgObj : null);
 
-                // Restore text gốc
-                Object origTextObj = tv.getTag(R.id.tag_original_text);
-                if (origTextObj instanceof CharSequence) {
-                    tv.setText((CharSequence) origTextObj);
+                // Restore text gốc chỉ khi ban đầu TextView trống rỗng (ta đã set "  00  ")
+                // TẠI SAO: Nếu ban đầu TextView không rỗng, ta không restore text cũ để tránh ghi đè
+                // lên dữ liệu mới tải về từ API/Database vừa được bind trước đó.
+                Object wasEmptyObj = tv.getTag(R.id.tag_original_text);
+                if (Boolean.TRUE.equals(wasEmptyObj)) {
+                    tv.setText("");
                 }
 
             } else if (view instanceof ImageView) {
                 ImageView iv = (ImageView) view;
+
+                // TẠI SAO: Khôi phục lại visibility gốc cho LottieAnimationView thay vì khôi phục drawable.
+                if (view.getClass().getName().contains("LottieAnimationView")) {
+                    Object origVis = iv.getTag(R.id.tag_original_visibility);
+                    if (origVis instanceof Integer) {
+                        iv.setVisibility((Integer) origVis);
+                    }
+                    iv.setTag(R.id.tag_is_skeletonized, null);
+                    iv.setTag(R.id.tag_original_visibility, null);
+                    return;
+                }
 
                 Object origDrawableObj = iv.getTag(R.id.tag_original_image_drawable);
                 iv.setImageDrawable(origDrawableObj instanceof Drawable ? (Drawable) origDrawableObj : null);

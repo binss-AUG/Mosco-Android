@@ -59,7 +59,27 @@ public class ProfileGeneralFragment extends Fragment {
         // Lấy ProfileViewModel từ parent (ProfileFragment) để share chung dữ liệu
         if (getParentFragment() != null) {
             viewModel = new ViewModelProvider(getParentFragment()).get(ProfileViewModel.class);
-            viewModel.getUserStats().observe(getViewLifecycleOwner(), this::renderData);
+            
+            // TẠI SAO: Quan sát trạng thái shimmer của parent để tự động chạy skeletonize/restore cho chính mình.
+            // Điều này giải quyết lỗi chữ thật bị mờ nhòe thay vì hiển thị khối xám shimmer.
+            viewModel.getIsShimmering().observe(getViewLifecycleOwner(), isShimmering -> {
+                View root = getView();
+                if (root == null) return;
+                if (Boolean.TRUE.equals(isShimmering)) {
+                    com.vn.jet.mosco.utils.SkeletonHelper.skeletonize(root);
+                } else {
+                    com.vn.jet.mosco.utils.SkeletonHelper.restore(root);
+                    renderData(viewModel.getUserStats().getValue());
+                }
+            });
+
+            viewModel.getUserStats().observe(getViewLifecycleOwner(), stats -> {
+                // TẠI SAO: Chỉ kết xuất dữ liệu thật (renderData) khi hiệu ứng shimmer đã tắt hoàn toàn.
+                Boolean isShimmering = viewModel.getIsShimmering().getValue();
+                if (!Boolean.TRUE.equals(isShimmering)) {
+                    renderData(stats);
+                }
+            });
         }
 
         // Sao chép UID vào clipboard

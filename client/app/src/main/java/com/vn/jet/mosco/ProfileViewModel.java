@@ -24,6 +24,17 @@ public class ProfileViewModel extends AndroidViewModel {
     private final GameApiService gameApiService;
     private final MutableLiveData<Long> userIdLiveData = new MutableLiveData<>();
     private final LiveData<UserStats> userStats;
+    // TẠI SAO: Quản lý trạng thái shimmer tập trung để các sub-fragment (General, Trophy)
+    // nhận biết được khi nào đang loading và tự động skeletonize đồng bộ.
+    private final MutableLiveData<Boolean> isShimmering = new MutableLiveData<>(true);
+
+    public LiveData<Boolean> getIsShimmering() {
+        return isShimmering;
+    }
+
+    public void setShimmering(boolean shimmering) {
+        isShimmering.setValue(shimmering);
+    }
 
     public ProfileViewModel(@NonNull Application application) {
         super(application);

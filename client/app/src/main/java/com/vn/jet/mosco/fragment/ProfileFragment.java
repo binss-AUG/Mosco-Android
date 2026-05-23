@@ -96,6 +96,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
     private View layoutProfileContent, layoutMainContainer;
+    private View layoutShowcaseSkeleton;
     private ShimmerFrameLayout shimmerProfile;
     private TextView tvStatLikes, tvStatFriends;
     private View tabSlidingThumb;
@@ -261,6 +262,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void showShimmer(boolean show) {
+        if (viewModel != null) {
+            viewModel.setShimmering(show);
+        }
         if (show) {
             // Skeletonize layout và bắt đầu chạy shimmer
             if (layoutMainContainer != null) {
@@ -269,6 +273,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (shimmerProfile != null) {
                 shimmerProfile.showShimmer(true);
                 shimmerProfile.startShimmer();
+            }
+            // TẠI SAO: Khi đang loading, hiện khung xương Objekt 1:1.54 và ẩn view chứa data đi
+            if (layoutShowcaseSkeleton != null) {
+                layoutShowcaseSkeleton.setVisibility(View.VISIBLE);
+            }
+            if (vpShowcase != null) {
+                vpShowcase.setVisibility(View.INVISIBLE);
             }
             // Ẩn nút Edit Mode khi đang tải để tránh lỗi UX
             if (btnEditMode != null) {
@@ -282,6 +293,13 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (shimmerProfile != null) {
                 shimmerProfile.stopShimmer();
                 shimmerProfile.hideShimmer();
+            }
+            // TẠI SAO: Nạp xong dữ liệu thì ẩn khung xương loading và hiện view chứa danh sách thật
+            if (layoutShowcaseSkeleton != null) {
+                layoutShowcaseSkeleton.setVisibility(View.GONE);
+            }
+            if (vpShowcase != null) {
+                vpShowcase.setVisibility(View.VISIBLE);
             }
             // Hiện lại nút Edit Mode sau khi đã có data hoàn chỉnh
             if (isOwner && btnEditMode != null) {
@@ -373,6 +391,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         setupViewPager();
         setupExhibitShowcase(v);
+        layoutShowcaseSkeleton = v.findViewById(R.id.layout_showcase_skeleton);
     }
 
     private void setupViewPager() {

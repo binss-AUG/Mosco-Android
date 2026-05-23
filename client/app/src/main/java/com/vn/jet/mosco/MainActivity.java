@@ -31,6 +31,7 @@ import java.util.List;
 import com.vn.jet.mosco.model.UserMail;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.vn.jet.mosco.fragment.CollectionFragment;
 import com.vn.jet.mosco.fragment.HomeFragment;
 import com.vn.jet.mosco.fragment.ProfileFragment;
@@ -60,6 +61,7 @@ public class MainActivity extends MoscoBaseActivity {
     private View llInternalCurrencies;
     private TextView tvShopCoins;
     private TextView tvShopDiamonds;
+    private com.facebook.shimmer.ShimmerFrameLayout shimmerHeader;
 
     private int badgeFriendCount;
     private int badgeMailCount;
@@ -187,6 +189,7 @@ public class MainActivity extends MoscoBaseActivity {
     }
 
     private void setupHeader() {
+        shimmerHeader = findViewById(R.id.shimmer_header);
         tvCoins    = findViewById(R.id.tv_home_coins);
         tvDiamonds = findViewById(R.id.tv_home_diamonds);
         tvUsername = findViewById(R.id.tv_home_username);
@@ -585,6 +588,26 @@ public class MainActivity extends MoscoBaseActivity {
             });
         } else {
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * Bật hoặc tắt hiệu ứng skeleton shimmer cho thanh Header dùng chung.
+     * TẠI SAO: Đảm bảo khi màn hình đang tải dữ liệu thì Header cũng hiển thị dạng khối xám
+     * chạy trượt sáng, không để lộ dữ liệu nháp cũ (Commander, 0 tiền) gây mất thẩm mỹ.
+     */
+    public void showHeaderShimmer(boolean show) {
+        View headerRow = findViewById(R.id.cl_header_row);
+        if (shimmerHeader != null && headerRow != null) {
+            if (show) {
+                com.vn.jet.mosco.utils.SkeletonHelper.skeletonize(headerRow);
+                shimmerHeader.showShimmer(true);
+                shimmerHeader.startShimmer();
+            } else {
+                com.vn.jet.mosco.utils.SkeletonHelper.restore(headerRow);
+                shimmerHeader.stopShimmer();
+                shimmerHeader.hideShimmer();
+            }
         }
     }
 

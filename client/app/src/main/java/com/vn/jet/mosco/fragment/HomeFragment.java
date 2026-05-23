@@ -170,6 +170,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
             shimmerHome.showShimmer(true);
             shimmerHome.startShimmer();
+            
+            // TẠI SAO: Đồng bộ bắt đầu Shimmer cho thanh Header dùng chung ở MainActivity
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showHeaderShimmer(true);
+            }
         } else if (shimmerHome != null) {
             if (clRealContent != null) {
                 clRealContent.setVisibility(View.VISIBLE);
@@ -806,6 +811,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
             shimmerHome.stopShimmer();
             shimmerHome.hideShimmer();
+
+            // TẠI SAO: Đồng bộ tắt Shimmer của Header dùng chung ở MainActivity khi dữ liệu Home đã nạp xong
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showHeaderShimmer(false);
+            }
         }
     }
 
