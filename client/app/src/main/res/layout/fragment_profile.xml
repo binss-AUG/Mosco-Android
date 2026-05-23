@@ -47,7 +47,8 @@
                 android:baselineAligned="false"
                 android:gravity="center_vertical"
                 android:clipChildren="false"
-                android:clipToPadding="false">
+                android:clipToPadding="false"
+                android:tag="skeleton_ignore">
 
                 <!-- Cột bên trái: Profile Info & Actions -->
                 <LinearLayout
@@ -111,6 +112,7 @@
                         </com.google.android.material.card.MaterialCardView>
 
                         <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cv_level_badge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignTop="@id/avatar_card"
@@ -258,6 +260,108 @@
                         android:layout_gravity="center"
                         android:layout_marginHorizontal="14dp"
                         android:visibility="gone" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <!-- TẠI SAO: Layout Skeleton tĩnh hoàn chỉnh cho Profile Header, giải quyết triệt để 
+                 tình trạng Glide nạp ảnh đè, nút cây viết/level badge và cụm nút guest actions 
+                 vẫn hiển thị trong lúc loading. -->
+            <LinearLayout
+                android:id="@+id/layout_profile_skeleton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="210dp"
+                android:orientation="horizontal"
+                android:layout_marginTop="36dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                android:tag="skeleton_ignore">
+
+                <!-- Cột bên trái: Profile Info Skeleton -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:paddingEnd="@dimen/spacing_xxs">
+
+                    <!-- Avatar Skeleton (Hình tròn xám 95dp) -->
+                    <View
+                        android:layout_width="95dp"
+                        android:layout_height="95dp"
+                        android:background="@drawable/bg_skeleton_circle"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Name Skeleton -->
+                    <View
+                        android:layout_width="120dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/bg_skeleton_rect"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Stats Skeleton -->
+                    <View
+                        android:layout_width="140dp"
+                        android:layout_height="14dp"
+                        android:background="@drawable/bg_skeleton_rect"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Guest Actions Skeleton (Chỉ hiện skeleton cho các nút nếu là Guest) -->
+                    <LinearLayout
+                        android:id="@+id/layout_guest_buttons_skeleton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:visibility="gone">
+                        
+                        <!-- Like & Msg row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="6dp">
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="32dp"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/bg_skeleton_rect" />
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="32dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/bg_skeleton_rect" />
+                        </LinearLayout>
+                        
+                        <!-- Add friend button -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_skeleton_rect" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Cột bên phải: Exhibit Skeleton (Chuẩn Objekt card 1:1.54) -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:minHeight="180dp"
+                    android:layout_weight="1.1"
+                    android:layout_gravity="center_vertical"
+                    android:paddingHorizontal="14dp">
+
+                    <include
+                        layout="@layout/item_inventory_shimmer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center" />
 
                 </FrameLayout>
 

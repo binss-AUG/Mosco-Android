@@ -96,7 +96,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
     private View layoutProfileContent, layoutMainContainer;
-    private View layoutShowcaseSkeleton;
+    private View layoutProfileSkeleton, layoutGuestButtonsSkeleton;
     private ShimmerFrameLayout shimmerProfile;
     private TextView tvStatLikes, tvStatFriends;
     private View tabSlidingThumb;
@@ -274,12 +274,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 shimmerProfile.showShimmer(true);
                 shimmerProfile.startShimmer();
             }
-            // TẠI SAO: Khi đang loading, hiện khung xương Objekt 1:1.54 và ẩn view chứa data đi
-            if (layoutShowcaseSkeleton != null) {
-                layoutShowcaseSkeleton.setVisibility(View.VISIBLE);
+            // TẠI SAO: Khi đang loading, ẩn hoàn toàn layout profile thật và hiện layout skeleton tĩnh
+            // để triệt tiêu lỗi Glide nạp đè ảnh, level badge hoặc nút Guest Actions lì lợm hiển thị.
+            if (layoutProfileContent != null) {
+                layoutProfileContent.setVisibility(View.GONE);
             }
-            if (vpShowcase != null) {
-                vpShowcase.setVisibility(View.INVISIBLE);
+            if (layoutProfileSkeleton != null) {
+                layoutProfileSkeleton.setVisibility(View.VISIBLE);
+                if (layoutGuestButtonsSkeleton != null) {
+                    layoutGuestButtonsSkeleton.setVisibility(isOwner ? View.GONE : View.VISIBLE);
+                }
             }
             // Ẩn nút Edit Mode khi đang tải để tránh lỗi UX
             if (btnEditMode != null) {
@@ -294,12 +298,12 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 shimmerProfile.stopShimmer();
                 shimmerProfile.hideShimmer();
             }
-            // TẠI SAO: Nạp xong dữ liệu thì ẩn khung xương loading và hiện view chứa danh sách thật
-            if (layoutShowcaseSkeleton != null) {
-                layoutShowcaseSkeleton.setVisibility(View.GONE);
+            // TẠI SAO: Khi tải xong, ẩn layout skeleton và khôi phục hiển thị layout thật đầy đủ
+            if (layoutProfileSkeleton != null) {
+                layoutProfileSkeleton.setVisibility(View.GONE);
             }
-            if (vpShowcase != null) {
-                vpShowcase.setVisibility(View.VISIBLE);
+            if (layoutProfileContent != null) {
+                layoutProfileContent.setVisibility(View.VISIBLE);
             }
             // Hiện lại nút Edit Mode sau khi đã có data hoàn chỉnh
             if (isOwner && btnEditMode != null) {
@@ -391,7 +395,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         setupViewPager();
         setupExhibitShowcase(v);
-        layoutShowcaseSkeleton = v.findViewById(R.id.layout_showcase_skeleton);
+        layoutProfileSkeleton = v.findViewById(R.id.layout_profile_skeleton);
+        layoutGuestButtonsSkeleton = v.findViewById(R.id.layout_guest_buttons_skeleton);
     }
 
     private void setupViewPager() {
