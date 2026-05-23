@@ -9,4 +9,11 @@
     <item name="sv_filter_content" type="id" />
     <item name="fl_filter_content" type="id" />
     <item name="btn_filter_clear" type="id" />
+    <!-- Tags for SkeletonHelper to save original states -->
+    <item name="tag_original_background" type="id" />
+    <item name="tag_original_text" type="id" />
+    <item name="tag_original_text_color" type="id" />
+    <item name="tag_original_image_drawable" type="id" />
+    <item name="tag_is_skeletonized" type="id" />
+    <item name="tag_original_visibility" type="id" />
 </resources>

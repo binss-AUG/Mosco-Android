@@ -12,7 +12,7 @@ public class AppConfig {
     // 1. API Endpoints
     // Neu dung GIA LAP (Emulator), hay dung: "http://10.0.2.2:8080/"
     // Neu dung MAY THAT, hay dung IP LAN cua may tinh (vi du: 192.168.1.36)
-    public static final String BASE_URL = "http://192.168.1.13:8080/";
+    public static final String BASE_URL = "http://192.168.1.3:8080/";
 
     // WebSocket URL - Tu dong chuyen doi tu BASE_URL (Khong duoc xoa)
     public static final String WS_URL = BASE_URL.replace("http", "ws") + "ws-mosco/websocket";
@@ -34,7 +34,14 @@ public class AppConfig {
             "Kaede", "DaHyun", "Kotone", "YeonJi", "Nien", "SoHyun", "Xinyu", "Mayu",
             "Lynn", "JooBin", "HaYeon", "ShiOn", "ChaeWon", "Sullin", "SeoAh", "JiYeon");
 
+    // 5. Cấu hình kiểm thử và gỡ lỗi (Debug Config)
+    // Tại sao (WHY): Cho phép kiểm thử hiệu ứng Shimmer/Skeleton bằng cách kéo dài thời gian tải API
+    // mà không ảnh hưởng tới luồng production thực tế khi release.
+    public static final boolean DEBUG_MODE = true;
+    public static final boolean DEBUG_SIMULATE_DELAY = true;
+
     // Tránh khởi tạo đối tượng
     private AppConfig() {
     }
 }
+

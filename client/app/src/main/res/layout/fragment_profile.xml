@@ -10,11 +10,20 @@
     android:importantForAccessibility="no"
     tools:context=".fragment.ProfileFragment">
 
-    <LinearLayout
-        android:id="@+id/layout_main_container"
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmer_profile"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:shimmer_auto_start="false"
+        app:shimmer_duration="1200"
+        app:shimmer_base_alpha="0.3"
+        app:shimmer_highlight_alpha="0.8">
+
+        <LinearLayout
+            android:id="@+id/layout_main_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,14 +34,6 @@
             android:paddingBottom="@dimen/spacing_sm"
             android:gravity="center_horizontal">
 
-            <!-- Skeleton Shimmer Loading (Hiển thị khi cache trống) -->
-            <ViewStub
-                android:id="@+id/stub_profile_shimmer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout="@layout/layout_profile_shimmer"
-                android:inflatedId="@+id/layout_profile_shimmer"
-                android:visibility="gone" />
 
             <!-- 1. Header Area: Profile Area (Trái) & Exhibit Carousel (Phải) -->
             <LinearLayout
@@ -109,7 +110,6 @@
                             </FrameLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Level Badge -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -117,6 +117,7 @@
                             android:layout_alignStart="@id/avatar_card"
                             android:layout_marginTop="2dp"
                             android:layout_marginStart="2dp"
+                            android:tag="skeleton_ignore"
                             app:cardBackgroundColor="@color/lg_accent_primary"
                             app:cardCornerRadius="@dimen/radius_md"
                             app:cardElevation="@dimen/spacing_xs"
@@ -139,6 +140,7 @@
                             android:id="@+id/btn_edit_mode"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
+                            android:tag="skeleton_ignore"
                             android:layout_alignBottom="@id/avatar_card"
                             android:layout_alignEnd="@id/avatar_card"
                             android:layout_marginBottom="2dp"
@@ -228,11 +230,13 @@
                     android:id="@+id/layout_exhibit_container"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:minHeight="180dp"
                     android:layout_weight="1.1"
                     android:layout_gravity="center_vertical"
                     android:clipChildren="true"
                     android:clipToPadding="false"
-                    android:paddingStart="@dimen/spacing_xxs">
+                    android:paddingStart="@dimen/spacing_xxs"
+                    android:tag="skeleton_leaf">
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vp_showcase"
@@ -255,7 +259,8 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="4dp"
                 android:background="@drawable/bg_profile_tab_container"
-                android:padding="@dimen/spacing_xxs">
+                android:padding="@dimen/spacing_xxs"
+                android:tag="skeleton_ignore">
 
                 <!-- Thumb trượt (Nằm dưới TabLayout) -->
                 <View
@@ -293,6 +298,7 @@
 
         </LinearLayout>
     </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
     <!-- Nút Menu 3 gạch (Ghost Menu Entry) -->
     <ImageButton
@@ -305,7 +311,8 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_menu_hamburger"
         app:tint="@color/white"
-        android:padding="@dimen/spacing_xs" />
+        android:padding="@dimen/spacing_xs"
+        android:tag="skeleton_ignore" />
 
     <ImageButton
         android:id="@+id/btn_back"
@@ -317,7 +324,8 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_back_arrow"
         app:tint="@color/white"
-        android:padding="@dimen/spacing_xs" />
+        android:padding="@dimen/spacing_xs"
+        android:tag="skeleton_ignore" />
 
     <!-- [PHASE 5] Inline Confirmation UI -->
     <View

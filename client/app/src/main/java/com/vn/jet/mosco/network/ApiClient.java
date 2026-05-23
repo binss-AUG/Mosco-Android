@@ -35,6 +35,16 @@ public class ApiClient {
                             .readTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(30, TimeUnit.SECONDS)
                             .addInterceptor(chain -> {
+                                // Tại sao (WHY): Giả lập độ trễ mạng khi bật chế độ Debug để dễ dàng
+                                // kiểm tra hiệu năng vẽ và độ mượt của các khối Shimmer Skeleton trước khi nạp data thật.
+                                if (com.vn.jet.mosco.utils.AppConfig.DEBUG_MODE && com.vn.jet.mosco.utils.AppConfig.DEBUG_SIMULATE_DELAY) {
+                                    try {
+                                        Thread.sleep(2000);
+                                    } catch (InterruptedException ignored) {}
+                                }
+                                return chain.proceed(chain.request());
+                            })
+                            .addInterceptor(chain -> {
                                 Request original = chain.request();
                                 Request.Builder builder = original.newBuilder();
 

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ConcatAdapter;
 
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.adapter.RankAdapter;
+import com.vn.jet.mosco.utils.SkeletonHelper;
 import com.vn.jet.mosco.adapter.PodiumAdapter;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
@@ -90,6 +91,11 @@ public class RankListFragment extends Fragment {
         podiumAdapter = new PodiumAdapter(new ArrayList<>(), rankType);
         rankAdapter = new RankAdapter(new ArrayList<>(), rankType);
         rvRankList.setAdapter(new ConcatAdapter(podiumAdapter, rankAdapter));
+
+        if (lottieLoading instanceof ViewGroup) {
+            ViewGroup container = lottieLoading.findViewById(R.id.ll_skeleton_container);
+            SkeletonHelper.populateShimmerContainer(container, R.layout.item_rank_entry, 6);
+        }
 
     }
 

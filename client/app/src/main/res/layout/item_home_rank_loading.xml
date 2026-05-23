@@ -22,19 +22,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            android:id="@+id/ll_skeleton_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/sk_mini_title"
             app:layout_constraintBottom_toBottomOf="parent">
-
-            <include layout="@layout/item_skeleton_rank_row" />
-            <include layout="@layout/item_skeleton_rank_row" />
-            <include layout="@layout/item_skeleton_rank_row" />
-            <include layout="@layout/item_skeleton_rank_row" />
-            <include layout="@layout/item_skeleton_rank_row" />
-
+            <!-- populated dynamically -->
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

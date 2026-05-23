@@ -18,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.adapter.FriendAdapter;
+import com.vn.jet.mosco.utils.SkeletonHelper;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 
@@ -68,6 +69,11 @@ public class FriendSearchFragment extends Fragment {
         rvResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FriendAdapter(new ArrayList<>());
         rvResults.setAdapter(adapter);
+
+        if (shimmerSkeleton != null) {
+            ViewGroup container = shimmerSkeleton.findViewById(R.id.ll_skeleton_container);
+            SkeletonHelper.populateShimmerContainer(container, R.layout.item_friend_entry, 6);
+        }
 
         apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
 

@@ -29,6 +29,8 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
+import com.facebook.shimmer.ShimmerFrameLayout;
+import com.vn.jet.mosco.utils.SkeletonHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -93,9 +95,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private View previewHeader, blockingOverlay;
     private View btnPreviewCancel, btnPreviewConfirm;
-    private View layoutProfileContent;
-    private ViewStub stubShimmer;
-    private View inflatedShimmer;
+    private View layoutProfileContent, layoutMainContainer;
+    private ShimmerFrameLayout shimmerProfile;
     private TextView tvStatLikes, tvStatFriends;
     private View tabSlidingThumb;
     private com.google.android.material.tabs.TabLayout tabLayout;
@@ -250,36 +251,29 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
     private void showShimmer(boolean show) {
         if (show) {
-            if (layoutProfileContent != null)
-                layoutProfileContent.setVisibility(View.GONE);
-            if (btnMenu != null)
-                btnMenu.setVisibility(View.GONE);
-            if (btnBack != null)
-                btnBack.setVisibility(View.GONE);
-            if (btnEditMode != null)
-                btnEditMode.setVisibility(View.GONE);
-
-            if (inflatedShimmer == null && stubShimmer != null) {
-                if (!isOwner) {
-                    stubShimmer.setLayoutResource(R.layout.layout_profile_guest_shimmer);
-                }
-                inflatedShimmer = stubShimmer.inflate();
+            // Skeletonize layout và bắt đầu chạy shimmer
+            if (layoutMainContainer != null) {
+                SkeletonHelper.skeletonize(layoutMainContainer);
             }
-            if (inflatedShimmer != null)
-                inflatedShimmer.setVisibility(View.VISIBLE);
+            if (shimmerProfile != null) {
+                shimmerProfile.startShimmer();
+            }
+            // Ẩn nút Edit Mode khi đang tải để tránh lỗi UX
+            if (btnEditMode != null) {
+                btnEditMode.setVisibility(View.GONE);
+            }
         } else {
-            if (inflatedShimmer != null)
-                inflatedShimmer.setVisibility(View.GONE);
-            if (layoutProfileContent != null)
-                layoutProfileContent.setVisibility(View.VISIBLE);
-
-            // Hiện lại nút điều hướng
-            if (isOwner && btnMenu != null)
-                btnMenu.setVisibility(View.VISIBLE);
-            if (!isOwner && btnBack != null)
-                btnBack.setVisibility(View.VISIBLE);
-            if (isOwner && btnEditMode != null)
+            // Khôi phục layout và dừng shimmer
+            if (layoutMainContainer != null) {
+                SkeletonHelper.restore(layoutMainContainer);
+            }
+            if (shimmerProfile != null) {
+                shimmerProfile.stopShimmer();
+            }
+            // Hiện lại nút Edit Mode sau khi đã có data hoàn chỉnh
+            if (isOwner && btnEditMode != null) {
                 btnEditMode.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -355,7 +349,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         btnPreviewConfirm = v.findViewById(R.id.btn_preview_confirm);
         tvPreviewHeaderLabel = v.findViewById(R.id.tv_preview_header_label);
         layoutProfileContent = v.findViewById(R.id.layout_profile_content);
-        stubShimmer = v.findViewById(R.id.stub_profile_shimmer);
+        layoutMainContainer = v.findViewById(R.id.layout_main_container);
+        shimmerProfile = v.findViewById(R.id.shimmer_profile);
         tvCurrentTitle = null;
         tvStatLikes = v.findViewById(R.id.tv_stat_likes);
         tvStatFriends = v.findViewById(R.id.tv_stat_friends);

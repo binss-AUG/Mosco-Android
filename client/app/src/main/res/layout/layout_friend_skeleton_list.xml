@@ -10,20 +10,13 @@
     android:visibility="gone">
 
     <LinearLayout
+        android:id="@+id/ll_skeleton_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/spacing_md"
         android:paddingTop="@dimen/spacing_sm">
-
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
-        <include layout="@layout/item_friend_skeleton_row" />
+        <!-- populated dynamically via SkeletonHelper.populateShimmerContainer -->
     </LinearLayout>
 
 </com.facebook.shimmer.ShimmerFrameLayout>

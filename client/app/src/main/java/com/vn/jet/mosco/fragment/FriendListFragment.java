@@ -19,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.vn.jet.mosco.R;
 import com.vn.jet.mosco.adapter.FriendAdapter;
+import com.vn.jet.mosco.utils.SkeletonHelper;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 
@@ -75,6 +76,11 @@ public class FriendListFragment extends Fragment {
         rvFriends.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FriendAdapter(new ArrayList<>());
         rvFriends.setAdapter(adapter);
+
+        if (shimmerSkeleton != null) {
+            ViewGroup container = shimmerSkeleton.findViewById(R.id.ll_skeleton_container);
+            SkeletonHelper.populateShimmerContainer(container, R.layout.item_friend_entry, 6);
+        }
         
         // Thiết lập bộ lắng nghe thao tác vuốt làm mới danh sách
         // Tại sao (WHY): Ngăn chặn việc spam request liên tục từ phía Client gây quá tải hệ thống, đồng thời cho phép người dùng chủ động vượt qua bộ nhớ đệm khi cần cập nhật tức thời.

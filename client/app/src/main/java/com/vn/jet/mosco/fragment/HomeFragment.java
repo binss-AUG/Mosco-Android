@@ -911,6 +911,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         @NonNull @Override public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == TYPE_LOADING) {
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_rank_loading, parent, false);
+                ViewGroup container = v.findViewById(R.id.ll_skeleton_container);
+                if (container != null) {
+                    com.vn.jet.mosco.utils.SkeletonHelper.populateShimmerContainer(container, R.layout.item_home_mini_rank, 5);
+                }
                 return new LoadingVH(v);
             }
             if (viewType == TYPE_ERROR) {
