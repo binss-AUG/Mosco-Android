@@ -163,10 +163,20 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         
         // Bắt đầu Shimmer ngay khi mở fragment (chỉ hiện nếu chưa có data)
         if (shimmerHome != null && sIsFirstLoad) {
+            // Skeletonize layout thực tế của Home trước khi bắt đầu shimmer
+            if (clRealContent != null) {
+                clRealContent.setVisibility(View.VISIBLE);
+                com.vn.jet.mosco.utils.SkeletonHelper.skeletonize(clRealContent);
+            }
+            shimmerHome.showShimmer(true);
             shimmerHome.startShimmer();
         } else if (shimmerHome != null) {
-            shimmerHome.setVisibility(View.GONE);
-            if (clRealContent != null) clRealContent.setVisibility(View.VISIBLE);
+            if (clRealContent != null) {
+                clRealContent.setVisibility(View.VISIBLE);
+                com.vn.jet.mosco.utils.SkeletonHelper.restore(clRealContent);
+            }
+            shimmerHome.stopShimmer();
+            shimmerHome.hideShimmer();
         }
         
         return view;
@@ -780,27 +790,22 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 return;
             }
 
-            if (shimmerHome != null && shimmerHome.getVisibility() == View.VISIBLE) {
-                // Hiệu ứng Fade out skeleton và Fade in content
-                clRealContent.setAlpha(0f);
-                clRealContent.setVisibility(View.VISIBLE);
-                
-                clRealContent.animate()
-                        .alpha(1f)
-                        .setDuration(400)
-                        .setListener(null);
-                
-                shimmerHome.animate()
-                        .alpha(0f)
-                        .setDuration(300)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                shimmerHome.stopShimmer();
-                                shimmerHome.setVisibility(View.GONE);
-                            }
-                        });
+            // Tại sao (WHY): Giữ màn hình ở trạng thái skeleton 3s ở chế độ Debug để dễ dàng quan sát, kiểm thử giao diện shimmer
+            if (com.vn.jet.mosco.utils.AppConfig.DEBUG_MODE && com.vn.jet.mosco.utils.AppConfig.DEBUG_SIMULATE_DELAY) {
+                new Handler(Looper.getMainLooper()).postDelayed(this::hideHomeShimmerNow, 3000);
+            } else {
+                hideHomeShimmerNow();
             }
+        }
+    }
+
+    private void hideHomeShimmerNow() {
+        if (shimmerHome != null) {
+            if (clRealContent != null) {
+                com.vn.jet.mosco.utils.SkeletonHelper.restore(clRealContent);
+            }
+            shimmerHome.stopShimmer();
+            shimmerHome.hideShimmer();
         }
     }
 

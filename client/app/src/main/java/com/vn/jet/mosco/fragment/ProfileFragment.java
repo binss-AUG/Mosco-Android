@@ -242,9 +242,20 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         // Quan sát dữ liệu Profile với cơ chế Local-First
         Transformations.distinctUntilChanged(viewModel.getUserStats()).observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
-                showShimmer(false);
-                renderProfileData(stats);
-                renderShowcaseData(stats);
+                // Tại sao (WHY): Giữ màn hình ở trạng thái skeleton 3s ở chế độ Debug để dễ dàng quan sát, kiểm thử giao diện shimmer
+                if (com.vn.jet.mosco.utils.AppConfig.DEBUG_MODE && com.vn.jet.mosco.utils.AppConfig.DEBUG_SIMULATE_DELAY) {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        if (isAdded() && getContext() != null) {
+                            showShimmer(false);
+                            renderProfileData(stats);
+                            renderShowcaseData(stats);
+                        }
+                    }, 3000);
+                } else {
+                    showShimmer(false);
+                    renderProfileData(stats);
+                    renderShowcaseData(stats);
+                }
             }
         });
     }
@@ -256,6 +267,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 SkeletonHelper.skeletonize(layoutMainContainer);
             }
             if (shimmerProfile != null) {
+                shimmerProfile.showShimmer(true);
                 shimmerProfile.startShimmer();
             }
             // Ẩn nút Edit Mode khi đang tải để tránh lỗi UX
@@ -269,6 +281,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             }
             if (shimmerProfile != null) {
                 shimmerProfile.stopShimmer();
+                shimmerProfile.hideShimmer();
             }
             // Hiện lại nút Edit Mode sau khi đã có data hoàn chỉnh
             if (isOwner && btnEditMode != null) {
