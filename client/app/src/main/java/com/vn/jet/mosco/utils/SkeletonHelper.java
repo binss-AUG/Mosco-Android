@@ -210,7 +210,11 @@ public class SkeletonHelper {
                 }
 
                 Object origDrawableObj = iv.getTag(R.id.tag_original_image_drawable);
-                iv.setImageDrawable(origDrawableObj instanceof Drawable ? (Drawable) origDrawableObj : null);
+                // TẠI SAO: Chỉ khôi phục drawable cũ từ tag nếu drawable hiện tại của ImageView đang trống (null).
+                // Nếu Glide đã tải xong và nạp ảnh thật vào ImageView trước khi restore chạy, ta giữ nguyên ảnh thật đó.
+                if (iv.getDrawable() == null) {
+                    iv.setImageDrawable(origDrawableObj instanceof Drawable ? (Drawable) origDrawableObj : null);
+                }
 
                 Object origBgObj = iv.getTag(R.id.tag_original_background);
                 iv.setBackground(origBgObj instanceof Drawable ? (Drawable) origBgObj : null);
