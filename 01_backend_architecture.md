@@ -780,30 +780,31 @@ Dưới đây là các giải pháp tối ưu hóa hiệu năng và bảo mật 
 
 ---
 
-## 4. Các điểm bất cập, không đồng bộ & Lỗi cấu hình JPA cần khắc phục (Known Limitations & Architectural Smells)
+## 4. Các điểm bất cập, không đồng bộ & Lỗi cấu hình JPA (Known Limitations & Architectural Smells)
 
-Trong quá trình đối chiếu tài liệu kiến trúc này với mã nguồn thực tế của dự án Mosco, chúng tôi đã phát hiện một số điểm bất cập nghiêm trọng trong thiết kế cũng như các lỗi cấu hình trong mã nguồn. Dưới đây là mô tả chi tiết và khuyến nghị khắc phục:
+Trong quá trình đối chiếu tài liệu kiến trúc này với mã nguồn thực tế của dự án Mosco, chúng tôi đã phát hiện một số điểm bất cập nghiêm trọng trong thiết kế cũng như các lỗi cấu hình trong mã nguồn. Dưới đây là tình trạng thực tế và các phương án xử lý trên nhánh `refactor-all`:
 
-### A. Lỗi cấu hình JPA Unique Constraints & Indexes (Server-side)
-*   **Vấn đề:** Các thực thể `Friendship.java`, `UserLike.java`, và `DailyCheckin.java` định nghĩa các ràng buộc duy nhất (`uniqueConstraints`) bằng cách sử dụng tên trường trong lớp Java (camelCase) thay vì tên cột vật lý trong cơ sở dữ liệu (snake_case). Cụ thể:
+### A. Lỗi cấu hình JPA Unique Constraints & Indexes (Server-side) - [ĐÃ KHẮC PHỤC TRÊN NHÁNH refactor-all]
+*   **Trạng thái:** Đã sửa lỗi và commit thành công trên nhánh `refactor-all`.
+*   **Vấn đề trước đó:** Các thực thể `Friendship.java`, `UserLike.java`, và `DailyCheckin.java` định nghĩa các ràng buộc duy nhất (`uniqueConstraints`) bằng cách sử dụng tên trường trong lớp Java (camelCase) thay vì tên cột vật lý trong cơ sở dữ liệu (snake_case). Cụ thể:
     *   `Friendship.java` dùng `{"requesterId", "addresseeId"}` thay vì `{"requester_id", "addressee_id"}`.
     *   `UserLike.java` dùng `{"likerId", "targetUserId"}` thay vì `{"liker_id", "target_user_id"}`.
     *   `DailyCheckin.java` dùng `{"userId", "checkinDate", "slot"}` thay vì `{"user_id", "checkin_date", "slot"}`.
     *   Tương tự, `GachaHistory.java` định nghĩa Index `idx_gacha_history_rolled` sử dụng `columnList = "rolledAt"` thay vì `rolled_at`.
 *   **Ảnh hưởng:** Hibernate khi tự động sinh và cập nhật Schema cơ sở dữ liệu (`spring.jpa.hibernate.ddl-auto=update`) sẽ bỏ qua hoặc sinh lỗi tạo chỉ mục/ràng buộc, dẫn tới việc cơ sở dữ liệu MySQL không có các khoá duy nhất này, tăng nguy cơ trùng lặp dữ liệu do race condition.
-*   **Giải pháp đề xuất:** Sửa đổi các tham số `columnNames` và `columnList` trong annotations về đúng tên cột vật lý tương ứng của MySQL.
+*   **Giải pháp đã thực hiện:** Sửa đổi các tham số `columnNames` và `columnList` trong annotations của toàn bộ 4 file Entity trên về đúng tên cột vật lý tương ứng của MySQL.
 
-### B. Nguy cơ không đồng nhất trạng thái Cấp độ người dùng (Level Column Stale State)
-*   **Vấn đề:** Trong `User.java`, thuộc tính `level` được lưu trữ trực tiếp dưới dạng một cột vật lý trong database (`@Column(nullable = false) private int level = 1;`). Tuy nhiên, phương thức getter `getLevel()` lại tính toán động dựa trên kinh nghiệm: `return (int) (this.exp / 1000) + 1;`.
-*   **Ảnh hưởng:** Do JPA sử dụng cơ chế truy cập trực tiếp vào trường dữ liệu (Field-based Access), Hibernate khi thực hiện ghi xuống database sẽ ghi trực tiếp giá trị của trường `level`. Nếu trong logic nghiệp vụ chỉ thay đổi `exp` (qua `setExp()`) mà không cập nhật trường `level` (qua `setLevel()`), cột `level` trong database sẽ bị cũ (stale) và không khớp với cấp độ thực tế của người dùng. Các câu lệnh query SQL trực tiếp sắp xếp theo cấp độ (ví dụ: bảng xếp hạng) sẽ trả về kết quả sai.
-*   **Giải pháp đề xuất:** Loại bỏ cột `level` vật lý khỏi cơ sở dữ liệu (đánh dấu `@Transient` hoặc tính toán hoàn toàn ở view/server controller), hoặc triển khai cơ chế đồng bộ tự động cập nhật trường `level` mỗi khi `setExp()` được gọi.
+### B. Nguy cơ không đồng nhất trạng thái Cấp độ người dùng (Level Column Stale State) - [ĐÃ KHẮC PHỤC TRÊN NHÁNH refactor-all]
+*   **Trạng thái:** Đã sửa lỗi và commit thành công trên nhánh `refactor-all`.
+*   **Vấn đề trước đó:** Trong `User.java`, thuộc tính `level` được lưu trữ trực tiếp dưới dạng một cột vật lý trong database (`@Column(nullable = false) private int level = 1;`). Tuy nhiên, phương thức getter `getLevel()` lại tính toán động dựa trên kinh nghiệm: `return (int) (this.exp / 1000) + 1;`. Do JPA sử dụng cơ chế truy cập trực tiếp vào trường dữ liệu (Field-based Access), Hibernate khi thực hiện ghi xuống database sẽ ghi trực tiếp giá trị của trường `level`. Nếu chỉ thay đổi `exp` (qua `setExp()`) mà không cập nhật trường `level` (qua `setLevel()`), cột `level` trong database sẽ bị cũ (stale), làm sai lệch các truy vấn xếp hạng người dùng theo cấp độ trực tiếp bằng SQL.
+*   **Giải pháp đã thực hiện:** Bổ sung logic tự động cập nhật trường `level` đồng bộ bên trong phương thức `setExp(long exp)` của lớp `User.java`: `this.level = (int) (this.exp / 1000) + 1;`, đảm bảo trường `level` luôn khớp với `exp` trước khi Hibernate lưu thực thể vào database.
 
-### C. Không đồng nhất kiểu dữ liệu của ID Tin nhắn (Chat ID Type Mismatch)
+### C. Không đồng nhất kiểu dữ liệu của ID Tin nhắn (Chat ID Type Mismatch) - [CÒN TỒN TẠI / ĐANG PHÁT TRIỂN]
 *   **Vấn đề:** SQLite cục bộ của Client lưu trữ `senderId` và `receiverId` trong bảng `private_messages` dưới dạng `String` (TEXT) thông qua `PrivateChatMessage.java`. Ngược lại, Server MySQL lưu trữ hai khoá ngoại logic này dưới dạng `Long` (BIGINT) thông qua `PrivateMessage.java`.
 *   **Ảnh hưởng:** Mặc dù Jackson có thể tự động chuyển đổi chuỗi số thành `Long` ở phía Server, sự không đồng nhất này khiến Client phải thực hiện các chuyển đổi kiểu dữ liệu rườm rà (ví dụ: `String.valueOf(partnerId)`) và làm giảm hiệu năng truy vấn của Room DB trên điện thoại do so sánh chuỗi chậm hơn so với số nguyên.
-*   **Giải pháp đề xuất:** Đồng bộ kiểu dữ liệu của `senderId` và `receiverId` về kiểu `long` ở cả phía Client SQLite và Server MySQL.
+*   **Giải pháp đề xuất:** Đồng bộ kiểu dữ liệu của `senderId` và `receiverId` về kiểu `long` ở cả phía Client SQLite và Server MySQL trong đợt refactor toàn diện tiếp theo của Client App.
 
-### D. Tính năng Avatar Auto-Crop (Survive Reinstall) chưa hoàn thiện trên Client
+### D. Tính năng Avatar Auto-Crop (Survive Reinstall) chưa hoàn thiện trên Client - [CÒN TỒN TẠI / ĐANG PHÁT TRIỂN]
 *   **Vấn đề:** Tài liệu mô tả cơ chế sao lưu toạ độ cắt ảnh (`avatarCropParams`) dạng `"xPercent,yPercent,sizePercent"` lên máy chủ để tái hiện ảnh đại diện chính xác khi cài lại ứng dụng. Tuy nhiên, mã nguồn Java của Client (`ProfileFragment.java`) chỉ sử dụng thư viện `uCrop` để cắt ảnh cục bộ và lưu đè file cache chứ **chưa triển khai việc tính toán tỉ lệ toạ độ** hoặc gửi thông số này lên Server trong request `updateProfile`.
 *   **Ảnh hưởng:** Tham số `avatarCropParams` lưu trên máy chủ luôn là `null` hoặc chuỗi rác cũ. Khi người dùng cài lại ứng dụng, toạ độ crop thủ công sẽ bị mất hoàn toàn và client buộc phải dùng thuật toán ML Kit nhận diện khuôn mặt tự động (`SmartFaceCropTransformation`), làm mất đi trải nghiệm crop thủ công mong muốn của người dùng.
 *   **Giải pháp đề xuất:** Bổ sung logic tính toán toạ độ tỉ lệ cắt trong callback của `uCrop` trên Client, cập nhật vào `SessionManager` và đồng bộ qua API `updateProfile` lên máy chủ.
