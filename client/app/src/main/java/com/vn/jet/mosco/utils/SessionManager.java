@@ -33,6 +33,10 @@ public class SessionManager {
     private static final String KEY_SFX_ENABLED = "sfx_enabled";
     private static final String KEY_AUTO_BACKUP = "auto_backup";
     private static final String KEY_BACKUP_INTERVAL = "backup_interval";
+    
+    // --- REMEMBER ME KEYS ---
+    private static final String KEY_REMEMBER_ME = "remember_me";
+    private static final String KEY_SAVED_USERNAME_OR_EMAIL = "saved_username_or_email";
 
     private final SharedPreferences prefs;
     private final Context context;
@@ -201,5 +205,21 @@ public class SessionManager {
 
     public int getBackupInterval() {
         return prefs.getInt(KEY_BACKUP_INTERVAL, 72); // Default 72 hours (3 days)
+    }
+
+    // Tại sao (WHY): Lưu thông tin đăng nhập tự động khi người dùng chọn "Remember me"
+    public void saveRememberMe(boolean enabled, String usernameOrEmail) {
+        prefs.edit()
+                .putBoolean(KEY_REMEMBER_ME, enabled)
+                .putString(KEY_SAVED_USERNAME_OR_EMAIL, enabled ? usernameOrEmail : null)
+                .apply();
+    }
+
+    public boolean isRememberMeEnabled() {
+        return prefs.getBoolean(KEY_REMEMBER_ME, false);
+    }
+
+    public String getSavedUsernameOrEmail() {
+        return prefs.getString(KEY_SAVED_USERNAME_OR_EMAIL, null);
     }
 }

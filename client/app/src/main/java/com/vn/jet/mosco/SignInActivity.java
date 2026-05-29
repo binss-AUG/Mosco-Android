@@ -81,6 +81,18 @@ public class SignInActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
         mAuth = FirebaseAuth.getInstance();
 
+        // Tại sao (WHY): Tự động điền thông tin đăng nhập đã lưu từ phiên làm việc trước nếu Remember me được chọn
+        if (sessionManager.isRememberMeEnabled()) {
+            cbRememberMe.setChecked(true);
+            String savedUser = sessionManager.getSavedUsernameOrEmail();
+            if (savedUser != null) {
+                edtEmail.setText(savedUser);
+                edtPassword.requestFocus();
+            }
+        } else {
+            cbRememberMe.setChecked(false);
+        }
+
         initGoogleSignIn();
         handleIntent(getIntent());
 
@@ -172,6 +184,8 @@ public class SignInActivity extends AppCompatActivity {
                 case SUCCESS:
                     setLoading(false);
                     if (resource.getData() != null && resource.getData().isSuccess()) {
+                        // Tại sao (WHY): Lưu thông tin đăng nhập tự động khi người dùng chọn "Remember me"
+                        sessionManager.saveRememberMe(cbRememberMe.isChecked(), edtEmail.getText().toString().trim());
                         sessionManager.saveSession(resource.getData().getData());
                         Toast.makeText(this, getString(R.string.auth_msg_sign_in_success),
                                 Toast.LENGTH_SHORT).show();

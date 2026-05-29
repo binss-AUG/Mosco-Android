@@ -161,7 +161,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
-                            android:buttonTint="@color/item_diamond"
+                            app:buttonTint="@color/brand_primary"
                             android:text="@string/auth_label_remember_me"
                             android:textSize="@dimen/text_size_body_xs" />
 
