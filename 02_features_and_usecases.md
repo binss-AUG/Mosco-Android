@@ -6,6 +6,39 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
 
 ## 1. Tính năng Đăng nhập & Đăng ký (Authentication)
 
+### Use-Case 1.0: Giới thiệu ứng dụng (Onboarding)
+*   **Tác nhân (Actor):** Khách vãng lai (Guest)
+*   **Luồng xử lý chính (Main flow):**
+    1.  Khi người dùng mở ứng dụng lần đầu tiên (hoặc khi chưa đăng nhập), Client tự động hiển thị màn hình [OnboardingActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/OnboardingActivity.java).
+    2.  Client sử dụng ViewPager2 để trình chiếu 3 trang giới thiệu về các tính năng nổi bật của game (Spins, Security, Convenience). Để tối ưu hiệu năng và tránh "khựng" khi chuyển trang lần đầu, ViewPager2 thiết lập nạp trước trang tiếp theo vào bộ đệm (`viewPager.setOffscreenPageLimit(1)`).
+    3.  Client hiển thị các chấm chỉ thị trang (Dots Indicator) dẹt co giãn scaleX động dựa trên trang hiện hành.
+    4.  Người chơi nhấn nút "Tiếp tục" (Next) để chuyển sang trang tiếp theo, hoặc vuốt màn hình.
+    5.  Tại trang giới thiệu cuối cùng, nút bấm chuyển nhãn thành "Bắt đầu" (Get Started). Khi người dùng nhấn nút này, Client chuyển hướng người dùng sang màn hình Đăng nhập [SignInActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SignInActivity.java).
+
+### Use-Case 1.0B: Khởi chạy và Đồng bộ tài nguyên lúc khởi động (App Startup & Galactic Resource Sync Pipeline)
+*   **Tác nhân (Actor):** Người chơi (User) / Khách vãng lai (Guest)
+*   **Luồng xử lý chính (Main flow):**
+    1.  Người dùng mở ứng dụng, màn hình khởi chạy [SplashActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SplashActivity.java) được hiển thị kèm hiệu ứng chuyển động Logo Lottie mượt mà và nền chuyển động Aurora.
+    2.  **Khởi tạo cơ sở dữ liệu ban đầu (Starter Pack):**
+        -   Client kiểm tra xem DB SQLite cục bộ đã được khởi tạo chưa (`StarterPackManager.isDbInitialized`).
+        -   *Nếu chưa khởi tạo (mới cài ứng dụng lần đầu):* Client hiển thị thanh tiến trình "Downloading..." và gọi `StarterPackManager.downloadAndInitDb` để tải và giải nén gói tài nguyên phôi cơ sở dữ liệu ban đầu. Sau khi hoàn thành mới cho phép đi tiếp.
+    3.  **Đồng bộ Metadata (Master Data Sync):**
+        -   Client gọi `DatabaseLoader.initMasterDataSync` để nạp dữ liệu offline.
+        -   Client gửi yêu cầu kiểm tra phiên bản MD5 của file `database.json` thông qua API `GET /api/config/db-version`.
+        -   Nếu có bản cập nhật mới, Client hiển thị Dialog xác nhận cập nhật hiển thị rõ dung lượng dữ liệu (Mb). Khi người dùng đồng ý, Client gọi `DatabaseLoader.pullFullDatabase` để tải và lưu đè file JSON mới về thiết bị, sau đó nạp dữ liệu vào Room Database Master.
+    4.  **Tải ngầm ảnh thẻ bài (Background Asset Pre-fetch):**
+        -   Client gọi `CardAssetManager.getPendingDownloadInfo` kiểm tra số lượng ảnh thẻ bài chưa được tải về máy.
+        -   Client kích hoạt tiến trình tải ngầm bất đồng bộ bằng luồng background (`CardAssetManager.startDownloadWithInfo`) để không block UI chính, đảm bảo trải nghiệm vào app siêu tốc (1.5 giây app entry).
+    5.  **Phục hồi phiên đăng nhập (Session Prefetch):**
+        -   Nếu thông tin phiên đăng nhập còn hiệu lực trong `SessionManager`, Client thực hiện pre-fetch tải trước kho đồ local (`DatabaseLoader.loadInventoryFromLocal`) để người dùng xem được ngay, song song đó gọi API `getUserStats` của backend để cập nhật dữ liệu mới nhất.
+    6.  **Điều hướng thông minh (App Entry Routing):**
+        -   Sau khi tải xong và giữ màn hình Splash tối thiểu 2.5 giây, Client điều hướng người dùng:
+            -   Nếu chưa đăng nhập: chuyển tới màn hình giới thiệu [OnboardingActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/OnboardingActivity.java).
+            -   Nếu đã đăng nhập nhưng chưa đặt tên hiển thị: chuyển tới màn hình [DisplayNameSetupActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/DisplayNameSetupActivity.java).
+            -   Nếu đã đăng nhập và đã có tên hiển thị: chuyển tới màn hình chính [MainActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/MainActivity.java).
+*   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
+    *   *Không có kết nối mạng:* Client phát hiện qua `ConnectivityManager.NetworkCallback` hoặc lỗi API, lập tức hiển thị giao diện báo lỗi kết nối mạng (Retry Connection) và ẩn Logo Lottie. Người chơi nhấn nút "Thử lại" để tải lại tài nguyên.
+
 ### Use-Case 1.1: Đăng ký tài khoản (Sign Up)
 *   **Tác nhân (Actor):** Khách vãng lai (Guest)
 *   **Luồng xử lý chính (Main flow):**
@@ -56,6 +89,23 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Email không tồn tại trong hệ thống:* Server trả về thông báo lỗi, Client hiển thị "Email không khớp với bất kỳ tài khoản nào".
     *   *Mã OTP không chính xác hoặc đã hết hạn (quá 10 phút):* Server phản hồi lỗi 400, Client yêu cầu người chơi kiểm tra hoặc yêu cầu gửi lại mã OTP mới.
+
+### Use-Case 1.4: Thiết lập tên hiển thị lần đầu (Display Name Setup)
+*   **Tác nhân (Actor):** Người chơi (User)
+*   **Luồng xử lý chính (Main flow):**
+    1.  Đối với tài khoản mới tạo (hoặc tài khoản chưa từng đặt Ingame Name), sau khi đăng nhập thành công, Client tự động chuyển hướng người dùng tới màn hình [DisplayNameSetupActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/DisplayNameSetupActivity.java) để bắt buộc thiết lập Tên hiển thị độc nhất.
+    2.  Người chơi nhập Ingame Name mong muốn vào ô nhập liệu và bấm nút "Xác nhận".
+    3.  Client thực hiện lọc nhanh các ký tự không hợp lệ, sau đó gửi yêu cầu POST tới API `/api/user/set-display-name` kèm theo body chứa `ingameName`.
+    4.  Server tiếp nhận yêu cầu và áp dụng bộ kiểm tra chống gian lận an toàn **"Galactic Name Shield"**:
+        -   Kiểm tra độ dài: Tên phải từ 2 đến 16 ký tự.
+        -   Kiểm tra tên hệ thống bị cấm: Tên không được chứa các từ khoá hệ thống như `admin`, `gm`, `system`, `moderator`, `mosco`, `[dev]`, v.v.
+        -   Chuẩn hóa tên: Loại bỏ các khoảng trắng thừa ở đầu, cuối và gộp các khoảng trắng liên tiếp ở giữa thành một khoảng trắng duy nhất.
+        -   Kiểm tra ký tự điều khiển: Phát hiện và cấm các ký tự điều khiển Unicode ẩn.
+        -   Kiểm tra trùng lặp: Truy vấn DB để đảm bảo tên này chưa được sử dụng bởi người chơi khác (Unique Constraint).
+    5.  Nếu tên hợp lệ, Server lưu `ingameName` chuẩn hóa vào DB MySQL và trả về `success = true`.
+    6.  Client nhận kết quả thành công, cập nhật thông tin UserStats local và chuyển hướng người dùng vào màn hình chính [MainActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/MainActivity.java).
+*   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
+    *   *Tên vi phạm quy tắc Galactic Name Shield hoặc bị trùng:* Server trả về lỗi 400 kèm thông báo chi tiết lỗi, Client hiển thị lỗi đó lên giao diện để người dùng sửa lại.
 
 ---
 
@@ -503,6 +553,22 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
         - Client cập nhật mã hash mới nhận vào `SharedPreferences` dưới khoá `db_version_hash`.
     5.  Client gọi lớp `DatabaseLoader` để parse dữ liệu thẻ Master từ file JSON này và thực hiện đồng bộ, chèn đè (UPSERT) vào cơ sở dữ liệu Room SQLite `MasterObjetDao` để phục vụ hiển thị offline.
     6.  Quá trình hoàn tất, Client phát thông báo `notifyInventoryChanged` để cập nhật giao diện hiển thị các thẻ bài.
+
+### Use-Case 13.3: Đồng bộ danh sách Master Card theo cơ chế Delta Sync (Client-Side Delta Sync Pipeline)
+*   **Tác nhân (Actor):** Hệ thống Client (SyncManager / Room DB)
+*   **Luồng xử lý chính (Main flow):**
+    1.  Khi khởi chạy hoặc định kỳ theo tác vụ kích hoạt, Client khởi chạy luồng bất đồng bộ thông qua `SyncManager.startDeltaSync(context)`.
+    2.  Client đọc giá trị nhãn thời gian đồng bộ cuối cùng (`last_sync_time`) từ file `SharedPreferences` (khoá `sync_prefs`, mặc định trả về `0` nếu là lần chạy đầu).
+    3.  Client gửi yêu cầu GET tới API `/api/v1/cards/sync?lastSyncTime=xxx` truyền timestamp nhận được.
+    4.  Server Spring Boot tiếp nhận tại `CardController.getUpdatedCards`, chuyển đổi epoch timestamp thành LocalDateTime và truy vấn cơ sở dữ liệu MySQL để lấy tất cả các bản ghi thẻ bài Master (`Card`) được thêm mới hoặc sửa đổi từ mốc thời gian đó.
+    5.  Server trả về danh sách `CardSummaryDto` chứa thông tin tóm gọn (ID, Member Name, Season Name, Thumbnail ID).
+    6.  Client nhận danh sách từ Server:
+        -   Nếu danh sách trống: kết thúc tiến trình và log "Dữ liệu đã là mới nhất".
+        -   Nếu phát hiện thay đổi: Client map danh sách `CardSummaryDto` thành các thực thể `CardEntity` cục bộ (thiết lập ảnh thu nhỏ `frontImageId` và các mốc chỉ số mặc định).
+    7.  Client gọi Room Database `CardDao` thực hiện lưu/chèn đè toàn bộ (UPSERT) các thực thể này vào bảng Room SQLite cục bộ (`AppDatabase.getInstance(context).cardDao().upsertAll(entities)`).
+    8.  Client lưu trữ lại nhãn thời gian hiện tại (`System.currentTimeMillis()`) làm mốc `last_sync_time` mới vào `SharedPreferences` để chuẩn bị cho các lần đồng bộ tiếp theo.
+*   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
+    *   *Mất kết nối mạng / API lỗi:* Giao dịch đồng bộ bị gián đoạn, Client log lỗi và giữ nguyên giá trị `last_sync_time` cũ để thực hiện đồng bộ lại ở lần khởi chạy kế tiếp.
 
 ---
 
