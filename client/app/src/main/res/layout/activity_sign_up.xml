@@ -215,74 +215,14 @@
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_sm"
                             android:hint="@string/auth_prompt_confirm_password"
-                            android:imeOptions="actionNext"
+                            android:imeOptions="actionDone"
                             android:inputType="textPassword"
                             android:maxLines="1"
-                            android:nextFocusForward="@id/btn_send_code"
+                            android:nextFocusForward="@id/btn_signup"
                             android:paddingEnd="@dimen/spacing_15dp"
                             android:paddingStart="@dimen/spacing_15dp"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Verification Code -->
-                    <TextView
-                        android:id="@+id/tv_label_verification_code"
-                        style="@style/MoscoText.Luxury.Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:text="@string/auth_label_verification_code" />
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xs">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/til_verification_code"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/spacing_sm"
-                            app:boxBackgroundMode="none"
-                            app:hintEnabled="false"
-                            app:errorEnabled="true"
-                            app:errorTextColor="@color/stat_atk"
-                            app:errorIconDrawable="@null"
-                            app:layout_constraintEnd_toStartOf="@+id/btn_send_code"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/edt_verification_code"
-                                style="@style/MoscoText.Luxury.Input"
-                                android:layout_width="match_parent"
-                                android:layout_height="@dimen/input_height_compact"
-                                android:background="@drawable/lg_input_bg"
-                                android:drawableStart="@drawable/ic_shield_check"
-                                android:drawablePadding="@dimen/spacing_15dp"
-                                android:hint="@string/auth_prompt_verification_code"
-                                android:imeOptions="actionDone"
-                                android:inputType="number"
-                                android:maxLength="6"
-                                android:maxLines="1"
-                                android:nextFocusForward="@id/btn_signup"
-                                android:paddingStart="@dimen/spacing_15dp"
-                                android:textCursorDrawable="@null" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.vn.jet.mosco.widget.MoscoButton
-                            android:id="@+id/btn_send_code"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="@dimen/spacing_100dp"
-                            app:moscoStyle="secondary"
-                            app:moscoSize="medium"
-                            android:text="@string/auth_action_send_code"
-                            app:layout_constraintBottom_toBottomOf="@+id/til_verification_code"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@+id/til_verification_code"
-                            app:layout_constraintVertical_bias="0.0" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Sign Up Button -->
                     <com.vn.jet.mosco.widget.MoscoButton

@@ -1,6 +1,7 @@
 package com.vn.jet.mosco;
 
 import com.vn.jet.mosco.utils.AuthUIHelper;
+import com.vn.jet.mosco.utils.ClickDebounce;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -40,10 +41,10 @@ import android.net.Uri;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private TextInputEditText edtUsername, edtEmail, edtVerificationCode;
+    private TextInputEditText edtUsername, edtEmail;
     private TextInputEditText edtPassword, edtConfirmPassword;
-    private TextInputLayout tilUsername, tilEmail, tilVerificationCode, tilPassword, tilConfirmPassword;
-    private Button btnSendCode, btnSignUp;
+    private TextInputLayout tilUsername, tilEmail, tilPassword, tilConfirmPassword;
+    private Button btnSignUp;
     private ImageView btnBack;
     private com.airbnb.lottie.LottieAnimationView loadingProgress;
     private TextView tvGoToSignIn;
@@ -66,13 +67,10 @@ public class SignUpActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
         edtConfirmPassword = findViewById(R.id.edt_confirm_password);
-        edtVerificationCode = findViewById(R.id.edt_verification_code);
         tilUsername = findViewById(R.id.til_username);
         tilEmail = findViewById(R.id.til_email);
         tilPassword = findViewById(R.id.til_password);
         tilConfirmPassword = findViewById(R.id.til_confirm_password);
-        tilVerificationCode = findViewById(R.id.til_verification_code);
-        btnSendCode = findViewById(R.id.btn_send_code);
         btnSignUp = findViewById(R.id.btn_signup);
         btnBack = findViewById(R.id.btn_back);
         tvGoToSignIn = findViewById(R.id.tv_go_to_signin);
@@ -81,7 +79,6 @@ public class SignUpActivity extends AppCompatActivity {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
-        
 
         viewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
         sessionManager = new SessionManager(this);
@@ -89,121 +86,66 @@ public class SignUpActivity extends AppCompatActivity {
         initGoogleSignIn();
         handleIntent(getIntent());
 
-        // Nhận thời gian chạy Animation từ màn trước
-        
-        
-
-        // --- 🚀 Activate Super-Premium Galactic Effects 2026 ---
-        // setupAmbientEffects(playTimeX, playTimeY);
-
-        // --- Send Code button ---
-        btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
-            @Override
-            public void onDebouncedClick(View v) {
-                String email = edtEmail.getText().toString().trim();
-                tilEmail.setError(null);
-
-                if (email.isEmpty()) {
-                    tilEmail.setError(getString(R.string.auth_error_empty_field));
-                    return;
-                }
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    tilEmail.setError(getString(R.string.auth_error_invalid_email));
-                    return;
-                }
-                // Call real API to send code
-                viewModel.sendVerificationCode(email);
-            }
-        });
-
-        // --- Countdown timer observers ---
-        viewModel.getIsTimerRunning().observe(this, isRunning -> {
-            boolean sentOnce = Boolean.TRUE.equals(viewModel.getCodeSentOnce().getValue());
-            if (isRunning) {
-                btnSendCode.setEnabled(false);
-                btnSendCode.setBackgroundTintList(
-                        android.content.res.ColorStateList.valueOf(
-                                ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
-                btnSendCode.setTextColor(
-                        ContextCompat.getColor(this, R.color.lg_text_disabled));
-            } else {
-                btnSendCode.setText(sentOnce ? getString(R.string.auth_action_resend) : getString(R.string.auth_action_send_code));
-                btnSendCode.setEnabled(true);
-                btnSendCode.setBackgroundTintList(null);
-                btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.white));
-            }
-        });
-
-        viewModel.getTimeLeftMillis().observe(this, millis -> {
-            if (Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
-                btnSendCode.setText(String.format(
-                        getString(R.string.auth_format_resend_timer), millis / 1000));
-            }
-        });
-
-        viewModel.getCodeSentOnce().observe(this, sentOnce -> {
-            if (!Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue())) {
-                btnSendCode.setText(sentOnce ? getString(R.string.auth_action_resend) : getString(R.string.auth_action_send_code));
-            }
-        });
-
-        // --- Observe Send Code result ---
         // --- Observe Send Code result ---
         viewModel.getSendCodeResult().observe(this, resource -> {
+            if (resource == null) return;
             switch (resource.getStatus()) {
                 case LOADING:
-                    btnSendCode.setEnabled(false);
-                    btnSendCode.setText(R.string.common_action_loading);
+                    setLoading(true);
                     break;
                 case SUCCESS:
-                    if (resource.getData() != null) {
-                        Toast.makeText(this, resource.getData().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                    viewModel.startCountdown();
+                    setLoading(false);
+                    Toast.makeText(this, R.string.auth_msg_otp_sent, Toast.LENGTH_SHORT).show();
+                    // Chuyển sang màn hình xác thực OTP chuyên dụng
+                    Intent intent = new Intent(this, OtpVerificationActivity.class);
+                    intent.putExtra("flow_type", "signup");
+                    intent.putExtra("email", edtEmail.getText().toString().trim());
+                    intent.putExtra("username", edtUsername.getText().toString().trim());
+                    intent.putExtra("password", edtPassword.getText().toString().trim());
+                    startActivity(intent);
                     break;
                 case ERROR:
-                    btnSendCode.setEnabled(true);
-                    btnSendCode.setText(getString(R.string.auth_action_send_code));
+                    setLoading(false);
                     Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
                     break;
             }
         });
 
         // --- Sign Up button ---
-        btnSignUp.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+        btnSignUp.setOnClickListener(new ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
-                validateAndSignUp();
+                validateAndSendCode();
             }
         });
 
         // --- Social Login buttons ---
-        findViewById(R.id.btn_google).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+        findViewById(R.id.btn_google).setOnClickListener(new ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
                 signInWithGoogle();
             }
         });
 
-        findViewById(R.id.btn_discord).setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
+        findViewById(R.id.btn_discord).setOnClickListener(new ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
                 signInWithDiscord();
             }
         });
 
-        // Automatic Sign Up on Done action (Premium UX)
-        edtVerificationCode.setOnEditorActionListener((v, actionId, event) -> {
+        // Tự động Sign Up khi bấm Done trên phím ảo (Confirm Password)
+        edtConfirmPassword.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 if (!isSigningUp) {
-                    validateAndSignUp();
+                    validateAndSendCode();
                 }
                 return true;
             }
             return false;
         });
 
-        // --- Observe API result ---
+        // --- Observe API result (Dùng cho đăng nhập mạng xã hội không qua OTP) ---
         viewModel.getSignUpResult().observe(this, resource -> {
             if (resource == null) return;
             
@@ -269,21 +211,19 @@ public class SignUpActivity extends AppCompatActivity {
         // GalacticBackgroundView handles its own animation now.
     }
 
-    private void validateAndSignUp() {
+    private void validateAndSendCode() {
         if (isSigningUp) return;
         
         String username = edtUsername.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
         String pass = edtPassword.getText().toString().trim();
         String confirmPass = edtConfirmPassword.getText().toString().trim();
-        String code = edtVerificationCode.getText().toString().trim();
 
         // Clear all previous errors
         tilUsername.setError(null);
         tilEmail.setError(null);
         tilPassword.setError(null);
         tilConfirmPassword.setError(null);
-        tilVerificationCode.setError(null);
 
         if (username.isEmpty()) {
             tilUsername.setError(getString(R.string.auth_error_empty_field));
@@ -309,26 +249,19 @@ public class SignUpActivity extends AppCompatActivity {
             tilConfirmPassword.setError(getString(R.string.auth_msg_passwords_not_match));
             return;
         }
-        if (code.isEmpty()) {
-            tilVerificationCode.setError(getString(R.string.auth_error_empty_field));
-            return;
-        }
 
-        // Call real API via ViewModel
-        viewModel.signUpUser(username, email, pass, code);
+        // Gửi mã OTP về email trước khi chuyển sang màn hình xác thực chuyên biệt
+        viewModel.sendVerificationCode(email);
     }
 
     private void setLoading(boolean isLoading) {
         this.isSigningUp = isLoading;
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnSignUp.setEnabled(!isLoading);
-        btnSendCode.setEnabled(!isLoading
-                && !Boolean.TRUE.equals(viewModel.getIsTimerRunning().getValue()));
         edtUsername.setEnabled(!isLoading);
         edtEmail.setEnabled(!isLoading);
         edtPassword.setEnabled(!isLoading);
         edtConfirmPassword.setEnabled(!isLoading);
-        edtVerificationCode.setEnabled(!isLoading);
         tvGoToSignIn.setEnabled(!isLoading);
 
         if (isLoading) {

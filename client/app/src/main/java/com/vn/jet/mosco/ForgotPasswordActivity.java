@@ -35,9 +35,9 @@ import retrofit2.Response;
  */
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private TextInputEditText edtEmail, edtVerificationCode, edtPassword;
-    private TextInputLayout tilEmail, tilVerificationCode, tilPassword;
-    private Button btnSendCode, btnResetPassword;
+    private TextInputEditText edtEmail, edtPassword;
+    private TextInputLayout tilEmail, tilPassword;
+    private Button btnResetPassword;
     private LottieAnimationView loadingProgress;
     private AuthApiService apiService;
     private ImageView btnBack;
@@ -52,12 +52,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         // Map views
         edtEmail = findViewById(R.id.edt_email);
-        edtVerificationCode = findViewById(R.id.edt_verification_code);
         edtPassword = findViewById(R.id.edt_password);
         tilEmail = findViewById(R.id.til_email);
-        tilVerificationCode = findViewById(R.id.til_verification_code);
         tilPassword = findViewById(R.id.til_password);
-        btnSendCode = findViewById(R.id.btn_send_code);
         btnResetPassword = findViewById(R.id.btn_reset_password);
         loadingProgress = findViewById(R.id.loading_progress);
         btnBack = findViewById(R.id.btn_back);
@@ -68,18 +65,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         apiService = ApiClient.getClient(this).create(AuthApiService.class);
 
-
-
-        btnSendCode.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
-            @Override
-            public void onDebouncedClick(View v) {
-                handleSendCode();
-            }
-        });
         btnResetPassword.setOnClickListener(new com.vn.jet.mosco.utils.ClickDebounce() {
             @Override
             public void onDebouncedClick(View v) {
-                handleResetPassword();
+                handleSendCode();
             }
         });
 
@@ -111,14 +100,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void handleSendCode() {
         String email = edtEmail.getText().toString().trim();
+        String pass = edtPassword.getText().toString().trim();
         tilEmail.setError(null);
+        tilPassword.setError(null);
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError(getString(R.string.auth_error_invalid_email));
+            return;
+        }
+        if (pass.isEmpty() || pass.length() < 6) {
+            tilPassword.setError(getString(R.string.auth_error_short_password));
             return;
         }
 
@@ -129,53 +122,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(ForgotPasswordActivity.this, response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    // Chuyển sang màn hình xác thực OTP chuyên dụng
+                    android.content.Intent intent = new android.content.Intent(ForgotPasswordActivity.this, OtpVerificationActivity.class);
+                    intent.putExtra("flow_type", "forgot_password");
+                    intent.putExtra("email", email);
+                    intent.putExtra("password", pass);
+                    startActivity(intent);
                 } else {
                     Toast.makeText(ForgotPasswordActivity.this, getString(R.string.auth_msg_email_not_found), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
-                setLoading(false);
-                Toast.makeText(ForgotPasswordActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void handleResetPassword() {
-        String email = edtEmail.getText().toString().trim();
-        String code = edtVerificationCode.getText().toString().trim();
-        String pass = edtPassword.getText().toString().trim();
-
-        tilEmail.setError(null);
-        tilVerificationCode.setError(null);
-        tilPassword.setError(null);
-
-        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError(getString(R.string.auth_error_invalid_email));
-            return;
-        }
-        if (code.length() < 6) {
-            tilVerificationCode.setError(getString(R.string.auth_error_short_code));
-            return;
-        }
-        if (pass.length() < 6) {
-            tilPassword.setError(getString(R.string.auth_error_short_password));
-            return;
-        }
-
-        setLoading(true);
-        ResetPasswordRequest request = new ResetPasswordRequest(email, code, pass);
-        apiService.resetPassword(request).enqueue(new Callback<AuthResponse>() {
-            @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                setLoading(false);
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(ForgotPasswordActivity.this, getString(R.string.auth_msg_reset_password_success), Toast.LENGTH_LONG).show();
-                    finish();
-                } else {
-                    String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.auth_msg_invalid_code);
-                    Toast.makeText(ForgotPasswordActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -190,9 +144,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private void setLoading(boolean isLoading) {
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnResetPassword.setEnabled(!isLoading);
-        btnSendCode.setEnabled(!isLoading);
         edtEmail.setEnabled(!isLoading);
-        edtVerificationCode.setEnabled(!isLoading);
         edtPassword.setEnabled(!isLoading);
 
         if (isLoading) {
@@ -200,17 +152,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
             btnResetPassword.setTextColor(ContextCompat.getColor(this, R.color.lg_text_disabled));
-
-            btnSendCode.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(
-                            ContextCompat.getColor(this, R.color.mosco_btn_disabled)));
-            btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.lg_text_disabled));
         } else {
             btnResetPassword.setBackgroundTintList(null);
             btnResetPassword.setTextColor(ContextCompat.getColor(this, R.color.white));
-
-            btnSendCode.setBackgroundTintList(null);
-            btnSendCode.setTextColor(ContextCompat.getColor(this, R.color.white));
         }
     }
 

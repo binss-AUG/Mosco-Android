@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/spacing_lg">
 
-            <!-- Nhóm nội dung phục hồi - Canh giữa dọc và ngang chuyên nghiệp -->
+            <!-- Nhóm nội dung trung tâm - Canh giữa dọc và ngang chuyên nghiệp -->
             <LinearLayout
                 android:id="@+id/center_group"
                 android:layout_width="0dp"
@@ -42,37 +42,48 @@
                 android:layout_marginTop="@dimen/spacing_md"
                 android:layout_marginBottom="@dimen/spacing_md"
                 android:orientation="vertical"
+                android:gravity="center_horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.5">
 
+                <!-- Shield Lock Icon -->
+                <ImageView
+                    android:id="@+id/iv_shield_icon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginBottom="@dimen/spacing_md"
+                    android:src="@drawable/ic_shield_check"
+                    app:tint="@color/brand_primary" />
+
                 <TextView
-                    android:id="@+id/tv_title_forgot"
+                    android:id="@+id/tv_title_verify"
                     style="@style/MoscoText.Luxury.Header"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="@string/auth_title_recovery"
+                    android:text="@string/auth_title_verify"
                     android:textSize="@dimen/text_size_h1_xl" />
 
                 <TextView
-                    android:id="@+id/tv_subtitle_forgot"
+                    android:id="@+id/tv_subtitle_verify"
                     style="@style/MoscoText.Luxury.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/spacing_xxs"
+                    android:layout_marginBottom="@dimen/spacing_md"
                     android:alpha="0.7"
-                    android:text="@string/auth_subtitle_recovery"
+                    android:textAlignment="center"
+                    android:text="@string/auth_subtitle_verify"
                     android:textSize="@dimen/text_size_hud_small" />
 
                 <LinearLayout
                     android:id="@+id/glass_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md"
                     android:background="@drawable/bg_glass_card"
                     android:orientation="vertical"
                     android:padding="@dimen/spacing_md">
@@ -81,11 +92,11 @@
                         style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/auth_label_email"
+                        android:text="@string/auth_label_verification_code"
                         android:textSize="@dimen/text_size_body_sm" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/til_email"
+                        android:id="@+id/til_verification_code"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_xs"
@@ -96,84 +107,64 @@
                         app:errorIconDrawable="@null">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edt_email"
+                            android:id="@+id/edt_verification_code"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/input_height_compact"
                             android:background="@drawable/lg_input_bg"
-                            android:drawableStart="@drawable/ic_user"
+                            android:drawableStart="@drawable/ic_shield_check"
                             android:drawablePadding="@dimen/spacing_15dp"
-                            android:hint="@string/auth_prompt_email"
-                            android:inputType="textEmailAddress"
+                            android:hint="@string/auth_prompt_verification_code"
+                            android:inputType="number"
+                            android:maxLength="6"
                             android:paddingStart="@dimen/spacing_md"
                             android:textCursorDrawable="@null" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-
-
-                    <TextView
-                        style="@style/MoscoText.Luxury.Label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:text="@string/auth_label_new_password"
-                        android:textSize="@dimen/text_size_body_sm" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/til_password"
+                    <!-- Resend Container -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
                         android:layout_marginTop="@dimen/spacing_xs"
-                        app:boxBackgroundMode="none"
-                        app:hintEnabled="false"
-                        app:errorEnabled="true"
-                        app:errorTextColor="@color/stat_atk"
-                        app:errorIconDrawable="@null"
-                        app:endIconMode="password_toggle"
-                        app:endIconTint="@color/mosco_white_30">
+                        android:layout_marginBottom="@dimen/spacing_md">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edt_password"
-                            style="@style/MoscoText.Luxury.Input"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/input_height_compact"
-                            android:background="@drawable/lg_input_bg"
-                            android:drawableStart="@drawable/ic_lock"
-                            android:drawablePadding="@dimen/spacing_15dp"
-                            android:hint="@string/auth_prompt_password"
-                            android:inputType="textPassword"
-                            android:paddingStart="@dimen/spacing_md"
-                            android:textCursorDrawable="@null" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        <TextView
+                            android:id="@+id/tv_timer_label"
+                            style="@style/MoscoText.Luxury.Body"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Didn't get code? "
+                            android:textSize="@dimen/text_size_body_xs"
+                            android:alpha="0.7" />
+
+                        <TextView
+                            android:id="@+id/btn_resend"
+                            style="@style/MoscoText.Luxury.Link"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auth_action_resend"
+                            android:textSize="@dimen/text_size_body_xs"
+                            android:focusable="true" />
+                    </LinearLayout>
 
                     <com.vn.jet.mosco.widget.MoscoButton
-                        android:id="@+id/btn_reset_password"
+                        android:id="@+id/btn_verify"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
                         app:moscoStyle="primary"
                         app:moscoSize="large"
-                        android:text="@string/auth_action_reset_password" />
+                        android:text="@string/auth_action_verify" />
 
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_go_to_signin"
-                    style="@style/MoscoText.Luxury.Body"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/spacing_sm"
-                    android:focusable="true"
-                    android:text="@string/auth_msg_already_have_account"
-                    android:textSize="@dimen/text_size_hud_small" />
 
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <!-- Overlay Loading hiá»‡n Ä‘áº¡i (Lottie) -->
+    <!-- Overlay Loading -->
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/loading_progress"
         android:layout_width="@dimen/spacing_120dp"
@@ -185,5 +176,3 @@
         app:lottie_rawRes="@raw/loading" />
 
 </FrameLayout>
-
-
