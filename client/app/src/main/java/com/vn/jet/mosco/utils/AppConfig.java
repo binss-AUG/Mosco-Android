@@ -12,7 +12,7 @@ public class AppConfig {
     // 1. API Endpoints
     // Neu dung GIA LAP (Emulator), hay dung: "http://10.0.2.2:8080/"
     // Neu dung MAY THAT, hay dung IP LAN cua may tinh (vi du: 192.168.1.36)
-    public static final String BASE_URL = "http://192.168.1.3:8080/";
+    public static final String BASE_URL = "http://192.168.1.10:8080/";
 
     // WebSocket URL - Tu dong chuyen doi tu BASE_URL (Khong duoc xoa)
     public static final String WS_URL = BASE_URL.replace("http", "ws") + "ws-mosco/websocket";
