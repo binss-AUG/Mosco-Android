@@ -10,6 +10,9 @@ import com.vn.jet.mosco.spinserver.model.UserLike;
 import com.vn.jet.mosco.spinserver.repository.FriendshipRepository;
 import com.vn.jet.mosco.spinserver.repository.UserLikeRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
+import com.vn.jet.mosco.spinserver.repository.CardRepository;
+import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
+import com.vn.jet.mosco.spinserver.repository.GachaHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,9 @@ public class UserController {
     private final UserLikeRepository userLikeRepository;
     private final FriendshipRepository friendshipRepository;
     private final com.vn.jet.mosco.spinserver.service.AuthService authService;
+    private final CardRepository cardRepository;
+    private final UserCardRepository userCardRepository;
+    private final GachaHistoryRepository gachaHistoryRepository;
 
     // Danh sách tên hệ thống bị cấm — chống giả mạo quyền hạn
     private static final Set<String> RESERVED_NAMES = Set.of(
@@ -61,11 +67,17 @@ public class UserController {
     public UserController(UserRepository userRepository, 
                           UserLikeRepository userLikeRepository,
                           FriendshipRepository friendshipRepository,
-                          com.vn.jet.mosco.spinserver.service.AuthService authService) {
+                          com.vn.jet.mosco.spinserver.service.AuthService authService,
+                          CardRepository cardRepository,
+                          UserCardRepository userCardRepository,
+                          GachaHistoryRepository gachaHistoryRepository) {
         this.userRepository = userRepository;
         this.userLikeRepository = userLikeRepository;
         this.friendshipRepository = friendshipRepository;
         this.authService = authService;
+        this.cardRepository = cardRepository;
+        this.userCardRepository = userCardRepository;
+        this.gachaHistoryRepository = gachaHistoryRepository;
     }
 
     /**
@@ -106,6 +118,7 @@ public class UserController {
                 }
             }
 
+            populateUserStats(user);
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.notFound().build();
@@ -145,6 +158,7 @@ public class UserController {
         userRepository.save(user);
 
         logger.info("Display Name set: userId={}, ingameName=\"{}\"", userId, sanitized);
+        populateUserStats(user);
         return ResponseEntity.ok(ApiResponse.success("Display name set successfully!", user));
     }
 
@@ -227,6 +241,7 @@ public class UserController {
         }
 
         userRepository.save(user);
+        populateUserStats(user);
         logger.info("Profile updated: userId={}", userId);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", user));
     }
@@ -248,10 +263,51 @@ public class UserController {
 
         AuthResponse response = authService.restoreStreak(user);
         if (response.isSuccess()) {
+            populateUserStats(user);
             return ResponseEntity.ok(ApiResponse.success(response.getMessage(), user));
         } else {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, response.getMessage()));
         }
+    }
+
+    /**
+     * Tính toán động và điền các chỉ số Gacha Stats cùng Honor Badges cho User.
+     * Tại sao (WHY): Tránh lưu trữ thừa thãi trong Database, tính toán theo thời gian thực đảm bảo tính chính xác.
+     */
+    private void populateUserStats(User user) {
+        if (user == null) return;
+        Long userId = user.getId();
+        
+        long totalRolls = gachaHistoryRepository.countByUserId(userId);
+        user.setTotalRolls((int) totalRolls);
+
+        long totalCards = cardRepository.count();
+        if (totalCards > 0) {
+            long uniqueUnlocked = userCardRepository.countUniqueUnlockedCardsByUserId(userId);
+            int progress = (int) ((uniqueUnlocked * 100) / totalCards);
+            user.setCollectionProgress(Math.min(100, progress));
+        } else {
+            user.setCollectionProgress(0);
+        }
+
+        // Gán danh hiệu danh dự dựa trên các cột mốc thành tích của người chơi
+        java.util.List<String> badgesList = new java.util.ArrayList<>();
+        if (totalRolls >= 1) {
+            badgesList.add("Rookie Roller");
+        }
+        if (totalRolls >= 100) {
+            badgesList.add("Elite Collector");
+        }
+        if (totalRolls >= 1000) {
+            badgesList.add("Gacha Legend");
+        }
+        if (user.getCollectionProgress() >= 80) {
+            badgesList.add("Mosco Master");
+        }
+        if (user.getStreak() >= 7) {
+            badgesList.add("Loyal Explorer");
+        }
+        user.setBadges(badgesList);
     }
 
     /**

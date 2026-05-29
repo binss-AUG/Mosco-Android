@@ -106,6 +106,15 @@ public class User {
     @Transient
     private boolean online = false;
 
+    @Transient
+    private int totalRolls = 0;
+
+    @Transient
+    private int collectionProgress = 0;
+
+    @Transient
+    private java.util.List<String> badges = new java.util.ArrayList<>();
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
@@ -214,4 +223,13 @@ public class User {
 
     public boolean isOnline() { return online; }
     public void setOnline(boolean online) { this.online = online; }
+
+    public int getTotalRolls() { return totalRolls; }
+    public void setTotalRolls(int totalRolls) { this.totalRolls = totalRolls; }
+
+    public int getCollectionProgress() { return collectionProgress; }
+    public void setCollectionProgress(int collectionProgress) { this.collectionProgress = collectionProgress; }
+
+    public java.util.List<String> getBadges() { return badges; }
+    public void setBadges(java.util.List<String> badges) { this.badges = badges; }
 }

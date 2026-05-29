@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_badge_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/spacing_sm"
+    android:background="@drawable/lg_chip_unselected_bg"
+    android:paddingHorizontal="@dimen/spacing_md"
+    android:paddingVertical="@dimen/spacing_xs"
+    style="@style/MoscoText.Luxury.Body"
+    android:textColor="@color/white"
+    android:textSize="@dimen/text_size_body_sm"
+    android:textStyle="bold" />

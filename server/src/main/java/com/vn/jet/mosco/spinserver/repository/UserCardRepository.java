@@ -18,4 +18,7 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("SELECT c FROM UserCard c WHERE c.id = :id")
     java.util.Optional<UserCard> findWithLockById(@org.springframework.data.repository.query.Param("id") Long id);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT uc.collectionId) FROM UserCard uc WHERE uc.user.id = :userId")
+    long countUniqueUnlockedCardsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 }

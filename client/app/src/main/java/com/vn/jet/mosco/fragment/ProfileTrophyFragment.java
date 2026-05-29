@@ -70,7 +70,7 @@ public class ProfileTrophyFragment extends Fragment {
     private void renderData(UserStats stats) {
         if (stats == null) return;
         
-        tvTotalRolls.setText(String.format("%,d", stats.getTotalRolls()));
+        tvTotalRolls.setText(String.format(java.util.Locale.US, "%,d", stats.getTotalRolls()));
         tvCollectionProgress.setText(stats.getCollectionProgress() + "%");
 
         if (stats.getBadges() == null || stats.getBadges().isEmpty()) {
@@ -79,7 +79,41 @@ public class ProfileTrophyFragment extends Fragment {
         } else {
             rvBadges.setVisibility(View.VISIBLE);
             tvNoBadges.setVisibility(View.GONE);
-            // TODO: Setup BadgeAdapter here in the future
+            rvBadges.setAdapter(new BadgeAdapter(stats.getBadges()));
+        }
+    }
+
+    private static class BadgeAdapter extends RecyclerView.Adapter<BadgeAdapter.ViewHolder> {
+        private final java.util.List<String> badges;
+
+        public BadgeAdapter(java.util.List<String> badges) {
+            this.badges = badges != null ? badges : new java.util.ArrayList<>();
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_honor_badge, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.tvBadgeName.setText(badges.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return badges.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView tvBadgeName;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                tvBadgeName = (TextView) itemView;
+            }
         }
     }
 }
