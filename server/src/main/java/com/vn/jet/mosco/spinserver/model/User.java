@@ -145,7 +145,11 @@ public class User {
     public void setLevel(int level) { this.level = level; }
 
     public long getExp() { return exp; }
-    public void setExp(long exp) { this.exp = exp; }
+    public void setExp(long exp) { 
+        this.exp = exp; 
+        // Tại sao (WHY): Đồng bộ cột level trong database với exp để đảm bảo các truy vấn SQL trực tiếp (như bảng xếp hạng) không bị sai lệch dữ liệu.
+        this.level = (int) (this.exp / 1000) + 1;
+    }
 
     public String getAvatarId() { return avatarId; }
     public void setAvatarId(String avatarId) { this.avatarId = avatarId; }

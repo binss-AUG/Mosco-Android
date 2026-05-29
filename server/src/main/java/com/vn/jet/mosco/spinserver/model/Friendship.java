@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "friendships",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"requesterId", "addresseeId"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"requester_id", "addressee_id"}))
 public class Friendship {
 
     @Id
