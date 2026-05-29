@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -99,7 +100,23 @@ public class ProfileTrophyFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.tvBadgeName.setText(badges.get(position));
+            String badgeName = badges.get(position);
+            holder.tvBadgeName.setText(badgeName);
+
+            // Gán icon vector tương ứng với từng danh hiệu danh dự tối giản
+            int iconResId = R.drawable.ic_star;
+            if ("Rookie Roller".equals(badgeName)) {
+                iconResId = R.drawable.ic_user;
+            } else if ("Elite Collector".equals(badgeName)) {
+                iconResId = R.drawable.ic_star;
+            } else if ("Gacha Legend".equals(badgeName)) {
+                iconResId = R.drawable.ic_crown;
+            } else if ("Mosco Master".equals(badgeName)) {
+                iconResId = R.drawable.ic_shield_check;
+            } else if ("Loyal Explorer".equals(badgeName)) {
+                iconResId = R.drawable.ic_lightning;
+            }
+            holder.ivBadgeIcon.setImageResource(iconResId);
         }
 
         @Override
@@ -109,10 +126,12 @@ public class ProfileTrophyFragment extends Fragment {
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvBadgeName;
+            ImageView ivBadgeIcon;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                tvBadgeName = (TextView) itemView;
+                tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
+                ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
             }
         }
     }
