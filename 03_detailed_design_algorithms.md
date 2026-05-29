@@ -739,139 +739,140 @@ END CLASS
 
 ---
 
-## 7. Thuật toán Tính toán Chỉ số Đội hình & Cộng hưởng (Passive Synergy & OVR Calculation)
+## 7. Thuật toán Vòng quay Gacha & Phân phối Lưới Ma trận hiển thị (Gacha Spin Engine & Reveal Grid Distribution)
 
 ### 7.1. Ý nghĩa & Bối cảnh
-Khi người chơi thiết lập đội hình (Formation) gồm các thẻ bài, hệ thống sẽ tự động tính toán tổng chỉ số OVR của toàn đội. Để tăng thêm tính chiến thuật và trải nghiệm người dùng cao cấp, Mosco áp dụng cơ chế **Cộng hưởng Thụ động (Passive Synergy)** tương tự các tựa game thẻ bài chiến thuật/auto-battler:
-1.  **Cộng hưởng Hệ (Dimension Buffs):** Tăng phần trăm (%) OVR khi có nhiều thẻ cùng hệ (counter lẫn nhau) trong đội hình.
-2.  **Cộng hưởng Nhóm (Major Unit Buffs):** Tăng phần trăm (%) hoặc áp dụng debuff khi gom đủ nhóm thẻ đặc thù (tripleS subunit).
-3.  **Cộng hưởng Phẩm chất (Class Resonance):** Tăng OVR phẳng (Flat OVR) cho mỗi thẻ dựa trên độ hiếm trùng nhau.
-4.  **Cộng hưởng Cấp độ (Badge Harmony):** Tăng OVR phẳng (Flat OVR) theo bậc cấp độ nâng cấp.
+Hệ thống Gacha trao đổi thẻ (Spin) cho phép người chơi hiến tế (sacrifice) một thẻ bài không dùng đến để đổi lấy cơ hội nhận được một thẻ bài khác ngẫu nhiên. Để tăng tính kịch tính và cảm giác hồi hộp chân thực (Gacha UX), hệ thống không chỉ trả về thẻ bài trúng thưởng duy nhất mà còn sinh ra một lưới ma trận chứa 16 thẻ bài (gồm 1 thẻ trúng thực sự và 15 thẻ "nền" làm mồi nhử) để Client chạy hiệu ứng vòng quay ma trận.
+
+Để đảm bảo tính minh bạch, công thức tính toán tỉ lệ rơi áp dụng cơ chế **Biến động tỉ lệ động (Dynamic Fluctuation)** và **Chuẩn hóa (Normalization)** kết hợp với nguồn True RNG khí quyển để ngăn ngừa sự lặp lại chu kỳ của máy tính.
 
 ### 7.2. Đặc tả Thuật toán
 - **File mã nguồn:**
-  - Server: [BattleEngineService.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/service/BattleEngineService.java)
-  - Client: [FormationActivity.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/FormationActivity.java)
+  - Server: [SpinSystem.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/utils/SpinSystem.java)
 - **Đầu vào (Input):**
-  - Danh sách thẻ bài trong đội hình (`BattleRequest` chứa `userCardId` của các slot).
-  - Cấu hình cộng hưởng `synergy_config.json`.
+  - Cấu hình tỉ lệ cơ bản (`spin_rates` từ `rates_config.json`).
+  - Danh sách thẻ bài Master đã phân nhóm theo Class (`groupedCards`).
 - **Đầu ra (Output):**
-  - `totalOvr` (Int): Tổng OVR cuối cùng của đội hình sau khi đã áp dụng tất cả các buff cộng hưởng.
-  - `activeSynergies` (List<String>): Danh sách tên các cộng hưởng đang được kích hoạt.
-  - `buffSummary` (Map<String, String>): Chi tiết mô tả hiệu ứng buff/debuff hiển thị trên giao diện.
-  - `cardOvrMap` (Map<Long, Integer>): OVR chi tiết sau buff của từng thẻ đơn lẻ.
+  - `result` (JsonObject): Thẻ bài trúng thưởng thực tế (hoặc `Nothing` nếu trượt).
+  - `revealGrid` (List<JsonObject>): Lưới 16 thẻ bài được chọn lọc để hiển thị trên UI.
+  - `finalRates` (Map<String, Double>): Bảng tỉ lệ thực tế đã chuẩn hóa của phiên quay đó.
 
 ### 7.3. Mã giả Thuật toán (Pseudo-code)
 
+#### A. Thuật toán Biến động & Chuẩn hóa Tỉ lệ rơi (Dynamic Rate Fluctuation & Normalization)
 ```text
-FUNCTION calculateFormationOvr(formationSlots)
-    IF formationSlots IS EMPTY THEN
-        RETURN EmptyBattleResponse()
+FUNCTION calculateFinalRates(baseRates, groupedCards)
+    finalRates = EMPTY_MAP
+    totalInitial = 0.0
+
+    // 1. Áp dụng biến động ngẫu nhiên động trong biên độ ±10% tỉ lệ gốc
+    FOR EACH entry IN baseRates DO
+        group = entry.key
+        baseRate = entry.value
+
+        // Nếu nhóm không có thẻ nào (trừ Nothing), đặt tỉ lệ bằng 0
+        IF group != "Nothing" AND groupedCards.get(group) IS EMPTY THEN
+            finalRates.put(group, 0.0)
+            CONTINUE
+        END IF
+
+        maxFluc = baseRate * 0.10
+        fluctuation = (ChaosTheoryHelper.nextDouble() * 2 * maxFluc) - maxFluc
+        val = MAX(0.0, baseRate + fluctuation)
+
+        finalRates.put(group, val)
+        totalInitial = totalInitial + val
+    END FOR
+
+    // 2. Chuẩn hóa tổng tỉ lệ về đúng 100.0% và làm tròn 4 chữ số thập phân
+    normalizedRates = EMPTY_MAP
+    checkTotal = 0.0
+
+    FOR EACH entry IN finalRates DO
+        group = entry.key
+        val = entry.value
+        
+        normalized = 0.0
+        IF totalInitial > 0 THEN
+            normalized = ROUND_TO_DECIMALS((val / totalInitial) * 100.0, decimals=4)
+        END IF
+        
+        normalizedRates.put(group, normalized)
+        checkTotal = checkTotal + normalized
+    END FOR
+
+    // 3. Xử lý sai số làm tròn (Rounding Drift) bằng cách bù trừ vào nhóm "Nothing"
+    IF checkTotal != 100.0 AND totalInitial > 0 THEN
+        diff = 100.0 - checkTotal
+        currentNothing = normalizedRates.getOrDefault("Nothing", 0.0)
+        normalizedRates.put("Nothing", ROUND_TO_DECIMALS(currentNothing + diff, decimals=4))
     END IF
 
-    tagCounts = EMPTY_MAP     // Đếm số lượng tag (Nghệ sĩ, Hệ/Dimension)
-    classCounts = EMPTY_MAP   // Đếm số lượng Class (Độ hiếm)
-    tierCounts = EMPTY_MAP    // Đếm số lượng hạng nâng cấp (Bronze, Silver, Gold, ...)
-
-    activeSynergies = EMPTY_LIST
-    buffSummary = EMPTY_MAP
-    cardOvrMap = EMPTY_MAP
-
-    // 1. Quét thông tin đội hình (Counts)
-    FOR EACH slot IN formationSlots DO
-        card = userCardRepository.findById(slot.userCardId)
-        IF card IS NULL THEN CONTINUE END IF
-
-        // Đếm Class
-        cardClass = cardDataService.getCardClass(card.collectionId)
-        classCounts.put(cardClass, classCounts.getOrDefault(cardClass, 0) + 1)
-
-        // Đếm Hạng nâng cấp (Badge Tier)
-        tier = getBadgeTier(card.upgradeLevel)
-        tierCounts.put(tier, tierCounts.getOrDefault(tier, 0) + 1)
-
-        // Đếm các Tags nghệ sĩ
-        tags = cardDataService.getAvailableTags(card.collectionId)
-        FOR EACH tag IN tags DO
-            tagCounts.put(tag, tagCounts.getOrDefault(tag, 0) + 1)
-        END FOR
-
-        // Đếm Hệ (Dimension)
-        dimension = cardDataService.getDimension(card.collectionId)
-        IF dimension IS NOT EMPTY THEN
-            tagCounts.put(dimension, tagCounts.getOrDefault(dimension, 0) + 1)
-        END IF
-    END FOR
-
-    // 2. Tính toán Buff Mềm (% Multiplier) tỷ lệ thuận
-    synergyMultiplier = 1.0
-    synergyMultiplier = synergyMultiplier + calculateDimensionBuffs(tagCounts, activeSynergies, buffSummary)
-    synergyMultiplier = synergyMultiplier + calculateMajorUnitBuffs(tagCounts, activeSynergies, buffSummary)
-
-    // 3. Tính toán Buff Cứng (Flat OVR Bonus) dựa trên Class và Hạng nâng cấp
-    classBonusMap = calculateClassResonance(classCounts, activeSynergies, buffSummary)
-    tierBonusMap = calculateBadgeHarmony(tierCounts, activeSynergies, buffSummary)
-
-    // 4. Cộng dồn chỉ số OVR
-    totalBaseOvr = 0.0
-    flatBonusTotal = 0
-
-    FOR EACH slot IN formationSlots DO
-        card = userCardRepository.findById(slot.userCardId)
-        IF card IS NULL THEN CONTINUE END IF
-
-        staticOvr = cardDataService.getOvr(card.collectionId, card.upgradeLevel)
-        totalBaseOvr = totalBaseOvr + staticOvr
-
-        cardClass = cardDataService.getCardClass(card.collectionId)
-        tier = getBadgeTier(card.upgradeLevel)
-
-        cB = classBonusMap.getOrDefault(cardClass, 0)
-        tB = tierBonusMap.getOrDefault(tier, 0)
-        individualFlatBonus = cB + tB
-
-        flatBonusTotal = flatBonusTotal + individualFlatBonus
-        cardOvrMap.put(card.id, staticOvr + individualFlatBonus)
-    END FOR
-
-    // Công thức tính OVR cuối cùng: Hệ số nhân * Tổng OVR gốc + Tổng buff OVR phẳng
-    finalOvr = ROUND(totalBaseOvr * synergyMultiplier) + flatBonusTotal
-
-    RETURN BattleResponse(finalOvr, activeSynergies, buffSummary, cardOvrMap)
+    RETURN normalizedRates
 END FUNCTION
+```
 
-FUNCTION calculateDimensionBuffs(tagCounts, activeSynergies, buffSummary)
-    bonus = 0.0
-    FOR EACH dim IN synergyConfig.grand_gravity.counters.keys() DO
-        count = tagCounts.getOrDefault(dim, 0)
-        val = 0.0
-        key = NULL
+#### B. Thuật toán Sinh Lưới Ma trận hiển thị (Reveal Grid Builder)
+```text
+FUNCTION spin()
+    // 1. Tính toán tỉ lệ biến động động và quay thưởng theo trọng số
+    finalRates = calculateFinalRates(baseRates, groupedCards)
+    selectedGroup = selectGroupWeighted(finalRates) // Lấy nhóm trúng dựa trên RNG
 
-        IF count >= 6 THEN
-            val = synergyConfig.synergy_layers.dimensions.thresholds.get("6").ovr_bonus_pct
-            key = dim + " (6)"
-        ELSE IF count >= 4 THEN
-            val = synergyConfig.synergy_layers.dimensions.thresholds.get("4").ovr_bonus_pct
-            key = dim + " (4)"
-        ELSE IF count >= 2 THEN
-            val = synergyConfig.synergy_layers.dimensions.thresholds.get("2").ovr_bonus_pct
-            key = dim + " (2)"
-        END IF
+    cardsInGroup = groupedCards.get(selectedGroup)
+    IF cardsInGroup IS EMPTY THEN
+        RETURN EmptySpinResult()
+    END IF
 
-        IF key IS NOT NULL THEN
-            bonus = bonus + val
-            ADD key TO activeSynergies
-            buffSummary.put(key, "+" + INT(val * 100) + "% OVR Cùng hệ")
-        END IF
+    // Bốc ngẫu nhiên thẻ trúng thưởng thực tế
+    randomIndex = ChaosTheoryHelper.nextInt(LENGTH(cardsInGroup))
+    winningCard = cardsInGroup.get(randomIndex)
+
+    // 2. Phân phối lưới 16 thẻ (1 thẻ thắng + 15 thẻ mồi nhử)
+    distribution = buildCaseDistribution(selectedGroup)
+    
+    // Giảm số lượng của nhóm trúng đi 1 (chính là winningCard)
+    distribution.put(selectedGroup, distribution.get(selectedGroup) - 1)
+
+    revealGrid = EMPTY_LIST
+
+    FOR EACH entry IN distribution DO
+        group = entry.key
+        count = entry.value
+        IF count <= 0 THEN CONTINUE END IF
+
+        pool = groupedCards.get(group)
+        IF pool IS EMPTY THEN CONTINUE END IF
+
+        // Loại bỏ thẻ trúng thưởng thực tế khỏi pool mồi nhử của group đó
+        // (Tránh trùng lặp hình ảnh mặt sau thẻ trên giao diện lật)
+        safePool = CLONE_LIST(pool)
+        REMOVE winningCard FROM safePool
+
+        // Trộn ngẫu nhiên safePool
+        ChaosTheoryHelper.shuffle(safePool)
+        
+        // Bốc các thẻ mồi nhử đưa vào lưới
+        takeCount = MIN(count, LENGTH(safePool))
+        FOR i = 0 TO takeCount - 1 DO
+            ADD safePool.get(i) TO revealGrid
+        END FOR
     END FOR
-    RETURN bonus
+
+    // Thêm thẻ thắng thực sự vào lưới
+    ADD winningCard TO revealGrid
+
+    // Trộn ngẫu nhiên vị trí của 16 thẻ trong lưới trước khi gửi về client
+    ChaosTheoryHelper.shuffle(revealGrid)
+
+    RETURN SpinResult(winningCard, revealGrid, selectedGroup)
 END FUNCTION
 ```
 
 ### 7.4. Thiết kế Tối ưu Hiệu năng (Performance Justification)
-- **Tập trung hóa Dữ liệu (Config Centralization):** Tất cả hệ số buff, debuff và ngưỡng kích hoạt được quy định trong tệp `synergy_config.json` nạp sẵn vào bộ nhớ RAM khi ứng dụng khởi động. Việc này loại bỏ hoàn toàn các cấu trúc điều kiện rẽ nhánh cứng (Hardcoded multi-branch structures) trong code Java, giúp dễ bảo trì và cập nhật cân bằng game mà không cần build lại server.
-- **Tính toán Phân tách (Decoupled Buff Processing):** Thuật toán phân tách rõ ràng giữa hai loại buff (Buff nhân tỉ lệ % hệ/nhóm và Buff cộng phẳng phẩm chất/cấp độ) giúp đảm bảo độ phức tạp tính toán luôn ở mức $O(N)$ với $N$ là số lượng thẻ trong đội hình (tối đa 6 thẻ).
-- **Synergy Preview Realtime:** Phía client gọi API của `BattleEngineService` bất đồng bộ mỗi khi người chơi thay đổi vị trí hoặc thay thế thẻ bài trong giao diện đội hình, phản hồi mượt mà thay đổi chỉ số OVR tức thì nhờ cơ chế xử lý tính toán cực nhanh dưới 2ms trên Server.
+- **Bù trừ sai số trôi (Drift Correction):** Trong các thuật toán chuẩn hóa xác suất tỉ lệ phần trăm, sai số do làm tròn (làm tròn lên/xuống ở dấu phẩy tĩnh) thường tích tụ khiến tổng xác suất lệch khỏi 100.0%. Bằng cách tự động tính toán và bù phần chênh lệch (`drift`) vào nhóm mặc định `Nothing`, thuật toán đảm bảo tính toàn vẹn toán học và tránh lỗi Crash trên các bộ phát hiện RNG nghiêm ngặt.
+- **Tránh trùng lặp mồi nhử (Duplicate Back-image Prevention):** Khi vẽ lưới quay trên client, nếu thẻ trúng thưởng cũng đồng thời xuất hiện trong số 15 thẻ mồi nhử, người dùng sẽ thấy 2 ảnh giống hệt nhau khi quay ma trận, phá vỡ tính thẩm mỹ. Việc loại bỏ trực tiếp `winningCard` khỏi `safePool` trước khi bốc mồi nhử đảm bảo tính độc nhất của thẻ trúng thưởng trong phiên quay.
+- **Biến động Tỉ lệ tự động (Algorithmic Fluctuation):** Cơ chế tự động thêm/bớt ±10% tỉ lệ cơ bản dựa trên nhiễu khí quyển làm tăng tính bất định cho game, ngăn ngừa hoàn toàn các kỹ thuật soi mã máy hoặc đoán chu kỳ của các thợ cào (Gacha cycle exploits).
 
 
 

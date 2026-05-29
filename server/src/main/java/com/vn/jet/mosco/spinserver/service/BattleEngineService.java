@@ -15,6 +15,10 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * Service xử lý tính toán OVR và Cộng hưởng Đội hình.
+ * CHÚ Ý: Tính năng Cộng hưởng (Passive Synergy) này đang TẠM DỪNG PHÁT TRIỂN và tạm thời chưa áp dụng cho gameplay chính.
+ */
 @Service
 public class BattleEngineService {
 
