@@ -19,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_bias="0.4"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading" />
@@ -30,11 +30,11 @@
         style="@style/MoscoText.Luxury.SubHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="110dp"
+        android:layout_marginTop="@dimen/spacing_xl"
         android:text="@string/splash_status_connecting"
         android:textSize="@dimen/text_size_body_lg"
         android:textColor="@color/white_80"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logo_lottie"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -43,14 +43,16 @@
         android:id="@+id/layout_download_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_60dp"
+        android:layout_marginTop="@dimen/spacing_md"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/spacing_xxl"
         android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/tv_download_status"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.2">
 
         <!-- Progress Bar Custom Style -->
         <ProgressBar
@@ -78,14 +80,16 @@
         android:id="@+id/layout_retry_connection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_60dp"
+        android:layout_marginTop="@dimen/spacing_md"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/spacing_xxl"
         android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/tv_download_status"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.2">
 
         <TextView
             style="@style/MoscoText.Luxury.SubHeader"

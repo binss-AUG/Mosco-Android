@@ -38,10 +38,9 @@
         <ImageView
             android:id="@+id/iv_image"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="220dp"
             android:scaleType="centerInside"
             app:layout_constraintBottom_toTopOf="@+id/glass_info_container"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@id/gl_end"
             app:layout_constraintStart_toStartOf="@id/gl_start"
             app:layout_constraintTop_toTopOf="parent"
