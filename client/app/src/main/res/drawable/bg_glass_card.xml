@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Liquid Glass: Card glassmorphism surface -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/lg_glass_surface_elevated" />
+    <solid android:color="@color/mosco_card_bg_alpha_50" />
     <corners android:radius="@dimen/lg_radius_card" />
     <stroke
         android:width="@dimen/lg_stroke_hairline"
