@@ -105,6 +105,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     // ── State ──
     private int bannerCount = 0;
+    private int currentStreakValue = 0;
     private int bestStreakValue = 0;
     private int restoresThisMonth = 0;
     private int lastProgress = 0;
@@ -312,14 +313,16 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         if (flStreakAvatar != null) {
             flStreakAvatar.setOnClickListener(new ClickDebounce(v -> {
-                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
+                // Tại sao (WHY): Truyền đúng streak hiện tại để dialog đồng bộ thông tin chính xác
+                showStreakDetail(currentStreakValue, bestStreakValue, restoresThisMonth);
             }));
         }
 
         if (cvModuleStreak != null) {
-            cvModuleStreak.setOnClickListener(v -> {
-                showStreakDetail(bestStreakValue, bestStreakValue, restoresThisMonth);
-            });
+            cvModuleStreak.setOnClickListener(new ClickDebounce(v -> {
+                // Tại sao (WHY): Truyền đúng streak hiện tại để dialog đồng bộ thông tin chính xác
+                showStreakDetail(currentStreakValue, bestStreakValue, restoresThisMonth);
+            }));
         }
         
         if (btnFullRank != null) {
@@ -781,6 +784,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
         }
 
+        this.currentStreakValue = streak;
         this.bestStreakValue = bestStreak;
         this.restoresThisMonth = restores;
     }
