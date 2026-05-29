@@ -203,7 +203,12 @@ public class AuthService {
 
         username = username.trim();
 
+        // Tại sao (WHY): Hỗ trợ người dùng đăng nhập linh hoạt bằng cả Username hoặc Email
         Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(username.toLowerCase(Locale.ROOT));
+        }
+
         if (userOpt.isEmpty()) {
             return new AuthResponse(false, "Invalid username or password.", null, null);
         }

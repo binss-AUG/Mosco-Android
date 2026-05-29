@@ -80,7 +80,7 @@
                         style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/auth_label_email" />
+                        android:text="@string/auth_label_username_or_email" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_email"
@@ -102,9 +102,9 @@
                             android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="@dimen/spacing_15dp"
-                            android:hint="@string/auth_prompt_email"
+                            android:hint="@string/auth_prompt_username_or_email"
                             android:imeOptions="actionNext"
-                            android:inputType="textEmailAddress"
+                            android:inputType="text"
                             android:maxLines="1"
                             android:nextFocusForward="@id/edt_password"
                             android:textCursorDrawable="@null" />

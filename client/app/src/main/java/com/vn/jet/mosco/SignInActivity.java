@@ -214,13 +214,13 @@ public class SignInActivity extends AppCompatActivity {
     private void validateAndSignIn() {
         if (isSigningIn) return;
         
-        String email = edtEmail.getText().toString().trim();
+        String usernameOrEmail = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
         tilEmail.setError(null);
         tilPassword.setError(null);
 
-        if (email.isEmpty()) {
+        if (usernameOrEmail.isEmpty()) {
             tilEmail.setError(getString(R.string.auth_error_empty_field));
             return;
         }
@@ -233,7 +233,7 @@ public class SignInActivity extends AppCompatActivity {
             return;
         }
 
-        viewModel.signIn(email, password);
+        viewModel.signIn(usernameOrEmail, password);
     }
 
     private void setLoading(boolean isLoading) {
