@@ -340,10 +340,6 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Yêu cầu nhận thưởng ngoài khung giờ:* Server trả về lỗi 400 "Ngoài khung giờ hoặc đã nhận rồi", Client khóa nút bấm lại.
 
----
-
-## 10. Tính năng Thám hiểm / Đi cảnh AFK (AFK Stage Expedition)
-
 ### Use-Case 10.1: Cử đội hình đi thám hiểm
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
@@ -378,6 +374,11 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
     2.  Client gửi POST tới `/api/stage/claim/{userId}/{sessionId}`.
     3.  Server tính toán phần thưởng (Lazy Evaluation) dựa trên Map, thời gian gửi đi và tổng điểm `teamScore` của đội hình:
         - Công thức: `Reward = Base * Duration * (1 + teamScore / 200)`
+        - Các thông số thưởng cơ bản (Base Reward/Hour) theo từng bản đồ:
+          - Map 1 (Bản đồ Trái Đất): Base = 100 Coins, 0 Diamonds.
+          - Map 2 (Bản đồ Mặt Trăng): Base = 250 Coins, 0 Diamonds.
+          - Map 3 (Bản đồ Sao Hỏa): Base = 600 Coins, 1 Diamond.
+          - Map 4 (Bản đồ Sao Mộc): Base = 1500 Coins, 5 Diamonds.
     4.  Server cộng tiền vàng và kim cương tích lũy được vào tài khoản người chơi.
     5.  Server giải phóng toàn bộ thẻ bài tham gia phiên thám hiểm về lại trạng thái `AVAILABLE`.
     6.  Server cập nhật trạng thái phiên thám hiểm thành `CLAIMED`.
@@ -389,7 +390,7 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
     1.  Tại màn hình thám hiểm, đối với một phiên thám hiểm đang trong trạng thái chạy (`ACTIVE`), người chơi có thể chọn "Hủy bỏ" (Abort) nếu muốn thu hồi thẻ bài gấp.
     2.  Người chơi xác nhận việc hủy bỏ (sẽ không nhận được bất kỳ phần thưởng tích lũy nào).
     3.  Client gửi yêu cầu POST tới `/api/stage/abort/{userId}/{sessionId}`.
-    4.  Server mở Transaction, chuyển trạng thái phiên thám hiểm sang `ABORTED`.
+    4.  Server mở Transaction, chuyển trạng thái phiên thám hiểm sang `CANCELED`.
     5.  Server giải phóng tất cả các thẻ bài tham gia phiên thám hiểm này quay trở lại trạng thái `AVAILABLE` khả dụng trong kho đồ.
     6.  Server cập nhật DB, commit giao dịch và trả về kết quả thành công cho Client.
     7.  Client tải lại dữ liệu kho đồ, cập nhật trạng thái thẻ bài thành sẵn sàng và ẩn phiên thám hiểm đã hủy.
@@ -413,7 +414,7 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại kho đồ hoặc profile của bạn bè, người chơi nhấn chọn "Tặng quà".
     2.  Người chơi chọn thẻ bài muốn tặng. Client hiển thị giới hạn lượt tặng trong ngày (tối đa 5 lần gửi/nhận mỗi ngày).
-    3.  Người chơi nhấn xác nhận gửi. Client gửi POST tới `/api/gift/send` kèm `cardId` và `receiverId`.
+    3.  Người chơi nhấn xác nhận gửi. Client gửi POST tới `/api/gift/send` kèm `cardId` và `receiverId`. (Lưu ý: Mặc dù cấu hình javadoc/comment có thể ghi tốn phí 36,000 Coins và 36 Diamonds, thực tế cấu hình trong code hiện tại là hoàn toàn miễn phí - 0 Coins và 0 Diamonds).
     4.  Server kiểm tra các điều kiện:
         - Thẻ bài có thuộc sở hữu của người gửi không.
         - Số lượt tặng hôm nay của người gửi đã đạt giới hạn 5 lần chưa.
@@ -583,10 +584,10 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
     3.  Trên Dashboard, Admin có thể theo dõi:
         - Trạng thái đồng bộ (Sync Status: IDLE hoặc BUSY).
         - Tổng số ảnh thẻ bài đã tải về đĩa (Total Images).
-        - Số lượng Sealed Bundles & Patches nén dữ liệu.
+        - Số lượng Sealed Bundles & Patches nén dữ liệu (trên thực tế giá trị này luôn để trống do đã chuyển sang cơ chế Lean Version).
         - Nhãn thời gian của lượt đồng bộ cuối cùng (Last Sync).
     4.  **Kích hoạt Đồng bộ Thủ công:** Admin bấm nút "🚀 SYNC NOW". Server gọi API `POST /api/assets/sync` để bắt đầu cào và đồng bộ metadata từ objekt.top ở chế độ nền.
-    5.  **Nén lại gói tài nguyên (Rebuild Bundles):** Admin bấm nút "📦 REBUILD BUNDLES". Server gọi API `POST /api/assets/rebuild` để nén lại toàn bộ Sealed Bundles làm mới dữ liệu cho Client tải offline.
+    5.  **Nén lại gói tài nguyên (Rebuild Bundles):** Admin bấm nút "📦 REBUILD BUNDLES". Server gọi API `POST /api/assets/rebuild`. Vì cơ chế nén Sealed Bundles đã bị lược bỏ trong phiên bản rút gọn (Lean Version) để tiết kiệm 10GB dung lượng lưu trữ, API này chỉ đóng vai trò phản hồi thông báo ghi nhận cơ chế đã được lược bỏ.
     6.  Admin có thể theo dõi tiến trình chạy ngầm qua log được hiển thị realtime trên Dashboard từ endpoint `/api/assets/status`.
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Sai mã bảo mật (ADMIN_SECRET):* Server từ chối truy cập và hiển thị thông báo "🔒 ACCESS DENIED — Invalid Key".
