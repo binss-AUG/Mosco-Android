@@ -220,30 +220,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
             });
         } else {
             // flowType = "forgot_password"
-            ResetPasswordRequest request = new ResetPasswordRequest(email, code, password);
-            apiService.resetPassword(request).enqueue(new Callback<AuthResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
-                    setLoading(false);
-                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                        Toast.makeText(OtpVerificationActivity.this, getString(R.string.auth_msg_reset_password_success), Toast.LENGTH_LONG).show();
-                        // Trở về màn đăng nhập sau khi khôi phục thành công
-                        Intent intent = new Intent(OtpVerificationActivity.this, SignInActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.auth_msg_invalid_code);
-                        tilVerificationCode.setError(msg);
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
-                    setLoading(false);
-                    Toast.makeText(OtpVerificationActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
-                }
-            });
+            // Khi người dùng bấm Verify ở luồng quên mật khẩu, chuyển tiếp sang màn hình đặt mật khẩu mới
+            setLoading(false);
+            Intent nextIntent = new Intent(OtpVerificationActivity.this, ResetPasswordActivity.class);
+            nextIntent.putExtra("email", email);
+            nextIntent.putExtra("code", code);
+            startActivity(nextIntent);
         }
     }
 

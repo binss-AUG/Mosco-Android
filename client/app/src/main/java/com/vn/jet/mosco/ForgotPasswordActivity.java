@@ -35,8 +35,8 @@ import retrofit2.Response;
  */
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private TextInputEditText edtEmail, edtPassword;
-    private TextInputLayout tilEmail, tilPassword;
+    private TextInputEditText edtEmail;
+    private TextInputLayout tilEmail;
     private Button btnResetPassword;
     private LottieAnimationView loadingProgress;
     private AuthApiService apiService;
@@ -52,9 +52,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         // Map views
         edtEmail = findViewById(R.id.edt_email);
-        edtPassword = findViewById(R.id.edt_password);
         tilEmail = findViewById(R.id.til_email);
-        tilPassword = findViewById(R.id.til_password);
         btnResetPassword = findViewById(R.id.btn_reset_password);
         loadingProgress = findViewById(R.id.loading_progress);
         btnBack = findViewById(R.id.btn_back);
@@ -102,16 +100,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void handleSendCode() {
         String email = edtEmail.getText().toString().trim();
-        String pass = edtPassword.getText().toString().trim();
         tilEmail.setError(null);
-        tilPassword.setError(null);
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError(getString(R.string.auth_error_invalid_email));
-            return;
-        }
-        if (pass.isEmpty() || pass.length() < 6) {
-            tilPassword.setError(getString(R.string.auth_error_short_password));
             return;
         }
 
@@ -126,7 +118,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     android.content.Intent intent = new android.content.Intent(ForgotPasswordActivity.this, OtpVerificationActivity.class);
                     intent.putExtra("flow_type", "forgot_password");
                     intent.putExtra("email", email);
-                    intent.putExtra("password", pass);
                     startActivity(intent);
                 } else {
                     Toast.makeText(ForgotPasswordActivity.this, getString(R.string.auth_msg_email_not_found), Toast.LENGTH_SHORT).show();
@@ -145,7 +136,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         loadingProgress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnResetPassword.setEnabled(!isLoading);
         edtEmail.setEnabled(!isLoading);
-        edtPassword.setEnabled(!isLoading);
 
         if (isLoading) {
             btnResetPassword.setBackgroundTintList(
