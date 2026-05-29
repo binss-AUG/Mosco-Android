@@ -32,6 +32,7 @@
     <dimen name="button_height_standard">48dp</dimen>
     <dimen name="button_height_large">56dp</dimen>
     <dimen name="input_height_standard">52dp</dimen>
+    <dimen name="input_height_compact">46dp</dimen>
     
     <!-- Fixed Component Dimensions (Kích thước cố định các thành phần con) -->
     <dimen name="home_dot_size">8dp</dimen>

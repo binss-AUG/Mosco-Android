@@ -224,6 +224,8 @@
     <dimen name="social_icon_size">24dp</dimen>
     <dimen name="social_icon_padding">12dp</dimen>
     <dimen name="social_button_size">48dp</dimen>
+    <dimen name="social_button_size_compact">40dp</dimen>
+    <dimen name="social_icon_padding_compact">8dp</dimen>
     <dimen name="header_btn_size">52dp</dimen>
     <dimen name="header_icon_size">28dp</dimen>
     <dimen name="header_btn_corner">26dp</dimen>

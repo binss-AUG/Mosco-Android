@@ -38,8 +38,8 @@
                 android:id="@+id/center_group"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xl"
-                android:layout_marginBottom="@dimen/spacing_xl"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginBottom="@dimen/spacing_md"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/gl_end"
@@ -70,10 +70,10 @@
                     android:id="@+id/glass_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xl"
+                    android:layout_marginTop="@dimen/spacing_md"
                     android:background="@drawable/bg_glass_card"
                     android:orientation="vertical"
-                    android:padding="@dimen/spacing_lg">
+                    android:padding="@dimen/spacing_md">
 
                     <TextView
                         android:id="@+id/tv_label_email"
@@ -98,7 +98,7 @@
                             android:id="@+id/edt_email"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/spacing_52dp"
+                            android:layout_height="@dimen/input_height_compact"
                             android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_user"
                             android:drawablePadding="@dimen/spacing_15dp"
@@ -115,7 +115,7 @@
                         style="@style/MoscoText.Luxury.Label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
+                        android:layout_marginTop="@dimen/spacing_sm"
                         android:text="@string/auth_label_password" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -134,7 +134,7 @@
                             android:id="@+id/edt_password"
                             style="@style/MoscoText.Luxury.Input"
                             android:layout_width="match_parent"
-                            android:layout_height="@dimen/spacing_52dp"
+                            android:layout_height="@dimen/input_height_compact"
                             android:background="@drawable/lg_input_bg"
                             android:drawableStart="@drawable/ic_lock"
                             android:drawablePadding="@dimen/spacing_15dp"
@@ -182,7 +182,7 @@
                         android:id="@+id/btn_signin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_lg"
+                        android:layout_marginTop="@dimen/spacing_md"
                         android:nextFocusForward="@id/tv_forgot_password"
                         app:moscoStyle="primary"
                         app:moscoSize="large"
@@ -192,7 +192,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_lg"
+                        android:layout_marginTop="@dimen/spacing_sm"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -221,28 +221,28 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
+                        android:layout_marginTop="@dimen/spacing_sm"
                         android:gravity="center"
                         android:orientation="horizontal">
 
                         <ImageButton
                             android:id="@+id/btn_google"
-                            android:layout_width="@dimen/social_button_size"
-                            android:layout_height="@dimen/social_button_size"
-                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_width="@dimen/social_button_size_compact"
+                            android:layout_height="@dimen/social_button_size_compact"
+                            android:layout_marginHorizontal="@dimen/spacing_sm"
                             android:background="@drawable/bg_btn_social_glass"
-                            android:padding="@dimen/social_icon_padding"
+                            android:padding="@dimen/social_icon_padding_compact"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_google"
                             android:stateListAnimator="@animator/luxury_button_state_animator" />
 
                         <ImageButton
                             android:id="@+id/btn_discord"
-                            android:layout_width="@dimen/social_button_size"
-                            android:layout_height="@dimen/social_button_size"
-                            android:layout_marginHorizontal="@dimen/spacing_md"
+                            android:layout_width="@dimen/social_button_size_compact"
+                            android:layout_height="@dimen/social_button_size_compact"
+                            android:layout_marginHorizontal="@dimen/spacing_sm"
                             android:background="@drawable/bg_btn_social_glass"
-                            android:padding="@dimen/social_icon_padding"
+                            android:padding="@dimen/social_icon_padding_compact"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_discord"
                             android:stateListAnimator="@animator/luxury_button_state_animator" />
@@ -256,7 +256,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/spacing_xl"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:focusable="true"
                     android:nextFocusForward="@id/btn_back"
                     android:text="@string/auth_msg_new_user"

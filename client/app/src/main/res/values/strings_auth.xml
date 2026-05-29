@@ -8,7 +8,7 @@
     <string name="auth_label_email">Email Address</string>
     <string name="auth_prompt_email">user@example.com</string>
     <string name="auth_label_username_or_email">Username or Email</string>
-    <string name="auth_prompt_username_or_email">Enter username or email</string>
+    <string name="auth_prompt_username_or_email">username / user@example.com</string>
     <string name="auth_label_password">Password</string>
     <string name="auth_prompt_password">••••••</string>
     <string name="auth_label_remember_me">Remember me</string>
