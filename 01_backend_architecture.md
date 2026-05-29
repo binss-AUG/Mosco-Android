@@ -102,8 +102,13 @@ erDiagram
         String avatar_id
         String bio
         String avatar_crop_params
+        String active_formation
+        String active_token
         int streak
         int best_streak
+        int streak_restores_this_month
+        Integer last_restore_month
+        LocalDateTime last_login_at
         int likes_count
         int friends_count
     }
@@ -462,6 +467,8 @@ Mối quan hệ kết bạn giữa hai người chơi.
 *   `created_at` (Kiểu: `LocalDateTime` / Mapping Java: `createdAt`)
 *   *Lưu ý:* Các trường `requester_id` và `addressee_id` là **Khóa ngoại Logic** (Logical FK). Trong mã nguồn Java, chúng chỉ được định nghĩa là trường `Long` đơn thuần chứ không sử dụng liên kết JPA thực thể `@ManyToOne`, giúp tránh các truy vấn đệ quy và khóa bảng ngầm không cần thiết nhằm tối ưu hiệu năng.
 *   *Ràng buộc đặc biệt:* UniqueConstraint trên bộ đôi `(requester_id, addressee_id)` để tránh spam gửi trùng lời mời.
+    > [!WARNING]
+    > **Lỗi cấu hình JPA trong code:** Annotation `@UniqueConstraint(columnNames = {"requesterId", "addresseeId"})` trong `Friendship.java` hiện đang dùng tên biến Java thay vì tên cột MySQL vật lý (`requester_id`, `addressee_id`), có thể làm mất hiệu lực ràng buộc hoặc gây lỗi khởi động.
 
 #### 10. Bảng `gacha_history` (Entity: [GachaHistory.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/model/GachaHistory.java))
 Lịch sử lượt quay gacha thưởng.
@@ -474,6 +481,8 @@ Lịch sử lượt quay gacha thưởng.
 *   `pack_code` (Kiểu: `String` | Độ dài: `100` / Mapping Java: `packCode`)
 *   `source` (Kiểu: `String` | Độ dài: `50` | Default: `"GACHA_ROLL"`)
 *   *Chỉ mục tối ưu:* Index `idx_gacha_history_user` (trên cột `user_id`) và `idx_gacha_history_rolled` (trên cột `rolled_at`).
+    > [!WARNING]
+    > **Lỗi cấu hình JPA trong code:** Định nghĩa Index `idx_gacha_history_rolled` trong `GachaHistory.java` sử dụng `columnList = "rolledAt"` (tên biến Java) thay vì tên cột vật lý `rolled_at`.
 
 #### 11. Bảng `shop_items` (Entity: [ShopItem.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/model/ShopItem.java))
 Vật phẩm có sẵn trên Shop bán hàng.
@@ -503,6 +512,8 @@ Hành động thích hồ sơ giữa các người dùng.
 *   `created_at` (Kiểu: `LocalDateTime` / Mapping Java: `createdAt`)
 *   *Lưu ý:* `liker_id` và `target_user_id` là **Khóa ngoại Logic** để tối ưu hóa hiệu năng truy vấn.
 *   *Ràng buộc đặc biệt:* UniqueConstraint trên bộ `(liker_id, target_user_id)` chống spam click thích.
+    > [!WARNING]
+    > **Lỗi cấu hình JPA trong code:** Annotation `@UniqueConstraint(columnNames = {"likerId", "targetUserId"})` trong `UserLike.java` sử dụng tên biến Java thay vì tên cột MySQL vật lý (`liker_id`, `target_user_id`).
 
 #### 14. Bảng `user_mails` (Entity: [UserMail.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/model/UserMail.java))
 Thư điện tử đính kèm quà của người dùng.
@@ -544,6 +555,8 @@ Lịch sử điểm danh theo slot của người chơi.
 *   `slot` (Kiểu: `int` | Non-null | `0` = Sáng, `1` = Trưa, `2` = Tối)
 *   *Lưu ý:* `user_id` là **Khóa ngoại Logic** để tối ưu hóa việc query.
 *   *Ràng buộc đặc biệt:* UniqueConstraint trên bộ `(user_id, checkin_date, slot)`.
+    > [!WARNING]
+    > **Lỗi cấu hình JPA trong code:** Annotation `@UniqueConstraint(columnNames = {"userId", "checkinDate", "slot"})` trong `DailyCheckin.java` sử dụng tên biến Java thay vì các tên cột MySQL vật lý (`user_id`, `checkin_date`, `slot`).
 
 #### 17. Bảng `private_messages` (Entity: [PrivateMessage.java](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/server/src/main/java/com/vn/jet/mosco/spinserver/model/PrivateMessage.java))
 Tin nhắn trò chuyện riêng tư của người chơi (Server-side logs).
@@ -764,3 +777,33 @@ Dưới đây là các giải pháp tối ưu hóa hiệu năng và bảo mật 
     *   **Tiến trình cào (Scraping):** OkHttpClient gửi request GET có kèm tiêu đề User-Agent giả lập trình duyệt tới API `https://objekt.top/api/collection?artist=tripleS&limit=20000` thông qua OkHttpClient.
     *   **Phân tích & Sắp xếp (Parse & Sort):** Parse dữ liệu cào được thành danh sách JsonObject, sau đó sắp xếp theo thời gian tạo (`createdAt` giảm dần - mới nhất xếp đầu). 
     *   **Cập nhật Manifest & Kích hoạt ETL:** Lưu dữ liệu đã sắp xếp vào file `database.json`. Nếu kích thước tệp tin thay đổi so với bản cũ, cập nhật lại file `manifest.json` với nhãn thời gian `lastSync` mới nhất. Tiếp theo, gọi ngầm tiến trình `EtlService.runEtlJob()` để thực hiện phân tích cú pháp file JSON mới và đồng bộ UPSERT dữ liệu thô vào các bảng MySQL (`members`, `seasons`, `classes`, `cards`). Cuối cùng làm mới bộ nhớ đệm `CardDataService` của backend.
+
+---
+
+## 4. Các điểm bất cập, không đồng bộ & Lỗi cấu hình JPA cần khắc phục (Known Limitations & Architectural Smells)
+
+Trong quá trình đối chiếu tài liệu kiến trúc này với mã nguồn thực tế của dự án Mosco, chúng tôi đã phát hiện một số điểm bất cập nghiêm trọng trong thiết kế cũng như các lỗi cấu hình trong mã nguồn. Dưới đây là mô tả chi tiết và khuyến nghị khắc phục:
+
+### A. Lỗi cấu hình JPA Unique Constraints & Indexes (Server-side)
+*   **Vấn đề:** Các thực thể `Friendship.java`, `UserLike.java`, và `DailyCheckin.java` định nghĩa các ràng buộc duy nhất (`uniqueConstraints`) bằng cách sử dụng tên trường trong lớp Java (camelCase) thay vì tên cột vật lý trong cơ sở dữ liệu (snake_case). Cụ thể:
+    *   `Friendship.java` dùng `{"requesterId", "addresseeId"}` thay vì `{"requester_id", "addressee_id"}`.
+    *   `UserLike.java` dùng `{"likerId", "targetUserId"}` thay vì `{"liker_id", "target_user_id"}`.
+    *   `DailyCheckin.java` dùng `{"userId", "checkinDate", "slot"}` thay vì `{"user_id", "checkin_date", "slot"}`.
+    *   Tương tự, `GachaHistory.java` định nghĩa Index `idx_gacha_history_rolled` sử dụng `columnList = "rolledAt"` thay vì `rolled_at`.
+*   **Ảnh hưởng:** Hibernate khi tự động sinh và cập nhật Schema cơ sở dữ liệu (`spring.jpa.hibernate.ddl-auto=update`) sẽ bỏ qua hoặc sinh lỗi tạo chỉ mục/ràng buộc, dẫn tới việc cơ sở dữ liệu MySQL không có các khoá duy nhất này, tăng nguy cơ trùng lặp dữ liệu do race condition.
+*   **Giải pháp đề xuất:** Sửa đổi các tham số `columnNames` và `columnList` trong annotations về đúng tên cột vật lý tương ứng của MySQL.
+
+### B. Nguy cơ không đồng nhất trạng thái Cấp độ người dùng (Level Column Stale State)
+*   **Vấn đề:** Trong `User.java`, thuộc tính `level` được lưu trữ trực tiếp dưới dạng một cột vật lý trong database (`@Column(nullable = false) private int level = 1;`). Tuy nhiên, phương thức getter `getLevel()` lại tính toán động dựa trên kinh nghiệm: `return (int) (this.exp / 1000) + 1;`.
+*   **Ảnh hưởng:** Do JPA sử dụng cơ chế truy cập trực tiếp vào trường dữ liệu (Field-based Access), Hibernate khi thực hiện ghi xuống database sẽ ghi trực tiếp giá trị của trường `level`. Nếu trong logic nghiệp vụ chỉ thay đổi `exp` (qua `setExp()`) mà không cập nhật trường `level` (qua `setLevel()`), cột `level` trong database sẽ bị cũ (stale) và không khớp với cấp độ thực tế của người dùng. Các câu lệnh query SQL trực tiếp sắp xếp theo cấp độ (ví dụ: bảng xếp hạng) sẽ trả về kết quả sai.
+*   **Giải pháp đề xuất:** Loại bỏ cột `level` vật lý khỏi cơ sở dữ liệu (đánh dấu `@Transient` hoặc tính toán hoàn toàn ở view/server controller), hoặc triển khai cơ chế đồng bộ tự động cập nhật trường `level` mỗi khi `setExp()` được gọi.
+
+### C. Không đồng nhất kiểu dữ liệu của ID Tin nhắn (Chat ID Type Mismatch)
+*   **Vấn đề:** SQLite cục bộ của Client lưu trữ `senderId` và `receiverId` trong bảng `private_messages` dưới dạng `String` (TEXT) thông qua `PrivateChatMessage.java`. Ngược lại, Server MySQL lưu trữ hai khoá ngoại logic này dưới dạng `Long` (BIGINT) thông qua `PrivateMessage.java`.
+*   **Ảnh hưởng:** Mặc dù Jackson có thể tự động chuyển đổi chuỗi số thành `Long` ở phía Server, sự không đồng nhất này khiến Client phải thực hiện các chuyển đổi kiểu dữ liệu rườm rà (ví dụ: `String.valueOf(partnerId)`) và làm giảm hiệu năng truy vấn của Room DB trên điện thoại do so sánh chuỗi chậm hơn so với số nguyên.
+*   **Giải pháp đề xuất:** Đồng bộ kiểu dữ liệu của `senderId` và `receiverId` về kiểu `long` ở cả phía Client SQLite và Server MySQL.
+
+### D. Tính năng Avatar Auto-Crop (Survive Reinstall) chưa hoàn thiện trên Client
+*   **Vấn đề:** Tài liệu mô tả cơ chế sao lưu toạ độ cắt ảnh (`avatarCropParams`) dạng `"xPercent,yPercent,sizePercent"` lên máy chủ để tái hiện ảnh đại diện chính xác khi cài lại ứng dụng. Tuy nhiên, mã nguồn Java của Client (`ProfileFragment.java`) chỉ sử dụng thư viện `uCrop` để cắt ảnh cục bộ và lưu đè file cache chứ **chưa triển khai việc tính toán tỉ lệ toạ độ** hoặc gửi thông số này lên Server trong request `updateProfile`.
+*   **Ảnh hưởng:** Tham số `avatarCropParams` lưu trên máy chủ luôn là `null` hoặc chuỗi rác cũ. Khi người dùng cài lại ứng dụng, toạ độ crop thủ công sẽ bị mất hoàn toàn và client buộc phải dùng thuật toán ML Kit nhận diện khuôn mặt tự động (`SmartFaceCropTransformation`), làm mất đi trải nghiệm crop thủ công mong muốn của người dùng.
+*   **Giải pháp đề xuất:** Bổ sung logic tính toán toạ độ tỉ lệ cắt trong callback của `uCrop` trên Client, cập nhật vào `SessionManager` và đồng bộ qua API `updateProfile` lên máy chủ.
