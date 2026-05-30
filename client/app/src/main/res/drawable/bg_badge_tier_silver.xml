@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lớp dưới: Viền gradient bạc chrome metallic -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/lg_glass_surface" />
-            <corners android:radius="@dimen/lg_radius_chip" />
+            <gradient
+                android:startColor="#CBD5E1"
+                android:endColor="#64748B"
+                android:angle="45" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
-    <item>
+    <!-- Lớp trên: Nền kính mờ bán trong suốt thụt lề 1.5dp -->
+    <item
+        android:left="1.5dp"
+        android:top="1.5dp"
+        android:right="1.5dp"
+        android:bottom="1.5dp">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/lg_radius_chip" />
-            <stroke android:width="@dimen/lg_stroke_hairline" android:color="@color/badge_tier_silver" />
+            <!-- TẠI SAO: Sử dụng màu nền bạc mờ đục 60% làm tôn lên màu bạc kim loại phản chiếu của viền ngoài -->
+            <solid android:color="#991E293B" />
+            <corners android:radius="10.5dp" />
         </shape>
     </item>
 </layer-list>

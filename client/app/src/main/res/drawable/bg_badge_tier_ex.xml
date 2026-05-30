@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lớp dưới: Viền gradient đỏ Crimson sang tím neon quyền lực -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/badge_tier_ex_dark" /> <!-- Obsidian Black -->
-            <corners android:radius="@dimen/lg_radius_chip" />
+            <gradient
+                android:startColor="#EF4444"
+                android:endColor="#C084FC"
+                android:angle="45" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
-    <item>
+    <!-- Lớp trên: Nền kính đen Obsidian siêu mờ thụt lề 1.5dp -->
+    <item
+        android:left="1.5dp"
+        android:top="1.5dp"
+        android:right="1.5dp"
+        android:bottom="1.5dp">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/lg_radius_chip" />
-            <stroke android:width="1.5dp" android:color="@color/badge_tier_ex_red" /> <!-- Crimson Neon Border -->
+            <!-- TẠI SAO: Màu nền đen Obsidian mờ đục 90% (gần như đặc) làm nổi bật tối đa viền gradient sáng chói đặc trưng của cấp tối thượng EX -->
+            <solid android:color="#E60F172A" />
+            <corners android:radius="10.5dp" />
         </shape>
     </item>
 </layer-list>

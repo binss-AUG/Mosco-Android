@@ -114,8 +114,10 @@
                 android:id="@+id/rv_badges"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                android:clipToPadding="false"
+                android:padding="2dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="3" />
                 
             <TextView
                 android:id="@+id/tv_no_badges"

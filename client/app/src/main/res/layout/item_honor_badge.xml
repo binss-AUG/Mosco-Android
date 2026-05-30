@@ -3,28 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/lg_chip_unselected_bg"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="10dp">
+    android:minHeight="108dp"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="12dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/lg_chip_unselected_bg">
 
+    <!-- TẠI SAO: Phóng to biểu tượng lên 48dp để tạo điểm nhấn thị giác sắc nét cho người dùng, thay thế icon 16dp siêu nhỏ trước đây -->
     <ImageView
         android:id="@+id/iv_badge_icon"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginEnd="10dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@null"
-        app:tint="@color/brand_primary" />
+        android:scaleType="fitCenter" />
 
+    <!-- TẠI SAO: Thu nhỏ kích cỡ chữ xuống 11sp và căn giữa để tránh tràn viền khi hiển thị trên lưới 3 cột, cho phép tối đa 3 dòng và hiển thị dấu ba chấm nếu quá dài -->
     <TextView
         android:id="@+id/tv_badge_name"
         style="@style/MoscoText.Luxury.Body"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:textSize="@dimen/text_size_body_sm"
-        android:textStyle="bold" />
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:maxLines="3"
+        android:ellipsize="end" />
 
 </LinearLayout>
