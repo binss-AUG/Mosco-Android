@@ -193,13 +193,11 @@ public class User {
         // LUÔN ĐẢM BẢO BEST STREAK CẬP NHẬT (Auto-Repair logic)
         if (this.streak > this.bestStreak) {
             this.bestStreak = this.streak;
-            System.out.println(">>> [STREAK] Record Updated! New Best: " + this.bestStreak);
         }
         
         // Đảm bảo nếu có streak thì record không được bằng 0
         if (this.streak > 0 && this.bestStreak == 0) {
             this.bestStreak = this.streak;
-            System.out.println(">>> [STREAK] Emergency Repair: Best streak was 0, fixed to " + this.streak);
         }
     }
 

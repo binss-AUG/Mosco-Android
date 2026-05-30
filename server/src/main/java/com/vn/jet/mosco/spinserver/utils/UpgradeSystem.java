@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class UpgradeSystem {
 
@@ -69,9 +72,9 @@ public class UpgradeSystem {
                 customUpgrades.put(level, typeMap);
             });
             
-            System.out.println(">>> Jet Mien Tay - UpgradeSystem loaded!");
+            log.info("Jet Mien Tay - UpgradeSystem loaded!");
         } catch (Exception e) {
-            System.err.println("Lỗi nạp dữ liệu Upgrade: " + e.getMessage());
+            log.error("Lỗi nạp dữ liệu Upgrade: {}", e.getMessage(), e);
         }
     }
 

@@ -16,6 +16,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AuthService {
 
@@ -242,25 +245,25 @@ public class AuthService {
                 user.setBestStreak(1);
             }
             user.setLastLoginAt(now);
-            System.out.println(">>> [STREAK] First interaction detected for user: " + user.getUsername() + ". Set streak to 1.");
+            log.debug("[STREAK] First interaction detected for user: {}. Set streak to 1.", user.getUsername());
         } else {
             java.time.LocalDate lastDate = user.getLastLoginAt().toLocalDate();
             java.time.LocalDate today = now.toLocalDate();
             
-            System.out.println(">>> [STREAK] Check for user: " + user.getUsername() + ". Last interaction: " + lastDate + ", Today: " + today);
+            log.debug("[STREAK] Check for user: {}. Last interaction: {}, Today: {}", user.getUsername(), lastDate, today);
 
             if (today.isAfter(lastDate)) {
                 if (today.minusDays(1).equals(lastDate)) {
                     user.setStreak(user.getStreak() + 1);
-                    System.out.println(">>> [STREAK] Consecutive interaction! New streak: " + user.getStreak());
+                    log.debug("[STREAK] Consecutive interaction! New streak: {}", user.getStreak());
                 } else {
                     user.setStreak(1);
-                    System.out.println(">>> [STREAK] Streak broken. Reset to 1.");
+                    log.debug("[STREAK] Streak broken. Reset to 1.");
                 }
                 // Chỉ cập nhật lastLoginAt khi sang ngày mới để tránh ghi đè liên tục trong ngày
                 user.setLastLoginAt(now);
             } else {
-                System.out.println(">>> [STREAK] Already interacted today. Streak remains: " + user.getStreak());
+                log.debug("[STREAK] Already interacted today. Streak remains: {}", user.getStreak());
             }
         }
         

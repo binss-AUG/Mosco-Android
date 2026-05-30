@@ -28,3 +28,6 @@ server/data/assets/
 server/mosco_db
 server/temp_starter_pack/
 server/test_starter.zip
+server/logs/
+server/storage/
+

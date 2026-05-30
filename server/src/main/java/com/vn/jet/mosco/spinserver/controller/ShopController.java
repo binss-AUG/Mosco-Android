@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/shop")
 public class ShopController {
@@ -101,7 +104,7 @@ public class ShopController {
 
             return ResponseEntity.ok("Purchase successful");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error processing purchase with request: {}", requestBody, e);
             return ResponseEntity.internalServerError().body("Error processing purchase");
         }
     }

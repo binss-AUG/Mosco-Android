@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/stage")
 public class StageController {
@@ -25,7 +28,7 @@ public class StageController {
             StageSessionResponse response = stageService.startStage(userId, request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to start stage for user {}", userId, e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

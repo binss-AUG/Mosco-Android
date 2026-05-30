@@ -27,6 +27,9 @@ import java.util.Optional;
 import com.vn.jet.mosco.spinserver.model.ShopItem;
 import com.vn.jet.mosco.spinserver.repository.ShopItemRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class CreateAdminRunner implements CommandLineRunner {
 
@@ -64,7 +67,7 @@ public class CreateAdminRunner implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         if (shopItemRepository.count() == 0) {
-            System.out.println("Initializing Shop master data...");
+            log.info("Initializing Shop master data...");
             List<ShopItem> shopData = new ArrayList<>();
             // OBJETS
             shopData.add(new ShopItem("OBJET_S1_RANDOM", "Seoyeon Random Objet", "Get a random objet from Yoon Seoyeon", "OBJET", 800L, 0L, "url_s1_objet", -1L, "{\"artistId\":\"S1\"}"));
@@ -88,10 +91,10 @@ public class CreateAdminRunner implements CommandLineRunner {
         Optional<User> adminOpt = userRepository.findByUsername("admin");
         User admin;
         if (adminOpt.isPresent()) {
-            System.out.println("Admin account already exists. Refilling resources and items...");
+            log.info("Admin account already exists. Refilling resources and items...");
             admin = adminOpt.get();
         } else {
-            System.out.println("Creating admin account with full resources...");
+            log.info("Creating admin account with full resources...");
             admin = new User();
             admin.setUsername("admin");
             admin.setEmail("admin@gmail.com");
@@ -106,7 +109,7 @@ public class CreateAdminRunner implements CommandLineRunner {
         userRepository.save(admin);
 
         // 🛑 CLEANUP STAGE DATA FOR ADMIN (As requested for re-testing)
-        System.out.println("Cleaning up old Stage data for admin...");
+        log.info("Cleaning up old Stage data for admin...");
         java.util.List<com.vn.jet.mosco.spinserver.model.StageSession> sessions = sessionRepository.findByUserId(admin.getId());
         for (com.vn.jet.mosco.spinserver.model.StageSession session : sessions) {
             memberRepository.deleteByStageSessionId(session.getId());
@@ -142,7 +145,7 @@ public class CreateAdminRunner implements CommandLineRunner {
 
         // 🚀 FULL OBJET: Thêm TOÀN BỘ thẻ trong database.json vào kho admin (Level 10, +10)
         try {
-            System.out.println("Syncing missing cards for admin from database.json...");
+            log.info("Syncing missing cards for admin from database.json...");
             List<UserCard> existingCards = userCardRepository.findByUserId(admin.getId());
             java.util.Set<String> existingIds = new java.util.HashSet<>();
             java.util.List<UserCard> cardsToDelete = new java.util.ArrayList<>();
@@ -159,7 +162,7 @@ public class CreateAdminRunner implements CommandLineRunner {
             
             if (!cardsToDelete.isEmpty()) {
                 userCardRepository.deleteAll(cardsToDelete);
-                System.out.println("Cleaned up " + cardsToDelete.size() + " obsolete junk cards from admin's inventory.");
+                log.info("Cleaned up {} obsolete junk cards from admin's inventory.", cardsToDelete.size());
             }
 
             ClassPathResource dbResource = new ClassPathResource("database.json");
@@ -186,15 +189,14 @@ public class CreateAdminRunner implements CommandLineRunner {
                 userCardRepository.saveAll(batch);
             }
             
-            System.out.println("Admin account sync success: Added " + allCards.size() + " new unique cards.");
+            log.info("Admin account sync success: Added {} new unique cards.", allCards.size());
         } catch (Exception e) {
-            System.err.println("CRITICAL: Failed to seed ALL cards for admin: " + e.getMessage());
-            e.printStackTrace();
+            log.error("CRITICAL: Failed to seed ALL cards for admin: {}", e.getMessage(), e);
         }
 
         // Seed sample gacha_history records
         if (gachaHistoryRepository.countByUserId(admin.getId()) == 0) {
-            System.out.println("Seeding sample gacha_history for admin...");
+            log.info("Seeding sample gacha_history for admin...");
             List<GachaHistory> sampleHistory = new ArrayList<>();
             sampleHistory.add(new GachaHistory(admin, "card_001", "FirstWelcome", 1, "PACK_METAL", "GACHA_ROLL"));
             sampleHistory.add(new GachaHistory(admin, "card_042", "Double", 1, "PACK_COPPER", "GACHA_ROLL"));
@@ -202,7 +204,7 @@ public class CreateAdminRunner implements CommandLineRunner {
             sampleHistory.add(new GachaHistory(admin, "card_256", "Premier", 1, "PACK_EX", "GACHA_ROLL"));
             sampleHistory.add(new GachaHistory(admin, "card_007", "FirstWelcome", 1, "PACK_METAL", "PACK_OPEN"));
             gachaHistoryRepository.saveAll(sampleHistory);
-            System.out.println("Seeded " + sampleHistory.size() + " gacha history records.");
+            log.info("Seeded {} gacha history records.", sampleHistory.size());
         }
     }
 }

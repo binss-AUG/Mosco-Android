@@ -8,6 +8,9 @@ import jakarta.annotation.PostConstruct;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class SpinController {
@@ -23,9 +26,9 @@ public class SpinController {
                     new InputStreamReader(db.getInputStream(), StandardCharsets.UTF_8),
                     new InputStreamReader(rates.getInputStream(), StandardCharsets.UTF_8)
             );
-            System.out.println(">>> Jet Mien Tay - SpinSystem loaded!");
+            log.info("Jet Mien Tay - SpinSystem loaded!");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to load SpinSystem data", e);
         }
     }
 

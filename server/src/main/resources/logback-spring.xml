@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- TẠI SAO: Khai báo thư mục lưu trữ log và tên tệp cơ bản để thống nhất quản lý -->
+    <property name="LOG_DIR" value="logs" />
+    <property name="LOG_FILE_NAME" value="mosco-server" />
+
+    <!-- ======================================================== -->
+    <!-- Console Appender (Dành cho việc theo dõi log trực quan)    -->
+    <!-- ======================================================== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- TẠI SAO: Sử dụng màu sắc và cấu trúc rõ ràng bao gồm thời gian, thread, level, và tên class để dễ theo dõi sự cố -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================================================== -->
+    <!-- File Appender cho tất cả các Log từ mức INFO trở lên      -->
+    <!-- ======================================================== -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${LOG_FILE_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- TẠI SAO: Định dạng tên file lưu trữ cũ có chứa ngày tháng và số thứ tự tự tăng (%i) để tránh đè tệp tin, tự động nén .gz để tiết kiệm 90% dung lượng đĩa -->
+            <fileNamePattern>${LOG_DIR}/archived/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <!-- TẠI SAO: Giới hạn 10MB mỗi file để có thể dễ dàng mở/đọc trên mọi công cụ xem text mà không gây đơ RAM -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- TẠI SAO: Lưu trữ tối đa trong 14 ngày gần nhất để giữ vết sự cố, sau đó tự động xóa bỏ để dọn dẹp ổ đĩa -->
+            <maxHistory>14</maxHistory>
+            <!-- TẠI SAO: Giới hạn tổng dung lượng tất cả các file log trong thư mục là 100MB để triệt tiêu nguy cơ sập server do đầy ổ cứng -->
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================================================== -->
+    <!-- File Appender dành riêng cho các log lỗi ERROR             -->
+    <!-- ======================================================== -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${LOG_FILE_NAME}-error.log</file>
+        <!-- TẠI SAO: Dùng bộ lọc ThresholdFilter để CHỈ cho phép log ERROR được ghi vào file này, giúp quản trị viên tập trung sửa lỗi nghiêm trọng -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/archived/${LOG_FILE_NAME}-error-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================================================== -->
+    <!-- Định cấu hình mức Log của Root và các Package cụ thể      -->
+    <!-- ======================================================== -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ROLLING_FILE" />
+        <appender-ref ref="ERROR_FILE" />
+    </root>
+
+    <!-- TẠI SAO: Giảm bớt log từ hệ thống Spring Core và Hibernate để tránh rác log và tăng tốc độ xử lý I/O -->
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <!-- TẠI SAO: Tăng mức log chi tiết cho code nghiệp vụ com.vn.jet.mosco giúp debug/trace logic tối đa ở môi trường staging -->
+    <logger name="com.vn.jet.mosco" level="DEBUG" />
+
+</configuration>
