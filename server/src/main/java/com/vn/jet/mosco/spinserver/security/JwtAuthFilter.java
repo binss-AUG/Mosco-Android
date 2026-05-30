@@ -81,7 +81,6 @@ public class JwtAuthFilter implements Filter {
             httpRequest.setAttribute("userId", userId);
             httpRequest.setAttribute("username", username);
             com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(userId);
-            logger.debug("JWT authenticated: userId={}, username={}", userId, username);
         } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
             // Lỗi JWT thực sự (hết hạn, sai chữ ký, hỏng định dạng) -> Trả về 401
             logger.warn("Invalid JWT token: {}", e.getMessage());

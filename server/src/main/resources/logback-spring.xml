@@ -67,7 +67,7 @@
     <!-- TẠI SAO: Giảm bớt log từ hệ thống Spring Core và Hibernate để tránh rác log và tăng tốc độ xử lý I/O -->
     <logger name="org.springframework" level="WARN" />
     <logger name="org.hibernate" level="WARN" />
-    <!-- TẠI SAO: Tăng mức log chi tiết cho code nghiệp vụ com.vn.jet.mosco giúp debug/trace logic tối đa ở môi trường staging -->
-    <logger name="com.vn.jet.mosco" level="DEBUG" />
+    <!-- TẠI SAO: Mức INFO cho code nghiệp vụ là đủ để theo dõi hoạt động chính. Khi cần debug chi tiết, chỉ cần đổi thành DEBUG tạm thời cho package cụ thể -->
+    <logger name="com.vn.jet.mosco" level="INFO" />
 
 </configuration>

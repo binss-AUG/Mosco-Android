@@ -128,7 +128,7 @@ public class AuthService {
                 "Mã xác nhận của bạn là: " + code + "\n\nMã có hiệu lực trong 5 phút.");
             return new AuthResponse(true, "Mã xác nhận đã được gửi thành công đến " + email, null, null);
         } catch (Exception e) {
-            System.err.println("Lỗi gửi Email: " + e.getMessage());
+            log.error("Failed to send verification email to {}: {}", email, e.getMessage());
             // Fallback: Vẫn cho phép nhìn code ở console để không bị block nếu sai config
             return new AuthResponse(true, "Yêu cầu gửi mã thành công (Nếu không nhận được mail, vui lòng kiểm tra console server).", null, null);
         }
@@ -245,25 +245,21 @@ public class AuthService {
                 user.setBestStreak(1);
             }
             user.setLastLoginAt(now);
-            log.debug("[STREAK] First interaction detected for user: {}. Set streak to 1.", user.getUsername());
+            log.debug("[STREAK] First interaction for user: {}. Streak initialized.", user.getUsername());
         } else {
             java.time.LocalDate lastDate = user.getLastLoginAt().toLocalDate();
             java.time.LocalDate today = now.toLocalDate();
-            
-            log.debug("[STREAK] Check for user: {}. Last interaction: {}, Today: {}", user.getUsername(), lastDate, today);
 
             if (today.isAfter(lastDate)) {
                 if (today.minusDays(1).equals(lastDate)) {
                     user.setStreak(user.getStreak() + 1);
-                    log.debug("[STREAK] Consecutive interaction! New streak: {}", user.getStreak());
+                    log.debug("[STREAK] User {} streak incremented to {}", user.getUsername(), user.getStreak());
                 } else {
                     user.setStreak(1);
-                    log.debug("[STREAK] Streak broken. Reset to 1.");
+                    log.debug("[STREAK] User {} streak broken. Reset to 1.", user.getUsername());
                 }
                 // Chỉ cập nhật lastLoginAt khi sang ngày mới để tránh ghi đè liên tục trong ngày
                 user.setLastLoginAt(now);
-            } else {
-                log.debug("[STREAK] Already interacted today. Streak remains: {}", user.getStreak());
             }
         }
         
