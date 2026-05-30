@@ -87,6 +87,7 @@ public class ShopController {
                     }
                 }
                 userRepository.save(user);
+                log.info("[SHOP] User {} purchased resource exchange '{}' x{}. Cost: {}C/{}D", userId, productCode, quantity, totalC, totalD);
                 return ResponseEntity.ok("Purchase successful. Resources added.");
             }
 
@@ -102,6 +103,7 @@ public class ShopController {
                 userItemRepository.save(newItem);
             }
 
+            log.info("[SHOP] User {} purchased item '{}' x{}. Cost: {}C/{}D", userId, productCode, quantity, totalC, totalD);
             return ResponseEntity.ok("Purchase successful");
         } catch (Exception e) {
             log.error("Error processing purchase with request: {}", requestBody, e);
