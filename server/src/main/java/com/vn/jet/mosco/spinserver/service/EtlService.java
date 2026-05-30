@@ -124,7 +124,6 @@ public class EtlService {
                 if (batchCards.size() >= 200) {
                     cardRepository.saveAllAndFlush(batchCards);
                     batchCards.clear();
-                    log.debug("Successfully upserted {} records...", count);
                 }
             }
 
