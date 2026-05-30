@@ -74,7 +74,7 @@ public class UpgradeSystem {
             
             log.info("Jet Mien Tay - UpgradeSystem loaded!");
         } catch (Exception e) {
-            log.error("Lỗi nạp dữ liệu Upgrade: {}", e.getMessage(), e);
+            log.error("Failed to load upgrade configurations: {}", e.getMessage(), e);
         }
     }
 

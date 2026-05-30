@@ -45,7 +45,7 @@ public class EtlService {
     @Scheduled(fixedDelay = 86400000) // Chạy sau mỗi 24h
     @Transactional
     public void runEtlJob() {
-        log.info("Bắt đầu tiến trình ETL đồng bộ dữ liệu thẻ bài...");
+        log.info("Starting ETL process to sync card data...");
         
         try {
             // Caching local để tránh N+1 query cho bảng từ điển
@@ -57,7 +57,7 @@ public class EtlService {
             java.io.File dbFile = new java.io.File("data/assets/database.json");
             InputStream inputStream;
             if (!dbFile.exists()) {
-                log.warn("Không tìm thấy file database.json động. Thử dùng file tĩnh trong resources...");
+                log.warn("Dynamic database.json file not found. Falling back to static resource...");
                 ClassPathResource resource = new ClassPathResource("database.json");
                 inputStream = resource.getInputStream();
             } else {
@@ -67,11 +67,11 @@ public class EtlService {
             List<CardJsonDto> collections = wrapper.getCollections();
 
             if (collections == null || collections.isEmpty()) {
-                log.warn("Không tìm thấy dữ liệu trong database.json");
+                log.warn("No card data found in database.json");
                 return;
             }
 
-            log.info("Tìm thấy {} thẻ bài cần xử lý.", collections.size());
+            log.info("Found {} cards to process.", collections.size());
             java.util.Set<String> processedIds = new java.util.HashSet<>();
             List<Card> batchCards = new ArrayList<>();
             int count = 0;
@@ -124,7 +124,7 @@ public class EtlService {
                 if (batchCards.size() >= 200) {
                     cardRepository.saveAllAndFlush(batchCards);
                     batchCards.clear();
-                    log.info("Đã UPSERT thành công {} bản ghi...", count);
+                    log.debug("Successfully upserted {} records...", count);
                 }
             }
 
@@ -132,10 +132,10 @@ public class EtlService {
                 cardRepository.saveAllAndFlush(batchCards);
             }
 
-            log.info("Hoàn tất tiến trình ETL. Tổng số thẻ đã xử lý: {}", count);
+            log.info("ETL process completed. Total processed cards: {}", count);
 
         } catch (Exception e) {
-            log.error("Lỗi trong quá trình thực thi ETL: ", e);
+            log.error("Error occurred during ETL execution: ", e);
         }
     }
 

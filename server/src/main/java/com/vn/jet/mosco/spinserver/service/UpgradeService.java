@@ -63,7 +63,7 @@ public class UpgradeService {
      */
     @Transactional
     public UpgradeResponse upgrade(UpgradeRequest request) {
-        log.info("Bắt đầu tiến trình nâng cấp thẻ bài cho User: {}", request.getUserId());
+        log.info("Starting card upgrade process for user: {}", request.getUserId());
 
         // 1. Khóa thẻ chính (PESSIMISTIC_WRITE)
         UserCard mainCard = userCardRepository.findWithLockById(request.getBaseCardId())
@@ -137,7 +137,7 @@ public class UpgradeService {
         
         int newOvr = cardDataService.getOvr(mainCard.getCollectionId(), mainCard.getUpgradeLevel());
         
-        log.info("Nâng cấp kết thúc: Success={}, NewLevel={}, NewOVR={}", isSuccess, mainCard.getUpgradeLevel(), newOvr);
+        log.info("Upgrade process completed: Success={}, NewLevel={}, NewOVR={}", isSuccess, mainCard.getUpgradeLevel(), newOvr);
 
         return new UpgradeResponse(
                 isSuccess,

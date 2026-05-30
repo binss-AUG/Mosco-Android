@@ -56,7 +56,7 @@ public class PackService {
      */
     public void loadData() {
         try {
-            logger.info("Đang nạp cấu hình game và dữ liệu thẻ bài...");
+            logger.info("Loading game configuration and card data...");
             ClassPathResource configResource = new ClassPathResource("game_config.json");
             gameConfig = JsonParser.parseReader(new InputStreamReader(configResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
 
@@ -71,9 +71,9 @@ public class PackService {
             for (JsonElement element : collections) {
                 allCards.add(element.getAsJsonObject());
             }
-            logger.info("Đã nạp thành công {} thẻ bài.", allCards.size());
+            logger.info("Successfully loaded {} cards.", allCards.size());
         } catch (Exception e) {
-            logger.error("Lỗi khi nạp dữ liệu game: {}", e.getMessage(), e);
+            logger.error("Error loading game data: {}", e.getMessage(), e);
         }
     }
 
@@ -82,7 +82,7 @@ public class PackService {
      */
     @Transactional(rollbackFor = Exception.class)
     public PackOpenResponse openPack(Long userId, String packCode, int quantity) {
-        logger.info("Người dùng {} đang mở {}x pack: {}", userId, quantity, packCode);
+        logger.info("User {} is opening {}x pack: {}", userId, quantity, packCode);
         
         if (gameConfig == null || ratesConfig == null || allCards == null || allCards.isEmpty()) {
             loadData();
@@ -114,7 +114,7 @@ public class PackService {
             // 2. Lọc Pool thẻ bài
             List<JsonObject> pool = filterPool(packCode, selectedRankClass);
             if (pool.isEmpty()) {
-                logger.warn("Pool thẻ trống cho Class {}. Dùng fallback toàn bộ pool.", selectedRankClass);
+                logger.warn("Empty card pool for Class {}. Falling back to full card pool.", selectedRankClass);
                 pool = allCards;
             }
 

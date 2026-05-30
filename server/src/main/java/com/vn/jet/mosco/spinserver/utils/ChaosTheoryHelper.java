@@ -54,7 +54,7 @@ public class ChaosTheoryHelper {
      */
     private static void injectChaosAsynchronously() {
         try {
-            log.info("[CHAOS-THEORY] Bắt đầu nạp hạt giống khí quyển từ random.org...");
+            log.info("[CHAOS-THEORY] Initializing atmospheric random seed fetch from random.org...");
             String url = "https://www.random.org/integers/?num=1&min=1&max=1000000000&col=1&base=10&format=plain&rnd=new";
             Request request = new Request.Builder().url(url).build();
 
@@ -65,14 +65,14 @@ public class ChaosTheoryHelper {
                     
                     // Trộn số True Random từ API với thời gian thực của hệ thống để tối đa hóa entropy
                     random.setSeed(seed ^ System.nanoTime());
-                    log.info("[CHAOS-THEORY] Re-seed thành công hạt giống khí quyển: {}", seed);
+                    log.info("[CHAOS-THEORY] Atmospheric seed fetch successful: {}", seed);
                 } else {
-                    log.warn("[CHAOS-THEORY] Không thể lấy seed từ random.org (Status: {}). Dùng hạt giống hệ thống fallback.", response.code());
+                    log.warn("[CHAOS-THEORY] Failed to fetch seed from random.org (Status: {}). Using system fallback seed.", response.code());
                     fallbackSeed();
                 }
             }
         } catch (Exception e) {
-            log.error("[CHAOS-THEORY] Lỗi kết nối API random.org, tự động fallback dùng hạt giống hệ thống.", e);
+            log.error("[CHAOS-THEORY] Connection failed to random.org, falling back to system seed.", e);
             fallbackSeed();
         }
     }

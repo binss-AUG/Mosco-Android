@@ -63,7 +63,7 @@ public class AssetManagementService {
         try {
             Files.createDirectories(Paths.get(dataDir));
         } catch (IOException e) {
-            log.error("Không thể khởi tạo thư mục dữ liệu: {}", e.getMessage());
+            log.error("Failed to initialize asset data directory: {}", e.getMessage());
         }
     }
 
@@ -72,25 +72,25 @@ public class AssetManagementService {
      */
     @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        log.info("🏠 [STARTUP] Server đã sẵn sàng. Khởi chạy đồng bộ Metadata lần đầu...");
+        log.info("[STARTUP] Server is ready. Initializing metadata sync...");
         fullSyncProcess();
     }
 
     @Scheduled(cron = "0 0 * * * *")
     public void scheduledSync() {
-        log.info("🚀 [AUTO] Bắt đầu chu kỳ cập nhật Metadata hàng giờ...");
+        log.info("[AUTO] Starting hourly metadata sync cycle...");
         fullSyncProcess();
     }
 
     public void fullSyncProcess() {
         if (!"IDLE".equals(syncStatus)) {
-            log.warn("⚠️ Đang có tiến trình đồng bộ khác chạy, bỏ qua lần này.");
+            log.warn("Another sync process is already running, skipping this cycle.");
             return;
         }
 
         try {
             syncStatus = "SCRAPING";
-            syncDetail = "Đang cào metadata mới nhất từ objekt.top...";
+            syncDetail = "Scraping latest metadata from objekt.top...";
 
             String jsonContent = fetchLatestMetadata();
             if (jsonContent == null) {
@@ -104,7 +104,7 @@ public class AssetManagementService {
             // không lọc bỏ theo bất kỳ Class hay Artist nào nhằm đảm bảo đồng bộ 100% dữ liệu gốc.
             List<JsonObject> filteredCollections = allCollections;
 
-            log.info("📊 Thống kê: Tổng cào: {}. Cập nhật file database.json...", 
+            log.info("Metadata statistics: Total scraped: {}. Updating database.json...", 
                     allCollections.size());
 
             long oldSize = 0;
@@ -126,12 +126,12 @@ public class AssetManagementService {
             cardDataService.reload();
 
             syncStatus = "IDLE";
-            syncDetail = "Cập nhật Metadata hoàn tất lúc " + java.time.LocalDateTime.now().toString();
-            log.info("🎉 Cập nhật Metadata thành công! Tổng số: {}", filteredCollections.size());
+            syncDetail = "Metadata update completed at " + java.time.LocalDateTime.now().toString();
+            log.info("Metadata updated successfully! Total count: {}", filteredCollections.size());
         } catch (Exception e) {
-            log.error("❌ Lỗi trong quá trình đồng bộ: {}", e.getMessage());
+            log.error("Error occurred during metadata sync: {}", e.getMessage());
             syncStatus = "IDLE";
-            syncDetail = "Lỗi: " + e.getMessage();
+            syncDetail = "Error: " + e.getMessage();
         }
     }
 
@@ -144,12 +144,12 @@ public class AssetManagementService {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                log.error("Server API từ chối: {}", response.code());
+                log.error("API server rejected request with status: {}", response.code());
                 return null;
             }
             return response.body().string();
         } catch (IOException e) {
-            log.error("Lỗi kết nối tới objekt.top: {}", e.getMessage());
+            log.error("Connection failed to objekt.top: {}", e.getMessage());
             return null;
         }
     }
@@ -189,7 +189,7 @@ public class AssetManagementService {
         try {
             Files.writeString(Paths.get(manifestJson), gson.toJson(manifest));
         } catch (IOException e) {
-            log.error("Lỗi tạo manifest: {}", e.getMessage());
+            log.error("Failed to generate manifest: {}", e.getMessage());
         }
     }
 
