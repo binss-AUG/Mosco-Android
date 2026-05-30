@@ -458,20 +458,25 @@ public class UpgradeFragment extends Fragment {
         btnUpgrade.setEnabled(false);
         btnUpgrade.setText(getString(R.string.upgrade_action_upgrading));
 
-        Long userId = new SessionManager(requireContext()).getUserId();
+        final android.content.Context appContext = requireContext().getApplicationContext();
+        Long userId = new SessionManager(appContext).getUserId();
         UpgradeRequest request = new UpgradeRequest(userId, mainCard.getId(), materialIds);
 
         // Pre-load constants & SpriteSheet (Local-First optimization)
         initAnimationConstants();
         preloadFailureSpriteSheet();
 
-        GameApiService apiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
+        GameApiService apiService = ApiClient.getClient(appContext).create(GameApiService.class);
         apiService.upgradeCard(request).enqueue(new Callback<ApiResponse<UpgradeResponse>>() {
             @Override
             public void onResponse(Call<ApiResponse<UpgradeResponse>> call,
                     Response<ApiResponse<UpgradeResponse>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getStatus() == 200) {
                     UpgradeResponse result = response.body().getData();
+                    
+                    // TẠI SAO: Đồng bộ và kiểm tra Huy hiệu mới mở khóa tức thời sau khi nâng cấp thành công
+                    com.vn.jet.mosco.utils.BadgeSyncHelper.syncAndCheckBadges(getActivity(), userId);
+
                     performUpgradeAnimation(result);
                 } else {
                     resetUpgradeButton();

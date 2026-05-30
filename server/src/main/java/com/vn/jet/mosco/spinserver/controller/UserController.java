@@ -13,6 +13,7 @@ import com.vn.jet.mosco.spinserver.repository.UserRepository;
 import com.vn.jet.mosco.spinserver.repository.CardRepository;
 import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
 import com.vn.jet.mosco.spinserver.repository.GachaHistoryRepository;
+import com.vn.jet.mosco.spinserver.repository.CoupleStreakRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ public class UserController {
     private final CardRepository cardRepository;
     private final UserCardRepository userCardRepository;
     private final GachaHistoryRepository gachaHistoryRepository;
+    private final CoupleStreakRepository coupleStreakRepository;
 
     // Danh sách tên hệ thống bị cấm — chống giả mạo quyền hạn
     private static final Set<String> RESERVED_NAMES = Set.of(
@@ -70,7 +72,8 @@ public class UserController {
                           com.vn.jet.mosco.spinserver.service.AuthService authService,
                           CardRepository cardRepository,
                           UserCardRepository userCardRepository,
-                          GachaHistoryRepository gachaHistoryRepository) {
+                          GachaHistoryRepository gachaHistoryRepository,
+                          CoupleStreakRepository coupleStreakRepository) {
         this.userRepository = userRepository;
         this.userLikeRepository = userLikeRepository;
         this.friendshipRepository = friendshipRepository;
@@ -78,6 +81,7 @@ public class UserController {
         this.cardRepository = cardRepository;
         this.userCardRepository = userCardRepository;
         this.gachaHistoryRepository = gachaHistoryRepository;
+        this.coupleStreakRepository = coupleStreakRepository;
     }
 
     /**
@@ -272,12 +276,36 @@ public class UserController {
 
     /**
      * Tính toán động và điền các chỉ số Gacha Stats cùng Honor Badges cho User.
-     * Tại sao (WHY): Tránh lưu trữ thừa thãi trong Database, tính toán theo thời gian thực đảm bảo tính chính xác.
+     * Tại sao (WHY): Tránh lưu trữ thừa thãi trong Database, tính toán theo thời gian thực đảm bảo tính chính xác
+     * và giảm tải ghi dữ liệu khi hệ thống phục vụ lượng lớn người chơi hoạt động song song.
      */
     private void populateUserStats(User user) {
         if (user == null) return;
         Long userId = user.getId();
         
+        // TẠI SAO: Tự động kích hoạt toàn bộ mốc chỉ số kịch khung và mở khóa tất cả Huy hiệu cấp EX cho tài khoản admin để kiểm thử nhanh
+        if ("admin".equalsIgnoreCase(user.getUsername())) {
+            user.setStreak(365);
+            user.setTotalRolls(13400);
+            user.setCollectionProgress(100);
+            user.setSpinsCount(6700);
+            user.setPacksCount(6700);
+            user.setCoupleStreakCount(365);
+            user.setLikesCount(600);
+            
+            java.util.List<String> adminBadges = java.util.List.of(
+                "EX Spin Master",
+                "EX Pack Master",
+                "EX Collection Master",
+                "EX Immortal",
+                "EX Duo Flame",
+                "EX Celebrity",
+                "EX Golden Hammer"
+            );
+            user.setBadges(adminBadges);
+            return;
+        }
+
         long totalRolls = gachaHistoryRepository.countByUserId(userId);
         user.setTotalRolls((int) totalRolls);
 
@@ -291,23 +319,145 @@ public class UserController {
         }
 
         // Gán danh hiệu danh dự dựa trên các cột mốc thành tích của người chơi
+        // Tại sao (WHY): So khớp chỉ số thời gian thực và tự động tạo danh sách huy hiệu theo cấu trúc Tier Type
         java.util.List<String> badgesList = new java.util.ArrayList<>();
-        if (totalRolls >= 1) {
-            badgesList.add("Rookie Roller");
+
+        // 1. Spin Master (Bậc thầy quay thẻ)
+        long spins = gachaHistoryRepository.countByUserIdAndSource(userId, "GACHA_ROLL");
+        user.setSpinsCount((int) spins);
+        if (spins >= 6700) {
+            badgesList.add("EX Spin Master");
+        } else if (spins >= 1000) {
+            badgesList.add("Diamond Spin Master");
+        } else if (spins >= 500) {
+            badgesList.add("Gold Spin Master");
+        } else if (spins >= 100) {
+            badgesList.add("Silver Spin Master");
+        } else if (spins >= 36) {
+            badgesList.add("Bronze Spin Master");
+        } else if (spins >= 1) {
+            badgesList.add("Iron Spin Master");
         }
-        if (totalRolls >= 100) {
-            badgesList.add("Elite Collector");
+
+        // 2. Pack Master (Bậc thầy mở gói)
+        long packs = gachaHistoryRepository.countByUserIdAndSource(userId, "PACK_OPEN");
+        user.setPacksCount((int) packs);
+        if (packs >= 6700) {
+            badgesList.add("EX Pack Master");
+        } else if (packs >= 1000) {
+            badgesList.add("Diamond Pack Master");
+        } else if (packs >= 500) {
+            badgesList.add("Gold Pack Master");
+        } else if (packs >= 100) {
+            badgesList.add("Silver Pack Master");
+        } else if (packs >= 36) {
+            badgesList.add("Bronze Pack Master");
+        } else if (packs >= 1) {
+            badgesList.add("Iron Pack Master");
         }
-        if (totalRolls >= 1000) {
-            badgesList.add("Gacha Legend");
+
+        // 3. Collection Master (Bậc thầy sưu tập)
+        int collProgress = user.getCollectionProgress();
+        if (collProgress >= 95) {
+            badgesList.add("EX Collection Master");
+        } else if (collProgress >= 80) {
+            badgesList.add("Diamond Collection Master");
+        } else if (collProgress >= 60) {
+            badgesList.add("Gold Collection Master");
+        } else if (collProgress >= 35) {
+            badgesList.add("Silver Collection Master");
+        } else if (collProgress >= 15) {
+            badgesList.add("Bronze Collection Master");
+        } else if (collProgress >= 5) {
+            badgesList.add("Iron Collection Master");
         }
-        if (user.getCollectionProgress() >= 80) {
-            badgesList.add("Mosco Master");
+
+        // 4. Immortal (Login Streak)
+        int loginStreak = user.getStreak();
+        if (loginStreak >= 365) {
+            badgesList.add("EX Immortal");
+        } else if (loginStreak >= 200) {
+            badgesList.add("Diamond Immortal");
+        } else if (loginStreak >= 100) {
+            badgesList.add("Gold Immortal");
+        } else if (loginStreak >= 30) {
+            badgesList.add("Silver Immortal");
+        } else if (loginStreak >= 10) {
+            badgesList.add("Bronze Immortal");
+        } else if (loginStreak >= 3) {
+            badgesList.add("Iron Immortal");
         }
-        if (user.getStreak() >= 7) {
-            badgesList.add("Loyal Explorer");
+
+        // 5. Duo Flame (Couple Streak)
+        Integer coupleStreakVal = coupleStreakRepository.findMaxStreakCountByUserId(userId);
+        int coupleStreak = (coupleStreakVal != null) ? coupleStreakVal : 0;
+        user.setCoupleStreakCount(coupleStreak);
+        if (coupleStreak >= 365) {
+            badgesList.add("EX Duo Flame");
+        } else if (coupleStreak >= 200) {
+            badgesList.add("Diamond Duo Flame");
+        } else if (coupleStreak >= 100) {
+            badgesList.add("Gold Duo Flame");
+        } else if (coupleStreak >= 30) {
+            badgesList.add("Silver Duo Flame");
+        } else if (coupleStreak >= 10) {
+            badgesList.add("Bronze Duo Flame");
+        } else if (coupleStreak >= 3) {
+            badgesList.add("Iron Duo Flame");
         }
+
+        // 6. Celebrity (Likes Count)
+        int likes = user.getLikesCount();
+        if (likes >= 600) {
+            badgesList.add("EX Celebrity");
+        } else if (likes >= 300) {
+            badgesList.add("Diamond Celebrity");
+        } else if (likes >= 150) {
+            badgesList.add("Gold Celebrity");
+        } else if (likes >= 50) {
+            badgesList.add("Silver Celebrity");
+        } else if (likes >= 15) {
+            badgesList.add("Bronze Celebrity");
+        } else if (likes >= 5) {
+            badgesList.add("Iron Celebrity");
+        }
+
+        // 7. Golden Hammer (Card Upgrade Level)
+        int maxNormalUpgrade = getMaxUpgradeForClasses(userId, java.util.List.of("First", "Welcome", "Zero"));
+        int maxDoubleUpgrade = getMaxUpgradeForClasses(userId, java.util.List.of("Double"));
+        int maxSpecialUpgrade = getMaxUpgradeForClasses(userId, java.util.List.of("Special", "Motion"));
+        int maxPremierUpgrade = getMaxUpgradeForClasses(userId, java.util.List.of("Unit", "Premier"));
+
+        if (maxPremierUpgrade >= 8) {
+            badgesList.add("EX Golden Hammer");
+        } else if (maxPremierUpgrade >= 5 || maxSpecialUpgrade >= 8) {
+            badgesList.add("Diamond Golden Hammer");
+        } else if (maxSpecialUpgrade >= 5 || maxDoubleUpgrade >= 8) {
+            badgesList.add("Gold Golden Hammer");
+        } else if (maxDoubleUpgrade >= 5) {
+            badgesList.add("Silver Golden Hammer");
+        } else if (maxNormalUpgrade >= 8) {
+            badgesList.add("Bronze Golden Hammer");
+        } else if (maxNormalUpgrade >= 5) {
+            badgesList.add("Iron Golden Hammer");
+        }
+
         user.setBadges(badgesList);
+    }
+
+    /**
+     * Lấy giá trị nâng cấp (upgradeLevel) lớn nhất của user đối với danh sách class cụ thể.
+     * Tại sao (WHY): Tránh viết nhiều query lặp, tối ưu hóa tái sử dụng code theo chuẩn DRY.
+     */
+    private int getMaxUpgradeForClasses(Long userId, java.util.List<String> classNames) {
+        int max = 0;
+        for (String className : classNames) {
+            Integer val = userCardRepository.findMaxUpgradeLevelByUserIdAndClassName(userId, className);
+            if (val != null && val > max) {
+                max = val;
+            }
+        }
+        return max;
     }
 
     /**

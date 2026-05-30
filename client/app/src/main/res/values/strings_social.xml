@@ -177,4 +177,5 @@
     <string name="chat_add_friend_error">Unable to send request!</string>
     <string name="chat_add_friend_unknown_error">Something went wrong!</string>
     <string name="chat_add_friend_network_error">Network error, please try again!</string>
+    <string name="badge_unlocked_congrats_format">Congrats! You unlocked: %s</string>
 </resources>

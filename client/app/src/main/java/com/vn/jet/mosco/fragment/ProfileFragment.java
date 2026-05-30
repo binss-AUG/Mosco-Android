@@ -99,6 +99,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     private View layoutProfileSkeleton, layoutGuestButtonsSkeleton;
     private ShimmerFrameLayout shimmerProfile;
     private TextView tvStatLikes, tvStatFriends;
+    private android.widget.LinearLayout layoutMiniBadges;
     private View tabSlidingThumb;
     private com.google.android.material.tabs.TabLayout tabLayout;
     private androidx.viewpager2.widget.ViewPager2 viewPager;
@@ -237,6 +238,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         viewModel.setUserId(targetUserId);
 
+        // TẠI SAO: Quan sát sự kiện mở khóa Badge mới để chủ động hiển thị banner thông báo chúc mừng
+        viewModel.getNewBadgeUnlockedEvent().observe(getViewLifecycleOwner(), badgeName -> {
+            if (badgeName != null && isAdded() && getActivity() != null) {
+                com.vn.jet.mosco.widget.MoscoNotification.showSuccess(
+                    getActivity(), 
+                    getString(R.string.badge_unlocked_congrats_format, badgeName)
+                );
+            }
+        });
+
         // Hiển thị Shimmer mặc định nếu chưa có dữ liệu trong cache
         showShimmer(true);
 
@@ -354,11 +365,17 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             tvStatFriends.setText(friendsStr);
         }
 
+        // TẠI SAO: Loại bỏ việc ghim 3 Huy hiệu lên Profile Header theo yêu cầu người dùng
+        if (layoutMiniBadges != null) {
+            layoutMiniBadges.setVisibility(View.GONE);
+        }
+
         // Load avatar từ URL trong stats nếu có
         if (stats.getAvatarId() != null) {
             loadAvatar(stats.getAvatarId(), stats.getAvatarCropParams());
         }
     }
+
 
     private void loadAvatarById(String avatarId) {
         com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(getContext(), ivAvatar, targetUserId, avatarId);
@@ -389,6 +406,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         tvCurrentTitle = null;
         tvStatLikes = v.findViewById(R.id.tv_stat_likes);
         tvStatFriends = v.findViewById(R.id.tv_stat_friends);
+        layoutMiniBadges = v.findViewById(R.id.layout_mini_badges);
         tabSlidingThumb = v.findViewById(R.id.tab_sliding_thumb);
         tabLayout = v.findViewById(R.id.tab_layout);
         viewPager = v.findViewById(R.id.view_pager);

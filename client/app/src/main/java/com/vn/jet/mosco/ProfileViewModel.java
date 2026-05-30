@@ -27,6 +27,11 @@ public class ProfileViewModel extends AndroidViewModel {
     // TẠI SAO: Quản lý trạng thái shimmer tập trung để các sub-fragment (General, Trophy)
     // nhận biết được khi nào đang loading và tự động skeletonize đồng bộ.
     private final MutableLiveData<Boolean> isShimmering = new MutableLiveData<>(true);
+    private final MutableLiveData<String> newBadgeUnlockedEvent = new MutableLiveData<>();
+
+    public LiveData<String> getNewBadgeUnlockedEvent() {
+        return newBadgeUnlockedEvent;
+    }
 
     public LiveData<Boolean> getIsShimmering() {
         return isShimmering;
@@ -66,7 +71,22 @@ public class ProfileViewModel extends AndroidViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     // Chạy trong background thread của AppExecutors để đảm bảo an toàn và ổn định
                     AppExecutors.getInstance().diskIO().execute(() -> {
-                        userStatsDao.insertUserStats(response.body());
+                        // TẠI SAO: Đọc stats cũ từ Room DB trước khi ghi đè để phát hiện xem có Badge nào mới mở khóa hay không
+                        UserStats oldStats = userStatsDao.getUserStatsSync(userId);
+                        UserStats newStats = response.body();
+                        if (oldStats != null && newStats != null) {
+                            java.util.List<String> oldBadges = oldStats.getBadges();
+                            java.util.List<String> newBadges = newStats.getBadges();
+                            if (oldBadges != null && newBadges != null) {
+                                for (String badge : newBadges) {
+                                    if (!oldBadges.contains(badge)) {
+                                        // TẠI SAO: Post sự kiện mở khóa huy hiệu mới lên Main Thread thông qua LiveData
+                                        newBadgeUnlockedEvent.postValue(badge);
+                                    }
+                                }
+                            }
+                        }
+                        userStatsDao.insertUserStats(newStats);
                     });
                 }
             }

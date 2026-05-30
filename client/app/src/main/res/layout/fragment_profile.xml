@@ -216,6 +216,17 @@
                             tools:text="450 Friends" />
                     </LinearLayout>
 
+                    <!-- Mini-badges container (Hiển thị tối đa 3 huy hiệu cấp bậc cao nhất) -->
+                    <LinearLayout
+                        android:id="@+id/layout_mini_badges"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp" />
+
                     <!-- Guest Actions Stub -->
                     <ViewStub
                         android:id="@+id/stub_guest_actions"

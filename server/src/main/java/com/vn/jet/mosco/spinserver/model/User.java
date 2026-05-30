@@ -113,6 +113,15 @@ public class User {
     private int collectionProgress = 0;
 
     @Transient
+    private int spinsCount = 0;
+
+    @Transient
+    private int packsCount = 0;
+
+    @Transient
+    private int coupleStreakCount = 0;
+
+    @Transient
     private java.util.List<String> badges = new java.util.ArrayList<>();
 
     public User() {}
@@ -229,6 +238,15 @@ public class User {
 
     public int getCollectionProgress() { return collectionProgress; }
     public void setCollectionProgress(int collectionProgress) { this.collectionProgress = collectionProgress; }
+
+    public int getSpinsCount() { return spinsCount; }
+    public void setSpinsCount(int spinsCount) { this.spinsCount = spinsCount; }
+
+    public int getPacksCount() { return packsCount; }
+    public void setPacksCount(int packsCount) { this.packsCount = packsCount; }
+
+    public int getCoupleStreakCount() { return coupleStreakCount; }
+    public void setCoupleStreakCount(int coupleStreakCount) { this.coupleStreakCount = coupleStreakCount; }
 
     public java.util.List<String> getBadges() { return badges; }
     public void setBadges(java.util.List<String> badges) { this.badges = badges; }

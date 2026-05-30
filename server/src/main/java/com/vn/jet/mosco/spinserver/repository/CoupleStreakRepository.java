@@ -28,4 +28,7 @@ public interface CoupleStreakRepository extends JpaRepository<CoupleStreak, Long
            "(s.requester.id = :id1 AND s.partner.id = :id2) OR " +
            "(s.requester.id = :id2 AND s.partner.id = :id1)")
     void deleteBetweenUsers(@Param("id1") Long id1, @Param("id2") Long id2);
+
+    @Query("SELECT MAX(s.streakCount) FROM CoupleStreak s WHERE (s.requester.id = :userId OR s.partner.id = :userId) AND s.status = 'ACTIVE'")
+    Integer findMaxStreakCountByUserId(@Param("userId") Long userId);
 }

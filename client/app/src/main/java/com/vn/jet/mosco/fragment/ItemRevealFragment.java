@@ -271,7 +271,8 @@ public class ItemRevealFragment extends Fragment {
         showLoadingOverlay();
         setActionButtonsEnabled(false);
 
-        Long userId = new SessionManager(requireContext()).getUserId();
+        final Context appContext = requireContext().getApplicationContext();
+        Long userId = new SessionManager(appContext).getUserId();
 
         gachaRepository.openPack(userId, itemCode, quantity, new GachaRepository.GachaCallback<Map<String, Object>>() {
             @Override
@@ -281,9 +282,12 @@ public class ItemRevealFragment extends Fragment {
                     // ta kích hoạt nạp lại ngầm ngay bây giờ để lúc user quay lại Album là có sẵn
                     // data.
                     com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient
-                            .getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
-                    com.vn.jet.mosco.utils.DatabaseLoader.reloadInventoryFromServer(requireContext(), userId,
+                            .getClient(appContext).create(com.vn.jet.mosco.network.GameApiService.class);
+                    com.vn.jet.mosco.utils.DatabaseLoader.reloadInventoryFromServer(appContext, userId,
                             apiService);
+
+                    // TẠI SAO: Đồng bộ và kiểm tra Huy hiệu mới mở khóa tức thời sau khi mở Pack thành công
+                    com.vn.jet.mosco.utils.BadgeSyncHelper.syncAndCheckBadges(getActivity(), userId);
 
                     itemQty -= quantity;
 

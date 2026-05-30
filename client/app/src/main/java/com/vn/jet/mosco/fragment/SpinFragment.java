@@ -333,14 +333,18 @@ public class SpinFragment extends Fragment {
             btnC.setEnabled(false);
             btnC.setText(getString(R.string.spin_action_charging));
 
+            final android.content.Context appContext = requireContext().getApplicationContext();
             // BẮT ĐẦU LOAD DATA NGẦM NGAY KHI ẤN
             gachaRepository.spinCard(new GachaSpinRequest(selectedSacrificeId), new GachaRepository.GachaCallback<GachaSpinResponse>() {
                 @Override
                 public void onSuccess(GachaSpinResponse response) {
                     com.vn.jet.mosco.utils.DatabaseLoader.clearUserCache();
-                    Long userId = new com.vn.jet.mosco.utils.SessionManager(requireContext()).getUserId();
-                    com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.GameApiService.class);
-                    com.vn.jet.mosco.utils.DatabaseLoader.reloadInventoryFromServer(requireContext(), userId, apiService);
+                    Long userId = new com.vn.jet.mosco.utils.SessionManager(appContext).getUserId();
+                    com.vn.jet.mosco.network.GameApiService apiService = com.vn.jet.mosco.network.ApiClient.getClient(appContext).create(com.vn.jet.mosco.network.GameApiService.class);
+                    com.vn.jet.mosco.utils.DatabaseLoader.reloadInventoryFromServer(appContext, userId, apiService);
+
+                    // TẠI SAO: Đồng bộ và kiểm tra Huy hiệu mới mở khóa tức thời sau khi Spin thành công
+                    com.vn.jet.mosco.utils.BadgeSyncHelper.syncAndCheckBadges(getActivity(), userId);
 
                     currentSpinResult = response;
                     gridSessionCards.clear();

@@ -82,6 +82,25 @@ public class UserStats {
     @SerializedName("avatarCropParams")
     private String avatarCropParams = ""; // Metadata to re-apply crop if local file is missing
 
+    @SerializedName("spinsCount")
+    private int spinsCount = 0;
+
+    @SerializedName("packsCount")
+    private int packsCount = 0;
+
+    @SerializedName("coupleStreakCount")
+    private int coupleStreakCount = 0;
+
+    // Getters and Setters for new fields
+    public int getSpinsCount() { return spinsCount; }
+    public void setSpinsCount(int spinsCount) { this.spinsCount = spinsCount; }
+
+    public int getPacksCount() { return packsCount; }
+    public void setPacksCount(int packsCount) { this.packsCount = packsCount; }
+
+    public int getCoupleStreakCount() { return coupleStreakCount; }
+    public void setCoupleStreakCount(int coupleStreakCount) { this.coupleStreakCount = coupleStreakCount; }
+
     // Getters
     public Long getId() { return id; }
     public String getUsername() { return username; }

@@ -12,4 +12,6 @@ public interface GachaHistoryRepository extends JpaRepository<GachaHistory, Long
     List<GachaHistory> findByUserIdOrderByRolledAtDesc(Long userId);
 
     long countByUserId(Long userId);
+
+    long countByUserIdAndSource(Long userId, String source);
 }

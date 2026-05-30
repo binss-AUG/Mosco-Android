@@ -288,4 +288,13 @@
     <!-- Pinned star icon color filter in Album Detail -->
     <color name="collection_pin_gold">#FFD700</color>
     <color name="collection_pin_unselected">#99FFFFFF</color>
+
+    <!-- Badge Tier Colors -->
+    <color name="badge_tier_iron">#64748B</color>
+    <color name="badge_tier_bronze">#D97706</color>
+    <color name="badge_tier_silver">#94A3B8</color>
+    <color name="badge_tier_gold">#F59E0B</color>
+    <color name="badge_tier_diamond">#06B6D4</color>
+    <color name="badge_tier_ex_red">#DC2626</color>
+    <color name="badge_tier_ex_dark">#0F172A</color>
 </resources>

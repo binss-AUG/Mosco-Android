@@ -21,4 +21,7 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT uc.collectionId) FROM UserCard uc WHERE uc.user.id = :userId")
     long countUniqueUnlockedCardsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT MAX(uc.upgradeLevel) FROM UserCard uc JOIN Card c ON uc.collectionId = c.id WHERE uc.user.id = :userId AND c.cardClass.name = :className")
+    Integer findMaxUpgradeLevelByUserIdAndClassName(@org.springframework.data.repository.query.Param("userId") Long userId, @org.springframework.data.repository.query.Param("className") String className);
 }
