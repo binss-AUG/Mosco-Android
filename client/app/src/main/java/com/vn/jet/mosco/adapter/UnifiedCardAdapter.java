@@ -228,17 +228,63 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setSelectedIds(Set<Long> ids) {
-        this.selectedIds = ids != null ? ids : new HashSet<>();
-        notifyDataSetChanged();
+        Set<Long> newIds = ids != null ? ids : new HashSet<>();
+        // TẠI SAO: Tìm các vị trí thực sự thay đổi trạng thái selected để chỉ notify đúng vị trí đó,
+        // tránh notifyDataSetChanged() gây giật toàn bộ grid khi chọn/bỏ chọn 1 item
+        Set<Long> changed = new HashSet<>(selectedIds);
+        changed.addAll(newIds);
+        Set<Long> intersection = new HashSet<>(selectedIds);
+        intersection.retainAll(newIds);
+        changed.removeAll(intersection);
+
+        this.selectedIds = newIds;
+
+        if (changed.isEmpty()) return;
+        for (int i = 0; i < displayItems.size(); i++) {
+            if (changed.contains(displayItems.get(i).getId())) {
+                notifyItemChanged(i, "STATE_CHANGE");
+            }
+        }
     }
 
     /**
      * Đặt trạng thái disabled cho các thẻ đang bận (Stage/Mission).
      */
     public void setDisabledStates(Set<Long> ids, Set<String> members) {
-        this.disabledIds = ids != null ? ids : new HashSet<>();
-        this.disabledMembers = members != null ? members : new HashSet<>();
-        notifyDataSetChanged();
+        Set<Long> newDisabledIds = ids != null ? ids : new HashSet<>();
+        Set<String> newDisabledMembers = members != null ? members : new HashSet<>();
+
+        // TẠI SAO: So sánh trạng thái cũ/mới để chỉ notify các item thực sự thay đổi,
+        // tránh notifyDataSetChanged() gây giật toàn bộ grid
+        boolean idsChanged = !this.disabledIds.equals(newDisabledIds);
+        boolean membersChanged = !this.disabledMembers.equals(newDisabledMembers);
+
+        // TẠI SAO: Lưu bản cũ trước khi gán mới để so sánh chính xác trong vòng lặp bên dưới
+        Set<String> oldDisabledMembers = this.disabledMembers;
+
+        this.disabledIds = newDisabledIds;
+        this.disabledMembers = newDisabledMembers;
+
+        if (!idsChanged && !membersChanged) return;
+
+        for (int i = 0; i < displayItems.size(); i++) {
+            CardDisplayItem item = displayItems.get(i);
+            boolean needsUpdate = false;
+            if (idsChanged && newDisabledIds.contains(item.getId())) {
+                needsUpdate = true;
+            }
+            // TẠI SAO: Chỉ notify item nếu member của nó nằm trong tập disabled cũ HOẶC mới
+            // (tức là trạng thái disabled thực sự thay đổi cho item này)
+            if (membersChanged && item.getMember() != null) {
+                String memberKey = item.getMember().trim().toLowerCase();
+                if (newDisabledMembers.contains(memberKey) || oldDisabledMembers.contains(memberKey)) {
+                    needsUpdate = true;
+                }
+            }
+            if (needsUpdate) {
+                notifyItemChanged(i, "STATE_CHANGE");
+            }
+        }
     }
 
     /**
@@ -347,6 +393,28 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     // =============== BIND VIEW HOLDER ===============
+
+    /**
+     * TẠI SAO: Override payload variant để khi chỉ thay đổi trạng thái selected/disabled,
+     * chỉ rebind phần overlay mà KHÔNG reload ảnh/badge/name → loại bỏ giật hoàn toàn
+     */
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty() && holder instanceof CardViewHolder) {
+            CardViewHolder vh = (CardViewHolder) holder;
+            if (position >= displayItems.size()) return;
+            CardDisplayItem item = displayItems.get(position);
+            if (item == null) return;
+
+            // Chỉ rebind trạng thái chọn/disabled — bỏ qua ảnh, tên, badge
+            if (displayMode == DisplayMode.INVENTORY) {
+                bindInventoryState(vh, item, position);
+            }
+            bindClickListener(vh, item, position);
+            return;
+        }
+        super.onBindViewHolder(holder, position, payloads);
+    }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -564,7 +632,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     } else {
                         selectedIds.add(item.getId());
                     }
-                    notifyItemChanged(position);
+                    notifyItemChanged(position, "STATE_CHANGE");
                     if (selectListener != null) {
                         selectListener.onCardSelected(item, !currentlySelected);
                     }
