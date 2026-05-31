@@ -54,6 +54,8 @@
     <string name="common_msg_success">Success!</string>
     <string name="common_error_unknown">An unknown error occurred</string>
     <string name="common_error_network">Cannot connect to server.</string>
+    <string name="error_server_offline">Server is temporarily unavailable. Please try again later.</string>
+    <string name="error_timeout">Request timed out. Please try again.</string>
 
     <!-- Mission / Event -->
     <string name="common_mission_header">UPCOMING EVENTS</string>

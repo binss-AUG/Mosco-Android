@@ -409,8 +409,10 @@ public class DatabaseLoader {
 
             @Override
             public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                Log.w(TAG, "Could not reach Server for Metadata sync. Using local cache.");
-                if (callback != null) callback.onNoUpdate();
+                Log.w(TAG, "Could not reach Server for Metadata sync.");
+                if (callback != null) {
+                    callback.onError(t != null ? t.getMessage() : "Unknown network error");
+                }
             }
         });
     }
@@ -478,7 +480,7 @@ public class DatabaseLoader {
 
             @Override
             public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
-                if (callback != null) callback.onError(t.getMessage());
+                if (callback != null) callback.onError(NetworkErrorHandler.getUserFriendlyMessage(appContext, t));
             }
         });
     }

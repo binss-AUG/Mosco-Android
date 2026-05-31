@@ -19,109 +19,106 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintVertical_bias="0.5"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading" />
 
-    <!-- 📝 TEXT TRẠNG THÁI (Luôn hiển thị để user biết app đang làm gì) -->
-    <TextView
-        android:id="@+id/tv_download_status"
-        style="@style/MoscoText.Luxury.SubHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xl"
-        android:text="@string/splash_status_connecting"
-        android:textSize="@dimen/text_size_body_lg"
-        android:textColor="@color/white_80"
-        app:layout_constraintTop_toBottomOf="@+id/iv_logo_lottie"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 🚀 KHU VỰC TẢI DỮ LIỆU (Chỉ hiện thanh progress khi cần) -->
+    <!-- Container dính dưới đáy màn hình chứa trạng thái tải/retry -->
     <LinearLayout
-        android:id="@+id/layout_download_progress"
+        android:id="@+id/layout_bottom_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/spacing_xxl"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/tv_download_status"
+        android:gravity="center"
+        android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.2">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Progress Bar Custom Style -->
-        <ProgressBar
-            android:id="@+id/pb_download"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/spacing_10dp"
-            android:progressDrawable="@drawable/mosco_progress_bar"
-            android:max="100"
-            android:progress="0" />
-
+        <!-- 📝 TEXT TRẠNG THÁI -->
         <TextView
-            android:id="@+id/tv_download_count"
-            style="@style/MoscoText.Luxury.Label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:alpha="0.8"
-            android:text="0%"
-            android:textSize="@dimen/text_size_body" />
-    </LinearLayout>
-
-    <!-- ❌ KHU VỰC BÁO LỖI KẾT NỐI (Ẩn mặc định) -->
-    <LinearLayout
-        android:id="@+id/layout_retry_connection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/spacing_xxl"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/tv_download_status"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.2">
-
-        <TextView
+            android:id="@+id/tv_download_status"
             style="@style/MoscoText.Luxury.SubHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_sm"
-            android:letterSpacing="0.1"
-            android:text="@string/splash_error_connection_title"
-            android:textColor="@color/stat_atk"
-            android:textSize="@dimen/text_size_title" />
+            android:text="@string/splash_status_connecting"
+            android:textSize="@dimen/text_size_body_lg"
+            android:textColor="@color/white_80"
+            android:gravity="center" />
 
-        <TextView
-            style="@style/MoscoText.Luxury.Body"
-            android:layout_width="wrap_content"
+        <!-- 🚀 KHU VỰC TẢI DỮ LIỆU -->
+        <LinearLayout
+            android:id="@+id/layout_download_progress"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_lg"
-            android:alpha="0.8"
+            android:layout_marginTop="@dimen/spacing_md"
             android:gravity="center"
-            android:text="@string/splash_error_connection_msg"
-            android:textSize="@dimen/text_size_body" />
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/spacing_xxl"
+            android:visibility="gone">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_retry_connection"
-            style="@style/MoscoText.Luxury.Button"
-            android:layout_width="200dp"
-            android:layout_height="54dp"
-            android:text="@string/splash_action_retry"
-            app:backgroundTint="@color/lg_background"
-            app:cornerRadius="27dp"
-            app:elevation="@dimen/spacing_sm"
-            app:strokeColor="@color/lg_accent_primary"
-            app:strokeWidth="1.5dp" />
+            <!-- Progress Bar Custom Style -->
+            <ProgressBar
+                android:id="@+id/pb_download"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_10dp"
+                android:progressDrawable="@drawable/mosco_progress_bar"
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:id="@+id/tv_download_count"
+                style="@style/MoscoText.Luxury.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:alpha="0.8"
+                android:text="0%"
+                android:textSize="@dimen/text_size_body" />
+        </LinearLayout>
+
+        <!-- ❌ KHU VỰC BÁO LỖI KẾT NỐI -->
+        <LinearLayout
+            android:id="@+id/layout_retry_connection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/spacing_xxl"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:letterSpacing="0.1"
+                android:text="@string/splash_error_connection_title"
+                android:textColor="@color/stat_atk"
+                android:textSize="@dimen/text_size_title" />
+
+            <TextView
+                style="@style/MoscoText.Luxury.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_lg"
+                android:alpha="0.8"
+                android:gravity="center"
+                android:text="@string/splash_error_connection_msg"
+                android:textSize="@dimen/text_size_body" />
+
+            <com.vn.jet.mosco.widget.MoscoButton
+                android:id="@+id/btn_retry_connection"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/splash_action_retry"
+                app:moscoStyle="primary"
+                app:moscoSize="medium"
+                app:moscoShape="pill" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

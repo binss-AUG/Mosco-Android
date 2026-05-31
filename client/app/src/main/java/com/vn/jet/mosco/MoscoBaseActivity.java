@@ -90,6 +90,21 @@ public class MoscoBaseActivity extends AppCompatActivity {
                         // Network error -> BaseActivity NetworkMonitor sẽ lo
                     }
                 });
+        } else {
+            // TẠI SAO: Nếu chưa đăng nhập nhưng vẫn bị lỗi mạng/server offline, gọi API public nhẹ để xác minh kết nối
+            com.vn.jet.mosco.network.ApiClient.getClient(this)
+                .create(com.vn.jet.mosco.network.GameApiService.class)
+                .getAssetManifest()
+                .enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
+                        // Success -> Server hoạt động ổn định
+                    }
+                    @Override
+                    public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                        // Lỗi mạng
+                    }
+                });
         }
     }
 
@@ -210,13 +225,16 @@ public class MoscoBaseActivity extends AppCompatActivity {
             // [BUG 3] Ẩn dialog ngay lập tức
             dismissConnectionLostDialog();
             
-            // Đợi 0.5s sau mới kiểm tra và hiện lại nếu vẫn mất mạng
+            // TẠI SAO: Gọi lại API kiểm tra kết nối server để cập nhật LiveData
+            checkSessionValidity();
+            
+            // Đợi 1s sau mới kiểm tra và hiện lại nếu vẫn mất kết nối
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 Boolean connected = NetworkMonitor.getInstance(this).getIsConnected().getValue();
                 if (connected == null || !connected) {
                     showConnectionLostDialog();
                 }
-            }, 500);
+            }, 1000);
         });
 
         connectionLostDialog.show();

@@ -54,7 +54,16 @@ public class ApiClient {
                                     builder.header("Authorization", "Bearer " + token);
                                 }
 
-                                okhttp3.Response response = chain.proceed(builder.build());
+                                okhttp3.Response response;
+                                try {
+                                    response = chain.proceed(builder.build());
+                                    // TẠI SAO: Nếu API gọi thành công, cập nhật trạng thái mạng hoạt động ổn định
+                                    com.vn.jet.mosco.utils.NetworkMonitor.getInstance(appContext).setConnected(true);
+                                } catch (java.io.IOException e) {
+                                    // TẠI SAO: Nếu gặp lỗi kết nối mạng (Server offline, timeout, DNS hỏng...), cập nhật trạng thái mất kết nối
+                                    com.vn.jet.mosco.utils.NetworkMonitor.getInstance(appContext).setConnected(false);
+                                    throw e;
+                                }
                                 
                                 // [PHASE 2] Session Expired / Dual Login Kick / Server Offline — 401 Interceptor
                                 if (response.code() == 401 && !original.url().encodedPath().contains("/api/auth/")) {

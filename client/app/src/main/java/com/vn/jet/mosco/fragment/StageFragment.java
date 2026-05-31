@@ -562,7 +562,10 @@ public class StageFragment extends Fragment {
                     }
                 }
                 @Override
-                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {}
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                    // TẠI SAO: Abort là hành động user chủ động, cần phản hồi khi thất bại
+                    com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
+                }
             });
     }
 
@@ -583,7 +586,10 @@ public class StageFragment extends Fragment {
                     }
                 }
                 @Override
-                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {}
+                public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) {
+                    // TẠI SAO: SpeedUp là hành động user chủ động, cần phản hồi khi thất bại
+                    com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
+                }
             });
     }
 

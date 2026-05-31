@@ -37,6 +37,10 @@ public class NetworkMonitor {
     public LiveData<Boolean> getIsConnected() {
         return isConnected;
     }
+ 
+    public void setConnected(boolean connected) {
+        isConnected.postValue(connected);
+    }
 
     private void checkInitialStatus() {
         try {

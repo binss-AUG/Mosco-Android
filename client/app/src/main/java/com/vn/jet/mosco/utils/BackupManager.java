@@ -171,7 +171,7 @@ public class BackupManager {
 
             @Override
             public void onFailure(Call<com.vn.jet.mosco.model.ApiResponse<String>> call, Throwable t) {
-                callback.onFailure("Network Error: " + t.getMessage());
+                callback.onFailure(NetworkErrorHandler.getUserFriendlyMessage(context, t));
             }
         });
     }
@@ -238,7 +238,7 @@ public class BackupManager {
 
             @Override
             public void onFailure(Call<okhttp3.ResponseBody> call, Throwable t) {
-                callback.onFailure("Network Error: " + t.getMessage());
+                callback.onFailure(NetworkErrorHandler.getUserFriendlyMessage(context, t));
             }
         });
     }

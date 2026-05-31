@@ -1561,7 +1561,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     @Override
                     public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<List<String>>> call,
                             Throwable t) {
-                        Toast.makeText(requireContext(), "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
                     }
                 });
     }

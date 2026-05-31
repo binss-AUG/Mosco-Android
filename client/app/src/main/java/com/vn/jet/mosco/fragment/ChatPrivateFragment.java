@@ -590,7 +590,10 @@ public class ChatPrivateFragment extends Fragment {
                 if (isAdded() && response.isSuccessful()) fetchStreakStatus();
             }
             @Override
-            public void onFailure(Call<ApiResponse<CoupleStreakDto>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponse<CoupleStreakDto>> call, Throwable t) {
+                // TẠI SAO: Gửi lời mời streak là hành động user chủ động
+                com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
+            }
         });
     }
 
@@ -601,7 +604,10 @@ public class ChatPrivateFragment extends Fragment {
                 if (isAdded() && response.isSuccessful()) fetchStreakStatus();
             }
             @Override
-            public void onFailure(Call<ApiResponse<CoupleStreakDto>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponse<CoupleStreakDto>> call, Throwable t) {
+                // TẠI SAO: Chấp nhận streak là hành động user chủ động
+                com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
+            }
         });
     }
 
@@ -616,7 +622,10 @@ public class ChatPrivateFragment extends Fragment {
                 if (isAdded() && response.isSuccessful()) fetchStreakStatus();
             }
             @Override
-            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                // TẠI SAO: Từ chối streak là hành động user chủ động
+                com.vn.jet.mosco.utils.NetworkErrorHandler.handleErrorSafe(getContext(), t);
+            }
         });
     }
 

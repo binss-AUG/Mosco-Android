@@ -36,7 +36,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private LinearLayout layoutDownloadProgress;
     private View layoutRetryConnection;
-    private com.google.android.material.button.MaterialButton btnRetryConnection;
+    private com.vn.jet.mosco.widget.MoscoButton btnRetryConnection;
     private ProgressBar pbDownload;
     private TextView tvDownloadStatus;
     private TextView tvDownloadCount;
@@ -222,7 +222,8 @@ public class SplashActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     Log.e(TAG, "Sync Error: " + error);
-                    syncAssets(); // Vẫn cho vào app bằng data cũ
+                    // TẠI SAO: Chặn chuyển màn hình khi server offline để tránh vào app bằng cache cũ
+                    showConnectionError();
                 }
             });
         });
@@ -269,7 +270,10 @@ public class SplashActivity extends AppCompatActivity {
                         syncAssets(); 
                     });
                 }
-                @Override public void onError(String e) { syncAssets(); }
+                @Override public void onError(String e) {
+                    // TẠI SAO: Không thể tải DB từ server, chặn chuyển màn
+                    showConnectionError();
+                }
             });
         });
 

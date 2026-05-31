@@ -30,8 +30,11 @@ public class GachaRepository {
     private static final int MAX_RETRIES = 3;
 
     private final GameApiService apiService;
+    private final Context mContext;
 
     public GachaRepository(Context context) {
+        // TẠI SAO: Lưu appContext để NetworkErrorHandler tra cứu strings.xml khi phân loại lỗi
+        this.mContext = context.getApplicationContext();
         this.apiService = ApiClient.getClient(context).create(GameApiService.class);
     }
 
@@ -62,7 +65,7 @@ public class GachaRepository {
 
             @Override
             public void onFailure(retrofit2.Call<ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
-                callback.onError(-1, "Lỗi kết nối: " + t.getMessage());
+                callback.onError(-1, com.vn.jet.mosco.utils.NetworkErrorHandler.getUserFriendlyMessage(mContext, t));
             }
         });
     }
@@ -79,7 +82,7 @@ public class GachaRepository {
                 if (attempt < MAX_RETRIES - 1) {
                     retry(() -> executeRollWithRetry(request, callback, attempt + 1), attempt);
                 } else {
-                    callback.onError(-1, "Network error: " + t.getMessage());
+                    callback.onError(-1, com.vn.jet.mosco.utils.NetworkErrorHandler.getUserFriendlyMessage(mContext, t));
                 }
             }
         });
@@ -104,7 +107,7 @@ public class GachaRepository {
                 if (attempt < MAX_RETRIES - 1) {
                     retry(() -> executeSpinWithRetry(request, callback, attempt + 1), attempt);
                 } else {
-                    callback.onError(-1, "Network error: " + t.getMessage());
+                    callback.onError(-1, com.vn.jet.mosco.utils.NetworkErrorHandler.getUserFriendlyMessage(mContext, t));
                 }
             }
         });
