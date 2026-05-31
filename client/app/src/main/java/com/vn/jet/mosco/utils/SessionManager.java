@@ -33,6 +33,7 @@ public class SessionManager {
     private static final String KEY_SFX_ENABLED = "sfx_enabled";
     private static final String KEY_AUTO_BACKUP = "auto_backup";
     private static final String KEY_BACKUP_INTERVAL = "backup_interval";
+    private static final String KEY_LANGUAGE = "language_code";
     
     // --- REMEMBER ME KEYS ---
     private static final String KEY_REMEMBER_ME = "remember_me";
@@ -221,5 +222,21 @@ public class SessionManager {
 
     public String getSavedUsernameOrEmail() {
         return prefs.getString(KEY_SAVED_USERNAME_OR_EMAIL, null);
+    }
+
+    public void setLanguage(String langCode) {
+        prefs.edit().putString(KEY_LANGUAGE, langCode).apply();
+    }
+
+    public String getLanguage() {
+        // TẠI SAO: Nếu chưa từng lưu cài đặt ngôn ngữ (lần đầu vào app), kiểm tra locale thiết bị.
+        // Nếu thiết bị đang dùng tiếng Việt thì đặt mặc định là "vi", ngược lại là "en".
+        if (!prefs.contains(KEY_LANGUAGE)) {
+            String deviceLang = java.util.Locale.getDefault().getLanguage();
+            String defaultLang = "vi".equals(deviceLang) ? "vi" : "en";
+            prefs.edit().putString(KEY_LANGUAGE, defaultLang).apply();
+            return defaultLang;
+        }
+        return prefs.getString(KEY_LANGUAGE, "en");
     }
 }

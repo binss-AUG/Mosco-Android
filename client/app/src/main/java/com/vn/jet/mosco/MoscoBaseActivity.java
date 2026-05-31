@@ -46,6 +46,13 @@ public class MoscoBaseActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        // TẠI SAO: Áp dụng ngôn ngữ Locale đã cấu hình trước khi khởi tạo UI Activity
+        String lang = new com.vn.jet.mosco.utils.SessionManager(newBase).getLanguage();
+        super.attachBaseContext(com.vn.jet.mosco.utils.LanguageHelper.updateLocale(newBase, lang));
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }

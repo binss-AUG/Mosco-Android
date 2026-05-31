@@ -54,6 +54,13 @@ public class SplashActivity extends AppCompatActivity {
     private ConnectivityManager.NetworkCallback networkCallback;
 
     @Override
+    protected void attachBaseContext(android.content.Context newBase) {
+        // TẠI SAO: Áp dụng Locale ngôn ngữ cho ứng dụng ngay từ màn hình khởi chạy (Splash)
+        String lang = new com.vn.jet.mosco.utils.SessionManager(newBase).getLanguage();
+        super.attachBaseContext(com.vn.jet.mosco.utils.LanguageHelper.updateLocale(newBase, lang));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         splashStartTime = System.currentTimeMillis();

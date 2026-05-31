@@ -35,6 +35,7 @@ public class ProfileMenuFragment extends Fragment {
     private SwitchMaterial switchDarkMode, switchMusic, switchSfx, switchAutoBackup;
     private TextView tvCacheSize, tvBackupInterval;
     private View btnClearCache, layoutBackupInterval;
+    private com.vn.jet.mosco.widget.MoscoButton btnChangeLanguage;
 
     public void setOnMenuActionListener(OnMenuActionListener listener) {
         this.listener = listener;
@@ -67,6 +68,7 @@ public class ProfileMenuFragment extends Fragment {
         tvBackupInterval = view.findViewById(R.id.tv_backup_interval);
         layoutBackupInterval = view.findViewById(R.id.layout_backup_interval);
         btnClearCache = view.findViewById(R.id.btn_clear_cache);
+        btnChangeLanguage = view.findViewById(R.id.btn_change_language);
 
         setupInitialState();
         setupListeners(view);
@@ -79,6 +81,12 @@ public class ProfileMenuFragment extends Fragment {
         switchSfx.setChecked(sessionManager.isSfxEnabled());
         switchAutoBackup.setChecked(sessionManager.isAutoBackupEnabled());
         updateBackupIntervalUI();
+        
+        // TẠI SAO: Đặt văn bản hiển thị cho nút ngôn ngữ theo Locale đang hoạt động
+        String currentLang = sessionManager.getLanguage();
+        if (btnChangeLanguage != null) {
+            btnChangeLanguage.setText(currentLang.equals("vi") ? R.string.language_vi : R.string.language_en);
+        }
     }
 
     private void updateBackupIntervalUI() {
@@ -164,6 +172,13 @@ public class ProfileMenuFragment extends Fragment {
         view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
             if (listener != null) listener.onLogout();
         });
+
+        // --- LANGUAGE SWITCH ---
+        if (btnChangeLanguage != null) {
+            btnChangeLanguage.setOnClickListener(v -> {
+                showLanguagePicker();
+            });
+        }
     }
 
     private void setupMenuItem(View container, String title, String desc, View.OnClickListener clickListener) {
@@ -206,6 +221,34 @@ public class ProfileMenuFragment extends Fragment {
                 sessionManager.setBackupInterval(hours[index]);
                 updateBackupIntervalUI();
                 com.vn.jet.mosco.utils.WorkScheduler.scheduleAutoBackup(requireContext());
+            }
+        );
+    }
+
+    /**
+     * Hiển thị Dialog chọn ngôn ngữ English/Tiếng Việt chuẩn hệ thống.
+     * TẠI SAO: Người dùng có thể chọn đổi ngôn ngữ tức thì, cấu hình sẽ lưu vào SessionManager
+     * và gọi recreate() để nạp lại tài nguyên XML theo Locale mới trên toàn app.
+     */
+    private void showLanguagePicker() {
+        String[] options = {
+            getString(R.string.language_en),
+            getString(R.string.language_vi)
+        };
+        String currentLang = sessionManager.getLanguage();
+        
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showSingleChoiceDialog(
+            getActivity(),
+            getString(R.string.settings_dialog_language_title),
+            options,
+            index -> {
+                String selectedLang = (index == 1) ? "vi" : "en";
+                if (!selectedLang.equals(currentLang)) {
+                    sessionManager.setLanguage(selectedLang);
+                    if (getActivity() != null) {
+                        getActivity().recreate();
+                    }
+                }
             }
         );
     }
