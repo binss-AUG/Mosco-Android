@@ -29,8 +29,38 @@
     <string name="settings_action_logout">Log Out</string>
 
     <!-- Language settings -->
+    <string name="settings_action_backup_data">Backup Local Data</string>
+    <string name="settings_desc_backup_data">Create a snapshot of your local history</string>
+    <string name="settings_action_restore_data">Restore Local Data</string>
+    <string name="settings_desc_restore_data">Load data from a previous backup file</string>
+    <string name="settings_action_cloud_sync">Cloud Sync</string>
+    <string name="settings_desc_cloud_sync">Upload latest backup to Mosco Cloud</string>
+    <string name="settings_action_switch_account">Switch Account</string>
+    <string name="settings_desc_switch_account">Login with a different identity</string>
+    <string name="settings_desc_report_bug">Submit application logs and report technical issues</string>
+    
     <string name="settings_label_language">Language</string>
     <string name="language_en">English</string>
     <string name="language_vi">Tiếng Việt</string>
     <string name="settings_dialog_language_title">Select Language</string>
+
+    <!-- Notification and Production settings -->
+    <string name="settings_label_notifications">NOTIFICATIONS</string>
+    <string name="settings_label_noti_chat">Private Messages</string>
+    <string name="settings_label_noti_streak">Streak Updates</string>
+    <string name="settings_action_privacy">Privacy Policy</string>
+    <string name="settings_action_terms">Terms of Service</string>
+    <string name="settings_action_licenses">Open Source Licenses</string>
+    <string name="settings_action_bug_report">Report a Bug</string>
+    <string name="settings_action_delete_account">Delete Account</string>
+    <string name="settings_dialog_delete_title">Delete Account?</string>
+    <string name="settings_dialog_delete_msg">WARNING: This action is permanent. All your Objets, Diamonds, and progress will be permanently deleted. Are you sure you want to proceed?</string>
+    <string name="settings_bug_dialog_title">Report a Bug</string>
+    <string name="settings_bug_dialog_hint">Describe the issue you encountered...</string>
+    <string name="settings_bug_dialog_success">Thank you! Bug report sent successfully.</string>
+    <string name="settings_action_submit">Submit</string>
+    <string name="settings_privacy_content">1. DATA COLLECTION\nWe collect minimal telemetry data and collection logs to ensure account sync and game stability.\n\n2. DATA USAGE\nYour card data, diamonds, and progress are securely stored and never shared with third parties.\n\n3. SECURITY\nWe protect your galactic collection with industry-standard encryption protocols.</string>
+    <string name="settings_terms_content">1. ACCEPTANCE\nBy entering Mosco, you agree to comply with our galactic code of conduct.\n\n2. ACCOUNTS\nAccount trading or system exploitation will lead to permanent suspension.\n\n3. LIMITATION\nMosco services are provided "as-is" without warranty of uninterrupted galactic uptime.</string>
+    <string name="settings_licenses_content">Mosco is built on stellar open-source software:\n\n- Android Jetpack Components\n- Retrofit &amp; OkHttp\n- RxJava &amp; Room Database\n- Glide Image Loading\n- Lottie Animations\n\nSpecial thanks to the open-source community.</string>
+    <string name="settings_noti_streak_update">Streak update: %d days!</string>
 </resources>

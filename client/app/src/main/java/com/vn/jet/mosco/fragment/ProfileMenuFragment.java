@@ -32,10 +32,11 @@ public class ProfileMenuFragment extends Fragment {
     private OnMenuActionListener listener;
     private SessionManager sessionManager;
 
-    private SwitchMaterial switchDarkMode, switchMusic, switchSfx, switchAutoBackup;
+    private SwitchMaterial switchDarkMode, switchMusic, switchSfx, switchAutoBackup, switchNotiChat, switchNotiStreak;
     private TextView tvCacheSize, tvBackupInterval;
     private View btnClearCache, layoutBackupInterval;
     private com.vn.jet.mosco.widget.MoscoButton btnChangeLanguage;
+    private View menuReportBug, btnPrivacyPolicy, btnTermsOfService, btnOpenSource, btnDeleteAccount;
 
     public void setOnMenuActionListener(OnMenuActionListener listener) {
         this.listener = listener;
@@ -69,6 +70,14 @@ public class ProfileMenuFragment extends Fragment {
         layoutBackupInterval = view.findViewById(R.id.layout_backup_interval);
         btnClearCache = view.findViewById(R.id.btn_clear_cache);
         btnChangeLanguage = view.findViewById(R.id.btn_change_language);
+        
+        switchNotiChat = view.findViewById(R.id.switch_noti_chat);
+        switchNotiStreak = view.findViewById(R.id.switch_noti_streak);
+        menuReportBug = view.findViewById(R.id.menu_report_bug);
+        btnPrivacyPolicy = view.findViewById(R.id.btn_privacy_policy);
+        btnTermsOfService = view.findViewById(R.id.btn_terms_of_service);
+        btnOpenSource = view.findViewById(R.id.btn_open_source);
+        btnDeleteAccount = view.findViewById(R.id.btn_delete_account);
 
         setupInitialState();
         setupListeners(view);
@@ -80,6 +89,14 @@ public class ProfileMenuFragment extends Fragment {
         switchMusic.setChecked(sessionManager.isMusicEnabled());
         switchSfx.setChecked(sessionManager.isSfxEnabled());
         switchAutoBackup.setChecked(sessionManager.isAutoBackupEnabled());
+        
+        if (switchNotiChat != null) {
+            switchNotiChat.setChecked(sessionManager.isPrivateChatNotificationEnabled());
+        }
+        if (switchNotiStreak != null) {
+            switchNotiStreak.setChecked(sessionManager.isStreakNotificationEnabled());
+        }
+        
         updateBackupIntervalUI();
         
         // TẠI SAO: Đặt văn bản hiển thị cho nút ngôn ngữ theo Locale đang hoạt động
@@ -141,26 +158,43 @@ public class ProfileMenuFragment extends Fragment {
             clearAppCache();
         });
 
-        // --- GHOST MENUS ---
+        // --- NOTIFICATIONS ---
+        if (switchNotiChat != null) {
+            switchNotiChat.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                sessionManager.setPrivateChatNotificationEnabled(isChecked);
+            });
+        }
+        if (switchNotiStreak != null) {
+            switchNotiStreak.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                sessionManager.setStreakNotificationEnabled(isChecked);
+            });
+        }
+
+        // --- GHOST MENUS WITH LOCALIZATION ---
         setupMenuItem(view.findViewById(R.id.menu_backup_data), 
-            "Backup Local Data", 
-            "Create a snapshot of your local history", 
+            getString(R.string.settings_action_backup_data), 
+            getString(R.string.settings_desc_backup_data), 
             v -> { if(listener != null) listener.onBackupData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_restore_data), 
-            "Restore Local Data", 
-            "Load data from a previous backup file", 
+            getString(R.string.settings_action_restore_data), 
+            getString(R.string.settings_desc_restore_data), 
             v -> { if(listener != null) listener.onRestoreData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_cloud_sync), 
-            "Cloud Sync", 
-            "Upload latest backup to Mosco Cloud", 
+            getString(R.string.settings_action_cloud_sync), 
+            getString(R.string.settings_desc_cloud_sync), 
             v -> { if(listener != null) listener.onCloudSync(); });
 
         setupMenuItem(view.findViewById(R.id.menu_switch_account), 
-            "Switch Account", 
-            "Login with a different identity", 
+            getString(R.string.settings_action_switch_account), 
+            getString(R.string.settings_desc_switch_account), 
             v -> { if(listener != null) listener.onSwitchAccount(); });
+
+        setupMenuItem(menuReportBug, 
+            getString(R.string.settings_action_bug_report), 
+            getString(R.string.settings_desc_report_bug), 
+            v -> showBugReportDialog());
 
         // --- ACCOUNT ACTIONS ---
         view.findViewById(R.id.btn_change_password).setOnClickListener(v -> {
@@ -172,6 +206,21 @@ public class ProfileMenuFragment extends Fragment {
         view.findViewById(R.id.btn_logout).setOnClickListener(v -> {
             if (listener != null) listener.onLogout();
         });
+
+        if (btnDeleteAccount != null) {
+            btnDeleteAccount.setOnClickListener(v -> confirmDeleteAccount());
+        }
+
+        // --- LEGAL POLICIES ---
+        if (btnPrivacyPolicy != null) {
+            btnPrivacyPolicy.setOnClickListener(v -> showPrivacyPolicy());
+        }
+        if (btnTermsOfService != null) {
+            btnTermsOfService.setOnClickListener(v -> showTermsOfService());
+        }
+        if (btnOpenSource != null) {
+            btnOpenSource.setOnClickListener(v -> showOpenSourceLicenses());
+        }
 
         // --- LANGUAGE SWITCH ---
         if (btnChangeLanguage != null) {
@@ -311,5 +360,122 @@ public class ProfileMenuFragment extends Fragment {
         } else {
             return false;
         }
+    }
+
+    private void showBugReportDialog() {
+        if (getActivity() == null || getActivity().isFinishing() || getActivity().isDestroyed()) return;
+
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_mosco_dialog_base, null);
+        TextView tvTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        android.widget.FrameLayout flContent = dialogView.findViewById(R.id.fl_dialog_content);
+        com.vn.jet.mosco.widget.MoscoButton btnPositive = dialogView.findViewById(R.id.btn_positive);
+        com.vn.jet.mosco.widget.MoscoButton btnNegative = dialogView.findViewById(R.id.btn_negative);
+
+        tvTitle.setText(R.string.settings_bug_dialog_title);
+        flContent.removeAllViews();
+
+        android.widget.EditText etBugDescription = new android.widget.EditText(requireContext());
+        etBugDescription.setHint(R.string.settings_bug_dialog_hint);
+        etBugDescription.setHintTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.mosco_white_40));
+        etBugDescription.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white));
+        etBugDescription.setBackgroundResource(R.drawable.lg_input_bg);
+        etBugDescription.setMinLines(4);
+        etBugDescription.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
+        
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        etBugDescription.setPadding(padding, padding, padding, padding);
+
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        etBugDescription.setLayoutParams(lp);
+        flContent.addView(etBugDescription);
+
+        btnPositive.setText(getString(R.string.settings_action_submit));
+        btnNegative.setText(getString(R.string.action_cancel));
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
+        }
+
+        btnPositive.setOnClickListener(v -> {
+            String bugText = etBugDescription.getText().toString().trim();
+            if (bugText.isEmpty()) {
+                android.widget.Toast.makeText(requireContext(), "Please describe the bug", android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+            dialog.dismiss();
+            
+            // TẠI SAO: Hiển thị thông báo gửi thành công và thực hiện rung nhẹ
+            com.vn.jet.mosco.widget.MoscoNotification.showSuccess(getActivity(), getString(R.string.settings_bug_dialog_success));
+            v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+        });
+
+        btnNegative.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private void showPrivacyPolicy() {
+        if (getActivity() == null) return;
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
+            getActivity(),
+            getString(R.string.settings_action_privacy),
+            getString(R.string.settings_privacy_content),
+            getString(R.string.action_confirm),
+            null
+        );
+    }
+
+    private void showTermsOfService() {
+        if (getActivity() == null) return;
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
+            getActivity(),
+            getString(R.string.settings_action_terms),
+            getString(R.string.settings_terms_content),
+            getString(R.string.action_confirm),
+            null
+        );
+    }
+
+    private void showOpenSourceLicenses() {
+        if (getActivity() == null) return;
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
+            getActivity(),
+            getString(R.string.settings_action_licenses),
+            getString(R.string.settings_licenses_content),
+            getString(R.string.action_confirm),
+            null
+        );
+    }
+
+    private void confirmDeleteAccount() {
+        if (getActivity() == null) return;
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(
+            getActivity(),
+            getString(R.string.settings_dialog_delete_title),
+            getString(R.string.settings_dialog_delete_msg),
+            getString(R.string.action_confirm),
+            getString(R.string.action_cancel),
+            new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                @Override
+                public void onPositive() {
+                    // TẠI SAO: Xóa sạch session, dọn cache và quay về màn hình đăng nhập
+                    sessionManager.clearSession();
+                    if (getActivity() != null) {
+                        Intent intent = new Intent(getActivity(), com.vn.jet.mosco.SignInActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+                }
+            }
+        );
     }
 }

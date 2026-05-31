@@ -16,6 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import com.vn.jet.mosco.model.UserStats;
 import com.vn.jet.mosco.network.ApiClient;
+import com.vn.jet.mosco.network.WebSocketManager;
+import com.vn.jet.mosco.model.PrivateChatMessage;
+import com.vn.jet.mosco.model.CoupleStreakDto;
+import com.vn.jet.mosco.fragment.ChatPrivateFragment;
+import io.reactivex.disposables.Disposable;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.SessionManager;
 import com.vn.jet.mosco.utils.NumberUtils;
@@ -72,6 +77,9 @@ public class MainActivity extends MoscoBaseActivity {
     
     private GameApiService gameApiService;
     private SessionManager sessionManager;
+    
+    private Disposable privateChatDisposable;
+    private Disposable streakDisposable;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +141,96 @@ public class MainActivity extends MoscoBaseActivity {
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(MainActivity.this::syncUiWithFragment, 100);
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // TẠI SAO: Khởi động WebSocket và đăng ký lắng nghe tin nhắn/streak thời gian thực khi vào app
+        if (sessionManager != null && sessionManager.isLoggedIn() && sessionManager.getUserId() != null) {
+            String userIdStr = String.valueOf(sessionManager.getUserId());
+            
+            // Đảm bảo kết nối WebSocket Stomp
+            WebSocketManager.getInstance().connect();
+            
+            // Đăng ký nhận tin nhắn riêng
+            privateChatDisposable = WebSocketManager.getInstance().subscribeToPrivateChat(
+                userIdStr,
+                this::onReceivePrivateMessage
+            );
+            
+            // Đăng ký nhận cập nhật chuỗi ngày (streak)
+            streakDisposable = WebSocketManager.getInstance().subscribeToStreakUpdates(
+                userIdStr,
+                this::onReceiveStreakUpdate
+            );
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        // TẠI SAO: Giải phóng RxJava subscription để ngăn rò rỉ bộ nhớ khi MainActivity chuyển sang chế độ tạm dừng
+        if (privateChatDisposable != null && !privateChatDisposable.isDisposed()) {
+            privateChatDisposable.dispose();
+        }
+        if (streakDisposable != null && !streakDisposable.isDisposed()) {
+            streakDisposable.dispose();
+        }
+    }
+
+    private void onReceivePrivateMessage(PrivateChatMessage msg) {
+        if (msg == null) return;
+
+        // TẠI SAO: Kiểm tra cấu hình thông báo tin nhắn riêng có được bật không
+        if (!sessionManager.isPrivateChatNotificationEnabled()) {
+            return;
+        }
+
+        // TẠI SAO: Bỏ qua thông báo nếu người dùng đang mở chính phòng chat với người gửi đó
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+        if (currentFragment instanceof ChatPrivateFragment) {
+            Long currentPartnerId = ((ChatPrivateFragment) currentFragment).getPartnerId();
+            if (currentPartnerId != null && String.valueOf(currentPartnerId).equals(msg.getSenderId())) {
+                return;
+            }
+        }
+
+        // TẠI SAO: Hiển thị banner HUD neon luxury thông báo cho người dùng và phản hồi rung tactile
+        String senderName = msg.getSenderName() != null ? msg.getSenderName() : "User";
+        String displayMsg = senderName + ": " + msg.getContent();
+        com.vn.jet.mosco.widget.MoscoNotification.showSuccess(this, displayMsg);
+        
+        View decor = getWindow().getDecorView();
+        if (decor != null) {
+            decor.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+        }
+
+        // TẠI SAO: Cập nhật đếm Mailbox chưa đọc ngay lập tức trên menu
+        fetchExtraNotificationCounts();
+    }
+
+    private void onReceiveStreakUpdate(CoupleStreakDto data) {
+        if (data == null) return;
+
+        // TẠI SAO: Kiểm tra cấu hình thông báo streak có được bật không
+        if (!sessionManager.isStreakNotificationEnabled()) {
+            return;
+        }
+
+        // TẠI SAO: Thông báo cập nhật streak bùng cháy đa ngôn ngữ dùng XML resource string
+        String displayMsg = getString(R.string.settings_noti_streak_update, data.getStreakCount());
+        com.vn.jet.mosco.widget.MoscoNotification.showSuccess(this, displayMsg);
+        
+        View decor = getWindow().getDecorView();
+        if (decor != null) {
+            decor.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+        }
+
+        // TẠI SAO: Làm mới dữ liệu user để cập nhật UI streak ở Header
+        loadUserData();
     }
     
     public void setTopBarVisible(boolean visible) {

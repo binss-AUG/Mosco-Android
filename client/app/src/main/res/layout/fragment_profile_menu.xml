@@ -208,6 +208,81 @@
                 android:background="@color/mosco_white_10"
                 android:layout_marginBottom="@dimen/spacing_xl" />
 
+            <!-- SECTION: NOTIFICATIONS -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_label_notifications"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="@dimen/text_size_h3"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/spacing_md" />
+
+            <!-- Private Chat Notification Switch -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_bell_neon"
+                    app:tint="@color/white" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_label_noti_chat"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textSize="@dimen/text_size_body_md" />
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_noti_chat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/white"
+                    app:trackTint="@color/mosco_surface_variant" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Streak Notification Switch -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_streak"
+                    app:tint="@color/white" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_label_noti_streak"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textSize="@dimen/text_size_body_md" />
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_noti_streak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:thumbTint="@color/white"
+                    app:trackTint="@color/mosco_surface_variant" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10"
+                android:layout_marginBottom="@dimen/spacing_xl" />
+
             <!-- SECTION: DATA MANAGEMENT -->
             <TextView
                 android:layout_width="wrap_content"
@@ -344,6 +419,13 @@
                 layout="@layout/item_ghost_menu"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
+                android:layout_marginBottom="@dimen/spacing_sm" />
+
+            <include
+                android:id="@+id/menu_report_bug"
+                layout="@layout/item_ghost_menu"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
                 android:layout_marginBottom="@dimen/spacing_xl" />
 
             <!-- SECTION: ACCOUNT -->
@@ -404,6 +486,111 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
+            <!-- Privacy Policy -->
+            <LinearLayout
+                android:id="@+id/btn_privacy_policy"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_shield_check"
+                    app:tint="@color/white" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_action_privacy"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textSize="@dimen/text_size_body_md" />
+                <ImageView
+                    android:layout_width="@dimen/spacing_md"
+                    android:layout_height="@dimen/spacing_md"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="@color/mosco_on_surface_variant" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Terms of Service -->
+            <LinearLayout
+                android:id="@+id/btn_terms_of_service"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_copy"
+                    app:tint="@color/white" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_action_terms"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textSize="@dimen/text_size_body_md" />
+                <ImageView
+                    android:layout_width="@dimen/spacing_md"
+                    android:layout_height="@dimen/spacing_md"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="@color/mosco_on_surface_variant" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Open Source Licenses -->
+            <LinearLayout
+                android:id="@+id/btn_open_source"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_info"
+                    app:tint="@color/white" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_action_licenses"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textSize="@dimen/text_size_body_md" />
+                <ImageView
+                    android:layout_width="@dimen/spacing_md"
+                    android:layout_height="@dimen/spacing_md"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="@color/mosco_on_surface_variant" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
             <!-- Logout Section -->
             <LinearLayout
                 android:id="@+id/btn_logout"
@@ -425,6 +612,37 @@
                     android:layout_weight="1"
                     android:layout_marginStart="@dimen/spacing_md"
                     android:text="@string/settings_action_logout"
+                    style="@style/MoscoText.Luxury.Body"
+                    android:textColor="@color/stat_atk"
+                    android:textSize="@dimen/text_size_body_md" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Delete Account Section -->
+            <LinearLayout
+                android:id="@+id/btn_delete_account"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_64dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_sad"
+                    app:tint="@color/stat_atk" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
+                    android:text="@string/settings_action_delete_account"
                     style="@style/MoscoText.Luxury.Body"
                     android:textColor="@color/stat_atk"
                     android:textSize="@dimen/text_size_body_md" />

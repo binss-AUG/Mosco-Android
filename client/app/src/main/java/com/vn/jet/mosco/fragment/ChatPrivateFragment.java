@@ -118,6 +118,10 @@ public class ChatPrivateFragment extends Fragment {
         return fragment;
     }
 
+    public Long getPartnerId() {
+        return partnerId;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

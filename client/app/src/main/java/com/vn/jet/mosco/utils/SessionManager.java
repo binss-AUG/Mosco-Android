@@ -34,6 +34,8 @@ public class SessionManager {
     private static final String KEY_AUTO_BACKUP = "auto_backup";
     private static final String KEY_BACKUP_INTERVAL = "backup_interval";
     private static final String KEY_LANGUAGE = "language_code";
+    private static final String KEY_NOTI_PRIVATE_CHAT = "noti_private_chat";
+    private static final String KEY_NOTI_STREAK = "noti_streak";
     
     // --- REMEMBER ME KEYS ---
     private static final String KEY_REMEMBER_ME = "remember_me";
@@ -238,5 +240,21 @@ public class SessionManager {
             return defaultLang;
         }
         return prefs.getString(KEY_LANGUAGE, "en");
+    }
+
+    public void setPrivateChatNotificationEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_NOTI_PRIVATE_CHAT, enabled).apply();
+    }
+
+    public boolean isPrivateChatNotificationEnabled() {
+        return prefs.getBoolean(KEY_NOTI_PRIVATE_CHAT, true);
+    }
+
+    public void setStreakNotificationEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_NOTI_STREAK, enabled).apply();
+    }
+
+    public boolean isStreakNotificationEnabled() {
+        return prefs.getBoolean(KEY_NOTI_STREAK, true);
     }
 }
