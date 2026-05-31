@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inventory & BottomSheet -->
+    <string name="inventory_title">Chọn một Objet</string>
+    <string name="inventory_empty_title">Bộ sưu tập của bạn đang trống.</string>
+    <string name="inventory_empty_desc">Ghé thăm cửa hàng để nhận Objet đầu tiên của bạn.</string>
+    <string name="inventory_action_quick">Chọn nhanh</string>
+    <string name="inventory_msg_quick_pick_success">Đã chọn đội hình tối ưu nhất!</string>
+    <string name="inventory_format_items_count">%d Vật phẩm</string>
+    <string name="inventory_loading_more">Đang tải thêm vật phẩm...</string>
+    <string name="inventory_label_filter">Lọc</string>
+    <string name="inventory_label_sort_newest">Mới nhất</string>
+    <string name="inventory_label_sort_badge">Huy hiệu</string>
+    <string name="inventory_label_sort_level">Cấp độ</string>
+    <string name="inventory_label_sort_artist">Nghệ sĩ (A-Z)</string>
+    <string name="inventory_label_sort_status">Trạng thái</string>
+    <string name="inventory_label_sort_class">Lớp</string>
+    <string name="inventory_label_sort_season">Mùa giải</string>
+    <string name="inventory_label_sort_lowest_no">Số hiệu thấp</string>
+    <string name="inventory_label_sort_highest_no">Số hiệu cao</string>
+    <string name="filter_tab_status">Trạng thái</string>
+    <string name="filter_tab_artist">Nghệ sĩ</string>
+    <string name="filter_tab_season">Mùa giải</string>
+    <string name="filter_tab_class">Lớp</string>
+
+    <string-array name="inventory_sort_options">
+        <item>@string/inventory_label_sort_newest</item>
+        <item>@string/inventory_label_sort_badge</item>
+        <item>@string/inventory_label_sort_level</item>
+        <item>@string/inventory_label_sort_artist</item>
+        <item>@string/inventory_label_sort_status</item>
+    </string-array>
+
+    <string-array name="album_sort_options">
+        <item>@string/inventory_label_sort_newest</item>
+        <item>@string/inventory_label_sort_artist</item>
+        <item>@string/inventory_label_sort_class</item>
+        <item>@string/inventory_label_sort_season</item>
+    </string-array>
+
+    <!-- Collection & Album -->
+    <string name="collection_header_title">BỘ SƯU TẬP</string>
+    <string name="collection_tab_album">Album</string>
+    <string name="collection_tab_mailbox">Hộp thư</string>
+    <string name="collection_tab_objets">Objets</string>
+    <string name="collection_tab_items">Vật phẩm</string>
+
+    <string-array name="collection_tabs">
+        <item>@string/collection_tab_objets</item>
+        <item>@string/collection_tab_items</item>
+        <item>@string/collection_tab_album</item>
+    </string-array>
+    <string name="collection_msg_reward_claimed">Phần thưởng đã được nhận trước đó!</string>
+    <string name="collection_format_reward_requirement">Thu thập đủ %d Objets để nhận!</string>
+    <string name="collection_msg_error_mailbox">Không thể tải hộp thư</string>
+    <string name="collection_msg_error_inventory">Không thể tải kho đồ</string>
+    <string name="collection_msg_error_album">Không thể tải Bộ sưu tập</string>
+    <string name="collection_album_not_collected">CHƯA THU THẬP</string>
+    <string name="collection_action_receive_all">Nhận tất cả</string>
+
+    <!-- Synergies -->
+    <string name="synergy_label_active">KẾT HỢP KÍCH HOẠT</string>
+    <string name="synergy_tier_bronze">ĐỒNG</string>
+    <string name="synergy_tier_silver">BẠC</string>
+    <string name="synergy_tier_gold">VÀNG</string>
+
+    <!-- Team & Formation -->
+    <string name="formation_total_ovr">TỔNG OVR ĐỘI HÌNH: %d</string>
+    <string name="formation_msg_artist_collision">Chỉ được phép chọn tối đa một Objet của cùng một Nghệ sĩ!</string>
+    <string name="formation_msg_preview_failed">Xem trước thất bại</string>
+
+    <!-- Card Actions (Premium Buttons) -->
+    <string name="card_action_gacha_title">GACHA SPIN</string>
+    <string name="card_action_gacha_desc">Tái chế thẻ hoặc dùng vé để nhận Objet mới</string>
+    <string name="card_action_shop_title">MỞ CỬA HÀNG</string>
+    <string name="card_action_shop_desc">Xem các ưu đãi độc quyền và gói thẻ</string>
+    <string name="card_action_capture_title">CHỤP MÀN HÌNH</string>
+    <string name="card_action_capture_desc">Chụp một bức ảnh chất lượng cao cho Objet của bạn</string>
+    <string name="card_action_level_up_title">LÊN CẤP</string>
+    <string name="card_action_send_title">GỬI QUÀ</string>
+    <string name="card_action_send_desc">Chia sẻ vật phẩm sưu tầm này với bạn bè</string>
+    <string name="card_action_upgrade_title">NÂNG CẤP</string>
+    <string name="card_action_upgrade_desc">Tăng chỉ số để cải thiện bộ sưu tập của bạn</string>
+    <string name="stat_hp">HP</string>
+    <string name="stat_atk">ATK</string>
+    <string name="stat_def">DEF</string>
+    <string name="stat_spd">SPD</string>
+    <string name="stat_crit_rate">Tỉ lệ Crit</string>
+    <string name="stat_crit_dmg">Sát thương Crit</string>
+
+    <!-- Upgrade System -->
+    <string name="upgrade_title">Nâng cấp Objet</string>
+    
+    <!-- Spin / Gacha System -->
+    <string name="spin_action_charging">Đang xử lý...</string>
+    <string name="spin_msg_nothing">Không có gì</string>
+    <string name="spin_msg_failed">Lượt quay thất bại</string>
+    <string name="spin_format_received_objet">Đã nhận được %s Objet.</string>
+
+    <!-- Shop System -->
+    <string name="shop_title">Cửa hàng</string>
+    <string name="shop_error_load">Lỗi khi tải cửa hàng</string>
+    <string name="shop_msg_login_first">Vui lòng đăng nhập trước</string>
+    <string name="shop_msg_purchase_failed">Mua thất bại: Không đủ tài nguyên</string>
+    <string name="shop_format_buy_success">Bạn đã mua %1$dx %2$s</string>
+    <string name="shop_format_used">Đã dùng %1$dx %2$s</string>
+    <string name="shop_format_timer_days">Còn lại %d ngày</string>
+    <string name="shop_format_timer_hours">Còn lại %d giờ</string>
+    <string name="shop_dialog_buy_confirm_title">Xác nhận mua</string>
+    <string name="shop_dialog_buy_confirm_msg">Bạn có muốn mua %1$dx %2$s với giá %3$s không?</string>
+
+    <!-- Mailbox System -->
+    <string name="mailbox_action_claim">Nhận quà</string>
+    <string name="mailbox_action_later">Để sau</string>
+    <string name="mailbox_action_received">Đã nhận</string>
+    <string name="mailbox_action_close">Đóng</string>
+    <string name="mailbox_msg_connecting">Đang kết nối tới máy chủ để tải phần thưởng...</string>
+    <string name="mailbox_msg_claim_success_title">THÀNH CÔNG!</string>
+    <string name="mailbox_format_claim_success_msg">Chúc mừng! Vật phẩm %s đã được chuyển vào kho đồ của bạn.</string>
+    <string name="mailbox_action_awesome">Tuyệt vời</string>
+
+    <!-- Items System -->
+    <string name="items_label_available">Hiện có: %s</string>
+    <string name="collection_label_completed">HOÀN THÀNH</string>
+    <string name="collection_label_reward">PHẦN THƯỞNG</string>
+    <string name="collection_reward_msg">Bạn đã nhận được %s!</string>
+    <string name="showcase_msg_duplicate">Objet này đã được trưng bày ở một ô khác.</string>
+    <string name="card_name_unknown">Không xác định</string>
+</resources>

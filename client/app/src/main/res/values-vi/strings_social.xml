@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Friend System -->
+    <string name="social_header_friends">BẠN BÈ</string>
+    <string name="social_tab_friends">BẠN BÈ</string>
+    <string name="social_tab_explore">KHÁM PHÁ</string>
+    <string name="social_tab_requests">YÊU CẦU</string>
+    <string name="social_stats_total">TỔNG SỐ BẠN BÈ</string>
+    <string name="social_stats_online">ĐANG ONLINE</string>
+    <string name="social_search_hint">Tìm bằng tên hoặc ID...</string>
+    <string name="social_search_hint_explore">Tìm ID người dùng hoặc tên...</string>
+    <string name="social_search_hint_friends">Lọc danh sách bạn bè...</string>
+    <string name="social_search_hint_requests">Lọc yêu cầu kết bạn...</string>
+    <string name="social_empty_msg">Danh sách trống.</string>
+    <string name="social_explore_hint">KHÔNG CÓ GỢI Ý MỚI</string>
+    <string name="social_friend_list_empty">Bạn chưa có người bạn nào.\nHãy kết thêm bạn mới để cùng chia sẻ và xây dựng bộ sưu tập!</string>
+    <string name="social_msg_pull_cooldown">Vui lòng thử lại sau %d giây</string>
+    <string name="social_action_refresh">LÀM MỚI</string>
+    <string name="social_msg_refresh_cooldown">Thời gian chờ còn lại: %ds</string>
+    <string name="social_action_accept">Chấp nhận</string>
+    <string name="social_action_decline">Từ chối</string>
+    <string name="social_msg_opening_galactic_id">Đang tải hồ sơ...</string>
+    <string name="social_msg_player_not_found">Không tìm thấy người dùng</string>
+    <string name="social_msg_request_sent">Đã gửi yêu cầu kết bạn!</string>
+    <string name="social_msg_request_error">Không thể gửi yêu cầu</string>
+    <string name="social_dialog_add_friend_title">Kết bạn</string>
+    <string name="social_dialog_add_friend_msg">Gửi yêu cầu kết bạn đến %s?</string>
+    <string name="social_dialog_action_send">Gửi</string>
+    <string name="social_msg_request_accepted">Đã chấp nhận yêu cầu kết bạn!</string>
+    <string name="social_msg_request_declined">Đã từ chối yêu cầu</string>
+    <string name="social_gift_summary_format">\n\nQuà tặng: %1$s x%2$s</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_header_title">HỒ SƠ</string>
+    <string name="profile_label_account">Tài khoản</string>
+    <string name="profile_label_system">Hệ thống</string>
+    <string name="profile_action_edit">Sửa hồ sơ</string>
+    <string name="profile_action_inventory">Kho đồ</string>
+    <string name="profile_action_change_password">Đổi mật khẩu</string>
+    <string name="profile_action_settings">Cài đặt</string>
+    <string name="profile_action_logout">Đăng xuất</string>
+    <string name="profile_footer_version">Phiên bản %s</string>
+    <string name="profile_edit_title">Sửa hồ sơ</string>
+    <string name="profile_crop_title">SỬA ẢNH ĐẠI DIỆN</string>
+    <string name="profile_preview_confirm_msg">CHẾ ĐỘ XEM TRƯỚC: Xác nhận hoặc điều chỉnh</string>
+    <string name="profile_preview_confirm_label">XÁC NHẬN HỒ SƠ</string>
+    <string name="profile_menu_central_hub">MENU CHÍNH</string>
+    <string name="profile_error_unknown">Đã xảy ra lỗi. Vui lòng thử lại sau.</string>
+    <string name="profile_total_rolls">Tổng số lượt quay: %d</string>
+    <string name="profile_title_default">Rookie</string>
+
+    <!-- Profile V2 Navigation -->
+    <string name="profile_tab_general">THÔNG TIN chung</string>
+    <string name="profile_tab_trophy">DANH HIỆU</string>
+    <string name="profile_tab_exhibit">TRƯNG BÀY</string>
+    <string name="profile_label_galactic_id">ID NGƯỜI DÙNG</string>
+    <string name="profile_label_biography">BIO</string>
+    <string name="profile_label_joined_dated">NGÀY THAM GIA</string>
+    <string name="profile_msg_copied_uid">Đã sao chép ID người dùng</string>
+    <string name="profile_fallback_bio">Đang khám phá bộ sưu tập...</string>
+    <string name="profile_fallback_joined_date">Không rõ ngày</string>
+    <string name="profile_label_gacha_stats">THỐNG KÊ GACHA</string>
+    <string name="profile_label_total_rolls">TỔNG LƯỢT QUAY</string>
+    <string name="profile_label_collection">BỘ SƯU TẬP</string>
+    <string name="profile_label_honor_badges">HUY HIỆU DANH DỰ</string>
+    <string name="profile_msg_no_badges">Chưa có huy hiệu nào...</string>
+    <string name="profile_label_email">EMAIL</string>
+    <string name="profile_msg_copied_email">Đã sao chép Email</string>
+    <string name="profile_edit_mode_label">SỬA HỒ SƠ</string>
+    <string name="profile_edit_discard_title">Hủy thay đổi?</string>
+    <string name="profile_edit_discard_msg">Mọi thay đổi chưa lưu bao gồm cả ảnh đại diện sẽ bị mất.</string>
+    <string name="profile_edit_discard_action">Hủy</string>
+    <string name="profile_label_username">TÊN TÀI KHOẢN</string>
+    <string name="profile_label_display_name">TÊN HIỂN THỊ</string>
+
+    <!-- Profile Preview -->
+    <string name="profile_preview_default_name">NGƯỜI CHƠI</string>
+    <string name="profile_preview_label_level">CẤP ĐỘ</string>
+    <string name="profile_preview_label_joined">NGÀY THAM GIA</string>
+    <string name="profile_preview_label_showcase">SHOWCASE</string>
+    <string name="profile_preview_label_achievements">THÀNH TỰU</string>
+    <string name="profile_preview_action_message">NHẮN TIN</string>
+    <string name="profile_preview_action_unfriend">HỦY KẾT BẠN</string>
+    <string name="profile_preview_action_add">KẾT BẠN</string>
+    <string name="profile_preview_msg_chat_format">Đang kết nối chat với %s...</string>
+    <string name="profile_preview_msg_chat_coming">Tính năng chat với %s sắp ra mắt!</string>
+    <string name="profile_preview_dialog_unfriend_title">Hủy kết bạn</string>
+    <string name="profile_preview_dialog_unfriend_msg">Xóa %s khỏi danh sách bạn bè?</string>
+    <string name="profile_preview_msg_unfriend_success">Đã hủy kết bạn với %s</string>
+    <string name="profile_v3_btn_unfriend">HỦY KẾT BẠN</string>
+    <string name="profile_v3_btn_add">KẾT BẠN</string>
+    <string name="profile_preview_unfriend_title">Xác nhận hủy kết bạn</string>
+    <string name="profile_preview_unfriend_msg">Bạn có chắc chắn muốn xóa %s khỏi danh sách bạn bè không?</string>
+    <string name="profile_preview_btn_remove">Xóa bạn</string>
+    <string name="profile_preview_unfriend_success">Đã xóa %s khỏi bạn bè.</string>
+    <string name="profile_preview_msg_chat_coming_soon">Tính năng chat với %s sắp ra mắt!</string>
+    <string name="profile_preview_status_online">TRỰC TUYẾN</string>
+    <string name="profile_preview_status_offline">NGOẠI TUYẾN</string>
+    <string name="profile_v3_label_follower">FOLLOWER</string>
+    <string name="profile_v3_label_objets">OBJETS</string>
+    <string name="profile_v3_tab_info">THÔNG TIN</string>
+    <string name="profile_v3_tab_showcase">TRƯNG BÀY</string>
+
+    <!-- Gifting -->
+    <string name="gift_header_title">TẶNG QUÀ</string>
+    <string name="gift_tab_send">GỬI QUÀ</string>
+    <string name="gift_tab_received">HỘP THƯ</string>
+    <string name="gift_label_remaining">LƯỢT TẶNG CÒN LẠI</string>
+    <string name="gift_step_1">CHỌN OBJET</string>
+    <string name="gift_step_2">CHỌN BẠN BÈ</string>
+    <string name="gift_step_3">XÁC NHẬN</string>
+    <string name="gift_prompt_step1">Chạm để chọn\nObjet muốn tặng</string>
+    <string name="gift_action_send">GỬI QUÀ</string>
+    <string name="gift_label_cost">PHÍ GỬI</string>
+    <string name="gift_empty_friends">Bạn chưa có bạn bè.\nHãy kết bạn thêm để gửi quà!</string>
+    <string name="gift_empty_received">Hộp thư quà tặng đang trống.\nHãy đợi quà từ bạn bè nhé!</string>
+    <string name="gift_msg_select_friend_first">Vui lòng chọn một người bạn trước</string>
+    <string name="gift_dialog_confirm_title">Xác nhận tặng quà</string>
+    <string name="gift_dialog_confirm_msg">Bạn có chắc chắn muốn gửi Objet này cho %s không?</string>
+    <string name="gift_dialog_success_title">Thành công</string>
+    <string name="gift_label_received_from">Nhận từ</string>
+    <string name="gift_label_sent_to">Gửi tới</string>
+    <string name="social_label_gift_limit">GIỚI HẠN TẶNG QUÀ HÀNG NGÀY</string>
+    <string name="social_msg_no_matches">Không tìm thấy kết quả phù hợp</string>
+    <string name="social_msg_no_requests">Không có yêu cầu kết bạn mới.\nHộp thư của bạn đang trống.</string>
+    <string name="social_error_accept">Chấp nhận yêu cầu thất bại</string>
+    <string name="social_error_decline">Từ chối yêu cầu thất bại</string>
+
+    <!-- Profile Action Buttons -->
+    <string name="profile_btn_edit">SỬA HỒ SƠ</string>
+    <string name="profile_btn_settings">CÀI ĐẶT</string>
+    <string name="profile_btn_resource_mgmt">TÀI NGUYÊN</string>
+    <string name="profile_btn_like">THÍCH</string>
+    <string name="profile_btn_liked">ĐÃ THÍCH</string>
+    <string name="profile_btn_add_friend">KẾT BẠN</string>
+    <string name="profile_btn_pending">ĐANG CHỜ</string>
+    <string name="profile_btn_friends">BẠN BÈ</string>
+    <string name="profile_btn_message">CHAT</string>
+    <string name="profile_email_placeholder">••••••••@••••.com</string>
+    <string name="profile_msg_followed">Đã theo dõi!</string>
+    <string name="profile_msg_friend_request_sent">Đã gửi yêu cầu kết bạn!</string>
+    <string name="profile_msg_chat_coming_soon_toast">Sắp ra mắt!</string>
+    <string name="profile_label_likes">Thích</string>
+    <string name="profile_label_friends">Bạn bè</string>
+    <string name="showcase_empty_slot">Ô TRỐNG</string>
+    <string name="showcase_unknown_card">OBJ#%s</string>
+
+    <!-- Chat System -->
+    <string name="chat_header_world">KÊNH THẾ GIỚI</string>
+    <string name="chat_header_private">TIN NHẮN RIÊNG</string>
+    <string name="chat_hint_input">Nhập tin nhắn...</string>
+    <string name="chat_msg_welcome">Chào mừng bạn đến với Kênh Thế Giới.</string>
+    <string name="chat_msg_secure_connection">Phiên trò chuyện đã được bắt đầu.</string>
+    <string name="chat_msg_system">HỆ THỐNG</string>
+    <string name="chat_msg_you">Bạn</string>
+    <string name="chat_error_empty_message">Tin nhắn không thể để trống</string>
+    <!-- QR Code Gateway -->
+    <string name="social_qr_tab_my_qr">Mã QR của tôi</string>
+    <string name="social_qr_tab_scan">Quét mã</string>
+    <string name="social_qr_my_code_label">Quét mã để kết bạn</string>
+    <string name="social_qr_scan_instruction">Căn chỉnh mã QR vào trong khung để quét.</string>
+    <string name="social_qr_camera_permission_required">Cần cấp quyền truy cập Camera để quét mã QR.</string>
+
+    <!-- Private Chat List - Stranger & Conversation Preview -->
+    <string name="chat_preview_you_prefix">Bạn:\u0020</string>
+    <string name="chat_preview_start">Chạm để bắt đầu trò chuyện</string>
+    <string name="chat_stranger_suffix"> • Người lạ</string>
+    <string name="chat_user_fallback_prefix">Người chơi </string>
+    <string name="mailbox_system_count_unit">%d Thư</string>
+    <string name="mailbox_gift_count_unit">%d Quà</string>
+
+    <!-- Add Friend Banner (Chat Screen) -->
+    <string name="chat_stranger_alert">Đây là người lạ. Hãy kết nối bạn bè trên Mosco!</string>
+    <string name="chat_add_friend_btn">Kết bạn</string>
+    <string name="chat_add_friend_pending">Đang chờ</string>
+    <string name="chat_add_friend_success">Đã gửi yêu cầu kết bạn!</string>
+    <string name="chat_add_friend_error">Không thể gửi yêu cầu kết bạn!</string>
+    <string name="chat_add_friend_unknown_error">Đã xảy ra lỗi không xác định!</string>
+    <string name="chat_add_friend_network_error">Lỗi mạng, vui lòng thử lại!</string>
+    <string name="badge_unlocked_congrats_format">Chúc mừng! Bạn đã mở khóa: %s</string>
+</resources>

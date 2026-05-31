@@ -57,6 +57,6 @@
 
     <!-- Spin Dialogs -->
     <string name="spin_dialog_confirm_title">Spin Confirmation</string>
-    <string name="spin_dialog_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this Card?</string>
+    <string name="spin_dialog_confirm_msg">Are you sure you want to use 1 Spin Ticket to spin for this card?</string>
     <string name="spin_dialog_action_spin">Spin Now</string>
 </resources>

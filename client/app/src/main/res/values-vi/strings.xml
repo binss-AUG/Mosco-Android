@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Root resource file. Most strings moved to modular strings_*.xml files -->
+    <string name="asset_grade_path">file:///android_asset/grade/</string>
+    <string name="avatar_crop_cache_name">profile_avatar_cropped.png</string>
+    <string name="default_avatar_id">978411b0-45f8-4e8c-87d5-6b5c2a1e3f9d</string>
+    
+    <!-- Spin Info -->
+    <string name="spin_info_title">Hướng dẫn Gacha Spin</string>
+    <string name="spin_info_msg">Chọn một thẻ bài để trao đổi lấy cơ hội nhận Objet cấp cao. Độ hiếm của phần thưởng phụ thuộc vào độ may mắn và giá trị thẻ trao đổi của bạn.</string>
+
+    <!-- Mailbox Tabs -->
+    <string name="mailbox_tab_system">HỆ THỐNG</string>
+    <string name="mailbox_tab_player_gifts">QUÀ TẶNG</string>
+    <string name="mailbox_tab_private_chats">HỘI THOẠI</string>
+    <string name="mailbox_tab_unread">CHƯA ĐỌC</string>
+    <string name="mailbox_tab_read">ĐÃ ĐỌC</string>
+    
+    <!-- Shop payment labels -->
+    <string name="shop_label_total_investment">TỔNG ĐẦU TƯ</string>
+    <string name="shop_btn_complete_order">Hoàn thành giao dịch</string>
+    
+    <!-- Friend constants -->
+    <string name="friend_default_avatar_id">1</string>
+</resources>

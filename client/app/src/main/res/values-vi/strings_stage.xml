@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AFK Stage (K-Tour) -->
+    <string name="stage_header_title">K-TOUR</string>
+    <string name="stage_btn_dispatch">BẮT ĐẦU BIỂU DIỄN</string>
+    <string name="stage_btn_running">ĐANG BIỂU DIỄN...</string>
+    <string name="stage_squad_title">Chọn đội lưu diễn (Tối đa 6)</string>
+    <string name="stage_confirm_btn_format">Xác nhận biểu diễn (%d)</string>
+    <string name="stage_msg_artist_selected">%s đã có trong đội hình lưu diễn!</string>
+    <string name="stage_msg_max_members">Cho phép tối đa %d thành viên!</string>
+    <string name="stage_msg_dispatch_success">Bắt đầu chuyến lưu diễn thành công!</string>
+    
+    <!-- Map Names -->
+    <string name="stage_map_1_name">Seoul (Sông Hàn)</string>
+    <string name="stage_map_2_name">Busan (Haeundae)</string>
+    <string name="stage_map_3_name">Jeju (Hallasan)</string>
+    <string name="stage_map_4_name">Gyeongju (Bulguksa)</string>
+    <string name="stage_map_1_sub">METROPOLIS</string>
+    <string name="stage_map_2_sub">COASTAL</string>
+    <string name="stage_map_3_sub">VOLCANIC</string>
+    <string name="stage_map_4_sub">HISTORIC</string>
+    
+    <!-- Rewards Info -->
+    <string name="stage_map_reward_coins">Vàng &amp; Objet ngẫu nhiên</string>
+    <string name="stage_map_reward_rare">Nhiều vàng &amp; Vật phẩm hiếm</string>
+    <string name="stage_map_reward_premium">Phần thưởng cao cấp &amp; Kim cương</string>
+    <string name="stage_map_reward_epic">Phần thưởng Epic &amp; Nhiều Kim cương</string>
+    
+    <!-- UI Labels -->
+    <string name="stage_lock_level_format">MỞ KHÓA Ở CẤP %d</string>
+    <string name="stage_label_select_duration">CHỌN THỜI GIAN BIỂU DIỄN</string>
+    <string name="stage_duration_1h">1H</string>
+    <string name="stage_duration_4h">4H</string>
+    <string name="stage_duration_8h">8H</string>
+    <string name="stage_duration_12h">12H</string>
+    
+    <!-- Errors & Validation -->
+    <string name="stage_msg_artist_collision">Chỉ được chọn duy nhất một Objet của mỗi Nghệ sĩ!</string>
+    <string name="stage_msg_squad_full">Đội hình đã đầy (Tối đa %d)!</string>
+    <string name="stage_busy_msg_format">Objet này hiện đang\nbiểu diễn tại %s</string>
+    <string name="stage_busy_member_format">Nghệ sĩ này đã có\ntrong đội hình biểu diễn</string>
+    
+    <!-- Dialogs -->
+    <string name="stage_dialog_abort_title">HỦY LƯU DIỄN</string>
+    <string name="stage_dialog_abort_msg">Bạn có chắc chắn muốn hủy chuyến biểu diễn này không? Đội hình của bạn sẽ quay trở lại ngay lập tức, nhưng không nhận được bất kỳ phần thưởng nào.</string>
+    <string name="stage_dialog_speedup_title">HOÀN THÀNH BIỂU DIỄN NHANH</string>
+    <string name="stage_dialog_speedup_msg">Hoàn thành ngay chuyến biểu diễn này với %d Kim cương? Tất cả phần thưởng sẽ được nhận ngay lập tức.</string>
+    <string name="stage_btn_abort">HỦY BỎ</string>
+    <string name="stage_btn_speed_up">TĂNG TỐC</string>
+    <string name="stage_btn_claim">NHẬN THƯỞNG</string>
+    
+    <!-- Status Feedback -->
+    <string name="stage_msg_abort_success">Đã hủy chuyến lưu diễn.</string>
+    <string name="stage_msg_speedup_success">Đã hoàn thành chuyến biểu diễn nhanh!</string>
+    <string name="stage_msg_claim_success">Đã thu thập phần thưởng thành công!</string>
+    
+    <!-- Results -->
+    <string name="stage_reward_dialog_title">CHUYẾN BIỂU DIỄN LƯU DIỄN HOÀN THÀNH!</string>
+    <string name="stage_reward_dialog_subtitle">Đội hình của bạn đã hoàn thành xuất sắc chuyến lưu diễn.</string>
+    <string name="stage_reward_received_format">Bạn nhận được %1$s Vàng và %2$s Kim cương!</string>
+    <string name="stage_reward_footer_hint">Nhận phần thưởng để chuẩn bị cho chuyến lưu diễn tiếp theo!</string>
+</resources>

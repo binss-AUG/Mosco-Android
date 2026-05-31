@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shop Module -->
+    <string name="shop_header_title">CỬA HÀNG</string>
+    <string name="shop_tab_all">Tất cả</string>
+    <string name="shop_tab_objet">Objet</string>
+    <string name="shop_tab_pack">Gói thẻ</string>
+    <string name="shop_tab_buff">Buff</string>
+    <string name="shop_tab_resource">Tài nguyên</string>
+    <string name="shop_action_buy">Mua</string>
+    
+    <!-- Shop Dialogs -->
+    <string name="shop_dialog_buy_title">MUA NGAY</string>
+    <string name="shop_label_total">TỔNG</string>
+    <string name="shop_dialog_buy_total_format">Tổng thanh toán: %s</string>
+    <string name="shop_dialog_success_title">Mua hàng thành công!</string>
+    <string name="shop_dialog_action_inventory">Kho đồ</string>
+    <string name="shop_dialog_action_use_now">Dùng ngay</string>
+    <string name="shop_msg_insufficient_funds">Không đủ tài nguyên!</string>
+    <string name="shop_msg_purchase_success">Mua hàng thành công!</string>
+    <string name="shop_search_hint">Tìm kiếm trong 20.000+ vật phẩm...</string>
+</resources>

@@ -3,7 +3,7 @@
     <!-- App Metadata -->
     <string name="app_name">Mosco</string>
     <string name="common_app_version">App version %s</string>
-    <string name="common_galactic_edition">Mosco Galactic Edition v%s</string>
+    <string name="common_galactic_edition">Mosco Edition v%s</string>
     <string name="common_label_you">You</string>
 
     <!-- Common Actions -->
@@ -38,15 +38,15 @@
     
     <!-- Ghost Buttons (Detail UI) -->
     <string name="btn_spin_title">LUCKY SPIN</string>
-    <string name="btn_spin_desc">Venture into the Gacha to find this relic.</string>
-    <string name="btn_shop_title">GALACTIC SHOP</string>
-    <string name="btn_shop_desc">Acquire rare items from the trade center.</string>
+    <string name="btn_spin_desc">Venture into the Gacha to find this Objet.</string>
+    <string name="btn_shop_title">SHOP</string>
+    <string name="btn_shop_desc">Acquire rare items from the shop.</string>
     <string name="btn_photo_title">CAPTURE PHOTO</string>
     <string name="btn_photo_desc">Immortalize this Objet in your gallery.</string>
     <string name="btn_send_title">GIFT OBJET</string>
-    <string name="btn_send_desc">Transfer ownership to another commander.</string>
+    <string name="btn_send_desc">Transfer ownership to another user.</string>
     <string name="btn_upgrade_title">UPGRADE CENTER</string>
-    <string name="btn_upgrade_desc">Deploy and enhance your Objets to reach higher ranks.</string>
+    <string name="btn_upgrade_desc">Upgrade and enhance your Objets to reach higher levels.</string>
 
     <!-- Common Messages -->
     <string name="common_msg_loading">Connecting to server...</string>
@@ -60,11 +60,11 @@
     <!-- Mission / Event -->
     <string name="common_mission_header">UPCOMING EVENTS</string>
     <string name="common_mission_coming_soon">COMING SOON</string>
-    <string name="common_mission_coming_soon_desc">Our scouts are currently mapping this sector. Check back soon for new updates.</string>
+    <string name="common_mission_coming_soon_desc">New events are currently being prepared. Check back soon for updates.</string>
 
     <!-- Dialogs -->
     <string name="dialog_logout_title">Logout Confirmation</string>
-    <string name="dialog_logout_msg">Are you sure you want to disconnect from the Mosco world?</string>
+    <string name="dialog_logout_msg">Are you sure you want to log out of Mosco?</string>
     <string name="dialog_exit_title">Exit App?</string>
     <string name="dialog_exit_msg">Are you sure you want to close Mosco and exit?</string>
     <string name="dialog_btn_stay">STAY</string>
@@ -82,12 +82,12 @@
     <string name="dialog_connection_lost_btn_retry">RETRY</string>
 
     <!-- Splash Screen -->
-    <string name="splash_status_connecting">Connecting to system...</string>
-    <string name="splash_status_checking">Checking for interstellar updates...</string>
+    <string name="splash_status_connecting">Connecting to server...</string>
+    <string name="splash_status_checking">Checking for updates...</string>
     <string name="splash_status_downloading">Synchronizing metadata...</string>
     <string name="splash_status_preparing">Optimizing data storage...</string>
     <string name="splash_status_loading">Data sync complete...</string>
-    <string name="splash_format_download_sector">Block: #%s</string>
+    <string name="splash_format_download_sector">Data: #%s</string>
     <string name="splash_error_no_internet">Network connection lost. Please check your settings.</string>
     <string name="splash_error_server_unavailable">Server is currently unavailable. Please try again later.</string>
     <string name="splash_error_connection_title">CONNECTION FAILED</string>
@@ -101,14 +101,14 @@
     <string name="splash_action_download">Synchronize</string>
     <string name="splash_action_exit">Exit</string>
     <string name="splash_action_retry">Retry</string>
-    <string name="common_msg_connection_lost">Link lost</string>
+    <string name="common_msg_connection_lost">Connection lost</string>
     <string name="common_msg_back_online">Back online</string>
     <string name="common_msg_system_error">System error occurred</string>
     <string name="msg_milestone_achieved">Milestone achieved!</string>
     
     <!-- Placeholders & Formatting -->
     <string name="placeholder_empty">--</string>
-    <string name="placeholder_commander">Commander</string>
+    <string name="placeholder_commander">User</string>
     <string name="common_msg_tap_to_continue">TAP TO CONTINUE</string>
     <string name="placeholder_loading_showcase">Loading Showcase...</string>
     <string name="format_currency_thousands">%.1fK</string>
@@ -129,13 +129,13 @@
     <string name="common_hint_search">Search...</string>
 
     <!-- Standardized Messages -->
-    <string name="auth_msg_welcome_galaxy_back">Welcome back, Captain!</string>
+    <string name="auth_msg_welcome_galaxy_back">Welcome back!</string>
     <string name="auth_error_sign_in_cancelled">Sign in cancelled</string>
     <string name="msg_inventory_equipped">Item equipped successfully</string>
     <string name="msg_inventory_unequipped">Item unequipped</string>
     <string name="msg_friend_request_sent">Friend request sent</string>
     <string name="msg_like_success">Liked!</string>
-    <string name="common_notification_title">System Notification</string>
+    <string name="common_notification_title">Notification</string>
     <string name="common_label_title">Title</string>
     <string name="common_msg_dialog_placeholder">Notification details appear here.</string>
     <string name="common_msg_purchase_success">Purchase Successful!</string>

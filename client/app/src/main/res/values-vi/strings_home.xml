@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Home Header & HUD -->
+    <string name="home_label_gold_coins">Vàng</string>
+    <string name="home_label_diamonds">Kim cương</string>
+    <string name="home_format_ovr">OVR: %d</string>
+    <string name="home_format_level">CẤP %d</string>
+    <string name="home_format_xp">%s%%</string>
+    <string name="home_format_currency">%s</string>
+    <string name="home_label_id">ID</string>
+    <string name="home_label_id_format">ID: %s</string>
+    <string name="home_toast_copy_success">Đã sao chép ID: %s</string>
+    <string name="home_msg_copied_format">Đã sao chép %s</string>
+    <string name="home_label_username">Tên người dùng</string>
+    <string name="home_label_user_id">ID người dùng</string>
+    <string name="home_msg_copy_clipboard_label">UserID</string>
+    <string name="home_label_station_pending">ĐANG\nDI CHUYỂN</string>
+    <string name="home_label_system_standby">ĐANG CHỜ</string>
+    <string name="home_notification_default">TIN TỨC: Các bộ sưu tập thẻ mới hiện đã có sẵn trong cửa hàng. Hãy xem ngay!</string>
+    <string name="home_chat_hint">Nhập tin nhắn vào kênh thế giới...</string>
+    <string name="home_msg_broadcast_success">Đã gửi tin nhắn thế giới thành công!</string>
+
+    <!-- Mini Rank (Home) -->
+    <string name="home_rank_mini_level">CẤP ĐỘ CAO</string>
+    <string name="home_rank_mini_album">SƯU TẦM NHIỀU</string>
+    <string name="home_rank_mini_wealth">PHÚ HỘ</string>
+    <string name="home_rank_mini_streaks">STREAK CAO</string>
+    <string name="home_action_open_ranking">XEM BẢNG XẾP HẠNG</string>
+    <string name="ranking_error_unavailable">Dữ liệu xếp hạng tạm thời không khả dụng</string>
+
+    <!-- Rank Module -->
+    <string name="rank_header_title">XẾP HẠNG</string>
+    <string name="rank_tab_level">CẤP ĐỘ</string>
+    <string name="rank_tab_album">BỘ SƯU TẬP</string>
+    <string name="rank_tab_wealth">TÀI SẢN</string>
+    <string name="rank_tab_streak">CHUỖI NGÀY</string>
+    <string name="rank_format_level">CẤP %d</string>
+    <string name="rank_num_1">1</string>
+    <string name="rank_num_2">2</string>
+    <string name="rank_num_3">3</string>
+    <string name="rank_format_wealth">%d Kim cương</string>
+    <string name="rank_format_album">%d Thẻ</string>
+    <string name="rank_format_streak">%d Ngày</string>
+    <string name="rank_msg_empty">Chưa có dữ liệu xếp hạng</string>
+    <string name="rank_label_your_ranking">XẾP HẠNG CỦA BẠN</string>
+    <string name="formation_label_buff_active">BUFF KÍCH HOẠT</string>
+
+    <!-- Streak Module -->
+    <string name="streak_header_title">HÀNH TRÌNH CHUỖI</string>
+    <string name="streak_label_current">CHUỖI HIỆN TẠI</string>
+    <string name="streak_label_best">KỶ LỤC MỌI THỜI ĐẠI</string>
+    <string name="streak_label_shield">KHIÊN BẢO VỆ CHUỖI</string>
+    <string name="streak_format_days">%d NGÀY</string>
+    <string name="streak_desc_shield">Giữ cho chuỗi ngày của bạn luôn hoạt động. Bị lỡ một ngày? Khôi phục ngay!</string>
+    <string name="streak_action_restore">KHÔI PHỤC</string>
+    <string name="home_streak_title">DAILY STREAK</string>
+    <string name="home_streak_action_hint">BẤM ĐỂ GHÉ THĂM</string>
+
+    <!-- Daily Check-in -->
+    <string name="daily_header_title">ĐIỂM DANH HÀNG NGÀY</string>
+    <string name="daily_label_morning">Buổi sáng</string>
+    <string name="daily_label_afternoon">Buổi chiều</string>
+    <string name="daily_label_evening">Buổi tối</string>
+    <string name="daily_desc_morning">Bắt đầu ngày mới với nguồn năng lượng từ Mosco.</string>
+    <string name="daily_desc_afternoon">Nghỉ trưa và tích lũy thêm tài nguyên bổ sung.</string>
+    <string name="daily_desc_evening">Kết thúc ngày của bạn thật hoàn hảo với những phần thưởng giá trị nhất.</string>
+    <string name="daily_action_claim">NHẬN</string>
+    <string name="daily_status_claimed">ĐÃ NHẬN</string>
+    <string name="daily_msg_reward_title">ĐIỂM DANH HÀNG NGÀY HOÀN THÀNH!</string>
+    <string name="daily_msg_reward_subtitle">Phần thưởng cho sự kiên trì của bạn với Mosco.</string>
+    <string name="daily_msg_footer_hint">Quay lại trong phiên tiếp theo để nhận thêm phần thưởng!</string>
+    <string name="daily_error_claim">Không thể điểm danh. Vui lòng thử lại sau.</string>
+    <string name="daily_time_morning">06:00 - 11:59</string>
+    <string name="daily_time_afternoon">12:00 - 17:59</string>
+    <string name="daily_time_evening">18:00 - 23:59</string>
+
+    <!-- Common Errors & Notifications -->
+    <string name="formation_error_duplicate_artist">Một đội hình không thể chứa hai thẻ của cùng một nghệ sĩ!</string>
+
+    <!-- Accessibility / Content Descriptions -->
+    <string name="home_cd_hud_menu">Mở menu tiện ích</string>
+    <string name="home_cd_event_banner">Banner sự kiện</string>
+    <string name="home_cd_showcase_front">Ảnh mặt trước thẻ showcase</string>
+    <string name="home_cd_showcase_back">Ảnh mặt sau thẻ showcase</string>
+    <string name="home_cd_user_avatar">Ảnh đại diện người dùng</string>
+
+    <!-- Showcase Empty States -->
+    <string name="home_msg_showcase_empty_title">Showcase của bạn hiện đang trống.</string>
+    <string name="home_msg_showcase_empty_subtitle">Ghé thăm cửa hàng để tìm kiếm Objet đầu tiên.</string>
+
+    <!-- Home HUD Labels -->
+    <string name="home_hud_daily">ĐIỂM DANH</string>
+    <string name="home_hud_rank">XẾP HẠNG</string>
+    <string name="home_hud_event">SỰ KIỆN</string>
+    <string name="home_hud_shop">CỬA HÀNG</string>
+    <string name="home_hud_friends">BẠN BÈ</string>
+    <string name="home_hud_upgrade">NÂNG CẤP</string>
+    <string name="home_hud_pk">SO TÀI</string>
+    <string name="home_hud_team">ĐỘI HÌNH</string>
+    <string name="home_hud_gift">TẶNG QUÀ</string>
+    <string name="home_nav_formation">ĐỘI HÌNH</string>
+    <string name="formation_label_active_synergies">KẾT HỢP KÍCH HOẠT</string>
+    
+    <!-- Action hints for Home Dashboard modules -->
+    <string name="home_hud_daily_action">NHẬN QUÀ</string>
+    <string name="home_hud_upgrade_action">LÊN CẤP OBJET</string>
+    <string name="home_daily_header_title">ĐIỂM DANH HÀNG NGÀY</string>
+    <string name="home_upgrade_header_title">OBJET UPGRADE</string>
+</resources>

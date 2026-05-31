@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="couple_streak_title">Couple Streak</string>
+    <string name="couple_streak_invite_msg">Bắt đầu hành trình Mosco của bạn với %s. Duy trì tương tác hàng ngày để xây dựng chuỗi ngày và nhận những phần thưởng độc quyền.</string>
+    <string name="couple_streak_waiting_msg">Yêu cầu kết nối đã được gửi tới %s. Đang chờ phê duyệt, vui lòng kiên nhẫn!</string>
+    <string name="couple_streak_received_msg">%s đã gửi một yêu cầu kết nối! Hãy chấp nhận ngay để bắt đầu hành trình chuỗi ngày huyền thoại cùng nhau.</string>
+    
+    <string name="couple_streak_action_request">Yêu cầu</string>
+    <string name="couple_streak_action_wait">Chờ %s đồng ý</string>
+    <string name="couple_streak_action_accept">Chấp nhận</string>
+    <string name="couple_streak_action_decline">Từ chối</string>
+    <string name="couple_streak_action_share">Chia sẻ</string>
+    <string name="couple_streak_action_cancel">Hủy bỏ</string>
+    <string name="couple_streak_action_change">Đổi thẻ</string>
+    <string name="couple_streak_you">Bạn</string>
+    <string name="couple_streak_action_share_connection">Flex Kết Nối</string>
+    <string name="couple_streak_invite_stylized"><![CDATA[<b>Giữ chuỗi ngày!</b> Tương tác hàng ngày cùng <font color=\'#00FFFF\'>%s</font>. Mở khóa <font color=\'#FFD700\'>Elite Objets</font> và đạt cấp độ huyền thoại. Đừng để chuỗi bị lỡ!]]></string>
+</resources>

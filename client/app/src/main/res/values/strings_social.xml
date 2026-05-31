@@ -11,9 +11,9 @@
     <string name="social_search_hint_explore">Search user ID or name...</string>
     <string name="social_search_hint_friends">Filter your friends...</string>
     <string name="social_search_hint_requests">Filter requests...</string>
-    <string name="social_empty_msg">The archive is silent...</string>
+    <string name="social_empty_msg">The list is empty.</string>
     <string name="social_explore_hint">NO NEW SUGGESTIONS</string>
-    <string name="social_friend_list_empty">You are a lonely little WAV...\nExpand your network so more people recognize your presence!</string>
+    <string name="social_friend_list_empty">You don\'t have any friends yet.\nAdd friends to share and build your collection!</string>
     <string name="social_msg_pull_cooldown">Please try again in %d seconds</string>
     <string name="social_action_refresh">REFRESH</string>
     <string name="social_msg_refresh_cooldown">Cooldown remaining: %ds</string>
@@ -97,7 +97,7 @@
     <string name="profile_preview_status_online">ONLINE</string>
     <string name="profile_preview_status_offline">OFFLINE</string>
     <string name="profile_v3_label_follower">FOLLOWER</string>
-    <string name="profile_v3_label_objets">CARDS</string>
+    <string name="profile_v3_label_objets">OBJETS</string>
     <string name="profile_v3_tab_info">INFO</string>
     <string name="profile_v3_tab_showcase">SHOWCASE</string>
 
@@ -106,23 +106,23 @@
     <string name="gift_tab_send">SEND</string>
     <string name="gift_tab_received">INBOX</string>
     <string name="gift_label_remaining">GIFTS LEFT</string>
-    <string name="gift_step_1">SELECT CARD</string>
+    <string name="gift_step_1">SELECT OBJET</string>
     <string name="gift_step_2">SELECT FRIEND</string>
     <string name="gift_step_3">CONFIRM</string>
-    <string name="gift_prompt_step1">Tap to select\nCard to gift</string>
+    <string name="gift_prompt_step1">Tap to select\nObjet to gift</string>
     <string name="gift_action_send">SEND GIFT</string>
     <string name="gift_label_cost">GIFT COST</string>
     <string name="gift_empty_friends">You have no friends yet.\nAdd some to send gifts!</string>
     <string name="gift_empty_received">Inbox is empty.\nWait for a gift from friends!</string>
     <string name="gift_msg_select_friend_first">Please select a friend first</string>
     <string name="gift_dialog_confirm_title">Confirm Gift</string>
-    <string name="gift_dialog_confirm_msg">Are you sure you want to send this card to %s?</string>
+    <string name="gift_dialog_confirm_msg">Are you sure you want to send this Objet to %s?</string>
     <string name="gift_dialog_success_title">Success</string>
     <string name="gift_label_received_from">Received from</string>
     <string name="gift_label_sent_to">Sent to</string>
     <string name="social_label_gift_limit">DAILY GIFT LIMIT</string>
     <string name="social_msg_no_matches">No matches found</string>
-    <string name="social_msg_no_requests">No incoming transmissions...\nThe signal space is quiet.</string>
+    <string name="social_msg_no_requests">No incoming requests.\nYour inbox is empty.</string>
     <string name="social_error_accept">Failed to accept</string>
     <string name="social_error_decline">Failed to decline</string>
 

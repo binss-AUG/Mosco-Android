@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Inventory & BottomSheet -->
-    <string name="inventory_title">Select a Card</string>
+    <string name="inventory_title">Select an Objekt</string>
     <string name="inventory_empty_title">Your collection is empty.</string>
-    <string name="inventory_empty_desc">Visit the shop to get your first card.</string>
+    <string name="inventory_empty_desc">Visit the shop to get your first Objet.</string>
     <string name="inventory_action_quick">Quick Pick</string>
     <string name="inventory_msg_quick_pick_success">Best squad selected!</string>
     <string name="inventory_format_items_count">%d Items</string>
@@ -42,7 +42,7 @@
     <string name="collection_header_title">Collection</string>
     <string name="collection_tab_album">Album</string>
     <string name="collection_tab_mailbox">Mailbox</string>
-    <string name="collection_tab_objets">Cards</string>
+    <string name="collection_tab_objets">Objets</string>
     <string name="collection_tab_items">Items</string>
 
     <string-array name="collection_tabs">
@@ -51,7 +51,7 @@
         <item>@string/collection_tab_album</item>
     </string-array>
     <string name="collection_msg_reward_claimed">Reward already claimed!</string>
-    <string name="collection_format_reward_requirement">Collect %d cards to claim!</string>
+    <string name="collection_format_reward_requirement">Collect %d Objets to claim!</string>
     <string name="collection_msg_error_mailbox">Failed to load mailbox</string>
     <string name="collection_msg_error_inventory">Failed to load inventory</string>
     <string name="collection_msg_error_album">Failed to load Collection</string>
@@ -66,7 +66,7 @@
 
     <!-- Team & Formation -->
     <string name="formation_total_ovr">TOTAL FORMATION OVR: %d</string>
-    <string name="formation_msg_artist_collision">Only one Card per Artist allowed!</string>
+    <string name="formation_msg_artist_collision">Only one Objekt per Artist allowed!</string>
     <string name="formation_msg_preview_failed">Preview failed</string>
 
     <!-- Card Actions (Premium Buttons) -->
@@ -75,12 +75,12 @@
     <string name="card_action_shop_title">OPEN SHOP</string>
     <string name="card_action_shop_desc">Browse exclusive deals and card packs</string>
     <string name="card_action_capture_title">CAPTURE SCREEN</string>
-    <string name="card_action_capture_desc">Capture a high-quality snap of your card</string>
+    <string name="card_action_capture_desc">Capture a high-quality snap of your Objekt</string>
     <string name="card_action_level_up_title">LEVEL UP</string>
     <string name="card_action_send_title">SEND GIFT</string>
     <string name="card_action_send_desc">Share this collectible with your friends</string>
     <string name="card_action_upgrade_title">UPGRADE</string>
-    <string name="card_action_upgrade_desc">Enhance card stats to improve your collection</string>
+    <string name="card_action_upgrade_desc">Enhance Objekt stats to improve your collection</string>
     <string name="stat_hp">HP</string>
     <string name="stat_atk">ATK</string>
     <string name="stat_def">DEF</string>
@@ -89,13 +89,13 @@
     <string name="stat_crit_dmg">Crit DMG</string>
 
     <!-- Upgrade System -->
-    <string name="upgrade_title">Upgrade Card</string>
+    <string name="upgrade_title">Upgrade Objekt</string>
     
     <!-- Spin / Gacha System -->
     <string name="spin_action_charging">Processing...</string>
     <string name="spin_msg_nothing">Nothing</string>
     <string name="spin_msg_failed">Spin failed</string>
-    <string name="spin_format_received_objet">Received the %s Card.</string>
+    <string name="spin_format_received_objet">Received %s Objekt.</string>
 
     <!-- Shop System -->
     <string name="shop_title">Shop</string>
@@ -124,6 +124,6 @@
     <string name="collection_label_completed">COMPLETED</string>
     <string name="collection_label_reward">REWARD</string>
     <string name="collection_reward_msg">You received %s!</string>
-    <string name="showcase_msg_duplicate">This card is already showcased in another slot.</string>
+    <string name="showcase_msg_duplicate">This Objet is already showcased in another slot.</string>
     <string name="card_name_unknown">Unknown</string>
 </resources>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Authentication -->
+    <string name="auth_title_sign_in">Chào mừng quay lại</string>
+    <string name="auth_subtitle_sign_in">Đăng nhập vào tài khoản của bạn dưới đây</string>
+    <string name="auth_title_sign_up">Tạo tài khoản</string>
+    <string name="auth_subtitle_sign_up">Tham gia Mosco ngay hôm nay</string>
+    <string name="auth_label_email">Địa chỉ Email</string>
+    <string name="auth_prompt_email">user@example.com</string>
+    <string name="auth_label_username_or_email">Tên người dùng hoặc Email</string>
+    <string name="auth_prompt_username_or_email">username / user@example.com</string>
+    <string name="auth_label_password">Mật khẩu</string>
+    <string name="auth_prompt_password">••••••</string>
+    <string name="auth_label_remember_me">Ghi nhớ đăng nhập</string>
+    <string name="auth_label_username">Tên người dùng</string>
+    <string name="auth_prompt_username">Tên người dùng</string>
+    <string name="auth_prompt_confirm_password">••••••</string>
+    <string name="auth_label_confirm_password">Xác nhận mật khẩu</string>
+    <string name="auth_label_verification_code">Mã xác thực</string>
+    <string name="auth_prompt_verification_code">------</string>
+    <string name="auth_action_sign_in">Đăng nhập</string>
+    <string name="auth_action_sign_up">Đăng ký</string>
+    <string name="auth_action_send_code">Gửi mã</string>
+    <string name="auth_action_resend">Gửi lại</string>
+    <string name="auth_action_forgot_password">Quên mật khẩu?</string>
+    <string name="auth_title_recovery">Khôi phục tài khoản</string>
+    <string name="auth_subtitle_recovery">Khôi phục quyền truy cập vào tài khoản của bạn</string>
+    <string name="auth_label_new_password">Mật khẩu mới</string>
+    <string name="auth_action_reset_password">Đặt lại mật khẩu</string>
+    <string name="auth_msg_new_user">Chưa có tài khoản? Đăng ký</string>
+    <string name="auth_msg_already_have_account">Đã có tài khoản? Đăng nhập</string>
+    <string name="auth_msg_passwords_not_match">Mật khẩu không trùng khớp!</string>
+    <string name="auth_msg_create_account_success">Tạo tài khoản thành công!</string>
+    <string name="auth_msg_code_sent">Đã gửi mã xác thực!</string>
+    <string name="auth_msg_sign_in_success">Chào mừng quay trở lại!</string>
+    <string name="auth_msg_forgot_password_recovery">Kiểm tra email của bạn để lấy mã khôi phục.</string>
+    <string name="auth_msg_reset_password_success">Đặt lại mật khẩu thành công!</string>
+    <string name="auth_msg_invalid_code">Mã xác thực không hợp lệ hoặc đã hết hạn!</string>
+    <string name="auth_error_short_code">Mã xác thực phải gồm 6 chữ số</string>
+    <string name="auth_msg_email_not_found">Không tìm thấy email hoặc lỗi kết nối!</string>
+    <string name="auth_error_empty_field">Trường này là bắt buộc</string>
+    <string name="auth_error_invalid_email">Định dạng email không hợp lệ</string>
+    <string name="auth_error_short_password">Mật khẩu phải chứa ít nhất 6 ký tự</string>
+    <string name="auth_format_resend_timer">%ds</string>
+    <string name="auth_label_or_continue">Hoặc tiếp tục bằng</string>
+    <string name="auth_action_google">Google</string>
+    <string name="auth_action_discord">Discord</string>
+
+    <string name="auth_title_verify">Xác thực Email</string>
+    <string name="auth_subtitle_verify">Nhập mã gồm 6 chữ số đã được gửi đến %1$s</string>
+    <string name="auth_action_verify">Xác thực &amp; Tiếp tục</string>
+    <string name="auth_msg_otp_sent">Mã xác thực đã được gửi đi!</string>
+
+    <!-- Display Name Setup -->
+    <string name="setup_title">CHỌN TÊN CỦA BẠN</string>
+    <string name="setup_subtitle">Đây là tên những người chơi khác sẽ nhìn thấy bạn</string>
+    <string name="setup_btn_enter">BẮT ĐẦU CHƠI</string>
+    <string name="setup_welcome">Chào mừng, %s!</string>
+    <string name="setup_prompt_display_name">Tên hiển thị</string>
+    <string name="setup_error_display_name_length">Tên hiển thị phải từ 2–16 ký tự</string>
+    <string name="auth_error_google_token_null">Google Token bị null. Kiểm tra Web Client ID.</string>
+    <string name="auth_error_google_general">Lỗi Google: %1$s</string>
+    <string name="auth_error_discord_general">Lỗi Discord: %1$s</string>
+    <string name="auth_msg_welcome_galaxy">Chào mừng bạn đến với Mosco!</string>
+</resources>

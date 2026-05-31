@@ -27,4 +27,10 @@
     <string name="settings_label_account">ACCOUNT</string>
     <string name="settings_action_change_password">Change Password</string>
     <string name="settings_action_logout">Log Out</string>
+
+    <!-- Language settings -->
+    <string name="settings_label_language">Language</string>
+    <string name="language_en">English</string>
+    <string name="language_vi">Tiếng Việt</string>
+    <string name="settings_dialog_language_title">Select Language</string>
 </resources>

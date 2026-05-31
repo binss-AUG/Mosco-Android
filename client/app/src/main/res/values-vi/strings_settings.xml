@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Module Strings -->
+    <string name="settings_header_title">CÀI ĐẶT</string>
+    <string name="settings_label_dark_mode">Chế độ tối</string>
+    <string name="settings_label_music">Nhạc nền</string>
+    <string name="settings_label_sfx">Hiệu ứng âm thanh</string>
+    <string name="settings_label_storage">Bộ nhớ</string>
+    <string name="settings_action_clear_cache">Xóa bộ nhớ đệm</string>
+    <string name="settings_msg_cache_cleared">Đã xóa bộ nhớ đệm thành công</string>
+    <string name="settings_label_cache_usage">Đang dùng %s bộ nhớ</string>
+    <string name="settings_msg_clearing_cache">Đang xóa bộ nhớ đệm...</string>
+    
+    <!-- Backup Settings -->
+    <string name="settings_label_auto_backup">Tự động sao lưu đám mây</string>
+    <string name="settings_label_backup_interval">Tần suất sao lưu</string>
+    <string name="settings_desc_auto_backup">Tự động đồng bộ hóa dữ liệu của bạn lên đám mây khi pin an toàn.</string>
+    <string name="settings_label_system">HỆ THỐNG &amp; ÂM THANH</string>
+    <string name="settings_label_data">QUẢN LÝ DỮ LIỆU</string>
+    <string name="interval_6h">Mỗi 6 Giờ</string>
+    <string name="interval_12h">Mỗi 12 Giờ</string>
+    <string name="interval_24h">Hàng ngày (24 Giờ)</string>
+    <string name="interval_3d">Mỗi 3 Ngày</string>
+    <string name="interval_7d">Mỗi 7 Ngày</string>
+    <string name="interval_15d">Mỗi 15 Ngày</string>
+    <string name="interval_30d">Hàng tháng (30 Ngày)</string>
+    <string name="settings_label_account">TÀI KHOẢN</string>
+    <string name="settings_action_change_password">Đổi mật khẩu</string>
+    <string name="settings_action_logout">Đăng xuất</string>
+
+    <!-- Language settings -->
+    <string name="settings_label_language">Ngôn ngữ</string>
+    <string name="language_en">English</string>
+    <string name="language_vi">Tiếng Việt</string>
+    <string name="settings_dialog_language_title">Chọn ngôn ngữ</string>
+</resources>

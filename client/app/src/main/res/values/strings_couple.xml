@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="couple_streak_title">Couple Streak</string>
-    <string name="couple_streak_invite_msg">Start your Galactic journey with %s. Maintain daily interaction to ignite the flame of connection and earn Elite perks.</string>
-    <string name="couple_streak_waiting_msg">Request sent to %s. The flame is waiting to be ignited, please be patient!</string>
-    <string name="couple_streak_received_msg">%s has sent a connection request! Accept now to start your legendary Streak journey together.</string>
+    <string name="couple_streak_invite_msg">Start your Mosco journey with %s. Maintain daily interaction to build your streak and earn exclusive rewards.</string>
+    <string name="couple_streak_waiting_msg">Connection request sent to %s. Waiting for approval, please be patient!</string>
+    <string name="couple_streak_received_msg">%s has sent a connection request! Accept now to start your legendary streak journey together.</string>
     
     <string name="couple_streak_action_request">Request</string>
     <string name="couple_streak_action_wait">Wait %s Accept</string>
@@ -14,5 +14,5 @@
     <string name="couple_streak_action_change">Switch Card</string>
     <string name="couple_streak_you">You</string>
     <string name="couple_streak_action_share_connection">Flex Connection</string>
-    <string name="couple_streak_invite_stylized"><![CDATA[<b>Fuel the fire!</b> Sync daily with <font color=\'#00FFFF\'>%s</font> to maintain your streak. Unlock <font color=\'#FFD700\'>Elite Objets</font> and reach Galactic status. Don\'t let the flame fade!]]></string>
+    <string name="couple_streak_invite_stylized"><![CDATA[<b>Keep the streak!</b> Interact daily with <font color=\'#00FFFF\'>%s</font>. Unlock <font color=\'#FFD700\'>Elite Objets</font> and reach legendary status. Don\'t let it fade!]]></string>
 </resources>

@@ -6,8 +6,8 @@
     <string name="default_avatar_id">978411b0-45f8-4e8c-87d5-6b5c2a1e3f9d</string>
     
     <!-- Spin Info -->
-    <string name="spin_info_title">Galactic Spin Guide</string>
-    <string name="spin_info_msg">Select a card to sacrifice for a chance to win a high-rank Objekt. The rarity of the reward depends on your luck and the value of the sacrifice.</string>
+    <string name="spin_info_title">Spin Guide</string>
+    <string name="spin_info_msg">Select a card to trade for a chance to win a high-rank Objekt. The rarity of the reward depends on your luck and the value of the traded card.</string>
 
     <!-- Mailbox Tabs -->
     <string name="mailbox_tab_system">SYSTEM</string>

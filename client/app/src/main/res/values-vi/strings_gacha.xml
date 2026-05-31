@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pack Reveal -->
+    <string name="reveal_title_summary">Tóm tắt</string>
+    <string name="reveal_summary_title_expand">Hiện tóm tắt</string>
+    <string name="reveal_summary_title_collapse">Ẩn tóm tắt</string>
+    <string name="reveal_headline_rewards">Đã mở khóa phần thưởng</string>
+    <string name="reveal_msg_congrats">Chúc mừng! Bạn đã mở được %d thẻ!</string>
+    <string name="reveal_summary_footer_marker">--- KẾT THÚC BẢN TÓM TẮT ---</string>
+    <string name="reveal_summary_headline">TÓM TẮT KẾT QUẢ</string>
+    <string name="reveal_summary_subtitle">Bạn đã thu thập thành công %d thẻ</string>
+    <string name="reveal_subtitle_rewards">Các phần thưởng của bạn được liệt kê dưới đây</string>
+    <string name="reveal_default_info">Đang xử lý dữ liệu...</string>
+    <string name="reveal_error_format">Lỗi hệ thống: %s</string>
+    <string name="reveal_action_awesome">Tuyệt vời!</string>
+    <string name="reveal_action_collect_all">NHẬN TẤT CẢ (%d)</string>
+    <string name="reveal_format_amazing_reveal">MỞ THẺ ĐẶC BIỆT\n%s</string>
+    <string name="reveal_action_open_x1">Mở x1</string>
+    <string name="reveal_action_open_all">Mở tất cả (%d gói)</string>
+    <string name="reveal_msg_limit_hint">Giới hạn mở tất cả: tối đa %d gói một lượt</string>
+    <string name="reveal_msg_loading">Đang mở gói để khám phá bất ngờ...</string>
+    <string name="reveal_error_only_packs">Chỉ các gói (PACK) mới có thể mở tại đây.</string>
+    <string name="reveal_default_item_name">Thẻ không xác định</string>
+
+    <!-- Card Refresh -->
+    <string name="dialog_refresh_title">Làm mới thẻ</string>
+    <string name="dialog_refresh_msg">Bạn có chắc chắn muốn làm mới dữ liệu của thẻ này không?</string>
+    <string name="msg_refresh_success">Làm mới thành công!</string>
+    <string name="msg_refresh_error">Lỗi: Không tìm thấy thẻ</string>
+
+    <!-- Upgrades -->
+    <string name="upgrade_btn_text">NÂNG CẤP</string>
+    <string name="upgrade_format_materials_count_limit">Đã chọn %1$d / 5</string>
+    <string name="upgrade_header_title">NÂNG CẤP</string>
+    <string name="upgrade_label_materials">NGUYÊN LIỆU</string>
+    <string name="upgrade_format_materials_count">Đã chọn %1$d / %2$d</string>
+    <string name="upgrade_label_boost">TỈ LỆ THÀNH CÔNG</string>
+    <string name="upgrade_action_upgrading">ĐANG NÂNG CẤP...</string>
+    <string name="upgrade_msg_select_main">Vui lòng chọn thẻ chính trước!</string>
+    <string name="upgrade_msg_success">Nâng cấp thành công!</string>
+    <string name="upgrade_msg_failed">Nâng cấp thất bại!</string>
+    <string name="upgrade_error_max_materials">Chỉ cho phép tối đa 5 nguyên liệu!</string>
+    <string name="upgrade_error_max_probability">Tỉ lệ thành công đã đạt 100%!</string>
+    <string name="upgrade_msg_main_as_material">Không thể dùng thẻ chính làm nguyên liệu!</string>
+
+    <!-- Gacha Spin -->
+    <string name="spin_header_title">GACHA SPIN</string>
+    <string name="spin_label_ticket">Vé quay Gacha</string>
+    <string name="spin_label_grid_title">Chọn một thẻ để lật mở</string>
+    <string name="spin_action_confirm">Xác nhận lựa chọn</string>
+    <string name="spin_msg_success">Quay gacha thành công!</string>
+    <string name="spin_action_reveal_unchosen">Xem các thẻ chưa chọn  ></string>
+    <string name="spin_msg_result_grid">Kết quả quay Gacha</string>
+    <string name="spin_action_try_again">Thử lại</string>
+    <string name="spin_action_spin">Quay</string>
+    <string name="spin_action_collect">Thu thập</string>
+
+    <!-- Spin Dialogs -->
+    <string name="spin_dialog_confirm_title">Xác nhận quay</string>
+    <string name="spin_dialog_confirm_msg">Bạn có chắc chắn muốn sử dụng 1 Vé quay để mở Objet này không?</string>
+    <string name="spin_dialog_action_spin">Quay ngay</string>
+</resources>

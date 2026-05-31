@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Metadata -->
+    <string name="app_name">Mosco</string>
+    <string name="common_app_version">Phiên bản ứng dụng %s</string>
+    <string name="common_galactic_edition">Mosco Edition v%s</string>
+    <string name="common_label_you">Bạn</string>
+
+    <!-- Common Actions -->
+    <string name="action_confirm">Xác nhận</string>
+    <string name="common_action_loading">...</string>
+    <string name="action_cancel">Hủy</string>
+    <string name="action_done">Hoàn tất</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_edit">Sửa</string>
+    <string name="action_close">Đóng</string>
+    <string name="action_back">Quay lại</string>
+    <string name="action_next">Tiếp theo</string>
+    <string name="action_previous">Trước đó</string>
+    <string name="action_continue">Tiếp tục</string>
+    <string name="action_claim">Nhận</string>
+    <string name="action_retry">Thử lại</string>
+    <string name="action_exit">Thoát</string>
+    <string name="action_stay">Ở lại</string>
+    <string name="action_buy">Mua</string>
+    <string name="action_send">Gửi</string>
+    <string name="action_clear">Xóa</string>
+    <string name="action_apply">Áp dụng</string>
+    <string name="action_ok">OK</string>
+    <string name="action_use">Sử dụng</string>
+    <string name="action_use_item">Dùng vật phẩm</string>
+    <string name="action_get_more">Nhận thêm</string>
+    <string name="action_collect">Sưu tầm</string>
+    <string name="action_get_started">Bắt đầu</string>
+    <string name="label_all">Tất cả</string>
+    <string name="label_quantity">Số lượng</string>
+    <string name="label_choose_avatar">Chọn ảnh đại diện của bạn</string>
+    
+    <!-- Ghost Buttons (Detail UI) -->
+    <string name="btn_spin_title">VÒNG QUAY MAY MẮN</string>
+    <string name="btn_spin_desc">Tham gia Gacha Spin để tìm kiếm Objet này.</string>
+    <string name="btn_shop_title">CỬA HÀNG</string>
+    <string name="btn_shop_desc">Nhận các vật phẩm hiếm từ cửa hàng.</string>
+    <string name="btn_photo_title">CHỤP ẢNH</string>
+    <string name="btn_photo_desc">Lưu giữ Objet này trong bộ sưu tập của bạn.</string>
+    <string name="btn_send_title">TẶNG OBJET</string>
+    <string name="btn_send_desc">Chuyển quyền sở hữu cho một người chơi khác.</string>
+    <string name="btn_upgrade_title">TRUNG TÂM NÂNG CẤP</string>
+    <string name="btn_upgrade_desc">Nâng cấp và tăng cường sức mạnh Objets để đạt cấp độ cao hơn.</string>
+
+    <!-- Common Messages -->
+    <string name="common_msg_loading">Đang kết nối tới máy chủ...</string>
+    <string name="common_msg_coming_soon">Sắp ra mắt!</string>
+    <string name="common_msg_success">Thành công!</string>
+    <string name="common_error_unknown">Đã xảy ra lỗi không xác định</string>
+    <string name="common_error_network">Không thể kết nối đến máy chủ.</string>
+    <string name="error_server_offline">Máy chủ tạm thời không hoạt động. Vui lòng thử lại sau.</string>
+    <string name="error_timeout">Yêu cầu quá hạn. Vui lòng thử lại.</string>
+
+    <!-- Mission / Event -->
+    <string name="common_mission_header">SỰ KIỆN SẮP TỚI</string>
+    <string name="common_mission_coming_soon">SẮP RA MẮT</string>
+    <string name="common_mission_coming_soon_desc">Các sự kiện mới đang được chuẩn bị. Vui lòng quay lại sau để cập nhật.</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_logout_title">Xác nhận đăng xuất</string>
+    <string name="dialog_logout_msg">Bạn có chắc chắn muốn đăng xuất khỏi Mosco không?</string>
+    <string name="dialog_exit_title">Thoát ứng dụng?</string>
+    <string name="dialog_exit_msg">Bạn có chắc chắn muốn đóng Mosco và thoát không?</string>
+    <string name="dialog_btn_stay">Ở LẠI</string>
+    <string name="dialog_btn_exit">THOÁT</string>
+
+    <!-- Session Expired Dialog -->
+    <string name="dialog_session_expired_title">Phiên đăng nhập hết hạn</string>
+    <string name="dialog_session_expired_msg">Phiên đăng nhập của bạn đã kết thúc. Vui lòng đăng nhập lại để tiếp tục.</string>
+    <string name="dialog_session_expired_btn">ĐĂNG NHẬP</string>
+    <string name="dialog_session_expired_dual_login">Tài khoản đã đăng nhập trên thiết bị khác. Bạn đã được đăng xuất để bảo mật.</string>
+
+    <!-- Connection Lost Dialog -->
+    <string name="dialog_connection_lost_title">Mất kết nối</string>
+    <string name="dialog_connection_lost_msg">Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại kết nối mạng và thử lại.</string>
+    <string name="dialog_connection_lost_btn_retry">THỬ LẠI</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_status_connecting">Đang kết nối tới máy chủ...</string>
+    <string name="splash_status_checking">Đang kiểm tra cập nhật...</string>
+    <string name="splash_status_downloading">Đang đồng bộ hóa dữ liệu...</string>
+    <string name="splash_status_preparing">Đang tối ưu hóa bộ nhớ dữ liệu...</string>
+    <string name="splash_status_loading">Đồng bộ dữ liệu hoàn tất...</string>
+    <string name="splash_format_download_sector">Phần: #%s</string>
+    <string name="splash_error_no_internet">Mất kết nối mạng. Vui lòng kiểm tra lại cài đặt.</string>
+    <string name="splash_error_server_unavailable">Máy chủ hiện tại không hoạt động. Vui lòng thử lại sau.</string>
+    <string name="splash_error_connection_title">KẾT NỐI THẤT BẠI</string>
+    <string name="splash_error_connection_msg">Không thể truy cập máy chủ. Vui lòng xác minh lại kết nối của bạn.</string>
+    <string name="splash_dialog_update_title">Yêu cầu đồng bộ</string>
+    <string name="splash_dialog_update_msg_premium">Cần cập nhật siêu dữ liệu mới để đồng bộ hóa bộ sưu tập của bạn và đảm bảo tính toàn vẹn dữ liệu.</string>
+    <string name="splash_dialog_update_size_format">Kích thước: %1$.1f MB</string>
+    <string name="splash_action_update">Cập nhật ngay</string>
+    <string name="splash_dialog_cellular_title">Cảnh báo dữ liệu di động</string>
+    <string name="splash_dialog_cellular_msg">Bạn đang sử dụng dữ liệu di động. Đồng bộ hóa %1$.1f MB siêu dữ liệu ngay?</string>
+    <string name="splash_action_download">Đồng bộ hóa</string>
+    <string name="splash_action_exit">Thoát</string>
+    <string name="splash_action_retry">Thử lại</string>
+    <string name="common_msg_connection_lost">Mất kết nối mạng</string>
+    <string name="common_msg_back_online">Đã kết nối lại</string>
+    <string name="common_msg_system_error">Đã xảy ra lỗi hệ thống</string>
+    <string name="msg_milestone_achieved">Đạt cột mốc mới!</string>
+    
+    <!-- Placeholders & Formatting -->
+    <string name="placeholder_empty">--</string>
+    <string name="placeholder_commander">Người dùng</string>
+    <string name="common_msg_tap_to_continue">CHẠM ĐỂ TIẾP TỤC</string>
+    <string name="placeholder_loading_showcase">Đang tải Showcase...</string>
+    <string name="format_currency_thousands">%.1fK</string>
+    <string name="format_currency_millions">%.1fM</string>
+    <string name="format_currency_billions">%.1fB</string>
+    <string name="format_currency_trillions">%.1fT</string>
+    <string name="format_qty">x%s</string>
+    <string name="format_qty_int">x%d</string>
+    <string name="format_fraction">%1$s/%2$s</string>
+    <string name="format_level">Cấp %d</string>
+    <string name="format_level_short">CẤP %d</string>
+    <string name="format_level_plus">+%d</string>
+    <string name="home_format_user_id">ID: %s</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_close">Nút đóng</string>
+    <string name="cd_back">Nút quay lại</string>
+    <string name="common_hint_search">Tìm kiếm...</string>
+
+    <!-- Standardized Messages -->
+    <string name="auth_msg_welcome_galaxy_back">Chào mừng quay trở lại!</string>
+    <string name="auth_error_sign_in_cancelled">Hủy đăng nhập</string>
+    <string name="msg_inventory_equipped">Trang bị vật phẩm thành công</string>
+    <string name="msg_inventory_unequipped">Đã tháo trang bị vật phẩm</string>
+    <string name="msg_friend_request_sent">Đã gửi yêu cầu kết bạn</string>
+    <string name="msg_like_success">Đã thích!</string>
+    <string name="common_notification_title">Thông báo</string>
+    <string name="common_label_title">Tiêu đề</string>
+    <string name="common_msg_dialog_placeholder">Chi tiết thông báo hiển thị tại đây.</string>
+    <string name="common_msg_purchase_success">Mua hàng thành công!</string>
+    <string name="common_label_item_name">Tên vật phẩm</string>
+    <string name="common_label_item_desc">Mô tả vật phẩm</string>
+    <string name="common_label_owned_format">Đang sở hữu: %d</string>
+    <string name="action_get">Nhận</string>
+    <string name="status_online">Trực tuyến</string>
+    <string name="status_offline">Ngoại tuyến</string>
+</resources>
