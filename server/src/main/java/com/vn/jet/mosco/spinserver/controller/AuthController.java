@@ -106,4 +106,20 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().body(response);
     }
+
+    /**
+     * POST /api/auth/restore-account — Khôi phục tài khoản đang trong trạng thái chờ xóa.
+     * Yêu cầu xác thực OTP gửi về email.
+     * Tại sao: Hủy trạng thái Soft Delete để người dùng tiếp tục đăng nhập bình thường.
+     */
+    @PostMapping("/restore-account")
+    public ResponseEntity<AuthResponse> restoreAccount(
+            @RequestParam String email,
+            @RequestParam String code) {
+        AuthResponse response = authService.restoreAccount(email, code);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
 }

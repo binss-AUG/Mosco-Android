@@ -54,7 +54,12 @@
     <string name="settings_action_bug_report">Report a Bug</string>
     <string name="settings_action_delete_account">Delete Account</string>
     <string name="settings_dialog_delete_title">Delete Account?</string>
-    <string name="settings_dialog_delete_msg">WARNING: This action is permanent. All your Objets, Diamonds, and progress will be permanently deleted. Are you sure you want to proceed?</string>
+    <string name="settings_dialog_delete_msg">An OTP verification code will be sent to your email to proceed with the account deletion request. Your account will be placed on hold and can be restored within 14 days. Do you want to continue?</string>
+    <string name="settings_delete_otp_sent">OTP code has been sent to your email.</string>
+    <string name="settings_delete_otp_send_failed">Failed to send OTP code.</string>
+    <string name="settings_delete_email_missing">Email information not found.</string>
+    <string name="settings_delete_success">Account deletion request submitted. Your account will be on hold for 14 days.</string>
+    <string name="settings_delete_verify_failed">OTP verification failed.</string>
     <string name="settings_bug_dialog_title">Report a Bug</string>
     <string name="settings_bug_dialog_hint">Describe the issue you encountered...</string>
     <string name="settings_bug_dialog_success">Thank you! Bug report sent successfully.</string>

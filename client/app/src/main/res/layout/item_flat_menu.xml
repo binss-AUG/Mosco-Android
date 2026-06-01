@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layout đại diện cho một mục cài đặt phẳng (Flat List Item) trong Settings -->
+<!-- Tại sao (WHY): Đảm bảo tính nhất quán visual, dễ bảo trì và tránh trùng lặp code giao diện (DRY) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/spacing_64dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground"
+    android:paddingHorizontal="@dimen/spacing_sm">
+
+    <!-- Icon tiêu đề bên trái -->
+    <ImageView
+        android:id="@+id/iv_menu_icon"
+        android:layout_width="@dimen/spacing_lg"
+        android:layout_height="@dimen/spacing_lg"
+        android:src="@drawable/ic_info"
+        app:tint="@color/white"
+        android:contentDescription="Menu Icon" />
+
+    <!-- Cụm thông tin tiêu đề và mô tả ở giữa -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_menu_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.Body"
+            android:textSize="@dimen/text_size_body_md"
+            android:textStyle="bold"
+            android:text="Menu Title" />
+
+        <TextView
+            android:id="@+id/tv_menu_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MoscoText.Luxury.Body"
+            android:textColor="@color/mosco_on_surface_variant"
+            android:textSize="@dimen/text_size_mini"
+            android:visibility="gone"
+            android:text="Menu Description" />
+    </LinearLayout>
+
+    <!-- Giá trị hiện tại (ví dụ: English, Daily...) bên phải -->
+    <TextView
+        android:id="@+id/tv_menu_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MoscoText.Luxury.Body"
+        android:textColor="@color/mosco_outline_variant"
+        android:textSize="@dimen/text_size_body_sm"
+        android:layout_marginEnd="@dimen/spacing_sm"
+        android:visibility="gone"
+        android:text="Value" />
+
+    <!-- Mũi tên điều hướng chỉ sang phải -->
+    <ImageView
+        android:id="@+id/iv_menu_arrow"
+        android:layout_width="@dimen/spacing_md"
+        android:layout_height="@dimen/spacing_md"
+        android:src="@drawable/ic_forward_arrow"
+        app:tint="@color/mosco_on_surface_variant"
+        android:contentDescription="Navigation Arrow" />
+
+</LinearLayout>

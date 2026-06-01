@@ -570,4 +570,40 @@ public class UserController {
         if (name == null) return "";
         return name.trim().replaceAll("\\s+", " ");
     }
+
+    /**
+     * POST /api/user/delete-account — Yêu cầu xóa tài khoản (Soft Delete 14 ngày).
+     * Yêu cầu xác thực OTP gửi về email trước đó.
+     * Tại sao: Bảo vệ tài khoản người chơi khỏi việc bị xóa trộm.
+     */
+    @PostMapping("/delete-account")
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
+            HttpServletRequest request,
+            @RequestParam String code) {
+
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error(401, "Authentication required"));
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404)
+                    .body(ApiResponse.error(404, "User not found"));
+        }
+
+        // Xác thực mã OTP thông qua AuthService
+        boolean otpValid = authService.verifyCode(user.getEmail(), code);
+        if (!otpValid) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Mã OTP không chính xác hoặc đã hết hạn."));
+        }
+
+        user.setDeletionRequestedAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
+
+        logger.info("User requested account deletion: userId={}, email={}", userId, user.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("Yêu cầu xóa tài khoản đã được tiếp nhận. Bạn có 14 ngày để khôi phục.", null));
+    }
 }

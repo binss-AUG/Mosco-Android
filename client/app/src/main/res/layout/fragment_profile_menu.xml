@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Màn hình Settings được tái cấu trúc hoàn chỉnh sang dạng Flat List đồng bộ -->
+<!-- Tại sao (WHY): Đáp ứng 100% triết lý thiết kế luxury của Mosco, loại bỏ sự lộn xộn giữa Card/Flat -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,7 +10,7 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Galaxy Style Header (Synced with Daily Checkin) -->
+    <!-- Header phong cách dải thiên hà (Galaxy Style Header) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_header_menu"
         android:layout_width="match_parent"
@@ -29,7 +31,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:contentDescription="Back Button" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -68,7 +71,7 @@
             android:orientation="vertical"
             android:padding="@dimen/spacing_lg">
 
-            <!-- SECTION: SYSTEM & SOUND -->
+            <!-- ================= SECTION: SYSTEM & SOUND ================= -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -78,17 +81,19 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="@dimen/spacing_md" />
 
-            <!-- Theme Section -->
+            <!-- Dark Mode -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm">
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_dark_mode"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Dark Mode Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -110,17 +115,19 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Music Section -->
+            <!-- Music -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm">
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_volume_up"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Music Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -142,17 +149,19 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- SFX Section -->
+            <!-- Sound Effects (SFX) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm">
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_volume_up"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="SFX Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -174,33 +183,12 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Language Section -->
-            <LinearLayout
+            <!-- Language Section (Tái cấu trúc sang phẳng) -->
+            <include
+                android:id="@+id/menu_change_language"
+                layout="@layout/item_flat_menu"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="@dimen/spacing_lg"
-                    android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_language"
-                    app:tint="@color/white" />
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/spacing_md"
-                    android:text="@string/settings_label_language"
-                    style="@style/MoscoText.Luxury.Body"
-                    android:textSize="@dimen/text_size_body_md" />
-                <com.vn.jet.mosco.widget.MoscoButton
-                    android:id="@+id/btn_change_language"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:moscoStyle="primary"
-                    app:moscoSize="small"
-                    android:text="@string/language_en" />
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
             <View
                 android:layout_width="match_parent"
@@ -208,7 +196,7 @@
                 android:background="@color/mosco_white_10"
                 android:layout_marginBottom="@dimen/spacing_xl" />
 
-            <!-- SECTION: NOTIFICATIONS -->
+            <!-- ================= SECTION: NOTIFICATIONS ================= -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -218,17 +206,19 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="@dimen/spacing_md" />
 
-            <!-- Private Chat Notification Switch -->
+            <!-- Private Messages -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm">
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_bell_neon"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Notification Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -250,17 +240,19 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Streak Notification Switch -->
+            <!-- Streak Updates -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm">
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_streak"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Streak Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -283,7 +275,7 @@
                 android:background="@color/mosco_white_10"
                 android:layout_marginBottom="@dimen/spacing_xl" />
 
-            <!-- SECTION: DATA MANAGEMENT -->
+            <!-- ================= SECTION: DATA MANAGEMENT ================= -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -293,23 +285,36 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="@dimen/spacing_md" />
 
-            <!-- Storage Section -->
+            <!-- Storage Section (Cấu trúc lại phẳng) -->
             <LinearLayout
+                android:id="@+id/btn_storage"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_80dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_items"
+                    app:tint="@color/white"
+                    android:contentDescription="Storage Icon" />
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_label_storage"
                         style="@style/MoscoText.Luxury.Body"
-                        android:textSize="@dimen/text_size_body_md" />
+                        android:textSize="@dimen/text_size_body_md"
+                        android:textStyle="bold" />
                     <TextView
                         android:id="@+id/tv_cache_size"
                         android:layout_width="wrap_content"
@@ -340,19 +345,28 @@
                 android:minHeight="@dimen/spacing_80dp"
                 android:paddingTop="@dimen/radius_lg"
                 android:paddingBottom="@dimen/radius_lg"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="@dimen/spacing_lg"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:src="@drawable/ic_sync_galactic"
+                    app:tint="@color/white"
+                    android:contentDescription="Auto Backup Icon" />
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_md"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_label_auto_backup"
                         style="@style/MoscoText.Luxury.Body"
-                        android:textSize="@dimen/text_size_body_md" />
+                        android:textSize="@dimen/text_size_body_md"
+                        android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -369,66 +383,76 @@
                     app:trackTint="@color/mosco_surface_variant" />
             </LinearLayout>
 
-            <!-- Backup Interval Row -->
-            <LinearLayout
-                android:id="@+id/layout_backup_interval"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_label_backup_interval"
-                    style="@style/MoscoText.Luxury.Body"
-                    android:textSize="@dimen/text_size_body_md"
-                    android:alpha="0.8" />
-                <com.vn.jet.mosco.widget.MoscoButton
-                    android:id="@+id/tv_backup_interval"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:moscoStyle="primary"
-                    app:moscoSize="small"
-                    android:text="@string/interval_3d" />
-            </LinearLayout>
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Backup Interval Row (Cấu trúc phẳng dùng item_flat_menu) -->
+            <include
+                android:id="@+id/menu_backup_interval"
+                layout="@layout/item_flat_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/divider_backup_interval"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10"
+                android:visibility="gone" />
+
+            <!-- Backup Local Data -->
+            <include
+                android:id="@+id/menu_backup_data"
+                layout="@layout/item_flat_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Restore Local Data -->
+            <include
+                android:id="@+id/menu_restore_data"
+                layout="@layout/item_flat_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Cloud Sync -->
+            <include
+                android:id="@+id/menu_cloud_sync"
+                layout="@layout/item_flat_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_thin"
+                android:background="@color/mosco_white_10" />
+
+            <!-- Report a Bug -->
+            <include
+                android:id="@+id/menu_report_bug"
+                layout="@layout/item_flat_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10"
-                android:layout_marginBottom="@dimen/spacing_md" />
-
-            <include
-                android:id="@+id/menu_backup_data"
-                layout="@layout/item_ghost_menu"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:layout_marginBottom="@dimen/spacing_sm" />
-
-            <include
-                android:id="@+id/menu_restore_data"
-                layout="@layout/item_ghost_menu"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:layout_marginBottom="@dimen/spacing_sm" />
-
-            <include
-                android:id="@+id/menu_cloud_sync"
-                layout="@layout/item_ghost_menu"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:layout_marginBottom="@dimen/spacing_sm" />
-
-            <include
-                android:id="@+id/menu_report_bug"
-                layout="@layout/item_ghost_menu"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
                 android:layout_marginBottom="@dimen/spacing_xl" />
 
-            <!-- SECTION: ACCOUNT -->
+            <!-- ================= SECTION: ACCOUNT ================= -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -445,6 +469,7 @@
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -452,7 +477,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_lock"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Password Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -465,7 +491,8 @@
                     android:layout_width="@dimen/spacing_md"
                     android:layout_height="@dimen/spacing_md"
                     android:src="@drawable/ic_forward_arrow"
-                    app:tint="@color/mosco_on_surface_variant" />
+                    app:tint="@color/mosco_on_surface_variant"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -473,13 +500,12 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Switch Account -->
+            <!-- Switch Account (Cấu trúc phẳng dùng item_flat_menu) -->
             <include
                 android:id="@+id/menu_switch_account"
-                layout="@layout/item_ghost_menu"
+                layout="@layout/item_flat_menu"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_64dp"
-                android:layout_marginBottom="@dimen/spacing_sm" />
+                android:layout_height="wrap_content" />
 
             <View
                 android:layout_width="match_parent"
@@ -493,6 +519,7 @@
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -500,7 +527,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_shield_check"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Privacy Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -513,7 +541,8 @@
                     android:layout_width="@dimen/spacing_md"
                     android:layout_height="@dimen/spacing_md"
                     android:src="@drawable/ic_forward_arrow"
-                    app:tint="@color/mosco_on_surface_variant" />
+                    app:tint="@color/mosco_on_surface_variant"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -528,6 +557,7 @@
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -535,7 +565,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_copy"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Terms Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -548,7 +579,8 @@
                     android:layout_width="@dimen/spacing_md"
                     android:layout_height="@dimen/spacing_md"
                     android:src="@drawable/ic_forward_arrow"
-                    app:tint="@color/mosco_on_surface_variant" />
+                    app:tint="@color/mosco_on_surface_variant"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -563,6 +595,7 @@
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -570,7 +603,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_info"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="Licenses Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -583,7 +617,8 @@
                     android:layout_width="@dimen/spacing_md"
                     android:layout_height="@dimen/spacing_md"
                     android:src="@drawable/ic_forward_arrow"
-                    app:tint="@color/mosco_on_surface_variant" />
+                    app:tint="@color/mosco_on_surface_variant"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -591,13 +626,14 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Logout Section -->
+            <!-- Logout Section (Đồng bộ mũi tên chỉ sang phải) -->
             <LinearLayout
                 android:id="@+id/btn_logout"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -605,7 +641,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_logout"
-                    app:tint="@color/stat_atk" />
+                    app:tint="@color/stat_atk"
+                    android:contentDescription="Logout Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -615,6 +652,12 @@
                     style="@style/MoscoText.Luxury.Body"
                     android:textColor="@color/stat_atk"
                     android:textSize="@dimen/text_size_body_md" />
+                <ImageView
+                    android:layout_width="@dimen/spacing_md"
+                    android:layout_height="@dimen/spacing_md"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="@color/stat_atk"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -622,13 +665,14 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Delete Account Section -->
+            <!-- Delete Account Section (Đồng bộ mũi tên chỉ sang phải) -->
             <LinearLayout
                 android:id="@+id/btn_delete_account"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_64dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/spacing_sm"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackground">
@@ -636,7 +680,8 @@
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
                     android:src="@drawable/ic_sad"
-                    app:tint="@color/stat_atk" />
+                    app:tint="@color/stat_atk"
+                    android:contentDescription="Delete Account Icon" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -646,6 +691,12 @@
                     style="@style/MoscoText.Luxury.Body"
                     android:textColor="@color/stat_atk"
                     android:textSize="@dimen/text_size_body_md" />
+                <ImageView
+                    android:layout_width="@dimen/spacing_md"
+                    android:layout_height="@dimen/spacing_md"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="@color/stat_atk"
+                    android:contentDescription="Arrow" />
             </LinearLayout>
 
             <View
@@ -653,7 +704,7 @@
                 android:layout_height="@dimen/stroke_thin"
                 android:background="@color/mosco_white_10" />
 
-            <!-- Version Info -->
+            <!-- Version Info (Căn chỉnh gọn gàng, bind động text) -->
             <TextView
                 android:id="@+id/tv_version_info"
                 android:layout_width="match_parent"

@@ -83,6 +83,9 @@ public class User {
     @Column
     private java.time.LocalDateTime lastLoginAt;
 
+    @Column
+    private java.time.LocalDateTime deletionRequestedAt;
+
     @Column(nullable = false)
     private int likesCount = 0;
 
@@ -212,6 +215,9 @@ public class User {
 
     public java.time.LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(java.time.LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
+
+    public java.time.LocalDateTime getDeletionRequestedAt() { return deletionRequestedAt; }
+    public void setDeletionRequestedAt(java.time.LocalDateTime deletionRequestedAt) { this.deletionRequestedAt = deletionRequestedAt; }
 
     public int getLikesCount() { return likesCount; }
     public void setLikesCount(int likesCount) { this.likesCount = likesCount; }

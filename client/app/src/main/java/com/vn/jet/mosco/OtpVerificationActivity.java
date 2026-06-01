@@ -15,11 +15,13 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.vn.jet.mosco.model.ApiResponse;
 import com.vn.jet.mosco.model.AuthRequest;
 import com.vn.jet.mosco.model.AuthResponse;
 import com.vn.jet.mosco.model.ResetPasswordRequest;
 import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.AuthApiService;
+import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.AuthUIHelper;
 import com.vn.jet.mosco.utils.ClickDebounce;
 import com.vn.jet.mosco.utils.SessionManager;
@@ -30,7 +32,7 @@ import retrofit2.Response;
 
 /**
  * OtpVerificationActivity - Handles dedicated OTP verification flow.
- * Supports both Sign Up and Forgot Password verification.
+ * Supports Sign Up, Forgot Password, and Delete Account verification.
  * 100% pure Java, Vietnamese explanations of complex logic.
  */
 public class OtpVerificationActivity extends AppCompatActivity {
@@ -42,7 +44,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
     private com.airbnb.lottie.LottieAnimationView loadingProgress;
     private ImageView btnBack;
 
-    private String flowType; // "signup" or "forgot_password"
+    private String flowType; // "signup", "forgot_password", or "delete_account"
     private String email;
     private String username;
     private String password;
@@ -70,7 +72,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
         }
 
         if (email == null) {
-            Toast.makeText(this, "Email is missing!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.settings_delete_email_missing), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -145,7 +147,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
     private void handleResendCode() {
         setLoading(true);
         Call<AuthResponse> call;
-        if ("signup".equals(flowType)) {
+        if ("signup".equals(flowType) || "delete_account".equals(flowType)) {
+            // TẠI SAO: Flow signup và delete_account cùng dùng sendCode để gửi OTP xác thực email
             call = apiService.sendCode(email);
         } else {
             call = apiService.forgotPassword(email);
@@ -159,7 +162,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     Toast.makeText(OtpVerificationActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     startCountdown();
                 } else {
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Resend code failed!";
+                    String errorMsg = response.body() != null ? response.body().getMessage() : getString(R.string.settings_delete_otp_send_failed);
                     Toast.makeText(OtpVerificationActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -214,6 +217,33 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
+                    setLoading(false);
+                    Toast.makeText(OtpVerificationActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else if ("delete_account".equals(flowType)) {
+            // Luồng xóa tài khoản: Gửi OTP lên server để thực hiện Soft Delete
+            GameApiService gameApiService = ApiClient.getClient(this).create(GameApiService.class);
+            gameApiService.deleteAccount(code).enqueue(new Callback<ApiResponse<Void>>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<Void>> call, @NonNull Response<ApiResponse<Void>> response) {
+                    setLoading(false);
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        Toast.makeText(OtpVerificationActivity.this, getString(R.string.settings_delete_success), Toast.LENGTH_LONG).show();
+                        // Xóa phiên đăng nhập hiện tại và quay về màn hình đăng nhập
+                        sessionManager.clearSession();
+                        Intent intent = new Intent(OtpVerificationActivity.this, SignInActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.settings_delete_verify_failed);
+                        tilVerificationCode.setError(msg);
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<Void>> call, @NonNull Throwable t) {
                     setLoading(false);
                     Toast.makeText(OtpVerificationActivity.this, getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
                 }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,10 +34,11 @@ public class ProfileMenuFragment extends Fragment {
     private SessionManager sessionManager;
 
     private SwitchMaterial switchDarkMode, switchMusic, switchSfx, switchAutoBackup, switchNotiChat, switchNotiStreak;
-    private TextView tvCacheSize, tvBackupInterval;
-    private View btnClearCache, layoutBackupInterval;
-    private com.vn.jet.mosco.widget.MoscoButton btnChangeLanguage;
+    private TextView tvCacheSize;
+    private View btnClearCache, btnStorage;
+    private View menuChangeLanguage, menuBackupInterval, dividerBackupInterval;
     private View menuReportBug, btnPrivacyPolicy, btnTermsOfService, btnOpenSource, btnDeleteAccount;
+    private android.app.AlertDialog loadingDialog;
 
     public void setOnMenuActionListener(OnMenuActionListener listener) {
         this.listener = listener;
@@ -66,10 +68,11 @@ public class ProfileMenuFragment extends Fragment {
         switchSfx = view.findViewById(R.id.switch_sfx);
         switchAutoBackup = view.findViewById(R.id.switch_auto_backup);
         tvCacheSize = view.findViewById(R.id.tv_cache_size);
-        tvBackupInterval = view.findViewById(R.id.tv_backup_interval);
-        layoutBackupInterval = view.findViewById(R.id.layout_backup_interval);
+        btnStorage = view.findViewById(R.id.btn_storage);
         btnClearCache = view.findViewById(R.id.btn_clear_cache);
-        btnChangeLanguage = view.findViewById(R.id.btn_change_language);
+        menuChangeLanguage = view.findViewById(R.id.menu_change_language);
+        menuBackupInterval = view.findViewById(R.id.menu_backup_interval);
+        dividerBackupInterval = view.findViewById(R.id.divider_backup_interval);
         
         switchNotiChat = view.findViewById(R.id.switch_noti_chat);
         switchNotiStreak = view.findViewById(R.id.switch_noti_streak);
@@ -99,16 +102,33 @@ public class ProfileMenuFragment extends Fragment {
         
         updateBackupIntervalUI();
         
-        // TẠI SAO: Đặt văn bản hiển thị cho nút ngôn ngữ theo Locale đang hoạt động
-        String currentLang = sessionManager.getLanguage();
-        if (btnChangeLanguage != null) {
-            btnChangeLanguage.setText(currentLang.equals("vi") ? R.string.language_vi : R.string.language_en);
+        // Thiết lập ban đầu cho Language dạng phẳng
+        if (menuChangeLanguage != null) {
+            TextView tvTitle = menuChangeLanguage.findViewById(R.id.tv_menu_title);
+            TextView tvValue = menuChangeLanguage.findViewById(R.id.tv_menu_value);
+            ImageView ivIcon = menuChangeLanguage.findViewById(R.id.iv_menu_icon);
+            
+            if (tvTitle != null) tvTitle.setText(R.string.settings_label_language);
+            if (tvValue != null) {
+                tvValue.setVisibility(View.VISIBLE);
+                String currentLang = sessionManager.getLanguage();
+                tvValue.setText(currentLang.equals("vi") ? R.string.language_vi : R.string.language_en);
+            }
+            if (ivIcon != null) {
+                ivIcon.setImageResource(R.drawable.ic_language);
+                ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white)));
+            }
         }
     }
 
     private void updateBackupIntervalUI() {
         boolean enabled = sessionManager.isAutoBackupEnabled();
-        layoutBackupInterval.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        if (menuBackupInterval != null) {
+            menuBackupInterval.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
+        if (dividerBackupInterval != null) {
+            dividerBackupInterval.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
         
         int interval = sessionManager.getBackupInterval();
         String label;
@@ -121,7 +141,21 @@ public class ProfileMenuFragment extends Fragment {
         else if (interval == 720) label = getString(R.string.interval_30d);
         else label = getString(R.string.interval_24h); // Fallback
         
-        tvBackupInterval.setText(label);
+        if (menuBackupInterval != null) {
+            TextView tvTitle = menuBackupInterval.findViewById(R.id.tv_menu_title);
+            TextView tvValue = menuBackupInterval.findViewById(R.id.tv_menu_value);
+            ImageView ivIcon = menuBackupInterval.findViewById(R.id.iv_menu_icon);
+            
+            if (tvTitle != null) tvTitle.setText(R.string.settings_label_backup_interval);
+            if (tvValue != null) {
+                tvValue.setVisibility(View.VISIBLE);
+                tvValue.setText(label);
+            }
+            if (ivIcon != null) {
+                ivIcon.setImageResource(R.drawable.ic_time_clock);
+                ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white)));
+            }
+        }
     }
 
     private void setupListeners(View view) {
@@ -151,9 +185,14 @@ public class ProfileMenuFragment extends Fragment {
             com.vn.jet.mosco.utils.WorkScheduler.scheduleAutoBackup(requireContext());
         });
 
-        tvBackupInterval.setOnClickListener(v -> showIntervalPicker());
+        if (menuBackupInterval != null) {
+            menuBackupInterval.setOnClickListener(v -> showIntervalPicker());
+        }
 
-        // --- CLEAR CACHE ---
+        // --- CLEAR CACHE & STORAGE ---
+        if (btnStorage != null) {
+            btnStorage.setOnClickListener(v -> clearAppCache());
+        }
         btnClearCache.setOnClickListener(v -> {
             clearAppCache();
         });
@@ -170,30 +209,35 @@ public class ProfileMenuFragment extends Fragment {
             });
         }
 
-        // --- GHOST MENUS WITH LOCALIZATION ---
+        // --- FLAT MENUS WITH LOCALIZATION & ICONS ---
         setupMenuItem(view.findViewById(R.id.menu_backup_data), 
             getString(R.string.settings_action_backup_data), 
             getString(R.string.settings_desc_backup_data), 
+            R.drawable.ic_copy,
             v -> { if(listener != null) listener.onBackupData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_restore_data), 
             getString(R.string.settings_action_restore_data), 
             getString(R.string.settings_desc_restore_data), 
+            R.drawable.ic_mailbox,
             v -> { if(listener != null) listener.onRestoreData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_cloud_sync), 
             getString(R.string.settings_action_cloud_sync), 
             getString(R.string.settings_desc_cloud_sync), 
+            R.drawable.ic_sync_galactic,
             v -> { if(listener != null) listener.onCloudSync(); });
 
         setupMenuItem(view.findViewById(R.id.menu_switch_account), 
             getString(R.string.settings_action_switch_account), 
             getString(R.string.settings_desc_switch_account), 
+            R.drawable.ic_user,
             v -> { if(listener != null) listener.onSwitchAccount(); });
 
         setupMenuItem(menuReportBug, 
             getString(R.string.settings_action_bug_report), 
             getString(R.string.settings_desc_report_bug), 
+            R.drawable.ic_error_placeholder,
             v -> showBugReportDialog());
 
         // --- ACCOUNT ACTIONS ---
@@ -223,20 +267,28 @@ public class ProfileMenuFragment extends Fragment {
         }
 
         // --- LANGUAGE SWITCH ---
-        if (btnChangeLanguage != null) {
-            btnChangeLanguage.setOnClickListener(v -> {
+        if (menuChangeLanguage != null) {
+            menuChangeLanguage.setOnClickListener(v -> {
                 showLanguagePicker();
             });
         }
     }
 
-    private void setupMenuItem(View container, String title, String desc, View.OnClickListener clickListener) {
+    private void setupMenuItem(View container, String title, String desc, int iconResId, View.OnClickListener clickListener) {
         if (container == null) return;
-        TextView tvTitle = container.findViewById(R.id.tv_ghost_title);
-        TextView tvDesc = container.findViewById(R.id.tv_ghost_desc);
+        TextView tvTitle = container.findViewById(R.id.tv_menu_title);
+        TextView tvDesc = container.findViewById(R.id.tv_menu_desc);
+        ImageView ivIcon = container.findViewById(R.id.iv_menu_icon);
         
         if (tvTitle != null) tvTitle.setText(title);
-        if (tvDesc != null) tvDesc.setText(desc);
+        if (tvDesc != null) {
+            tvDesc.setVisibility(View.VISIBLE);
+            tvDesc.setText(desc);
+        }
+        if (ivIcon != null && iconResId != 0) {
+            ivIcon.setImageResource(iconResId);
+            ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.white)));
+        }
         
         container.setOnClickListener(clickListener);
     }
@@ -408,7 +460,7 @@ public class ProfileMenuFragment extends Fragment {
         btnPositive.setOnClickListener(v -> {
             String bugText = etBugDescription.getText().toString().trim();
             if (bugText.isEmpty()) {
-                android.widget.Toast.makeText(requireContext(), "Please describe the bug", android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(requireContext(), getString(R.string.auth_error_empty_field), android.widget.Toast.LENGTH_SHORT).show();
                 return;
             }
             dialog.dismiss();
@@ -457,6 +509,7 @@ public class ProfileMenuFragment extends Fragment {
 
     private void confirmDeleteAccount() {
         if (getActivity() == null) return;
+        
         com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(
             getActivity(),
             getString(R.string.settings_dialog_delete_title),
@@ -466,16 +519,87 @@ public class ProfileMenuFragment extends Fragment {
             new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
                 @Override
                 public void onPositive() {
-                    // TẠI SAO: Xóa sạch session, dọn cache và quay về màn hình đăng nhập
-                    sessionManager.clearSession();
-                    if (getActivity() != null) {
-                        Intent intent = new Intent(getActivity(), com.vn.jet.mosco.SignInActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        getActivity().finish();
-                    }
+                    sendDeleteAccountOtp();
                 }
             }
         );
+    }
+
+    /**
+     * Gửi mã OTP xác nhận xóa tài khoản về email hiện tại,
+     * sau đó chuyển sang OtpVerificationActivity để tái sử dụng giao diện OTP.
+     * Tại sao (WHY): Ngăn ngừa việc tài khoản bị xóa trộm ngoài ý muốn
+     */
+    private void sendDeleteAccountOtp() {
+        String email = sessionManager.getEmail();
+        if (email == null || email.isEmpty()) {
+            Toast.makeText(getContext(), getString(R.string.settings_delete_email_missing), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showLoadingDialog();
+
+        com.vn.jet.mosco.network.AuthApiService authApiService = 
+            com.vn.jet.mosco.network.ApiClient.getClient(requireContext()).create(com.vn.jet.mosco.network.AuthApiService.class);
+
+        authApiService.sendCode(email).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.AuthResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, retrofit2.Response<com.vn.jet.mosco.model.AuthResponse> response) {
+                dismissLoadingDialog();
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Toast.makeText(getContext(), getString(R.string.settings_delete_otp_sent), Toast.LENGTH_SHORT).show();
+                    // Chuyển sang OtpVerificationActivity để tái sử dụng giao diện xác thực OTP
+                    Intent intent = new Intent(requireContext(), com.vn.jet.mosco.OtpVerificationActivity.class);
+                    intent.putExtra("flow_type", "delete_account");
+                    intent.putExtra("email", email);
+                    startActivity(intent);
+                } else {
+                    String msg = response.body() != null ? response.body().getMessage() : getString(R.string.settings_delete_otp_send_failed);
+                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, Throwable t) {
+                dismissLoadingDialog();
+                Toast.makeText(getContext(), getString(R.string.common_error_network), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Hiển thị overlay loading Lottie trong suốt khi đang chờ API.
+     * Tại sao (WHY): Tránh user hoang mang khi chờ gửi OTP mà không có feedback giao diện.
+     */
+    private void showLoadingDialog() {
+        if (getActivity() == null || getActivity().isFinishing()) return;
+
+        com.airbnb.lottie.LottieAnimationView lottie = new com.airbnb.lottie.LottieAnimationView(requireContext());
+        lottie.setAnimation(R.raw.loading);
+        lottie.setRepeatCount(com.airbnb.lottie.LottieDrawable.INFINITE);
+        lottie.playAnimation();
+
+        int size = (int) (getResources().getDisplayMetrics().density * 120);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(size, size);
+        lp.gravity = android.view.Gravity.CENTER;
+        container.addView(lottie, lp);
+
+        loadingDialog = new android.app.AlertDialog.Builder(requireContext())
+                .setView(container)
+                .setCancelable(false)
+                .create();
+
+        if (loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+        loadingDialog.show();
+    }
+
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+            loadingDialog = null;
+        }
     }
 }

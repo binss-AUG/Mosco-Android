@@ -121,6 +121,8 @@ public class AuthService {
         // Tạo mã 6 chữ số ngẫu nhiên
         String code = String.format("%06d", new java.util.Random().nextInt(999999));
         verificationCodes.put(email, code);
+        // TẠI SAO: Log mã xác thực ra console để phục vụ kiểm thử tự động/thủ công dễ dàng hơn
+        log.info("[TEST_OTP] Verification code for {}: {}", email, code);
 
         // Gửi qua Gmail thực tế
         try {
@@ -219,6 +221,16 @@ public class AuthService {
         User user = userOpt.get();
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             return new AuthResponse(false, "Invalid email or password.", null, null);
+        }
+
+        // Kiểm tra xem tài khoản có đang chờ xóa hay không (Soft Delete)
+        // Tại sao: Nếu đang chờ xóa thì chặn đăng nhập và báo số ngày còn lại để khôi phục
+        if (user.getDeletionRequestedAt() != null) {
+            long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(user.getDeletionRequestedAt().toLocalDate(), java.time.LocalDate.now());
+            int daysRemaining = (int) (14 - daysPassed);
+            if (daysRemaining > 0) {
+                return new AuthResponse(false, "Tài khoản đang chờ xóa.", true, daysRemaining, user.getEmail());
+            }
         }
 
         String token = generateToken(user);
@@ -362,5 +374,47 @@ public class AuthService {
         com.vn.jet.mosco.spinserver.security.TokenCache.put(user.getId(), jwtToken);
         
         return new AuthResponse(true, "Đăng nhập thành công qua " + provider, user, jwtToken);
+    }
+
+    /**
+     * Xác thực mã OTP của email
+     * Tại sao: Phục vụ cho các hành động quan trọng cần xác thực OTP (Xóa và Khôi phục tài khoản)
+     */
+    public boolean verifyCode(String email, String code) {
+        if (email == null || code == null) return false;
+        String stored = verificationCodes.get(email.trim().toLowerCase(Locale.ROOT));
+        if (stored != null && stored.equals(code.trim())) {
+            verificationCodes.remove(email.trim().toLowerCase(Locale.ROOT));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Khôi phục tài khoản đang trong trạng thái chờ xóa
+     * Tại sao: Hủy trạng thái Soft Delete (chờ xóa) khi người dùng xác thực OTP thành công
+     */
+    public AuthResponse restoreAccount(String email, String code) {
+        if (email == null || code == null) {
+            return new AuthResponse(false, "Vui lòng nhập đầy đủ thông tin.", null, null);
+        }
+        email = email.trim().toLowerCase(Locale.ROOT);
+
+        // Xác thực mã OTP
+        if (!verifyCode(email, code)) {
+            return new AuthResponse(false, "Mã OTP không chính xác hoặc đã hết hạn.", null, null);
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return new AuthResponse(false, "Không tìm thấy người dùng.", null, null);
+        }
+
+        User user = userOpt.get();
+        user.setDeletionRequestedAt(null);
+        userRepository.save(user);
+
+        log.info("User account restored successfully: userId={}, email={}", user.getId(), email);
+        return new AuthResponse(true, "Khôi phục tài khoản thành công!", user, null);
     }
 }

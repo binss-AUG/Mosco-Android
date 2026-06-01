@@ -85,6 +85,9 @@ public interface GameApiService {
     @POST("/api/user/streak/restore")
     Call<com.vn.jet.mosco.model.ApiResponse<UserStats>> restoreStreak();
 
+    @POST("/api/user/delete-account")
+    Call<com.vn.jet.mosco.model.ApiResponse<Void>> deleteAccount(@Query("code") String code);
+
     /**
      * Thích hoặc bỏ thích hồ sơ người chơi khác.
      */

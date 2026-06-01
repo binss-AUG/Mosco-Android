@@ -6,6 +6,9 @@ public class AuthResponse {
     private boolean success;
     private String message;
     private UserData data;
+    private Boolean deletionPending;
+    private Integer daysRemaining;
+    private String email;
 
     public AuthResponse() {}
 
@@ -17,6 +20,14 @@ public class AuthResponse {
         }
     }
 
+    public AuthResponse(boolean success, String message, Boolean deletionPending, Integer daysRemaining, String email) {
+        this.success = success;
+        this.message = message;
+        this.deletionPending = deletionPending;
+        this.daysRemaining = daysRemaining;
+        this.email = email;
+    }
+
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
 
@@ -25,6 +36,15 @@ public class AuthResponse {
 
     public UserData getData() { return data; }
     public void setData(UserData data) { this.data = data; }
+
+    public Boolean getDeletionPending() { return deletionPending; }
+    public void setDeletionPending(Boolean deletionPending) { this.deletionPending = deletionPending; }
+
+    public Integer getDaysRemaining() { return daysRemaining; }
+    public void setDaysRemaining(Integer daysRemaining) { this.daysRemaining = daysRemaining; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public static class UserData {
         private Long id;

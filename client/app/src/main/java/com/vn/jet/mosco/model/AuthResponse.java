@@ -12,6 +12,24 @@ public class AuthResponse {
     @SerializedName("data")
     private UserData data;
 
+    @SerializedName("deletionPending")
+    private Boolean deletionPending;
+
+    @SerializedName("daysRemaining")
+    private Integer daysRemaining;
+
+    @SerializedName("email")
+    private String email;
+
+    public Boolean getDeletionPending() { return deletionPending; }
+    public void setDeletionPending(Boolean deletionPending) { this.deletionPending = deletionPending; }
+
+    public Integer getDaysRemaining() { return daysRemaining; }
+    public void setDaysRemaining(Integer daysRemaining) { this.daysRemaining = daysRemaining; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
 
