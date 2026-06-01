@@ -145,4 +145,9 @@
     <string name="action_get">Nhận</string>
     <string name="status_online">Trực tuyến</string>
     <string name="status_offline">Ngoại tuyến</string>
+
+    <!-- Mailbox Messages -->
+    <string name="mail_msg_claim_all_success">Đã nhận thành công tất cả quà!</string>
+    <string name="mail_msg_claim_failed">Nhận quà thất bại!</string>
+    <string name="mail_msg_connection_error">Lỗi kết nối máy chủ!</string>
 </resources>

@@ -71,4 +71,33 @@ public final class MessageConstants {
     
     // Checkin
     public static final String CHECKIN_ERROR = "Không thể điểm danh: Ngoài khung giờ hoặc đã nhận rồi";
+
+    // Stage i18n keys
+    public static final String STAGE_ERR_TEAM_SIZE = "stage_err_team_size";
+    public static final String STAGE_ERR_CARDS_NOT_EXIST = "stage_err_cards_not_exist";
+    public static final String STAGE_ERR_CARD_NOT_OWNED = "stage_err_card_not_owned";
+    public static final String STAGE_ERR_CARD_BUSY = "stage_err_card_busy";
+    public static final String STAGE_ERR_SESSION_NOT_FOUND = "stage_err_session_not_found";
+    public static final String STAGE_ERR_SESSION_ACCESS_DENIED = "stage_err_session_access_denied";
+    public static final String STAGE_ERR_SESSION_NOT_FINISHED = "stage_err_session_not_finished";
+    public static final String STAGE_ERR_SESSION_INVALID = "stage_err_session_invalid";
+    public static final String STAGE_ERR_SESSION_ALREADY_FINISHED = "stage_err_session_already_finished";
+    public static final String STAGE_ERR_SPEEDUP_NOT_ENOUGH_DIAMONDS = "stage_err_speedup_not_enough_diamonds";
+    public static final String STAGE_ERR_MAP_NOT_FOUND = "stage_err_map_not_found";
+    public static final String STAGE_ERR_LEVEL_LOCKED = "stage_err_level_locked";
+
+    // Upgrade & Gacha i18n keys
+    public static final String UPGRADE_ERR_MAX_LEVEL = "upgrade_err_max_level";
+    public static final String UPGRADE_ERR_MATERIAL_INVALID = "upgrade_err_material_invalid";
+    public static final String UPGRADE_ERR_CONFIG_ERROR = "upgrade_err_config_error";
+    public static final String UPGRADE_ERR_LEVEL_CONFIG_ERROR = "upgrade_err_level_config_error";
+    public static final String UPGRADE_ERR_BASE_CARD_NOT_FOUND = "upgrade_err_base_card_not_found";
+    public static final String UPGRADE_ERR_MATERIAL_CARD_NOT_FOUND = "upgrade_err_material_card_not_found";
+    public static final String UPGRADE_MSG_SUCCESS = "upgrade_msg_success";
+    public static final String UPGRADE_MSG_FAILED = "upgrade_msg_failed";
+    public static final String PACK_ERR_CONFIG_MISSING = "pack_err_config_missing";
+    public static final String PACK_ERR_NOT_ENOUGH = "pack_err_not_enough";
+    
+    // Mailbox i18n keys
+    public static final String MAIL_ERR_ALREADY_CLAIMED = "mail_err_already_claimed";
 }

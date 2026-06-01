@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -86,7 +87,7 @@ public class PackService {
         
         if (gameConfig == null || ratesConfig == null || allCards == null || allCards.isEmpty()) {
             loadData();
-            if (gameConfig == null || ratesConfig == null) throw new RuntimeException("Cấu hình hệ thống bị thiếu.");
+            if (gameConfig == null || ratesConfig == null) throw new RuntimeException(MessageConstants.PACK_ERR_CONFIG_MISSING);
         }
 
         User user = userRepository.findById(userId)
@@ -96,7 +97,7 @@ public class PackService {
                 .orElseThrow(() -> new RuntimeException("Bạn không sở hữu Pack này: " + packCode));
 
         if (packItem.getQuantity() < quantity) {
-            throw new RuntimeException("Không đủ số lượng Pack để mở.");
+            throw new RuntimeException(MessageConstants.PACK_ERR_NOT_ENOUGH);
         }
 
         List<PackOpenResponse.CardResult> cardsResults = new ArrayList<>();

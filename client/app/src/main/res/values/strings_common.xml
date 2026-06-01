@@ -145,4 +145,9 @@
     <string name="action_get">Get</string>
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
+
+    <!-- Mailbox Messages -->
+    <string name="mail_msg_claim_all_success">All rewards collected successfully!</string>
+    <string name="mail_msg_claim_failed">Failed to claim rewards!</string>
+    <string name="mail_msg_connection_error">Server connection failed!</string>
 </resources>

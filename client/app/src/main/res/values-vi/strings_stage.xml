@@ -59,4 +59,18 @@
     <string name="stage_reward_dialog_subtitle">Đội hình của bạn đã hoàn thành xuất sắc chuyến lưu diễn.</string>
     <string name="stage_reward_received_format">Bạn nhận được %1$s Vàng và %2$s Kim cương!</string>
     <string name="stage_reward_footer_hint">Nhận phần thưởng để chuẩn bị cho chuyến lưu diễn tiếp theo!</string>
+
+    <!-- Stage Errors from Backend -->
+    <string name="stage_err_team_size">Đội hình phải có từ 1 đến 6 thành viên</string>
+    <string name="stage_err_cards_not_exist">Một số thẻ không tồn tại</string>
+    <string name="stage_err_card_not_owned">Bạn không sở hữu thẻ này</string>
+    <string name="stage_err_card_busy">Thẻ đang bận hoặc đang tham gia hoạt động khác</string>
+    <string name="stage_err_session_not_found">Phiên K-Tour không tồn tại</string>
+    <string name="stage_err_session_access_denied">Bạn không có quyền với phiên này</string>
+    <string name="stage_err_session_not_finished">Phiên K-Tour chưa hoàn thành</string>
+    <string name="stage_err_session_invalid">Phiên này không còn hiệu lực</string>
+    <string name="stage_err_session_already_finished">Phiên này đã kết thúc</string>
+    <string name="stage_err_speedup_not_enough_diamonds">Không đủ Kim cương để tăng tốc</string>
+    <string name="stage_err_map_not_found">Bản đồ không tồn tại</string>
+    <string name="stage_err_level_locked">Cấp độ không đủ để mở khóa Bản đồ</string>
 </resources>

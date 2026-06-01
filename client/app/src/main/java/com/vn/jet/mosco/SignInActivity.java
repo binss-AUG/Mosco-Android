@@ -29,6 +29,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vn.jet.mosco.utils.Resource;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.utils.ErrorTranslator;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -207,7 +208,7 @@ public class SignInActivity extends AppCompatActivity {
                             showAccountDeletionPendingDialog(authResponse.getEmail(), authResponse.getDaysRemaining());
                         } else {
                             String msg = (authResponse != null) ? authResponse.getMessage() : getString(R.string.common_error_unknown);
-                            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, ErrorTranslator.translate(this, msg), Toast.LENGTH_SHORT).show();
                         }
                     }
                     break;
@@ -215,7 +216,7 @@ public class SignInActivity extends AppCompatActivity {
                 case ERROR:
                     setLoading(false);
                     String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.common_error_network);
-                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, ErrorTranslator.translate(this, errorMsg), Toast.LENGTH_LONG).show();
                     break;
             }
         });
@@ -421,10 +422,10 @@ public class SignInActivity extends AppCompatActivity {
 
         com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(
             this,
-            "Tài khoản đang chờ xóa",
-            "Tài khoản của bạn sẽ bị xóa vĩnh viễn sau " + daysRemaining + " ngày nữa.\nBạn có muốn gửi mã OTP để khôi phục tài khoản ngay không?",
-            "Khôi phục",
-            "Hủy",
+            getString(R.string.auth_dialog_recovery_pending_title),
+            getString(R.string.auth_dialog_recovery_pending_msg, daysRemaining),
+            getString(R.string.auth_action_restore),
+            getString(R.string.action_cancel),
             new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
                 @Override
                 public void onPositive() {
@@ -447,10 +448,10 @@ public class SignInActivity extends AppCompatActivity {
             public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, retrofit2.Response<com.vn.jet.mosco.model.AuthResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(SignInActivity.this, "Mã OTP khôi phục đã được gửi về email.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SignInActivity.this, getString(R.string.auth_msg_recovery_otp_sent), Toast.LENGTH_SHORT).show();
                     showRestoreAccountOtpDialog(email);
                 } else {
-                    String msg = response.body() != null ? response.body().getMessage() : "Gửi OTP khôi phục thất bại.";
+                    String msg = response.body() != null ? response.body().getMessage() : getString(R.string.auth_msg_recovery_otp_failed);
                     Toast.makeText(SignInActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -458,7 +459,8 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(SignInActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // TẠI SAO: Cần định dạng thông điệp lỗi kèm lý do lỗi mạng chi tiết để hỗ trợ chẩn đoán
+                Toast.makeText(SignInActivity.this, getString(R.string.auth_error_connection_prefix, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -475,11 +477,11 @@ public class SignInActivity extends AppCompatActivity {
         com.vn.jet.mosco.widget.MoscoButton btnPositive = dialogView.findViewById(R.id.btn_positive);
         com.vn.jet.mosco.widget.MoscoButton btnNegative = dialogView.findViewById(R.id.btn_negative);
 
-        tvTitle.setText("Khôi phục tài khoản");
+        tvTitle.setText(R.string.auth_dialog_recovery_title);
         flContent.removeAllViews();
 
         android.widget.EditText etOtp = new android.widget.EditText(this);
-        etOtp.setHint("Nhập mã OTP 6 chữ số");
+        etOtp.setHint(R.string.auth_dialog_recovery_hint);
         etOtp.setHintTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.mosco_white_40));
         etOtp.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
         etOtp.setBackgroundResource(R.drawable.lg_input_bg);
@@ -497,12 +499,12 @@ public class SignInActivity extends AppCompatActivity {
         android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
                 android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-        );
+            );
         etOtp.setLayoutParams(lp);
         flContent.addView(etOtp);
 
-        btnPositive.setText("Xác nhận");
-        btnNegative.setText("Hủy");
+        btnPositive.setText(R.string.action_confirm);
+        btnNegative.setText(R.string.action_cancel);
 
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
                 .setView(dialogView)
@@ -517,7 +519,7 @@ public class SignInActivity extends AppCompatActivity {
         btnPositive.setOnClickListener(v -> {
             String code = etOtp.getText().toString().trim();
             if (code.length() != 6) {
-                Toast.makeText(SignInActivity.this, "Mã OTP phải có 6 chữ số.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignInActivity.this, getString(R.string.auth_error_otp_length), Toast.LENGTH_SHORT).show();
                 return;
             }
             dialog.dismiss();
@@ -541,9 +543,9 @@ public class SignInActivity extends AppCompatActivity {
             public void onResponse(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, retrofit2.Response<com.vn.jet.mosco.model.AuthResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(SignInActivity.this, "Khôi phục tài khoản thành công! Bây giờ bạn đã có thể đăng nhập.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignInActivity.this, getString(R.string.auth_msg_recovery_success), Toast.LENGTH_LONG).show();
                 } else {
-                    String msg = response.body() != null ? response.body().getMessage() : "Khôi phục tài khoản thất bại.";
+                    String msg = response.body() != null ? response.body().getMessage() : getString(R.string.auth_msg_recovery_failed);
                     Toast.makeText(SignInActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -551,7 +553,8 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onFailure(retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, Throwable t) {
                 setLoading(false);
-                Toast.makeText(SignInActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                // TẠI SAO: Cần định dạng thông điệp lỗi kèm lý do lỗi mạng chi tiết để hỗ trợ chẩn đoán
+                Toast.makeText(SignInActivity.this, getString(R.string.auth_error_connection_prefix, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }

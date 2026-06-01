@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.vn.jet.mosco.utils.ErrorTranslator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.bumptech.glide.Glide;
@@ -484,7 +485,7 @@ public class UpgradeFragment extends Fragment {
                     if (response.body() != null && response.body().getMessage() != null) {
                         msg = response.body().getMessage();
                     }
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), ErrorTranslator.translate(requireContext(), msg), Toast.LENGTH_LONG).show();
                 }
             }
 

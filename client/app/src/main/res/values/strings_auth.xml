@@ -63,4 +63,17 @@
     <string name="auth_error_google_general">Google Error: %1$s</string>
     <string name="auth_error_discord_general">Discord Error: %1$s</string>
     <string name="auth_msg_welcome_galaxy">Welcome to Mosco!</string>
+
+    <!-- Recovery Account & General Connection messages -->
+    <string name="auth_msg_recovery_otp_sent">Recovery code has been sent to your email.</string>
+    <string name="auth_error_connection_prefix">Connection error: %s</string>
+    <string name="auth_error_otp_length">Verification code must be 6 digits.</string>
+    <string name="auth_msg_recovery_success">Account restored successfully! You can now log in.</string>
+    <string name="auth_dialog_recovery_pending_title">Account Deletion Pending</string>
+    <string name="auth_dialog_recovery_pending_msg">Your account will be permanently deleted in %d days.\nDo you want to send an OTP to restore it now?</string>
+    <string name="auth_dialog_recovery_title">Restore Account</string>
+    <string name="auth_dialog_recovery_hint">Enter 6-digit OTP code</string>
+    <string name="auth_action_restore">Restore</string>
+    <string name="auth_msg_recovery_failed">Account restoration failed.</string>
+    <string name="auth_msg_recovery_otp_failed">Failed to send recovery OTP.</string>
 </resources>

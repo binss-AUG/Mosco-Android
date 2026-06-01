@@ -146,10 +146,10 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         if (uri != null) {
                             boolean success = BackupManager.exportDatabase(requireContext(), uri);
                             if (success) {
-                                Toast.makeText(requireContext(), "✅ Backup Created Successfully!", Toast.LENGTH_LONG)
+                                Toast.makeText(requireContext(), getString(R.string.profile_backup_success), Toast.LENGTH_LONG)
                                         .show();
                             } else {
-                                Toast.makeText(requireContext(), "❌ Backup Failed. Please try again.",
+                                Toast.makeText(requireContext(), getString(R.string.profile_backup_failed),
                                         Toast.LENGTH_LONG).show();
                             }
                         }
@@ -165,15 +165,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         if (uri != null) {
                             boolean success = BackupManager.restoreDatabase(requireContext(), uri);
                             if (success) {
-                                Toast.makeText(requireContext(), "✅ Restore Successful!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), getString(R.string.profile_restore_success), Toast.LENGTH_SHORT).show();
                                 com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
                                         getActivity(),
-                                        "Restore Complete",
-                                        "Data has been restored. The application will now restart.",
-                                        "Restart App",
+                                        getString(R.string.profile_dialog_restore_complete_title),
+                                        getString(R.string.profile_dialog_restore_complete_msg),
+                                        getString(R.string.profile_dialog_restart_app),
                                         () -> System.exit(0));
                             } else {
-                                Toast.makeText(requireContext(), "❌ Restore Failed. File might be corrupted.",
+                                Toast.makeText(requireContext(), getString(R.string.profile_restore_failed),
                                         Toast.LENGTH_LONG).show();
                             }
                         }
@@ -967,9 +967,9 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                 long currentUid = sessionManager.getUserId();
                 String backupPath = BackupManager.performInternalBackup(requireContext(), currentUid);
                 if (backupPath != null) {
-                    Toast.makeText(requireContext(), "✅ Sao lưu thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.profile_backup_success), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(requireContext(), "❌ Internal Backup Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.profile_backup_failed), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -997,17 +997,17 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             @Override
             public void onCloudSync() {
                 long currentUid = sessionManager.getUserId();
-                Toast.makeText(requireContext(), "☁️ Syncing to Cloud...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.profile_syncing_cloud), Toast.LENGTH_SHORT).show();
 
                 BackupManager.syncToCloud(requireContext(), currentUid, new BackupManager.SyncCallback() {
                     @Override
                     public void onSuccess(String message) {
-                        Toast.makeText(requireContext(), "✅ Cloud Sync Successful!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.profile_sync_success), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailure(String error) {
-                        Toast.makeText(requireContext(), "❌ Sync Failed: " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), getString(R.string.profile_sync_failed, error), Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -1530,7 +1530,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         return getString(R.string.profile_error_unknown);
     }
     private void showCloudBackupPicker() {
-        Toast.makeText(requireContext(), "Fetching backup list...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), getString(R.string.profile_fetching_backups), Toast.LENGTH_SHORT).show();
         BackupManager.fetchCloudBackups(requireContext(),
                 new retrofit2.Callback<com.vn.jet.mosco.model.ApiResponse<List<String>>>() {
                     @Override
@@ -1539,21 +1539,21 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         if (response.isSuccessful() && response.body() != null) {
                             List<String> files = response.body().getData();
                             if (files == null || files.isEmpty()) {
-                                Toast.makeText(requireContext(), "No cloud backups found", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), getString(R.string.profile_no_backups), Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                             String[] items = files.toArray(new String[0]);
                             com.vn.jet.mosco.utils.MoscoDialogHelper.showSingleChoiceDialog(
                                     getActivity(),
-                                    "Select Cloud Backup",
+                                    getString(R.string.profile_dialog_select_cloud_backup),
                                     items,
                                     which -> {
                                         String selectedFile = items[which];
                                         downloadAndRestoreCloud(selectedFile);
                                     });
                         } else {
-                            Toast.makeText(requireContext(), "Failed to fetch list: " + response.code(),
+                            Toast.makeText(requireContext(), getString(R.string.profile_fetch_backups_failed, String.valueOf(response.code())),
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -1567,16 +1567,16 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void downloadAndRestoreCloud(String filename) {
-        Toast.makeText(requireContext(), "Downloading and Restoring...", Toast.LENGTH_LONG).show();
+        Toast.makeText(requireContext(), getString(R.string.profile_restoring_cloud), Toast.LENGTH_LONG).show();
         BackupManager.downloadAndRestoreCloudBackup(requireContext(), filename, new BackupManager.SyncCallback() {
             @Override
             public void onSuccess(String message) {
-                Toast.makeText(requireContext(), "✅ Restore Successful!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.profile_restore_success), Toast.LENGTH_SHORT).show();
                 com.vn.jet.mosco.utils.MoscoDialogHelper.showInfoDialog(
                         getActivity(),
-                        "Restore Complete",
-                        "Data has been restored from the cloud. The application will now restart.",
-                        "Restart App",
+                        getString(R.string.profile_dialog_restore_complete_title),
+                        getString(R.string.profile_dialog_restore_complete_msg),
+                        getString(R.string.profile_dialog_restart_app),
                         new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
                             @Override
                             public void onPositive() {
@@ -1587,7 +1587,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(requireContext(), "❌ Error: " + error, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), getString(R.string.profile_error_prefix, error), Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -173,15 +173,16 @@ public class SystemMailFragment extends Fragment implements MailboxAdapter.OnMai
                         m.setReceived(true);
                     }
                     filterMails();
-                    Toast.makeText(context, "Đã nhận thành công tất cả quà!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.mail_msg_claim_all_success), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(context, "Nhận quà thất bại!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.mail_msg_claim_failed), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(context, "Lỗi kết nối máy chủ!", Toast.LENGTH_SHORT).show();
+                // TẠI SAO: Đã định cấu hình chuỗi thông báo kết nối thất bại tập trung trong resource để hỗ trợ đa ngôn ngữ
+                Toast.makeText(context, getString(R.string.mail_msg_connection_error), Toast.LENGTH_SHORT).show();
             }
         });
     }

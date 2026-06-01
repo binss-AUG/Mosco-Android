@@ -15,6 +15,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.vn.jet.mosco.spinserver.utils.ChaosTheoryHelper;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.io.InputStream;
 import java.util.List;
@@ -67,20 +68,20 @@ public class UpgradeService {
 
         // 1. Khóa thẻ chính (PESSIMISTIC_WRITE)
         UserCard mainCard = userCardRepository.findWithLockById(request.getBaseCardId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ chính"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.UPGRADE_ERR_BASE_CARD_NOT_FOUND));
 
         if (mainCard.getUpgradeLevel() >= 10) {
-            throw new RuntimeException("Thẻ đã đạt cấp độ tối đa (+10)");
+            throw new RuntimeException(MessageConstants.UPGRADE_ERR_MAX_LEVEL);
         }
 
         // 2. Khóa và kiểm tra danh sách thẻ nguyên liệu
         List<UserCard> materials = request.getMaterialCardIds().stream()
                 .map(id -> userCardRepository.findWithLockById(id)
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy thẻ nguyên liệu: " + id)))
+                        .orElseThrow(() -> new RuntimeException(MessageConstants.UPGRADE_ERR_MATERIAL_CARD_NOT_FOUND)))
                 .toList();
 
         if (materials.isEmpty() || materials.size() > 5) {
-            throw new RuntimeException("Số lượng thẻ nguyên liệu không hợp lệ (1-5)");
+            throw new RuntimeException(MessageConstants.UPGRADE_ERR_MATERIAL_INVALID);
         }
 
         // 3. Tính toán tỷ lệ thành công (RNG)
@@ -90,7 +91,7 @@ public class UpgradeService {
 
         JsonNode levelConfig = customUpgradeConfig.get(String.valueOf(nextLevel));
         if (levelConfig == null || !levelConfig.has(typeKey)) {
-            throw new RuntimeException("Lỗi cấu hình nâng cấp cho level " + nextLevel);
+            throw new RuntimeException(MessageConstants.UPGRADE_ERR_LEVEL_CONFIG_ERROR);
         }
 
         double X = levelConfig.get(typeKey).get("X").asDouble();
@@ -144,7 +145,7 @@ public class UpgradeService {
                 mainCard.getUpgradeLevel(),
                 newOvr,
                 actualSuccessRate,
-                isSuccess ? "Nâng cấp thành công rực rỡ!" : "Rất tiếc, nâng cấp thất bại và thẻ đã bị rớt cấp."
+                isSuccess ? MessageConstants.UPGRADE_MSG_SUCCESS : MessageConstants.UPGRADE_MSG_FAILED
         );
     }
 }

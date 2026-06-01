@@ -37,8 +37,8 @@
     <string name="upgrade_label_boost">TỈ LỆ THÀNH CÔNG</string>
     <string name="upgrade_action_upgrading">ĐANG NÂNG CẤP...</string>
     <string name="upgrade_msg_select_main">Vui lòng chọn thẻ chính trước!</string>
-    <string name="upgrade_msg_success">Nâng cấp thành công!</string>
-    <string name="upgrade_msg_failed">Nâng cấp thất bại!</string>
+    <string name="upgrade_msg_success">Nâng cấp thành công rực rỡ!</string>
+    <string name="upgrade_msg_failed">Rất tiếc, nâng cấp thất bại và thẻ đã bị rớt cấp.</string>
     <string name="upgrade_error_max_materials">Chỉ cho phép tối đa 5 nguyên liệu!</string>
     <string name="upgrade_error_max_probability">Tỉ lệ thành công đã đạt 100%!</string>
     <string name="upgrade_msg_main_as_material">Không thể dùng thẻ chính làm nguyên liệu!</string>

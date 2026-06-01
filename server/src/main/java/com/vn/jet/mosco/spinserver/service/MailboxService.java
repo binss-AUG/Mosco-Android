@@ -6,6 +6,7 @@ import com.vn.jet.mosco.spinserver.repository.UserRepository;
 import com.vn.jet.mosco.spinserver.repository.UserMailRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.util.List;
 
@@ -33,11 +34,11 @@ public class MailboxService {
     public void claimMail(Long mailId) {
         // 1. Tìm thư trong DB với Pessimistic Lock
         UserMail mail = userMailRepository.findByIdForUpdate(mailId)
-                .orElseThrow(() -> new RuntimeException("Hệ thống không tìm thấy bức thư này!"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.ITEM_NOT_FOUND));
 
         // 2. Kiểm tra trạng thái nhận
         if (mail.isReceived()) {
-            throw new IllegalStateException("Thư này đã được nhận quà rồi.");
+            throw new IllegalStateException(MessageConstants.MAIL_ERR_ALREADY_CLAIMED);
         }
 
         // 3. Xử lý cộng quà (Coins / Diamonds)
@@ -74,7 +75,7 @@ public class MailboxService {
 
         // 2. Tìm thông tin User
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Hệ thống không tìm thấy người chơi này!"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.USER_NOT_FOUND));
 
         long totalCoins = 0;
         long totalDiamonds = 0;

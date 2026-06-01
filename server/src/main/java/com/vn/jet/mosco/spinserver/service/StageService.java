@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,23 +55,23 @@ public class StageService {
 
         // 2. Kiểm tra danh sách thẻ cử đi (1-6 thẻ)
         if (request.getCardIds() == null || request.getCardIds().isEmpty() || request.getCardIds().size() > 6) {
-            throw new RuntimeException("Đội hình phải có từ 1 đến 6 thành viên");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_TEAM_SIZE);
         }
 
         List<UserCard> cards = cardRepository.findAllById(request.getCardIds());
         if (cards.size() != request.getCardIds().size()) {
-            throw new RuntimeException("Một số thẻ không tồn tại");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_CARDS_NOT_EXIST);
         }
 
         int totalScore = 0;
         for (UserCard card : cards) {
             // Kiểm tra quyền sở hữu và trạng thái thẻ
             if (!card.getUser().getId().equals(userId)) {
-                throw new RuntimeException("Bạn không sở hữu thẻ này: " + card.getId());
+                throw new RuntimeException(MessageConstants.STAGE_ERR_CARD_NOT_OWNED);
             }
             String status = card.getStatus();
             if (status != null && !"AVAILABLE".equals(status)) {
-                throw new RuntimeException("Thẻ đang bận hoặc đang tham gia hoạt động khác: " + card.getId());
+                throw new RuntimeException(MessageConstants.STAGE_ERR_CARD_BUSY);
             }
 
             // Tính điểm Score dựa trên hiếm (Class, Season, Badge) thay vì OVR
@@ -108,10 +109,10 @@ public class StageService {
     @Transactional
     public StageRewardResponse claimReward(Long userId, Long sessionId) {
         StageSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Phiên AFK không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.STAGE_ERR_SESSION_NOT_FOUND));
 
         if (!session.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền với phiên này");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_ACCESS_DENIED);
         }
 
         // Cho phép nhận thưởng nếu đang RUNNING (và hết thời gian) HOẶC đã COMPLETED (do Speed-up)
@@ -119,7 +120,7 @@ public class StageService {
         boolean isSpeedUpFinished = "COMPLETED".equals(session.getStatus());
 
         if (!isRunningFinished && !isSpeedUpFinished) {
-            throw new RuntimeException("Phiên AFK chưa hoàn thành hoặc đã được nhận thưởng");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_NOT_FINISHED);
         }
 
         // 1. Tính toán phần thưởng
@@ -149,14 +150,14 @@ public class StageService {
     @Transactional
     public void abortStage(Long userId, Long sessionId) {
         StageSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Phiên AFK không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.STAGE_ERR_SESSION_NOT_FOUND));
 
         if (!session.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền với phiên này");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_ACCESS_DENIED);
         }
 
         if (!"RUNNING".equals(session.getStatus())) {
-            throw new RuntimeException("Phiên này không còn hiệu lực");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_INVALID);
         }
 
         // Giải phóng thẻ và hủy phiên
@@ -173,15 +174,15 @@ public class StageService {
     @Transactional
     public void speedUpStage(Long userId, Long sessionId) {
         StageSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Phiên AFK không tồn tại"));
+                .orElseThrow(() -> new RuntimeException(MessageConstants.STAGE_ERR_SESSION_NOT_FOUND));
 
         User user = session.getUser();
         if (!user.getId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền với phiên này");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_ACCESS_DENIED);
         }
 
         if (!"RUNNING".equals(session.getStatus())) {
-            throw new RuntimeException("Phiên này đã kết thúc");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SESSION_ALREADY_FINISHED);
         }
 
         // Tính phí Speed-up (Sử dụng UTC để tính)
@@ -190,7 +191,7 @@ public class StageService {
         long cost = hoursLeft * SPEED_UP_COST_PER_HOUR;
 
         if (user.getDiamonds() < cost) {
-            throw new RuntimeException("Không đủ Kim cương để tăng tốc (Cần " + cost + " 💎)");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_SPEEDUP_NOT_ENOUGH_DIAMONDS);
         }
 
         user.setDiamonds(user.getDiamonds() - cost);
@@ -217,10 +218,10 @@ public class StageService {
             case 2 -> 1; // Temporarily 1 for testing
             case 3 -> 1; // Temporarily 1 for testing
             case 4 -> 1; // Temporarily 1 for testing
-            default -> throw new RuntimeException("Map không tồn tại");
+            default -> throw new RuntimeException(MessageConstants.STAGE_ERR_MAP_NOT_FOUND);
         };
         if (userLevel < requiredLv) {
-            throw new RuntimeException("Cấp độ không đủ để mở khóa Map " + mapId + " (Yêu cầu Lv " + requiredLv + ")");
+            throw new RuntimeException(MessageConstants.STAGE_ERR_LEVEL_LOCKED);
         }
     }
 

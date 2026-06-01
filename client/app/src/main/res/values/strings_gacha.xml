@@ -37,8 +37,8 @@
     <string name="upgrade_label_boost">UPGRADE RATE</string>
     <string name="upgrade_action_upgrading">UPGRADING...</string>
     <string name="upgrade_msg_select_main">Please select a main card first!</string>
-    <string name="upgrade_msg_success">Upgrade Successful!</string>
-    <string name="upgrade_msg_failed">Upgrade Failed!</string>
+    <string name="upgrade_msg_success">Upgrade successful!</string>
+    <string name="upgrade_msg_failed">Upgrade failed, card level reduced.</string>
     <string name="upgrade_error_max_materials">Max 5 materials allowed!</string>
     <string name="upgrade_error_max_probability">Probability already 100%!</string>
     <string name="upgrade_msg_main_as_material">Cannot use main card as material!</string>

@@ -2,6 +2,7 @@ package com.vn.jet.mosco;
 
 import com.vn.jet.mosco.utils.AuthUIHelper;
 import com.vn.jet.mosco.utils.ClickDebounce;
+import com.vn.jet.mosco.utils.ErrorTranslator;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -106,7 +107,7 @@ public class SignUpActivity extends AppCompatActivity {
                     break;
                 case ERROR:
                     setLoading(false);
-                    Toast.makeText(this, resource.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, ErrorTranslator.translate(this, resource.getMessage()), Toast.LENGTH_SHORT).show();
                     break;
             }
         });
@@ -175,14 +176,14 @@ public class SignUpActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (resource.getData() != null) ? resource.getData().getMessage() : getString(R.string.common_error_unknown);
+                        String msg = (resource.getData() != null) ? ErrorTranslator.translate(this, resource.getData().getMessage()) : getString(R.string.common_error_unknown);
                         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     }
                     break;
 
                 case ERROR:
                     setLoading(false);
-                    String errorMsg = resource.getMessage() != null ? resource.getMessage() : getString(R.string.common_error_network);
+                    String errorMsg = resource.getMessage() != null ? ErrorTranslator.translate(this, resource.getMessage()) : getString(R.string.common_error_network);
                     Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                     break;
             }

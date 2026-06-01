@@ -59,4 +59,18 @@
     <string name="stage_reward_dialog_subtitle">Your squad has successfully finished the tour.</string>
     <string name="stage_reward_received_format">You received %1$s Coins and %2$s Diamonds!</string>
     <string name="stage_reward_footer_hint">Collect rewards to start your next tour!</string>
+
+    <!-- Stage Errors from Backend -->
+    <string name="stage_err_team_size">Squad must have between 1 and 6 members</string>
+    <string name="stage_err_cards_not_exist">Some cards do not exist</string>
+    <string name="stage_err_card_not_owned">You do not own this card</string>
+    <string name="stage_err_card_busy">Card is busy or participating in another tour</string>
+    <string name="stage_err_session_not_found">Tour session does not exist</string>
+    <string name="stage_err_session_access_denied">Access denied for this tour session</string>
+    <string name="stage_err_session_not_finished">Tour performance is not finished yet</string>
+    <string name="stage_err_session_invalid">This tour session is no longer active</string>
+    <string name="stage_err_session_already_finished">This tour session has already finished</string>
+    <string name="stage_err_speedup_not_enough_diamonds">Not enough Diamonds to boost</string>
+    <string name="stage_err_map_not_found">Selected Map does not exist</string>
+    <string name="stage_err_level_locked">Level too low to unlock this Map</string>
 </resources>

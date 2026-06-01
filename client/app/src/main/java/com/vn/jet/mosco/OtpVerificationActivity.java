@@ -25,6 +25,7 @@ import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.AuthUIHelper;
 import com.vn.jet.mosco.utils.ClickDebounce;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.utils.ErrorTranslator;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -159,11 +160,11 @@ public class OtpVerificationActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
                 setLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(OtpVerificationActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OtpVerificationActivity.this, ErrorTranslator.translate(OtpVerificationActivity.this, response.body().getMessage()), Toast.LENGTH_SHORT).show();
                     startCountdown();
                 } else {
                     String errorMsg = response.body() != null ? response.body().getMessage() : getString(R.string.settings_delete_otp_send_failed);
-                    Toast.makeText(OtpVerificationActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(OtpVerificationActivity.this, ErrorTranslator.translate(OtpVerificationActivity.this, errorMsg), Toast.LENGTH_SHORT).show();
                 }
             }
 

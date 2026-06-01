@@ -29,6 +29,7 @@ import com.vn.jet.mosco.network.ApiClient;
 import com.vn.jet.mosco.network.GameApiService;
 import com.vn.jet.mosco.utils.AppConfig;
 import com.vn.jet.mosco.utils.SessionManager;
+import com.vn.jet.mosco.utils.ErrorTranslator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -581,7 +582,7 @@ public class StageFragment extends Fragment {
                     } else {
                         try {
                             String error = response.errorBody() != null ? response.errorBody().string() : getString(R.string.common_error_unknown);
-                            Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                            Toast.makeText(requireContext(), ErrorTranslator.translate(requireContext(), error), Toast.LENGTH_LONG).show();
                         } catch (Exception e) {}
                     }
                 }
@@ -673,7 +674,7 @@ public class StageFragment extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), ErrorTranslator.translate(requireContext(), errorMsg), Toast.LENGTH_LONG).show();
                 }
             }
 

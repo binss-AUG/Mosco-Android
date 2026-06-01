@@ -63,4 +63,22 @@
     <string name="settings_terms_content">1. CHẤP THUẬN\nBằng việc tham gia Mosco, bạn đồng ý tuân thủ các quy tắc ứng xử của hệ thống.\n\n2. TÀI KHOẢN\nHành vi mua bán tài khoản hoặc khai thác lỗi hệ thống sẽ bị khóa vĩnh viễn.\n\n3. GIỚI HẠN\nDịch vụ Mosco được cung cấp nguyên bản mà không đảm bảo thời gian hoạt động liên tục.</string>
     <string name="settings_licenses_content">Mosco được xây dựng trên các phần mềm nguồn mở xuất sắc:\n\n- Android Jetpack Components\n- Retrofit &amp; OkHttp\n- RxJava &amp; Room Database\n- Glide Image Loading\n- Lottie Animations\n\nXin chân thành cảm ơn cộng đồng nguồn mở.</string>
     <string name="settings_noti_streak_update">Cập nhật chuỗi ngày: %d ngày!</string>
+
+    <!-- Cloud Sync & Local Backup messages -->
+    <string name="profile_backup_success">✅ Sao lưu thành công</string>
+    <string name="profile_backup_failed">❌ Sao lưu thất bại. Vui lòng thử lại.</string>
+    <string name="profile_syncing_cloud">☁️ Đang đồng bộ lên Cloud...</string>
+    <string name="profile_sync_success">✅ Đồng bộ Cloud thành công!</string>
+    <string name="profile_sync_failed">❌ Đồng bộ thất bại: %s</string>
+    <string name="profile_fetching_backups">Đang tải danh sách bản sao lưu...</string>
+    <string name="profile_no_backups">Không tìm thấy bản sao lưu nào trên Cloud</string>
+    <string name="profile_fetch_backups_failed">Lỗi tải danh sách: %s</string>
+    <string name="profile_restoring_cloud">Đang tải xuống và khôi phục...</string>
+    <string name="profile_restore_success">✅ Khôi phục thành công!</string>
+    <string name="profile_error_prefix">❌ Lỗi: %s</string>
+    <string name="profile_restore_failed">❌ Khôi phục thất bại. Tệp tin có thể đã bị lỗi.</string>
+    <string name="profile_dialog_restore_complete_title">Khôi phục hoàn tất</string>
+    <string name="profile_dialog_restore_complete_msg">Dữ liệu đã được khôi phục thành công. Ứng dụng sẽ khởi động lại.</string>
+    <string name="profile_dialog_restart_app">Khởi động lại</string>
+    <string name="profile_dialog_select_cloud_backup">Chọn bản sao lưu Cloud</string>
 </resources>

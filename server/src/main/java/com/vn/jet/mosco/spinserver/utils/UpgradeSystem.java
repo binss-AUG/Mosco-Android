@@ -83,10 +83,10 @@ public class UpgradeSystem {
      */
     public UpgradeResult executeUpgrade(CardInfo target, List<CardInfo> materials) {
         if (target.level >= 10) {
-            throw new IllegalArgumentException("Thẻ đã đạt cấp độ tối đa (+10)");
+            throw new IllegalArgumentException(MessageConstants.UPGRADE_ERR_MAX_LEVEL);
         }
         if (materials == null || materials.isEmpty() || materials.size() > 5) {
-            throw new IllegalArgumentException("Số lượng phôi không hợp lệ (yêu cầu từ 1 đến 5 phôi)");
+            throw new IllegalArgumentException(MessageConstants.UPGRADE_ERR_MATERIAL_INVALID);
         }
 
         int targetNextLevel = target.level + 1;
@@ -94,7 +94,7 @@ public class UpgradeSystem {
         UpgradeConfig config = customUpgrades.get(targetNextLevel).get(target.typeKey);
 
         if (maxSuccessRate == null || config == null) {
-            throw new RuntimeException("Lỗi cấu hình dữ liệu thẻ");
+            throw new RuntimeException(MessageConstants.UPGRADE_ERR_CONFIG_ERROR);
         }
 
         double totalFillPercent = 0.0;

@@ -62,4 +62,17 @@
     <string name="auth_error_google_general">Lỗi Google: %1$s</string>
     <string name="auth_error_discord_general">Lỗi Discord: %1$s</string>
     <string name="auth_msg_welcome_galaxy">Chào mừng bạn đến với Mosco!</string>
+
+    <!-- Recovery Account & General Connection messages -->
+    <string name="auth_msg_recovery_otp_sent">Mã OTP khôi phục đã được gửi về email.</string>
+    <string name="auth_error_connection_prefix">Lỗi kết nối: %s</string>
+    <string name="auth_error_otp_length">Mã OTP phải có 6 chữ số.</string>
+    <string name="auth_msg_recovery_success">Khôi phục tài khoản thành công! Bây giờ bạn đã có thể đăng nhập.</string>
+    <string name="auth_dialog_recovery_pending_title">Tài khoản đang chờ xóa</string>
+    <string name="auth_dialog_recovery_pending_msg">Tài khoản của bạn sẽ bị xóa vĩnh viễn sau %d ngày nữa.\nBạn có muốn gửi mã OTP để khôi phục tài khoản ngay không?</string>
+    <string name="auth_dialog_recovery_title">Khôi phục tài khoản</string>
+    <string name="auth_dialog_recovery_hint">Nhập mã OTP 6 chữ số</string>
+    <string name="auth_action_restore">Khôi phục</string>
+    <string name="auth_msg_recovery_failed">Khôi phục tài khoản thất bại.</string>
+    <string name="auth_msg_recovery_otp_failed">Gửi OTP khôi phục thất bại.</string>
 </resources>

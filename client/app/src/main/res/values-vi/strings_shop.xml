@@ -19,4 +19,15 @@
     <string name="shop_msg_insufficient_funds">Không đủ tài nguyên!</string>
     <string name="shop_msg_purchase_success">Mua hàng thành công!</string>
     <string name="shop_search_hint">Tìm kiếm trong 20.000+ vật phẩm...</string>
+
+    <!-- Shop / Upgrade / Mailbox Errors from Backend -->
+    <string name="upgrade_err_max_level">Thẻ đã đạt cấp độ tối đa (+10)</string>
+    <string name="upgrade_err_material_invalid">Số lượng phôi không hợp lệ (yêu cầu từ 1 đến 5 phôi)</string>
+    <string name="upgrade_err_config_error">Lỗi cấu hình dữ liệu thẻ</string>
+    <string name="upgrade_err_level_config_error">Lỗi cấu hình nâng cấp cho level này</string>
+    <string name="pack_err_config_missing">Cấu hình hệ thống bị thiếu</string>
+    <string name="pack_err_not_enough">Không đủ số lượng gói để mở</string>
+    <string name="mail_err_already_claimed">Thư này đã được nhận quà rồi</string>
+    <string name="upgrade_err_base_card_not_found">Không tìm thấy thẻ chính</string>
+    <string name="upgrade_err_material_card_not_found">Không tìm thấy thẻ nguyên liệu</string>
 </resources>
