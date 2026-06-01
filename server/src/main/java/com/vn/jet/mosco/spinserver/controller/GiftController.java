@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -36,19 +37,13 @@ public class GiftController {
      */
     @PostMapping("/send")
     public ResponseEntity<ApiResponse<Void>> sendGift(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestBody GiftRequest giftRequest) {
-
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
 
         // Validate input
         if (giftRequest.getCardId() == null || giftRequest.getReceiverId() == null) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Missing cardId or receiverId"));
+                    .body(ApiResponse.error(400, MessageConstants.GIFT_MISSING_FIELDS));
         }
 
         // Gọi service xử lý nghiệp vụ
@@ -58,20 +53,14 @@ public class GiftController {
                     .body(ApiResponse.error(400, error));
         }
 
-        return ResponseEntity.ok(ApiResponse.success("Gift sent successfully! 🎁", null));
+        return ResponseEntity.ok(ApiResponse.success(MessageConstants.GIFT_SENT_SUCCESS, null));
     }
 
     /**
      * GET /api/gift/received — Danh sách quà đã nhận (inbox).
      */
     @GetMapping("/received")
-    public ResponseEntity<ApiResponse<List<GiftHistoryDTO>>> getReceivedGifts(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<List<GiftHistoryDTO>>> getReceivedGifts(@RequestAttribute("userId") Long userId) {
         List<GiftHistoryDTO> received = giftService.getReceivedGifts(userId);
         return ResponseEntity.ok(ApiResponse.success("Received Gifts", received));
     }
@@ -80,13 +69,7 @@ public class GiftController {
      * GET /api/gift/sent — Danh sách quà đã gửi.
      */
     @GetMapping("/sent")
-    public ResponseEntity<ApiResponse<List<GiftHistoryDTO>>> getSentGifts(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<List<GiftHistoryDTO>>> getSentGifts(@RequestAttribute("userId") Long userId) {
         List<GiftHistoryDTO> sent = giftService.getSentGifts(userId);
         return ResponseEntity.ok(ApiResponse.success("Sent Gifts", sent));
     }
@@ -95,13 +78,7 @@ public class GiftController {
      * POST /api/gift/mark-read — Đánh dấu tất cả quà nhận là đã đọc.
      */
     @PostMapping("/mark-read")
-    public ResponseEntity<ApiResponse<Void>> markAsRead(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<Void>> markAsRead(@RequestAttribute("userId") Long userId) {
         giftService.markReceivedAsRead(userId);
         return ResponseEntity.ok(ApiResponse.success("Marked as read", null));
     }
@@ -110,13 +87,7 @@ public class GiftController {
      * GET /api/gift/daily-remaining — Số lượt tặng còn lại trong ngày.
      */
     @GetMapping("/daily-remaining")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> getDailyRemaining(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getDailyRemaining(@RequestAttribute("userId") Long userId) {
         int remaining = giftService.getDailyRemaining(userId);
         return ResponseEntity.ok(ApiResponse.success(
                 "Daily Gift Uses",
@@ -128,13 +99,7 @@ public class GiftController {
      * GET /api/gift/unread-count — Số quà chưa đọc (cho badge thông báo).
      */
     @GetMapping("/unread-count")
-    public ResponseEntity<ApiResponse<Map<String, Integer>>> getUnreadCount(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getUnreadCount(@RequestAttribute("userId") Long userId) {
         int count = giftService.getUnreadCount(userId);
         return ResponseEntity.ok(ApiResponse.success(
                 "Unread Gifts count",

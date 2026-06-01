@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.stereotype.Service;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -52,32 +53,32 @@ public class AuthService {
             email == null || email.trim().isEmpty() ||
             password == null || password.trim().isEmpty() ||
             code == null || code.trim().isEmpty()) {
-            return new AuthResponse(false, "Vui lòng nhập đầy đủ thông tin và mã xác nhận.", null, null);
+            return new AuthResponse(false, MessageConstants.MISSING_FIELDS_AND_OTP, null, null);
         }
 
         // Normalize email to lowercase to prevent duplicates like User@Gmail.com vs user@gmail.com
         email = email.trim().toLowerCase(Locale.ROOT);
 
         if (!EMAIL_PATTERN.matcher(email).matches()) {
-            return new AuthResponse(false, "Invalid email format.", null, null);
+            return new AuthResponse(false, MessageConstants.INVALID_EMAIL_FORMAT, null, null);
         }
 
         if (password.trim().length() < 6) {
-            return new AuthResponse(false, "Password must be at least 6 characters.", null, null);
+            return new AuthResponse(false, MessageConstants.INVALID_PASSWORD_LENGTH, null, null);
         }
 
         if (userRepository.existsByUsername(username.trim())) {
-            return new AuthResponse(false, "Username already exists.", null, null);
+            return new AuthResponse(false, MessageConstants.USERNAME_EXISTS, null, null);
         }
 
         if (userRepository.existsByEmail(email)) {
-            return new AuthResponse(false, "Email đã được sử dụng bởi người dùng khác.", null, null);
+            return new AuthResponse(false, MessageConstants.EMAIL_IN_USE, null, null);
         }
 
         // --- KIỂM TRA MÃ XÁC NHẬN ---
         String storedCode = verificationCodes.get(email);
         if (storedCode == null || !storedCode.equals(code.trim())) {
-            return new AuthResponse(false, "Mã xác nhận không chính xác hoặc đã hết hạn.", null, null);
+            return new AuthResponse(false, MessageConstants.OTP_INVALID_OR_EXPIRED, null, null);
         }
         // Xóa mã sau khi sử dụng thành công
         verificationCodes.remove(email);
@@ -103,7 +104,7 @@ public class AuthService {
         userRepository.save(newUser);
         com.vn.jet.mosco.spinserver.security.TokenCache.put(newUser.getId(), token);
         
-        return new AuthResponse(true, "Đăng ký tài khoản thành công!", newUser, token);
+        return new AuthResponse(true, MessageConstants.REGISTRATION_SUCCESS, newUser, token);
     }
 
     /**
@@ -111,11 +112,11 @@ public class AuthService {
      */
     public AuthResponse sendVerificationCode(String email) {
         if (email == null || email.trim().isEmpty()) {
-            return new AuthResponse(false, "Vui lòng nhập email.", null, null);
+            return new AuthResponse(false, MessageConstants.MISSING_EMAIL, null, null);
         }
         email = email.trim().toLowerCase(Locale.ROOT);
         if (!EMAIL_PATTERN.matcher(email).matches()) {
-            return new AuthResponse(false, "Định dạng email không hợp lệ.", null, null);
+            return new AuthResponse(false, MessageConstants.INVALID_EMAIL, null, null);
         }
 
         // Tạo mã 6 chữ số ngẫu nhiên
@@ -128,11 +129,11 @@ public class AuthService {
         try {
             sendSimpleEmail(email, "Mã xác nhận Mosco", 
                 "Mã xác nhận của bạn là: " + code + "\n\nMã có hiệu lực trong 5 phút.");
-            return new AuthResponse(true, "Mã xác nhận đã được gửi thành công đến " + email, null, null);
+            return new AuthResponse(true, MessageConstants.OTP_SENT_SUCCESS + email, null, null);
         } catch (Exception e) {
             log.error("Failed to send verification email to {}: {}", email, e.getMessage());
             // Fallback: Vẫn cho phép nhìn code ở console để không bị block nếu sai config
-            return new AuthResponse(true, "Yêu cầu gửi mã thành công (Nếu không nhận được mail, vui lòng kiểm tra console server).", null, null);
+            return new AuthResponse(true, MessageConstants.OTP_SEND_FALLBACK, null, null);
         }
     }
 
@@ -141,13 +142,13 @@ public class AuthService {
      */
     public AuthResponse forgotPassword(String email) {
         if (email == null || email.trim().isEmpty()) {
-            return new AuthResponse(false, "Vui lòng nhập email.", null, null);
+            return new AuthResponse(false, MessageConstants.MISSING_EMAIL, null, null);
         }
         email = email.trim().toLowerCase(Locale.ROOT);
         
         // Kiểm tra Email có tồn tại trong hệ thống chưa
         if (!userRepository.existsByEmail(email)) {
-            return new AuthResponse(false, "Email này không tồn tại trong hệ thống.", null, null);
+            return new AuthResponse(false, MessageConstants.EMAIL_NOT_FOUND, null, null);
         }
 
         return sendVerificationCode(email);
@@ -158,19 +159,19 @@ public class AuthService {
      */
     public AuthResponse resetPassword(String email, String code, String newPassword) {
         if (email == null || code == null || newPassword == null) {
-            return new AuthResponse(false, "Vui lòng nhập đầy đủ thông tin.", null, null);
+            return new AuthResponse(false, MessageConstants.MISSING_FIELDS, null, null);
         }
         email = email.trim().toLowerCase(Locale.ROOT);
         
         // Kiểm tra mã xác nhận
         String storedCode = verificationCodes.get(email);
         if (storedCode == null || !storedCode.equals(code.trim())) {
-            return new AuthResponse(false, "Mã xác nhận không chính xác hoặc đã hết hạn.", null, null);
+            return new AuthResponse(false, MessageConstants.OTP_INVALID_OR_EXPIRED, null, null);
         }
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            return new AuthResponse(false, "Lỗi: Không tìm thấy người dùng.", null, null);
+            return new AuthResponse(false, MessageConstants.USER_NOT_FOUND, null, null);
         }
 
         User user = userOpt.get();
@@ -203,33 +204,32 @@ public class AuthService {
     public AuthResponse login(String username, String password) {
         if (username == null || username.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
-            return new AuthResponse(false, "Username and password must not be empty.", null, null);
+            return new AuthResponse(false, MessageConstants.LOGIN_EMPTY_FIELDS, null, null);
         }
 
         username = username.trim();
 
-        // Tại sao (WHY): Hỗ trợ người dùng đăng nhập linh hoạt bằng cả Username hoặc Email
+        // Hỗ trợ người dùng đăng nhập linh hoạt bằng cả Username hoặc Email
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             userOpt = userRepository.findByEmail(username.toLowerCase(Locale.ROOT));
         }
 
         if (userOpt.isEmpty()) {
-            return new AuthResponse(false, "Invalid username or password.", null, null);
+            return new AuthResponse(false, MessageConstants.LOGIN_INVALID_CREDENTIALS, null, null);
         }
 
         User user = userOpt.get();
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            return new AuthResponse(false, "Invalid email or password.", null, null);
+            return new AuthResponse(false, MessageConstants.LOGIN_INVALID_EMAIL_OR_PASS, null, null);
         }
 
         // Kiểm tra xem tài khoản có đang chờ xóa hay không (Soft Delete)
-        // Tại sao: Nếu đang chờ xóa thì chặn đăng nhập và báo số ngày còn lại để khôi phục
         if (user.getDeletionRequestedAt() != null) {
             long daysPassed = java.time.temporal.ChronoUnit.DAYS.between(user.getDeletionRequestedAt().toLocalDate(), java.time.LocalDate.now());
             int daysRemaining = (int) (14 - daysPassed);
             if (daysRemaining > 0) {
-                return new AuthResponse(false, "Tài khoản đang chờ xóa.", true, daysRemaining, user.getEmail());
+                return new AuthResponse(false, MessageConstants.ACCOUNT_DELETION_PENDING, true, daysRemaining, user.getEmail());
             }
         }
 
@@ -241,7 +241,7 @@ public class AuthService {
 
         userRepository.save(user);
         
-        return new AuthResponse(true, "Login successful", user, token);
+        return new AuthResponse(true, MessageConstants.LOGIN_SUCCESS, user, token);
     }
 
     /**
@@ -308,12 +308,12 @@ public class AuthService {
         long cost = (restores < 3) ? 0 : 500;
 
         if (cost > 0 && user.getDiamonds() < cost) {
-            return new AuthResponse(false, "Bạn không đủ Kim cương để khôi phục (Cần 500).", null, null);
+            return new AuthResponse(false, MessageConstants.STREAK_NOT_ENOUGH_DIAMONDS, null, null);
         }
 
         // Thực hiện khôi phục: streak = record (về trạng thái tốt nhất)
         if (user.getStreak() >= user.getBestStreak() && user.getStreak() > 0) {
-            return new AuthResponse(false, "Ngọn lửa của bạn đang rực cháy ở mức cao nhất rồi! Hãy quay lại khi chuỗi bị gián đoạn nhé.", null, null);
+            return new AuthResponse(false, MessageConstants.STREAK_ALREADY_MAX, null, null);
         }
 
         user.setDiamonds(user.getDiamonds() - cost);
@@ -341,7 +341,7 @@ public class AuthService {
      */
     public AuthResponse socialLogin(String provider, String token, String email) {
         if (email == null || email.trim().isEmpty()) {
-            return new AuthResponse(false, "Không lấy được email từ " + provider, null, null);
+            return new AuthResponse(false, MessageConstants.SOCIAL_EMAIL_ERROR + provider, null, null);
         }
         
         email = email.trim().toLowerCase(Locale.ROOT);
@@ -373,7 +373,7 @@ public class AuthService {
         userRepository.save(user);
         com.vn.jet.mosco.spinserver.security.TokenCache.put(user.getId(), jwtToken);
         
-        return new AuthResponse(true, "Đăng nhập thành công qua " + provider, user, jwtToken);
+        return new AuthResponse(true, MessageConstants.SOCIAL_LOGIN_SUCCESS + provider, user, jwtToken);
     }
 
     /**
@@ -396,18 +396,18 @@ public class AuthService {
      */
     public AuthResponse restoreAccount(String email, String code) {
         if (email == null || code == null) {
-            return new AuthResponse(false, "Vui lòng nhập đầy đủ thông tin.", null, null);
+            return new AuthResponse(false, MessageConstants.MISSING_FIELDS, null, null);
         }
         email = email.trim().toLowerCase(Locale.ROOT);
 
         // Xác thực mã OTP
         if (!verifyCode(email, code)) {
-            return new AuthResponse(false, "Mã OTP không chính xác hoặc đã hết hạn.", null, null);
+            return new AuthResponse(false, MessageConstants.OTP_INVALID_OR_EXPIRED, null, null);
         }
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            return new AuthResponse(false, "Không tìm thấy người dùng.", null, null);
+            return new AuthResponse(false, MessageConstants.USER_NOT_FOUND, null, null);
         }
 
         User user = userOpt.get();
@@ -415,6 +415,6 @@ public class AuthService {
         userRepository.save(user);
 
         log.info("User account restored successfully: userId={}, email={}", user.getId(), email);
-        return new AuthResponse(true, "Khôi phục tài khoản thành công!", user, null);
+        return new AuthResponse(true, MessageConstants.ACCOUNT_RESTORE_SUCCESS, user, null);
     }
 }

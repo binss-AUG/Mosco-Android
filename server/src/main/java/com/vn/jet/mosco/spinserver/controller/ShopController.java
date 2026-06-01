@@ -10,6 +10,8 @@ import com.vn.jet.mosco.spinserver.repository.UserItemRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
+import com.vn.jet.mosco.spinserver.exception.BadRequestException;
 
 import java.util.List;
 import java.util.Map;
@@ -43,30 +45,29 @@ public class ShopController {
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<?> buyItem(@RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<?> buyItem(
+            @RequestAttribute("userId") Long userId,
+            @RequestBody Map<String, Object> requestBody) {
         try {
-            Long userId = ((Number) requestBody.get("userId")).longValue();
             String productCode = (String) requestBody.get("productCode");
             int quantity = requestBody.containsKey("quantity") ? ((Number) requestBody.get("quantity")).intValue() : 1;
 
-            Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isEmpty()) return ResponseEntity.badRequest().body("User not found");
-            User user = userOpt.get();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BadRequestException(MessageConstants.USER_NOT_FOUND));
 
-            Optional<ShopItem> shopItemOpt = shopItemRepository.findByProductCode(productCode);
-            if (shopItemOpt.isEmpty()) return ResponseEntity.badRequest().body("Item not found");
-            ShopItem shopItem = shopItemOpt.get();
+            ShopItem shopItem = shopItemRepository.findByProductCode(productCode)
+                    .orElseThrow(() -> new BadRequestException(MessageConstants.ITEM_NOT_FOUND));
 
             // Validate limited-time items
             if (shopItem.getEndTime() != -1L && shopItem.getEndTime() < System.currentTimeMillis()) {
-                return ResponseEntity.badRequest().body("This item is no longer available.");
+                throw new BadRequestException("This item is no longer available.");
             }
 
             long totalC = shopItem.getPriceCoins() * quantity;
             long totalD = shopItem.getPriceDiamonds() * quantity;
 
             if (user.getCoins() < totalC || user.getDiamonds() < totalD) {
-                return ResponseEntity.badRequest().body("Not enough resources");
+                throw new BadRequestException("Not enough resources");
             }
 
             // Deduct cost
@@ -105,6 +106,8 @@ public class ShopController {
 
             log.info("[SHOP] User {} purchased item '{}' x{}. Cost: {}C/{}D", userId, productCode, quantity, totalC, totalD);
             return ResponseEntity.ok("Purchase successful");
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             log.error("Error processing purchase with request: {}", requestBody, e);
             return ResponseEntity.internalServerError().body("Error processing purchase");

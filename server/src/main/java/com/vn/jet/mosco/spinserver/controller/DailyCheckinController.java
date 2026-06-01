@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.util.Map;
 
@@ -29,13 +30,7 @@ public class DailyCheckinController {
      * GET /api/daily/status — Trạng thái 3 slot trong ngày.
      */
     @GetMapping("/status")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStatus(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getStatus(@RequestAttribute("userId") Long userId) {
         Map<String, Object> status = dailyCheckinService.getStatus(userId);
         return ResponseEntity.ok(ApiResponse.success("Trạng thái điểm danh", status));
     }
@@ -44,17 +39,11 @@ public class DailyCheckinController {
      * POST /api/daily/claim — Nhận thưởng slot hiện tại.
      */
     @PostMapping("/claim")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> claim(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<Map<String, Object>>> claim(@RequestAttribute("userId") Long userId) {
         Map<String, Object> result = dailyCheckinService.claim(userId);
         if (result == null) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Không thể điểm danh: Ngoài khung giờ hoặc đã nhận rồi"));
+                    .body(ApiResponse.error(400, MessageConstants.CHECKIN_ERROR));
         }
 
         return ResponseEntity.ok(ApiResponse.success("Điểm danh thành công!", result));

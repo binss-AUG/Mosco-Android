@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -55,14 +56,8 @@ public class GachaController {
      */
     @PostMapping("/roll")
     public ResponseEntity<ApiResponse<GachaRollResponse>> roll(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestBody GachaRollRequest rollRequest) {
-
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
 
         if (rollRequest == null || rollRequest.getPackCode() == null || rollRequest.getPackCode().isBlank()) {
             return ResponseEntity.badRequest()
@@ -88,14 +83,8 @@ public class GachaController {
      */
     @PostMapping("/spin")
     public ResponseEntity<ApiResponse<GachaSpinResponse>> spin(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestBody GachaSpinRequest spinRequest) {
-
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
 
         if (spinRequest == null || spinRequest.getCardId() == null || spinRequest.getCardId().isBlank()) {
             return ResponseEntity.badRequest()
@@ -120,13 +109,7 @@ public class GachaController {
      * Requires JWT authentication.
      */
     @GetMapping("/history")
-    public ResponseEntity<ApiResponse<List<GachaHistory>>> getHistory(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<List<GachaHistory>>> getHistory(@RequestAttribute("userId") Long userId) {
         List<GachaHistory> history = gachaHistoryRepository.findByUserIdOrderByRolledAtDesc(userId);
         return ResponseEntity.ok(ApiResponse.success("History retrieved", history));
     }

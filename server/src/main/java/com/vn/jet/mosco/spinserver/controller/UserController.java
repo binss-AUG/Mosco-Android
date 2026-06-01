@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
+import com.vn.jet.mosco.spinserver.exception.ResourceNotFoundException;
+import com.vn.jet.mosco.spinserver.exception.BadRequestException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -134,14 +137,8 @@ public class UserController {
      */
     @PostMapping("/set-display-name")
     public ResponseEntity<ApiResponse<User>> setDisplayName(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestBody DisplayNameRequest body) {
-
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
 
         // Validate tên theo Galactic Name Shield
         String validationError = validateIngameName(body.getIngameName(), userId);
@@ -152,18 +149,15 @@ public class UserController {
 
         String sanitized = sanitizeName(body.getIngameName());
 
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(404, "User not found"));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_NOT_FOUND));
 
         user.setIngameName(sanitized);
         userRepository.save(user);
 
         logger.info("Display Name set: userId={}, ingameName=\"{}\"", userId, sanitized);
         populateUserStats(user);
-        return ResponseEntity.ok(ApiResponse.success("Display name set successfully!", user));
+        return ResponseEntity.ok(ApiResponse.success(MessageConstants.DISPLAY_NAME_SET_SUCCESS, user));
     }
 
     /**
@@ -172,20 +166,11 @@ public class UserController {
      */
     @PutMapping("/update-profile")
     public ResponseEntity<ApiResponse<User>> updateProfile(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestBody UpdateProfileRequest body) {
 
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(404, "User not found"));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_NOT_FOUND));
 
         // Validate + Update username nếu có thay đổi
         if (body.getUsername() != null && !body.getUsername().trim().isEmpty()) {
@@ -193,11 +178,11 @@ public class UserController {
             if (!newUsername.equals(user.getUsername())) {
                 if (!USERNAME_PATTERN.matcher(newUsername).matches()) {
                     return ResponseEntity.badRequest()
-                            .body(ApiResponse.error(400, "Username chỉ cho phép chữ, số và dấu gạch dưới (3-20 ký tự)"));
+                            .body(ApiResponse.error(400, MessageConstants.USERNAME_FORMAT_ERROR));
                 }
                 if (userRepository.existsByUsername(newUsername)) {
                     return ResponseEntity.badRequest()
-                            .body(ApiResponse.error(400, "Username đã được sử dụng"));
+                            .body(ApiResponse.error(400, MessageConstants.USERNAME_IN_USE));
                 }
                 user.setUsername(newUsername);
             }
@@ -247,23 +232,16 @@ public class UserController {
         userRepository.save(user);
         populateUserStats(user);
         logger.info("Profile updated: userId={}", userId);
-        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", user));
+        return ResponseEntity.ok(ApiResponse.success(MessageConstants.PROFILE_UPDATED_SUCCESS, user));
     }
 
     /**
      * POST /api/user/streak/restore — Khôi phục chuỗi đăng nhập.
      */
     @PostMapping("/streak/restore")
-    public ResponseEntity<ApiResponse<User>> restoreStreak(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
-        }
-
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(404).body(ApiResponse.error(404, "User not found"));
-        }
+    public ResponseEntity<ApiResponse<User>> restoreStreak(@RequestAttribute("userId") Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_NOT_FOUND));
 
         AuthResponse response = authService.restoreStreak(user);
         if (response.isSuccess()) {
@@ -468,26 +446,17 @@ public class UserController {
     @PostMapping("/{targetUserId}/like")
     @Transactional
     public ResponseEntity<ApiResponse<Map<String, Object>>> likeProfile(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long currentUserId,
             @PathVariable Long targetUserId) {
-
-        Long currentUserId = (Long) request.getAttribute("userId");
-        if (currentUserId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
 
         // Không cho phép tự thích hồ sơ của chính mình
         if (currentUserId.equals(targetUserId)) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Không thể tự thích hồ sơ của chính mình"));
+                    .body(ApiResponse.error(400, MessageConstants.CANNOT_LIKE_SELF));
         }
 
-        User targetUser = userRepository.findById(targetUserId).orElse(null);
-        if (targetUser == null) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(404, "Không tìm thấy hồ sơ người chơi"));
-        }
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_PROFILE_NOT_FOUND));
 
         Optional<UserLike> existingLike = userLikeRepository.findByLikerIdAndTargetUserId(currentUserId, targetUserId);
         boolean liked;
@@ -514,7 +483,7 @@ public class UserController {
         );
 
         return ResponseEntity.ok(ApiResponse.success(
-                liked ? "Đã thích hồ sơ thành công" : "Đã bỏ thích hồ sơ",
+                liked ? MessageConstants.LIKE_SUCCESS : MessageConstants.UNLIKE_SUCCESS,
                 responseData
         ));
     }
@@ -529,27 +498,27 @@ public class UserController {
      */
     private String validateIngameName(String name, Long currentUserId) {
         if (name == null || name.trim().isEmpty()) {
-            return "Display name không được để trống";
+            return MessageConstants.DISPLAY_NAME_EMPTY;
         }
 
         String sanitized = sanitizeName(name);
 
         // Rule 1: Độ dài 2-16 ký tự
         if (sanitized.length() < 2 || sanitized.length() > 16) {
-            return "Display name phải từ 2 đến 16 ký tự";
+            return MessageConstants.DISPLAY_NAME_LENGTH_ERROR;
         }
 
         // Rule 2: Cấm tên hệ thống
         String lowerName = sanitized.toLowerCase();
         for (String reserved : RESERVED_NAMES) {
             if (lowerName.contains(reserved)) {
-                return "Tên này không được phép sử dụng";
+                return MessageConstants.DISPLAY_NAME_RESERVED;
             }
         }
 
         // Rule 4: Cấm ký tự điều khiển
         if (CONTROL_CHARS.matcher(sanitized).find()) {
-            return "Tên chứa ký tự không hợp lệ";
+            return MessageConstants.DISPLAY_NAME_INVALID_CHARS;
         }
 
         // Rule 5: Unique — kiểm tra trùng (trừ chính user hiện tại)
@@ -557,7 +526,7 @@ public class UserController {
                 .filter(u -> sanitized.equalsIgnoreCase(u.getIngameName()) && !u.getId().equals(currentUserId))
                 .findFirst();
         if (existingUser.isPresent()) {
-            return "Tên này đã được sử dụng bởi người chơi khác";
+            return MessageConstants.DISPLAY_NAME_IN_USE;
         }
 
         return null; // Hợp lệ
@@ -578,32 +547,23 @@ public class UserController {
      */
     @PostMapping("/delete-account")
     public ResponseEntity<ApiResponse<Void>> deleteAccount(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestParam String code) {
 
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error(401, "Authentication required"));
-        }
-
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(404)
-                    .body(ApiResponse.error(404, "User not found"));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_NOT_FOUND));
 
         // Xác thực mã OTP thông qua AuthService
         boolean otpValid = authService.verifyCode(user.getEmail(), code);
         if (!otpValid) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Mã OTP không chính xác hoặc đã hết hạn."));
+                    .body(ApiResponse.error(400, MessageConstants.OTP_INVALID_OR_EXPIRED_SHORT));
         }
 
         user.setDeletionRequestedAt(java.time.LocalDateTime.now());
         userRepository.save(user);
 
         logger.info("User requested account deletion: userId={}, email={}", userId, user.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("Yêu cầu xóa tài khoản đã được tiếp nhận. Bạn có 14 ngày để khôi phục.", null));
+        return ResponseEntity.ok(ApiResponse.success(MessageConstants.ACCOUNT_DELETION_REQUESTED, null));
     }
 }

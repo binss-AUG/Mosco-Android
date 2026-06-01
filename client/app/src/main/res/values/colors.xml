@@ -54,7 +54,7 @@
     <!-- LG: Navigation & Modal -->
     <color name="lg_nav_surface">#CC0F172A</color>
     <color name="lg_nav_indicator">#3324A1DE</color>
-    <color name="lg_modal_surface">#E60F172A</color>
+    <color name="lg_modal_surface">#1E293B</color>
     <color name="lg_modal_scrim">#B30F172A</color>
 
     <!-- LG: Text & Outline -->

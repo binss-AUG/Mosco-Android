@@ -135,7 +135,7 @@
                             style="@style/MoscoText.Luxury.Body"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Didn't get code? "
+                            android:text="@string/auth_msg_didnt_get_code"
                             android:textSize="@dimen/text_size_body_xs"
                             android:alpha="0.7" />
 

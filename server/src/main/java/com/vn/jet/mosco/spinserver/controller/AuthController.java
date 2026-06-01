@@ -6,6 +6,7 @@ import com.vn.jet.mosco.spinserver.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,7 +22,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> signup(@RequestBody com.vn.jet.mosco.spinserver.dto.SignUpRequest request) {
         if (request == null) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(false, "Vui lòng nhập liệu hợp lệ.", null, null));
+                    .body(new AuthResponse(false, MessageConstants.INVALID_INPUT, null, null));
         }
 
         AuthResponse response = authService.register(
@@ -49,7 +50,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> signin(@RequestBody AuthRequest authRequest) {
         if (authRequest == null) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(false, "Invalid request.", null, null));
+                    .body(new AuthResponse(false, MessageConstants.INVALID_REQUEST, null, null));
         }
 
         AuthResponse response = authService.login(
@@ -75,7 +76,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> resetPassword(@RequestBody com.vn.jet.mosco.spinserver.dto.ResetPasswordRequest request) {
         if (request == null) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(false, "Vui lòng nhập liệu.", null, null));
+                    .body(new AuthResponse(false, MessageConstants.EMPTY_INPUT, null, null));
         }
         AuthResponse response = authService.resetPassword(
                 request.getEmail(),
@@ -92,7 +93,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> socialLogin(@RequestBody com.vn.jet.mosco.spinserver.dto.SocialAuthRequest request) {
         if (request == null) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse(false, "Vui lòng truyền thông tin Social Login.", null, null));
+                    .body(new AuthResponse(false, MessageConstants.MISSING_SOCIAL_INFO, null, null));
         }
 
         AuthResponse response = authService.socialLogin(

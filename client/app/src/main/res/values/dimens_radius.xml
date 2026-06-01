@@ -31,7 +31,7 @@
     <dimen name="lg_radius_small_control">18dp</dimen>
     <dimen name="lg_radius_button">33dp</dimen>
     <dimen name="lg_radius_panel">28dp</dimen>
-    <dimen name="lg_radius_modal">33dp</dimen>
+    <dimen name="lg_radius_modal">8dp</dimen>
     <dimen name="lg_radius_nav">28dp</dimen>
     <dimen name="lg_radius_chip">33dp</dimen>
     <dimen name="lg_radius_input">18dp</dimen>

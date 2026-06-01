@@ -36,7 +36,7 @@ public class FilterConfig {
         registration.setFilter(new JwtAuthFilter(jwtUtil, userRepository));
         // Đóng sập cửa các API lấy thông tin người dùng và rương đồ nếu Token sai/hết hạn
         // Rank API không cần auth vì là bảng xếp hạng công khai
-        registration.addUrlPatterns("/api/gacha/*", "/api/user/*", "/api/inventory/*", "/api/daily/*", "/api/friends/*", "/api/gift/*", "/api/backup/*");
+        registration.addUrlPatterns("/api/gacha/*", "/api/user/*", "/api/inventory/*", "/api/daily/*", "/api/friends/*", "/api/gift/*", "/api/backup/*", "/api/shop/*");
         registration.setOrder(2); // Execute after rate limiter
         registration.setName("jwtAuthFilter");
         return registration;

@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.vn.jet.mosco.spinserver.utils.MessageConstants;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,14 +32,9 @@ public class BackupController {
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<String>> uploadBackup(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @RequestParam("file") MultipartFile file) {
         
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
-        }
-
         try {
             String filename = storageService.store(file, userId);
             log.info("User {} uploaded backup: {}", userId, filename);
@@ -50,12 +46,7 @@ public class BackupController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<String>>> listBackups(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error(401, "Authentication required"));
-        }
-
+    public ResponseEntity<ApiResponse<List<String>>> listBackups(@RequestAttribute("userId") Long userId) {
         try {
             Path userPath = java.nio.file.Paths.get("storage/backups").resolve(String.valueOf(userId));
             if (!Files.exists(userPath)) {
@@ -75,14 +66,9 @@ public class BackupController {
 
     @GetMapping("/download/{filename}")
     public ResponseEntity<Resource> downloadBackup(
-            HttpServletRequest request,
+            @RequestAttribute("userId") Long userId,
             @PathVariable String filename) {
         
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).build();
-        }
-
         try {
             Path file = storageService.load(filename, userId);
             Resource resource = new UrlResource(file.toUri());

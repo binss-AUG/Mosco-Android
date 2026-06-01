@@ -50,6 +50,7 @@
     <string name="auth_subtitle_verify">Enter the 6-digit code sent to %1$s</string>
     <string name="auth_action_verify">Verify &amp; Proceed</string>
     <string name="auth_msg_otp_sent">Verification code has been sent!</string>
+    <string name="auth_msg_didnt_get_code">Didn\'t get code? </string>
 
     <!-- Display Name Setup -->
     <string name="setup_title">CHOOSE YOUR NAME</string>

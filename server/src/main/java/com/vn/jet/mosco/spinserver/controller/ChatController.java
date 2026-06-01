@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.util.HtmlUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -96,11 +97,7 @@ public class ChatController {
     @PostMapping("/api/chat/ack")
     public com.vn.jet.mosco.spinserver.dto.ApiResponse<Void> ackMessages(
             @RequestBody List<Long> messageIds,
-            HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        if (userId == null) {
-            return com.vn.jet.mosco.spinserver.dto.ApiResponse.error(401, "Authentication required");
-        }
+            @RequestAttribute("userId") Long userId) {
         return com.vn.jet.mosco.spinserver.dto.ApiResponse.success("Acknowledged", null);
     }
 }
