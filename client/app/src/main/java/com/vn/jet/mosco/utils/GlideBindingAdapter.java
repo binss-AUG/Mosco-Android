@@ -63,8 +63,18 @@ public class GlideBindingAdapter {
             options = options.format(com.bumptech.glide.load.DecodeFormat.PREFER_ARGB_8888);
         }
 
+        // TẠI SAO: Ép WebP Cloudflare cho ảnh tải từ mạng để tiết kiệm băng thông
+        Object model;
+        if (loadSource instanceof java.io.File) {
+            model = loadSource;
+        } else {
+            model = new com.bumptech.glide.load.model.GlideUrl((String) loadSource, new com.bumptech.glide.load.model.LazyHeaders.Builder()
+                    .addHeader("Accept", "image/webp")
+                    .build());
+        }
+
         Glide.with(context)
-                .load(loadSource)
+                .load(model)
                 .apply(options)
                 .transition(loadSource instanceof java.io.File ? DrawableTransitionOptions.withCrossFade(0) : DrawableTransitionOptions.withCrossFade())
                 .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {

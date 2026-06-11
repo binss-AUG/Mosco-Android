@@ -4,6 +4,166 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
 
 ---
 
+## Sơ đồ Use-case Tổng quát (PlantUML)
+*Bạn có thể copy đoạn code dưới đây và dán vào [PlantText.com](https://www.planttext.com/) để lấy hình ảnh Sơ đồ Use-case chuẩn UML bỏ vào báo cáo.*
+
+```text
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Khách vãng lai" as Guest
+actor "Người chơi" as User
+
+package "Hệ thống Mosco Gacha & Collection" {
+  usecase "Đăng ký / Khôi phục mật khẩu" as UC1
+  usecase "Đăng nhập (Thường & Social)" as UC2
+  usecase "Đồng bộ Master Data (ETL)" as UC3
+  usecase "Quản lý Hồ sơ & Showcase" as UC4
+  usecase "Quản lý Kho đồ (Local Cache)" as UC5
+  usecase "Nâng cấp thẻ bài (FO4 Style)" as UC6
+  usecase "Quay Gacha & Mở Pack" as UC7
+  usecase "Phái cử đi cảnh (AFK)" as UC8
+  usecase "Chat Realtime & Kết bạn" as UC9
+}
+
+Guest --> UC1
+Guest --> UC2
+
+User --> UC2
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+
+UC2 ..> UC3 : <<include>>
+UC4 ..> UC5 : <<include>>
+@enduml
+```
+
+### Các Sơ đồ Phân rã (Chi tiết từng phân hệ)
+*Trong báo cáo KLTN, sau khi có sơ đồ tổng quát, bạn cần đưa thêm các sơ đồ phân rã chi tiết để chứng minh độ sâu của hệ thống.*
+
+**1. Sơ đồ Phân hệ Tài khoản (Auth & Profile)**
+```text
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Khách vãng lai" as Guest
+actor "Người chơi" as User
+
+package "Phân hệ Tài khoản" {
+  usecase "Đăng ký" as UC1
+  usecase "Đăng nhập" as UC2
+  usecase "Khôi phục mật khẩu" as UC3
+  usecase "Thiết lập Tên hiển thị" as UC4
+  usecase "Chỉnh sửa Hồ sơ" as UC5
+  usecase "Thiết lập Showcase" as UC6
+  usecase "Cập nhật Avatar (ML Kit)" as UC7
+}
+
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+
+UC1 ..> UC4 : <<include>>
+@enduml
+```
+
+**2. Sơ đồ Phân hệ Gameplay (Gacha, Upgrade, AFK)**
+```text
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Người chơi" as User
+
+package "Phân hệ Gameplay" {
+  usecase "Xem Sổ tay (Pokédex)" as UC1
+  usecase "Quản lý Kho đồ" as UC2
+  usecase "Quay gói Gacha" as UC3
+  usecase "Nâng cấp thẻ (FO4)" as UC4
+  usecase "Hiến tế thẻ (Spin)" as UC5
+  usecase "Mở gói phôi" as UC6
+  usecase "Thám hiểm bản đồ (AFK)" as UC7
+  usecase "Điểm danh hàng ngày" as UC8
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+
+UC3 ..> UC2 : <<include>>
+UC4 ..> UC2 : <<include>>
+@enduml
+```
+
+**3. Sơ đồ Phân hệ Xã hội (Social, Chat & Streak)**
+```text
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Người chơi" as User
+
+package "Phân hệ Xã hội" {
+  usecase "Chat Thế giới" as UC1
+  usecase "Chat Riêng tư" as UC2
+  usecase "Gửi lời mời kết bạn" as UC3
+  usecase "Thích hồ sơ (Like)" as UC4
+  usecase "Kết đôi (Couple Streak)" as UC5
+  usecase "Gửi tặng thẻ bài" as UC6
+  usecase "Nhận thư hệ thống (Mailbox)" as UC7
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+
+UC2 ..> UC5 : <<extend>>
+@enduml
+```
+
+---
+
+## 📌 Hướng dẫn Bố cục trình bày Use-case vào file Word (Docx)
+*Để báo cáo chuẩn format KLTN, bạn nên bốc các phần dưới đây và sắp xếp theo cấu trúc mục lục sau:*
+
+**2.1. Phân tích chức năng hệ thống**
+*   **2.1.1. Sơ đồ Use-case tổng quát**
+    *   *Hình ảnh:* [Dán ảnh Sơ đồ Tổng quát vào đây]
+    *   *Nội dung:* Viết 1-2 đoạn văn giới thiệu hệ thống có 2 actor chính (Người chơi, Khách) và 9 nhóm chức năng lớn.
+*   **2.1.2. Phân rã nhóm tính năng Tài khoản (Auth & Profile)**
+    *   *Hình ảnh:* [Dán ảnh Sơ đồ Phân hệ Tài khoản vào đây]
+    *   *Nội dung chi tiết:* Copy nội dung từ mục **"## 1. Tính năng Đăng nhập"** và **"## 2. Quản lý Hồ sơ"** ở phía dưới để đắp vào đây (đưa các Use-case như Đăng nhập, Crop Avatar...).
+*   **2.1.3. Phân rã nhóm tính năng Gameplay (Core Logic)**
+    *   *Hình ảnh:* [Dán ảnh Sơ đồ Phân hệ Gameplay vào đây]
+    *   *Nội dung chi tiết:* Copy nội dung từ mục **"## 3, 4, 5, 9, 10"** (Kho đồ, Gacha, Nâng cấp FO4, AFK, Điểm danh) ở bên dưới đắp vào.
+*   **2.1.4. Phân rã nhóm tính năng Xã hội (Social & Chat)**
+    *   *Hình ảnh:* [Dán ảnh Sơ đồ Phân hệ Xã hội vào đây]
+    *   *Nội dung chi tiết:* Copy nội dung từ mục **"## 6, 7, 8, 11"** (Chat, Kết bạn, Streak, Mailbox) đắp vào.
+
+*(Sau khi cấu trúc xong mục 2.1 này, bạn mới sang mục 2.2 Thiết kế Kiến trúc và 2.3 Thiết kế Database nhé).*
+
+---
+
 ## 1. Tính năng Đăng nhập & Đăng ký (Authentication)
 
 ### Use-Case 1.0: Giới thiệu ứng dụng (Onboarding)
@@ -569,33 +729,7 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
     8.  Client lưu trữ lại nhãn thời gian hiện tại (`System.currentTimeMillis()`) làm mốc `last_sync_time` mới vào `SharedPreferences` để chuẩn bị cho các lần đồng bộ tiếp theo.
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Mất kết nối mạng / API lỗi:* Giao dịch đồng bộ bị gián đoạn, Client log lỗi và giữ nguyên giá trị `last_sync_time` cũ để thực hiện đồng bộ lại ở lần khởi chạy kế tiếp.
-
----
-
-## 14. Tính năng Đội hình & Synergy chiến đấu (Battle Formation & Synergy)
-
-### Use-Case 14.1: Thiết lập và lưu Đội hình chiến đấu
-*   **Tác nhân (Actor):** Người chơi (User)
-*   **Luồng xử lý chính (Main flow):**
-    1.  Người dùng truy cập vào giao diện "Đội hình chiến đấu" (Battle Formation).
-    2.  Client gọi API `GET /api/battle/formation/{userId}` để lấy đội hình 6 slot hiện tại của user. Đội hình được Server lưu trữ dưới dạng một chuỗi phân tách dấu phẩy (VD: `"1,2,null,4,null,6"` với các số là ID của thẻ bài `UserCard`).
-    3.  Client parse chuỗi này thành mảng 6 phần tử tương ứng với 6 slot trên giao diện.
-    4.  Người chơi nhấn vào slot bất kỳ để chọn hoặc thay đổi thẻ bài trong kho đồ.
-    5.  Người chơi nhấn "Lưu Đội hình". Client gửi POST tới `/api/battle/formation/{userId}/save` kèm theo body chứa mảng 6 phần tử ID thẻ bài (chứa `null` ở các slot trống).
-    6.  Server cập nhật chuỗi `activeFormation` trong bảng `users` và trả về thông báo thành công.
-    7.  Client cập nhật cache và lưu cục bộ.
-
-### Use-Case 14.2: Preview chỉ số OVR & Synergy của Đội hình
-*   **Tác nhân (Actor):** Người chơi (User)
-*   **Luồng xử lý chính (Main flow):**
-    1.  Mỗi khi người chơi thay đổi thẻ bài trong 6 slot của Đội hình chiến đấu trên giao diện, Client lập tức kích hoạt luồng tính toán chỉ số động.
-    2.  Client gửi yêu cầu POST tới `/api/battle/preview` kèm theo danh sách các ID thẻ bài trong đội hình.
-    3.  Server gọi `BattleEngineService` thực hiện tính toán:
-        - Tổng điểm OVR cơ bản của các thẻ bài.
-        - Các chỉ số Synergy kết hợp (như cùng Season, cùng Artist, hoặc cùng Member).
-        - Trả về đối tượng `BattleResponse` chứa tổng OVR và các thuộc tính kết hợp (Synergy Buff).
-    4.  Client nhận phản hồi và cập nhật hiển thị chỉ số OVR tổng của đội hình cùng danh sách các buff Synergy đang hoạt động trực quan lên màn hình.
-
+9+6
 ---
 
 ## 15. Tính năng Bảng xếp hạng thiên hà (Galactic Leaderboards)
@@ -639,21 +773,3 @@ Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã ngu
     *   *Không đủ tài nguyên thanh toán:* Server từ chối giao dịch, trả về thông báo lỗi 400 "Not enough resources". Client hiển thị popup nhắc nhở nạp thêm tài nguyên.
 
 ---
-
-## 17. Tính năng Quản trị & Vận hành cho Admin (Asset Control Dashboard)
-
-### Use-Case 17: Quản lý và vận hành tài nguyên trên Dashboard Admin
-*   **Tác nhân (Actor):** Quản trị viên (Admin)
-*   **Luồng xử lý chính (Main flow):**
-    1.  Admin truy cập vào URL Dashboard Admin: `http://localhost:8080/admin/assets?key=ADMIN_SECRET`.
-    2.  Server kiểm tra mã bảo mật `ADMIN_SECRET`. Nếu khớp, hiển thị giao diện Dashboard Dark Mode điều khiển tài nguyên.
-    3.  Trên Dashboard, Admin có thể theo dõi:
-        - Trạng thái đồng bộ (Sync Status: IDLE hoặc BUSY).
-        - Tổng số ảnh thẻ bài đã tải về đĩa (Total Images).
-        - Số lượng Sealed Bundles & Patches nén dữ liệu (trên thực tế giá trị này luôn để trống do đã chuyển sang cơ chế Lean Version).
-        - Nhãn thời gian của lượt đồng bộ cuối cùng (Last Sync).
-    4.  **Kích hoạt Đồng bộ Thủ công:** Admin bấm nút "🚀 SYNC NOW". Server gọi API `POST /api/assets/sync` để bắt đầu cào và đồng bộ metadata từ objekt.top ở chế độ nền.
-    5.  **Nén lại gói tài nguyên (Rebuild Bundles):** Admin bấm nút "📦 REBUILD BUNDLES". Server gọi API `POST /api/assets/rebuild`. Vì cơ chế nén Sealed Bundles đã bị lược bỏ trong phiên bản rút gọn (Lean Version) để tiết kiệm 10GB dung lượng lưu trữ, API này chỉ đóng vai trò phản hồi thông báo ghi nhận cơ chế đã được lược bỏ.
-    6.  Admin có thể theo dõi tiến trình chạy ngầm qua log được hiển thị realtime trên Dashboard từ endpoint `/api/assets/status`.
-*   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
-    *   *Sai mã bảo mật (ADMIN_SECRET):* Server từ chối truy cập và hiển thị thông báo "🔒 ACCESS DENIED — Invalid Key".
