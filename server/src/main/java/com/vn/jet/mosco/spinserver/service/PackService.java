@@ -10,9 +10,11 @@ import com.vn.jet.mosco.spinserver.dto.PackOpenResponse;
 import com.vn.jet.mosco.spinserver.model.User;
 import com.vn.jet.mosco.spinserver.model.UserCard;
 import com.vn.jet.mosco.spinserver.model.UserItem;
+import com.vn.jet.mosco.spinserver.model.ShopItem;
 import com.vn.jet.mosco.spinserver.repository.UserCardRepository;
 import com.vn.jet.mosco.spinserver.repository.UserItemRepository;
 import com.vn.jet.mosco.spinserver.repository.UserRepository;
+import com.vn.jet.mosco.spinserver.repository.ShopItemRepository;
 import com.vn.jet.mosco.spinserver.utils.ChaosTheoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +42,17 @@ public class PackService {
     private final UserRepository userRepository;
     private final UserItemRepository userItemRepository;
     private final UserCardRepository userCardRepository;
+    private final ShopItemRepository shopItemRepository;
 
     private JsonObject gameConfig;
     private JsonObject ratesConfig;
     private List<JsonObject> allCards;
 
-    public PackService(UserRepository userRepository, UserItemRepository userItemRepository, UserCardRepository userCardRepository) {
+    public PackService(UserRepository userRepository, UserItemRepository userItemRepository, UserCardRepository userCardRepository, ShopItemRepository shopItemRepository) {
         this.userRepository = userRepository;
         this.userItemRepository = userItemRepository;
         this.userCardRepository = userCardRepository;
+        this.shopItemRepository = shopItemRepository;
         loadData();
     }
 
@@ -101,7 +105,9 @@ public class PackService {
         }
 
         List<PackOpenResponse.CardResult> cardsResults = new ArrayList<>();
-        String packType = determinePackType(packCode);
+        
+        ShopItem shopItem = shopItemRepository.findByProductCode(packCode).orElse(null);
+        String packType = determinePackType(packCode, shopItem);
         JsonArray ratesArray = ratesConfig.getAsJsonObject("pack_rates").getAsJsonArray(packType);
         double[] rates = new double[ratesArray.size()];
         for (int i = 0; i < ratesArray.size(); i++) rates[i] = ratesArray.get(i).getAsDouble();
@@ -113,7 +119,7 @@ public class PackService {
             String selectedRankClass = rollClassByRank(rates);
             
             // 2. Lọc Pool thẻ bài
-            List<JsonObject> pool = filterPool(packCode, selectedRankClass);
+            List<JsonObject> pool = filterPool(packCode, selectedRankClass, shopItem);
             if (pool.isEmpty()) {
                 logger.warn("Empty card pool for Class {}. Falling back to full card pool.", selectedRankClass);
                 pool = allCards;
@@ -209,7 +215,16 @@ public class PackService {
         return "#FFFFFF";
     }
 
-    private String determinePackType(String packCode) {
+    private String determinePackType(String packCode, ShopItem shopItem) {
+        if (shopItem != null && shopItem.getMetadata() != null && !shopItem.getMetadata().isEmpty()) {
+            try {
+                JsonObject extra = JsonParser.parseString(shopItem.getMetadata()).getAsJsonObject();
+                if (extra.has("packType")) return extra.get("packType").getAsString();
+            } catch (Exception e) {
+                logger.warn("Failed to parse ShopItem metadata for pack {}", packCode);
+            }
+        }
+        
         String code = packCode.toUpperCase();
         if (code.contains("DIAMOND")) return "Diamond";
         if (code.contains("GOLD")) return "Gold";
@@ -218,12 +233,32 @@ public class PackService {
         return "Metal";
     }
 
-    private List<JsonObject> filterPool(String packCode, String targetClass) {
+    private List<JsonObject> filterPool(String packCode, String targetClass, ShopItem shopItem) {
         String artistName = null;
         String code = packCode.toUpperCase();
 
-        if (code.startsWith("PACK_ARTIST_")) {
-            artistName = getArtistNameById(code.substring(12));
+        // 1. Cố gắng lấy từ ShopItem Metadata trước (Chuẩn xác nhất)
+        if (shopItem != null && shopItem.getMetadata() != null && !shopItem.getMetadata().isEmpty()) {
+            try {
+                JsonObject extra = JsonParser.parseString(shopItem.getMetadata()).getAsJsonObject();
+                if (extra.has("artistId")) {
+                    artistName = getArtistNameById(extra.get("artistId").getAsString());
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to parse ShopItem metadata for pack {}", packCode);
+            }
+        }
+
+        // 2. Fallback Regex Split nếu Pack không có trong ShopItem (vd: Tặng thẳng UserItem)
+        if (artistName == null) {
+            String[] parts = code.split("_");
+            for (String part : parts) {
+                String possibleName = getArtistNameById(part);
+                if (possibleName != null) {
+                    artistName = possibleName;
+                    break;
+                }
+            }
         }
 
         final String finalArtist = artistName;

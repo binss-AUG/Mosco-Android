@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class CreateAdminRunner implements CommandLineRunner {
+public class DatabaseSeederRunner implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final UserCardRepository userCardRepository;
@@ -43,7 +43,7 @@ public class CreateAdminRunner implements CommandLineRunner {
     private final com.vn.jet.mosco.spinserver.repository.StageSessionMemberRepository memberRepository;
     private final com.vn.jet.mosco.spinserver.service.CardDataService cardDataService;
 
-    public CreateAdminRunner(UserRepository userRepository, 
+    public DatabaseSeederRunner(UserRepository userRepository, 
                              UserCardRepository userCardRepository, 
                              UserItemRepository userItemRepository, 
                              ShopItemRepository shopItemRepository, 
@@ -73,10 +73,11 @@ public class CreateAdminRunner implements CommandLineRunner {
             shopData.add(new ShopItem("OBJET_S1_RANDOM", "Seoyeon Random Objet", "Get a random objet from Yoon Seoyeon", "OBJET", 800L, 0L, "url_s1_objet", -1L, "{\"artistId\":\"S1\"}"));
             
             // PACKS
-            shopData.add(new ShopItem("PACK_METAL", "Metal Pack", "Rates: 80% FirstWelcome, 15% Double", "PACK", 1000L, 0L, "url_pack_metal", -1L, "{\"packType\":\"Metal\"}"));
-            shopData.add(new ShopItem("PACK_COPPER", "Copper Pack", "Rates: 75% FW, 25% Double", "PACK", 2000L, 0L, "url_pack_copper", -1L, "{\"packType\":\"Copper\"}"));
-            shopData.add(new ShopItem("PACK_EX", "EX Pack", "Rates: 95% Premier", "PACK", 0L, 500L, "url_pack_ex", -1L, "{\"packType\":\"EX\"}"));
-            shopData.add(new ShopItem("PACK_S1_ALL", "Seoyeon All Class Pack", "Guaranteed objet from Seoyeon", "PACK", 5000L, 0L, "url_pack_s1", System.currentTimeMillis() + 86400000L * 7, "{\"artistId\":\"S1\", \"packType\":\"Silver\"}")); // 7 days limited
+            shopData.add(new ShopItem("PACK_METAL", "Metal Pack", "Rates: 80% FirstWelcome, 15% Double", "PACK", 1000L, 0L, "", -1L, "{\"packType\":\"Metal\"}"));
+            shopData.add(new ShopItem("PACK_COPPER", "Copper Pack", "Rates: 75% FW, 25% Double", "PACK", 2000L, 0L, "", -1L, "{\"packType\":\"Copper\"}"));
+            shopData.add(new ShopItem("PACK_EX", "EX Pack", "Rates: 95% Premier", "PACK", 0L, 500L, "", -1L, "{\"packType\":\"EX\"}"));
+            shopData.add(new ShopItem("PACK_S1_ALL", "Seoyeon All Class Pack", "Guaranteed objet from Seoyeon", "PACK", 5000L, 0L, "", System.currentTimeMillis() + 86400000L * 7, "{\"artistId\":\"S1\", \"packType\":\"Silver\"}")); // 7 days limited
+
             
             // BUFFS
             shopData.add(new ShopItem("BUFF_ATK_60", "Attack Potion", "Boosts Attack for 60 mins", "BUFF", 300L, 0L, "url_buff_atk", -1L, "{\"buffType\":\"Attack\", \"durationMinutes\": 60}"));
