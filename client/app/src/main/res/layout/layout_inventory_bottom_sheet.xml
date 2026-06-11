@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lg_modal_surface"
+    android:background="@drawable/bg_bottom_sheet_galactic"
     android:paddingStart="@dimen/inventory_padding"
     android:paddingEnd="@dimen/inventory_padding"
     android:paddingTop="@dimen/inventory_padding"

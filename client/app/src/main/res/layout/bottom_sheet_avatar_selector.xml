@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_banner_glass"
+    android:background="@drawable/bg_bottom_sheet_galactic"
     android:padding="@dimen/spacing_md">
 
     <View

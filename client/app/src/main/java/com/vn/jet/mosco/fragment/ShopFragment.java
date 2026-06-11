@@ -222,10 +222,10 @@ public class ShopFragment extends Fragment {
             btnInventory.setOnClickListener(v -> {
                 dialog.dismiss();
                 if (getActivity() != null) {
-                    // Tạo CollectionFragment với default_tab = 3 (Items tab)
+                    // Tạo CollectionFragment với default_tab = 1 (Items tab)
                     CollectionFragment collectionFragment = new CollectionFragment();
                     Bundle args = new Bundle();
-                    args.putInt("default_tab", 3);
+                    args.putInt("default_tab", 1);
                     collectionFragment.setArguments(args);
 
                     getActivity().getSupportFragmentManager().beginTransaction()
@@ -248,7 +248,7 @@ public class ShopFragment extends Fragment {
                 dialog.dismiss();
                 if (getActivity() == null) return;
 
-                if (item.getType().equalsIgnoreCase("PACK")) {
+                if (item.getType().equalsIgnoreCase("PACK") || item.getProductCode().equals("OBJET_S1_RANDOM")) {
                     // Mở màn hình Open Pack (ItemRevealFragment)
                     ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
                             item.getName(),
@@ -266,7 +266,7 @@ public class ShopFragment extends Fragment {
                     // BUFF/OBJET: chuyển về Collection → sub-tab Items để dùng
                     CollectionFragment collectionFragment = new CollectionFragment();
                     Bundle args = new Bundle();
-                    args.putInt("default_tab", 3);
+                    args.putInt("default_tab", 1);
                     collectionFragment.setArguments(args);
 
                     getActivity().getSupportFragmentManager().beginTransaction()

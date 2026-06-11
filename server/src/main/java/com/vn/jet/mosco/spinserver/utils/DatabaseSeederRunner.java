@@ -70,7 +70,7 @@ public class DatabaseSeederRunner implements CommandLineRunner {
             log.info("Initializing Shop master data...");
             List<ShopItem> shopData = new ArrayList<>();
             // OBJETS
-            shopData.add(new ShopItem("OBJET_S1_RANDOM", "Seoyeon Random Objet", "Get a random objet from Yoon Seoyeon", "OBJET", 800L, 0L, "url_s1_objet", -1L, "{\"artistId\":\"S1\"}"));
+            shopData.add(new ShopItem("OBJET_S1_RANDOM", "Seoyeon Random Objet", "Get a random objet from Yoon Seoyeon", "PACK", 800L, 0L, "", -1L, "{\"artistId\":\"S1\"}"));
             
             // PACKS
             shopData.add(new ShopItem("PACK_METAL", "Metal Pack", "Rates: 80% FirstWelcome, 15% Double", "PACK", 1000L, 0L, "", -1L, "{\"packType\":\"Metal\"}"));

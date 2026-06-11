@@ -112,17 +112,52 @@ public class PackService {
         double[] rates = new double[ratesArray.size()];
         for (int i = 0; i < ratesArray.size(); i++) rates[i] = ratesArray.get(i).getAsDouble();
 
+        // Tối ưu: Lấy tên Artist 1 lần duy nhất thay vì parse JSON trong vòng lặp
+        final String targetArtistName = determineArtistName(packCode, shopItem);
+
+        // Pre-filter cards for this artist ONLY once
+        List<JsonObject> artistCards = allCards.stream()
+                .filter(c -> targetArtistName == null || (c.has("member") && c.get("member").getAsString().equalsIgnoreCase(targetArtistName)))
+                .collect(Collectors.toList());
+
+        // Nếu artist hoàn toàn không có thẻ nào (lỗi data), fallback to allCards
+        if (artistCards.isEmpty()) {
+            logger.warn("Artist {} has NO CARDS in DB! Falling back to allCards to prevent crash.", targetArtistName);
+            artistCards = allCards;
+        }
+        
+        final List<JsonObject> finalArtistCards = artistCards;
+
+        // Tạo cache Map để lưu các Pool theo Rank (First, Double, Special...) tránh duyệt mảng nhiều lần
+        Map<String, List<JsonObject>> poolCache = new HashMap<>();
+
         // Sử dụng ChaosTheoryHelper dùng chung để sinh số ngẫu nhiên khí quyển (DRY)
+        List<UserCard> newCards = new ArrayList<>();
 
         for (int q = 0; q < quantity; q++) {
             // 1. Quay Class dựa trên Rank
             String selectedRankClass = rollClassByRank(rates);
             
-            // 2. Lọc Pool thẻ bài
-            List<JsonObject> pool = filterPool(packCode, selectedRankClass, shopItem);
+            // 2. Lọc Pool thẻ bài từ Cache hoặc list artistCards
+            final String currentRankClass = selectedRankClass;
+            List<JsonObject> pool = poolCache.computeIfAbsent(currentRankClass, 
+                rank -> finalArtistCards.stream()
+                        .filter(c -> c.has("class") && isClassMatch(c.get("class").getAsString(), rank))
+                        .collect(Collectors.toList())
+            );
+
             if (pool.isEmpty()) {
-                logger.warn("Empty card pool for Class {}. Falling back to full card pool.", selectedRankClass);
-                pool = allCards;
+                logger.warn("Empty card pool for Class {} in pack {}. Falling back to 'First' class.", currentRankClass, packCode);
+                pool = poolCache.computeIfAbsent("First", 
+                    rank -> finalArtistCards.stream()
+                            .filter(c -> c.has("class") && isClassMatch(c.get("class").getAsString(), rank))
+                            .collect(Collectors.toList())
+                );
+                
+                if (pool.isEmpty()) {
+                    logger.error("Still empty pool for pack {} with 'First' class. Falling back to ALL CARDS of the artist.", packCode);
+                    pool = finalArtistCards;
+                }
             }
 
             // 3. Chọn thẻ ngẫu nhiên
@@ -130,9 +165,9 @@ public class PackService {
             String cardId = selectedCard.has("id") ? selectedCard.get("id").getAsString() : "unknown";
             String actualClass = selectedCard.has("class") ? selectedCard.get("class").getAsString() : selectedRankClass;
 
-            // 4. Lưu vào Database
+            // 4. Lưu vào Batch thay vì save từng cái
             UserCard newUserCard = new UserCard(user, cardId, 1, 0, 1);
-            userCardRepository.save(newUserCard);
+            newCards.add(newUserCard);
             user.getUnlockedCollections().add(cardId);
 
             // 5. Chuẩn bị dữ liệu trả về kèm Màu sắc (Rarity Color)
@@ -142,6 +177,9 @@ public class PackService {
 
             cardsResults.add(new PackOpenResponse.CardResult(cardId, actualClass, rarityColor, cardDataMap));
         }
+
+        // 4.1 Lưu tất cả thẻ vào Database 1 lần duy nhất (Batch Insert)
+        userCardRepository.saveAll(newCards);
 
         // Cập nhật số lượng Pack
         packItem.setQuantity(packItem.getQuantity() - quantity);
@@ -233,7 +271,7 @@ public class PackService {
         return "Metal";
     }
 
-    private List<JsonObject> filterPool(String packCode, String targetClass, ShopItem shopItem) {
+    private String determineArtistName(String packCode, ShopItem shopItem) {
         String artistName = null;
         String code = packCode.toUpperCase();
 
@@ -261,11 +299,7 @@ public class PackService {
             }
         }
 
-        final String finalArtist = artistName;
-        return allCards.stream()
-                .filter(c -> finalArtist == null || (c.has("member") && c.get("member").getAsString().equalsIgnoreCase(finalArtist)))
-                .filter(c -> c.has("class") && isClassMatch(c.get("class").getAsString(), targetClass))
-                .collect(Collectors.toList());
+        return artistName;
     }
 
     private boolean isClassMatch(String dbClass, String targetClass) {

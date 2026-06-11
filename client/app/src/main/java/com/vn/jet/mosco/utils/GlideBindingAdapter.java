@@ -31,7 +31,8 @@ public class GlideBindingAdapter {
         if (context == null) return;
 
         // Tìm Skeleton View trong cùng cấp với ImageView (Standard Layout)
-        final View skeleton = (view.getParent() instanceof ViewGroup) 
+        // Chỉ xử lý skeleton cho ảnh mặt trước (card_iv_image) để tránh dính lỗi loading chéo với ivBack
+        final View skeleton = (view.getParent() instanceof ViewGroup && view.getId() == R.id.card_iv_image) 
                 ? ((ViewGroup) view.getParent()).findViewById(R.id.layout_card_skeleton) 
                 : null;
 

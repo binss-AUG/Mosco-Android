@@ -873,12 +873,12 @@ public class CollectionFragment extends Fragment {
         @Override
         public void onResume() {
             super.onResume();
-            com.vn.jet.mosco.utils.DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
+            loadObjets(false);
         }
 
         @Override
-        public void onPause() {
-            super.onPause();
+        public void onDestroyView() {
+            super.onDestroyView();
             com.vn.jet.mosco.utils.DatabaseLoader.unregisterInventoryChangeListener(inventoryChangeListener);
         }
 
@@ -896,6 +896,7 @@ public class CollectionFragment extends Fragment {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            com.vn.jet.mosco.utils.DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
 
             tvCount = view.findViewById(R.id.tv_objet_types_count);
 
@@ -1171,6 +1172,12 @@ public class CollectionFragment extends Fragment {
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            loadInventory();
+        }
+
+        @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
 
@@ -1212,7 +1219,7 @@ public class CollectionFragment extends Fragment {
             String type = item.getType() != null ? item.getType().toUpperCase() : "";
             int qty = item.getQuantity() != null ? item.getQuantity() : 1;
 
-            if (type.equals("PACK")) {
+            if (type.equals("PACK") || "OBJET_S1_RANDOM".equals(item.getItemCode())) {
                 // Chỉ PACK mới gọi API mở pack.
                 if (getActivity() != null) {
                     ItemRevealFragment revealFragment = ItemRevealFragment.newInstance(
@@ -1581,6 +1588,7 @@ public class CollectionFragment extends Fragment {
                         .registerReceiver(inventoryUpdateReceiver,
                                 new android.content.IntentFilter("ACTION_INVENTORY_UPDATED"));
             }
+            loadCollectionBook();
         }
 
         @Override

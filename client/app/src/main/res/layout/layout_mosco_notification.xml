@@ -3,21 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="@dimen/spacing_20dp"
     android:paddingTop="@dimen/spacing_40dp"
     android:clipToPadding="false"
     android:clipChildren="false">
 
     <LinearLayout
         android:id="@+id/container_liquid"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_surface_solid"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/lg_glass_dialog_bg"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/spacing_12dp"
         android:paddingHorizontal="@dimen/spacing_20dp"
-        android:elevation="2dp">
+        android:layout_marginHorizontal="@dimen/spacing_24dp"
+        android:elevation="8dp">
 
         <ImageView
             android:id="@+id/iv_noti_icon"

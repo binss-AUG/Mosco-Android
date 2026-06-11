@@ -112,6 +112,7 @@ public class ItemRevealFragment extends Fragment {
     // 60fps trên giả lập Android 9
     private androidx.media3.exoplayer.ExoPlayer itemVideoPlayer;
     private boolean isCardFlipped = false;
+    private boolean isSwappingCard = false;
 
     private void releaseItemPlayer() {
         if (itemVideoPlayer != null) {
@@ -1075,7 +1076,9 @@ public class ItemRevealFragment extends Fragment {
 
         View btnBack = getView().findViewById(R.id.btn_back);
         if (btnBack != null) {
-            btnBack.setVisibility(View.GONE);
+            btnBack.setVisibility(View.VISIBLE);
+            btnBack.animate().alpha(1f).setDuration(getResources().getInteger(R.integer.reveal_summary_button_fade_ms)).start();
+            btnBack.bringToFront();
         }
     }
 
@@ -1348,12 +1351,19 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void swapCardWithFlipAnimation(RevealedCard targetCard) {
+        if (isSwappingCard) return;
+        isSwappingCard = true;
+
         View rootView = getView();
-        if (rootView == null)
+        if (rootView == null) {
+            isSwappingCard = false;
             return;
+        }
         MaterialCardView cardItem = rootView.findViewById(R.id.card_item);
-        if (cardItem == null)
+        if (cardItem == null) {
+            isSwappingCard = false;
             return;
+        }
 
         cardItem.setOnTouchListener(null);
 
@@ -1377,6 +1387,7 @@ public class ItemRevealFragment extends Fragment {
                             .setUpdateListener(animation -> syncGlowToCard(cardItem))
                             .withEndAction(() -> {
                                 setupFlipGesture(cardItem);
+                                isSwappingCard = false;
                             })
                             .start();
                 })
