@@ -61,20 +61,12 @@ public class GlideBindingAdapter {
         } else {
             // ARGB_8888 cho bản sắc nét
             options = options.format(com.bumptech.glide.load.DecodeFormat.PREFER_ARGB_8888);
-        }
-
-        // TẠI SAO: Ép WebP Cloudflare cho ảnh tải từ mạng để tiết kiệm băng thông
-        Object model;
-        if (loadSource instanceof java.io.File) {
-            model = loadSource;
-        } else {
-            model = new com.bumptech.glide.load.model.GlideUrl((String) loadSource, new com.bumptech.glide.load.model.LazyHeaders.Builder()
-                    .addHeader("Accept", "image/webp")
-                    .build());
+            // Kích hoạt load ngay cả khi View đang GONE (không đợi measure)
+            options = options.override(com.bumptech.glide.request.target.Target.SIZE_ORIGINAL);
         }
 
         Glide.with(context)
-                .load(model)
+                .load(loadSource)
                 .apply(options)
                 .transition(loadSource instanceof java.io.File ? DrawableTransitionOptions.withCrossFade(0) : DrawableTransitionOptions.withCrossFade())
                 .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
@@ -118,9 +110,11 @@ public class GlideBindingAdapter {
      */
     public static String convertImageIdToUrl(String imageIdOrUrl, boolean isThumbnail) {
         if (imageIdOrUrl == null || imageIdOrUrl.isEmpty()) return "";
-        if (imageIdOrUrl.startsWith("http")) return imageIdOrUrl;
-        
         String variant = isThumbnail ? "thumbnail" : "original";
+        if (imageIdOrUrl.startsWith("http")) {
+            return CardAssetManager.convertToVariant(imageIdOrUrl, variant);
+        }
+        
         return BASE_URL + com.vn.jet.mosco.BuildConfig.CLOUDFLARE_ACCOUNT_ID + "/" + imageIdOrUrl + "/" + variant;
     }
 }

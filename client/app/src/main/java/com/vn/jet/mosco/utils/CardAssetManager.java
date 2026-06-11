@@ -68,17 +68,39 @@ public class CardAssetManager {
         if (url == null || url.isEmpty()) return null;
         try {
             if (url.contains("imagedelivery.net")) {
-                String[] parts = url.split("/");
-                if (parts.length >= 2) return parts[parts.length - 2];
-            } else if (url.startsWith("http")) {
-                String[] parts = url.split("/");
-                if (parts.length > 0) {
-                    String lastPart = parts[parts.length - 1];
-                    int dotIndex = lastPart.lastIndexOf('.');
-                    if (dotIndex > 0) {
-                        return lastPart.substring(0, dotIndex);
+                int startIdx = url.indexOf("imagedelivery.net");
+                if (startIdx >= 0) {
+                    int accountSlash = url.indexOf('/', startIdx + 17); // 17 is length of "imagedelivery.net"
+                    if (accountSlash >= 0) {
+                        int imageSlash = url.indexOf('/', accountSlash + 1);
+                        if (imageSlash >= 0) {
+                            int variantSlash = url.indexOf('/', imageSlash + 1);
+                            if (variantSlash >= 0) {
+                                return url.substring(imageSlash + 1, variantSlash);
+                            } else {
+                                return url.substring(imageSlash + 1);
+                            }
+                        }
                     }
-                    return lastPart;
+                }
+            } else if (url.startsWith("http")) {
+                int lastSlash = url.lastIndexOf('/');
+                if (lastSlash >= 0 && lastSlash < url.length() - 1) {
+                    String lastPart = url.substring(lastSlash + 1);
+                    String name = lastPart;
+                    int dotIndex = name.lastIndexOf('.');
+                    if (dotIndex > 0) {
+                        name = name.substring(0, dotIndex);
+                    }
+                    
+                    if (name.equals("front") || name.equals("back")) {
+                        int secondLastSlash = url.lastIndexOf('/', lastSlash - 1);
+                        if (secondLastSlash >= 0) {
+                            String parentDir = url.substring(secondLastSlash + 1, lastSlash);
+                            return parentDir + "_" + name;
+                        }
+                    }
+                    return name;
                 }
             } else {
                 return url;
@@ -92,8 +114,22 @@ public class CardAssetManager {
     public static String convertToVariant(String url, String variant) {
         if (url == null || url.isEmpty()) return url;
         if (!url.contains("imagedelivery.net")) return url;
-        int lastSlash = url.lastIndexOf('/');
-        if (lastSlash > 0) return url.substring(0, lastSlash + 1) + variant;
+        
+        int startIdx = url.indexOf("imagedelivery.net");
+        if (startIdx >= 0) {
+            int accountSlash = url.indexOf('/', startIdx + 17);
+            if (accountSlash >= 0) {
+                int imageSlash = url.indexOf('/', accountSlash + 1);
+                if (imageSlash >= 0) {
+                    int variantSlash = url.indexOf('/', imageSlash + 1);
+                    if (variantSlash >= 0) {
+                        return url.substring(0, variantSlash + 1) + variant;
+                    } else {
+                        return url + "/" + variant;
+                    }
+                }
+            }
+        }
         return url;
     }
 
