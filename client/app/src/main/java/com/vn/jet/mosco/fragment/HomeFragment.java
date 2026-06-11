@@ -112,6 +112,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private final java.util.List<android.animation.Animator> activeAnimators = new java.util.ArrayList<>();
     
     private RecyclerView rvWorldChat;
+    private static WorldChatAdapter sWorldChatAdapter;
     private WorldChatAdapter worldChatAdapter;
 
     
@@ -137,6 +138,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     // --- WebSocket World Chat ---
     private com.vn.jet.mosco.network.WebSocketManager wsManager;
     private io.reactivex.disposables.Disposable chatDisposable;
+    private RecyclerView.AdapterDataObserver chatDataObserver;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -229,6 +231,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         stopBannerAutoScroll();
         stopRankAutoScroll();
         stopRankingTimeout();
+        if (worldChatAdapter != null && chatDataObserver != null) {
+            worldChatAdapter.unregisterAdapterDataObserver(chatDataObserver);
+            chatDataObserver = null;
+        }
         super.onDestroyView();
     }
 
@@ -268,7 +274,10 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         sessionManager = new SessionManager(requireContext());
         gameApiService = ApiClient.getClient(requireContext()).create(GameApiService.class);
         miniRankAdapter = new MiniRankPagerAdapter();
-        worldChatAdapter = new WorldChatAdapter();
+        if (sWorldChatAdapter == null) {
+            sWorldChatAdapter = new WorldChatAdapter();
+        }
+        worldChatAdapter = sWorldChatAdapter;
         DatabaseLoader.registerInventoryChangeListener(this);
 
     }
@@ -489,21 +498,57 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     }
 
     private void setupChatBar() {
-        if (worldChatAdapter == null) {
-            worldChatAdapter = new WorldChatAdapter();
-        }
         // Luôn cập nhật ID mới nhất từ session để tránh bị stale
         if (sessionManager.getUserId() != null) {
             worldChatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
         }
 
         if (rvWorldChatExpanded != null) {
-            rvWorldChatExpanded.setLayoutManager(new LinearLayoutManager(requireContext()));
+            LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
+            layoutManager.setStackFromEnd(true);
+            rvWorldChatExpanded.setLayoutManager(layoutManager);
             rvWorldChatExpanded.setAdapter(worldChatAdapter);
+            // Tắt DefaultItemAnimator để tránh xung đột với manual float-up animation
+            rvWorldChatExpanded.setItemAnimator(null);
+
+            chatDataObserver = new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onItemRangeInserted(int positionStart, int itemCount) {
+                    super.onItemRangeInserted(positionStart, itemCount);
+                    if (rvWorldChatExpanded != null && rvWorldChatExpanded.getLayoutManager() instanceof LinearLayoutManager) {
+                        LinearLayoutManager lm = (LinearLayoutManager) rvWorldChatExpanded.getLayoutManager();
+                        int lastVisible = lm.findLastCompletelyVisibleItemPosition();
+                        boolean isSelf = false;
+                        if (worldChatAdapter.getItemCount() > 0) {
+                            WorldChatMessage lastMsg = worldChatAdapter.getMessageAt(worldChatAdapter.getItemCount() - 1);
+                            if (lastMsg != null && sessionManager.getUserId() != null && lastMsg.getSenderId().equals(String.valueOf(sessionManager.getUserId()))) {
+                                isSelf = true;
+                            }
+                        }
+                        if (isSelf || lastVisible >= worldChatAdapter.getItemCount() - 2) {
+                            rvWorldChatExpanded.post(() -> rvWorldChatExpanded.scrollToPosition(worldChatAdapter.getItemCount() - 1));
+                        }
+                    }
+                }
+            };
+            worldChatAdapter.registerAdapterDataObserver(chatDataObserver);
+
+            // Bám đáy khi bàn phím ảo bật lên
+            rvWorldChatExpanded.addOnLayoutChangeListener((v1, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                if (bottom < oldBottom) {
+                    rvWorldChatExpanded.postDelayed(() -> {
+                        if (worldChatAdapter.getItemCount() > 0) {
+                            rvWorldChatExpanded.scrollToPosition(worldChatAdapter.getItemCount() - 1);
+                        }
+                    }, 60);
+                }
+            });
             
             // Professional system messages
-            worldChatAdapter.addMessage(new WorldChatMessage("0", getString(R.string.chat_msg_system), "0", getString(R.string.chat_msg_welcome)));
-            worldChatAdapter.addMessage(new WorldChatMessage("1", "Admin_Zero", "1", "Welcome to the central communication hub."));
+            if (worldChatAdapter.getItemCount() == 0) {
+                worldChatAdapter.addMessage(new WorldChatMessage("0", getString(R.string.chat_msg_system), "0", getString(R.string.chat_msg_welcome)));
+                worldChatAdapter.addMessage(new WorldChatMessage("1", "Admin_Zero", "1", "Welcome to the central communication hub."));
+            }
         }
 
         // Ticker Logic
@@ -536,9 +581,6 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         chatDisposable = wsManager.subscribeToWorldChat(message -> {
             if (isAdded() && worldChatAdapter != null) {
                 worldChatAdapter.addMessage(message);
-                if (rvWorldChatExpanded != null) {
-                    rvWorldChatExpanded.smoothScrollToPosition(worldChatAdapter.getItemCount() - 1);
-                }
                 // Tại sao (WHY): Cập nhật ticker ngay lập tức khi nhận được tin nhắn mới nhất từ WebSocket
                 updateChatTickerWithLatest();
             }
