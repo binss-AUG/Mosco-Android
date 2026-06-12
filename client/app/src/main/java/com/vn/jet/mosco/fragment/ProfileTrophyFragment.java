@@ -152,33 +152,34 @@ public class ProfileTrophyFragment extends Fragment {
             }
             holder.ivBadgeIcon.setImageResource(iconResId);
 
-            // Gán Shape Background theo Cấp bậc (Tier)
-            int bgResId = R.drawable.lg_chip_unselected_bg;
+            // Gán Hexagon Frame theo Cấp bậc (Tier)
+            int frameResId = R.drawable.ic_hex_iron;
             int tintColorRes = R.color.badge_tier_iron;
             boolean isEx = false;
 
             if ("Iron".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_iron;
+                frameResId = R.drawable.ic_hex_iron;
                 tintColorRes = R.color.badge_tier_iron;
             } else if ("Bronze".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_bronze;
+                frameResId = R.drawable.ic_hex_bronze;
                 tintColorRes = R.color.badge_tier_bronze;
             } else if ("Silver".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_silver;
+                frameResId = R.drawable.ic_hex_silver;
                 tintColorRes = R.color.badge_tier_silver;
             } else if ("Gold".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_gold;
+                frameResId = R.drawable.ic_hex_gold;
                 tintColorRes = R.color.badge_tier_gold;
             } else if ("Diamond".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_diamond;
+                frameResId = R.drawable.ic_hex_diamond;
                 tintColorRes = R.color.badge_tier_diamond;
             } else if ("EX".equals(tier)) {
-                bgResId = R.drawable.bg_badge_tier_ex;
+                frameResId = R.drawable.ic_hex_ex;
                 tintColorRes = R.color.badge_tier_ex_red;
                 isEx = true;
             }
 
-            holder.itemView.setBackgroundResource(bgResId);
+            holder.ivBadgeFrame.setImageResource(frameResId);
+            holder.itemView.setBackground(null);
             holder.ivBadgeIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(holder.itemView.getContext(), tintColorRes));
 
             // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
@@ -206,8 +207,18 @@ public class ProfileTrophyFragment extends Fragment {
             layout.setPadding(padding, padding, padding, padding);
             layout.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.semantic_background));
             
-            // Icon lớn hiển thị trên BottomSheet
+            // Biểu tượng Huy hiệu (Khung Lục Giác + Lõi) trên BottomSheet
+            android.widget.FrameLayout iconContainer = new android.widget.FrameLayout(context);
+            android.widget.LinearLayout.LayoutParams containerParams = new android.widget.LinearLayout.LayoutParams(
+                (int) (80 * context.getResources().getDisplayMetrics().density),
+                (int) (80 * context.getResources().getDisplayMetrics().density)
+            );
+            containerParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
+            containerParams.bottomMargin = (int) (16 * context.getResources().getDisplayMetrics().density);
+
+            android.widget.ImageView ivFrame = new android.widget.ImageView(context);
             android.widget.ImageView ivIcon = new android.widget.ImageView(context);
+            
             int iconResId = R.drawable.ic_star;
             if ("Spin Master".equals(type)) iconResId = R.drawable.ic_badge_spin;
             else if ("Pack Master".equals(type)) iconResId = R.drawable.ic_badge_pack;
@@ -218,22 +229,30 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("Golden Hammer".equals(type)) iconResId = R.drawable.ic_badge_hammer;
             ivIcon.setImageResource(iconResId);
             
+            int frameResId = R.drawable.ic_hex_iron;
             int tintColorRes = R.color.badge_tier_iron;
-            if ("Iron".equals(tier)) tintColorRes = R.color.badge_tier_iron;
-            else if ("Bronze".equals(tier)) tintColorRes = R.color.badge_tier_bronze;
-            else if ("Silver".equals(tier)) tintColorRes = R.color.badge_tier_silver;
-            else if ("Gold".equals(tier)) tintColorRes = R.color.badge_tier_gold;
-            else if ("Diamond".equals(tier)) tintColorRes = R.color.badge_tier_diamond;
-            else if ("EX".equals(tier)) tintColorRes = R.color.badge_tier_ex_red;
+            if ("Iron".equals(tier)) { frameResId = R.drawable.ic_hex_iron; tintColorRes = R.color.badge_tier_iron; }
+            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; }
+            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; }
+            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; }
+            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; }
+            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; }
             
+            ivFrame.setImageResource(frameResId);
             ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
-            android.widget.LinearLayout.LayoutParams imgParams = new android.widget.LinearLayout.LayoutParams(
-                (int) (48 * context.getResources().getDisplayMetrics().density),
-                (int) (48 * context.getResources().getDisplayMetrics().density)
+            
+            android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT);
+            iconContainer.addView(ivFrame, frameParams);
+            
+            android.widget.FrameLayout.LayoutParams iconParams = new android.widget.FrameLayout.LayoutParams(
+                (int) (40 * context.getResources().getDisplayMetrics().density),
+                (int) (40 * context.getResources().getDisplayMetrics().density)
             );
-            imgParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
-            imgParams.bottomMargin = (int) (16 * context.getResources().getDisplayMetrics().density);
-            layout.addView(ivIcon, imgParams);
+            iconParams.gravity = android.view.Gravity.CENTER;
+            iconContainer.addView(ivIcon, iconParams);
+            
+            layout.addView(iconContainer, containerParams);
 
             // Tiêu đề Huy hiệu kèm cấp bậc
             android.widget.TextView tvTitle = new android.widget.TextView(context);
@@ -368,11 +387,13 @@ public class ProfileTrophyFragment extends Fragment {
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvBadgeName;
             ImageView ivBadgeIcon;
+            ImageView ivBadgeFrame;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
                 ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
+                ivBadgeFrame = itemView.findViewById(R.id.iv_badge_frame);
             }
         }
     }
