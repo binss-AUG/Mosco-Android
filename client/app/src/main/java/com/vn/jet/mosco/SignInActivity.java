@@ -58,6 +58,7 @@ public class SignInActivity extends AppCompatActivity {
     private SignInViewModel viewModel;
     private SessionManager sessionManager;
     private boolean isSigningIn = false; 
+    private String currentAuthType = "email";
 
     private GoogleSignInClient mGoogleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -185,9 +186,23 @@ public class SignInActivity extends AppCompatActivity {
                 case SUCCESS:
                     setLoading(false);
                     if (resource.getData() != null && resource.getData().isSuccess()) {
+                        com.vn.jet.mosco.model.AuthResponse.UserData data = resource.getData().getData();
                         // Tại sao (WHY): Lưu thông tin đăng nhập tự động khi người dùng chọn "Remember me"
                         sessionManager.saveRememberMe(cbRememberMe.isChecked(), edtEmail.getText().toString().trim());
-                        sessionManager.saveSession(resource.getData().getData());
+                        sessionManager.saveSession(data);
+
+                        if (cbRememberMe.isChecked() && data != null) {
+                            sessionManager.upsertSavedAccount(new com.vn.jet.mosco.model.SavedAccount(
+                                    data.getId() != null ? data.getId() : -1L,
+                                    data.getUsername(),
+                                    data.getEmail(),
+                                    data.getIngameName(),
+                                    data.getAvatarId(),
+                                    data.getToken(),
+                                    currentAuthType
+                            ));
+                        }
+
                         Toast.makeText(this, getString(R.string.auth_msg_sign_in_success),
                                 Toast.LENGTH_SHORT).show();
 
@@ -234,6 +249,7 @@ public class SignInActivity extends AppCompatActivity {
     private void validateAndSignIn() {
         if (isSigningIn) return;
         
+        currentAuthType = "email";
         String usernameOrEmail = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
@@ -366,9 +382,13 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
         if (isSigningIn) return;
+        currentAuthType = "google";
         setLoading(true);
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        googleSignInLauncher.launch(signInIntent);
+        // TẠI SAO: Xóa phiên cũ để người dùng có thể chọn account khác nếu muốn "Add Account"
+        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            googleSignInLauncher.launch(signInIntent);
+        });
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -410,6 +430,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signInWithDiscord() {
         if (isSigningIn) return;
+        currentAuthType = "discord";
         com.vn.jet.mosco.utils.DiscordAuthManager.startDiscordLogin(this);
     }
 

@@ -232,7 +232,10 @@ public class ProfileMenuFragment extends Fragment {
             getString(R.string.settings_action_switch_account), 
             getString(R.string.settings_desc_switch_account), 
             R.drawable.ic_switch_account,
-            v -> { if(listener != null) listener.onSwitchAccount(); });
+            v -> { 
+                AccountSwitchBottomSheet bottomSheet = new AccountSwitchBottomSheet();
+                bottomSheet.show(getParentFragmentManager(), "AccountSwitch");
+            });
 
         setupMenuItem(menuReportBug, 
             getString(R.string.settings_action_bug_report), 
