@@ -79,9 +79,19 @@ public class ProfileTrophyFragment extends Fragment {
             rvBadges.setVisibility(View.GONE);
             tvNoBadges.setVisibility(View.VISIBLE);
         } else {
+            // TẠI SAO: Ép cứng (Mock Data) 7 huy hiệu với 7 cấp bậc khác nhau để Admin test UI "Wow"
+            java.util.List<String> mockBadges = java.util.Arrays.asList(
+                "EX Golden Hammer",
+                "Diamond Collection Master",
+                "Gold Pack Master",
+                "Silver Immortal",
+                "Bronze Duo Flame",
+                "Iron Celebrity",
+                "Iron Spin Master" // Fallback
+            );
             rvBadges.setVisibility(View.VISIBLE);
             tvNoBadges.setVisibility(View.GONE);
-            rvBadges.setAdapter(new BadgeAdapter(stats.getBadges(), stats));
+            rvBadges.setAdapter(new BadgeAdapter(mockBadges, stats));
         }
     }
 
@@ -132,51 +142,35 @@ public class ProfileTrophyFragment extends Fragment {
                 tier = parts[0];
                 type = parts[1];
             }
+            
+            android.content.Context context = holder.itemView.getContext();
 
             // Gán icon vector tối giản đã vẽ mới tương ứng với loại huy hiệu
             int iconResId = R.drawable.ic_star;
-            if ("Spin Master".equals(type)) {
-                iconResId = R.drawable.ic_badge_spin;
-            } else if ("Pack Master".equals(type)) {
-                iconResId = R.drawable.ic_badge_pack;
-            } else if ("Collection Master".equals(type)) {
-                iconResId = R.drawable.ic_badge_collection;
-            } else if ("Immortal".equals(type)) {
-                iconResId = R.drawable.ic_badge_immortal;
-            } else if ("Duo Flame".equals(type)) {
-                iconResId = R.drawable.ic_badge_duo;
-            } else if ("Celebrity".equals(type)) {
-                iconResId = R.drawable.ic_badge_celebrity;
-            } else if ("Golden Hammer".equals(type)) {
-                iconResId = R.drawable.ic_badge_hammer;
-            }
+            String localizedType = type;
+            if ("Spin Master".equals(type)) { iconResId = R.drawable.ic_badge_spin; localizedType = context.getString(R.string.badge_type_spin); }
+            else if ("Pack Master".equals(type)) { iconResId = R.drawable.ic_badge_pack; localizedType = context.getString(R.string.badge_type_pack); }
+            else if ("Collection Master".equals(type)) { iconResId = R.drawable.ic_badge_collection; localizedType = context.getString(R.string.badge_type_collection); }
+            else if ("Immortal".equals(type)) { iconResId = R.drawable.ic_badge_immortal; localizedType = context.getString(R.string.badge_type_immortal); }
+            else if ("Duo Flame".equals(type)) { iconResId = R.drawable.ic_badge_duo; localizedType = context.getString(R.string.badge_type_duo); }
+            else if ("Celebrity".equals(type)) { iconResId = R.drawable.ic_badge_celebrity; localizedType = context.getString(R.string.badge_type_celebrity); }
+            else if ("Golden Hammer".equals(type)) { iconResId = R.drawable.ic_badge_hammer; localizedType = context.getString(R.string.badge_type_hammer); }
             holder.ivBadgeIcon.setImageResource(iconResId);
 
             // Gán Hexagon Frame theo Cấp bậc (Tier)
             int frameResId = R.drawable.ic_hex_iron;
             int tintColorRes = R.color.badge_tier_iron;
             boolean isEx = false;
+            String localizedTier = tier;
 
-            if ("Iron".equals(tier)) {
-                frameResId = R.drawable.ic_hex_iron;
-                tintColorRes = R.color.badge_tier_iron;
-            } else if ("Bronze".equals(tier)) {
-                frameResId = R.drawable.ic_hex_bronze;
-                tintColorRes = R.color.badge_tier_bronze;
-            } else if ("Silver".equals(tier)) {
-                frameResId = R.drawable.ic_hex_silver;
-                tintColorRes = R.color.badge_tier_silver;
-            } else if ("Gold".equals(tier)) {
-                frameResId = R.drawable.ic_hex_gold;
-                tintColorRes = R.color.badge_tier_gold;
-            } else if ("Diamond".equals(tier)) {
-                frameResId = R.drawable.ic_hex_diamond;
-                tintColorRes = R.color.badge_tier_diamond;
-            } else if ("EX".equals(tier)) {
-                frameResId = R.drawable.ic_hex_ex;
-                tintColorRes = R.color.badge_tier_ex_red;
-                isEx = true;
-            }
+            if ("Iron".equals(tier)) { frameResId = R.drawable.ic_hex_iron; tintColorRes = R.color.badge_tier_iron; localizedTier = context.getString(R.string.badge_tier_iron); }
+            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; localizedTier = context.getString(R.string.badge_tier_bronze); }
+            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; localizedTier = context.getString(R.string.badge_tier_silver); }
+            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; localizedTier = context.getString(R.string.badge_tier_gold); }
+            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; localizedTier = context.getString(R.string.badge_tier_diamond); }
+            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; localizedTier = context.getString(R.string.badge_tier_ex); isEx = true; }
+            
+            holder.tvBadgeName.setText(localizedTier + " " + localizedType);
 
             holder.ivBadgeFrame.setImageResource(frameResId);
             holder.itemView.setBackground(null);
@@ -184,27 +178,20 @@ public class ProfileTrophyFragment extends Fragment {
 
             // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
             if (isEx) {
-                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_tier_ex_red));
+                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red));
             } else {
-                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
             }
 
             // TẠI SAO: Click mở BottomSheet hiển thị tiến trình chi tiết
             final String finalTier = tier;
             final String finalType = type;
-            holder.itemView.setOnClickListener(v -> showBadgeProgressDialog(v.getContext(), finalTier, finalType, stats));
+            holder.itemView.setOnClickListener(v -> showBadgeProgressDialog(context, finalTier, finalType, stats));
 
             // TẠI SAO: Thêm các hiệu ứng động (Animation) cao cấp theo yêu cầu sếp
-            
+            // Đã lược bỏ hiệu ứng Levitation (Bồng bềnh) để giao diện sang trọng tĩnh tại hơn
             // 1. Lấp lánh ánh sáng chạy chéo (Alpha Masking Shimmer)
             // Đã được tự động xử lý bởi thẻ ShimmerFrameLayout với shimmer_auto_start="true"
-
-            // 2. Bồng bềnh ma thuật (Levitation) cho Icon lõi
-            android.animation.ObjectAnimator floatAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeIcon, "translationY", -8f, 8f);
-            floatAnim.setDuration(1500 + (long) (Math.random() * 500));
-            floatAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-            floatAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
-            floatAnim.start();
 
             // 3. Nhịp thở hào quang (Breathing Aura) cho Khung Lục Giác
             android.animation.ObjectAnimator auraAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeFrame, "alpha", 0.65f, 1.0f);
@@ -267,23 +254,25 @@ public class ProfileTrophyFragment extends Fragment {
             android.widget.FrameLayout badgeLayout = new android.widget.FrameLayout(context);
             badgeLayout.setClipChildren(false);
             int iconResId = R.drawable.ic_star;
-            if ("Spin Master".equals(type)) iconResId = R.drawable.ic_badge_spin;
-            else if ("Pack Master".equals(type)) iconResId = R.drawable.ic_badge_pack;
-            else if ("Collection Master".equals(type)) iconResId = R.drawable.ic_badge_collection;
-            else if ("Immortal".equals(type)) iconResId = R.drawable.ic_badge_immortal;
-            else if ("Duo Flame".equals(type)) iconResId = R.drawable.ic_badge_duo;
-            else if ("Celebrity".equals(type)) iconResId = R.drawable.ic_badge_celebrity;
-            else if ("Golden Hammer".equals(type)) iconResId = R.drawable.ic_badge_hammer;
+            String localizedType = type;
+            if ("Spin Master".equals(type)) { iconResId = R.drawable.ic_badge_spin; localizedType = context.getString(R.string.badge_type_spin); }
+            else if ("Pack Master".equals(type)) { iconResId = R.drawable.ic_badge_pack; localizedType = context.getString(R.string.badge_type_pack); }
+            else if ("Collection Master".equals(type)) { iconResId = R.drawable.ic_badge_collection; localizedType = context.getString(R.string.badge_type_collection); }
+            else if ("Immortal".equals(type)) { iconResId = R.drawable.ic_badge_immortal; localizedType = context.getString(R.string.badge_type_immortal); }
+            else if ("Duo Flame".equals(type)) { iconResId = R.drawable.ic_badge_duo; localizedType = context.getString(R.string.badge_type_duo); }
+            else if ("Celebrity".equals(type)) { iconResId = R.drawable.ic_badge_celebrity; localizedType = context.getString(R.string.badge_type_celebrity); }
+            else if ("Golden Hammer".equals(type)) { iconResId = R.drawable.ic_badge_hammer; localizedType = context.getString(R.string.badge_type_hammer); }
             ivIcon.setImageResource(iconResId);
             
             int frameResId = R.drawable.ic_hex_iron;
             int tintColorRes = R.color.badge_tier_iron;
-            if ("Iron".equals(tier)) { frameResId = R.drawable.ic_hex_iron; tintColorRes = R.color.badge_tier_iron; }
-            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; }
-            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; }
-            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; }
-            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; }
-            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; }
+            String localizedTier = tier;
+            if ("Iron".equals(tier)) { frameResId = R.drawable.ic_hex_iron; tintColorRes = R.color.badge_tier_iron; localizedTier = context.getString(R.string.badge_tier_iron); }
+            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; localizedTier = context.getString(R.string.badge_tier_bronze); }
+            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; localizedTier = context.getString(R.string.badge_tier_silver); }
+            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; localizedTier = context.getString(R.string.badge_tier_gold); }
+            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; localizedTier = context.getString(R.string.badge_tier_diamond); }
+            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; localizedTier = context.getString(R.string.badge_tier_ex); }
             
             ivFrame.setImageResource(frameResId);
             ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
@@ -308,12 +297,8 @@ public class ProfileTrophyFragment extends Fragment {
             layout.addView(iconContainer, containerParams);
 
             // BottomSheet Animations
-            android.animation.ObjectAnimator dialogFloat = android.animation.ObjectAnimator.ofFloat(ivIcon, "translationY", -12f, 12f);
-            dialogFloat.setDuration(1600);
-            dialogFloat.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-            dialogFloat.setRepeatMode(android.animation.ValueAnimator.REVERSE);
-            dialogFloat.start();
-
+            // Levitation is disabled for static elegance
+            
             android.animation.ObjectAnimator dialogAura = android.animation.ObjectAnimator.ofFloat(ivFrame, "alpha", 0.65f, 1.0f);
             dialogAura.setDuration(1300);
             dialogAura.setRepeatCount(android.animation.ValueAnimator.INFINITE);
@@ -322,7 +307,7 @@ public class ProfileTrophyFragment extends Fragment {
 
             // Tiêu đề Huy hiệu kèm cấp bậc
             android.widget.TextView tvTitle = new android.widget.TextView(context);
-            tvTitle.setText(tier + " " + type);
+            tvTitle.setText(localizedTier + " " + localizedType);
             tvTitle.setTextSize(20);
             tvTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
             tvTitle.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
@@ -347,32 +332,32 @@ public class ProfileTrophyFragment extends Fragment {
                 currentVal = stats.getSpinsCount();
                 int[] targets = {36, 100, 500, 1000, 6700};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Quay thẻ bài trong Gacha Spin để mở khóa cấp bậc tiếp theo.";
+                desc = context.getString(R.string.badge_desc_spin);
             } else if ("Pack Master".equals(type)) {
                 currentVal = stats.getPacksCount();
                 int[] targets = {36, 100, 500, 1000, 6700};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Mở các gói vật phẩm (Pack) trong Shop để nâng cấp huy hiệu.";
+                desc = context.getString(R.string.badge_desc_pack);
             } else if ("Collection Master".equals(type)) {
                 currentVal = stats.getCollectionProgress();
                 int[] targets = {5, 15, 35, 60, 80, 95};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Sở hữu thêm nhiều thẻ bài mới để nâng tỉ lệ hoàn thiện bộ sưu tập.";
+                desc = context.getString(R.string.badge_desc_collection);
             } else if ("Immortal".equals(type)) {
                 currentVal = stats.getStreak();
                 int[] targets = {3, 10, 30, 100, 200, 365};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Duy trì đăng nhập điểm danh liên tiếp hằng ngày để tăng chuỗi.";
+                desc = context.getString(R.string.badge_desc_immortal);
             } else if ("Duo Flame".equals(type)) {
                 currentVal = stats.getCoupleStreakCount();
                 int[] targets = {3, 10, 30, 100, 200, 365};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Trò chuyện và giữ ngọn lửa tương tác liên tục với bạn cặp.";
+                desc = context.getString(R.string.badge_desc_duo);
             } else if ("Celebrity".equals(type)) {
                 currentVal = stats.getLikesCount();
                 int[] targets = {5, 15, 50, 150, 300, 600};
                 targetVal = getNextTarget(currentVal, targets);
-                desc = "Nhận thêm lượt Thích (Like) trang cá nhân từ những người chơi khác.";
+                desc = context.getString(R.string.badge_desc_celebrity);
             } else if ("Golden Hammer".equals(type)) {
                 currentVal = 0;
                 if ("EX".equals(tier)) currentVal = 10;
@@ -383,7 +368,7 @@ public class ProfileTrophyFragment extends Fragment {
                 else if ("Iron".equals(tier)) currentVal = 5;
                 
                 targetVal = 10;
-                desc = "Nâng cấp (Upgrade) thẻ bài của bạn đạt các mốc cộng cao hơn.";
+                desc = context.getString(R.string.badge_desc_hammer);
             }
 
             android.widget.TextView tvDesc = new android.widget.TextView(context);
@@ -402,14 +387,14 @@ public class ProfileTrophyFragment extends Fragment {
             if (targetVal > 0) {
                 android.widget.TextView tvProgressLabel = new android.widget.TextView(context);
                 String unit = "";
-                if ("Spin Master".equals(type)) unit = "Lượt quay";
-                else if ("Pack Master".equals(type)) unit = "Gói mở";
-                else if ("Collection Master".equals(type)) unit = "% bộ sưu tập";
-                else if ("Immortal".equals(type) || "Duo Flame".equals(type)) unit = "Ngày Streak";
-                else if ("Celebrity".equals(type)) unit = "Lượt thích";
-                else if ("Golden Hammer".equals(type)) unit = "Cấp cộng";
+                if ("Spin Master".equals(type)) unit = context.getString(R.string.badge_unit_spin);
+                else if ("Pack Master".equals(type)) unit = context.getString(R.string.badge_unit_pack);
+                else if ("Collection Master".equals(type)) unit = context.getString(R.string.badge_unit_collection);
+                else if ("Immortal".equals(type) || "Duo Flame".equals(type)) unit = context.getString(R.string.badge_unit_streak);
+                else if ("Celebrity".equals(type)) unit = context.getString(R.string.badge_unit_likes);
+                else if ("Golden Hammer".equals(type)) unit = context.getString(R.string.badge_unit_level);
 
-                tvProgressLabel.setText(String.format(java.util.Locale.US, "Tiến trình: %d / %d %s", currentVal, targetVal, unit));
+                tvProgressLabel.setText(context.getString(R.string.badge_progress_format, currentVal, targetVal, unit));
                 tvProgressLabel.setTextSize(13);
                 tvProgressLabel.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
                 tvProgressLabel.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
