@@ -1,9 +1,84 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M9,4C9,4 13,8.5 13,11.5c0,2.21 -1.79,4 -4,4s-4,-1.79 -4,-4C5,8.5 9,4 9,4zm6,4c0,0 4,4.5 4,7.5c0,2.21 -1.79,4 -4,4s-4,-1.79 -4,-4C11,12.5 15,8 15,8zm-6,11c-2.76,0 -5,2.24 -5,5h10c0,-2.76 -2.24,-5 -5,-5zm6,2c-2.76,0 -5,2.24 -5,5h10c0,-2.76 -2.24,-5 -5,-5z"/>
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Top Left Flame -->
+    <group android:translateX="32" android:translateY="32" android:rotation="-15">
+        <!-- Outer Flame -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M 0 -20 
+                              Q 15 -5 15 5 
+                              A 15 15 0 0 1 -15 5 
+                              Q -15 -2 -5 -2 
+                              Q -10 -6 -10 -10 
+                              Q -5 -15 0 -20 Z" />
+        <!-- Inner Flame -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M 0 -4 
+                              Q 9 3 9 10 
+                              A 9 9 0 0 1 -9 10 
+                              Q -9 7 -3 7 
+                              Q -7 4 -7 2 
+                              Q -3 -2 0 -4 Z" />
+    </group>
+
+    <!-- Bottom Right Flame -->
+    <group android:translateX="68" android:translateY="68" android:rotation="15">
+        <!-- Outer Flame -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M 0 -20 
+                              Q 15 -5 15 5 
+                              A 15 15 0 0 1 -15 5 
+                              Q -15 -2 -5 -2 
+                              Q -10 -6 -10 -10 
+                              Q -5 -15 0 -20 Z" />
+        <!-- Inner Flame -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M 0 -4 
+                              Q 9 3 9 10 
+                              A 9 9 0 0 1 -9 10 
+                              Q -9 7 -3 7 
+                              Q -7 4 -7 2 
+                              Q -3 -2 0 -4 Z" />
+    </group>
+
+    <!-- Decorative Sparks -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M 75 25 L 75.1 25.1" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M 25 75 L 25.1 75.1" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M 85 45 L 85.1 45.1" />
+
 </vector>

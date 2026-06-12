@@ -1,9 +1,68 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M12,2C12,2 17,7.5 17,11.5C17,14.54 14.54,17 12,17C9.46,17 7,14.54 7,11.5C7,7.5 12,2 12,2ZM12,6.85c-1.39,1.75 -3,3.75 -3,4.65c0,1.66 1.34,3 3,3c1.66,0 3,-1.34 3,-3c0,-0.9 -1.61,-2.9 -3,-4.65zM12,19c-3.87,0 -7,3.13 -7,7h14c0,-3.87 -3.13,-7 -7,-7z"/>
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Top Half (Wings, Neck, Head) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 26 37 
+                          L 20 40 
+                          Q 15 25 30 15 
+                          Q 30 25 35 35 
+                          Q 40 35 45 45 
+                          Q 45 38 40 35 
+                          Q 45 30 50 32 
+                          Q 55 30 55 35 
+                          Q 52 40 55 45 
+                          Q 60 35 65 35 
+                          Q 70 25 70 15 
+                          Q 85 25 80 40 
+                          L 74 37" />
+
+    <!-- Left Wing Bottom -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 31 57 
+                          Q 25 59 20 55 
+                          Q 15 48 21 43" />
+
+    <!-- Right Wing Bottom -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 79 43 
+                          Q 85 48 80 55 
+                          Q 75 59 69 57" />
+
+    <!-- Tail & Hips -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M 38 55 
+                          L 45 65 L 40 70 L 45 75 L 40 80 
+                          L 50 90 
+                          L 60 80 L 55 75 L 60 70 L 55 65 
+                          L 62 55" />
+
+    <!-- Immortal Sparkle (Above Head) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 50 10 L 51.5 15 L 56.5 16.5 L 51.5 18 L 50 23 L 48.5 18 L 43.5 16.5 L 48.5 15 Z" />
+
 </vector>
