@@ -174,7 +174,8 @@ public class ProfileTrophyFragment extends Fragment {
 
             holder.ivBadgeFrame.setImageResource(frameResId);
             holder.itemView.setBackground(null);
-            holder.ivBadgeIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(holder.itemView.getContext(), tintColorRes));
+            // Bỏ tint color để giữ màu trắng nguyên bản của icon vector, giúp icon nổi bật trên nền khung
+            holder.ivBadgeIcon.setImageTintList(null);
 
             // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
             if (isEx) {
@@ -275,7 +276,8 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; localizedTier = context.getString(R.string.badge_tier_ex); }
             
             ivFrame.setImageResource(frameResId);
-            ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
+            // Bỏ tint color để icon bên trong hiển thị màu trắng rõ nét
+            ivIcon.setImageTintList(null);
             
             android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(320, 320);
             frameParams.gravity = android.view.Gravity.CENTER;
