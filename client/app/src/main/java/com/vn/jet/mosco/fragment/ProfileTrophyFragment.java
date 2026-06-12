@@ -277,8 +277,8 @@ public class ProfileTrophyFragment extends Fragment {
             ivFrame.setImageResource(frameResId);
             ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
             
-            android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(
-                android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT);
+            android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(320, 320);
+            frameParams.gravity = android.view.Gravity.CENTER;
             badgeLayout.addView(ivFrame, frameParams);
             
             android.widget.FrameLayout.LayoutParams iconParams = new android.widget.FrameLayout.LayoutParams(
