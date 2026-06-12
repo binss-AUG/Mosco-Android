@@ -113,6 +113,7 @@ public class ItemRevealFragment extends Fragment {
     private androidx.media3.exoplayer.ExoPlayer itemVideoPlayer;
     private boolean isCardFlipped = false;
     private boolean isSwappingCard = false;
+    private boolean isRevealingCards = false; // Cờ chặn Back button
 
     private void releaseItemPlayer() {
         if (itemVideoPlayer != null) {
@@ -198,6 +199,18 @@ public class ItemRevealFragment extends Fragment {
                 headerRow.setVisibility(View.GONE);
         }
 
+        // Chặn phím Back vật lý / Gesture khi đang mở thẻ
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!isRevealingCards) {
+                    goBack();
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.reveal_msg_wait), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         bindInitialUI(view);
     }
 
@@ -215,6 +228,7 @@ public class ItemRevealFragment extends Fragment {
 
         tvItemName.setText(
                 itemName != null && !itemName.isEmpty() ? itemName : getString(R.string.reveal_default_item_name));
+        tvItemName.setSelected(true); // Kích hoạt chạy chữ (Marquee) cho tiêu đề dài
         tvItemInfo
                 .setText(itemDesc != null && !itemDesc.isEmpty() ? itemDesc : getString(R.string.reveal_default_info));
         tvItemQty.setText(getString(R.string.format_qty, NumberUtils.format(requireContext(), itemQty)));
@@ -247,7 +261,9 @@ public class ItemRevealFragment extends Fragment {
             btnDone.setVisibility(View.GONE);
         }
 
-        view.findViewById(R.id.btn_back).setOnClickListener(v -> goBack());
+        view.findViewById(R.id.btn_back).setOnClickListener(v -> {
+            if (!isRevealingCards) goBack();
+        });
         btnOpenOne.setOnClickListener(v -> startPackOpening(false));
         btnOpenAll.setOnClickListener(v -> startPackOpening(true));
         btnDone.setOnClickListener(v -> goBack());
@@ -269,6 +285,7 @@ public class ItemRevealFragment extends Fragment {
             return;
         final int maxOpenQuantity = getResources().getInteger(R.integer.reveal_open_pack_max_quantity);
         final int quantity = openAll ? Math.min(itemQty, maxOpenQuantity) : 1;
+        isRevealingCards = true; // Bắt đầu chặn Back
         showLoadingOverlay();
         setActionButtonsEnabled(false);
 
@@ -347,85 +364,74 @@ public class ItemRevealFragment extends Fragment {
             rvCardHistory.setVisibility(View.INVISIBLE);
         }
 
-        final int total = cards.size();
-        final RevealedCard[] tempArray = new RevealedCard[total];
-        final int[] loadedCount = { 0 };
-
-        for (int i = 0; i < total; i++) {
-            final int index = i;
-            Map<String, Object> cardMap = cards.get(index);
+        for (Map<String, Object> cardMap : cards) {
             Map<String, Object> cardData = (Map<String, Object>) cardMap.get(KEY_CARD_DATA);
             if (cardData == null) {
-                tempArray[index] = new RevealedCard(new JSONObject(), Color.WHITE);
-                loadedCount[0]++;
-                if (loadedCount[0] == total) {
-                    for (RevealedCard rc : tempArray) {
-                        if (rc != null)
-                            revealedCards.add(rc);
-                    }
-                    onComplete.run();
-                }
+                revealedCards.add(new RevealedCard(new JSONObject(), Color.WHITE));
                 continue;
             }
 
-            final JSONObject cardJson = new JSONObject(cardData);
+            JSONObject cardJson = new JSONObject(cardData);
+            
+            // TẠI SAO: Server đã trả về rarityColor (chuỗi HEX hoặc List HEX) cho từng thẻ.
+            // Tuy nhiên, đối với một số loại thẻ (như Unit), màu của thẻ cụ thể (backgroundColor) 
+            // có thể khác biệt so với màu chung của hệ thống (ví dụ: vàng đen thay vì vàng lục).
+            // Do đó, ta ưu tiên dùng màu gốc của thẻ (KEY_BACKGROUND_COLOR) trước, sau đó mới dùng rarityColor.
+            int glowColor = Color.WHITE;
+            boolean useRarityColor = false;
+            String bgColorStr = cardJson.optString(KEY_BACKGROUND_COLOR, "");
+            if (!bgColorStr.isEmpty()) {
+                try {
+                    glowColor = Color.parseColor(bgColorStr);
+                    // MÀU ĐEN: Nếu thẻ có nền quá đen, hào quang (Outer Glow) sẽ bị chìm vào nền Dark Mode
+                    // gây cảm giác "bẩn" hoặc vô hình. Ta sẽ ép dùng màu Rarity Color (Vàng/Bạc) làm Glow thay thế.
+                    double luminance = 0.299 * Color.red(glowColor) + 0.587 * Color.green(glowColor) + 0.114 * Color.blue(glowColor);
+                    if (luminance < 40) {
+                        useRarityColor = true;
+                    }
+                } catch (Exception e) {
+                    useRarityColor = true;
+                }
+            } else {
+                useRarityColor = true;
+            }
+
+            if (useRarityColor) {
+                Object colorObj = cardMap.get("rarityColor");
+                if (colorObj != null) {
+                    try {
+                        if (colorObj instanceof String) {
+                            glowColor = Color.parseColor((String) colorObj);
+                        } else if (colorObj instanceof List) {
+                            List<String> colors = (List<String>) colorObj;
+                            if (!colors.isEmpty()) {
+                                glowColor = Color.parseColor(colors.get(0));
+                            }
+                        }
+                    } catch (Exception e) {
+                        glowColor = Color.WHITE;
+                    }
+                } else {
+                    int tier = getCardTier(cardJson.optString(KEY_CARD_CLASS, ""));
+                    glowColor = getAuraColorForTier(tier);
+                }
+            }
+
+            revealedCards.add(new RevealedCard(cardJson, glowColor));
+
+            // PRELOAD THUMBNAIL HERE! (Tránh lag do tải 36 ảnh cùng lúc khi hiện bảng kết quả)
             String imageUrl = cardJson.optString(KEY_FRONT_IMAGE, "");
-            String backImageUrl = cardJson.optString(KEY_BACK_IMAGE, "");
-
-            if (!backImageUrl.isEmpty()) {
-                Glide.with(this).load(backImageUrl).preload();
+            String thumbnailUrl = cardJson.optString("thumbnailImage", "");
+            if (thumbnailUrl.isEmpty() && !imageUrl.isEmpty()) {
+                thumbnailUrl = imageUrl.replace("/front.", "/thumbnail.").replace("/front", "/thumbnail");
             }
-
-            if (imageUrl.isEmpty()) {
-                tempArray[index] = new RevealedCard(cardJson, Color.WHITE);
-                loadedCount[0]++;
-                if (loadedCount[0] == total) {
-                    for (RevealedCard rc : tempArray) {
-                        if (rc != null)
-                            revealedCards.add(rc);
-                    }
-                    onComplete.run();
-                }
-                continue;
+            if (!thumbnailUrl.isEmpty() && getContext() != null) {
+                Glide.with(requireContext()).load(thumbnailUrl).preload();
             }
-
-            Glide.with(this).asBitmap().load(imageUrl)
-                    .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource,
-                                @Nullable com.bumptech.glide.request.transition.Transition<? super Bitmap> transition) {
-                            int glowColor = extractColorFromBitmap(resource);
-                            tempArray[index] = new RevealedCard(cardJson, glowColor);
-                            loadedCount[0]++;
-                            if (loadedCount[0] == total) {
-                                for (RevealedCard rc : tempArray) {
-                                    if (rc != null)
-                                        revealedCards.add(rc);
-                                }
-                                onComplete.run();
-                            }
-                        }
-
-                        @Override
-                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
-                        }
-
-                        @Override
-                        public void onLoadFailed(@Nullable android.graphics.drawable.Drawable errorDrawable) {
-                            int tier = getCardTier(cardJson.optString(KEY_CARD_CLASS, ""));
-                            int glowColor = getAuraColorForTier(tier);
-                            tempArray[index] = new RevealedCard(cardJson, glowColor);
-                            loadedCount[0]++;
-                            if (loadedCount[0] == total) {
-                                for (RevealedCard rc : tempArray) {
-                                    if (rc != null)
-                                        revealedCards.add(rc);
-                                }
-                                onComplete.run();
-                            }
-                        }
-                    });
         }
+        
+        // Kích hoạt giao diện mở thẻ ngay lập tức
+        onComplete.run();
     }
 
     private int extractColorFromBitmap(Bitmap bitmap) {
@@ -586,6 +592,18 @@ public class ItemRevealFragment extends Fragment {
                     .setDuration(getResources().getInteger(R.integer.reveal_ui_fade_ms)).start();
         }
 
+        // TẠI SAO (Sliding Window Preload): Thay vì tải 72 ảnh cùng lúc gây tràn RAM (OOM) và sập mạng,
+        // ta chỉ "mồi" trước (preload) ảnh của 2 thẻ tiếp theo. Khi lật tới đâu, tải gối đầu tới đó.
+        for (int i = 1; i <= 2; i++) {
+            if (currentRevealIndex + i < revealedCards.size()) {
+                RevealedCard nextCard = revealedCards.get(currentRevealIndex + i);
+                String nextUrl = nextCard.cardJson.optString(KEY_FRONT_IMAGE, "");
+                String nextBackUrl = nextCard.cardJson.optString(KEY_BACK_IMAGE, "");
+                if (!nextUrl.isEmpty()) Glide.with(this).load(nextUrl).preload();
+                if (!nextBackUrl.isEmpty()) Glide.with(this).load(nextBackUrl).preload();
+            }
+        }
+
         summaryCardBaseTranslationY = 0f;
         runPhase2AnimationForCurrentIndex();
     }
@@ -692,7 +710,7 @@ public class ItemRevealFragment extends Fragment {
         if (vvItemVideoReveal != null) {
             String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
             String videoUrl = topCardJson.optString("frontVideoUrl", "");
-            if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+            if (!videoUrl.isEmpty()) {
                 if (itemVideoPlayer != null) {
                     itemVideoPlayer.release();
                 }
@@ -966,6 +984,7 @@ public class ItemRevealFragment extends Fragment {
     }
 
     private void showFinalRevealResults() {
+        isRevealingCards = false; // Mở khóa nút Back
         if (getView() == null)
             return;
         MaterialCardView cardItem = getView().findViewById(R.id.card_item);
@@ -973,7 +992,7 @@ public class ItemRevealFragment extends Fragment {
         if (tvTitle != null) {
             tvTitle.setVisibility(View.VISIBLE);
         }
-        LinearLayout llButtons = getView().findViewById(R.id.ll_buttons);
+        View llButtons = getView().findViewById(R.id.ll_buttons);
 
         summaryCardBaseTranslationY = 0f;
         cardItem.animate()
@@ -1434,7 +1453,7 @@ public class ItemRevealFragment extends Fragment {
         if (vvItemVideo != null) {
             String cardClass = topCardJson.optString(KEY_CARD_CLASS, "");
             String videoUrl = topCardJson.optString("frontVideoUrl", "");
-            if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+            if (!videoUrl.isEmpty()) {
                 if (itemVideoPlayer != null) {
                     itemVideoPlayer.release();
                 }
@@ -1516,8 +1535,14 @@ public class ItemRevealFragment extends Fragment {
             if (ivFront != null) {
                 ivFront.setVisibility(View.VISIBLE);
                 String imageUrl = json.optString(KEY_FRONT_IMAGE, "");
-                if (!imageUrl.isEmpty()) {
-                    Glide.with(holder.itemView.getContext()).load(imageUrl).into(ivFront);
+                String thumbnailUrl = json.optString("thumbnailImage", "");
+                if (thumbnailUrl.isEmpty() && !imageUrl.isEmpty()) {
+                    // TẠI SAO: Tránh OOM khi tải hàng loạt thẻ mini, ta ép dùng bản thumbnail.webp nhẹ hơn gấp nhiều lần
+                    thumbnailUrl = imageUrl.replace("/front.", "/thumbnail.").replace("/front", "/thumbnail");
+                }
+                
+                if (!thumbnailUrl.isEmpty()) {
+                    com.bumptech.glide.Glide.with(holder.itemView.getContext()).load(thumbnailUrl).into(ivFront);
                 } else {
                     ivFront.setImageDrawable(null);
                 }
