@@ -318,6 +318,7 @@ public class ProfileMenuFragment extends Fragment {
             getActivity(),
             getString(R.string.settings_label_backup_interval),
             options,
+            checkedItem,
             index -> {
                 sessionManager.setBackupInterval(hours[index]);
                 updateBackupIntervalUI();
@@ -337,11 +338,13 @@ public class ProfileMenuFragment extends Fragment {
             getString(R.string.language_vi)
         };
         String currentLang = sessionManager.getLanguage();
+        int checkedItem = currentLang.equals("vi") ? 1 : 0;
         
         com.vn.jet.mosco.utils.MoscoDialogHelper.showSingleChoiceDialog(
             getActivity(),
             getString(R.string.settings_dialog_language_title),
             options,
+            checkedItem,
             index -> {
                 String selectedLang = (index == 1) ? "vi" : "en";
                 if (!selectedLang.equals(currentLang)) {

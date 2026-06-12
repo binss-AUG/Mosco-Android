@@ -126,6 +126,10 @@ public class MoscoDialogHelper {
     }
 
     public static void showSingleChoiceDialog(Activity activity, String title, String[] items, DialogChoiceCallback callback) {
+        showSingleChoiceDialog(activity, title, items, -1, callback);
+    }
+
+    public static void showSingleChoiceDialog(Activity activity, String title, String[] items, int checkedItem, DialogChoiceCallback callback) {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
 
         View dialogView = LayoutInflater.from(activity).inflate(R.layout.layout_mosco_dialog_base, null);
@@ -161,6 +165,9 @@ public class MoscoDialogHelper {
             rb.setPadding(32, 32, 32, 32);
             rb.setButtonTintList(colorStateList);
             rb.setTextSize(16);
+            if (i == checkedItem) {
+                rb.setChecked(true);
+            }
             radioGroup.addView(rb);
         }
         flContent.addView(radioGroup);
