@@ -166,20 +166,20 @@
     <string name="badge_type_celebrity">Celebrity</string>
     <string name="badge_type_hammer">Golden Hammer</string>
     
-    <string name="badge_desc_spin">Quay thẻ bài trong Gacha Spin để mở khóa cấp bậc tiếp theo.</string>
-    <string name="badge_desc_pack">Mở các gói vật phẩm (Pack) trong Shop để nâng cấp huy hiệu.</string>
-    <string name="badge_desc_collection">Sở hữu thêm nhiều thẻ bài mới để nâng tỉ lệ hoàn thiện bộ sưu tập.</string>
-    <string name="badge_desc_immortal">Duy trì đăng nhập điểm danh liên tiếp hằng ngày để tăng chuỗi.</string>
-    <string name="badge_desc_duo">Trò chuyện và giữ ngọn lửa tương tác liên tục với bạn cặp.</string>
-    <string name="badge_desc_celebrity">Nhận thêm lượt Thích (Like) trang cá nhân từ những người chơi khác.</string>
-    <string name="badge_desc_hammer">Nâng cấp (Upgrade) thẻ bài của bạn đạt các mốc cộng cao hơn.</string>
+    <string name="badge_desc_spin">Perform spins in Gacha Spin to unlock the next tier.</string>
+    <string name="badge_desc_pack">Open items and packs in the Shop to upgrade your badge.</string>
+    <string name="badge_desc_collection">Acquire new cards to increase your collection completion rate.</string>
+    <string name="badge_desc_immortal">Maintain consecutive daily logins to increase your streak.</string>
+    <string name="badge_desc_duo">Chat and keep the interaction flame burning with your duo.</string>
+    <string name="badge_desc_celebrity">Receive profile likes from other players.</string>
+    <string name="badge_desc_hammer">Upgrade your cards to reach higher enhancement levels.</string>
 
-    <string name="badge_unit_spin">Lượt quay</string>
-    <string name="badge_unit_pack">Gói mở</string>
-    <string name="badge_unit_collection">% bộ sưu tập</string>
-    <string name="badge_unit_streak">Ngày Streak</string>
-    <string name="badge_unit_likes">Lượt thích</string>
-    <string name="badge_unit_level">Cấp cộng</string>
+    <string name="badge_unit_spin">Spins</string>
+    <string name="badge_unit_pack">Packs</string>
+    <string name="badge_unit_collection">% Collection</string>
+    <string name="badge_unit_streak">Day Streak</string>
+    <string name="badge_unit_likes">Likes</string>
+    <string name="badge_unit_level">Levels</string>
     
-    <string name="badge_progress_format">Tiến trình: %1$d / %2$d %3$s</string>
+    <string name="badge_progress_format">Progress: %1$d / %2$d %3$s</string>
 </resources>
