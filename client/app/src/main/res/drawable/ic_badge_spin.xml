@@ -1,4 +1,56 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
-    <path android:fillColor="#FFFFFF" android:pathData="M24,4 L28,18 L42,20 L30,28 L32,42 L24,34 L16,42 L18,28 L6,20 L20,18 Z"/>
-    <path android:fillColor="#FFFFFF" android:pathData="M24,2 A22,22 0 1,0 46,24 A22.02,22.02 0 0,0 24,2 Z M24,42 A18,18 0 1,1 42,24 A18.02,18.02 0 0,1 24,42 Z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:width="48dp" 
+    android:height="48dp" 
+    android:viewportWidth="48" 
+    android:viewportHeight="48">
+
+    <!-- Central Ring -->
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5" android:pathData="
+        M24,14 
+        A10,10 0 1,1 24,34 
+        A10,10 0 1,1 24,14 Z
+    " />
+
+    <!-- 6 Spiral Arms with detached tails -->
+    <group android:rotation="0" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
+    
+    <group android:rotation="60" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
+    
+    <group android:rotation="120" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
+    
+    <group android:rotation="180" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
+    
+    <group android:rotation="240" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
+    
+    <group android:rotation="300" android:pivotX="24" android:pivotY="24">
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
+            M24,14 A14,14 0 0,1 8,16
+            M4,20 A14,14 0 0,1 2,28
+        " />
+    </group>
 </vector>
