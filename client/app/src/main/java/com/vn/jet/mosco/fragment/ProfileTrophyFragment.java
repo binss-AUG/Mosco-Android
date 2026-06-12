@@ -248,21 +248,45 @@ public class ProfileTrophyFragment extends Fragment {
 
             BottomSheetDialog dialog = new BottomSheetDialog(context);
             
-            // Thiết kế LinearLayout động tương thích tối đa với Dark Mode
+            // Thiết kế LinearLayout động tương thích tối đa với Dark Mode + Gradient
             android.widget.LinearLayout layout = new android.widget.LinearLayout(context);
             layout.setOrientation(android.widget.LinearLayout.VERTICAL);
             int padding = (int) (24 * context.getResources().getDisplayMetrics().density);
             layout.setPadding(padding, padding, padding, padding);
-            layout.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.semantic_background));
             
-            // Biểu tượng Huy hiệu (Khung Lục Giác + Lõi) trên BottomSheet
+            // Lấy màu chủ đạo của cấp bậc
+            int tintColorRes = R.color.badge_tier_iron;
+            int frameResId = R.drawable.ic_hex_iron;
+            int iconColorRes = R.color.badge_tier_iron;
+            String localizedTier = tier;
+            if ("Iron".equals(tier)) { tintColorRes = R.color.badge_tier_iron; iconColorRes = R.color.badge_tier_bronze; localizedTier = context.getString(R.string.badge_tier_iron); }
+            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; iconColorRes = R.color.badge_tier_silver; localizedTier = context.getString(R.string.badge_tier_bronze); }
+            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; iconColorRes = R.color.badge_tier_gold; localizedTier = context.getString(R.string.badge_tier_silver); }
+            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; iconColorRes = R.color.badge_tier_diamond; localizedTier = context.getString(R.string.badge_tier_gold); }
+            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; iconColorRes = R.color.brand_primary_variant; localizedTier = context.getString(R.string.badge_tier_diamond); }
+            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; iconColorRes = R.color.brand_secondary; localizedTier = context.getString(R.string.badge_tier_ex); }
+
+            // Gradient Background siêu đẹp
+            android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {
+                    androidx.core.content.ContextCompat.getColor(context, tintColorRes) & 0x33FFFFFF, // 20% opacity color at top
+                    androidx.core.content.ContextCompat.getColor(context, R.color.semantic_background)
+                }
+            );
+            bg.setCornerRadii(new float[] { 60,60, 60,60, 0,0, 0,0 });
+            layout.setBackground(bg);
+            
+            // Biểu tượng Huy hiệu siêu lớn (Size x2.5 so với mặc định)
             android.widget.FrameLayout iconContainer = new android.widget.FrameLayout(context);
+            float density = context.getResources().getDisplayMetrics().density;
             android.widget.LinearLayout.LayoutParams containerParams = new android.widget.LinearLayout.LayoutParams(
-                (int) (80 * context.getResources().getDisplayMetrics().density),
-                (int) (80 * context.getResources().getDisplayMetrics().density)
+                (int) (180 * density),
+                (int) (180 * density)
             );
             containerParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
-            containerParams.bottomMargin = (int) (16 * context.getResources().getDisplayMetrics().density);
+            containerParams.bottomMargin = (int) (24 * density);
+            containerParams.topMargin = (int) (8 * density);
 
             android.widget.ImageView ivFrame = new android.widget.ImageView(context);
             android.widget.ImageView ivIcon = new android.widget.ImageView(context);
@@ -272,11 +296,7 @@ public class ProfileTrophyFragment extends Fragment {
             // Bọc bằng ShimmerFrameLayout cho BottomSheet
             com.facebook.shimmer.ShimmerFrameLayout shimmerContainer = new com.facebook.shimmer.ShimmerFrameLayout(context);
             com.facebook.shimmer.Shimmer.AlphaHighlightBuilder shimmerBuilder = new com.facebook.shimmer.Shimmer.AlphaHighlightBuilder();
-            shimmerBuilder.setBaseAlpha(1.0f);
-            shimmerBuilder.setHighlightAlpha(1.0f);
-            shimmerBuilder.setTilt(45);
-            shimmerBuilder.setDuration(2500);
-            shimmerBuilder.setDirection(com.facebook.shimmer.Shimmer.Direction.LEFT_TO_RIGHT);
+            shimmerBuilder.setBaseAlpha(1.0f).setHighlightAlpha(1.0f).setTilt(45).setDuration(2500).setDirection(com.facebook.shimmer.Shimmer.Direction.LEFT_TO_RIGHT);
             shimmerContainer.setShimmer(shimmerBuilder.build());
             shimmerContainer.startShimmer();
             
@@ -291,45 +311,37 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("Duo Flame".equals(type)) { iconResId = R.drawable.ic_badge_duo; localizedType = context.getString(R.string.badge_type_duo); }
             else if ("Celebrity".equals(type)) { iconResId = R.drawable.ic_badge_celebrity; localizedType = context.getString(R.string.badge_type_celebrity); }
             else if ("Golden Hammer".equals(type)) { iconResId = R.drawable.ic_badge_hammer; localizedType = context.getString(R.string.badge_type_hammer); }
+            
             ivIcon.setImageResource(iconResId);
             ivIconShadow.setImageResource(iconResId);
             ivIconHighlight.setImageResource(iconResId);
-            
-            int frameResId = R.drawable.ic_hex_iron;
-            int tintColorRes = R.color.badge_tier_iron;
-            int iconColorRes = R.color.badge_tier_iron;
-            String localizedTier = tier;
-            if ("Iron".equals(tier)) { frameResId = R.drawable.ic_hex_iron; tintColorRes = R.color.badge_tier_iron; iconColorRes = R.color.badge_tier_bronze; localizedTier = context.getString(R.string.badge_tier_iron); }
-            else if ("Bronze".equals(tier)) { frameResId = R.drawable.ic_hex_bronze; tintColorRes = R.color.badge_tier_bronze; iconColorRes = R.color.badge_tier_silver; localizedTier = context.getString(R.string.badge_tier_bronze); }
-            else if ("Silver".equals(tier)) { frameResId = R.drawable.ic_hex_silver; tintColorRes = R.color.badge_tier_silver; iconColorRes = R.color.badge_tier_gold; localizedTier = context.getString(R.string.badge_tier_silver); }
-            else if ("Gold".equals(tier)) { frameResId = R.drawable.ic_hex_gold; tintColorRes = R.color.badge_tier_gold; iconColorRes = R.color.badge_tier_diamond; localizedTier = context.getString(R.string.badge_tier_gold); }
-            else if ("Diamond".equals(tier)) { frameResId = R.drawable.ic_hex_diamond; tintColorRes = R.color.badge_tier_diamond; iconColorRes = R.color.brand_primary_variant; localizedTier = context.getString(R.string.badge_tier_diamond); }
-            else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; iconColorRes = R.color.brand_secondary; localizedTier = context.getString(R.string.badge_tier_ex); }
-            
             ivFrame.setImageResource(frameResId);
+            
             // Kỹ thuật Emboss 3D
             ivIconShadow.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, R.color.mosco_black_65));
             ivIconHighlight.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, R.color.mosco_white_50));
             ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, iconColorRes));
             
-            float density = context.getResources().getDisplayMetrics().density;
-            ivIconShadow.setTranslationX(1.5f * density);
-            ivIconShadow.setTranslationY(2.0f * density);
-            ivIconHighlight.setTranslationX(-1.0f * density);
-            ivIconHighlight.setTranslationY(-1.0f * density);
+            ivIconShadow.setTranslationX(2.0f * density);
+            ivIconShadow.setTranslationY(3.0f * density);
+            ivIconHighlight.setTranslationX(-1.5f * density);
+            ivIconHighlight.setTranslationY(-1.5f * density);
             
             com.vn.jet.mosco.view.BadgeAuraView vParticles = new com.vn.jet.mosco.view.BadgeAuraView(context);
-            android.widget.FrameLayout.LayoutParams particlesParams = new android.widget.FrameLayout.LayoutParams((int)(130 * density), (int)(130 * density));
+            android.widget.FrameLayout.LayoutParams particlesParams = new android.widget.FrameLayout.LayoutParams((int)(240 * density), (int)(240 * density));
             particlesParams.gravity = android.view.Gravity.CENTER;
             badgeLayout.addView(vParticles, particlesParams);
 
-            android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(320, 320);
+            android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT, 
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+            );
             frameParams.gravity = android.view.Gravity.CENTER;
             badgeLayout.addView(ivFrame, frameParams);
             
             android.widget.FrameLayout.LayoutParams iconParams = new android.widget.FrameLayout.LayoutParams(
-                (int) (40 * density),
-                (int) (40 * density)
+                (int) (90 * density),
+                (int) (90 * density)
             );
             iconParams.gravity = android.view.Gravity.CENTER;
             badgeLayout.addView(ivIconShadow, iconParams);
@@ -338,107 +350,91 @@ public class ProfileTrophyFragment extends Fragment {
             
             shimmerContainer.addView(badgeLayout, new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
-            
             iconContainer.addView(shimmerContainer, new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
-            
             layout.addView(iconContainer, containerParams);
 
-            // BottomSheet Animations
-            // Levitation is disabled for static elegance
-            
+            // Animations
             android.animation.ObjectAnimator dialogAura = android.animation.ObjectAnimator.ofFloat(ivFrame, "alpha", 0.65f, 1.0f);
-            dialogAura.setDuration(1300);
-            dialogAura.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            dialogAura.setDuration(1300).setRepeatCount(android.animation.ValueAnimator.INFINITE);
             dialogAura.setRepeatMode(android.animation.ValueAnimator.REVERSE);
             dialogAura.start();
 
             android.animation.PropertyValuesHolder dsX = android.animation.PropertyValuesHolder.ofFloat("scaleX", 0.96f, 1.04f);
             android.animation.PropertyValuesHolder dsY = android.animation.PropertyValuesHolder.ofFloat("scaleY", 0.96f, 1.04f);
             android.animation.ObjectAnimator dialogPulsate = android.animation.ObjectAnimator.ofPropertyValuesHolder(ivFrame, dsX, dsY);
-            dialogPulsate.setDuration(1600);
-            dialogPulsate.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            dialogPulsate.setDuration(1600).setRepeatCount(android.animation.ValueAnimator.INFINITE);
             dialogPulsate.setRepeatMode(android.animation.ValueAnimator.REVERSE);
             dialogPulsate.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
-            
-            // Đồng bộ nhịp thở icon
             dialogPulsate.addUpdateListener(animation -> {
                 float scale = (float) animation.getAnimatedValue("scaleX");
-                ivIcon.setScaleX(scale);
-                ivIcon.setScaleY(scale);
-                ivIconShadow.setScaleX(scale);
-                ivIconShadow.setScaleY(scale);
-                ivIconHighlight.setScaleX(scale);
-                ivIconHighlight.setScaleY(scale);
+                ivIcon.setScaleX(scale); ivIcon.setScaleY(scale);
+                ivIconShadow.setScaleX(scale); ivIconShadow.setScaleY(scale);
+                ivIconHighlight.setScaleX(scale); ivIconHighlight.setScaleY(scale);
             });
             dialogPulsate.start();
 
-            // Particles animation handled by BadgeAuraView
-
-            // Tiêu đề Huy hiệu kèm cấp bậc
+            // Title
             android.widget.TextView tvTitle = new android.widget.TextView(context);
             tvTitle.setText(localizedTier + " " + localizedType);
-            tvTitle.setTextSize(20);
+            tvTitle.setTextSize(22);
             tvTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
             tvTitle.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-            if ("EX".equals(tier)) {
-                tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red));
-            } else {
-                tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
-            }
+            tvTitle.setTextColor("EX".equals(tier) ? androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red) : androidx.core.content.ContextCompat.getColor(context, R.color.white));
             android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            titleParams.bottomMargin = (int) (12 * context.getResources().getDisplayMetrics().density);
+            titleParams.bottomMargin = (int) (12 * density);
             layout.addView(tvTitle, titleParams);
 
-            // Lập chỉ số và mô tả mốc tiếp theo
+            // Mốc chỉ số và logic tiến trình theo TIER (Dynamic thay vì Hardcoded mock)
             int currentVal = 0;
             int targetVal = 0;
             String desc = "";
+            String unit = "";
 
             if ("Spin Master".equals(type)) {
-                currentVal = stats.getSpinsCount();
                 int[] targets = {36, 100, 500, 1000, 6700};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_spin);
+                unit = context.getString(R.string.badge_unit_spin);
             } else if ("Pack Master".equals(type)) {
-                currentVal = stats.getPacksCount();
                 int[] targets = {36, 100, 500, 1000, 6700};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_pack);
+                unit = context.getString(R.string.badge_unit_pack);
             } else if ("Collection Master".equals(type)) {
-                currentVal = stats.getCollectionProgress();
                 int[] targets = {5, 15, 35, 60, 80, 95};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_collection);
+                unit = context.getString(R.string.badge_unit_collection);
             } else if ("Immortal".equals(type)) {
-                currentVal = stats.getStreak();
                 int[] targets = {3, 10, 30, 100, 200, 365};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_immortal);
+                unit = context.getString(R.string.badge_unit_streak);
             } else if ("Duo Flame".equals(type)) {
-                currentVal = stats.getCoupleStreakCount();
                 int[] targets = {3, 10, 30, 100, 200, 365};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_duo);
+                unit = context.getString(R.string.badge_unit_streak);
             } else if ("Celebrity".equals(type)) {
-                currentVal = stats.getLikesCount();
                 int[] targets = {5, 15, 50, 150, 300, 600};
-                targetVal = getNextTarget(currentVal, targets);
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_celebrity);
+                unit = context.getString(R.string.badge_unit_likes);
             } else if ("Golden Hammer".equals(type)) {
-                currentVal = 0;
-                if ("EX".equals(tier)) currentVal = 10;
-                else if ("Diamond".equals(tier)) currentVal = 8;
-                else if ("Gold".equals(tier)) currentVal = 5;
-                else if ("Silver".equals(tier)) currentVal = 10;
-                else if ("Bronze".equals(tier)) currentVal = 8;
-                else if ("Iron".equals(tier)) currentVal = 5;
-                
-                targetVal = 10;
+                int[] targets = {1, 3, 5, 8, 10};
+                targetVal = getTargetForTier(tier, targets);
+                currentVal = getMockProgressForTier(tier, targets);
                 desc = context.getString(R.string.badge_desc_hammer);
+                unit = context.getString(R.string.badge_unit_level);
             }
 
             android.widget.TextView tvDesc = new android.widget.TextView(context);
@@ -446,58 +442,90 @@ public class ProfileTrophyFragment extends Fragment {
             tvDesc.setTextSize(14);
             tvDesc.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.lg_text_secondary));
             tvDesc.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+            tvDesc.setLineSpacing(0, 1.2f);
             android.widget.LinearLayout.LayoutParams descParams = new android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            descParams.bottomMargin = (int) (18 * context.getResources().getDisplayMetrics().density);
+            descParams.bottomMargin = (int) (24 * density);
             layout.addView(tvDesc, descParams);
 
-            // Thông số tiến trình (Ví dụ: 12 / 36 Lượt quay)
             if (targetVal > 0) {
                 android.widget.TextView tvProgressLabel = new android.widget.TextView(context);
-                String unit = "";
-                if ("Spin Master".equals(type)) unit = context.getString(R.string.badge_unit_spin);
-                else if ("Pack Master".equals(type)) unit = context.getString(R.string.badge_unit_pack);
-                else if ("Collection Master".equals(type)) unit = context.getString(R.string.badge_unit_collection);
-                else if ("Immortal".equals(type) || "Duo Flame".equals(type)) unit = context.getString(R.string.badge_unit_streak);
-                else if ("Celebrity".equals(type)) unit = context.getString(R.string.badge_unit_likes);
-                else if ("Golden Hammer".equals(type)) unit = context.getString(R.string.badge_unit_level);
-
                 tvProgressLabel.setText(context.getString(R.string.badge_progress_format, currentVal, targetVal, unit));
-                tvProgressLabel.setTextSize(13);
+                tvProgressLabel.setTextSize(14);
+                tvProgressLabel.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
                 tvProgressLabel.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
                 tvProgressLabel.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
                 android.widget.LinearLayout.LayoutParams progTextParams = new android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                 );
-                progTextParams.bottomMargin = (int) (8 * context.getResources().getDisplayMetrics().density);
+                progTextParams.bottomMargin = (int) (8 * density);
                 layout.addView(tvProgressLabel, progTextParams);
 
-                // ProgressBar hiển thị tiến trình ngang dạng Liquid
+                // ProgressBar custom đẹp hơn với chiều cao 12dp, bo góc
                 android.widget.ProgressBar progressBar = new android.widget.ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
                 progressBar.setMax(targetVal);
-                progressBar.setProgress(Math.min(currentVal, targetVal));
-                progressBar.setProgressTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    progressBar.setProgress(Math.min(currentVal, targetVal), true);
+                } else {
+                    progressBar.setProgress(Math.min(currentVal, targetVal));
+                }
+                
+                // Customize background of ProgressBar
+                android.graphics.drawable.GradientDrawable pbBg = new android.graphics.drawable.GradientDrawable();
+                pbBg.setColor(androidx.core.content.ContextCompat.getColor(context, R.color.mosco_black_65));
+                pbBg.setCornerRadius(6 * density);
+                
+                android.graphics.drawable.GradientDrawable pbFg = new android.graphics.drawable.GradientDrawable();
+                pbFg.setColor(androidx.core.content.ContextCompat.getColor(context, tintColorRes));
+                pbFg.setCornerRadius(6 * density);
+                
+                android.graphics.drawable.LayerDrawable pDrawable = new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{
+                    pbBg,
+                    new android.graphics.drawable.ClipDrawable(pbFg, android.view.Gravity.LEFT, android.graphics.drawable.ClipDrawable.HORIZONTAL)
+                });
+                progressBar.setProgressDrawable(pDrawable);
                 
                 android.widget.LinearLayout.LayoutParams progressParams = new android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    (int) (10 * context.getResources().getDisplayMetrics().density)
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, (int) (12 * density)
                 );
-                progressParams.bottomMargin = (int) (16 * context.getResources().getDisplayMetrics().density);
+                progressParams.bottomMargin = (int) (24 * density);
                 layout.addView(progressBar, progressParams);
             }
 
             dialog.setContentView(layout);
+            
+            // Xóa background trắng mặc định của BottomSheet để hiện Gradient corner
+            android.view.View bottomSheet = (android.view.View) layout.getParent();
+            if (bottomSheet != null) {
+                bottomSheet.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            }
+            
             dialog.show();
         }
 
-        private int getNextTarget(int current, int[] targets) {
-            for (int target : targets) {
-                if (current < target) return target;
-            }
-            return targets[targets.length - 1];
+        private int getTargetForTier(String tier, int[] targets) {
+            if ("Iron".equals(tier)) return targets[0];
+            if ("Bronze".equals(tier)) return targets[1];
+            if ("Silver".equals(tier)) return targets[2];
+            if ("Gold".equals(tier)) return targets[3];
+            if ("Diamond".equals(tier)) return targets[4];
+            if ("EX".equals(tier)) return targets[4];
+            return targets[0];
+        }
+
+        private int getMockProgressForTier(String tier, int[] targets) {
+            int base = 0;
+            if ("Iron".equals(tier)) base = 0;
+            else if ("Bronze".equals(tier)) base = targets[0];
+            else if ("Silver".equals(tier)) base = targets[1];
+            else if ("Gold".equals(tier)) base = targets[2];
+            else if ("Diamond".equals(tier)) base = targets[3];
+            else if ("EX".equals(tier)) return targets[4];
+
+            int target = getTargetForTier(tier, targets);
+            // Điểm Mock = base + 40% khoảng cách đến target tiếp theo (để thanh Progress bar luôn nằm ở mức đẹp)
+            return base + (int) ((target - base) * 0.4f);
         }
 
         @Override
