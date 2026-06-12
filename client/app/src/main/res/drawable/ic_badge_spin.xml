@@ -4,53 +4,41 @@
     android:viewportWidth="48" 
     android:viewportHeight="48">
 
-    <!-- Central Ring -->
-    <path android:strokeColor="#FFFFFF" android:strokeWidth="5" android:pathData="
-        M24,14 
-        A10,10 0 1,1 24,34 
-        A10,10 0 1,1 24,14 Z
-    " />
+    <group android:pivotX="24" android:pivotY="24" android:scaleX="1.1" android:scaleY="1.1">
+        <!-- Central Ring -->
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:pathData="
+            M24,12 A12,12 0 1,1 24,36 A12,12 0 1,1 24,12 Z" />
 
-    <!-- 6 Spiral Arms with detached tails -->
-    <group android:rotation="0" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
-    </group>
-    
-    <group android:rotation="60" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
-    </group>
-    
-    <group android:rotation="120" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
-    </group>
-    
-    <group android:rotation="180" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
-    </group>
-    
-    <group android:rotation="240" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
-    </group>
-    
-    <group android:rotation="300" android:pivotX="24" android:pivotY="24">
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="4.5" android:strokeLineCap="round" android:pathData="
-            M24,14 A14,14 0 0,1 8,16
-            M4,20 A14,14 0 0,1 2,28
-        " />
+        <!-- 30 Swept Rays (Right/Clockwise) -->
+        <group android:rotation="0" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="12" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="24" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="36" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="48" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="60" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="72" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="84" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="96" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="108" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="120" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="132" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="144" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="156" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="168" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="180" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="192" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="204" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="216" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="228" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="240" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="252" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="264" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="276" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="288" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="300" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="312" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="324" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="336" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
+        <group android:rotation="348" android:pivotX="24" android:pivotY="24"><path android:fillColor="#FFFFFF" android:pathData="M24,12 Q26,6 34,5 Q22,5 21.5,13 Z" /></group>
     </group>
 </vector>

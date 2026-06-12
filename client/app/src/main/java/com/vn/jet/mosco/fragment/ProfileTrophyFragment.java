@@ -212,6 +212,17 @@ public class ProfileTrophyFragment extends Fragment {
             pulsateAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
             pulsateAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
             pulsateAnim.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+            
+            // TẠI SAO: Đồng bộ hóa nhịp thở của lõi icon với khung để không bị cảm giác "lệch"
+            pulsateAnim.addUpdateListener(animation -> {
+                float scale = (float) animation.getAnimatedValue("scaleX");
+                holder.ivBadgeIcon.setScaleX(scale);
+                holder.ivBadgeIcon.setScaleY(scale);
+                holder.ivBadgeIconShadow.setScaleX(scale);
+                holder.ivBadgeIconShadow.setScaleY(scale);
+                holder.ivBadgeIconHighlight.setScaleX(scale);
+                holder.ivBadgeIconHighlight.setScaleY(scale);
+            });
             pulsateAnim.start();
 
             // Hiệu ứng vòng xoáy bụi ma thuật đã được xử lý tự động trong BadgeAuraView
@@ -349,6 +360,17 @@ public class ProfileTrophyFragment extends Fragment {
             dialogPulsate.setRepeatCount(android.animation.ValueAnimator.INFINITE);
             dialogPulsate.setRepeatMode(android.animation.ValueAnimator.REVERSE);
             dialogPulsate.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+            
+            // Đồng bộ nhịp thở icon
+            dialogPulsate.addUpdateListener(animation -> {
+                float scale = (float) animation.getAnimatedValue("scaleX");
+                ivIcon.setScaleX(scale);
+                ivIcon.setScaleY(scale);
+                ivIconShadow.setScaleX(scale);
+                ivIconShadow.setScaleY(scale);
+                ivIconHighlight.setScaleX(scale);
+                ivIconHighlight.setScaleY(scale);
+            });
             dialogPulsate.start();
 
             // Particles animation handled by BadgeAuraView
