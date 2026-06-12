@@ -36,7 +36,4 @@
     <!-- 6. Bottom Jewel -->
     <path android:fillColor="#FFCC80" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
     
-    <!-- 7. Sparkles -->
-    <path android:fillColor="#FFFFFF" android:pathData="M45,29 L47,33 L51,35 L47,37 L45,41 L43,37 L39,35 L43,33 Z" />
-    <path android:fillColor="#FFFFFF" android:pathData="M115,86 L116.5,88.5 L119,90 L116.5,91.5 L115,94 L113.5,91.5 L111,90 L113.5,88.5 Z" />
 </vector>

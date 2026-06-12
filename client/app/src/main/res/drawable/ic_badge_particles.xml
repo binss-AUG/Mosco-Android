@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Top Left Star -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,18 Q27,25 34,27 Q27,29 25,36 Q23,29 16,27 Q23,25 25,18Z" />
+    
+    <!-- Bottom Right Star -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,64 Q77,71 84,73 Q77,75 75,82 Q73,75 66,73 Q73,71 75,64Z" />
+        
+    <!-- Top Right Spark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,18 L77,22 L81,24 L77,26 L75,30 L73,26 L69,24 L73,22Z" />
+
+    <!-- Bottom Left Spark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,64 L27,68 L31,70 L27,72 L25,76 L23,72 L19,70 L23,68Z" />
+        
+    <!-- Magic Dust Particles (Outer Ring) -->
+    <path android:fillColor="#CCFFFFFF" android:pathData="M50,4 A1.5,1.5 0 1,1 50,7 A1.5,1.5 0 1,1 50,4" />
+    <path android:fillColor="#99FFFFFF" android:pathData="M83,27 A1,1 0 1,1 83,29 A1,1 0 1,1 83,27" />
+    <path android:fillColor="#CCFFFFFF" android:pathData="M96,50 A1.5,1.5 0 1,1 96,53 A1.5,1.5 0 1,1 96,50" />
+    <path android:fillColor="#99FFFFFF" android:pathData="M83,73 A1,1 0 1,1 83,75 A1,1 0 1,1 83,73" />
+    <path android:fillColor="#CCFFFFFF" android:pathData="M50,96 A1.5,1.5 0 1,1 50,99 A1.5,1.5 0 1,1 50,96" />
+    <path android:fillColor="#99FFFFFF" android:pathData="M17,73 A1,1 0 1,1 17,75 A1,1 0 1,1 17,73" />
+    <path android:fillColor="#CCFFFFFF" android:pathData="M4,50 A1.5,1.5 0 1,1 4,53 A1.5,1.5 0 1,1 4,50" />
+    <path android:fillColor="#99FFFFFF" android:pathData="M17,27 A1,1 0 1,1 17,29 A1,1 0 1,1 17,27" />
+</vector>
