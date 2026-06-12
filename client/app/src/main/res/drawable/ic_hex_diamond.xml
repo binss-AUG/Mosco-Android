@@ -4,11 +4,30 @@
     android:viewportWidth="160"
     android:viewportHeight="160">
 
-    <!-- ICE SHARDS (Background) -->
-    <path android:fillColor="#80DEEA" android:pathData="M10,40 L20,30 L30,45 L15,55 Z" />
-    <path android:fillColor="#80DEEA" android:pathData="M150,40 L140,30 L130,45 L145,55 Z" />
-    <path android:fillColor="#4DD0E1" android:pathData="M5,90 L15,80 L25,100 L10,110 Z" />
-    <path android:fillColor="#4DD0E1" android:pathData="M155,90 L145,80 L135,100 L150,110 Z" />
+    <!-- FACETED CRYSTAL SHARDS -->
+    <!-- Top Shard -->
+    <path android:fillColor="#18FFFF" android:pathData="M80,30 L80,0 L95,15 Z" />
+    <path android:fillColor="#00E5FF" android:pathData="M80,30 L80,0 L65,15 Z" />
+    
+    <!-- Bottom Shard -->
+    <path android:fillColor="#18FFFF" android:pathData="M80,130 L80,160 L65,145 Z" />
+    <path android:fillColor="#00B8D4" android:pathData="M80,130 L80,160 L95,145 Z" />
+    
+    <!-- Top-Right Shard -->
+    <path android:fillColor="#B2EBF2" android:pathData="M123,55 L150,10 L130,40 Z" />
+    <path android:fillColor="#00E5FF" android:pathData="M123,55 L150,10 L145,50 Z" />
+    
+    <!-- Bottom-Right Shard -->
+    <path android:fillColor="#00B8D4" android:pathData="M123,105 L150,150 L145,110 Z" />
+    <path android:fillColor="#0097A7" android:pathData="M123,105 L150,150 L130,120 Z" />
+    
+    <!-- Bottom-Left Shard -->
+    <path android:fillColor="#00E5FF" android:pathData="M37,105 L10,150 L30,120 Z" />
+    <path android:fillColor="#00B8D4" android:pathData="M37,105 L10,150 L15,110 Z" />
+    
+    <!-- Top-Left Shard -->
+    <path android:fillColor="#B2EBF2" android:pathData="M37,55 L10,10 L15,50 Z" />
+    <path android:fillColor="#18FFFF" android:pathData="M37,55 L10,10 L30,40 Z" />
 
     <!-- 1. Drop Shadow -->
     <group android:translateY="8">
@@ -16,22 +35,21 @@
     </group>
 
     <!-- 2. Outer Rim (Dark Base) -->
-    <path android:fillColor="#006064" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    <path android:fillColor="#00838F" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
 
     <!-- 3. Bottom Bevel -->
     <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
         <path android:fillColor="#00BCD4" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
     </group>
 
-    <!-- 4. Inner Core (Moved up to reveal thick bottom border) -->
+    <!-- 4. Inner Core -->
     <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
-        <path android:fillColor="#B2EBF2" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+        <path android:fillColor="#4DD0E1" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
     </group>
 
     <!-- 5. Top Jewel -->
     <path android:fillColor="#E0F7FA" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
     
     <!-- 6. Bottom Jewel -->
-    <path android:fillColor="#0097A7" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
-    
+    <path android:fillColor="#26C6DA" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
 </vector>

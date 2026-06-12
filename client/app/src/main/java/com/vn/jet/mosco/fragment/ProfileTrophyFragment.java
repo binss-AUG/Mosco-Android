@@ -214,14 +214,7 @@ public class ProfileTrophyFragment extends Fragment {
             pulsateAnim.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
             pulsateAnim.start();
 
-            // Hiệu ứng vòng xoáy bụi ma thuật
-            if (holder.ivBadgeParticles != null) {
-                android.animation.ObjectAnimator rotateAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeParticles, "rotation", 0f, 360f);
-                rotateAnim.setDuration(15000 + (long) (Math.random() * 5000));
-                rotateAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-                rotateAnim.setInterpolator(new android.view.animation.LinearInterpolator());
-                rotateAnim.start();
-            }
+            // Hiệu ứng vòng xoáy bụi ma thuật đã được xử lý tự động trong BadgeAuraView
 
             // 4. Bật nảy lật 3D (Staggered Pop-in 3D) khi mới xuất hiện trên màn hình
             holder.itemView.setAlpha(0f);
@@ -314,11 +307,10 @@ public class ProfileTrophyFragment extends Fragment {
             ivIconHighlight.setTranslationX(-1.0f * density);
             ivIconHighlight.setTranslationY(-1.0f * density);
             
-            android.widget.ImageView ivParticles = new android.widget.ImageView(context);
-            ivParticles.setImageResource(R.drawable.ic_badge_particles);
-            android.widget.FrameLayout.LayoutParams particlesParams = new android.widget.FrameLayout.LayoutParams(340, 340);
+            com.vn.jet.mosco.view.BadgeAuraView vParticles = new com.vn.jet.mosco.view.BadgeAuraView(context);
+            android.widget.FrameLayout.LayoutParams particlesParams = new android.widget.FrameLayout.LayoutParams((int)(130 * density), (int)(130 * density));
             particlesParams.gravity = android.view.Gravity.CENTER;
-            badgeLayout.addView(ivParticles, particlesParams);
+            badgeLayout.addView(vParticles, particlesParams);
 
             android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(320, 320);
             frameParams.gravity = android.view.Gravity.CENTER;
@@ -359,11 +351,7 @@ public class ProfileTrophyFragment extends Fragment {
             dialogPulsate.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
             dialogPulsate.start();
 
-            android.animation.ObjectAnimator dialogRotate = android.animation.ObjectAnimator.ofFloat(ivParticles, "rotation", 0f, 360f);
-            dialogRotate.setDuration(18000);
-            dialogRotate.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-            dialogRotate.setInterpolator(new android.view.animation.LinearInterpolator());
-            dialogRotate.start();
+            // Particles animation handled by BadgeAuraView
 
             // Tiêu đề Huy hiệu kèm cấp bậc
             android.widget.TextView tvTitle = new android.widget.TextView(context);
@@ -497,7 +485,7 @@ public class ProfileTrophyFragment extends Fragment {
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvBadgeName;
-            ImageView ivBadgeParticles;
+            com.vn.jet.mosco.view.BadgeAuraView vBadgeParticles;
             ImageView ivBadgeIcon;
             ImageView ivBadgeIconShadow;
             ImageView ivBadgeIconHighlight;
@@ -507,7 +495,7 @@ public class ProfileTrophyFragment extends Fragment {
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
-                ivBadgeParticles = itemView.findViewById(R.id.iv_badge_particles);
+                vBadgeParticles = itemView.findViewById(R.id.v_badge_particles);
                 ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
                 ivBadgeIconShadow = itemView.findViewById(R.id.iv_badge_icon_shadow);
                 ivBadgeIconHighlight = itemView.findViewById(R.id.iv_badge_icon_highlight);

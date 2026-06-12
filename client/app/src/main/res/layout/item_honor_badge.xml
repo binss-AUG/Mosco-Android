@@ -28,13 +28,12 @@
             android:layout_height="match_parent"
             android:clipChildren="false">
 
-            <!-- Rotating Particles Layer (Stars & Dust) -->
-            <ImageView
-                android:id="@+id/iv_badge_particles"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_badge_particles" />
+            <!-- Realistic Random Star Dust Layer -->
+            <com.vn.jet.mosco.view.BadgeAuraView
+                android:id="@+id/v_badge_particles"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_gravity="center" />
 
             <!-- Hexagon Frame Background -->
             <ImageView
