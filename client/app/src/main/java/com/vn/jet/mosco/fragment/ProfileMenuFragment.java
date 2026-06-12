@@ -213,31 +213,31 @@ public class ProfileMenuFragment extends Fragment {
         setupMenuItem(view.findViewById(R.id.menu_backup_data), 
             getString(R.string.settings_action_backup_data), 
             getString(R.string.settings_desc_backup_data), 
-            R.drawable.ic_copy,
+            R.drawable.ic_backup,
             v -> { if(listener != null) listener.onBackupData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_restore_data), 
             getString(R.string.settings_action_restore_data), 
             getString(R.string.settings_desc_restore_data), 
-            R.drawable.ic_mailbox,
+            R.drawable.ic_restore,
             v -> { if(listener != null) listener.onRestoreData(); });
 
         setupMenuItem(view.findViewById(R.id.menu_cloud_sync), 
             getString(R.string.settings_action_cloud_sync), 
             getString(R.string.settings_desc_cloud_sync), 
-            R.drawable.ic_sync_galactic,
+            R.drawable.ic_sync,
             v -> { if(listener != null) listener.onCloudSync(); });
 
         setupMenuItem(view.findViewById(R.id.menu_switch_account), 
             getString(R.string.settings_action_switch_account), 
             getString(R.string.settings_desc_switch_account), 
-            R.drawable.ic_user,
+            R.drawable.ic_switch_account,
             v -> { if(listener != null) listener.onSwitchAccount(); });
 
         setupMenuItem(menuReportBug, 
             getString(R.string.settings_action_bug_report), 
             getString(R.string.settings_desc_report_bug), 
-            R.drawable.ic_error_placeholder,
+            R.drawable.ic_bug,
             v -> showBugReportDialog());
 
         // --- ACCOUNT ACTIONS ---
