@@ -1,64 +1,42 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="80dp"
-    android:height="80dp"
+    android:width="120dp"
+    android:height="120dp"
     android:viewportWidth="160"
     android:viewportHeight="160">
 
-    <group android:translateX="30" android:translateY="30">
-        <!-- Gold Wings -->
-        <path
-            android:fillColor="#80FFB300"
-            android:strokeWidth="2"
-            android:pathData="M10,27 L-15,15 L0,40 L-20,50 L-5,65 L-15,80 L10,73 Z">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:startX="-20" android:startY="15"
-                    android:endX="10" android:endY="80"
-                    android:type="linear">
-                    <item android:offset="0" android:color="#FFFFD700"/>
-                    <item android:offset="1" android:color="#FFFF8C00"/>
-                </gradient>
-            </aapt:attr>
-        </path>
-        
-        <path
-            android:fillColor="#80FFB300"
-            android:strokeWidth="2"
-            android:pathData="M90,27 L115,15 L100,40 L120,50 L105,65 L115,80 L90,73 Z">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:startX="120" android:startY="15"
-                    android:endX="90" android:endY="80"
-                    android:type="linear">
-                    <item android:offset="0" android:color="#FFFFD700"/>
-                    <item android:offset="1" android:color="#FFFF8C00"/>
-                </gradient>
-            </aapt:attr>
-        </path>
+    <!-- WINGS (Background) -->
+    <path android:fillColor="#FFCA28" android:pathData="M80,80 L20,40 L35,80 L10,95 L40,110 Z" />
+    <path android:fillColor="#FFCA28" android:pathData="M80,80 L140,40 L125,80 L150,95 L120,110 Z" />
 
-        <!-- Base Hexagon -->
-        <path
-            android:fillColor="#2A806000"
-            android:strokeWidth="3"
-            android:strokeLineJoin="round"
-            android:pathData="M50,4 L90,27 L90,73 L50,96 L10,73 L10,27 Z">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:startX="10" android:startY="4"
-                    android:endX="90" android:endY="96"
-                    android:type="linear">
-                    <item android:offset="0" android:color="#FFFFE066"/>
-                    <item android:offset="0.5" android:color="#FFFFD700"/>
-                    <item android:offset="1" android:color="#FFFF8C00"/>
-                </gradient>
-            </aapt:attr>
-        </path>
-        
-        <path
-            android:strokeColor="#55FFFFFF"
-            android:strokeWidth="1"
-            android:strokeLineJoin="round"
-            android:pathData="M50,10 L84,29 L84,71 L50,90 L16,71 L16,29 Z" />
+    <!-- WINGS Shadow -->
+    <path android:fillColor="#FF8F00" android:pathData="M80,80 L35,80 L10,95 L40,110 Z" />
+    <path android:fillColor="#FF8F00" android:pathData="M80,80 L125,80 L150,95 L120,110 Z" />
+
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
     </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#E65100" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#FFB300" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core (Moved up to reveal thick bottom border) -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#FFCA28" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#FFF59D" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#FFCC80" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+    
+    <!-- 7. Sparkles -->
+    <path android:fillColor="#FFFFFF" android:pathData="M45,29 L47,33 L51,35 L47,37 L45,41 L43,37 L39,35 L43,33 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M115,86 L116.5,88.5 L119,90 L116.5,91.5 L115,94 L113.5,91.5 L111,90 L113.5,88.5 Z" />
 </vector>

@@ -1,50 +1,41 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="80dp"
-    android:height="80dp"
+    android:width="120dp"
+    android:height="120dp"
     android:viewportWidth="160"
     android:viewportHeight="160">
 
-    <group android:translateX="30" android:translateY="30">
-        <!-- Diamond Ice Shards -->
-        <path
-            android:fillColor="#8000E5FF"
-            android:strokeWidth="1.5"
-            android:pathData="M-5,15 L0,0 L5,15 L0,30 Z M105,15 L110,0 L115,15 L110,30 Z M-15,50 L-8,35 L-1,50 L-8,65 Z M115,50 L122,35 L129,50 L122,65 Z M-5,85 L0,70 L5,85 L0,100 Z M105,85 L110,70 L115,85 L110,100 Z">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:startX="-15" android:startY="0"
-                    android:endX="129" android:endY="100"
-                    android:type="linear">
-                    <item android:offset="0" android:color="#FF00FFFF"/>
-                    <item android:offset="0.5" android:color="#FFFFFFFF"/>
-                    <item android:offset="1" android:color="#FF00BFFF"/>
-                </gradient>
-            </aapt:attr>
-        </path>
+    <!-- ICE SHARDS (Background) -->
+    <path android:fillColor="#80DEEA" android:pathData="M10,40 L20,30 L30,45 L15,55 Z" />
+    <path android:fillColor="#80DEEA" android:pathData="M150,40 L140,30 L130,45 L145,55 Z" />
+    <path android:fillColor="#4DD0E1" android:pathData="M5,90 L15,80 L25,100 L10,110 Z" />
+    <path android:fillColor="#4DD0E1" android:pathData="M155,90 L145,80 L135,100 L150,110 Z" />
 
-        <!-- Base Hexagon -->
-        <path
-            android:fillColor="#2A004D66"
-            android:strokeWidth="3"
-            android:strokeLineJoin="round"
-            android:pathData="M50,4 L90,27 L90,73 L50,96 L10,73 L10,27 Z">
-            <aapt:attr name="android:strokeColor">
-                <gradient
-                    android:startX="10" android:startY="4"
-                    android:endX="90" android:endY="96"
-                    android:type="linear">
-                    <item android:offset="0" android:color="#FF00FFFF"/>
-                    <item android:offset="0.5" android:color="#FFE0FFFF"/>
-                    <item android:offset="1" android:color="#FF00BFFF"/>
-                </gradient>
-            </aapt:attr>
-        </path>
-        
-        <path
-            android:strokeColor="#66FFFFFF"
-            android:strokeWidth="1"
-            android:strokeLineJoin="round"
-            android:pathData="M50,10 L84,29 L84,71 L50,90 L16,71 L16,29 Z" />
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
     </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#006064" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#00BCD4" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core (Moved up to reveal thick bottom border) -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#B2EBF2" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#E0F7FA" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#0097A7" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+    
+    <!-- 7. Sparkles -->
+    <path android:fillColor="#FFFFFF" android:pathData="M45,29 L47,33 L51,35 L47,37 L45,41 L43,37 L39,35 L43,33 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M115,86 L116.5,88.5 L119,90 L116.5,91.5 L115,94 L113.5,91.5 L111,90 L113.5,88.5 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M25,60 L26,62 L28,63 L26,64 L25,66 L24,64 L22,63 L24,62 Z" />
 </vector>

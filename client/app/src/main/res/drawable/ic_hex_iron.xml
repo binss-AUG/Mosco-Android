@@ -1,20 +1,33 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="80dp"
-    android:height="80dp"
+    android:width="120dp"
+    android:height="120dp"
     android:viewportWidth="160"
     android:viewportHeight="160">
 
-    <group android:translateX="30" android:translateY="30">
-        <path
-            android:fillColor="#2A333333"
-            android:strokeColor="#737373"
-            android:strokeWidth="3"
-            android:strokeLineJoin="round"
-            android:pathData="M50,4 L90,27 L90,73 L50,96 L10,73 L10,27 Z" />
-        <path
-            android:strokeColor="#1AFFFFFF"
-            android:strokeWidth="1"
-            android:strokeLineJoin="round"
-            android:pathData="M50,10 L84,29 L84,71 L50,90 L16,71 L16,29 Z" />
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
     </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#424242" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#757575" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core (Moved up to reveal thick bottom border) -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#BDBDBD" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#EEEEEE" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#9E9E9E" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+    
+    <!-- 7. Sparkles -->
+    <path android:fillColor="#FFFFFF" android:pathData="M45,29 L47,33 L51,35 L47,37 L45,41 L43,37 L39,35 L43,33 Z" />
 </vector>
