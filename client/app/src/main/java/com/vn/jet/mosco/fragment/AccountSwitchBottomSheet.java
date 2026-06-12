@@ -122,12 +122,8 @@ public class AccountSwitchBottomSheet extends BottomSheetDialogFragment {
                 holder.ivAuthType.setImageResource(R.drawable.ic_email);
             }
 
-            Glide.with(context)
-                    .load(account.getAvatarId() != null ? account.getAvatarId() : placeholderRes)
-                    .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                    .placeholder(placeholderRes)
-                    .error(placeholderRes)
-                    .into(holder.ivAvatar);
+            // Load avatar properly using Mosco's AvatarUtils
+            com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(context, holder.ivAvatar, account.getUserId(), account.getAvatarId());
 
             if (account.getUserId() == currentUserId) {
                 holder.ivActiveIndicator.setVisibility(View.VISIBLE);

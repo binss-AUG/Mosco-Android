@@ -191,32 +191,58 @@ public class SignInActivity extends AppCompatActivity {
                         sessionManager.saveRememberMe(cbRememberMe.isChecked(), edtEmail.getText().toString().trim());
                         sessionManager.saveSession(data);
 
-                        if (cbRememberMe.isChecked() && data != null) {
-                            sessionManager.upsertSavedAccount(new com.vn.jet.mosco.model.SavedAccount(
-                                    data.getId() != null ? data.getId() : -1L,
-                                    data.getUsername(),
-                                    data.getEmail(),
-                                    data.getIngameName(),
-                                    data.getAvatarId(),
-                                    data.getToken(),
-                                    currentAuthType
-                            ));
+                        boolean isAlreadySaved = false;
+                        if (data != null) {
+                            for (com.vn.jet.mosco.model.SavedAccount acc : sessionManager.getSavedAccounts()) {
+                                if (acc.getUserId() == data.getId()) {
+                                    isAlreadySaved = true;
+                                    break;
+                                }
+                            }
                         }
 
-                        Toast.makeText(this, getString(R.string.auth_msg_sign_in_success),
-                                Toast.LENGTH_SHORT).show();
+                        if (!cbRememberMe.isChecked() && data != null && !isAlreadySaved) {
+                            com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(
+                                SignInActivity.this,
+                                getString(R.string.settings_action_switch_account),
+                                "Lưu tài khoản này để chuyển đổi nhanh sau này?",
+                                "Lưu lại",
+                                "Không",
+                                new com.vn.jet.mosco.utils.MoscoDialogHelper.DialogCallback() {
+                                    @Override
+                                    public void onPositive() {
+                                        sessionManager.upsertSavedAccount(new com.vn.jet.mosco.model.SavedAccount(
+                                                data.getId() != null ? data.getId() : -1L,
+                                                data.getUsername(),
+                                                data.getEmail(),
+                                                data.getIngameName(),
+                                                data.getAvatarId(),
+                                                data.getToken(),
+                                                currentAuthType
+                                        ));
+                                        proceedToNextActivity(resource);
+                                    }
 
-                        Intent intent;
-                        String ingame = resource.getData().getData() != null
-                                ? resource.getData().getData().getIngameName() : null;
-                        if (ingame == null || ingame.isEmpty()) {
-                            intent = new Intent(this, DisplayNameSetupActivity.class);
+                                    @Override
+                                    public void onNegative() {
+                                        proceedToNextActivity(resource);
+                                    }
+                                }
+                            );
                         } else {
-                            intent = new Intent(this, MainActivity.class);
+                            if (cbRememberMe.isChecked() && data != null) {
+                                sessionManager.upsertSavedAccount(new com.vn.jet.mosco.model.SavedAccount(
+                                        data.getId() != null ? data.getId() : -1L,
+                                        data.getUsername(),
+                                        data.getEmail(),
+                                        data.getIngameName(),
+                                        data.getAvatarId(),
+                                        data.getToken(),
+                                        currentAuthType
+                                ));
+                            }
+                            proceedToNextActivity(resource);
                         }
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
                     } else {
                         com.vn.jet.mosco.model.AuthResponse authResponse = resource.getData();
                         if (authResponse != null && authResponse.getDeletionPending() != null && authResponse.getDeletionPending()) {
@@ -244,6 +270,22 @@ public class SignInActivity extends AppCompatActivity {
         if (galacticBg != null) {
             galacticBg.setMode(com.vn.jet.mosco.utils.GalacticBackgroundView.Mode.SIGN_IN);
         }
+    }
+
+    private void proceedToNextActivity(com.vn.jet.mosco.utils.Resource<com.vn.jet.mosco.model.AuthResponse> resource) {
+        Toast.makeText(this, getString(R.string.auth_msg_sign_in_success), Toast.LENGTH_SHORT).show();
+
+        Intent intent;
+        String ingame = resource.getData().getData() != null
+                ? resource.getData().getData().getIngameName() : null;
+        if (ingame == null || ingame.isEmpty()) {
+            intent = new Intent(this, DisplayNameSetupActivity.class);
+        } else {
+            intent = new Intent(this, MainActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void validateAndSignIn() {
