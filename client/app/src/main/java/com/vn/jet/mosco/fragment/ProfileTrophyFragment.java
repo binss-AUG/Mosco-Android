@@ -193,6 +193,45 @@ public class ProfileTrophyFragment extends Fragment {
             final String finalTier = tier;
             final String finalType = type;
             holder.itemView.setOnClickListener(v -> showBadgeProgressDialog(v.getContext(), finalTier, finalType, stats));
+
+            // TẠI SAO: Thêm các hiệu ứng động (Animation) cao cấp theo yêu cầu sếp
+            
+            // 1. Lấp lánh ánh sáng chạy chéo (Shimmer Sweep)
+            holder.vShimmerSweep.setVisibility(View.VISIBLE);
+            android.animation.ObjectAnimator shimmerAnim = android.animation.ObjectAnimator.ofFloat(holder.vShimmerSweep, "translationX", -250f, 250f);
+            shimmerAnim.setDuration(2500);
+            shimmerAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            shimmerAnim.setStartDelay((long) (Math.random() * 1000));
+            shimmerAnim.start();
+
+            // 2. Bồng bềnh ma thuật (Levitation) cho Icon lõi
+            android.animation.ObjectAnimator floatAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeIcon, "translationY", -8f, 8f);
+            floatAnim.setDuration(1500 + (long) (Math.random() * 500));
+            floatAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            floatAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            floatAnim.start();
+
+            // 3. Nhịp thở hào quang (Breathing Aura) cho Khung Lục Giác
+            android.animation.ObjectAnimator auraAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeFrame, "alpha", 0.65f, 1.0f);
+            auraAnim.setDuration(1200 + (long) (Math.random() * 400));
+            auraAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            auraAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            auraAnim.start();
+
+            // 4. Bật nảy lật 3D (Staggered Pop-in 3D) khi mới xuất hiện trên màn hình
+            holder.itemView.setAlpha(0f);
+            holder.itemView.setScaleX(0.4f);
+            holder.itemView.setScaleY(0.4f);
+            holder.itemView.setRotationY(-30f);
+            holder.itemView.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .rotationY(0f)
+                    .setDuration(500)
+                    .setStartDelay(position * 60L)
+                    .setInterpolator(new android.view.animation.OvershootInterpolator())
+                    .start();
         }
 
         private void showBadgeProgressDialog(android.content.Context context, String tier, String type, UserStats stats) {
@@ -218,6 +257,17 @@ public class ProfileTrophyFragment extends Fragment {
 
             android.widget.ImageView ivFrame = new android.widget.ImageView(context);
             android.widget.ImageView ivIcon = new android.widget.ImageView(context);
+
+            // Backlight Shimmer Sweep for BottomSheet
+            android.view.View bottomSheetShimmer = new android.view.View(context);
+            bottomSheetShimmer.setBackgroundResource(R.drawable.bg_badge_shimmer_sweep);
+            bottomSheetShimmer.setRotation(-45);
+            android.widget.FrameLayout.LayoutParams shimmerParams = new android.widget.FrameLayout.LayoutParams(
+                (int) (180 * context.getResources().getDisplayMetrics().density),
+                (int) (24 * context.getResources().getDisplayMetrics().density)
+            );
+            shimmerParams.gravity = android.view.Gravity.CENTER;
+            iconContainer.addView(bottomSheetShimmer, shimmerParams);
             
             int iconResId = R.drawable.ic_star;
             if ("Spin Master".equals(type)) iconResId = R.drawable.ic_badge_spin;
@@ -253,6 +303,24 @@ public class ProfileTrophyFragment extends Fragment {
             iconContainer.addView(ivIcon, iconParams);
             
             layout.addView(iconContainer, containerParams);
+
+            // BottomSheet Animations
+            android.animation.ObjectAnimator dialogShimmer = android.animation.ObjectAnimator.ofFloat(bottomSheetShimmer, "translationX", -300f, 300f);
+            dialogShimmer.setDuration(2500);
+            dialogShimmer.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            dialogShimmer.start();
+
+            android.animation.ObjectAnimator dialogFloat = android.animation.ObjectAnimator.ofFloat(ivIcon, "translationY", -12f, 12f);
+            dialogFloat.setDuration(1600);
+            dialogFloat.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            dialogFloat.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            dialogFloat.start();
+
+            android.animation.ObjectAnimator dialogAura = android.animation.ObjectAnimator.ofFloat(ivFrame, "alpha", 0.65f, 1.0f);
+            dialogAura.setDuration(1300);
+            dialogAura.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            dialogAura.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            dialogAura.start();
 
             // Tiêu đề Huy hiệu kèm cấp bậc
             android.widget.TextView tvTitle = new android.widget.TextView(context);
@@ -388,12 +456,14 @@ public class ProfileTrophyFragment extends Fragment {
             TextView tvBadgeName;
             ImageView ivBadgeIcon;
             ImageView ivBadgeFrame;
+            View vShimmerSweep;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
                 ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
                 ivBadgeFrame = itemView.findViewById(R.id.iv_badge_frame);
+                vShimmerSweep = itemView.findViewById(R.id.v_shimmer_sweep);
             }
         }
     }
