@@ -156,6 +156,8 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("Celebrity".equals(type)) { iconResId = R.drawable.ic_badge_celebrity; localizedType = context.getString(R.string.badge_type_celebrity); }
             else if ("Golden Hammer".equals(type)) { iconResId = R.drawable.ic_badge_hammer; localizedType = context.getString(R.string.badge_type_hammer); }
             holder.ivBadgeIcon.setImageResource(iconResId);
+            holder.ivBadgeIconShadow.setImageResource(iconResId);
+            holder.ivBadgeIconHighlight.setImageResource(iconResId);
 
             // Gán Hexagon Frame theo Cấp bậc (Tier)
             int frameResId = R.drawable.ic_hex_iron;
@@ -174,8 +176,8 @@ public class ProfileTrophyFragment extends Fragment {
 
             holder.ivBadgeFrame.setImageResource(frameResId);
             holder.itemView.setBackground(null);
-            // Bỏ tint color để giữ màu trắng nguyên bản của icon vector, giúp icon nổi bật trên nền khung
-            holder.ivBadgeIcon.setImageTintList(null);
+            // Kỹ thuật Emboss 3D: Lõi mang màu kim loại nguyên khối, shadow và highlight giúp khối nổi bật lên
+            holder.ivBadgeIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(holder.itemView.getContext(), tintColorRes));
 
             // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
             if (isEx) {
@@ -240,6 +242,8 @@ public class ProfileTrophyFragment extends Fragment {
 
             android.widget.ImageView ivFrame = new android.widget.ImageView(context);
             android.widget.ImageView ivIcon = new android.widget.ImageView(context);
+            android.widget.ImageView ivIconShadow = new android.widget.ImageView(context);
+            android.widget.ImageView ivIconHighlight = new android.widget.ImageView(context);
 
             // Bọc bằng ShimmerFrameLayout cho BottomSheet
             com.facebook.shimmer.ShimmerFrameLayout shimmerContainer = new com.facebook.shimmer.ShimmerFrameLayout(context);
@@ -264,6 +268,8 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("Celebrity".equals(type)) { iconResId = R.drawable.ic_badge_celebrity; localizedType = context.getString(R.string.badge_type_celebrity); }
             else if ("Golden Hammer".equals(type)) { iconResId = R.drawable.ic_badge_hammer; localizedType = context.getString(R.string.badge_type_hammer); }
             ivIcon.setImageResource(iconResId);
+            ivIconShadow.setImageResource(iconResId);
+            ivIconHighlight.setImageResource(iconResId);
             
             int frameResId = R.drawable.ic_hex_iron;
             int tintColorRes = R.color.badge_tier_iron;
@@ -276,18 +282,28 @@ public class ProfileTrophyFragment extends Fragment {
             else if ("EX".equals(tier)) { frameResId = R.drawable.ic_hex_ex; tintColorRes = R.color.badge_tier_ex_red; localizedTier = context.getString(R.string.badge_tier_ex); }
             
             ivFrame.setImageResource(frameResId);
-            // Bỏ tint color để icon bên trong hiển thị màu trắng rõ nét
-            ivIcon.setImageTintList(null);
+            // Kỹ thuật Emboss 3D
+            ivIconShadow.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, R.color.mosco_black_65));
+            ivIconHighlight.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, R.color.mosco_white_50));
+            ivIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(context, tintColorRes));
+            
+            float density = context.getResources().getDisplayMetrics().density;
+            ivIconShadow.setTranslationX(1.5f * density);
+            ivIconShadow.setTranslationY(2.0f * density);
+            ivIconHighlight.setTranslationX(-1.0f * density);
+            ivIconHighlight.setTranslationY(-1.0f * density);
             
             android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(320, 320);
             frameParams.gravity = android.view.Gravity.CENTER;
             badgeLayout.addView(ivFrame, frameParams);
             
             android.widget.FrameLayout.LayoutParams iconParams = new android.widget.FrameLayout.LayoutParams(
-                (int) (40 * context.getResources().getDisplayMetrics().density),
-                (int) (40 * context.getResources().getDisplayMetrics().density)
+                (int) (40 * density),
+                (int) (40 * density)
             );
             iconParams.gravity = android.view.Gravity.CENTER;
+            badgeLayout.addView(ivIconShadow, iconParams);
+            badgeLayout.addView(ivIconHighlight, iconParams);
             badgeLayout.addView(ivIcon, iconParams);
             
             shimmerContainer.addView(badgeLayout, new android.widget.FrameLayout.LayoutParams(
@@ -440,6 +456,8 @@ public class ProfileTrophyFragment extends Fragment {
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvBadgeName;
             ImageView ivBadgeIcon;
+            ImageView ivBadgeIconShadow;
+            ImageView ivBadgeIconHighlight;
             ImageView ivBadgeFrame;
             com.facebook.shimmer.ShimmerFrameLayout shimmerContainer;
 
@@ -447,6 +465,8 @@ public class ProfileTrophyFragment extends Fragment {
                 super(itemView);
                 tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
                 ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
+                ivBadgeIconShadow = itemView.findViewById(R.id.iv_badge_icon_shadow);
+                ivBadgeIconHighlight = itemView.findViewById(R.id.iv_badge_icon_highlight);
                 ivBadgeFrame = itemView.findViewById(R.id.iv_badge_frame);
                 shimmerContainer = itemView.findViewById(R.id.shimmer_view_container);
             }

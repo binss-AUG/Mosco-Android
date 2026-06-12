@@ -36,13 +36,32 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_hex_gold" />
 
-            <!-- Center Icon -->
+            <!-- Center Icon Shadow (Bottom Layer) -->
+            <ImageView
+                android:id="@+id/iv_badge_icon_shadow"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:translationX="1.5dp"
+                android:translationY="2dp"
+                app:tint="#A6000000" />
+                
+            <!-- Center Icon Highlight (Middle Layer) -->
+            <ImageView
+                android:id="@+id/iv_badge_icon_highlight"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:translationX="-1dp"
+                android:translationY="-1dp"
+                app:tint="#B3FFFFFF" />
+
+            <!-- Center Icon Base (Top Layer) -->
             <ImageView
                 android:id="@+id/iv_badge_icon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_gravity="center"
-                android:elevation="4dp" />
+                android:layout_gravity="center" />
                 
         </FrameLayout>
     </com.facebook.shimmer.ShimmerFrameLayout>
