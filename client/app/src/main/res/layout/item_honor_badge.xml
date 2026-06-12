@@ -6,43 +6,46 @@
     android:padding="8dp"
     android:clipChildren="false">
 
-    <!-- Badge Container with fixed size -->
-    <FrameLayout
-        android:id="@+id/fl_badge_container"
+    <!-- Shimmer Metallic Foil Overlay -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmer_view_container"
         android:layout_width="72dp"
         android:layout_height="72dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:clipChildren="false">
+        app:shimmer_auto_start="true"
+        app:shimmer_base_alpha="1.0"
+        app:shimmer_highlight_alpha="1.0"
+        app:shimmer_tilt="45"
+        app:shimmer_duration="2500"
+        app:shimmer_direction="left_to_right">
 
-        <!-- Backlight Shimmer Sweep (Behind the frame) -->
-        <View
-            android:id="@+id/v_shimmer_sweep"
-            android:layout_width="140dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_badge_shimmer_sweep"
-            android:rotation="-45"
-            android:visibility="invisible" />
+        <!-- Badge Container -->
+        <FrameLayout
+            android:id="@+id/fl_badge_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false">
 
-        <!-- Hexagon Frame Background -->
-        <ImageView
-            android:id="@+id/iv_badge_frame"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_hex_gold" />
+            <!-- Hexagon Frame Background -->
+            <ImageView
+                android:id="@+id/iv_badge_frame"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_hex_gold" />
 
-        <!-- Center Icon -->
-        <ImageView
-            android:id="@+id/iv_badge_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center"
-            android:elevation="4dp" />
-            
-    </FrameLayout>
+            <!-- Center Icon -->
+            <ImageView
+                android:id="@+id/iv_badge_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:elevation="4dp" />
+                
+        </FrameLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
     <!-- Badge Title -->
     <TextView
@@ -62,7 +65,7 @@
         android:shadowDx="0"
         android:shadowDy="2"
         android:shadowRadius="4"
-        app:layout_constraintTop_toBottomOf="@id/fl_badge_container"
+        app:layout_constraintTop_toBottomOf="@id/shimmer_view_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

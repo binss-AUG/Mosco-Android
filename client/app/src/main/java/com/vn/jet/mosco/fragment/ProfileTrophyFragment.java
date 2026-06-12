@@ -196,13 +196,8 @@ public class ProfileTrophyFragment extends Fragment {
 
             // TẠI SAO: Thêm các hiệu ứng động (Animation) cao cấp theo yêu cầu sếp
             
-            // 1. Lấp lánh ánh sáng chạy chéo (Shimmer Sweep)
-            holder.vShimmerSweep.setVisibility(View.VISIBLE);
-            android.animation.ObjectAnimator shimmerAnim = android.animation.ObjectAnimator.ofFloat(holder.vShimmerSweep, "translationX", -250f, 250f);
-            shimmerAnim.setDuration(2500);
-            shimmerAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-            shimmerAnim.setStartDelay((long) (Math.random() * 1000));
-            shimmerAnim.start();
+            // 1. Lấp lánh ánh sáng chạy chéo (Alpha Masking Shimmer)
+            // Đã được tự động xử lý bởi thẻ ShimmerFrameLayout với shimmer_auto_start="true"
 
             // 2. Bồng bềnh ma thuật (Levitation) cho Icon lõi
             android.animation.ObjectAnimator floatAnim = android.animation.ObjectAnimator.ofFloat(holder.ivBadgeIcon, "translationY", -8f, 8f);
@@ -258,17 +253,19 @@ public class ProfileTrophyFragment extends Fragment {
             android.widget.ImageView ivFrame = new android.widget.ImageView(context);
             android.widget.ImageView ivIcon = new android.widget.ImageView(context);
 
-            // Backlight Shimmer Sweep for BottomSheet
-            android.view.View bottomSheetShimmer = new android.view.View(context);
-            bottomSheetShimmer.setBackgroundResource(R.drawable.bg_badge_shimmer_sweep);
-            bottomSheetShimmer.setRotation(-45);
-            android.widget.FrameLayout.LayoutParams shimmerParams = new android.widget.FrameLayout.LayoutParams(
-                (int) (180 * context.getResources().getDisplayMetrics().density),
-                (int) (24 * context.getResources().getDisplayMetrics().density)
-            );
-            shimmerParams.gravity = android.view.Gravity.CENTER;
-            iconContainer.addView(bottomSheetShimmer, shimmerParams);
+            // Bọc bằng ShimmerFrameLayout cho BottomSheet
+            com.facebook.shimmer.ShimmerFrameLayout shimmerContainer = new com.facebook.shimmer.ShimmerFrameLayout(context);
+            com.facebook.shimmer.Shimmer.AlphaHighlightBuilder shimmerBuilder = new com.facebook.shimmer.Shimmer.AlphaHighlightBuilder();
+            shimmerBuilder.setBaseAlpha(1.0f);
+            shimmerBuilder.setHighlightAlpha(1.0f);
+            shimmerBuilder.setTilt(45);
+            shimmerBuilder.setDuration(2500);
+            shimmerBuilder.setDirection(com.facebook.shimmer.Shimmer.Direction.LEFT_TO_RIGHT);
+            shimmerContainer.setShimmer(shimmerBuilder.build());
+            shimmerContainer.startShimmer();
             
+            android.widget.FrameLayout badgeLayout = new android.widget.FrameLayout(context);
+            badgeLayout.setClipChildren(false);
             int iconResId = R.drawable.ic_star;
             if ("Spin Master".equals(type)) iconResId = R.drawable.ic_badge_spin;
             else if ("Pack Master".equals(type)) iconResId = R.drawable.ic_badge_pack;
@@ -293,23 +290,24 @@ public class ProfileTrophyFragment extends Fragment {
             
             android.widget.FrameLayout.LayoutParams frameParams = new android.widget.FrameLayout.LayoutParams(
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT);
-            iconContainer.addView(ivFrame, frameParams);
+            badgeLayout.addView(ivFrame, frameParams);
             
             android.widget.FrameLayout.LayoutParams iconParams = new android.widget.FrameLayout.LayoutParams(
                 (int) (40 * context.getResources().getDisplayMetrics().density),
                 (int) (40 * context.getResources().getDisplayMetrics().density)
             );
             iconParams.gravity = android.view.Gravity.CENTER;
-            iconContainer.addView(ivIcon, iconParams);
+            badgeLayout.addView(ivIcon, iconParams);
+            
+            shimmerContainer.addView(badgeLayout, new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
+            
+            iconContainer.addView(shimmerContainer, new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
             
             layout.addView(iconContainer, containerParams);
 
             // BottomSheet Animations
-            android.animation.ObjectAnimator dialogShimmer = android.animation.ObjectAnimator.ofFloat(bottomSheetShimmer, "translationX", -300f, 300f);
-            dialogShimmer.setDuration(2500);
-            dialogShimmer.setRepeatCount(android.animation.ValueAnimator.INFINITE);
-            dialogShimmer.start();
-
             android.animation.ObjectAnimator dialogFloat = android.animation.ObjectAnimator.ofFloat(ivIcon, "translationY", -12f, 12f);
             dialogFloat.setDuration(1600);
             dialogFloat.setRepeatCount(android.animation.ValueAnimator.INFINITE);
@@ -456,14 +454,14 @@ public class ProfileTrophyFragment extends Fragment {
             TextView tvBadgeName;
             ImageView ivBadgeIcon;
             ImageView ivBadgeFrame;
-            View vShimmerSweep;
+            com.facebook.shimmer.ShimmerFrameLayout shimmerContainer;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvBadgeName = itemView.findViewById(R.id.tv_badge_name);
                 ivBadgeIcon = itemView.findViewById(R.id.iv_badge_icon);
                 ivBadgeFrame = itemView.findViewById(R.id.iv_badge_frame);
-                vShimmerSweep = itemView.findViewById(R.id.v_shimmer_sweep);
+                shimmerContainer = itemView.findViewById(R.id.shimmer_view_container);
             }
         }
     }
