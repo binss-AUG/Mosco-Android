@@ -750,28 +750,35 @@ public class MoscoDialogHelper {
             triggerStreakBurstAnimation(ivIcon);
         };
 
-        dialog.setOnShowListener(d -> {
-            View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (bottomSheet != null) {
-                com.google.android.material.bottomsheet.BottomSheetBehavior<View> behavior = 
-                    com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
-                behavior.addBottomSheetCallback(new com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
-                    @Override
-                    public void onStateChanged(@androidx.annotation.NonNull View bottomSheetView, int newState) {
-                        if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) {
-                            burstAction.run();
-                        }
-                    }
-                    @Override
-                    public void onSlide(@androidx.annotation.NonNull View bottomSheetView, float slideOffset) {}
-                });
-            }
+        dialog.setContentView(view);
+
+        // Tại sao (WHY): Setup BottomSheet behavior ngay sau khi setContentView
+        // Ép BottomSheet mở rộng tối đa (Expanded) và bỏ qua trạng thái Collapsed.
+        // Điều này fix dứt điểm lỗi Dialog hiện lên không đầy đủ, bắt người dùng phải kéo tay.
+        android.widget.FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet != null) {
+            com.google.android.material.bottomsheet.BottomSheetBehavior<android.widget.FrameLayout> behavior = 
+                com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet);
+            behavior.setSkipCollapsed(true);
+            behavior.setState(com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
             
+            behavior.addBottomSheetCallback(new com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(@androidx.annotation.NonNull View bottomSheetView, int newState) {
+                    if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED) {
+                        burstAction.run();
+                    }
+                }
+                @Override
+                public void onSlide(@androidx.annotation.NonNull View bottomSheetView, float slideOffset) {}
+            });
+        }
+
+        dialog.setOnShowListener(d -> {
             // Backup Trigger: Đảm bảo bùng cháy chuẩn xác sau 350ms (thời gian trượt của window kết thúc)
             view.postDelayed(burstAction, 350);
         });
 
-        dialog.setContentView(view);
         dialog.show();
     }
 

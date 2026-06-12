@@ -107,4 +107,10 @@
     <string name="home_hud_upgrade_action">OBJET UP</string>
     <string name="home_daily_header_title">DAILY CHECK-IN</string>
     <string name="home_upgrade_header_title">OBJET UPGRADE</string>
+
+    <!-- Galactic Boarding Pass -->
+    <string name="daily_barcode_pattern">||| | || ||| || |||</string>
+    <string name="daily_serial_number">SN: MSC-098X-DAY</string>
+    <string name="daily_status_verified">VERIFIED</string>
+    <string name="daily_action_authenticate">AUTHENTICATE</string>
 </resources>

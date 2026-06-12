@@ -79,4 +79,11 @@
 
     <!-- Daily Check-in floating translation -->
     <dimen name="daily_floating_translation_y">-15dp</dimen>
+
+    <!-- Galactic Boarding Pass -->
+    <dimen name="daily_scanline_height">60dp</dimen>
+    <dimen name="daily_barcode_text_size">20sp</dimen>
+    <dimen name="daily_serial_text_size">8sp</dimen>
+    <dimen name="daily_stamp_text_size">24sp</dimen>
+    <dimen name="daily_scanline_gradient_size">40dp</dimen>
 </resources>
