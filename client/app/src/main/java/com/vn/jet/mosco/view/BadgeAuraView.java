@@ -108,12 +108,12 @@ public class BadgeAuraView extends View {
         void reset(int w, int h, Random random, float density) {
             x = random.nextFloat() * w;
             y = random.nextFloat() * h;
-            // Very slow, drift-like movement
-            vx = (random.nextFloat() - 0.5f) * 0.8f; 
-            vy = (random.nextFloat() - 0.5f) * 0.8f;
-            radius = (1.5f + random.nextFloat() * 3f) * density; 
+            // Smaller, subtler dust particles
+            vx = (random.nextFloat() - 0.5f) * 0.4f; 
+            vy = (random.nextFloat() - 0.5f) * 0.4f;
+            radius = (0.5f + random.nextFloat() * 1.5f) * density; 
             alpha = random.nextFloat();
-            alphaSpeed = 0.005f + random.nextFloat() * 0.02f;
+            alphaSpeed = 0.003f + random.nextFloat() * 0.015f;
             fadingIn = random.nextBoolean();
         }
 
