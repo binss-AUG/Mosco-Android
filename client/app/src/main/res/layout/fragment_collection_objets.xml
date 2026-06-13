@@ -20,32 +20,29 @@
             app:layout_scrollFlags="scroll|enterAlways">
 
             <!-- [QUIET LUXURY] Smart Pill LEFT, Counter RIGHT -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingHorizontal="@dimen/spacing_md"
                 android:paddingVertical="@dimen/spacing_sm"
                 android:layout_marginTop="@dimen/spacing_xs">
 
-                <!-- Smart Pill (Left) -->
-                <com.vn.jet.mosco.view.InventoryFilterBar
-                    android:id="@+id/filter_bar_objets"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/inventory_filter_bar_height"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                <!-- Smart Search & Filter Bar -->
+                <com.vn.jet.mosco.view.MoscoSearchBar
+                    android:id="@+id/search_bar_objets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" />
 
-                <!-- Object Count (Right) -->
+                <!-- Object Count (Below Search Bar) -->
                 <LinearLayout
                     android:id="@+id/ll_count_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    android:layout_marginStart="4dp">
 
                     <ImageView
                         android:layout_width="16dp"
@@ -65,7 +62,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>

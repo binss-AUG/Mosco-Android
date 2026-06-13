@@ -35,13 +35,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Filter & Sort Bar (Custom Component) -->
-    <com.vn.jet.mosco.view.InventoryFilterBar
-        android:id="@+id/filter_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/inventory_filter_bar_height"
+    <!-- Smart Search Bar -->
+    <com.vn.jet.mosco.view.MoscoSearchBar
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/inventory_filter_margin_top"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
     <LinearLayout
@@ -50,9 +51,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/filter_bar"
-        app:layout_constraintTop_toTopOf="@id/filter_bar">
+        app:layout_constraintTop_toBottomOf="@id/search_bar">
 
         <ImageView
             android:layout_width="16dp"
@@ -96,7 +97,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filter_bar">
+        app:layout_constraintTop_toBottomOf="@id/ll_select_count_container">
 
         <ImageView
             android:layout_width="@dimen/inventory_empty_image_width"
@@ -133,7 +134,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filter_bar"
+        app:layout_constraintTop_toBottomOf="@id/search_bar"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/loading"
@@ -149,7 +150,7 @@
         android:paddingBottom="@dimen/spacing_lg"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filter_bar"
+        app:layout_constraintTop_toBottomOf="@id/ll_select_count_container"
         tools:listitem="@layout/item_inventory_card" />
 
     <!-- Removed Duplicate Dropdown -->

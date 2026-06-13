@@ -69,7 +69,7 @@ public class GiftActivity extends MoscoBaseActivity {
     private RecyclerView rvFriendSelect;
     private View btnStep2Next, btnStep2Prev, tvNoFriends;
     private FriendSelectAdapter friendSelectAdapter;
-    private android.widget.EditText etSearchFriend;
+    private com.vn.jet.mosco.view.MoscoSearchBar searchBarFriend;
 
 
 
@@ -190,7 +190,7 @@ public class GiftActivity extends MoscoBaseActivity {
         btnStep2Next = findViewById(R.id.btn_step2_next);
         btnStep2Prev = findViewById(R.id.btn_step2_prev);
         tvNoFriends = findViewById(R.id.tv_no_friends);
-        etSearchFriend = findViewById(R.id.et_gift_search_friend);
+        searchBarFriend = findViewById(R.id.search_bar_gift_friend);
 
         // Success Screen & Wizard controls
         layoutStepIndicator = findViewById(R.id.layout_step_indicator);
@@ -347,24 +347,14 @@ public class GiftActivity extends MoscoBaseActivity {
             }
         });
 
-        etSearchFriend.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-                filterFriendsOffline(s.toString());
-            }
-        });
-
-        // Chỉ khi người dùng nhấn "Search" trên bàn phím ảo mới gọi Server tìm kiếm toàn cầu
-        etSearchFriend.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
-                String query = etSearchFriend.getText().toString().trim();
+        if (searchBarFriend != null) {
+            searchBarFriend.setFilterVisible(false);
+            
+            // Nay đã có Auto Debounce, tự động tìm kiếm online/offline
+            searchBarFriend.setOnSearchListener(query -> {
                 performGlobalSearch(query);
-                return true;
-            }
-            return false;
-        });
+            });
+        }
     }
 
     private void filterFriendsOffline(String query) {
@@ -453,7 +443,10 @@ public class GiftActivity extends MoscoBaseActivity {
                         }
                         
                         // Clear search if loading new
-                        etSearchFriend.setText("");
+                        if (searchBarFriend != null) {
+                            android.widget.EditText etSearch = searchBarFriend.findViewById(R.id.et_search_input);
+                            if (etSearch != null) etSearch.setText("");
+                        }
                         friendSelectAdapter.updateData(allFriendsList);
 
                         // Hiện/ẩn empty state
@@ -856,7 +849,10 @@ public class GiftActivity extends MoscoBaseActivity {
         cvSelectedCard.setVisibility(View.GONE);
         btnStep1Next.setVisibility(View.GONE);
         if (btnStep2Next != null) btnStep2Next.setVisibility(View.GONE);
-        if (etSearchFriend != null) etSearchFriend.setText("");
+        if (searchBarFriend != null) {
+            android.widget.EditText etSearch = searchBarFriend.findViewById(R.id.et_search_input);
+            if (etSearch != null) etSearch.setText("");
+        }
     }
 
     @Override

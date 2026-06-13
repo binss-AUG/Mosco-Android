@@ -50,7 +50,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private boolean isAscending = false;
     private String[] SORT_OPTIONS;
     private List<CardDisplayItem> originalObjets = new ArrayList<>();
-    private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
+    private com.vn.jet.mosco.view.MoscoSearchBar searchBar;
+    private String searchQuery = "";
     private boolean isApplyingFilter = false;
     private final android.os.Handler filterHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private final Runnable filterRunnable = this::executeApplyFilters;
@@ -204,36 +205,31 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
         rvInventory.addOnScrollListener(scaleListener);
         rvInventory.addOnLayoutChangeListener(scaleListener);
 
-        filterBar = view.findViewById(R.id.filter_bar);
+        searchBar = view.findViewById(R.id.search_bar);
         
-        if (filterBar != null) {
-            filterBar.setSortOptions(SORT_OPTIONS);
-            filterBar.setSortText(currentSortOption);
-            filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
-                @Override
-                public void onFilterChanged(String sortOption, boolean ascending) {
-                    currentSortOption = sortOption;
-                    isAscending = ascending;
-                    
-                    // [BUG 10] Debounce spam click sorting
-                    filterHandler.removeCallbacks(filterRunnable);
-                    filterHandler.postDelayed(filterRunnable, 150);
-                }
+        if (searchBar != null) {
+            searchBar.setOnSearchListener(query -> {
+                searchQuery = query.toLowerCase();
+                applyFilters();
+            });
 
-                @Override
-                public void onFilterRequested() {
-                    // [PERFORMANCE] Nạp dữ liệu Filter từ Room ở background thread để tránh block Main Thread
-                    new Thread(() -> {
-                        List<CollectionFragment.FilterCategory> categories = CollectionFragment.buildObjetCategories(requireContext());
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories,
-                                        objetFilter, filterBar, SORT_OPTIONS,
-                                        InventoryBottomSheet.this::applyFilters);
-                            });
-                        }
-                    }).start();
-                }
+            searchBar.setOnFilterClickListener(() -> {
+                new Thread(() -> {
+                    List<CollectionFragment.FilterCategory> categories = CollectionFragment.buildObjetCategories(requireContext());
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            CollectionFragment.showFilterBottomSheet(InventoryBottomSheet.this, categories,
+                                    objetFilter, currentSortOption, 
+                                    isAscending, SORT_OPTIONS,
+                                    (sortOption, isAsc) -> {
+                                        currentSortOption = sortOption;
+                                        isAscending = isAsc;
+                                        applyFilters();
+                                    },
+                                    InventoryBottomSheet.this::applyFilters);
+                        });
+                    }
+                }).start();
             });
         }
 
@@ -486,6 +482,23 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 }
 
                 for (CardDisplayItem item : originalObjets) {
+                    if (!searchQuery.isEmpty()) {
+                        String nameTag = item.getFormattedNameTag().toLowerCase();
+                        String member = item.getMember();
+                        String season = item.getSeason();
+                        String rawClass = item.getCardClass();
+                        String mappedClass = mapClassToTypeKey(rawClass);
+
+                        boolean matchName = nameTag.contains(searchQuery);
+                        boolean matchMember = member != null && member.toLowerCase().contains(searchQuery);
+                        boolean matchSeason = season != null && season.toLowerCase().contains(searchQuery);
+                        boolean matchClass = (rawClass != null && rawClass.toLowerCase().contains(searchQuery)) ||
+                                             (mappedClass != null && mappedClass.toLowerCase().contains(searchQuery));
+
+                        if (!matchName && !matchMember && !matchSeason && !matchClass) {
+                            continue;
+                        }
+                    }
                 if (objetFilter.isEmpty()) {
                     filtered.add(item);
                     continue;
@@ -716,10 +729,6 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                     // Auto-scroll and sort to show the selected cards at the top
                     currentSortOption = "Class";
                     isAscending = false; // Descending (Best first)
-                    if (filterBar != null) {
-                        filterBar.setSortText("Class");
-                        filterBar.setAscending(false);
-                    }
                     applyFilters();
                     if (rvInventory != null) {
                         rvInventory.scrollToPosition(0);

@@ -22,4 +22,6 @@
     
     <!-- Friend constants -->
     <string name="friend_default_avatar_id">1</string>
+    
+    <string name="search_hint">Tìm kiếm thẻ, tên, loại...</string>
 </resources>

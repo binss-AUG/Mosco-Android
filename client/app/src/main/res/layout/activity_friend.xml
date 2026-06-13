@@ -29,51 +29,15 @@
         app:tint="@color/white" />
 
     <!-- Modern Search Bar (Glassmorphism + Neon) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_search_friend"
-        android:layout_width="0dp"
+    <com.vn.jet.mosco.view.MoscoSearchBar
+        android:id="@+id/search_bar_friend"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/spacing_20dp"
         android:layout_marginTop="@dimen/spacing_sm"
-        app:cardCornerRadius="@dimen/radius_md"
-        app:cardElevation="@dimen/spacing_xs"
-        app:cardBackgroundColor="@color/lg_glass_surface_elevated"
-        app:strokeColor="@color/lg_accent_secondary"
-        app:strokeWidth="@dimen/stroke_thin"
         app:layout_constraintTop_toBottomOf="@id/layout_header_friend_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm">
-
-            <ImageView
-                android:layout_width="@dimen/spacing_20dp"
-                android:layout_height="@dimen/spacing_20dp"
-                android:src="@drawable/ic_search"
-                app:tint="@color/lg_accent_secondary" />
-
-            <EditText
-                android:id="@+id/et_search_friend"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="@dimen/radius_lg"
-                android:hint="@string/social_search_hint"
-                android:textColorHint="@color/mosco_white_30"
-                android:textColor="@color/white"
-                style="@style/MoscoText.Luxury.Body"
-                android:textSize="@dimen/text_size_body_md"
-                android:background="@null"
-                android:singleLine="true"
-                android:imeOptions="actionSearch"
-                android:inputType="text" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- TabLayout — 2 tab: FRIENDS, REQUESTS -->
     <com.google.android.material.tabs.TabLayout
@@ -84,7 +48,7 @@
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_search_friend"
+        app:layout_constraintTop_toBottomOf="@id/search_bar_friend"
         app:tabIndicatorColor="@color/lg_accent_secondary"
         app:tabIndicatorHeight="@dimen/spacing_xs"
         app:tabIndicatorFullWidth="true"

@@ -75,31 +75,37 @@ public class FriendActivity extends MoscoBaseActivity {
 
         // Lập trình thay đổi động chuỗi gợi ý (hint) và làm sạch thanh tìm kiếm khi chuyển Tab
         // Lý do (WHY): Giúp người chơi nhận biết rõ ràng bối cảnh tra cứu hiện tại, tự động thiết lập lại danh sách về trạng thái đầy đủ ban đầu
-        EditText etSearch = findViewById(R.id.et_search_friend);
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                if (etSearch != null) {
-                    // Tạm thời gỡ bỏ chuỗi text hiện tại để tránh kích hoạt bộ lọc chéo không mong muốn
-                    etSearch.setText("");
-                    switch (position) {
-                        case 0:
-                            etSearch.setHint(R.string.social_search_hint_explore);
-                            break;
-                        case 1:
-                            etSearch.setHint(R.string.social_search_hint_friends);
-                            break;
-                        case 2:
-                            etSearch.setHint(R.string.social_search_hint_requests);
-                            break;
+        com.vn.jet.mosco.view.MoscoSearchBar searchBar = findViewById(R.id.search_bar_friend);
+        if (searchBar != null) {
+            searchBar.setFilterVisible(false);
+            EditText etSearch = searchBar.findViewById(R.id.et_search_input);
+            viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    if (etSearch != null) {
+                        // Tạm thời gỡ bỏ chuỗi text hiện tại để tránh kích hoạt bộ lọc chéo không mong muốn
+                        etSearch.setText("");
+                        switch (position) {
+                            case 0:
+                                etSearch.setHint(R.string.social_search_hint_explore);
+                                break;
+                            case 1:
+                                etSearch.setHint(R.string.social_search_hint_friends);
+                                break;
+                            case 2:
+                                etSearch.setHint(R.string.social_search_hint_requests);
+                                break;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Setup Search — lọc danh sách cũ hoặc tìm user mới
-        setupSearch();
+            // Setup Search — lọc danh sách cũ hoặc tìm user mới (nay đã có Auto Debounce)
+            searchBar.setOnSearchListener(query -> {
+                handleGlobalSearch(query);
+            });
+        }
 
         // Setup QR Code Button
         findViewById(R.id.btn_friend_qr).setOnClickListener(v -> showGalacticIdDialog());
@@ -125,51 +131,7 @@ public class FriendActivity extends MoscoBaseActivity {
         com.vn.jet.mosco.widget.MoscoQrDialog.show(this);
     }
 
-    /**
-     * Thiết lập thanh tìm kiếm: Real-time filtering cho bạn cũ, Enter/Search cho bạn mới.
-     */
-    private void setupSearch() {
-        EditText etSearch = findViewById(R.id.et_search_friend);
-        if (etSearch == null) return;
-
-        etSearch.addTextChangedListener(new android.text.TextWatcher() {
-            private java.util.Timer timer = new java.util.Timer();
-            private final long DELAY = getResources().getInteger(R.integer.friend_search_delay); 
-
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-                ViewPager2 viewPager = findViewById(R.id.view_pager_friend);
-                // Kiểm tra nếu Tab hiện tại là Explore (Vị trí 0), tuyệt đối chặn không gửi truy vấn tự động
-                // Tại sao (WHY): Ngăn chặn việc gửi hàng loạt request API lên máy chủ mỗi khi thay đổi ký tự, bảo vệ Backend khỏi nguy cơ sập tải (Flooding).
-                // Tìm kiếm API trên Tab Khám phá sẽ chỉ được thực thi duy nhất khi người dùng chủ động nhấn nút Search/Enter trên bàn phím.
-                if (viewPager != null && viewPager.getCurrentItem() == 0) {
-                    return;
-                }
-
-                // Tab Bạn bè và Lời mời tiếp tục áp dụng lọc Real-time nội bộ mượt mà
-                timer.cancel();
-                timer = new java.util.Timer();
-                timer.schedule(new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(() -> handleSearch(s.toString()));
-                    }
-                }, DELAY);
-            }
-        });
-
-        etSearch.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                String query = etSearch.getText().toString().trim();
-                handleGlobalSearch(query);
-                return true;
-            }
-            return false;
-        });
-    }
+    // setupSearch has been replaced by searchBar.setOnSearchListener
 
     private void handleSearch(String query) {
         if (this == null || this.isFinishing() || this.isDestroyed()) return;

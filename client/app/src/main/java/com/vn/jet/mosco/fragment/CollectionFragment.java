@@ -368,12 +368,18 @@ public class CollectionFragment extends Fragment {
         }
     }
 
+    public interface OnSortAppliedListener {
+        void onSortApplied(String sortOption, boolean isAscending);
+    }
+
     public static void showFilterBottomSheet(
             Fragment fragment,
             List<FilterCategory> categories,
             Set<String> currentSelections,
-            com.vn.jet.mosco.view.InventoryFilterBar filterBar,
+            String initialSort,
+            boolean initialAsc,
             String[] sortOptions,
+            OnSortAppliedListener sortListener,
             Runnable onFilterApplied) {
 
         Context ctx = fragment.getContext();
@@ -381,8 +387,8 @@ public class CollectionFragment extends Fragment {
         View bsView = LayoutInflater.from(ctx).inflate(R.layout.layout_bottom_sheet_objet_filter, null);
 
         // State cục bộ cho Sort
-        final String[] workingSort = { filterBar != null ? filterBar.getSortOption() : SORT_NEWEST };
-        final boolean[] workingAsc = { filterBar != null && filterBar.isAscending() };
+        final String[] workingSort = { initialSort != null ? initialSort : SORT_NEWEST };
+        final boolean[] workingAsc = { initialAsc };
 
         android.widget.FrameLayout wrapper = new android.widget.FrameLayout(ctx) {
             @Override
@@ -647,10 +653,9 @@ public class CollectionFragment extends Fragment {
         btnApply.setOnClickListener(v -> {
             currentSelections.clear();
             currentSelections.addAll(workingSet);
-            // Cập nhật sort state về filterBar
-            if (filterBar != null) {
-                filterBar.setSortText(workingSort[0]);
-                filterBar.setAscending(workingAsc[0]);
+            // Cập nhật sort state
+            if (sortListener != null) {
+                sortListener.onSortApplied(workingSort[0], workingAsc[0]);
             }
             dialog.dismiss();
             if (onFilterApplied != null)
@@ -873,7 +878,10 @@ public class CollectionFragment extends Fragment {
         private final String[] SORT_OPTIONS = {
                 SORT_NEWEST, SORT_BADGE, SORT_LEVEL, SORT_ARTIST, SORT_CLASS, SORT_SEASON
         };
-        private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
+        private com.vn.jet.mosco.view.MoscoSearchBar searchBar;
+        private String currentSortOption = SORT_NEWEST;
+        private boolean isAscending = false;
+        private String searchQuery = "";
         private RecyclerView rvObjets;
         private TextView tvCount;
         private com.vn.jet.mosco.adapter.UnifiedCardAdapter adapter;
@@ -916,29 +924,29 @@ public class CollectionFragment extends Fragment {
 
             tvCount = view.findViewById(R.id.tv_objet_types_count);
 
-            // [QUIET LUXURY] Smart Pill — bấm mở Bottom Sheet tổng hợp Sort + Filter
-            filterBar = view.findViewById(R.id.filter_bar_objets);
-            if (filterBar != null) {
-                filterBar.setSortOptions(SORT_OPTIONS);
-                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
-                    @Override
-                    public void onFilterChanged(String sortOption, boolean isAscending) {
-                        applyFilters();
-                    }
-
-                    @Override
-                    public void onFilterRequested() {
-                        new Thread(() -> {
-                            List<FilterCategory> categories = buildObjetCategories(requireContext());
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    showFilterBottomSheet(ObjetsFragment.this, categories,
-                                            objetFilter, filterBar, SORT_OPTIONS,
-                                            ObjetsFragment.this::applyFilters);
-                                });
-                            }
-                        }).start();
-                    }
+            // [QUIET LUXURY] Smart Search Bar & Filter
+            searchBar = view.findViewById(R.id.search_bar_objets);
+            if (searchBar != null) {
+                searchBar.setOnSearchListener(query -> {
+                    searchQuery = query.toLowerCase();
+                    applyFilters();
+                });
+                
+                searchBar.setOnFilterClickListener(() -> {
+                    new Thread(() -> {
+                        List<FilterCategory> categories = buildObjetCategories(requireContext());
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                showFilterBottomSheet(ObjetsFragment.this, categories,
+                                        objetFilter, currentSortOption, isAscending, SORT_OPTIONS,
+                                        (sortOption, isAsc) -> {
+                                            currentSortOption = sortOption;
+                                            isAscending = isAsc;
+                                        },
+                                        ObjetsFragment.this::applyFilters);
+                            });
+                        }
+                    }).start();
                 });
             }
 
@@ -1071,8 +1079,8 @@ public class CollectionFragment extends Fragment {
                 // Bỏ Thread.sleep(250) nhân tạo — gây flash kép khó chịu
 
                 List<com.vn.jet.mosco.model.CardDisplayItem> filtered = new ArrayList<>();
-                String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
-                boolean isAsc = (filterBar != null) && filterBar.isAscending();
+                String currentSort = currentSortOption;
+                boolean isAsc = isAscending;
 
                 java.util.Set<String> selArtists = new java.util.HashSet<>();
                 java.util.Set<String> selClasses = new java.util.HashSet<>();
@@ -1088,15 +1096,28 @@ public class CollectionFragment extends Fragment {
                 }
 
                 for (com.vn.jet.mosco.model.CardDisplayItem item : originalObjets) {
-                    if (objetFilter.isEmpty()) {
-                        filtered.add(item);
-                        continue;
-                    }
-
                     String member = item.getMember();
                     String season = item.getSeason();
                     String rawClass = item.getCardClass();
                     String mappedClass = mapClassToTypeKey(rawClass);
+
+                    if (!searchQuery.isEmpty()) {
+                        String nameTag = item.getFormattedNameTag().toLowerCase();
+                        boolean matchName = nameTag.contains(searchQuery);
+                        boolean matchMember = member != null && member.toLowerCase().contains(searchQuery);
+                        boolean matchSeason = season != null && season.toLowerCase().contains(searchQuery);
+                        boolean matchClass = (rawClass != null && rawClass.toLowerCase().contains(searchQuery)) ||
+                                             (mappedClass != null && mappedClass.toLowerCase().contains(searchQuery));
+
+                        if (!matchName && !matchMember && !matchSeason && !matchClass) {
+                            continue;
+                        }
+                    }
+
+                    if (objetFilter.isEmpty()) {
+                        filtered.add(item);
+                        continue;
+                    }
 
                     boolean matchArtist = selArtists.isEmpty()
                             || (member != null && selArtists.contains(member.toLowerCase()));
@@ -1210,7 +1231,13 @@ public class CollectionFragment extends Fragment {
                     @Override
                     public void onFilterRequested() {
                         showFilterBottomSheet(ItemsFragment.this, buildItemsCategories(),
-                                itemsFilter, filterBar, SORT_OPTIONS,
+                                itemsFilter, filterBar != null ? filterBar.getSortOption() : SORT_NEWEST, 
+                                filterBar != null && filterBar.isAscending(), SORT_OPTIONS,
+                                (sortOption, isAsc) -> {
+                                    if (filterBar != null) {
+                                        filterBar.applySortFromBottomSheet(sortOption, isAsc);
+                                    }
+                                },
                                 ItemsFragment.this::applyFilters);
                     }
                 });
@@ -1528,7 +1555,10 @@ public class CollectionFragment extends Fragment {
                 SORT_NEWEST, SORT_BADGE, SORT_LEVEL, SORT_ARTIST, SORT_CLASS, SORT_SEASON,
                 SORT_STATUS
         };
-        private com.vn.jet.mosco.view.InventoryFilterBar filterBar;
+        private com.vn.jet.mosco.view.MoscoSearchBar searchBar;
+        private String currentSortOption = SORT_NEWEST;
+        private boolean isAscending = false;
+        private String searchQuery = "";
         private RecyclerView rvAlbum;
         private com.vn.jet.mosco.adapter.UnifiedCardAdapter adapter;
         private TextView tvProgress, tvCount;
@@ -1561,29 +1591,29 @@ public class CollectionFragment extends Fragment {
             tvCount = view.findViewById(R.id.tv_album_count);
             // progressBar = view.findViewById(R.id.progress_album);
 
-            // [QUIET LUXURY] Smart Pill — bấm mở Bottom Sheet tổng hợp Sort + Filter
-            filterBar = view.findViewById(R.id.filter_bar_album);
-            if (filterBar != null) {
-                filterBar.setSortOptions(SORT_OPTIONS);
-                filterBar.setListener(new com.vn.jet.mosco.view.InventoryFilterBar.OnFilterChangeListener() {
-                    @Override
-                    public void onFilterChanged(String sortOption, boolean isAscending) {
-                        applyFilters();
-                    }
+            // [QUIET LUXURY] Smart Search Bar
+            searchBar = view.findViewById(R.id.search_bar_album);
+            if (searchBar != null) {
+                searchBar.setOnSearchListener(query -> {
+                    searchQuery = query.toLowerCase();
+                    applyFilters();
+                });
 
-                    @Override
-                    public void onFilterRequested() {
-                        new Thread(() -> {
-                            List<FilterCategory> categories = buildAlbumCategories(requireContext());
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    showFilterBottomSheet(AlbumFragment.this, categories,
-                                            albumFilter, filterBar, SORT_OPTIONS,
-                                            AlbumFragment.this::applyFilters);
-                                });
-                            }
-                        }).start();
-                    }
+                searchBar.setOnFilterClickListener(() -> {
+                    new Thread(() -> {
+                        List<FilterCategory> categories = buildAlbumCategories(requireContext());
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                showFilterBottomSheet(AlbumFragment.this, categories,
+                                        albumFilter, currentSortOption, isAscending, SORT_OPTIONS,
+                                        (sortOption, isAsc) -> {
+                                            currentSortOption = sortOption;
+                                            isAscending = isAsc;
+                                        },
+                                        AlbumFragment.this::applyFilters);
+                            });
+                        }
+                    }).start();
                 });
             }
 
@@ -1758,8 +1788,8 @@ public class CollectionFragment extends Fragment {
                 return;
 
             new Thread(() -> {
-                String currentSort = (filterBar != null) ? filterBar.getSortOption() : "Newest";
-                boolean isAsc = (filterBar != null) && filterBar.isAscending();
+                String currentSort = currentSortOption;
+                boolean isAsc = isAscending;
 
                 java.util.Set<String> selArtists = new java.util.HashSet<>();
                 java.util.Set<String> selClasses = new java.util.HashSet<>();
@@ -1780,23 +1810,35 @@ public class CollectionFragment extends Fragment {
                 List<com.vn.jet.mosco.model.CardDisplayItem> filtered = new ArrayList<>();
 
                 for (com.vn.jet.mosco.model.CardDisplayItem item : originalEntries) {
+                    String member = item.getMember();
+                    String season = item.getSeason();
+                    String rawClass = item.getCardClass();
+                    String mappedClass = mapClassToTypeKey(rawClass);
+
+                    if (!searchQuery.isEmpty()) {
+                        String nameTag = item.getFormattedNameTag().toLowerCase();
+                        boolean matchName = nameTag.contains(searchQuery);
+                        boolean matchMember = member != null && member.toLowerCase().contains(searchQuery);
+                        boolean matchSeason = season != null && season.toLowerCase().contains(searchQuery);
+                        boolean matchClass = (rawClass != null && rawClass.toLowerCase().contains(searchQuery)) ||
+                                             (mappedClass != null && mappedClass.toLowerCase().contains(searchQuery));
+
+                        if (!matchName && !matchMember && !matchSeason && !matchClass) {
+                            continue;
+                        }
+                    }
+
                     boolean matchStatus = selStatus.isEmpty() || selStatus.contains("all")
                             || selStatus.contains("tất cả")
                             || ((selStatus.contains("owned") || selStatus.contains("đã sở hữu")) && item.isOwned())
                             || ((selStatus.contains("missing") || selStatus.contains("chưa sở hữu"))
                                     && !item.isOwned());
-
-                    String member = item.getMember();
                     boolean matchArtist = selArtists.isEmpty()
                             || (member != null && selArtists.contains(member.toLowerCase()));
 
-                    String rawClass = item.getCardClass();
-                    String mappedClass = mapClassToTypeKey(rawClass);
                     boolean matchClass = selClasses.isEmpty()
                             || (rawClass != null && selClasses.contains(rawClass.toLowerCase())) || (mappedClass != null
                                     && selClasses.contains(mappedClass.toLowerCase().replaceAll("\\s+", "")));
-
-                    String season = item.getSeason();
                     boolean matchSeason = selSeasons.isEmpty()
                             || (season != null && selSeasons.contains(season.toLowerCase()));
 

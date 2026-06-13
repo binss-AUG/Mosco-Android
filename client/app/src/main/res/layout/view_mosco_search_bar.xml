@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/inventory_filter_bar_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/lg_chip_unselected_bg"
+        android:paddingEnd="@dimen/spacing_sm">
+
+        <!-- Search Icon -->
+        <ImageView
+            android:id="@+id/iv_search_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_search"
+            app:tint="@color/lg_text_secondary"
+            android:paddingStart="@dimen/spacing_md"
+            android:paddingEnd="8dp" />
+
+        <!-- EditText -->
+        <EditText
+            android:id="@+id/et_search_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/search_hint"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lg_text_secondary"
+            android:textSize="@dimen/text_size_body_sm"
+            android:fontFamily="@font/pretendard"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:inputType="textNoSuggestions"
+            android:imeOptions="actionSearch" />
+
+        <!-- Clear Icon (Hidden by default) -->
+        <ImageView
+            android:id="@+id/iv_search_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_close"
+            app:tint="@color/lg_text_secondary"
+            android:paddingHorizontal="10dp"
+            android:visibility="gone"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/v_search_divider"
+            android:layout_width="1dp"
+            android:layout_height="16dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@color/lg_text_disabled" />
+
+        <!-- Filter Button -->
+        <ImageView
+            android:id="@+id/iv_search_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_filter"
+            app:tint="@color/white"
+            android:paddingHorizontal="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </LinearLayout>
+
+</merge>

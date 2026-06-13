@@ -27,24 +27,25 @@
                 android:paddingVertical="@dimen/spacing_sm"
                 android:layout_marginTop="@dimen/spacing_xs">
 
-                <!-- Smart Pill (Left) -->
-                <com.vn.jet.mosco.view.InventoryFilterBar
-                    android:id="@+id/filter_bar_album"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/inventory_filter_bar_height"
-                    app:layout_constraintStart_toStartOf="parent"
+                <!-- Smart Search Bar -->
+                <com.vn.jet.mosco.view.MoscoSearchBar
+                    android:id="@+id/search_bar_album"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-                <!-- Album Count (Right) -->
+                <!-- Album Count -->
                 <LinearLayout
                     android:id="@+id/ll_album_count_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
+                    android:layout_marginTop="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/search_bar_album"
                     app:layout_constraintBottom_toBottomOf="parent">
 
                     <ImageView
