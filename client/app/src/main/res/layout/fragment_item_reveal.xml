@@ -39,8 +39,9 @@
     <!-- ====== HEADER: Name aligned with back arrow ====== -->
     <TextView
         android:id="@+id/tv_item_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="56dp"
         style="@style/MoscoText.Luxury.Header"
         android:textSize="@dimen/text_size_h1"
         android:textStyle="bold"
@@ -50,6 +51,15 @@
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="4"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:freezesText="true"
         tools:text="Metal Pack"
         app:layout_constraintTop_toTopOf="@id/btn_back"
         app:layout_constraintBottom_toBottomOf="@id/btn_back"
@@ -166,12 +176,10 @@
         app:layout_constraintVertical_bias="0.75" />
 
     <!-- ====== BUTTONS: Pinned to bottom ====== -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/ll_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
         android:paddingHorizontal="@dimen/spacing_lg"
         android:layout_marginBottom="@dimen/spacing_xl"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -181,10 +189,14 @@
             android:id="@+id/btn_open_one"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="@dimen/spacing_sm"
+            app:layout_goneMarginEnd="0dp"
             app:moscoStyle="primary"
             app:moscoSize="large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_open_all"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/reveal_action_open_x1" />
 
         <!-- Open All (only visible when qty > 1) -->
@@ -192,10 +204,14 @@
             android:id="@+id/btn_open_all"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="@dimen/spacing_sm"
+            app:layout_goneMarginStart="0dp"
             app:moscoStyle="secondary"
             app:moscoSize="large"
+            app:layout_constraintStart_toEndOf="@id/btn_open_one"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/reveal_action_open_all"
             android:maxLines="1"
             android:ellipsize="end"
@@ -204,14 +220,18 @@
         <!-- Done Button (visible when qty == 0) -->
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_done"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:moscoStyle="primary"
             app:moscoSize="large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/action_confirm"
             android:visibility="gone" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/vip_overlay_container"

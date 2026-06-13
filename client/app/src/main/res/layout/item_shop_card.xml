@@ -18,34 +18,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Item Image -->
-        <ImageView
-            android:id="@+id/iv_shop_item_image"
+        <!-- Item Image Wrapper for Rounded Corners -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_image_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingVertical="@dimen/spacing_10dp"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:background="@color/transparent"
-            android:contentDescription="Shop item image"
-            app:layout_constraintDimensionRatio="1:1.2"
+            android:layout_marginHorizontal="@dimen/spacing_10dp"
+            android:layout_marginTop="@dimen/spacing_10dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/transparent"
+            app:layout_constraintDimensionRatio="1:1.3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Rarity / Category Badge (top-right overlay) -->
-        <TextView
-            android:id="@+id/tv_shop_item_rarity"
-            style="@style/MoscoText.Luxury.Badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/spacing_6dp"
-            android:background="@drawable/bg_price_tag"
-            android:paddingHorizontal="@dimen/spacing_6dp"
-            android:paddingVertical="@dimen/spacing_2dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="RARE" />
+            <ImageView
+                android:id="@+id/iv_shop_item_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Shop item image" />
+
+            <!-- Rarity / Category Badge (top-right overlay) -->
+            <TextView
+                android:id="@+id/tv_shop_item_rarity"
+                style="@style/MoscoText.Luxury.Badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="@dimen/spacing_6dp"
+                android:background="@drawable/bg_price_tag"
+                android:paddingHorizontal="@dimen/spacing_6dp"
+                android:paddingVertical="@dimen/spacing_2dp"
+                tools:text="OBJET" />
+
+        </androidx.cardview.widget.CardView>
 
         <!-- Item Name -->
         <TextView
@@ -59,7 +67,7 @@
             android:maxLines="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_shop_item_image"
+            app:layout_constraintTop_toBottomOf="@id/cv_image_container"
             tools:text="Cosmic Cape" />
 
         <!-- Item Description -->
@@ -70,9 +78,13 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_sm"
             android:layout_marginTop="@dimen/spacing_2dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:minLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:freezesText="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_shop_item_name"
@@ -146,7 +158,6 @@
                 app:autoSizeMinTextSize="10sp"
                 app:autoSizeMaxTextSize="15sp"
                 app:layout_constraintStart_toEndOf="@id/iv_price_icon"
-                app:layout_constraintEnd_toStartOf="@id/btn_buy"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:text="250" />
@@ -154,10 +165,12 @@
             <!-- Buy Button -->
             <com.vn.jet.mosco.widget.MoscoButton
                 android:id="@+id/btn_buy"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="32dp"
+                android:layout_marginStart="@dimen/spacing_10dp"
                 app:moscoStyle="primary"
                 app:moscoSize="small"
+                app:layout_constraintStart_toEndOf="@id/tv_shop_item_price"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

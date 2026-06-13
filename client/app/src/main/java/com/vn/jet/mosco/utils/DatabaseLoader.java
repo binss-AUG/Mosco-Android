@@ -803,7 +803,7 @@ public class DatabaseLoader {
         // Tự động generate frontVideoUrl cho thẻ Motion nếu bị thiếu (Dùng cho Profile người khác)
         if (result != null) {
             String cardClass = result.optString("class", result.optString("cardClass", ""));
-            if ("Motion".equalsIgnoreCase(cardClass) && (!result.has("frontVideoUrl") || result.optString("frontVideoUrl", "").isEmpty())) {
+            if ((!result.has("frontVideoUrl") || result.optString("frontVideoUrl", "").isEmpty())) {
                 String colId = result.optString("collectionId", "");
                 if (!colId.isEmpty()) {
                     String slug = colId.toLowerCase().replace(" ", "-");

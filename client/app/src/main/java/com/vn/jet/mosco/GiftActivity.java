@@ -313,7 +313,7 @@ public class GiftActivity extends MoscoBaseActivity {
                 step1VideoPlayer.release();
                 step1VideoPlayer = null;
             }
-            if ("Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
+            if (selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
                 step1VideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(this, vvCardVideo, selectedObjet.getFrontVideoUrl(), ivCardImage);
             } else {
                 vvCardVideo.setVisibility(View.GONE);
@@ -656,7 +656,7 @@ public class GiftActivity extends MoscoBaseActivity {
                                     successVideoPlayer.release();
                                     successVideoPlayer = null;
                                 }
-                                if ("Motion".equalsIgnoreCase(selectedObjet.getCardClass()) && selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
+                                if (selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
                                     successVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(GiftActivity.this, vvSuccessVideo, selectedObjet.getFrontVideoUrl(), ivSuccessCardImage);
                                 } else {
                                     vvSuccessVideo.setVisibility(View.GONE);

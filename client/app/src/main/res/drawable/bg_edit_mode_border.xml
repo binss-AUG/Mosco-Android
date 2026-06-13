@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Bo góc giống thẻ -->
+    <corners android:radius="@dimen/lg_radius_card" />
+    
+    <!-- Viền xanh lơ nhạt, viền mỏng -->
+    <stroke android:width="2dp" android:color="#B300E5FF" />
+    
+    <!-- Màu nền phủ sương nhẹ -->
+    <solid android:color="#1A00E5FF" />
+</shape>

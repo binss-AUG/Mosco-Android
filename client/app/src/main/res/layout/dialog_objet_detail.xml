@@ -26,6 +26,18 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- 1.5. Camera Button (Top Left) -->
+        <ImageView
+            android:id="@+id/btn_camera_detail"
+            android:layout_width="@dimen/spacing_xl"
+            android:layout_height="@dimen/spacing_xl"
+            android:padding="@dimen/spacing_xs"
+            android:src="@android:drawable/ic_menu_camera"
+            app:tint="@color/white"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <!-- 4. Action Buttons Container (Pinned to Bottom) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ll_action_buttons"
