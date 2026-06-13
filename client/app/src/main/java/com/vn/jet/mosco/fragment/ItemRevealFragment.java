@@ -117,7 +117,7 @@ public class ItemRevealFragment extends Fragment {
 
     private void releaseItemPlayer() {
         if (itemVideoPlayer != null) {
-            itemVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(itemVideoPlayer);
             itemVideoPlayer = null;
         }
     }
@@ -712,7 +712,7 @@ public class ItemRevealFragment extends Fragment {
             String videoUrl = topCardJson.optString("frontVideoUrl", "");
             if (!videoUrl.isEmpty()) {
                 if (itemVideoPlayer != null) {
-                    itemVideoPlayer.release();
+                    com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(itemVideoPlayer);
                 }
                 itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
                         vvItemVideoReveal, videoUrl, ivItemImage);
@@ -1455,7 +1455,7 @@ public class ItemRevealFragment extends Fragment {
             String videoUrl = topCardJson.optString("frontVideoUrl", "");
             if (!videoUrl.isEmpty()) {
                 if (itemVideoPlayer != null) {
-                    itemVideoPlayer.release();
+                    com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(itemVideoPlayer);
                 }
                 itemVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(),
                         vvItemVideo, videoUrl, ivItemImage);

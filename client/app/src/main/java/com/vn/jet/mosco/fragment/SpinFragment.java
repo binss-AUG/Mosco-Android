@@ -101,11 +101,11 @@ public class SpinFragment extends Fragment {
 
     private void releaseSpinPlayers() {
         if (sacrificeVideoPlayer != null) {
-            sacrificeVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(sacrificeVideoPlayer);
             sacrificeVideoPlayer = null;
         }
         if (resultVideoPlayer != null) {
-            resultVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(resultVideoPlayer);
             resultVideoPlayer = null;
         }
     }
@@ -748,7 +748,7 @@ public class SpinFragment extends Fragment {
         TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
         if (vvResultVideo != null) {
             if (resultVideoPlayer != null) {
-                resultVideoPlayer.release();
+                com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(resultVideoPlayer);
                 resultVideoPlayer = null;
             }
             if (isResultMotion) {
@@ -1728,7 +1728,7 @@ public class SpinFragment extends Fragment {
         isSacrificeFlipAnimating = false;
         sacrificeBackImageUrl = null;
         if (sacrificeVideoPlayer != null) {
-            sacrificeVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(sacrificeVideoPlayer);
             sacrificeVideoPlayer = null;
         }
         if (cardCenterSlot != null) {
@@ -1861,7 +1861,7 @@ public class SpinFragment extends Fragment {
                     TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
                     if (vvSelectedObjetVideo != null) {
                         if (sacrificeVideoPlayer != null) {
-                            sacrificeVideoPlayer.release();
+                            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(sacrificeVideoPlayer);
                             sacrificeVideoPlayer = null;
                         }
                         if (isMotion) {

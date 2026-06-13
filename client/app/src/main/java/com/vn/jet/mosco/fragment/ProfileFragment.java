@@ -1988,7 +1988,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
 
         public void releaseAllPlayers() {
             for (androidx.media3.exoplayer.ExoPlayer player : playerMap.values()) {
-                if (player != null) player.release();
+                if (player != null) com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(player);
             }
             playerMap.clear();
         }
@@ -1999,7 +1999,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             int position = holder.getBindingAdapterPosition();
             if (position != RecyclerView.NO_POSITION && playerMap.containsKey(position)) {
                 androidx.media3.exoplayer.ExoPlayer player = playerMap.remove(position);
-                if (player != null) player.release();
+                if (player != null) com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(player);
             }
         }
 
@@ -2050,7 +2050,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             // Giải phóng player cũ nếu có trước khi tái sử dụng view
             if (playerMap.containsKey(position)) {
                 androidx.media3.exoplayer.ExoPlayer oldPlayer = playerMap.remove(position);
-                if (oldPlayer != null) oldPlayer.release();
+                if (oldPlayer != null) com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(oldPlayer);
             }
 
             bindCardView(holder.itemView, cardId, position);

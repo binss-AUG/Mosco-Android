@@ -121,11 +121,11 @@ public class UpgradeFragment extends Fragment {
 
     private void releaseUpgradePlayers() {
         if (mainVideoPlayer != null) {
-            mainVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(mainVideoPlayer);
             mainVideoPlayer = null;
         }
         if (resultVideoPlayer != null) {
-            resultVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(resultVideoPlayer);
             resultVideoPlayer = null;
         }
     }
@@ -861,7 +861,7 @@ public class UpgradeFragment extends Fragment {
         btnDone.setOnClickListener(v -> {
             isUpgrading = false;
             if (resultVideoPlayer != null) {
-                resultVideoPlayer.release();
+                com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(resultVideoPlayer);
                 resultVideoPlayer = null;
             }
             overlay.animate().alpha(0f).setDuration(300).withLayer().withEndAction(() -> {
@@ -915,7 +915,7 @@ public class UpgradeFragment extends Fragment {
                     if (vvResultVideo != null) {
                         if (isSuccess && mainCard != null && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
                             if (resultVideoPlayer != null) {
-                                resultVideoPlayer.release();
+                                com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(resultVideoPlayer);
                                 resultVideoPlayer = null;
                             }
                             ImageView ivResultImage = card.findViewById(R.id.card_iv_image);
@@ -982,7 +982,7 @@ public class UpgradeFragment extends Fragment {
                 if (vvMainVideo != null) vvMainVideo.setVisibility(View.GONE);
             }
             if (mainVideoPlayer != null) {
-                mainVideoPlayer.release();
+                com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(mainVideoPlayer);
                 mainVideoPlayer = null;
             }
         } else {
@@ -997,7 +997,7 @@ public class UpgradeFragment extends Fragment {
             TextureView vvMainVideo = cardMain != null ? cardMain.findViewById(R.id.card_vv_video) : null;
             if (vvMainVideo != null) {
                 if (mainVideoPlayer != null) {
-                    mainVideoPlayer.release();
+                    com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(mainVideoPlayer);
                     mainVideoPlayer = null;
                 }
                 if (mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {

@@ -60,9 +60,9 @@ public class ObjetDetailBinder {
         dialog.setOnDismissListener(d -> {
             try {
                 if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
-                    android.media.MediaPlayer mp = (android.media.MediaPlayer) dialog.getWindow().getDecorView().getTag();
-                    if (mp != null) {
-                        mp.release();
+                    Object tag = dialog.getWindow().getDecorView().getTag();
+                    if (tag instanceof androidx.media3.exoplayer.ExoPlayer) {
+                        com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer((androidx.media3.exoplayer.ExoPlayer) tag);
                     }
                 }
             } catch (Exception e) {}
@@ -142,73 +142,11 @@ public class ObjetDetailBinder {
                     vvObjetVideo.setVisibility(View.GONE);
                     
                     try {
-                        // Cấu hình LoadControl: bắt buộc buffer tối thiểu 1.5s trước khi phát
-                        // Đảm bảo video chạy mượt làn đầu tiên dù mạng chậm
-                        androidx.media3.exoplayer.DefaultLoadControl loadControl =
-                            new androidx.media3.exoplayer.DefaultLoadControl.Builder()
-                                .setBufferDurationsMs(
-                                    10_000,  // minBufferMs: giữ ít nhất 10s trong bộ đệm
-                                    50_000,  // maxBufferMs: tải trước tối đa 50s
-                                    3_000,   // bufferForPlaybackMs: cần 3s trước khi bắt đầu phát lần đầu (tối ưu cho video nặng như dco 36MB)
-                                    3_000    // bufferForPlaybackAfterRebufferMs: Cần 3s nếu bị giật lag giữa chừng
-                                )
-                                .build();
-                        androidx.media3.exoplayer.ExoPlayer player = new androidx.media3.exoplayer.ExoPlayer.Builder(context)
-                                .setLoadControl(loadControl)
-                                .build();
-                        player.setVideoTextureView(vvObjetVideo);
-                        player.setVideoScalingMode(androidx.media3.common.C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-                        player.setRepeatMode(androidx.media3.common.Player.REPEAT_MODE_ONE);
-                        // Không tự phát ngay: đợi đến STATE_READY để tránh giật lần đầu
-                        player.setPlayWhenReady(false);
-
-                        androidx.media3.common.MediaItem mediaItem = androidx.media3.common.MediaItem.fromUri(objet.getFrontVideoUrl());
-                        androidx.media3.datasource.DataSource.Factory cacheDataSourceFactory = com.vn.jet.mosco.MoscoApplication.getCacheDataSourceFactory(context);
-                        androidx.media3.exoplayer.source.MediaSource mediaSource = new androidx.media3.exoplayer.source.ProgressiveMediaSource.Factory(cacheDataSourceFactory)
-                                .createMediaSource(mediaItem);
-
-                        player.setMediaSource(mediaSource);
-                        
-                        player.addListener(new androidx.media3.common.Player.Listener() {
-                            @Override
-                            public void onPlaybackStateChanged(int playbackState) {
-                                if (playbackState == androidx.media3.common.Player.STATE_READY) {
-                                    // Buffer đã đủ, bắt đầu phát mượt mà
-                                    player.play();
-                                    vvObjetVideo.setTag(R.id.vv_objet_detail_video, true);
-                                    vvObjetVideo.setVisibility(View.VISIBLE);
-                                    vvObjetVideo.setAlpha(1.0f);
-                                    
-                                    vvObjetVideo.postDelayed(() -> {
-                                        if (ivObjet != null && !isFlipped[0]) {
-                                            ivObjet.setVisibility(View.INVISIBLE);
-                                        }
-                                    }, 200);
-                                }
-                            }
-                            
-                            @Override
-                            public void onPlayerError(androidx.media3.common.PlaybackException error) {
-                                if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
-                                vvObjetVideo.setVisibility(View.GONE);
-                            }
-                        });
-
+                        androidx.media3.exoplayer.ExoPlayer player = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(context, vvObjetVideo, objet.getFrontVideoUrl(), ivObjet);
                         dialog.getWindow().getDecorView().setTag(player);
-                        player.prepare();
-                        // Không gọi player.play() ở đây — đợi STATE_READY callback
-                        
+
                         // Giải phóng tài nguyên ExoPlayer triệt để khi đóng dialog
-                        dialog.setOnDismissListener(d -> {
-                            try {
-                                androidx.media3.exoplayer.ExoPlayer p = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
-                                if (p != null) {
-                                    p.release();
-                                    dialog.getWindow().getDecorView().setTag(null);
-                                }
-                            } catch (Exception e) {}
-                        });
-                        
+                        // (Đã xử lý ở setOnDismissListener phía trên, nhưng cẩn thận có thể đính kèm lại)
                     } catch (Exception e) {
                         e.printStackTrace();
                         if (ivObjet != null) {
@@ -410,6 +348,7 @@ public class ObjetDetailBinder {
                                     if (ivLevelFlip != null && upgradeLevel > 0) ivLevelFlip.setVisibility(View.VISIBLE);
                                 } else {
                                     if (isMotion && vvObjetVideo != null) {
+                                        vvObjetVideo.setVisibility(View.INVISIBLE);
                                         try {
                                             androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
                                             if (mp != null) mp.pause();

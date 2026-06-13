@@ -97,11 +97,11 @@ public class GiftActivity extends MoscoBaseActivity {
 
     private void releaseGiftPlayers() {
         if (step1VideoPlayer != null) {
-            step1VideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(step1VideoPlayer);
             step1VideoPlayer = null;
         }
         if (successVideoPlayer != null) {
-            successVideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(successVideoPlayer);
             successVideoPlayer = null;
         }
     }
@@ -310,7 +310,7 @@ public class GiftActivity extends MoscoBaseActivity {
         android.view.TextureView vvCardVideo = cvSelectedCard.findViewById(R.id.card_vv_video);
         if (vvCardVideo != null) {
             if (step1VideoPlayer != null) {
-                step1VideoPlayer.release();
+                com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(step1VideoPlayer);
                 step1VideoPlayer = null;
             }
             if (selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
@@ -557,7 +557,7 @@ public class GiftActivity extends MoscoBaseActivity {
                 selectedObjet = null;
                 selectedFriend = null;
                 if (successVideoPlayer != null) {
-                    successVideoPlayer.release();
+                    com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(successVideoPlayer);
                     successVideoPlayer = null;
                 }
                 resetSendWizard();
@@ -646,7 +646,7 @@ public class GiftActivity extends MoscoBaseActivity {
                             android.view.TextureView vvSuccessVideo = cvSuccessSelectedCard.findViewById(R.id.card_vv_video);
                             if (vvSuccessVideo != null) {
                                 if (successVideoPlayer != null) {
-                                    successVideoPlayer.release();
+                                    com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(successVideoPlayer);
                                     successVideoPlayer = null;
                                 }
                                 if (selectedObjet.getFrontVideoUrl() != null && !selectedObjet.getFrontVideoUrl().isEmpty()) {
@@ -841,7 +841,7 @@ public class GiftActivity extends MoscoBaseActivity {
         }
 
         if (step1VideoPlayer != null) {
-            step1VideoPlayer.release();
+            com.vn.jet.mosco.utils.MotionVideoHelper.releasePlayer(step1VideoPlayer);
             step1VideoPlayer = null;
         }
 
