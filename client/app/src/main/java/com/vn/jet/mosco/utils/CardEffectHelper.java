@@ -210,88 +210,40 @@ public class CardEffectHelper {
             float minRadius = dpToPx(context, 12f);
             float cornerRadius = Math.max(cardRadius, minRadius);
 
-            // Tối ưu: Lấy màu từ bản Thumbnail để tiết kiệm RAM và tăng tốc độ xử lý
-            String colorSourceUrl = CardAssetManager.convertToVariant(imageUrl, "thumbnail");
+            if (forcedGlowColor != null) {
+                applyGlowEffectAndStroke(context, cardView, w, h, cornerRadius, forcedGlowColor, forcedGlowColor, applyGlow);
+            } else {
+                // Tối ưu: Lấy màu từ bản Thumbnail để tiết kiệm RAM và tăng tốc độ xử lý
+                String colorSourceUrl = CardAssetManager.convertToVariant(imageUrl, "thumbnail");
 
-            Glide.with(context)
-                    .asBitmap()
-                    .load(colorSourceUrl)
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource,
-                                @Nullable Transition<? super Bitmap> transition) {
-                            int bw = resource.getWidth();
-                            int bh = resource.getHeight();
-                            if (bw > 0 && bh > 0) {
-                                int pixelX = Math.max(0, bw - 2);
-                                int pixelY = bh / 2;
-                                int extractedColor = resource.getPixel(pixelX, pixelY);
+                Glide.with(context)
+                        .asBitmap()
+                        .load(colorSourceUrl)
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource,
+                                    @Nullable Transition<? super Bitmap> transition) {
+                                int bw = resource.getWidth();
+                                int bh = resource.getHeight();
+                                if (bw > 0 && bh > 0) {
+                                    int pixelX = Math.max(0, bw - 2);
+                                    int pixelY = bh / 2;
+                                    int extractedColor = resource.getPixel(pixelX, pixelY);
 
-                                float[] hsv = new float[3];
-                                Color.colorToHSV(extractedColor, hsv);
-                                hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
-                                int glowColor = (forcedGlowColor != null) ? forcedGlowColor : Color.HSVToColor(hsv);
+                                    float[] hsv = new float[3];
+                                    Color.colorToHSV(extractedColor, hsv);
+                                    hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
+                                    int glowColor = Color.HSVToColor(hsv);
 
-                                // TẠI SAO: Đảm bảo viền nét đứt (stroke) của thẻ cũng dùng forcedGlowColor nếu có (tránh lỗi sai màu viền ở Minicard).
-                                int strokeColor = (forcedGlowColor != null) ? forcedGlowColor : extractedColor;
-                                cardView.setStrokeColor(strokeColor);
-
-                                ViewGroup parent = (ViewGroup) cardView.getParent();
-                                if (parent != null) {
-                                    parent.setClipChildren(false);
-                                    parent.setClipToPadding(false);
-
-                                    float glowRadius = w * 0.12f; // Tinh tế hơn (Quiet Luxury)
-                                    float extraPadding = glowRadius * 2.0f;
-
-                                    View pseudoGlow = null;
-                                    if (applyGlow) {
-                                        pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius,
-                                                extraPadding);
-                                        // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
-                                        float density = context.getResources().getDisplayMetrics().density;
-                                        pseudoGlow.setCameraDistance(8000 * density);
-
-                                        pseudoGlow.setRotationX(cardView.getRotationX());
-                                        pseudoGlow.setRotationY(cardView.getRotationY());
-                                        pseudoGlow.setTranslationX(cardView.getTranslationX());
-                                        pseudoGlow.setTranslationY(cardView.getTranslationY());
-                                        pseudoGlow.setScaleX(cardView.getScaleX());
-                                        pseudoGlow.setScaleY(cardView.getScaleY());
-
-                                        parent.addView(pseudoGlow, parent.indexOfChild(cardView));
-                                        cardView.setTag(R.id.view_progress_fill, pseudoGlow);
-                                    }
-
-                                    ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
-                                    if (rawParams instanceof ConstraintLayout.LayoutParams) {
-                                        // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
-                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0,
-                                                0);
-                                        glowParams.topToTop = cardView.getId();
-                                        glowParams.bottomToBottom = cardView.getId();
-                                        glowParams.startToStart = cardView.getId();
-                                        glowParams.endToEnd = cardView.getId();
-
-                                        int p = (int) extraPadding;
-                                        glowParams.setMargins(-p, -p, -p, -p);
-                                        if (pseudoGlow != null)
-                                            pseudoGlow.setLayoutParams(glowParams);
-                                    } else if (rawParams instanceof FrameLayout.LayoutParams) {
-                                        FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
-                                                (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
-                                        glowParams.gravity = android.view.Gravity.CENTER;
-                                        if (pseudoGlow != null)
-                                            pseudoGlow.setLayoutParams(glowParams);
-                                    }
+                                    applyGlowEffectAndStroke(context, cardView, w, h, cornerRadius, glowColor, extractedColor, applyGlow);
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
-                        }
-                    });
+                            @Override
+                            public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
+                            }
+                        });
+            }
         });
 
         // c) Shimmer Overlay (Reflective animation)
@@ -392,6 +344,58 @@ public class CardEffectHelper {
 
             cardView.setTag(floatingAnim);
             floatingAnim.start();
+        }
+    }
+
+    private static void applyGlowEffectAndStroke(Context context, MaterialCardView cardView, int w, int h, float cornerRadius, int glowColor, int strokeColor, boolean applyGlow) {
+        cardView.setStrokeColor(strokeColor);
+
+        ViewGroup parent = (ViewGroup) cardView.getParent();
+        if (parent != null) {
+            parent.setClipChildren(false);
+            parent.setClipToPadding(false);
+
+            float glowRadius = w * 0.12f; // Tinh tế hơn (Quiet Luxury)
+            float extraPadding = glowRadius * 2.0f;
+
+            View pseudoGlow = null;
+            if (applyGlow) {
+                pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius, extraPadding);
+                // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
+                float density = context.getResources().getDisplayMetrics().density;
+                pseudoGlow.setCameraDistance(8000 * density);
+
+                pseudoGlow.setRotationX(cardView.getRotationX());
+                pseudoGlow.setRotationY(cardView.getRotationY());
+                pseudoGlow.setTranslationX(cardView.getTranslationX());
+                pseudoGlow.setTranslationY(cardView.getTranslationY());
+                pseudoGlow.setScaleX(cardView.getScaleX());
+                pseudoGlow.setScaleY(cardView.getScaleY());
+
+                parent.addView(pseudoGlow, parent.indexOfChild(cardView));
+                cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+            }
+
+            ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
+            if (rawParams instanceof ConstraintLayout.LayoutParams) {
+                // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
+                ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0, 0);
+                glowParams.topToTop = cardView.getId();
+                glowParams.bottomToBottom = cardView.getId();
+                glowParams.startToStart = cardView.getId();
+                glowParams.endToEnd = cardView.getId();
+
+                int p = (int) extraPadding;
+                glowParams.setMargins(-p, -p, -p, -p);
+                if (pseudoGlow != null)
+                    pseudoGlow.setLayoutParams(glowParams);
+            } else if (rawParams instanceof FrameLayout.LayoutParams) {
+                FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
+                        (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
+                glowParams.gravity = android.view.Gravity.CENTER;
+                if (pseudoGlow != null)
+                    pseudoGlow.setLayoutParams(glowParams);
+            }
         }
     }
 
