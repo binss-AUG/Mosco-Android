@@ -243,7 +243,48 @@ public class CardEffectHelper {
             float cornerRadius = Math.max(cardRadius, minRadius);
 
             if (forcedGlowColor != null) {
-                applyGlowEffectAndStroke(context, cardView, w, h, cornerRadius, forcedGlowColor, forcedGlowColor, applyGlow);
+                cardView.setStrokeColor(forcedGlowColor);
+
+                ViewGroup parent = (ViewGroup) cardView.getParent();
+                if (parent != null) {
+                    parent.setClipChildren(false);
+                    parent.setClipToPadding(false);
+
+                    float glowRadius = w * 0.12f;
+                    float extraPadding = glowRadius * 2.0f;
+
+                    View pseudoGlow = null;
+                    if (applyGlow) {
+                        pseudoGlow = new OuterGlowView(context, forcedGlowColor, cornerRadius, glowRadius, extraPadding);
+                        float density = context.getResources().getDisplayMetrics().density;
+                        pseudoGlow.setCameraDistance(8000 * density);
+                        pseudoGlow.setRotationX(cardView.getRotationX());
+                        pseudoGlow.setRotationY(cardView.getRotationY());
+                        pseudoGlow.setTranslationX(cardView.getTranslationX());
+                        pseudoGlow.setTranslationY(cardView.getTranslationY());
+                        pseudoGlow.setScaleX(cardView.getScaleX());
+                        pseudoGlow.setScaleY(cardView.getScaleY());
+                        parent.addView(pseudoGlow, parent.indexOfChild(cardView));
+                        cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+                    }
+
+                    ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
+                    if (rawParams instanceof ConstraintLayout.LayoutParams) {
+                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0, 0);
+                        glowParams.topToTop = cardView.getId();
+                        glowParams.bottomToBottom = cardView.getId();
+                        glowParams.startToStart = cardView.getId();
+                        glowParams.endToEnd = cardView.getId();
+                        int p = (int) extraPadding;
+                        glowParams.setMargins(-p, -p, -p, -p);
+                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
+                    } else if (rawParams instanceof FrameLayout.LayoutParams) {
+                        FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
+                                (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
+                        glowParams.gravity = android.view.Gravity.CENTER;
+                        if (pseudoGlow != null) pseudoGlow.setLayoutParams(glowParams);
+                    }
+                }
             } else {
                 // Tối ưu: Lấy màu từ bản Thumbnail để tiết kiệm RAM và tăng tốc độ xử lý
                 String colorSourceUrl = CardAssetManager.convertToVariant(imageUrl, "thumbnail");
@@ -263,73 +304,74 @@ public class CardEffectHelper {
                                     int extractedColor = resource.getPixel(pixelX, pixelY);
 
                                     float[] hsv = new float[3];
-                                Color.colorToHSV(extractedColor, hsv);
-                                hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
-                                int baseGlowColor = (forcedGlowColor != null) ? forcedGlowColor : Color.HSVToColor(hsv);
+                                    Color.colorToHSV(extractedColor, hsv);
+                                    hsv[2] = Math.min(1.0f, hsv[2] + 0.3f);
+                                    int baseGlowColor = (forcedGlowColor != null) ? forcedGlowColor : Color.HSVToColor(hsv);
 
-                                // [LUXURY UPGRADE]: Xử lý các thẻ có màu quá tối (như thẻ Đen/Unit)
-                                float[] finalHsv = new float[3];
-                                Color.colorToHSV(baseGlowColor, finalHsv);
-                                if (finalHsv[2] < 0.25f) {
-                                    // Góp ý: Vẫn giữ cảm giác thẻ Đen nhưng pha thêm ánh Vàng (Black Gold Luxury)
-                                    finalHsv[0] = 45f; // Hue: Màu Vàng (Gold)
-                                    finalHsv[1] = 0.85f; // Saturation: Vàng đậm
-                                    finalHsv[2] = 0.55f; // Value: Giữ ở mức trung bình-tối để ra chất "Đen Vàng"
-                                    baseGlowColor = Color.HSVToColor(finalHsv);
-                                }
-                                
-                                int glowColor = baseGlowColor;
-                                // Đảm bảo viền nét đứt (stroke) của thẻ đồng bộ với màu Glow đã tinh chỉnh
-                                int strokeColor = glowColor;
-                                cardView.setStrokeColor(strokeColor);
-
-                                ViewGroup parent = (ViewGroup) cardView.getParent();
-                                if (parent != null) {
-                                    parent.setClipChildren(false);
-                                    parent.setClipToPadding(false);
-
-                                    float glowRadius = w * 0.12f; // Tinh tế hơn (Quiet Luxury)
-                                    float extraPadding = glowRadius * 2.0f;
-
-                                    View pseudoGlow = null;
-                                    if (applyGlow) {
-                                        pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius,
-                                                extraPadding);
-                                        // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
-                                        float density = context.getResources().getDisplayMetrics().density;
-                                        pseudoGlow.setCameraDistance(8000 * density);
-
-                                        pseudoGlow.setRotationX(cardView.getRotationX());
-                                        pseudoGlow.setRotationY(cardView.getRotationY());
-                                        pseudoGlow.setTranslationX(cardView.getTranslationX());
-                                        pseudoGlow.setTranslationY(cardView.getTranslationY());
-                                        pseudoGlow.setScaleX(cardView.getScaleX());
-                                        pseudoGlow.setScaleY(cardView.getScaleY());
-
-                                        parent.addView(pseudoGlow, parent.indexOfChild(cardView));
-                                        cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+                                    // [LUXURY UPGRADE]: Xử lý các thẻ có màu quá tối (như thẻ Đen/Unit)
+                                    float[] finalHsv = new float[3];
+                                    Color.colorToHSV(baseGlowColor, finalHsv);
+                                    if (finalHsv[2] < 0.25f) {
+                                        // Góp ý: Vẫn giữ cảm giác thẻ Đen nhưng pha thêm ánh Vàng (Black Gold Luxury)
+                                        finalHsv[0] = 45f; // Hue: Màu Vàng (Gold)
+                                        finalHsv[1] = 0.85f; // Saturation: Vàng đậm
+                                        finalHsv[2] = 0.55f; // Value: Giữ ở mức trung bình-tối để ra chất "Đen Vàng"
+                                        baseGlowColor = Color.HSVToColor(finalHsv);
                                     }
 
-                                    ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
-                                    if (rawParams instanceof ConstraintLayout.LayoutParams) {
-                                        // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
-                                        ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0,
-                                                0);
-                                        glowParams.topToTop = cardView.getId();
-                                        glowParams.bottomToBottom = cardView.getId();
-                                        glowParams.startToStart = cardView.getId();
-                                        glowParams.endToEnd = cardView.getId();
+                                    int glowColor = baseGlowColor;
+                                    // Đảm bảo viền nét đứt (stroke) của thẻ đồng bộ với màu Glow đã tinh chỉnh
+                                    int strokeColor = glowColor;
+                                    cardView.setStrokeColor(strokeColor);
 
-                                        int p = (int) extraPadding;
-                                        glowParams.setMargins(-p, -p, -p, -p);
-                                        if (pseudoGlow != null)
-                                            pseudoGlow.setLayoutParams(glowParams);
-                                    } else if (rawParams instanceof FrameLayout.LayoutParams) {
-                                        FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
-                                                (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
-                                        glowParams.gravity = android.view.Gravity.CENTER;
-                                        if (pseudoGlow != null)
-                                            pseudoGlow.setLayoutParams(glowParams);
+                                    ViewGroup parent = (ViewGroup) cardView.getParent();
+                                    if (parent != null) {
+                                        parent.setClipChildren(false);
+                                        parent.setClipToPadding(false);
+
+                                        float glowRadius = w * 0.12f; // Tinh tế hơn (Quiet Luxury)
+                                        float extraPadding = glowRadius * 2.0f;
+
+                                        View pseudoGlow = null;
+                                        if (applyGlow) {
+                                            pseudoGlow = new OuterGlowView(context, glowColor, cornerRadius, glowRadius,
+                                                    extraPadding);
+                                            // SYNC CAMERA DISTANCE & PROPERTIES IMMEDIATELY
+                                            float density = context.getResources().getDisplayMetrics().density;
+                                            pseudoGlow.setCameraDistance(8000 * density);
+
+                                            pseudoGlow.setRotationX(cardView.getRotationX());
+                                            pseudoGlow.setRotationY(cardView.getRotationY());
+                                            pseudoGlow.setTranslationX(cardView.getTranslationX());
+                                            pseudoGlow.setTranslationY(cardView.getTranslationY());
+                                            pseudoGlow.setScaleX(cardView.getScaleX());
+                                            pseudoGlow.setScaleY(cardView.getScaleY());
+
+                                            parent.addView(pseudoGlow, parent.indexOfChild(cardView));
+                                            cardView.setTag(R.id.view_progress_fill, pseudoGlow);
+                                        }
+
+                                        ViewGroup.LayoutParams rawParams = cardView.getLayoutParams();
+                                        if (rawParams instanceof ConstraintLayout.LayoutParams) {
+                                            // SỬ DỤNG NEGATIVE MARGINS (Bí kíp để 100% khớp tâm với Anchor View)
+                                            ConstraintLayout.LayoutParams glowParams = new ConstraintLayout.LayoutParams(0,
+                                                    0);
+                                            glowParams.topToTop = cardView.getId();
+                                            glowParams.bottomToBottom = cardView.getId();
+                                            glowParams.startToStart = cardView.getId();
+                                            glowParams.endToEnd = cardView.getId();
+
+                                            int p = (int) extraPadding;
+                                            glowParams.setMargins(-p, -p, -p, -p);
+                                            if (pseudoGlow != null)
+                                                pseudoGlow.setLayoutParams(glowParams);
+                                        } else if (rawParams instanceof FrameLayout.LayoutParams) {
+                                            FrameLayout.LayoutParams glowParams = new FrameLayout.LayoutParams(
+                                                    (int) (w + extraPadding * 2), (int) (h + extraPadding * 2));
+                                            glowParams.gravity = android.view.Gravity.CENTER;
+                                            if (pseudoGlow != null)
+                                                pseudoGlow.setLayoutParams(glowParams);
+                                        }
                                     }
                                 }
                             }

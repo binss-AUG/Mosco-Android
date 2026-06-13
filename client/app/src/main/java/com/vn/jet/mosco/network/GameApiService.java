@@ -156,17 +156,25 @@ public interface GameApiService {
     @GET("/api/rank/ovr")
     Call<ResponseBody> getRankByOvr();
 
-    /** Top 10 theo số thẻ không trùng. */
+    /** Top 10 theo Sưu tập. */
     @GET("/api/rank/collection")
     Call<ResponseBody> getRankByCollection();
 
-    /** Top 10 theo tổng tài sản (Wealth/Coins). */
-    @GET("/api/rank/wealth")
-    Call<ResponseBody> getRankByWealth();
+    /** Top 10 theo Nhiều bạn bè nhất (Social). */
+    @GET("/api/rank/social")
+    Call<ResponseBody> getRankBySocial();
 
     /** Top 10 theo Chuỗi đăng nhập (Streak). */
     @GET("/api/rank/streak")
     Call<ResponseBody> getRankByStreak();
+
+    /** Top 10 theo Danh vọng (Fame/Likes). */
+    @GET("/api/rank/fame")
+    Call<ResponseBody> getRankByFame();
+
+    /** Top 10 theo Duo Streak. */
+    @GET("/api/rank/duo-streak")
+    Call<ResponseBody> getRankByDuoStreak();
 
     // ══════════════════════════════════════════════════════════════
     //  FRIEND — Quản lý Bạn bè

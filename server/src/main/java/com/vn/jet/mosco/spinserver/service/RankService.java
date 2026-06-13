@@ -23,6 +23,7 @@ public class RankService {
     private final UserRepository userRepository;
     private final UserCardRepository userCardRepository;
     private final CardDataService cardDataService;
+    private final com.vn.jet.mosco.spinserver.repository.CoupleStreakRepository coupleStreakRepository;
 
     @jakarta.annotation.PostConstruct
     public void repairTotalDiamonds() {
@@ -104,13 +105,13 @@ public class RankService {
         }).collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getTopByWealth() {
-        return userRepository.findTop10ByOrderByTotalDiamondsDesc().stream().map(u -> {
+    public List<Map<String, Object>> getTopBySocial() {
+        return userRepository.findTop10ByOrderByFriendsCountDesc().stream().map(u -> {
             Map<String, Object> m = new HashMap<>();
             m.put("userId", u.getId());
             m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
             m.put("avatarId", u.getAvatarId());
-            m.put("value", u.getTotalDiamonds());
+            m.put("value", u.getFriendsCount());
             return m;
         }).collect(Collectors.toList());
     }
@@ -122,6 +123,35 @@ public class RankService {
             m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
             m.put("avatarId", u.getAvatarId());
             m.put("value", u.getBestStreak());
+            return m;
+        }).collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getTopByFame() {
+        return userRepository.findTop10ByOrderByLikesCountDesc().stream().map(u -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("userId", u.getId());
+            m.put("ingameName", u.getIngameName() != null ? u.getIngameName() : u.getUsername());
+            m.put("avatarId", u.getAvatarId());
+            m.put("value", u.getLikesCount());
+            return m;
+        }).collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getTopByDuoStreak() {
+        return coupleStreakRepository.findTop10ByStatusOrderByStreakCountDesc("ACTIVE").stream().map(s -> {
+            Map<String, Object> m = new HashMap<>();
+            // Cặp đôi: ghép tên requester và partner, trả về id của 1 người hoặc chuỗi ghép
+            m.put("userId", s.getRequester().getId());
+            m.put("partnerId", s.getPartner().getId());
+            
+            String reqName = s.getRequester().getIngameName() != null ? s.getRequester().getIngameName() : s.getRequester().getUsername();
+            String parName = s.getPartner().getIngameName() != null ? s.getPartner().getIngameName() : s.getPartner().getUsername();
+            m.put("ingameName", reqName + " & " + parName);
+            
+            m.put("avatarId", s.getRequester().getAvatarId());
+            m.put("partnerAvatarId", s.getPartner().getAvatarId());
+            m.put("value", s.getStreakCount());
             return m;
         }).collect(Collectors.toList());
     }

@@ -80,8 +80,10 @@ public class RankFragment extends Fragment {
             switch (position) {
                 case 0: tab.setText(getString(R.string.rank_tab_level)); break;
                 case 1: tab.setText(getString(R.string.rank_tab_album)); break;
-                case 2: tab.setText(getString(R.string.rank_tab_wealth)); break;
-                case 3: tab.setText(getString(R.string.rank_tab_streak)); break;
+                case 2: tab.setText(getString(R.string.rank_tab_streak)); break;
+                case 3: tab.setText(getString(R.string.rank_tab_fame)); break;
+                case 4: tab.setText(getString(R.string.rank_tab_social)); break;
+                case 5: tab.setText(getString(R.string.rank_tab_duo_streak)); break;
             }
         }).attach();
 
@@ -134,32 +136,36 @@ public class RankFragment extends Fragment {
             
             switch (rankType) {
                 case "level": 
-                    tvValue.setText(getString(R.string.rank_format_level, value)); 
+                    tvValue.setText(String.format("Lv. %d", value)); 
                     if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
-                case "wealth": 
-                    tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(requireContext(), (long)value)); 
-                    if (ivType != null) {
-                        ivType.setImageResource(R.drawable.ic_item_diamond);
-                        ivType.setVisibility(View.VISIBLE);
-                    }
+                case "social": 
+                    tvValue.setText(String.format("%d Friends", value));
+                    if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
                 case "collection": 
-                    tvValue.setText(getString(R.string.rank_format_album, value)); 
+                    tvValue.setText(String.format("%d Objets", value)); 
                     if (ivType != null) {
                         ivType.setImageResource(R.drawable.ic_objets);
                         ivType.setVisibility(View.VISIBLE);
                     }
                     break;
                 case "streak":
-                    tvValue.setText(getString(R.string.rank_format_streak, value));
-                    if (ivType != null) {
+                case "duo-streak":
+                    tvValue.setText(String.format("%d Days", value));
+                    if (ivType != null && rankType.equals("streak")) {
                         ivType.setAnimation(R.raw.streak_animation);
                         ivType.setMinAndMaxFrame(0, 24);
                         if (!ivType.isAnimating()) ivType.playAnimation();
                         com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivType, value);
                         ivType.setVisibility(View.VISIBLE);
+                    } else if (ivType != null) {
+                        ivType.setVisibility(View.GONE);
                     }
+                    break;
+                case "fame":
+                    tvValue.setText(String.format("%d Likes", value));
+                    if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
             }
 
@@ -184,14 +190,16 @@ public class RankFragment extends Fragment {
             switch (position) {
                 case 0: rankType = "level"; break;
                 case 1: rankType = "collection"; break;
-                case 2: rankType = "wealth"; break;
-                case 3: rankType = "streak"; break;
+                case 2: rankType = "streak"; break;
+                case 3: rankType = "fame"; break;
+                case 4: rankType = "social"; break;
+                case 5: rankType = "duo-streak"; break;
                 default: rankType = "level"; break;
             }
             return RankListFragment.newInstance(rankType);
         }
 
         @Override
-        public int getItemCount() { return 4; }
+        public int getItemCount() { return 6; }
     }
 }

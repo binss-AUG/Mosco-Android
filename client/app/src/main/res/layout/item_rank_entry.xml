@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="@drawable/bg_header_glass_v2"
+    android:background="@drawable/bg_rank_item"
     android:paddingHorizontal="@dimen/rank_item_padding_h"
     android:paddingVertical="@dimen/rank_item_padding_v"
-    android:layout_marginBottom="@dimen/spacing_8dp">
+    android:layout_marginBottom="8dp">
 
     <!-- Rank Badge Area (Crown with Number inside) -->
     <FrameLayout
@@ -38,10 +38,31 @@
         android:layout_marginStart="@dimen/spacing_8dp">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_partner_avatar"
+            android:layout_width="@dimen/rank_avatar_size"
+            android:layout_height="@dimen/rank_avatar_size"
+            android:layout_marginStart="24dp"
+            app:cardCornerRadius="@dimen/spacing_100dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/lg_glass_surface_high"
+            app:strokeColor="@color/mosco_white_20"
+            app:strokeWidth="0.8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_partner_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_avatar"
             android:layout_width="@dimen/rank_avatar_size"
             android:layout_height="@dimen/rank_avatar_size"
             app:cardCornerRadius="@dimen/spacing_100dp"
-            app:cardElevation="0dp"
+            app:cardElevation="2dp"
             app:cardBackgroundColor="@color/lg_glass_surface_high"
             app:strokeColor="@color/mosco_white_20"
             app:strokeWidth="0.8dp">

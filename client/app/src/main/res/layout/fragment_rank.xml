@@ -28,8 +28,7 @@
         app:tabTextColor="@color/mosco_white_30"
         app:tabRippleColor="@null"
         app:tabMaxWidth="0dp"
-        app:tabMode="fixed"
-        app:tabGravity="fill" />
+        app:tabMode="scrollable" />
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/swipe_refresh_rank"

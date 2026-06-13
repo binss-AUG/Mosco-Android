@@ -10,6 +10,7 @@
     <string name="spin_info_msg">Select a card to trade for a chance to win a high-rank Objekt. The rarity of the reward depends on your luck and the value of the traded card.</string>
 
     <!-- Mailbox Tabs -->
+
     <string name="mailbox_tab_system">SYSTEM</string>
     <string name="mailbox_tab_player_gifts">GIFTS</string>
     <string name="mailbox_tab_private_chats">CHATS</string>

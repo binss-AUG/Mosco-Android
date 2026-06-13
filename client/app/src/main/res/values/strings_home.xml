@@ -31,10 +31,7 @@
 
     <!-- Rank Module -->
     <string name="rank_header_title">RANKING</string>
-    <string name="rank_tab_level">LEVEL</string>
-    <string name="rank_tab_album">ALBUM</string>
-    <string name="rank_tab_wealth">WEALTH</string>
-    <string name="rank_tab_streak">STREAK</string>
+
     <string name="rank_format_level">LV %d</string>
     <string name="rank_num_1">1</string>
     <string name="rank_num_2">2</string>
@@ -44,6 +41,12 @@
     <string name="rank_format_streak">%d Days</string>
     <string name="rank_msg_empty">No ranking data yet</string>
     <string name="rank_label_your_ranking">YOUR RANKING</string>
+    <string name="rank_tab_level">Level</string>
+    <string name="rank_tab_album">Album</string>
+    <string name="rank_tab_streak">Streak</string>
+    <string name="rank_tab_fame">Fame</string>
+    <string name="rank_tab_social">Social</string>
+    <string name="rank_tab_duo_streak">Duo Streak</string>
     <string name="formation_label_buff_active">BUFF ACTIVE</string>
 
     <!-- Streak Module -->

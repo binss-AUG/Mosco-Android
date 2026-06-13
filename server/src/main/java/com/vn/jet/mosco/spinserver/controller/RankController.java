@@ -53,12 +53,12 @@ public class RankController {
     }
 
     /**
-     * GET /api/rank/wealth — Top 10 theo tổng tài sản (Wealth/Coins).
+     * GET /api/rank/social — Top 10 theo Nhiều bạn bè nhất.
      */
-    @GetMapping("/wealth")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopWealth() {
-        List<Map<String, Object>> rankings = rankService.getTopByWealth();
-        return ResponseEntity.ok(ApiResponse.success("Top Wealth", rankings));
+    @GetMapping("/social")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopSocial() {
+        List<Map<String, Object>> rankings = rankService.getTopBySocial();
+        return ResponseEntity.ok(ApiResponse.success("Top Social", rankings));
     }
 
     /**
@@ -68,5 +68,23 @@ public class RankController {
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopStreak() {
         List<Map<String, Object>> rankings = rankService.getTopByStreak();
         return ResponseEntity.ok(ApiResponse.success("Top Streak", rankings));
+    }
+
+    /**
+     * GET /api/rank/fame — Top 10 theo Danh vọng (Likes).
+     */
+    @GetMapping("/fame")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopFame() {
+        List<Map<String, Object>> rankings = rankService.getTopByFame();
+        return ResponseEntity.ok(ApiResponse.success("Top Fame", rankings));
+    }
+
+    /**
+     * GET /api/rank/duo-streak — Top 10 Couple Streak.
+     */
+    @GetMapping("/duo-streak")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTopDuoStreak() {
+        List<Map<String, Object>> rankings = rankService.getTopByDuoStreak();
+        return ResponseEntity.ok(ApiResponse.success("Top Duo Streak", rankings));
     }
 }

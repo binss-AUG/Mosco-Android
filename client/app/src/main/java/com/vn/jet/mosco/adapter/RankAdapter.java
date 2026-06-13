@@ -70,32 +70,55 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             // Luồng tải ưu tiên: Avatar trong danh sách Rank dùng bản thumbnail
             com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivAvatar, userId, avatarId, true);
 
+            // Xử lý Duo Streak (Avatar lồng)
+            if (rankType.equals("duo-streak") && entry.has("partnerAvatarId") && holder.cvPartnerAvatar != null && holder.ivPartnerAvatar != null) {
+                holder.cvPartnerAvatar.setVisibility(View.VISIBLE);
+                String partnerAvatarId = entry.optString("partnerAvatarId", "1");
+                long partnerId = entry.optLong("partnerId", -1L);
+                com.vn.jet.mosco.utils.AvatarUtils.loadAvatar(holder.itemView.getContext(), holder.ivPartnerAvatar, partnerId, partnerAvatarId, true);
+            } else if (holder.cvPartnerAvatar != null) {
+                holder.cvPartnerAvatar.setVisibility(View.GONE);
+            }
+
             int value = entry.optInt("value", 0);
             android.content.Context context = holder.itemView.getContext();
             holder.ivTypeIcon.cancelAnimation();
             switch (rankType) {
                 case "level": 
-                    holder.tvValue.setText(context.getString(R.string.rank_format_level, value));
+                    holder.tvValue.setText(String.format("Lv. %d", value));
                     holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
-                case "wealth": 
-                    holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value)); 
-                    holder.ivTypeIcon.setImageResource(R.drawable.ic_item_diamond);
-                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
+                case "social": 
+                    holder.tvValue.setText(String.format("%d Friends", value));
+                    holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
                 case "collection": 
-                    holder.tvValue.setText(context.getString(R.string.rank_format_album, value)); 
+                    holder.tvValue.setText(String.format("%d Objets", value));
                     holder.ivTypeIcon.setImageResource(R.drawable.ic_objets);
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
+                case "fame":
+                    holder.tvValue.setText(String.format("%d Likes", value));
+                    holder.ivTypeIcon.setVisibility(View.GONE); // Icon is already in layout or not needed if text says Likes
+                    break;
+                case "duo-streak":
                 case "streak":
-                    holder.tvValue.setText(context.getString(R.string.rank_format_streak, value));
-                    holder.ivTypeIcon.setAnimation(R.raw.streak_animation);
-                    holder.ivTypeIcon.setMinAndMaxFrame(0, 24);
-                    if (!holder.ivTypeIcon.isAnimating()) {
-                        holder.ivTypeIcon.playAnimation();
+                    holder.tvValue.setText(String.format("%d Days", value));
+                    if (rankType.equals("streak")) {
+                        holder.ivTypeIcon.setAnimation(R.raw.streak_animation);
+                        holder.ivTypeIcon.setMinAndMaxFrame(0, 24);
+                        if (!holder.ivTypeIcon.isAnimating()) {
+                            holder.ivTypeIcon.playAnimation();
+                        }
+                        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(holder.ivTypeIcon, value);
+                        holder.ivTypeIcon.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.ivTypeIcon.setVisibility(View.GONE);
                     }
-                    com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(holder.ivTypeIcon, value);
+                    break;
+                case "wealth":
+                    holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value));
+                    holder.ivTypeIcon.setImageResource(R.drawable.ic_item_diamond);
                     holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
             }
@@ -103,7 +126,7 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             if (currentUserId != null && userId == currentUserId) {
                 holder.itemView.setBackgroundResource(R.drawable.bg_rank_item_highlight);
             } else {
-                holder.itemView.setBackgroundResource(R.drawable.bg_header_glass_v2);
+                holder.itemView.setBackgroundResource(R.drawable.bg_rank_item);
             }
 
             // Click Avatar hoặc Tên để mở Profile (Bridge Bridge)
@@ -114,6 +137,15 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             };
             holder.ivAvatar.setOnClickListener(profileClick);
             holder.tvName.setOnClickListener(profileClick);
+            
+            if (holder.ivPartnerAvatar != null) {
+                holder.ivPartnerAvatar.setOnClickListener(v -> {
+                    long partnerId = entry.optLong("partnerId", -1L);
+                    if (partnerId != -1L) {
+                        com.vn.jet.mosco.utils.NavigationUtils.openProfile((androidx.fragment.app.FragmentActivity) context, partnerId);
+                    }
+                });
+            }
 
         } catch (Exception e) {
             // Null-safety
@@ -166,7 +198,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
     static class RankViewHolder extends RecyclerView.ViewHolder {
         TextView tvPosition, tvName, tvValue;
-        ImageView ivAvatar;
+        ImageView ivAvatar, ivPartnerAvatar;
+        View cvPartnerAvatar;
         LottieAnimationView ivTypeIcon;
         View layoutRankValueContainer;
 
@@ -176,6 +209,8 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             tvName = itemView.findViewById(R.id.tv_rank_name);
             tvValue = itemView.findViewById(R.id.tv_rank_value);
             ivAvatar = itemView.findViewById(R.id.iv_rank_avatar);
+            ivPartnerAvatar = itemView.findViewById(R.id.iv_partner_avatar);
+            cvPartnerAvatar = itemView.findViewById(R.id.cv_partner_avatar);
             ivTypeIcon = itemView.findViewById(R.id.iv_rank_type_icon);
             layoutRankValueContainer = itemView.findViewById(R.id.layout_rank_value_container);
         }

@@ -605,13 +605,15 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             // Update Like Button
             if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
-                    btnLike.setText(R.string.profile_btn_liked);
-                    // Tại sao: Sử dụng style secondary (outlined) dạng vuông để người dùng nhận biết đã thích thành công, giảm bớt độ nổi bật so với nút chưa thích
-                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_SECONDARY);
+                    btnLike.setText("");
+                    btnLike.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_heart_filled, 0, 0, 0);
+                    btnLike.setBackgroundResource(R.drawable.lg_btn_heart_active_pill);
+                    btnLike.setPadding(0, 0, 0, 0); // Center the icon
                 } else {
-                    btnLike.setText(R.string.profile_btn_like);
-                    // Tại sao: Dùng primary dạng vuông để tạo điểm nhấn nổi bật thúc đẩy người dùng tương tác thích trang cá nhân
-                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
+                    btnLike.setText("");
+                    btnLike.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_heart_outline, 0, 0, 0);
+                    btnLike.setBackgroundResource(R.drawable.lg_btn_secondary);
+                    btnLike.setPadding(0, 0, 0, 0); // Center the icon
                 }
             }
 

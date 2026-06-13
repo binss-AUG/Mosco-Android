@@ -23,15 +23,16 @@
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_like"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="@dimen/spacing_48dp"
+            android:layout_height="@dimen/spacing_48dp"
             android:layout_marginEnd="@dimen/spacing_xxs"
-            app:moscoStyle="primary"
-            app:moscoSize="small"
-            app:moscoShape="square"
-            android:text="@string/profile_btn_like"
-            android:textStyle="bold" />
+            app:moscoStyle="secondary"
+            app:moscoSize="medium"
+            app:moscoShape="pill"
+            android:text=""
+            android:drawableStart="@drawable/ic_heart_outline"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_direct_message"
@@ -39,8 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:moscoStyle="secondary"
-            app:moscoSize="small"
-            app:moscoShape="square"
+            app:moscoSize="medium"
+            app:moscoShape="pill"
             android:text="@string/profile_btn_message"
             android:textStyle="bold" />
     </LinearLayout>
@@ -60,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:moscoStyle="primary"
-            app:moscoSize="small"
+            app:moscoSize="medium"
             app:moscoShape="pill"
             android:text="@string/profile_btn_add_friend"
             android:textStyle="bold" />

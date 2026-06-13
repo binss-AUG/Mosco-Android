@@ -1,11 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/spacing_100dp"
-    android:height="@dimen/spacing_20dp"
+    android:width="100dp"
+    android:height="20dp"
     android:viewportWidth="100"
     android:viewportHeight="20">
+    <!-- Nền góc cạnh (Bevel shadow) -->
     <path
-        android:fillColor="@color/podium_unified_top"
-        android:pathData="M 15 0 L 100 0 L 100 20 L 0 20 Z" />
+        android:fillColor="#01579B"
+        android:pathData="M 15 0 L 85 0 L 100 20 L 0 20 Z" />
+    
+    <!-- Mặt chính (Ice core) -->
+    <path
+        android:fillColor="#00B4DB"
+        android:pathData="M 18 0 L 82 0 L 70 20 L 30 20 Z" />
+        
+    <!-- Góc trái sáng -->
+    <path
+        android:fillColor="#80D8FF"
+        android:pathData="M 15 0 L 18 0 L 30 20 L 0 20 Z" />
+        
+    <!-- Góc phải tối -->
+    <path
+        android:fillColor="#0277BD"
+        android:pathData="M 82 0 L 85 0 L 100 20 L 70 20 Z" />
+        
+    <!-- Viền Line sáng (Highlight) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 15 0 L 85 0 L 84 1 L 16 1 Z" />
 </vector>
-

@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Fragment hiển thị danh sách rank & Lời mời (dùng chung cho 3 tab) -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@android:color/transparent">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_rank_list"
+    <include
+        android:id="@+id/layout_podium_header"
+        layout="@layout/layout_rank_podium"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_rank_list"
@@ -19,36 +27,35 @@
             android:paddingTop="@dimen/spacing_sm"
             android:clipToPadding="false" />
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <!-- Skeleton Loading List (Dùng chung cho mọi trạng thái tải) -->
+        <include layout="@layout/layout_friend_skeleton_list" />
 
-    <!-- Skeleton Loading List (Dùng chung cho mọi trạng thái tải) -->
-    <include layout="@layout/layout_friend_skeleton_list" />
+        <!-- Empty state container ghim trọng tâm tuyệt đối -->
+        <LinearLayout
+            android:id="@+id/layout_rank_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
 
-    <!-- Empty state container ghim trọng tâm tuyệt đối -->
-    <LinearLayout
-        android:id="@+id/layout_rank_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone">
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottie_rank_empty"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true" />
 
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/lottie_rank_empty"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true" />
+            <TextView
+                android:id="@+id/tv_rank_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rank_msg_empty"
+                style="@style/MoscoText.Luxury.Body"
+                android:textColor="@color/mosco_white_30"
+                android:textSize="@dimen/text_size_body_sm"
+                android:layout_marginTop="@dimen/spacing_sm" />
+        </LinearLayout>
+    </FrameLayout>
 
-        <TextView
-            android:id="@+id/tv_rank_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rank_msg_empty"
-            style="@style/MoscoText.Luxury.Body"
-            android:textColor="@color/mosco_white_30"
-            android:textSize="@dimen/text_size_body_sm"
-            android:layout_marginTop="@dimen/spacing_sm" />
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>
