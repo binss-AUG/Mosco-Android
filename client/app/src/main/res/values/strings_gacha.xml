@@ -19,6 +19,7 @@
     <string name="reveal_action_open_all">Open All (%d packs)</string>
     <string name="reveal_msg_limit_hint">Open All limit: max %d packs per roll</string>
     <string name="reveal_msg_loading">Opening to reveal a surprise...</string>
+    <string name="reveal_msg_wait">Please wait...</string>
     <string name="reveal_error_only_packs">Only PACK items can be opened here.</string>
     <string name="reveal_default_item_name">Unknown Card</string>
 

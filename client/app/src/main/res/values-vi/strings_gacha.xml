@@ -19,6 +19,7 @@
     <string name="reveal_action_open_all">Mở tất cả (%d gói)</string>
     <string name="reveal_msg_limit_hint">Giới hạn mở tất cả: tối đa %d gói một lượt</string>
     <string name="reveal_msg_loading">Đang mở gói để khám phá bất ngờ...</string>
+    <string name="reveal_msg_wait">Vui lòng chờ...</string>
     <string name="reveal_error_only_packs">Chỉ các gói (PACK) mới có thể mở tại đây.</string>
     <string name="reveal_default_item_name">Thẻ không xác định</string>
 
