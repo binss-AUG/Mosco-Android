@@ -33,6 +33,24 @@ Thay vì liệt kê đơn thuần, các luồng chức năng quan trọng nhất
 | **Luồng sự kiện chính (Main Flow)** | 1. User nhấn nút "Nâng cấp".<br>2. Client khóa UI (Disable Button) và gửi mảng ID thẻ lên Server.<br>3. Server kích hoạt **Pessimistic Lock** để khóa các bản ghi thẻ bài này trên Database.<br>4. Server xóa các Thẻ nguyên liệu (Burn) và tính toán tỉ lệ thành công dựa trên chênh lệch OVR.<br>5. Chạy thuật toán xác suất. Nếu trúng tỷ lệ, Thẻ chính tăng OVR.<br>6. Server nhả khóa (Release Lock) và trả kết quả về Client.<br>7. Client cập nhật Room DB và hiển thị hiệu ứng thành công/thất bại. |
 | **Luồng ngoại lệ (Alt Flow)** | - Bước 3a: Bị lỗi khóa (Lock Timeout) do đang dùng Auto-Click spam -> Server hủy Transaction, trả về lỗi HTTP 409 Conflict.<br>- Bước 5a: Nâng cấp thất bại (Rớt thẻ) -> Thẻ nguyên liệu mất, Thẻ chính bị rớt cấp (Downgrade). |
 
+**Bảng 3.3: Đặc tả Use-case "Tra cứu Bảng xếp hạng (Leaderboard)"**
+| Thuộc tính | Mô tả chi tiết |
+| :--- | :--- |
+| **Mã UC** | UC-03 |
+| **Tên Use-case** | Tra cứu Bảng xếp hạng (Leaderboard) |
+| **Tác nhân** | Người chơi (User), Khách (Guest) |
+| **Điều kiện tiên quyết** | Không yêu cầu đăng nhập đối với thao tác xem hạng cơ bản. |
+| **Luồng sự kiện chính (Main Flow)** | 1. User truy cập vào màn hình "Rank".<br>2. Client gửi Request kèm tham số phân trang (`page`, `size`) và loại hạng (`level`, `wealth`, `collection`) lên Server.<br>3. Server truy xuất CSDL, sắp xếp theo điều kiện và trả về JSON danh sách TOP người chơi.<br>4. Client render danh sách, hiển thị bục vinh quang (Podium) 3D cho Top 1,2,3 với hiệu ứng UI.<br>5. User có thể bấm vào Avatar để chuyển qua trang Profile của người chơi đó. |
+
+**Bảng 3.4: Đặc tả Use-case "Trình chiếu Thẻ bài qua AR Camera"**
+| Thuộc tính | Mô tả chi tiết |
+| :--- | :--- |
+| **Mã UC** | UC-04 |
+| **Tên Use-case** | Trình chiếu Thẻ bài qua Thực tế ảo tăng cường (AR Camera) |
+| **Tác nhân** | Người chơi (User) |
+| **Điều kiện tiên quyết** | Thiết bị có Camera và đã cấp quyền truy cập. User phải sở hữu ít nhất 1 thẻ bài. |
+| **Luồng sự kiện chính (Main Flow)** | 1. User chọn chức năng "AR Camera" ở trang chi tiết Thẻ bài.<br>2. Client kích hoạt Camera hệ thống, render luồng video thời gian thực làm Background.<br>3. Hệ thống chồng lớp ảnh thẻ (Card Render) lên không gian 3D giả lập.<br>4. User có thể xoay, lật, phóng to thẻ bài trên nền thế giới thực thông qua thao tác chạm.<br>5. User bấm nút chụp hình để lưu thành quả Showcase vào thư viện thiết bị. |
+
 ### 3.2. Thiết kế Kiến trúc và Sơ đồ Tuần tự (Sequence Diagram)
 
 **3.2.1. Sơ đồ Tuần tự luồng Xác thực (JWT Authentication)**
@@ -41,7 +59,13 @@ Thay vì liệt kê đơn thuần, các luồng chức năng quan trọng nhất
 **3.2.2. Sơ đồ Tuần tự luồng Đồng bộ Delta Sync (Kiến trúc Local-First)**
 *[CHÈN HÌNH 3.3: Sơ đồ Tuần tự luồng Đồng bộ Delta Sync. Trực quan: Client (truy vấn Room DB) gửi tham số "lastSyncTime" -> API Server -> Query MySQL (chỉ lấy những thẻ bài có thời gian `updated_at` > lastSyncTime) -> Trả về JSON list siêu nhẹ -> Client lưu đè (Upsert) vào Room DB cục bộ -> View tự động cập nhật]*
 
-**3.2.3. Sơ đồ Tuần tự luồng Khóa giao dịch (Pessimistic Lock Nâng cấp thẻ)**
+**3.2.3. Thiết kế Kiến trúc Caching Đa lớp (Multi-layer Caching)**
+Để giải quyết bài toán OOM và tối ưu tốc độ mạng, hệ thống triển khai chiến lược Cache hai tầng tại Client (Android):
+1.  **Tầng JSON / File Cache (`DatabaseLoader`):** Dữ liệu cố định (Master Data 20.000+ thẻ) và khung sườn Inventory được nén thành file JSON lưu trực tiếp vào ổ đệm ứng dụng. 
+2.  **Tầng Room Database (SQLite):** Dữ liệu cá nhân thay đổi liên tục như chỉ số người dùng (`UserStats`), danh sách thẻ sở hữu (`UserCards`) được lưu trữ tại Room.
+*Luồng hoạt động:* Mọi API lấy danh sách sẽ kiểm tra tính hợp lệ của Cache cục bộ (dựa vào Hash ID hoặc Timestamp). Nếu dữ liệu chưa bị can thiệp (Hit Cache), app sẽ load thẳng từ JSON/Room trong chớp mắt. Chỉ khi "Miss Cache", Client mới chọc xuống Mạng (Network API) để đồng bộ làm mới.
+
+**3.2.4. Sơ đồ Tuần tự luồng Khóa giao dịch (Pessimistic Lock Nâng cấp thẻ)**
 *[CHÈN HÌNH 3.4: Sơ đồ Tuần tự luồng Nâng cấp thẻ. Trực quan: Vẽ 2 đường ngầm song song (Thread 1 và Thread 2). Nhấn mạnh mũi tên Server gửi lệnh `SELECT ... FOR UPDATE` xuống Database. Chỉ ra Thread 1 giữ Ổ KHÓA, Thread 2 có cái Đồng Hồ Chờ (Block waiting)]*
 
 ### 3.3. Thiết kế Cơ sở dữ liệu (Database Design)
@@ -56,7 +80,7 @@ Thay vào đó, hệ thống ứng dụng khái niệm **Logical FK**: Tầng Da
 **3.3.3. Từ điển Dữ liệu (Data Dictionary)**
 Dưới đây là đặc tả chi tiết cấu trúc các bảng cốt lõi phục vụ hệ thống.
 
-**Bảng 3.3: Chi tiết cấu trúc Bảng `users` (Tài khoản người chơi)**
+**Bảng 3.5: Chi tiết cấu trúc Bảng `users` (Tài khoản người chơi)**
 | Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả |
 | :--- | :--- | :--- | :--- |
 | `id` | VARCHAR(36) | PK, Not Null | Chuỗi UUID v4 định danh duy nhất User |
@@ -65,7 +89,7 @@ Dưới đây là đặc tả chi tiết cấu trúc các bảng cốt lõi ph�
 | `diamonds` | INT | Default 0 | Tiền tệ cao cấp (Premium Currency) để quay Gacha |
 | `avatar_url` | VARCHAR(500) | Nullable | Link ảnh đại diện (Đã qua xử lý cắt ảnh ML Kit) |
 
-**Bảng 3.4: Chi tiết cấu trúc Bảng `master_cards` (Từ điển thẻ bài gốc)**
+**Bảng 3.6: Chi tiết cấu trúc Bảng `master_cards` (Từ điển thẻ bài gốc)**
 | Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả |
 | :--- | :--- | :--- | :--- |
 | `card_id` | VARCHAR(50) | PK, Not Null | Mã định danh thẻ (Ví dụ: FO4_CR7_2023) |
@@ -74,7 +98,7 @@ Dưới đây là đặc tả chi tiết cấu trúc các bảng cốt lõi ph�
 | `base_ovr` | INT | Not Null | Chỉ số sức mạnh (OVR) nguyên bản ban đầu |
 | `image_url` | VARCHAR(500) | Not Null | Link ảnh phân phối từ mạng CDN Cloudflare (WebP format) |
 
-**Bảng 3.5: Chi tiết cấu trúc Bảng `user_cards` (Kho đồ cá nhân - Inventory)**
+**Bảng 3.7: Chi tiết cấu trúc Bảng `user_cards` (Kho đồ cá nhân - Inventory)**
 | Tên cột | Kiểu dữ liệu | Ràng buộc | Mô tả |
 | :--- | :--- | :--- | :--- |
 | `id` | BIGINT | PK, Auto Increment| ID tự tăng của dòng dữ liệu thẻ bài |
