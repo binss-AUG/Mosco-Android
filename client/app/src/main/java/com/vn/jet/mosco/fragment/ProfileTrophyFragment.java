@@ -180,12 +180,7 @@ public class ProfileTrophyFragment extends Fragment {
             // Kỹ thuật Emboss 3D: Lõi mang màu kim loại tương phản, shadow và highlight giúp khối nổi bật lên
             holder.ivBadgeIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(holder.itemView.getContext(), iconColorRes));
 
-            // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
-            if (isEx) {
-                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red));
-            } else {
-                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
-            }
+            holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
 
             // TẠI SAO: Click mở BottomSheet hiển thị tiến trình chi tiết
             final String finalTier = tier;
@@ -380,7 +375,7 @@ public class ProfileTrophyFragment extends Fragment {
             tvTitle.setTextSize(22);
             tvTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
             tvTitle.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-            tvTitle.setTextColor("EX".equals(tier) ? androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red) : androidx.core.content.ContextCompat.getColor(context, R.color.white));
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
             android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
                 android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
             );
