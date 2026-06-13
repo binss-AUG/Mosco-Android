@@ -61,18 +61,18 @@ public class FriendRequestFragment extends Fragment implements FriendRequestAdap
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rank_list, container, false);
+        return inflater.inflate(R.layout.fragment_friend_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        swipeRefresh = view.findViewById(R.id.swipe_refresh_rank_list);
-        rvRequests = view.findViewById(R.id.rv_rank_list);
+        swipeRefresh = view.findViewById(R.id.swipe_refresh_friend_list);
+        rvRequests = view.findViewById(R.id.rv_friend_list);
         shimmerSkeleton = view.findViewById(R.id.shimmer_friend_skeleton);
-        layoutEmpty = view.findViewById(R.id.layout_rank_empty);
-        tvEmpty = view.findViewById(R.id.tv_rank_empty);
+        layoutEmpty = view.findViewById(R.id.layout_friend_empty);
+        tvEmpty = view.findViewById(R.id.tv_friend_empty);
 
         if (tvEmpty != null) {
             tvEmpty.setText(getString(R.string.social_msg_no_requests));

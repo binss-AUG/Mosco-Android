@@ -592,7 +592,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     }
 
     private void setupGuestListeners(View v) {
-        com.vn.jet.mosco.widget.MoscoButton btnLike = v.findViewById(R.id.btn_like);
+        android.widget.ImageButton btnLike = v.findViewById(R.id.btn_like);
         com.vn.jet.mosco.widget.MoscoButton btnFriend = v.findViewById(R.id.btn_add_friend);
         com.vn.jet.mosco.widget.MoscoButton btnMsg = v.findViewById(R.id.btn_direct_message);
         com.vn.jet.mosco.widget.MoscoButton btnDecline = v.findViewById(R.id.btn_decline_request);
@@ -605,13 +605,11 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             // Update Like Button
             if (isAdded() && getContext() != null && btnLike != null) {
                 if (stats.isLiked()) {
-                    btnLike.setText(R.string.profile_btn_liked);
-                    // Tại sao: Sử dụng style secondary (outlined) dạng vuông để người dùng nhận biết đã thích thành công, giảm bớt độ nổi bật so với nút chưa thích
-                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_SECONDARY);
+                    btnLike.setImageResource(R.drawable.ic_heart_filled);
+                    btnLike.setBackgroundResource(R.drawable.lg_btn_heart_active_pill);
                 } else {
-                    btnLike.setText(R.string.profile_btn_like);
-                    // Tại sao: Dùng primary dạng vuông để tạo điểm nhấn nổi bật thúc đẩy người dùng tương tác thích trang cá nhân
-                    btnLike.setMoscoStyle(com.vn.jet.mosco.widget.MoscoButton.STYLE_PRIMARY);
+                    btnLike.setImageResource(R.drawable.ic_heart_outline);
+                    btnLike.setBackgroundResource(R.drawable.lg_btn_secondary);
                 }
             }
 

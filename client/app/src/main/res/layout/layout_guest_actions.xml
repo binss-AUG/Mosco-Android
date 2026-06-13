@@ -21,17 +21,16 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <com.vn.jet.mosco.widget.MoscoButton
+        <ImageButton
             android:id="@+id/btn_like"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="@dimen/spacing_48dp"
+            android:layout_height="@dimen/spacing_48dp"
             android:layout_marginEnd="@dimen/spacing_xxs"
-            app:moscoStyle="primary"
-            app:moscoSize="small"
-            app:moscoShape="square"
-            android:text="@string/profile_btn_like"
-            android:textStyle="bold" />
+            android:background="@drawable/lg_btn_secondary"
+            android:src="@drawable/ic_heart_outline"
+            app:tint="@color/colors_button_text_secondary"
+            android:scaleType="centerInside"
+            android:padding="12dp" />
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_direct_message"
@@ -39,8 +38,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:moscoStyle="secondary"
-            app:moscoSize="small"
-            app:moscoShape="square"
+            app:moscoSize="medium"
+            app:moscoShape="pill"
             android:text="@string/profile_btn_message"
             android:textStyle="bold" />
     </LinearLayout>
@@ -60,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:moscoStyle="primary"
-            app:moscoSize="small"
+            app:moscoSize="medium"
             app:moscoShape="pill"
             android:text="@string/profile_btn_add_friend"
             android:textStyle="bold" />

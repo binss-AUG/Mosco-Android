@@ -31,10 +31,7 @@
 
     <!-- Rank Module -->
     <string name="rank_header_title">XẾP HẠNG</string>
-    <string name="rank_tab_level">CẤP ĐỘ</string>
-    <string name="rank_tab_album">BỘ SƯU TẬP</string>
-    <string name="rank_tab_wealth">TÀI SẢN</string>
-    <string name="rank_tab_streak">CHUỖI NGÀY</string>
+
     <string name="rank_format_level">CẤP %d</string>
     <string name="rank_num_1">1</string>
     <string name="rank_num_2">2</string>
@@ -44,6 +41,12 @@
     <string name="rank_format_streak">%d Ngày</string>
     <string name="rank_msg_empty">Chưa có dữ liệu xếp hạng</string>
     <string name="rank_label_your_ranking">XẾP HẠNG CỦA BẠN</string>
+    <string name="rank_tab_level">Đại Cao Thủ</string>
+    <string name="rank_tab_album">Nhà Sưu Tầm</string>
+    <string name="rank_tab_streak">Kẻ Bất Tử</string>
+    <string name="rank_tab_fame">Thần Tượng</string>
+    <string name="rank_tab_social">Đại Sứ</string>
+    <string name="rank_tab_duo_streak">Cặp Đôi Hoàn Hảo</string>
     <string name="formation_label_buff_active">BUFF KÍCH HOẠT</string>
 
     <!-- Streak Module -->

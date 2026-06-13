@@ -8,6 +8,7 @@
     android:paddingBottom="@dimen/spacing_md"
     android:clipChildren="false"
     android:clipToPadding="false"
+    android:layout_marginHorizontal="16dp"
     android:visibility="gone"
     tools:visibility="visible">
 
@@ -34,12 +35,34 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="@dimen/spacing_64dp"
-                android:layout_height="@dimen/spacing_64dp"
+                android:id="@+id/cv_partner_avatar_silver"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="32dp"
+                app:cardBackgroundColor="@color/galactic_deep_blue"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/podium_unified_stroke"
+                app:strokeWidth="2dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_partner_avatar_silver"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_margin="@dimen/spacing_sm"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
                 app:cardCornerRadius="@dimen/spacing_xl"
-                app:cardElevation="@dimen/radius_lg"
+                app:cardElevation="8dp"
                 app:strokeColor="@color/podium_unified_stroke"
                 app:strokeWidth="@dimen/spacing_2dp">
 
@@ -75,6 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/radius_lg"
+            android:paddingHorizontal="4dp"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
@@ -86,58 +110,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_silver"
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="70dp"
             android:elevation="@dimen/spacing_sm"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_silver" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_silver" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_36dp"
-            android:elevation="@dimen/spacing_10dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="@+id/block_silver"
-            app:layout_constraintStart_toStartOf="@+id/block_silver"
-            app:layout_constraintTop_toTopOf="@+id/block_silver">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_silver"
-                android:layout_width="@dimen/spacing_14dp"
-                android:layout_height="@dimen/spacing_14dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_silver"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_subtitle"
-                android:textStyle="bold"
-                android:shadowColor="@color/mosco_black_50"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_silver" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_silver">
+                    <TextView
+                        android:id="@+id/tv_value_silver"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeMaxTextSize="18sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- BRONZE PILLAR (TOP 3) -->
@@ -164,12 +180,34 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="@dimen/spacing_64dp"
-                android:layout_height="@dimen/spacing_64dp"
+                android:id="@+id/cv_partner_avatar_bronze"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="32dp"
+                app:cardBackgroundColor="@color/galactic_deep_blue"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/podium_unified_stroke"
+                app:strokeWidth="2dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_partner_avatar_bronze"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_margin="@dimen/spacing_sm"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
                 app:cardCornerRadius="@dimen/spacing_xl"
-                app:cardElevation="@dimen/radius_lg"
+                app:cardElevation="8dp"
                 app:strokeColor="@color/podium_unified_stroke"
                 app:strokeWidth="@dimen/spacing_2dp">
 
@@ -205,6 +243,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/radius_lg"
+            android:paddingHorizontal="4dp"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
@@ -216,58 +255,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_bronze"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:elevation="@dimen/spacing_sm"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_bronze" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_bronze" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_36dp"
-            android:elevation="@dimen/spacing_10dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="@+id/block_bronze"
-            app:layout_constraintStart_toStartOf="@+id/block_bronze"
-            app:layout_constraintTop_toTopOf="@+id/block_bronze">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_bronze"
-                android:layout_width="@dimen/spacing_14dp"
-                android:layout_height="@dimen/spacing_14dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_bronze"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_subtitle"
-                android:textStyle="bold"
-                android:shadowColor="@color/mosco_black_50"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_bronze" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_bronze">
+                    <TextView
+                        android:id="@+id/tv_value_bronze"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeMaxTextSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- GOLD PILLAR (TOP 1) -->
@@ -293,12 +324,35 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_partner_avatar_gold"
                 android:layout_width="84dp"
                 android:layout_height="84dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="42dp"
+                app:cardBackgroundColor="@color/galactic_deep_blue"
+                app:cardCornerRadius="42dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/podium_unified_stroke"
+                app:strokeWidth="3dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_partner_avatar_gold"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_avatar_gold"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:layout_margin="@dimen/spacing_10dp"
                 app:cardBackgroundColor="@color/galactic_deep_blue"
                 app:cardCornerRadius="42dp"
-                app:cardElevation="@dimen/spacing_md"
+                app:cardElevation="8dp"
                 app:strokeColor="@color/podium_unified_stroke"
                 app:strokeWidth="3dp">
 
@@ -310,16 +364,17 @@
                     android:src="@drawable/ic_user" />
             </com.google.android.material.card.MaterialCardView>
 
-            <ImageView
-                android:layout_width="@dimen/spacing_28dp"
-                android:layout_height="@dimen/spacing_28dp"
+            <com.airbnb.lottie.LottieAnimationView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="@dimen/spacing_sm"
-                android:layout_marginEnd="@dimen/spacing_xs"
-                android:rotation="25"
-                android:elevation="@dimen/spacing_20dp"
-                android:src="@drawable/ic_crown"
-                app:tint="@color/mosco_gold" />
+                android:layout_marginTop="-4dp"
+                android:layout_marginEnd="-4dp"
+                android:rotation="30"
+                android:elevation="24dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/crown_3d" />
             
             <TextView
                 android:layout_width="wrap_content"
@@ -343,6 +398,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_md"
+            android:paddingHorizontal="4dp"
             android:ellipsize="end"
             android:gravity="center"
             android:singleLine="true"
@@ -354,58 +410,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_gold"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="80dp"
             android:elevation="@dimen/radius_lg"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_gold" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_gold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_40dp"
-            android:elevation="@dimen/spacing_md"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="@+id/block_gold"
-            app:layout_constraintStart_toStartOf="@+id/block_gold"
-            app:layout_constraintTop_toTopOf="@+id/block_gold">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_gold"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_gold"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_title"
-                android:textStyle="bold"
-                android:shadowColor="@color/shadow_dark"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_gold" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_gold">
+                    <TextView
+                        android:id="@+id/tv_value_gold"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="24sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

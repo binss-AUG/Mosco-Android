@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="@drawable/bg_header_glass_v2"
+    android:background="@drawable/bg_rank_item"
     android:paddingHorizontal="@dimen/rank_item_padding_h"
     android:paddingVertical="@dimen/rank_item_padding_v"
-    android:layout_marginBottom="@dimen/spacing_8dp">
+    android:layout_marginBottom="8dp">
 
     <!-- Rank Badge Area (Crown with Number inside) -->
     <FrameLayout
@@ -23,9 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:translationY="5dp"
             style="@style/MoscoText.Luxury.Nav"
-            android:textSize="@dimen/text_size_rank_badge"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:fontWeight="900"
             android:textColor="@color/white" />
@@ -38,10 +37,31 @@
         android:layout_marginStart="@dimen/spacing_8dp">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_partner_avatar"
+            android:layout_width="@dimen/rank_avatar_size"
+            android:layout_height="@dimen/rank_avatar_size"
+            android:layout_marginStart="24dp"
+            app:cardCornerRadius="@dimen/spacing_100dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/lg_glass_surface_high"
+            app:strokeColor="@color/mosco_white_20"
+            app:strokeWidth="0.8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_partner_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cv_avatar"
             android:layout_width="@dimen/rank_avatar_size"
             android:layout_height="@dimen/rank_avatar_size"
             app:cardCornerRadius="@dimen/spacing_100dp"
-            app:cardElevation="0dp"
+            app:cardElevation="2dp"
             app:cardBackgroundColor="@color/lg_glass_surface_high"
             app:strokeColor="@color/mosco_white_20"
             app:strokeWidth="0.8dp">
@@ -62,12 +82,16 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/radius_lg"
+        android:layout_marginEnd="@dimen/spacing_sm"
         style="@style/MoscoText.Luxury.Body"
         android:textSize="@dimen/text_size_hud_small"
         android:textStyle="bold"
         android:fontWeight="700"
         android:singleLine="true"
-        android:ellipsize="end" />
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
     <!-- Chỉ số (Level / OVR / Card Count) -->
     <LinearLayout
@@ -79,14 +103,6 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackground">
-        
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/iv_rank_type_icon"
-            android:layout_width="@dimen/spacing_md"
-            android:layout_height="@dimen/spacing_md"
-            android:layout_marginEnd="@dimen/spacing_xs"
-            android:visibility="gone"
-            app:tint="@color/item_diamond" />
 
         <TextView
             android:id="@+id/tv_rank_value"

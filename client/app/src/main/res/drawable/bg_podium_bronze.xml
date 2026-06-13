@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <stroke android:width="@dimen/stroke_thin" android:color="@color/podium_unified_stroke" />
-    <gradient
-        android:angle="270"
-        android:startColor="@color/podium_unified_start"
-        android:endColor="@color/podium_unified_end" />
-</shape>
-
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Mặt cắt xéo bên trái (Tối/Shadow) -->
+    <path
+        android:fillColor="#E65100"
+        android:pathData="M 0 0 L 30 0 L 30 100 L 0 100 Z" />
+        
+    <!-- Mặt chính diện (Bán trong suốt để nhìn thấy hiệu ứng bên trong) -->
+    <path
+        android:fillColor="#60FFA726"
+        android:pathData="M 30 0 L 70 0 L 70 100 L 30 100 Z" />
+        
+    <!-- Mặt cắt xéo bên phải (Tối/Shadow) -->
+    <path
+        android:fillColor="#F57C00"
+        android:pathData="M 70 0 L 100 0 L 100 100 L 70 100 Z" />
+        
+    <!-- Các đường nẹp cắt khối kim loại / ngọc -->
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M 30 0 L 31 0 L 31 100 L 30 100 Z" />
+    <path
+        android:fillColor="#40FFFFFF"
+        android:pathData="M 70 0 L 71 0 L 71 100 L 70 100 Z" />
+    
+    <!-- Trang trí mũi tên V-shape ở giữa tạo điểm nhấn -->
+    <path
+        android:fillColor="#30FFFFFF"
+        android:pathData="M 35 10 L 50 30 L 65 10 L 62 10 L 50 26 L 38 10 Z" />
+    <path
+        android:fillColor="#30FFFFFF"
+        android:pathData="M 35 40 L 50 60 L 65 40 L 62 40 L 50 56 L 38 40 Z" />
+    <path
+        android:fillColor="#30FFFFFF"
+        android:pathData="M 35 70 L 50 90 L 65 70 L 62 70 L 50 86 L 38 70 Z" />
+</vector>

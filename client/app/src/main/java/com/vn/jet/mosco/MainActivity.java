@@ -184,6 +184,11 @@ public class MainActivity extends MoscoBaseActivity {
     private void onReceivePrivateMessage(PrivateChatMessage msg) {
         if (msg == null) return;
 
+        // TẠI SAO: Ẩn các tin nhắn hệ thống (SYSTEM_FRIEND) hoặc nội dung là FRIEND_UPDATE dùng để trigger refresh giao diện
+        if ("SYSTEM_FRIEND".equals(msg.getSenderId()) || "FRIEND_UPDATE".equals(msg.getContent())) {
+            return;
+        }
+
         // TẠI SAO: Kiểm tra cấu hình thông báo tin nhắn riêng có được bật không
         if (!sessionManager.isPrivateChatNotificationEnabled()) {
             return;
@@ -388,6 +393,9 @@ public class MainActivity extends MoscoBaseActivity {
     public void loadUserData() {
         Long userId = sessionManager.getUserId();
         if (userId == null) return;
+        
+        // TẠI SAO: Đồng bộ và kiểm tra huy hiệu mới mở khóa (ví dụ: streak, like) ngay khi tải dữ liệu người dùng
+        com.vn.jet.mosco.utils.BadgeSyncHelper.syncAndCheckBadges(this, userId);
         
         gameApiService.getUserStats(userId).enqueue(new Callback<UserStats>() {
             @Override

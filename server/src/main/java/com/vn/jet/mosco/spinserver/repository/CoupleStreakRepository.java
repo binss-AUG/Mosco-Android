@@ -31,4 +31,6 @@ public interface CoupleStreakRepository extends JpaRepository<CoupleStreak, Long
 
     @Query("SELECT MAX(s.streakCount) FROM CoupleStreak s WHERE (s.requester.id = :userId OR s.partner.id = :userId) AND s.status = 'ACTIVE'")
     Integer findMaxStreakCountByUserId(@Param("userId") Long userId);
+
+    java.util.List<CoupleStreak> findTop10ByStatusOrderByStreakCountDesc(String status);
 }

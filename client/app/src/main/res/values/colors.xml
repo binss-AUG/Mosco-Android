@@ -302,4 +302,7 @@
     <color name="daily_stamp_verified">#AA00E676</color>
     <color name="daily_metallic_shimmer_center">#FFFFFFFF</color>
     <color name="daily_metallic_shimmer_edge">#00FFFFFF</color>
+    
+    <!-- Profile Heart Button -->
+    <color name="mosco_heart_bg">#FF3366</color>
 </resources>

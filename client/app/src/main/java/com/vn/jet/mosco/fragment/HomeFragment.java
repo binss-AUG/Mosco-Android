@@ -408,7 +408,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         if (miniRankAdapter != null) {
             miniRankAdapter.setLoadingState(true);
         }
-        String[] types = {"level", "collection", "wealth", "streak"};
+        String[] types = {"level", "collection", "social", "streak", "fame", "duo-streak"};
         for (String type : types) {
             fetchRankTop5(type);
         }
@@ -419,7 +419,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         Call<ResponseBody> call;
         switch (type) {
             case "streak": call = gameApiService.getRankByStreak(); break;
-            case "wealth": call = gameApiService.getRankByWealth(); break;
+            case "fame": call = gameApiService.getRankByFame(); break;
+            case "social": call = gameApiService.getRankBySocial(); break;
+            case "duo-streak": call = gameApiService.getRankByDuoStreak(); break;
             case "collection": call = gameApiService.getRankByCollection(); break;
             default: call = gameApiService.getRankByLevel(); break;
         }
@@ -935,7 +937,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
     private class MiniRankPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private String[] titles;
-        private final String[] types = {"level", "collection", "wealth", "streak"};
+        private final String[] types = {"level", "collection", "streak", "fame", "social", "duo-streak"};
         private boolean isError = false;
         private boolean isLoading = false;
         private static final int TYPE_CONTENT = 0;
@@ -944,10 +946,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         public MiniRankPagerAdapter() {
             titles = new String[]{
-                getString(R.string.home_rank_mini_level),
-                getString(R.string.home_rank_mini_album),
-                getString(R.string.home_rank_mini_wealth),
-                getString(R.string.home_rank_mini_streaks)
+                getString(R.string.rank_tab_level),
+                getString(R.string.rank_tab_album),
+                getString(R.string.rank_tab_streak),
+                getString(R.string.rank_tab_fame),
+                getString(R.string.rank_tab_social),
+                getString(R.string.rank_tab_duo_streak)
             };
         }
 
@@ -992,7 +996,14 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 vh.tvTitle.setText(titles[position]);
                 String type = types[position];
                 List<JSONObject> data = rankDataCache.get(type);
-                vh.adapter.updateData(data != null ? data : new ArrayList<>(), type);
+                if (data == null || data.isEmpty()) {
+                    vh.rv.setVisibility(View.GONE);
+                    if (vh.tvEmpty != null) vh.tvEmpty.setVisibility(View.VISIBLE);
+                } else {
+                    vh.rv.setVisibility(View.VISIBLE);
+                    if (vh.tvEmpty != null) vh.tvEmpty.setVisibility(View.GONE);
+                    vh.adapter.updateData(data, type);
+                }
             } else if (holder instanceof ErrorVH) {
                 ErrorVH evh = (ErrorVH) holder;
                 evh.btnRetry.setOnClickListener(v -> {
@@ -1007,11 +1018,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         }
 
         class VH extends RecyclerView.ViewHolder {
-            TextView tvTitle; RecyclerView rv; MiniRankItemAdapter adapter;
+            TextView tvTitle; RecyclerView rv; MiniRankItemAdapter adapter; TextView tvEmpty;
             VH(View v) { 
                 super(v); 
                 tvTitle = v.findViewById(R.id.tv_mini_rank_title); 
                 rv = v.findViewById(R.id.rv_mini_rank); 
+                tvEmpty = v.findViewById(R.id.tv_mini_rank_empty);
                 rv.setLayoutManager(new LinearLayoutManager(requireContext()));
                 adapter = new MiniRankItemAdapter(new ArrayList<>(), "level");
                 rv.setAdapter(adapter);
@@ -1072,11 +1084,13 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             if (context != null) {
                 switch (type) {
                     case "streak": 
+                    case "duo-streak":
                         valStr = context.getString(R.string.rank_format_streak, val); 
                         break;
-                    case "wealth": 
-                        valStr = com.vn.jet.mosco.utils.NumberUtils.format(context, (long)val); 
+                    case "fame": 
+                        valStr = String.valueOf(val); 
                         break;
+                    case "social":
                     case "collection": 
                         valStr = context.getString(R.string.rank_format_album, val); 
                         break;
