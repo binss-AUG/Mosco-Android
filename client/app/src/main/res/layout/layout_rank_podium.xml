@@ -110,61 +110,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_silver"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:elevation="@dimen/spacing_sm"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_silver" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_silver" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:elevation="@dimen/spacing_10dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingHorizontal="4dp"
-            app:layout_constraintEnd_toEndOf="@+id/block_silver"
-            app:layout_constraintStart_toStartOf="@+id/block_silver"
-            app:layout_constraintTop_toTopOf="@+id/block_silver">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_silver"
-                android:layout_width="@dimen/spacing_14dp"
-                android:layout_height="@dimen/spacing_14dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_silver"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_subtitle"
-                android:textStyle="bold"
-                android:shadowColor="@color/mosco_black_50"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_silver" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_silver">
+                    <TextView
+                        android:id="@+id/tv_value_silver"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeMaxTextSize="18sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- BRONZE PILLAR (TOP 3) -->
@@ -266,61 +255,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_bronze"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:elevation="@dimen/spacing_sm"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_bronze" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_bronze" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:elevation="@dimen/spacing_10dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingHorizontal="4dp"
-            app:layout_constraintEnd_toEndOf="@+id/block_bronze"
-            app:layout_constraintStart_toStartOf="@+id/block_bronze"
-            app:layout_constraintTop_toTopOf="@+id/block_bronze">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_bronze"
-                android:layout_width="@dimen/spacing_14dp"
-                android:layout_height="@dimen/spacing_14dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_bronze"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_subtitle"
-                android:textStyle="bold"
-                android:shadowColor="@color/mosco_black_50"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_bronze" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_bronze">
+                    <TextView
+                        android:id="@+id/tv_value_bronze"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeMaxTextSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- GOLD PILLAR (TOP 1) -->
@@ -432,61 +410,50 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
+        <FrameLayout
             android:id="@+id/block_gold"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:elevation="@dimen/radius_lg"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
-            <View
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_lg"
-                android:background="@drawable/ic_trapezoid_gold" />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_podium_gold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
-            android:elevation="@dimen/spacing_md"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingHorizontal="4dp"
-            app:layout_constraintEnd_toEndOf="@+id/block_gold"
-            app:layout_constraintStart_toStartOf="@+id/block_gold"
-            app:layout_constraintTop_toTopOf="@+id/block_gold">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/iv_type_gold"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginEnd="@dimen/spacing_2dp"
-                android:visibility="gone"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tv_value_gold"
-                style="@style/MoscoText.Luxury.Price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="0"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_size_title"
-                android:textStyle="bold"
-                android:shadowColor="@color/shadow_dark"
-                android:shadowRadius="4"
-                android:shadowDy="2" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_lg"
+                    android:background="@drawable/ic_trapezoid_gold" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_podium_gold">
+                    <TextView
+                        android:id="@+id/tv_value_gold"
+                        style="@style/MoscoText.Luxury.Price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        tools:text="0"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="24sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowRadius="4"
+                        android:shadowDx="0"
+                        android:shadowDy="0" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

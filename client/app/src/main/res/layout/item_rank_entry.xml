@@ -23,9 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:translationY="5dp"
             style="@style/MoscoText.Luxury.Nav"
-            android:textSize="@dimen/text_size_rank_badge"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:fontWeight="900"
             android:textColor="@color/white" />
@@ -83,11 +82,12 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/radius_lg"
+        android:layout_marginEnd="@dimen/spacing_sm"
         style="@style/MoscoText.Luxury.Body"
         android:textSize="@dimen/text_size_hud_small"
         android:textStyle="bold"
         android:fontWeight="700"
-        android:singleLine="true"
+        android:maxLines="1"
         android:ellipsize="end" />
 
     <!-- Chỉ số (Level / OVR / Card Count) -->
@@ -100,14 +100,6 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackground">
-        
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/iv_rank_type_icon"
-            android:layout_width="@dimen/spacing_md"
-            android:layout_height="@dimen/spacing_md"
-            android:layout_marginEnd="@dimen/spacing_xs"
-            android:visibility="gone"
-            app:tint="@color/item_diamond" />
 
         <TextView
             android:id="@+id/tv_rank_value"

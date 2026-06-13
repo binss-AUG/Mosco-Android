@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.airbnb.lottie.LottieAnimationView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,44 +81,25 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
 
             int value = entry.optInt("value", 0);
             android.content.Context context = holder.itemView.getContext();
-            holder.ivTypeIcon.cancelAnimation();
             switch (rankType) {
                 case "level": 
                     holder.tvValue.setText(String.format("Lv. %d", value));
-                    holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
                 case "social": 
                     holder.tvValue.setText(String.format("%d Friends", value));
-                    holder.ivTypeIcon.setVisibility(View.GONE);
                     break;
                 case "collection": 
                     holder.tvValue.setText(String.format("%d Objets", value));
-                    holder.ivTypeIcon.setImageResource(R.drawable.ic_objets);
-                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
                 case "fame":
                     holder.tvValue.setText(String.format("%d Likes", value));
-                    holder.ivTypeIcon.setVisibility(View.GONE); // Icon is already in layout or not needed if text says Likes
                     break;
                 case "duo-streak":
                 case "streak":
                     holder.tvValue.setText(String.format("%d Days", value));
-                    if (rankType.equals("streak")) {
-                        holder.ivTypeIcon.setAnimation(R.raw.streak_animation);
-                        holder.ivTypeIcon.setMinAndMaxFrame(0, 24);
-                        if (!holder.ivTypeIcon.isAnimating()) {
-                            holder.ivTypeIcon.playAnimation();
-                        }
-                        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(holder.ivTypeIcon, value);
-                        holder.ivTypeIcon.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.ivTypeIcon.setVisibility(View.GONE);
-                    }
                     break;
                 case "wealth":
                     holder.tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value));
-                    holder.ivTypeIcon.setImageResource(R.drawable.ic_item_diamond);
-                    holder.ivTypeIcon.setVisibility(View.VISIBLE);
                     break;
             }
 
@@ -199,11 +179,9 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
     static class RankViewHolder extends RecyclerView.ViewHolder {
         TextView tvPosition, tvName, tvValue;
         ImageView ivAvatar, ivPartnerAvatar;
-        View cvPartnerAvatar;
-        LottieAnimationView ivTypeIcon;
-        View layoutRankValueContainer;
+        com.google.android.material.card.MaterialCardView cvPartnerAvatar;
 
-        RankViewHolder(View itemView) {
+        public RankViewHolder(@NonNull View itemView) {
             super(itemView);
             tvPosition = itemView.findViewById(R.id.tv_rank_position);
             tvName = itemView.findViewById(R.id.tv_rank_name);
@@ -211,8 +189,6 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
             ivAvatar = itemView.findViewById(R.id.iv_rank_avatar);
             ivPartnerAvatar = itemView.findViewById(R.id.iv_partner_avatar);
             cvPartnerAvatar = itemView.findViewById(R.id.cv_partner_avatar);
-            ivTypeIcon = itemView.findViewById(R.id.iv_rank_type_icon);
-            layoutRankValueContainer = itemView.findViewById(R.id.layout_rank_value_container);
         }
     }
 }

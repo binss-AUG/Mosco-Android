@@ -49,7 +49,6 @@ public class RankListFragment extends Fragment {
     // Podium Views
     private View layoutGold, layoutSilver, layoutBronze;
     private ImageView ivAvatarGold, ivAvatarSilver, ivAvatarBronze;
-    private LottieAnimationView ivTypeGold, ivTypeSilver, ivTypeBronze;
     private TextView tvNameGold, tvNameSilver, tvNameBronze;
     private TextView tvValueGold, tvValueSilver, tvValueBronze;
     private View flAvatarGold, flAvatarSilver, flAvatarBronze;
@@ -60,6 +59,7 @@ public class RankListFragment extends Fragment {
     private List<JSONObject> cachedPodiumData = new ArrayList<>();
     private List<JSONObject> cachedRestData = new ArrayList<>();
     private boolean isDataLoaded = false;
+    private boolean isLoading = false;
     private boolean isPodiumAnimated = false;
     private long lastUpdatedTime = 0;
     private static final long CACHE_EXPIRY = 2 * 60 * 1000;
@@ -105,10 +105,6 @@ public class RankListFragment extends Fragment {
             ivAvatarSilver = layoutPodiumHeader.findViewById(R.id.iv_avatar_silver);
             ivAvatarBronze = layoutPodiumHeader.findViewById(R.id.iv_avatar_bronze);
 
-            ivTypeGold = layoutPodiumHeader.findViewById(R.id.iv_type_gold);
-            ivTypeSilver = layoutPodiumHeader.findViewById(R.id.iv_type_silver);
-            ivTypeBronze = layoutPodiumHeader.findViewById(R.id.iv_type_bronze);
-
             tvNameGold = layoutPodiumHeader.findViewById(R.id.tv_name_gold);
             tvNameSilver = layoutPodiumHeader.findViewById(R.id.tv_name_silver);
             tvNameBronze = layoutPodiumHeader.findViewById(R.id.tv_name_bronze);
@@ -128,6 +124,11 @@ public class RankListFragment extends Fragment {
             ViewGroup container = lottieLoading.findViewById(R.id.ll_skeleton_container);
             SkeletonHelper.populateShimmerContainer(container, R.layout.item_rank_entry, 6);
         }
+
+        // Tải dữ liệu ngay khi Fragment vừa tạo xong UI (để ViewPager2 preload mượt mà)
+        if (!isDataLoaded && !isLoading) {
+            loadRankData();
+        }
     }
 
     @Override
@@ -139,7 +140,7 @@ public class RankListFragment extends Fragment {
 
         if (isDataLoaded && !isCacheExpired) {
             showRankListWithAnimation();
-        } else {
+        } else if (!isLoading) {
             if (!isDataLoaded) {
                 if (rvRankList != null) {
                     rvRankList.setVisibility(View.INVISIBLE);
@@ -207,11 +208,14 @@ public class RankListFragment extends Fragment {
                 break;
         }
 
+        if (isLoading) return;
+        isLoading = true;
         if (lottieLoading != null) lottieLoading.setVisibility(View.VISIBLE);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                isLoading = false;
                 if (lottieLoading != null) lottieLoading.setVisibility(View.GONE);
                 
                 if (getParentFragment() instanceof RankFragment) {
@@ -286,6 +290,7 @@ public class RankListFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                isLoading = false;
                 if (lottieLoading != null) lottieLoading.setVisibility(View.GONE);
                 if (getParentFragment() instanceof RankFragment) {
                     ((RankFragment) getParentFragment()).stopRefresh();
@@ -307,21 +312,21 @@ public class RankListFragment extends Fragment {
         layoutPodiumHeader.setVisibility(View.VISIBLE);
 
         if (top3List.size() > 0) {
-            bindPillar(requireContext(), top3List.get(0), ivAvatarGold, tvNameGold, tvValueGold, ivTypeGold);
+            bindPillar(requireContext(), top3List.get(0), ivAvatarGold, tvNameGold, tvValueGold);
             layoutGold.setVisibility(View.VISIBLE);
         } else {
             layoutGold.setVisibility(View.INVISIBLE);
         }
 
         if (top3List.size() > 1) {
-            bindPillar(requireContext(), top3List.get(1), ivAvatarSilver, tvNameSilver, tvValueSilver, ivTypeSilver);
+            bindPillar(requireContext(), top3List.get(1), ivAvatarSilver, tvNameSilver, tvValueSilver);
             layoutSilver.setVisibility(View.VISIBLE);
         } else {
             layoutSilver.setVisibility(View.INVISIBLE);
         }
 
         if (top3List.size() > 2) {
-            bindPillar(requireContext(), top3List.get(2), ivAvatarBronze, tvNameBronze, tvValueBronze, ivTypeBronze);
+            bindPillar(requireContext(), top3List.get(2), ivAvatarBronze, tvNameBronze, tvValueBronze);
             layoutBronze.setVisibility(View.VISIBLE);
         } else {
             layoutBronze.setVisibility(View.INVISIBLE);
@@ -333,50 +338,31 @@ public class RankListFragment extends Fragment {
         }
     }
 
-    private void bindPillar(Context context, JSONObject user, ImageView ivAvatar, TextView tvName, TextView tvValue, LottieAnimationView ivType) {
+    private void bindPillar(Context context, JSONObject user, ImageView ivAvatar, TextView tvName, TextView tvValue) {
         tvName.setText(user.optString("ingameName", "Unknown"));
         int value = user.optInt("value", 0);
-        if (ivType != null) ivType.cancelAnimation();
         
         switch (rankType) {
             case "level": 
                 tvValue.setText(String.format("Lv. %d", value));
-                if (ivType != null) ivType.setVisibility(View.GONE);
                 break;
             case "wealth": 
                 tvValue.setText(com.vn.jet.mosco.utils.NumberUtils.format(context, (long)value)); 
-                if (ivType != null) {
-                    ivType.setImageResource(R.drawable.ic_item_diamond);
-                    ivType.setVisibility(View.VISIBLE);
-                }
                 break;
             case "collection": 
                 tvValue.setText(String.format("%d Objets", value));
-                if (ivType != null) {
-                    ivType.setImageResource(R.drawable.ic_objets);
-                    ivType.setVisibility(View.VISIBLE);
-                }
                 break;
             case "streak":
                 tvValue.setText(String.format("%d Days", value));
-                if (ivType != null) {
-                    ivType.setAnimation(R.raw.streak_animation);
-                    ivType.setProgress(0.5f);
-                    ivType.pauseAnimation();
-                    ivType.setVisibility(View.VISIBLE);
-                }
                 break;
             case "fame":
                 tvValue.setText(String.format("%d Likes", value));
-                if (ivType != null) ivType.setVisibility(View.GONE);
                 break;
             case "social":
                 tvValue.setText(String.format("%d Friends", value));
-                if (ivType != null) ivType.setVisibility(View.GONE);
                 break;
             case "duo-streak":
                 tvValue.setText(String.format("%d Days", value));
-                if (ivType != null) ivType.setVisibility(View.GONE);
                 break;
         }
 
@@ -430,9 +416,9 @@ public class RankListFragment extends Fragment {
         prepareAvatarForAnimation(flAvatarBronze);
         prepareAvatarForAnimation(flAvatarGold);
 
-        animatePillar(layoutSilver, flAvatarSilver, 0);
-        animatePillar(layoutBronze, flAvatarBronze, 150);
-        animatePillar(layoutGold, flAvatarGold, 300);
+        animatePillar(layoutBronze, flAvatarBronze, 100);
+        animatePillar(layoutSilver, flAvatarSilver, 250);
+        animatePillar(layoutGold, flAvatarGold, 400);
     }
 
     private void prepareViewForAnimation(View view) {

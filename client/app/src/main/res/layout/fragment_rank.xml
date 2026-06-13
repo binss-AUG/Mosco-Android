@@ -53,7 +53,8 @@
         android:id="@+id/card_my_rank"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/spacing_md"
+        android:layout_marginHorizontal="@dimen/spacing_md"
+        android:layout_marginBottom="4dp"
         app:cardCornerRadius="@dimen/radius_lg"
         app:cardElevation="@dimen/radius_lg"
         app:cardBackgroundColor="@color/lg_glass_surface_elevated"
@@ -66,7 +67,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingVertical="@dimen/spacing_sm">
+            android:paddingTop="6dp"
+            android:paddingBottom="0dp">
 
             <TextView
                 android:layout_width="wrap_content"

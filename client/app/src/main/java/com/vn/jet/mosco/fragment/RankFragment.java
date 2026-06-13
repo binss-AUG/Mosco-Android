@@ -114,7 +114,6 @@ public class RankFragment extends Fragment {
         TextView tvName = cardMyRank.findViewById(R.id.tv_rank_name);
         TextView tvValue = cardMyRank.findViewById(R.id.tv_rank_value);
         ImageView ivAvatar = cardMyRank.findViewById(R.id.iv_rank_avatar);
-        com.airbnb.lottie.LottieAnimationView ivType = cardMyRank.findViewById(R.id.iv_rank_type_icon);
 
         try {
             if (userRankData == null) {
@@ -132,40 +131,22 @@ public class RankFragment extends Fragment {
             tvName.setText(userRankData.optString("ingameName", "Unknown"));
             
             int value = userRankData.optInt("value", 0);
-            if (ivType != null) ivType.cancelAnimation();
-            
             switch (rankType) {
                 case "level": 
                     tvValue.setText(String.format("Lv. %d", value)); 
-                    if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
                 case "social": 
                     tvValue.setText(String.format("%d Friends", value));
-                    if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
                 case "collection": 
                     tvValue.setText(String.format("%d Objets", value)); 
-                    if (ivType != null) {
-                        ivType.setImageResource(R.drawable.ic_objets);
-                        ivType.setVisibility(View.VISIBLE);
-                    }
                     break;
                 case "streak":
                 case "duo-streak":
                     tvValue.setText(String.format("%d Days", value));
-                    if (ivType != null && rankType.equals("streak")) {
-                        ivType.setAnimation(R.raw.streak_animation);
-                        ivType.setMinAndMaxFrame(0, 24);
-                        if (!ivType.isAnimating()) ivType.playAnimation();
-                        com.vn.jet.mosco.utils.StreakColorHelper.applyStreakColor(ivType, value);
-                        ivType.setVisibility(View.VISIBLE);
-                    } else if (ivType != null) {
-                        ivType.setVisibility(View.GONE);
-                    }
                     break;
                 case "fame":
                     tvValue.setText(String.format("%d Likes", value));
-                    if (ivType != null) ivType.setVisibility(View.GONE);
                     break;
             }
 
