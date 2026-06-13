@@ -846,7 +846,7 @@ public class SpinFragment extends Fragment {
                 }
                 TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
                 if (vvResultVideo != null) vvResultVideo.setVisibility(View.INVISIBLE);
-                ivResultImage.setVisibility(View.GONE);
+                ivResultImage.setVisibility(View.INVISIBLE);
                 ivResultBack.setVisibility(View.VISIBLE);
             }
         });
@@ -1699,7 +1699,7 @@ public class SpinFragment extends Fragment {
                 sacrificeVideoPlayer.pause();
             }
             if (vvSelectedObjetVideo != null) vvSelectedObjetVideo.setVisibility(View.INVISIBLE);
-            ivSelectedObjet.setVisibility(View.GONE);
+            ivSelectedObjet.setVisibility(View.INVISIBLE);
             ivSacrificeBack.setVisibility(View.VISIBLE);
             ivSacrificeBack.setScaleX(-1f); // Mirror fix cho rotation 180°
             ivSacrificeBack.setAlpha(1f);
