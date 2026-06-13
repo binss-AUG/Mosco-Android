@@ -54,6 +54,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private boolean isApplyingFilter = false;
     private final android.os.Handler filterHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private final Runnable filterRunnable = this::executeApplyFilters;
+
+
     private final java.util.concurrent.ExecutorService filterExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
 
     private androidx.appcompat.widget.AppCompatButton btnConfirm;
@@ -61,6 +63,30 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     private RecyclerView rvInventory;
     private LinearLayout layoutEmptyState;
     private com.airbnb.lottie.LottieAnimationView loaderLottie;
+
+    private final com.vn.jet.mosco.utils.DatabaseLoader.OnInventoryChangeListener inventoryChangeListener = () -> {
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(() -> {
+                if (com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory != null) {
+                    List<CardDisplayItem> displayItems = new ArrayList<>(com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory.size());
+                    busyIds.clear();
+                    for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem item : com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory) {
+                        CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
+                        displayItems.add(displayItem);
+                        if (!isShowcaseMode && displayItem.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(displayItem.getStatus())) {
+                            busyIds.add(displayItem.getId());
+                        }
+                    }
+                    originalObjets = displayItems;
+                    if (adapter != null) {
+                        adapter.updateData(originalObjets);
+                        updateDisabledStates();
+                        applyFilters();
+                    }
+                }
+            });
+        }
+    };
 
     public interface OnCardSelectedListener {
         void onCardSelected(CardDisplayItem item);
@@ -148,6 +174,8 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        com.vn.jet.mosco.utils.DatabaseLoader.registerInventoryChangeListener(inventoryChangeListener);
+
         // Khởi tạo danh sách tùy chọn sắp xếp từ tài nguyên hệ thống để đảm bảo tính nhất quán
         SORT_OPTIONS = getResources().getStringArray(R.array.inventory_sort_options);
         if (currentSortOption == null || currentSortOption.isEmpty()) {
@@ -702,6 +730,12 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
                 });
             }
         }).start();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        com.vn.jet.mosco.utils.DatabaseLoader.unregisterInventoryChangeListener(inventoryChangeListener);
     }
 
     @Override

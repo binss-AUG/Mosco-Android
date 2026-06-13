@@ -93,6 +93,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Set<Long> selectedIds = new HashSet<>();
     private Set<Long> disabledIds = new HashSet<>();
     private Set<String> disabledMembers = new HashSet<>();
+    private Set<String> currentPinnedIds = new HashSet<>();
     private OnCardSelectListener selectListener;
 
     // =============== CONSTRUCTOR ===============
@@ -165,6 +166,8 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.isPagingLoading = false;
         this.isLoading = false;
 
+        final Set<String> newPinnedIds = PinManager.getAllPinnedIds(mContext);
+
         List<CardDisplayItem> newDisplayItems = new ArrayList<>();
         int maxLimit = Math.min(currentLimit, currentFilteredList.size());
         if (maxLimit > 0) {
@@ -203,7 +206,11 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     CardDisplayItem oldItem = oldDisplayItems.get(oldItemPosition);
                     CardDisplayItem newItem = newDisplayItems.get(newItemPosition);
                     if (oldItem == null || newItem == null) return false;
-                    return oldItem.isOwned() == newItem.isOwned()
+                    boolean oldPinned = currentPinnedIds.contains(String.valueOf(oldItem.getId()));
+                    boolean newPinned = newPinnedIds.contains(String.valueOf(newItem.getId()));
+
+                    return oldPinned == newPinned
+                            && oldItem.isOwned() == newItem.isOwned()
                             && oldItem.getUpgradeLevel() == newItem.getUpgradeLevel()
                             && oldItem.getLevel() == newItem.getLevel()
                             && oldItem.getOvr() == newItem.getOvr()
@@ -215,6 +222,7 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             this.displayItems.clear();
             this.displayItems.addAll(newDisplayItems);
+            this.currentPinnedIds = new HashSet<>(newPinnedIds);
             diffResult.dispatchUpdatesTo(this);
         }
     }

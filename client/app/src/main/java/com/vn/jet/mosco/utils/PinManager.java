@@ -24,12 +24,18 @@ public class PinManager {
         }
         
         prefs.edit().putStringSet(KEY_PINNED_IDS, pinnedIds).apply();
+        DatabaseLoader.notifyInventoryChanged();
     }
 
     public static boolean isPinned(Context context, String cardId) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         Set<String> pinnedIds = prefs.getStringSet(KEY_PINNED_IDS, new HashSet<>());
         return pinnedIds.contains(cardId);
+    }
+
+    public static Set<String> getAllPinnedIds(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return new HashSet<>(prefs.getStringSet(KEY_PINNED_IDS, new HashSet<>()));
     }
 
     public static Set<String> getPinnedIds(Context context) {

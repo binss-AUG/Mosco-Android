@@ -136,7 +136,7 @@ public class DatabaseLoader {
         inventoryChangeListeners.remove(listener);
     }
 
-    private static void notifyInventoryChanged() {
+    public static void notifyInventoryChanged() {
         for (OnInventoryChangeListener listener : new ArrayList<>(inventoryChangeListeners)) {
             listener.onInventoryChanged();
         }
