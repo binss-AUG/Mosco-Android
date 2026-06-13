@@ -55,14 +55,10 @@ public class EtlService {
 
             // 1. Đọc file JSON từ thư mục data/assets/ (Dữ liệu động đã cào)
             java.io.File dbFile = new java.io.File("data/assets/database.json");
-            InputStream inputStream;
             if (!dbFile.exists()) {
-                log.warn("Dynamic database.json file not found. Falling back to static resource...");
-                ClassPathResource resource = new ClassPathResource("database.json");
-                inputStream = resource.getInputStream();
-            } else {
-                inputStream = new java.io.FileInputStream(dbFile);
+                throw new RuntimeException("data/assets/database.json not found!");
             }
+            InputStream inputStream = new java.io.FileInputStream(dbFile);
             DatabaseJsonWrapper wrapper = objectMapper.readValue(inputStream, DatabaseJsonWrapper.class);
             List<CardJsonDto> collections = wrapper.getCollections();
 
@@ -103,7 +99,7 @@ public class EtlService {
                 if (card.getUpgradeLevel() == 0) card.setUpgradeLevel(1);
 
                 // Phát triển cho thẻ Motion (Dynamic URL Generation từ Slug Apollo)
-                if (cardClass != null && "Motion".equalsIgnoreCase(cardClass.getName())) {
+                if (cardClass != null) {
                     String slug = dto.getSlug() != null ? dto.getSlug().toLowerCase() : "";
                     if (slug.isEmpty()) {
                         String seasonName = season != null ? season.getName().toLowerCase().replaceAll("\\s+", "") : "";
@@ -111,7 +107,17 @@ public class EtlService {
                         String colNo = dto.getCollectionNo() != null ? dto.getCollectionNo().toLowerCase() : "";
                         slug = seasonName + "-" + memberName + "-" + colNo;
                     }
-                    String videoUrl = "https://cdn.apollo.cafe/mco/triples/" + slug + ".mp4";
+                    String prefix = "mco";
+                    switch (cardClass.getName().toLowerCase()) {
+                        case "double": prefix = "dco"; break;
+                        case "unit": prefix = "uco"; break;
+                        case "zero": prefix = "zco"; break;
+                        case "special": prefix = "sco"; break;
+                        case "welcome": prefix = "wco"; break;
+                        case "first": prefix = "fco"; break;
+                        case "premier": prefix = "pco"; break;
+                    }
+                    String videoUrl = "https://cdn.apollo.cafe/" + prefix + "/triples/" + slug + ".mp4";
                     card.setFrontVideoUrl(videoUrl);
                 } else {
                     card.setFrontVideoUrl(null);

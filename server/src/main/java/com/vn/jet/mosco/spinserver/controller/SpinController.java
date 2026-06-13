@@ -20,10 +20,13 @@ public class SpinController {
     public void init() {
         try {
             // Đọc dữ liệu từ thư mục resources
-            var db = new ClassPathResource("database.json");
+            java.io.File dbFile = new java.io.File("data/assets/database.json");
+            if (!dbFile.exists()) {
+                throw new RuntimeException("data/assets/database.json not found!");
+            }
             var rates = new ClassPathResource("rates_config.json");
             spinSystem.loadData(
-                    new InputStreamReader(db.getInputStream(), StandardCharsets.UTF_8),
+                    new InputStreamReader(new java.io.FileInputStream(dbFile), StandardCharsets.UTF_8),
                     new InputStreamReader(rates.getInputStream(), StandardCharsets.UTF_8)
             );
             log.info("Jet Mien Tay - SpinSystem loaded!");

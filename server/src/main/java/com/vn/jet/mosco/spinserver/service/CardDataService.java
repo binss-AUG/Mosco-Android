@@ -73,13 +73,11 @@ public class CardDataService {
             InputStream is;
             java.io.File externalFile = new java.io.File("data/assets/database.json");
             
-            if (externalFile.exists()) {
-                logger.info("CardDataService: Loading filtered database from external storage: {}", externalFile.getAbsolutePath());
-                is = new java.io.FileInputStream(externalFile);
-            } else {
-                logger.info("CardDataService: External filtered database not found, falling back to classpath resource");
-                is = new ClassPathResource("database.json").getInputStream();
+            if (!externalFile.exists()) {
+                throw new RuntimeException("data/assets/database.json not found!");
             }
+            logger.info("CardDataService: Loading filtered database from external storage: {}", externalFile.getAbsolutePath());
+            is = new java.io.FileInputStream(externalFile);
             
             JsonNode root = mapper.readTree(is);
             JsonNode collections = root.get("collections");
@@ -237,7 +235,32 @@ public class CardDataService {
         if (card.getCreatedAt() != null) {
             dto.setCreatedAt(card.getCreatedAt().toString());
         }
-        dto.setFrontVideoUrl(videoUrlCache.get(collectionId));
+        String slug = "";
+        if (meta != null && meta.has("slug")) {
+            slug = meta.get("slug").asText().toLowerCase();
+        }
+        if (slug.isEmpty() && meta != null) {
+            String seasonName = meta.has("season") ? meta.get("season").asText().toLowerCase().replaceAll("\\s+", "") : "";
+            String memberName = meta.has("member") ? meta.get("member").asText().toLowerCase().replaceAll("\\s+", "") : "";
+            String colNo = meta.has("collectionNo") ? meta.get("collectionNo").asText().toLowerCase() : "";
+            slug = seasonName + "-" + memberName + "-" + colNo;
+        }
+        
+        String prefix = "mco";
+        if (cardClass != null) {
+            switch (cardClass.toLowerCase()) {
+                case "double": prefix = "dco"; break;
+                case "unit": prefix = "uco"; break;
+                case "zero": prefix = "zco"; break;
+                case "special": prefix = "sco"; break;
+                case "welcome": prefix = "wco"; break;
+                case "first": prefix = "fco"; break;
+                case "premier": prefix = "pco"; break;
+            }
+        }
+        if (!slug.isEmpty()) {
+            dto.setFrontVideoUrl("https://cdn.apollo.cafe/" + prefix + "/triples/" + slug + ".mp4");
+        }
         return dto;
     }
 

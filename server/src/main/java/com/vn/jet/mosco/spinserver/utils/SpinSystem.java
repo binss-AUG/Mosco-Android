@@ -76,10 +76,13 @@ public class SpinSystem {
     @PostConstruct
     public void init() {
         try {
-            ClassPathResource dbResource = new ClassPathResource("database.json");
+            java.io.File dbFile = new java.io.File("data/assets/database.json");
+            if (!dbFile.exists()) {
+                throw new RuntimeException("data/assets/database.json not found!");
+            }
             ClassPathResource rateResource = new ClassPathResource("rates_config.json");
             
-            try (Reader dbReader = new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8);
+            try (Reader dbReader = new InputStreamReader(new java.io.FileInputStream(dbFile), StandardCharsets.UTF_8);
                  Reader rateReader = new InputStreamReader(rateResource.getInputStream(), StandardCharsets.UTF_8)) {
                 loadData(dbReader, rateReader);
             }

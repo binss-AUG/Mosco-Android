@@ -104,16 +104,26 @@ public class CollectionBookService {
             ce.setBackImage(meta.has("backImage") ? meta.get("backImage").asText() : "");
             ce.setBackgroundColor(meta.has("backgroundColor") ? meta.get("backgroundColor").asText() : "#FFFFFF");
 
-            if (meta.has("class") && "Motion".equalsIgnoreCase(meta.get("class").asText())) {
-                String slug = meta.has("slug") ? meta.get("slug").asText().toLowerCase() : "";
-                if (slug.isEmpty()) {
-                    String seasonName = meta.has("season") ? meta.get("season").asText().toLowerCase().replaceAll("\\s+", "") : "";
-                    String memberName = meta.has("member") ? meta.get("member").asText().toLowerCase().replaceAll("\\s+", "") : "";
-                    String colNo = meta.has("collectionNo") ? meta.get("collectionNo").asText().toLowerCase() : "";
-                    slug = seasonName + "-" + memberName + "-" + colNo;
-                }
-                ce.setFrontVideoUrl("https://cdn.apollo.cafe/mco/triples/" + slug + ".mp4");
+            String slug = meta.has("slug") ? meta.get("slug").asText().toLowerCase() : "";
+            if (slug.isEmpty()) {
+                String seasonName = meta.has("season") ? meta.get("season").asText().toLowerCase().replaceAll("\\s+", "") : "";
+                String memberName = meta.has("member") ? meta.get("member").asText().toLowerCase().replaceAll("\\s+", "") : "";
+                String colNo = meta.has("collectionNo") ? meta.get("collectionNo").asText().toLowerCase() : "";
+                slug = seasonName + "-" + memberName + "-" + colNo;
             }
+            
+            String prefix = "mco";
+            String cardClass = meta.has("class") ? meta.get("class").asText().toLowerCase() : "";
+            switch (cardClass) {
+                case "double": prefix = "dco"; break;
+                case "unit": prefix = "uco"; break;
+                case "zero": prefix = "zco"; break;
+                case "special": prefix = "sco"; break;
+                case "welcome": prefix = "wco"; break;
+                case "first": prefix = "fco"; break;
+                case "premier": prefix = "pco"; break;
+            }
+            ce.setFrontVideoUrl("https://cdn.apollo.cafe/" + prefix + "/triples/" + slug + ".mp4");
 
             if (unlocked.contains(collectionId)) {
                 ce.setOwned(true);

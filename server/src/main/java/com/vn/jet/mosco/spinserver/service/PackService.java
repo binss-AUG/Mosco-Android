@@ -68,8 +68,13 @@ public class PackService {
             ClassPathResource ratesResource = new ClassPathResource("rates_config.json");
             ratesConfig = JsonParser.parseReader(new InputStreamReader(ratesResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
 
-            ClassPathResource dbResource = new ClassPathResource("database.json");
-            JsonObject dbJson = JsonParser.parseReader(new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+            java.io.File dbFile = new java.io.File("data/assets/database.json");
+            if (!dbFile.exists()) {
+                throw new RuntimeException("data/assets/database.json not found!");
+            }
+            java.io.InputStream inputStream = new java.io.FileInputStream(dbFile);
+
+            JsonObject dbJson = JsonParser.parseReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).getAsJsonObject();
             JsonArray collections = dbJson.getAsJsonArray("collections");
             
             allCards = new ArrayList<>();

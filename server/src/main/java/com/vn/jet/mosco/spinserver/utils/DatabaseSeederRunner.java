@@ -166,8 +166,12 @@ public class DatabaseSeederRunner implements CommandLineRunner {
                 log.info("Cleaned up {} obsolete junk cards from admin's inventory.", cardsToDelete.size());
             }
 
-            ClassPathResource dbResource = new ClassPathResource("database.json");
-            JsonObject dbJson = new JsonParser().parse(new InputStreamReader(dbResource.getInputStream(), StandardCharsets.UTF_8)).getAsJsonObject();
+            java.io.File dbFile = new java.io.File("data/assets/database.json");
+            if (!dbFile.exists()) {
+                throw new RuntimeException("data/assets/database.json not found!");
+            }
+            java.io.InputStream inputStream = new java.io.FileInputStream(dbFile);
+            JsonObject dbJson = JsonParser.parseReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).getAsJsonObject();
             JsonArray collections = dbJson.getAsJsonArray("collections");
 
             List<UserCard> allCards = new ArrayList<>();
