@@ -126,7 +126,7 @@
 
             <!-- Tab 2: Stage -->
             <LinearLayout
-                android:id="@+id/btn_custom_nav_stage"
+                android:id="@+id/btn_custom_nav_upgrade"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -137,18 +137,18 @@
                 android:focusable="true">
 
                 <ImageView
-                    android:id="@+id/iv_custom_nav_stage"
+                    android:id="@+id/iv_custom_nav_upgrade"
                     android:layout_width="@dimen/lg_nav_icon_size"
                     android:layout_height="@dimen/lg_nav_icon_size"
-                    android:src="@drawable/ic_stage"
+                    android:src="@drawable/ic_nav_upgrade"
                     app:tint="@color/semantic_text_secondary" />
 
                 <TextView
-                    android:id="@+id/tv_custom_nav_stage"
+                    android:id="@+id/tv_custom_nav_upgrade"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Stage"
+                    android:layout_marginTop="@dimen/spacing_4dp"
+                    android:text="Upgrade"
                     android:textSize="@dimen/text_size_badge"
                     android:fontFamily="@font/pretendard"
                     android:textColor="@color/semantic_text_secondary"

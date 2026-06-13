@@ -461,7 +461,7 @@ public class ObjetDetailBinder {
                                     .commit();
                             com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = activity.findViewById(R.id.bottom_navigation);
                             if (bottomNav != null) {
-                                bottomNav.setSelectedItemId(R.id.nav_stage);
+                                bottomNav.setSelectedItemId(R.id.nav_upgrade);
                             }
                         }
                     }

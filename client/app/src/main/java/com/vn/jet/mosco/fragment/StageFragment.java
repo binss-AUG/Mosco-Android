@@ -106,6 +106,11 @@ public class StageFragment extends Fragment {
         viewPager = view.findViewById(R.id.vp_stage_maps);
         viewBgOverlay = view.findViewById(R.id.view_bg_overlay);
         
+        View btnBack = view.findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        }
+
         dots = new View[]{
                 view.findViewById(R.id.dot_0),
                 view.findViewById(R.id.dot_1),

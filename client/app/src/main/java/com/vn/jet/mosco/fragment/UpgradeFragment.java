@@ -307,6 +307,9 @@ public class UpgradeFragment extends Fragment {
         View headerView = view.findViewById(R.id.layout_header_upgrade);
         if (headerView != null) {
             btnBack = headerView.findViewById(R.id.btn_back_common);
+            if (btnBack != null) {
+                btnBack.setVisibility(View.GONE);
+            }
             TextView tvTitle = headerView.findViewById(R.id.tv_header_title);
             if (tvTitle != null) {
                 tvTitle.setText(R.string.upgrade_header_title);

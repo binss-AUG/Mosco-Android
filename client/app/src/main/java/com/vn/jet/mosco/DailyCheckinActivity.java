@@ -249,7 +249,7 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
 
     private void loadDailyStatus() {
         // [CHEAT MODE] - Bật tất cả các mốc thành Available để test UI (Quét Laser)
-        if (true) {
+        if (false) {
             adapter.updateStatuses(new String[]{
                 STATUS_AVAILABLE, STATUS_AVAILABLE, STATUS_AVAILABLE
             });
@@ -288,7 +288,7 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
 
     private void claimSlot(int position) {
         // [CHEAT MODE] - Tự động chạy animation rớt Stamp và hiện Dialog xịn xò không cần API
-        if (true) {
+        if (false) {
             long fakeCoins = 999;
             long fakeDiamonds = 50;
             

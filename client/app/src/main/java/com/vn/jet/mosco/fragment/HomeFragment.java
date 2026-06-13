@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
     private boolean isDataLoaded = false;
     
     // Dashboard Modules
-    private View cvModuleStreak, cvModuleDaily, cvModuleUpgrade, btnFullRank;
+    private View cvModuleStreak, cvModuleDaily, cvModuleStage, btnFullRank;
     private TextView tvModuleStreakVal;
     private com.airbnb.lottie.LottieAnimationView lottieModuleStreak, lottieModuleStreakGlow;
     private View layoutWorldChatExpanded;
@@ -260,7 +260,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         // Dashboard
         cvModuleStreak = v.findViewById(R.id.cv_module_streak);
         cvModuleDaily = v.findViewById(R.id.cv_module_daily);
-        cvModuleUpgrade = v.findViewById(R.id.cv_module_upgrade);
+        cvModuleStage = v.findViewById(R.id.cv_module_stage);
         tvModuleStreakVal = v.findViewById(R.id.tv_module_streak_val);
         lottieModuleStreak = v.findViewById(R.id.lottie_module_streak);
         vpMiniRanking = v.findViewById(R.id.vp_mini_ranking);
@@ -374,6 +374,21 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 }
             });
         }
+        
+        // Bắt đầu hiệu ứng FOMO chớp nháy cho chữ ở đáy card
+        startFomoBlink(getActivity() != null ? getActivity().findViewById(R.id.tv_module_streak_hint) : null);
+        startFomoBlink(getActivity() != null ? getActivity().findViewById(R.id.tv_module_daily_hint) : null);
+        startFomoBlink(getActivity() != null ? getActivity().findViewById(R.id.tv_module_stage_hint) : null);
+    }
+
+    private void startFomoBlink(View view) {
+        if (view == null) return;
+        ObjectAnimator animator = ObjectAnimator.ofFloat(view, "alpha", 1.0f, 0.3f, 1.0f);
+        animator.setDuration(1000);
+        animator.setRepeatCount(ObjectAnimator.INFINITE);
+        animator.setRepeatMode(ObjectAnimator.REVERSE);
+        animator.start();
+        activeAnimators.add(animator);
     }
 
     private void startRankingTimeout() {
@@ -671,11 +686,11 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                 startActivity(new android.content.Intent(requireContext(), com.vn.jet.mosco.DailyCheckinActivity.class));
             }));
         }
-        if (cvModuleUpgrade != null) {
-            cvModuleUpgrade.setOnClickListener(new ClickDebounce(v -> {
+        if (cvModuleStage != null) {
+            cvModuleStage.setOnClickListener(new ClickDebounce(v -> {
                 if (getActivity() != null) {
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.frame_layout, new UpgradeFragment())
+                            .add(R.id.frame_layout, new com.vn.jet.mosco.fragment.StageFragment())
                             .addToBackStack(null)
                             .commit();
                 }
@@ -946,12 +961,12 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
 
         public MiniRankPagerAdapter() {
             titles = new String[]{
-                getString(R.string.rank_tab_level),
-                getString(R.string.rank_tab_album),
-                getString(R.string.rank_tab_streak),
-                getString(R.string.rank_tab_fame),
-                getString(R.string.rank_tab_social),
-                getString(R.string.rank_tab_duo_streak)
+                "TOP " + getString(R.string.rank_tab_level),
+                "TOP " + getString(R.string.rank_tab_album),
+                "TOP " + getString(R.string.rank_tab_streak),
+                "TOP " + getString(R.string.rank_tab_fame),
+                "TOP " + getString(R.string.rank_tab_social),
+                "TOP " + getString(R.string.rank_tab_duo_streak)
             };
         }
 

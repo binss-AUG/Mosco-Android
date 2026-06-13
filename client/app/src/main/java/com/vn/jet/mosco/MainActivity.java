@@ -564,7 +564,7 @@ public class MainActivity extends MoscoBaseActivity {
 
     private void setupCustomBottomNavigation(BottomNavigationView bottomNav) {
         View btnHome = findViewById(R.id.btn_custom_nav_home);
-        View btnStage = findViewById(R.id.btn_custom_nav_stage);
+        View btnUpgrade = findViewById(R.id.btn_custom_nav_upgrade);
         View btnSpin = findViewById(R.id.btn_custom_nav_spin);
         View btnCollect = findViewById(R.id.btn_custom_nav_collect);
         View btnProfile = findViewById(R.id.btn_custom_nav_profile);
@@ -573,7 +573,7 @@ public class MainActivity extends MoscoBaseActivity {
 
         // Binds custom layout click events directly to BottomNavigationView items
         btnHome.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_home));
-        btnStage.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_stage));
+        btnUpgrade.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_upgrade));
         btnSpin.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_spin));
         btnCollect.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_collect));
         btnProfile.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_profile));
@@ -591,7 +591,7 @@ public class MainActivity extends MoscoBaseActivity {
             // Click same tab -> bounce to provide tactile feedback
             if (itemId == bottomNav.getSelectedItemId()) {
                 View activeBtn = findViewById(itemId == R.id.nav_home ? R.id.btn_custom_nav_home :
-                                             itemId == R.id.nav_stage ? R.id.btn_custom_nav_stage :
+                                             itemId == R.id.nav_upgrade ? R.id.btn_custom_nav_upgrade :
                                              itemId == R.id.nav_spin ? R.id.btn_custom_nav_spin :
                                              itemId == R.id.nav_collect ? R.id.btn_custom_nav_collect :
                                              R.id.btn_custom_nav_profile);
@@ -602,8 +602,8 @@ public class MainActivity extends MoscoBaseActivity {
             Fragment selectedFragment = null;
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_stage) {
-                selectedFragment = new com.vn.jet.mosco.fragment.StageFragment();
+            } else if (itemId == R.id.nav_upgrade) {
+                selectedFragment = new com.vn.jet.mosco.fragment.UpgradeFragment();
             } else if (itemId == R.id.nav_collect) {
                 selectedFragment = new CollectionFragment();
             } else if (itemId == R.id.nav_spin) {
@@ -639,10 +639,10 @@ public class MainActivity extends MoscoBaseActivity {
     }
 
     private void updateCustomTabsVisualState(int selectedItemId) {
-        int[] itemIds = {R.id.nav_home, R.id.nav_stage, R.id.nav_spin, R.id.nav_collect, R.id.nav_profile};
-        int[] customBtnIds = {R.id.btn_custom_nav_home, R.id.btn_custom_nav_stage, R.id.btn_custom_nav_spin, R.id.btn_custom_nav_collect, R.id.btn_custom_nav_profile};
-        int[] ivIds = {R.id.iv_custom_nav_home, R.id.iv_custom_nav_stage, R.id.iv_custom_nav_spin, R.id.iv_custom_nav_collect, R.id.iv_custom_nav_profile};
-        int[] tvIds = {R.id.tv_custom_nav_home, R.id.tv_custom_nav_stage, 0, R.id.tv_custom_nav_collect, R.id.tv_custom_nav_profile};
+        int[] itemIds = {R.id.nav_home, R.id.nav_upgrade, R.id.nav_spin, R.id.nav_collect, R.id.nav_profile};
+        int[] customBtnIds = {R.id.btn_custom_nav_home, R.id.btn_custom_nav_upgrade, R.id.btn_custom_nav_spin, R.id.btn_custom_nav_collect, R.id.btn_custom_nav_profile};
+        int[] ivIds = {R.id.iv_custom_nav_home, R.id.iv_custom_nav_upgrade, R.id.iv_custom_nav_spin, R.id.iv_custom_nav_collect, R.id.iv_custom_nav_profile};
+        int[] tvIds = {R.id.tv_custom_nav_home, R.id.tv_custom_nav_upgrade, 0, R.id.tv_custom_nav_collect, R.id.tv_custom_nav_profile};
 
         for (int i = 0; i < itemIds.length; i++) {
             boolean isActive = (itemIds[i] == selectedItemId);
