@@ -1367,6 +1367,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         } else {
             startCarousel();
         }
+        updateExhibitVisibility();
     }
 
     /**
@@ -1665,6 +1666,38 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         DatabaseLoader.initMasterData(requireContext());
     }
 
+    private void updateExhibitVisibility() {
+        if (getView() == null) return;
+        View layoutExhibit = getView().findViewById(R.id.layout_exhibit_container);
+        View layoutProfileInfo = getView().findViewById(R.id.layout_profile_info);
+        if (layoutExhibit == null || layoutProfileInfo == null) return;
+
+        boolean hasShowcaseItems = false;
+        if (currentShowcaseIds != null) {
+            for (String id : currentShowcaseIds) {
+                if (id != null && !id.trim().isEmpty() && !id.equals("null")) {
+                    hasShowcaseItems = true;
+                    break;
+                }
+            }
+        }
+
+        boolean shouldShowExhibit = hasShowcaseItems || isEditMode;
+        
+        layoutExhibit.setVisibility(shouldShowExhibit ? View.VISIBLE : View.GONE);
+        
+        // Điều chỉnh margin để cân đối khi ở giữa hoặc khi chia cột
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) layoutProfileInfo.getLayoutParams();
+        if (shouldShowExhibit) {
+            layoutParams.setMarginStart((int) getResources().getDimension(R.dimen.spacing_md));
+            layoutProfileInfo.setPadding(layoutProfileInfo.getPaddingLeft(), layoutProfileInfo.getPaddingTop(), (int) getResources().getDimension(R.dimen.spacing_xxs), layoutProfileInfo.getPaddingBottom());
+        } else {
+            layoutParams.setMarginStart(0);
+            layoutProfileInfo.setPadding(layoutProfileInfo.getPaddingLeft(), layoutProfileInfo.getPaddingTop(), 0, layoutProfileInfo.getPaddingBottom());
+        }
+        layoutProfileInfo.setLayoutParams(layoutParams);
+    }
+
     private void renderShowcaseData(UserStats stats) {
         if (stats == null || vpShowcase == null) return;
         List<String> validIds = new ArrayList<>();
@@ -1707,6 +1740,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         if (needsUpdate && viewModel != null) {
             viewModel.updateShowcase(validIds);
         }
+
+        updateExhibitVisibility();
 
         // Tự động start carousel khi có dữ liệu
         startCarousel();

@@ -4,6 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.vn.jet.mosco.model.AuthResponse;
+import com.vn.jet.mosco.model.SavedAccount;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages user session data using SharedPreferences.
@@ -40,6 +47,9 @@ public class SessionManager {
     // --- REMEMBER ME KEYS ---
     private static final String KEY_REMEMBER_ME = "remember_me";
     private static final String KEY_SAVED_USERNAME_OR_EMAIL = "saved_username_or_email";
+    
+    // --- MULTI-ACCOUNT KEY ---
+    private static final String KEY_SAVED_ACCOUNTS = "saved_accounts";
 
     private final SharedPreferences prefs;
     private final Context context;
@@ -256,5 +266,49 @@ public class SessionManager {
 
     public boolean isStreakNotificationEnabled() {
         return prefs.getBoolean(KEY_NOTI_STREAK, true);
+    }
+
+    // --- MULTI-ACCOUNT MANAGEMENT ---
+    
+    public List<SavedAccount> getSavedAccounts() {
+        String json = prefs.getString(KEY_SAVED_ACCOUNTS, null);
+        if (json == null || json.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Type type = new TypeToken<List<SavedAccount>>() {}.getType();
+        return new Gson().fromJson(json, type);
+    }
+
+    public void upsertSavedAccount(SavedAccount account) {
+        List<SavedAccount> accounts = getSavedAccounts();
+        boolean exists = false;
+        for (int i = 0; i < accounts.size(); i++) {
+            if (accounts.get(i).getUserId() == account.getUserId()) {
+                accounts.set(i, account);
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            accounts.add(account);
+        }
+        String json = new Gson().toJson(accounts);
+        prefs.edit().putString(KEY_SAVED_ACCOUNTS, json).apply();
+    }
+
+    public void removeSavedAccount(long userId) {
+        List<SavedAccount> accounts = getSavedAccounts();
+        boolean removed = false;
+        for (int i = 0; i < accounts.size(); i++) {
+            if (accounts.get(i).getUserId() == userId) {
+                accounts.remove(i);
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            String json = new Gson().toJson(accounts);
+            prefs.edit().putString(KEY_SAVED_ACCOUNTS, json).apply();
+        }
     }
 }

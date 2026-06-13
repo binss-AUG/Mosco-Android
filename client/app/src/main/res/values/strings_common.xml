@@ -150,4 +150,36 @@
     <string name="mail_msg_claim_all_success">All rewards collected successfully!</string>
     <string name="mail_msg_claim_failed">Failed to claim rewards!</string>
     <string name="mail_msg_connection_error">Server connection failed!</string>
+    <!-- Honor Badges -->
+    <string name="badge_tier_iron">Iron</string>
+    <string name="badge_tier_bronze">Bronze</string>
+    <string name="badge_tier_silver">Silver</string>
+    <string name="badge_tier_gold">Gold</string>
+    <string name="badge_tier_diamond">Diamond</string>
+    <string name="badge_tier_ex">EX</string>
+
+    <string name="badge_type_spin">Spin Master</string>
+    <string name="badge_type_pack">Pack Master</string>
+    <string name="badge_type_collection">Collection Master</string>
+    <string name="badge_type_immortal">Immortal</string>
+    <string name="badge_type_duo">Duo Flame</string>
+    <string name="badge_type_celebrity">Celebrity</string>
+    <string name="badge_type_hammer">Golden Hammer</string>
+    
+    <string name="badge_desc_spin">Perform spins in Gacha Spin to unlock the next tier.</string>
+    <string name="badge_desc_pack">Open items and packs in the Shop to upgrade your badge.</string>
+    <string name="badge_desc_collection">Acquire new cards to increase your collection completion rate.</string>
+    <string name="badge_desc_immortal">Maintain consecutive daily logins to increase your streak.</string>
+    <string name="badge_desc_duo">Chat and keep the interaction flame burning with your duo.</string>
+    <string name="badge_desc_celebrity">Receive profile likes from other players.</string>
+    <string name="badge_desc_hammer">Upgrade your cards to reach higher enhancement levels.</string>
+
+    <string name="badge_unit_spin">Spins</string>
+    <string name="badge_unit_pack">Packs</string>
+    <string name="badge_unit_collection">% Collection</string>
+    <string name="badge_unit_streak">Day Streak</string>
+    <string name="badge_unit_likes">Likes</string>
+    <string name="badge_unit_level">Levels</string>
+    
+    <string name="badge_progress_format">Progress: %1$d / %2$d %3$s</string>
 </resources>

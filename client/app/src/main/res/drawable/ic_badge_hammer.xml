@@ -1,9 +1,40 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M9,15l9,-9l3,3l-9,9L9,15zM21,3c-1.1,-1.1 -2.9,-1.1 -4,0l-3,3l7,7l3,-3C22.1,5.9 22.1,4.1 21,3zM3,21c0,0.55 0.45,1 1,1c0.26,0 0.52,-0.1 0.71,-0.29L13.41,13L11,10.59L2.29,19.29C2.1,19.48 2,19.74 2,20C2,20.55 2.45,21 3,21z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:width="48dp" 
+    android:height="48dp" 
+    android:viewportWidth="48" 
+    android:viewportHeight="48">
+
+    <group android:rotation="45" android:pivotX="24" android:pivotY="24" android:scaleX="1.15" android:scaleY="1.15">
+        <!-- Head -->
+        <path android:fillColor="#FFFFFF" android:pathData="
+            M20,8 L28,8 
+            L28,11 L36,11
+            A2,2 0 0,1 38,13
+            L38,19
+            A2,2 0 0,1 36,21
+            L28,21 L28,24 L20,24 L20,21 L12,21
+            A2,2 0 0,1 10,19
+            L10,13
+            A2,2 0 0,1 12,11
+            L20,11 Z" />
+            
+        <!-- Handle -->
+        <path android:fillColor="#FFFFFF" android:pathData="
+            M21,24 L27,24 
+            L27,42
+            A2,2 0 0,1 25,44 
+            L23,44 
+            A2,2 0 0,1 21,42 Z" />
+            
+        <!-- Top Wedge -->
+        <path android:fillColor="#FFFFFF" android:pathData="
+            M22,2 L26,2 
+            A1,1 0 0,1 27,3 
+            L27,4 
+            A1,1 0 0,1 26,5 
+            L22,5 
+            A1,1 0 0,1 21,4 
+            L21,3 
+            A1,1 0 0,1 22,2 Z" />
+    </group>
 </vector>

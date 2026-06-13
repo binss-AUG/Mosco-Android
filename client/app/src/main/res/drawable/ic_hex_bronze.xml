@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#4E342E" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#8D6E63" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core (Moved up to reveal thick bottom border) -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#D7CCC8" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#EFEBE9" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#A1887F" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+    
+</vector>

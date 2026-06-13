@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+
+    <!-- WINGS (Background) from old Gold -->
+    <path android:fillColor="#B0BEC5" android:pathData="M80,80 L20,40 L35,80 L10,95 L40,110 Z" />
+    <path android:fillColor="#B0BEC5" android:pathData="M80,80 L140,40 L125,80 L150,95 L120,110 Z" />
+
+    <!-- WINGS Shadow -->
+    <path android:fillColor="#78909C" android:pathData="M80,80 L35,80 L10,95 L40,110 Z" />
+    <path android:fillColor="#78909C" android:pathData="M80,80 L125,80 L150,95 L120,110 Z" />
+
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#455A64" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#90A4AE" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#CFD8DC" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#ECEFF1" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#B0BEC5" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+</vector>

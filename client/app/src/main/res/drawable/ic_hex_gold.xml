@@ -1,0 +1,52 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+
+    <!-- SUNBURST Rays Base (Bright Gold) -->
+    <path android:fillColor="#FFCA28" android:pathData="
+        M40,40 L10,10 L50,25 Z
+        M40,120 L10,150 L50,135 Z
+        M120,40 L150,10 L110,25 Z
+        M120,120 L150,150 L110,135 Z
+        M37,80 L0,80 L37,95 Z
+        M123,80 L160,80 L123,95 Z
+        M80,30 L80,0 L95,30 Z
+        M80,130 L80,160 L95,130 Z" />
+        
+    <!-- SUNBURST Rays Shadow (Dark Gold/Orange) for 3D bevel -->
+    <path android:fillColor="#FF8F00" android:pathData="
+        M40,40 L10,10 L30,45 Z
+        M40,120 L10,150 L30,115 Z
+        M120,40 L150,10 L130,45 Z
+        M120,120 L150,150 L130,115 Z
+        M37,80 L0,80 L37,65 Z
+        M123,80 L160,80 L123,65 Z
+        M80,30 L80,0 L65,30 Z
+        M80,130 L80,160 L65,130 Z" />
+
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#E65100" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#FFB300" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#FFCA28" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#FFF59D" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#FFCC80" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+</vector>

@@ -125,7 +125,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_volume_up"
+                    android:src="@drawable/ic_sound"
                     app:tint="@color/white"
                     android:contentDescription="Music Icon" />
                 <TextView
@@ -159,7 +159,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_volume_up"
+                    android:src="@drawable/ic_sound"
                     app:tint="@color/white"
                     android:contentDescription="SFX Icon" />
                 <TextView
@@ -216,7 +216,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_bell_neon"
+                    android:src="@drawable/ic_noti"
                     app:tint="@color/white"
                     android:contentDescription="Notification Icon" />
                 <TextView
@@ -299,7 +299,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_items"
+                    android:src="@drawable/ic_storage"
                     app:tint="@color/white"
                     android:contentDescription="Storage Icon" />
                 <LinearLayout
@@ -351,7 +351,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_sync_galactic"
+                    android:src="@drawable/ic_sync"
                     app:tint="@color/white"
                     android:contentDescription="Auto Backup Icon" />
                 <LinearLayout
@@ -476,7 +476,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_lock"
+                    android:src="@drawable/ic_change_password"
                     app:tint="@color/white"
                     android:contentDescription="Password Icon" />
                 <TextView
@@ -526,7 +526,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_shield_check"
+                    android:src="@drawable/ic_policy"
                     app:tint="@color/white"
                     android:contentDescription="Privacy Icon" />
                 <TextView
@@ -564,7 +564,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_copy"
+                    android:src="@drawable/ic_terms_info"
                     app:tint="@color/white"
                     android:contentDescription="Terms Icon" />
                 <TextView
@@ -602,7 +602,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_info"
+                    android:src="@drawable/ic_license"
                     app:tint="@color/white"
                     android:contentDescription="Licenses Icon" />
                 <TextView
@@ -640,7 +640,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_logout"
+                    android:src="@drawable/ic_user_logout"
                     app:tint="@color/stat_atk"
                     android:contentDescription="Logout Icon" />
                 <TextView
@@ -679,7 +679,7 @@
                 <ImageView
                     android:layout_width="@dimen/spacing_lg"
                     android:layout_height="@dimen/spacing_lg"
-                    android:src="@drawable/ic_sad"
+                    android:src="@drawable/ic_delete_user"
                     app:tint="@color/stat_atk"
                     android:contentDescription="Delete Account Icon" />
                 <TextView

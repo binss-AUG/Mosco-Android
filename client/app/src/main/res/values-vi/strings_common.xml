@@ -150,4 +150,36 @@
     <string name="mail_msg_claim_all_success">Đã nhận thành công tất cả quà!</string>
     <string name="mail_msg_claim_failed">Nhận quà thất bại!</string>
     <string name="mail_msg_connection_error">Lỗi kết nối máy chủ!</string>
+    <!-- Honor Badges -->
+    <string name="badge_tier_iron">Iron</string>
+    <string name="badge_tier_bronze">Bronze</string>
+    <string name="badge_tier_silver">Silver</string>
+    <string name="badge_tier_gold">Gold</string>
+    <string name="badge_tier_diamond">Diamond</string>
+    <string name="badge_tier_ex">EX</string>
+
+    <string name="badge_type_spin">Spin Master</string>
+    <string name="badge_type_pack">Pack Master</string>
+    <string name="badge_type_collection">Collection Master</string>
+    <string name="badge_type_immortal">Immortal</string>
+    <string name="badge_type_duo">Duo Flame</string>
+    <string name="badge_type_celebrity">Celebrity</string>
+    <string name="badge_type_hammer">Golden Hammer</string>
+    
+    <string name="badge_desc_spin">Quay thẻ bài trong Gacha Spin để mở khóa cấp bậc tiếp theo.</string>
+    <string name="badge_desc_pack">Mở các gói vật phẩm (Pack) trong Shop để nâng cấp huy hiệu.</string>
+    <string name="badge_desc_collection">Sở hữu thêm nhiều thẻ bài mới để nâng tỉ lệ hoàn thiện bộ sưu tập.</string>
+    <string name="badge_desc_immortal">Duy trì đăng nhập điểm danh liên tiếp hằng ngày để tăng chuỗi.</string>
+    <string name="badge_desc_duo">Trò chuyện và giữ ngọn lửa tương tác liên tục với bạn cặp.</string>
+    <string name="badge_desc_celebrity">Nhận thêm lượt Thích (Like) trang cá nhân từ những người chơi khác.</string>
+    <string name="badge_desc_hammer">Nâng cấp (Upgrade) thẻ bài của bạn đạt các mốc cộng cao hơn.</string>
+
+    <string name="badge_unit_spin">Lượt quay</string>
+    <string name="badge_unit_pack">Gói mở</string>
+    <string name="badge_unit_collection">% bộ sưu tập</string>
+    <string name="badge_unit_streak">Ngày Streak</string>
+    <string name="badge_unit_likes">Lượt thích</string>
+    <string name="badge_unit_level">Cấp cộng</string>
+    
+    <string name="badge_progress_format">Tiến trình: %1$d / %2$d %3$s</string>
 </resources>

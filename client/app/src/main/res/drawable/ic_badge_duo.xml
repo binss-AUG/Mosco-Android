@@ -1,9 +1,27 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FFFFFFFF"
-      android:pathData="M9,4C9,4 13,8.5 13,11.5c0,2.21 -1.79,4 -4,4s-4,-1.79 -4,-4C5,8.5 9,4 9,4zm6,4c0,0 4,4.5 4,7.5c0,2.21 -1.79,4 -4,4s-4,-1.79 -4,-4C11,12.5 15,8 15,8zm-6,11c-2.76,0 -5,2.24 -5,5h10c0,-2.76 -2.24,-5 -5,-5zm6,2c-2.76,0 -5,2.24 -5,5h10c0,-2.76 -2.24,-5 -5,-5z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:width="48dp" 
+    android:height="48dp" 
+    android:viewportWidth="48" 
+    android:viewportHeight="48">
+
+    <!-- Symmetrical Flame with inner cutout -->
+    <path android:fillColor="#FFFFFF" android:fillType="evenOdd" android:pathData="
+        M24,46 
+        C10,46 4,36 4,26 
+        Q4,22 6,18 
+        Q12,28 14,24 
+        Q16,10 24,2 
+        Q32,10 34,24 
+        Q36,28 42,18 
+        Q44,22 44,26 
+        C44,36 38,46 24,46 Z 
+        M24,40 
+        C16,40 12,36 12,30 
+        Q12,26 14,22 
+        Q18,28 20,26 
+        Q22,18 24,14 
+        Q26,18 28,26 
+        Q30,28 34,22 
+        Q36,26 36,30 
+        C36,36 32,40 24,40 Z" />
 </vector>

@@ -52,6 +52,7 @@
 
                 <!-- Cột bên trái: Profile Info & Actions -->
                 <LinearLayout
+                    android:id="@+id/layout_profile_info"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"

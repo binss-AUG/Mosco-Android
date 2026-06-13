@@ -1,0 +1,83 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+
+    <!-- WINGS Shadow (Offset down/right for depth) -->
+    <path android:fillColor="#880E4F" android:pathData="
+        M82,62 
+        C52,22 12,22 7,47 
+        C22,42 32,57 17,67 
+        C32,62 42,77 7,87 
+        C37,82 47,97 22,117 
+        C52,107 72,102 82,97 Z" />
+    <path android:fillColor="#880E4F" android:pathData="
+        M82,62 
+        C112,22 152,22 157,47 
+        C142,42 132,57 147,67 
+        C132,62 122,77 157,87 
+        C127,82 117,97 142,117 
+        C112,107 92,102 82,97 Z" />
+
+    <!-- WINGS Base (Bright Neon Red/Pink) -->
+    <path android:fillColor="#FF4081" android:pathData="
+        M80,60 
+        C50,20 10,20 5,45 
+        C20,40 30,55 15,65 
+        C30,60 40,75 5,85 
+        C35,80 45,95 20,115 
+        C50,105 70,100 80,95 Z" />
+    <path android:fillColor="#FF4081" android:pathData="
+        M80,60 
+        C110,20 150,20 155,45 
+        C140,40 130,55 145,65 
+        C130,60 120,75 155,85 
+        C125,80 115,95 140,115 
+        C110,105 90,100 80,95 Z" />
+        
+    <!-- WINGS Inner Highlight (Magenta) -->
+    <path android:fillColor="#D500F9" android:pathData="
+        M80,60 
+        C55,28 20,30 15,45 
+        C28,42 36,55 23,65 
+        C36,60 46,73 15,83 
+        C41,78 51,91 30,109 
+        C55,100 70,95 80,95 Z" />
+    <path android:fillColor="#D500F9" android:pathData="
+        M80,60 
+        C105,28 140,30 145,45 
+        C132,42 124,55 137,65 
+        C124,60 114,73 145,83 
+        C119,78 109,91 130,109 
+        C105,100 90,95 80,95 Z" />
+
+    <!-- CROWN (Top) -->
+    <path android:fillColor="#FF4081" android:pathData="M80,5 L60,15 L70,25 L80,15 L90,25 L100,15 Z" />
+    <path android:fillColor="#D500F9" android:pathData="M80,8 L65,15 L73,22 L80,16 L87,22 L95,15 Z" />
+
+    <!-- 1. Drop Shadow -->
+    <group android:translateY="8">
+        <path android:fillColor="#40000000" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 2. Outer Rim (Dark Base) -->
+    <path android:fillColor="#4A148C" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+
+    <!-- 3. Bottom Bevel -->
+    <group android:scaleX="0.9" android:scaleY="0.9" android:pivotX="80" android:pivotY="80">
+        <path android:fillColor="#D500F9" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 4. Inner Core -->
+    <group android:scaleX="0.8" android:scaleY="0.8" android:pivotX="80" android:pivotY="80" android:translateY="-4">
+        <path android:fillColor="#FF4081" android:pathData="M80,30 L123,55 L123,105 L80,130 L37,105 L37,55 Z" />
+    </group>
+
+    <!-- 5. Top Jewel -->
+    <path android:fillColor="#F8BBD0" android:pathData="M80,12 L88,25 L80,38 L72,25 Z" />
+    
+    <!-- 6. Bottom Jewel -->
+    <path android:fillColor="#880E4F" android:pathData="M80,122 L88,135 L80,148 L72,135 Z" />
+    
+</vector>
