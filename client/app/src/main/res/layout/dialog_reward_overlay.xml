@@ -53,22 +53,23 @@
             android:textColor="@color/white"
             android:alpha="0.6" />
 
+        <!-- Unified Rewards Panel -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/layout_rewards_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/stage_reward_panel_margin_top"
             android:layout_marginHorizontal="@dimen/stage_reward_panel_margin_horizontal"
-            app:cardBackgroundColor="@color/semantic_surface"
+            app:cardBackgroundColor="@color/lg_glass_surface_elevated"
             app:cardCornerRadius="@dimen/stage_reward_panel_corner"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/glass_white_20"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/lg_glass_stroke_strong"
             app:strokeWidth="@dimen/stroke_thin">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="@dimen/stage_reward_panel_padding_vertical"
+                android:paddingVertical="@dimen/spacing_xl"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -92,14 +93,15 @@
                         android:layout_marginTop="@dimen/spacing_sm"
                         style="@style/MoscoText.Luxury.Header"
                         android:text="0"
-                        android:textSize="@dimen/stage_reward_value_text_size"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
                         android:textColor="@color/stage_coin_gold" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="@dimen/stroke_thin"
-                    android:layout_height="@dimen/divider_height_l"
-                    android:background="@color/glass_white_10" />
+                    android:layout_height="48dp"
+                    android:background="@color/lg_glass_stroke_subtle" />
 
                 <LinearLayout
                     android:id="@+id/layout_reward_diamonds"
@@ -121,7 +123,8 @@
                         android:layout_marginTop="@dimen/spacing_sm"
                         style="@style/MoscoText.Luxury.Header"
                         android:text="0"
-                        android:textSize="@dimen/stage_reward_value_text_size"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
                         android:textColor="@color/stage_diamond_cyan" />
                 </LinearLayout>
             </LinearLayout>

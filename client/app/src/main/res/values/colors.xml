@@ -297,4 +297,9 @@
     <color name="badge_tier_diamond">#06B6D4</color>
     <color name="badge_tier_ex_red">#DC2626</color>
     <color name="badge_tier_ex_dark">#0F172A</color>
+
+    <!-- Galactic Boarding Pass -->
+    <color name="daily_stamp_verified">#AA00E676</color>
+    <color name="daily_metallic_shimmer_center">#FFFFFFFF</color>
+    <color name="daily_metallic_shimmer_edge">#00FFFFFF</color>
 </resources>

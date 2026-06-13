@@ -234,7 +234,9 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
             // Đồng bộ corner radius bằng cách lấy giá trị chuẩn từ resources thay vì hardcode 2dp
             drawable.setCornerRadius(getResources().getDimension(R.dimen.page_indicator_radius));
             
-            int baseColor = accentColors[i];
+            // Tại sao (WHY): Lấy màu của trang hiện tại (activePos) để áp dụng cho TẤT CẢ các dot, 
+            // tạo sự đồng nhất về theme khi người dùng vuốt thẻ (trước đây mỗi dot bị fix cứng 1 màu)
+            int baseColor = accentColors[activePos];
             int alpha = (i == activePos) ? activeAlpha : inactiveAlpha;
             int color = ColorUtils.setAlphaComponent(baseColor, alpha);
             drawable.setColor(color);
@@ -246,6 +248,14 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
     }
 
     private void loadDailyStatus() {
+        // [CHEAT MODE] - Bật tất cả các mốc thành Available để test UI (Quét Laser)
+        if (true) {
+            adapter.updateStatuses(new String[]{
+                STATUS_AVAILABLE, STATUS_AVAILABLE, STATUS_AVAILABLE
+            });
+            return;
+        }
+
         apiService.getDailyStatus().enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -277,6 +287,45 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
     }
 
     private void claimSlot(int position) {
+        // [CHEAT MODE] - Tự động chạy animation rớt Stamp và hiện Dialog xịn xò không cần API
+        if (true) {
+            long fakeCoins = 999;
+            long fakeDiamonds = 50;
+            
+            RecyclerView rv = (RecyclerView) vpDaily.getChildAt(0);
+            RecyclerView.ViewHolder holder = rv != null ? rv.findViewHolderForAdapterPosition(position) : null;
+            if (holder instanceof DailyBannerAdapter.VH) {
+                DailyBannerAdapter.VH vh = (DailyBannerAdapter.VH) holder;
+                vh.tvStampClaimed.setVisibility(View.VISIBLE);
+                vh.tvStampClaimed.setTextColor(adapter.items.get(position).accentColor);
+                vh.tvStampClaimed.setScaleX(3f);
+                vh.tvStampClaimed.setScaleY(3f);
+                vh.tvStampClaimed.setAlpha(0f);
+                
+                vh.tvStampClaimed.animate()
+                        .scaleX(1f).scaleY(1f).alpha(1f)
+                        .setDuration(250)
+                        .setInterpolator(new android.view.animation.OvershootInterpolator(2.0f))
+                        .withEndAction(() -> {
+                            vh.itemView.animate().translationX(15f).setDuration(40).withEndAction(() -> {
+                                vh.itemView.animate().translationX(-15f).setDuration(40).withEndAction(() -> {
+                                    vh.itemView.animate().translationX(0f).setDuration(40).start();
+                                }).start();
+                            }).start();
+                            
+                            vpDaily.postDelayed(() -> {
+                                showRewardDialog(fakeCoins, fakeDiamonds);
+                                // Fake chuyển trạng thái thẻ thành CLAIMED
+                                adapter.items.get(position).status = STATUS_CLAIMED;
+                                adapter.notifyItemChanged(position);
+                            }, 400);
+                        }).start();
+            } else {
+                showRewardDialog(fakeCoins, fakeDiamonds);
+            }
+            return;
+        }
+
         apiService.claimDaily().enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -287,9 +336,43 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
                         if (data != null) {
                             long coins = data.optLong("coinsRewarded", 0);
                             long diamonds = data.optLong("diamondsRewarded", 0);
-                            showRewardDialog(coins, diamonds);
+                            
+                            // Tại sao (WHY): Trì hoãn việc hiển thị Dialog phần thưởng để Animation "Đóng dấu" (Stamp)
+                            // có đủ thời gian chạy và rung thẻ, tạo phản hồi thị giác (Feedback) uy lực cho Gacha UI.
+                            RecyclerView rv = (RecyclerView) vpDaily.getChildAt(0);
+                            RecyclerView.ViewHolder holder = rv != null ? rv.findViewHolderForAdapterPosition(position) : null;
+                            if (holder instanceof DailyBannerAdapter.VH) {
+                                DailyBannerAdapter.VH vh = (DailyBannerAdapter.VH) holder;
+                                vh.tvStampClaimed.setVisibility(View.VISIBLE);
+                                vh.tvStampClaimed.setTextColor(adapter.items.get(position).accentColor);
+                                vh.tvStampClaimed.setScaleX(3f);
+                                vh.tvStampClaimed.setScaleY(3f);
+                                vh.tvStampClaimed.setAlpha(0f);
+                                
+                                vh.tvStampClaimed.animate()
+                                        .scaleX(1f).scaleY(1f).alpha(1f)
+                                        .setDuration(250)
+                                        .setInterpolator(new android.view.animation.OvershootInterpolator(2.0f))
+                                        .withEndAction(() -> {
+                                            // Rung thẻ (Shake effect)
+                                            vh.itemView.animate().translationX(15f).setDuration(40).withEndAction(() -> {
+                                                vh.itemView.animate().translationX(-15f).setDuration(40).withEndAction(() -> {
+                                                    vh.itemView.animate().translationX(0f).setDuration(40).start();
+                                                }).start();
+                                            }).start();
+                                            
+                                            vpDaily.postDelayed(() -> {
+                                                showRewardDialog(coins, diamonds);
+                                                loadDailyStatus();
+                                            }, 400);
+                                        }).start();
+                            } else {
+                                showRewardDialog(coins, diamonds);
+                                loadDailyStatus();
+                            }
+                        } else {
+                            loadDailyStatus();
                         }
-                        loadDailyStatus();
                     } else {
                         String errorMsg = getString(R.string.daily_error_claim);
                         if (response.errorBody() != null) {
@@ -427,30 +510,31 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
 
             switch (status) {
                 case STATUS_CLAIMED:
-                    holder.tvClaimText.setText(getString(R.string.daily_status_claimed));
-                    // Đồng bộ màu của buổi với alpha thấp và stroke nét hơn
-                    int claimedBgAlpha = context.getResources().getInteger(R.integer.daily_btn_claimed_bg_alpha);
-                    int claimedStrokeAlpha = context.getResources().getInteger(R.integer.daily_btn_claimed_stroke_alpha);
-                    int claimedTextAlpha = context.getResources().getInteger(R.integer.daily_btn_claimed_text_alpha);
-
-                    holder.btnClaim.setCardBackgroundColor(ColorUtils.setAlphaComponent(accentColor, claimedBgAlpha));
-                    holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(ColorUtils.setAlphaComponent(accentColor, claimedStrokeAlpha)));
-                    holder.tvClaimText.setTextColor(ColorUtils.setAlphaComponent(colorWhite, claimedTextAlpha));
-                    holder.btnClaim.setAlpha(1.0f); // Không dùng alpha tổng để giữ độ sắc nét viền
+                    holder.tvClaimText.setText(getString(R.string.daily_status_verified));
+                    // Tại sao (WHY): Sử dụng thiết kế Outlined thuần khiết (nền trong suốt, viền và chữ mang màu accent) 
+                    // để tạo sự tương phản rõ rệt với nút Available dạng Solid, tối giản hóa UI theo thiết kế chung.
+                    holder.btnClaim.setCardBackgroundColor(colorTransparent);
+                    holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(accentColor));
+                    holder.tvClaimText.setTextColor(accentColor);
+                    holder.btnClaim.setAlpha(1.0f);
+                    
+                    holder.tvStampClaimed.setVisibility(View.VISIBLE);
+                    holder.tvStampClaimed.setTextColor(accentColor);
                     break;
                 case STATUS_AVAILABLE:
-                    holder.tvClaimText.setText(getString(R.string.daily_action_claim));
+                    holder.tvClaimText.setText(getString(R.string.daily_action_authenticate));
                     holder.btnClaim.setCardBackgroundColor(accentColor);
                     holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(colorTransparent));
                     holder.tvClaimText.setTextColor(colorWhite);
                     holder.btnClaim.setAlpha(1.0f);
                     holder.btnClaim.setClickable(true);
                     holder.btnClaim.setEnabled(true);
+                    
+                    holder.tvStampClaimed.setVisibility(View.GONE);
                     break;
                 case STATUS_LOCKED:
                 default:
-                    holder.tvClaimText.setText(getString(R.string.daily_action_claim));
-                    // Đồng bộ màu của buổi ở trạng thái khóa với opacity mờ
+                    holder.tvClaimText.setText("[ LOCKED ]");
                     int lockedBgAlpha = context.getResources().getInteger(R.integer.daily_btn_locked_bg_alpha);
                     int lockedStrokeAlpha = context.getResources().getInteger(R.integer.daily_btn_locked_stroke_alpha);
                     int lockedTextAlpha = context.getResources().getInteger(R.integer.daily_btn_locked_text_alpha);
@@ -459,9 +543,13 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
                     holder.btnClaim.setStrokeColor(android.content.res.ColorStateList.valueOf(ColorUtils.setAlphaComponent(accentColor, lockedStrokeAlpha)));
                     holder.tvClaimText.setTextColor(ColorUtils.setAlphaComponent(colorWhite, lockedTextAlpha));
                     holder.btnClaim.setAlpha(1.0f);
+                    
+                    holder.tvStampClaimed.setVisibility(View.GONE);
                     break;
             }
         }
+
+
 
         @Override
         public int getItemCount() {
@@ -470,6 +558,7 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
 
         class VH extends RecyclerView.ViewHolder {
             TextView tvTitle, tvTime, tvDesc, tvCoins, tvDiamonds, tvClaimText;
+            TextView tvStampClaimed;
             ImageView ivBanner;
             com.google.android.material.card.MaterialCardView btnClaim, cvCard;
             View viewAccentLine;
@@ -482,6 +571,7 @@ public class DailyCheckinActivity extends MoscoBaseActivity {
                 tvCoins = v.findViewById(R.id.tv_reward_coin);
                 tvDiamonds = v.findViewById(R.id.tv_reward_diamond);
                 tvClaimText = v.findViewById(R.id.tv_claim_text);
+                tvStampClaimed = v.findViewById(R.id.tv_stamp_claimed);
                 ivBanner = v.findViewById(R.id.iv_banner_artwork);
                 btnClaim = v.findViewById(R.id.btn_claim_daily);
                 cvCard = v.findViewById(R.id.cv_daily_card);

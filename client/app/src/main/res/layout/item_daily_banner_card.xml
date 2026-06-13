@@ -22,17 +22,54 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:alpha="0.5"
+            android:alpha="0.75"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/lg_background_deep" />
+            tools:src="@drawable/lg_background_deep" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bg_stage_card_gradient_overlay" />
+
+        <!-- Lưới Vi mạch mờ (Grid Overlay) để tạo cảm giác Sci-fi -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.05"
+            android:background="@drawable/bg_stage_card_gradient_overlay" />
+
+        <!-- Barcode Decor dọc -->
+        <TextView
+            android:id="@+id/tv_barcode_decor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_barcode_pattern"
+            android:rotation="90"
+            android:fontFamily="sans-serif-monospace"
+            android:textSize="@dimen/daily_barcode_text_size"
+            android:textColor="@color/white_20"
+            android:letterSpacing="-0.2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.4"
+            android:layout_marginEnd="-16dp" />
+
+        <!-- Serial Number Decor -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_serial_number"
+            android:fontFamily="sans-serif-monospace"
+            android:textSize="@dimen/daily_serial_text_size"
+            android:textColor="@color/white_40"
+            android:letterSpacing="0.2"
+            android:layout_margin="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Time Chip (Floating Glass) -->
         <com.google.android.material.card.MaterialCardView
@@ -54,9 +91,32 @@
                 android:paddingHorizontal="@dimen/daily_time_chip_padding_h"
                 android:paddingVertical="@dimen/daily_time_chip_padding_v"
                 style="@style/MoscoText.Luxury.Badge"
+                android:fontFamily="sans-serif-monospace"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
                 android:textColor="@color/white"
                 tools:text="06:00 - 11:59" />
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Claimed Stamp (Text View) -->
+        <TextView
+            android:id="@+id/tv_stamp_claimed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/daily_status_verified"
+            android:textSize="@dimen/daily_stamp_text_size"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-monospace"
+            android:textColor="@color/daily_stamp_verified"
+            android:rotation="-15"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:visibility="gone"
+            android:letterSpacing="0.2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Info Area (Bottom Aligned like Stage Map) -->
         <LinearLayout
@@ -70,12 +130,12 @@
             app:layout_constrainedHeight="true"
             app:layout_constraintVertical_bias="1.0">
 
-
             <TextView
                 android:id="@+id/tv_session_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/MoscoText.Luxury.Header"
+                android:fontFamily="sans-serif-monospace"
                 android:textSize="@dimen/daily_header_text_size"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
@@ -167,15 +227,15 @@
                 app:cardBackgroundColor="@color/lg_accent_secondary"
                 app:strokeWidth="@dimen/stroke_thin"
                 app:strokeColor="@android:color/transparent">
-
                 
                 <TextView
                     android:id="@+id/tv_claim_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="@dimen/spacing_md"
-                    android:text="@string/daily_action_claim"
+                    android:text="@string/daily_action_authenticate"
                     style="@style/MoscoText.Luxury.Button"
+                    android:fontFamily="sans-serif-monospace"
                     android:textAlignment="center"
                     android:textSize="@dimen/text_size_body_md"
                     android:textStyle="bold"
@@ -186,4 +246,3 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
-
