@@ -55,23 +55,57 @@ public class PhotoReviewActivity extends AppCompatActivity {
 
     private void saveToGallery() {
         if (cachedBitmap == null) return;
-        try {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, "Mosco_AR_" + System.currentTimeMillis() + ".png");
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Mosco");
+        
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                return;
+            }
+        }
+        
+        performSave();
+    }
 
-            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            if (uri != null) {
-                try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+    private void performSave() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, "Mosco_AR_" + System.currentTimeMillis() + ".png");
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Mosco");
+    
+                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                if (uri != null) {
+                    try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                        cachedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    }
+                }
+            } else {
+                File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Mosco");
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                File file = new File(directory, "Mosco_AR_" + System.currentTimeMillis() + ".png");
+                try (java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
                     cachedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                 }
-                Toast.makeText(this, "Đã lưu ảnh vào Thư viện!", Toast.LENGTH_SHORT).show();
-                finish(); // Tự động đóng màn hình sau khi lưu thành công
+                android.media.MediaScannerConnection.scanFile(this, new String[]{file.getAbsolutePath()}, new String[]{"image/png"}, null);
             }
+            Toast.makeText(this, "Đã lưu ảnh vào Thư viện!", Toast.LENGTH_SHORT).show();
+            finish();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Lỗi khi lưu ảnh!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100 && grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            performSave();
+        } else {
+            Toast.makeText(this, "Cần cấp quyền lưu trữ để lưu ảnh!", Toast.LENGTH_SHORT).show();
         }
     }
 
