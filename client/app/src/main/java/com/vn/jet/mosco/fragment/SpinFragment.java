@@ -743,9 +743,8 @@ public class SpinFragment extends Fragment {
 
         // Khởi chạy ExoPlayer phát video cho thẻ kết quả dạng Motion (DRY)
         Map<String, Object> cardData = currentSpinResult != null ? currentSpinResult.getCardData() : null;
-        String resultClass = cardData != null ? String.valueOf(cardData.get("class")) : "";
         String resultVideoUrl = cardData != null ? String.valueOf(cardData.get("frontVideoUrl")) : "";
-        boolean isResultMotion = "Motion".equalsIgnoreCase(resultClass) && resultVideoUrl != null && !resultVideoUrl.isEmpty() && !"null".equals(resultVideoUrl);
+        boolean isResultMotion = isMotionVideoValid(resultVideoUrl);
         TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
         if (vvResultVideo != null) {
             if (resultVideoPlayer != null) {
@@ -871,7 +870,13 @@ public class SpinFragment extends Fragment {
                                 resultVideoPlayer.play();
                                 TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
                                 if (vvResultVideo != null) vvResultVideo.setVisibility(View.VISIBLE);
-                                ivResultImage.setVisibility(View.INVISIBLE);
+                                if (resultVideoPlayer.getPlayerError() != null) {
+                                    ivResultImage.setVisibility(View.VISIBLE);
+                                } else if (resultVideoPlayer.getPlaybackState() == androidx.media3.common.Player.STATE_READY) {
+                                    ivResultImage.setVisibility(View.INVISIBLE);
+                                } else {
+                                    ivResultImage.setVisibility(View.VISIBLE);
+                                }
                             } else {
                                 ivResultImage.setVisibility(View.VISIBLE);
                             }
@@ -1683,7 +1688,13 @@ public class SpinFragment extends Fragment {
             if (sacrificeVideoPlayer != null) {
                 sacrificeVideoPlayer.play();
                 if (vvSelectedObjetVideo != null) vvSelectedObjetVideo.setVisibility(View.VISIBLE);
-                ivSelectedObjet.setVisibility(View.INVISIBLE);
+                if (sacrificeVideoPlayer.getPlayerError() != null) {
+                    ivSelectedObjet.setVisibility(View.VISIBLE);
+                } else if (sacrificeVideoPlayer.getPlaybackState() == androidx.media3.common.Player.STATE_READY) {
+                    ivSelectedObjet.setVisibility(View.INVISIBLE);
+                } else {
+                    ivSelectedObjet.setVisibility(View.VISIBLE);
+                }
             } else {
                 ivSelectedObjet.setVisibility(View.VISIBLE);
             }
@@ -1846,7 +1857,7 @@ public class SpinFragment extends Fragment {
                     com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSelectedObjet, imageUrl, false);
 
                     // Khởi chạy trình phát video ExoPlayer cho thẻ Motion hy sinh (DRY)
-                    boolean isMotion = "Motion".equalsIgnoreCase(selectedObj.getCardClass()) && selectedObj.getFrontVideoUrl() != null && !selectedObj.getFrontVideoUrl().isEmpty() && !"null".equals(selectedObj.getFrontVideoUrl());
+                    boolean isMotion = isMotionVideoValid(selectedObj.getFrontVideoUrl());
                     TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
                     if (vvSelectedObjetVideo != null) {
                         if (sacrificeVideoPlayer != null) {
@@ -1903,5 +1914,13 @@ public class SpinFragment extends Fragment {
         if (btnSpin != null) {
             btnSpin.setEnabled(true);
         }
+    }
+    private boolean isMotionVideoValid(String url) {
+        if (url == null || url.trim().isEmpty() || url.trim().equalsIgnoreCase("null")) return false;
+        String lower = url.toLowerCase();
+        if (lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".webp") || lower.endsWith(".gif")) {
+            return false;
+        }
+        return true;
     }
 }
