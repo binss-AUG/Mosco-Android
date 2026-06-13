@@ -58,11 +58,12 @@ public class RankAdapter extends RecyclerView.Adapter<RankAdapter.RankViewHolder
     @Override
     public void onBindViewHolder(@NonNull RankViewHolder holder, int position) {
         try {
-            JSONObject entry = data.get(position);
+            org.json.JSONObject entry = data.get(position);
             int rank = entry.optInt("rank", position + 4);
 
             holder.tvPosition.setText(String.valueOf(rank));
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
+            holder.tvName.setSelected(true); // Enable marquee effect
 
             String avatarId = entry.optString("avatarId", "1");
             long userId = entry.optLong("userId", -1L);

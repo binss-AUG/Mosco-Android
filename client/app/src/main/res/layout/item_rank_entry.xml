@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             style="@style/MoscoText.Luxury.Nav"
-            android:textSize="18sp"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:fontWeight="900"
             android:textColor="@color/white" />
@@ -87,8 +87,11 @@
         android:textSize="@dimen/text_size_hud_small"
         android:textStyle="bold"
         android:fontWeight="700"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
     <!-- Chỉ số (Level / OVR / Card Count) -->
     <LinearLayout

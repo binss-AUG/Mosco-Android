@@ -21,18 +21,16 @@
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <com.vn.jet.mosco.widget.MoscoButton
+        <ImageButton
             android:id="@+id/btn_like"
             android:layout_width="@dimen/spacing_48dp"
             android:layout_height="@dimen/spacing_48dp"
             android:layout_marginEnd="@dimen/spacing_xxs"
-            app:moscoStyle="secondary"
-            app:moscoSize="medium"
-            app:moscoShape="pill"
-            android:text=""
-            android:drawableStart="@drawable/ic_heart_outline"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp" />
+            android:background="@drawable/lg_btn_secondary"
+            android:src="@drawable/ic_heart_outline"
+            app:tint="@color/colors_button_text_secondary"
+            android:scaleType="centerInside"
+            android:padding="12dp" />
 
         <com.vn.jet.mosco.widget.MoscoButton
             android:id="@+id/btn_direct_message"
