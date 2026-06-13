@@ -22,7 +22,8 @@
             android:id="@+id/iv_popup_friends"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_friends"
+            android:src="@drawable/ic_friends_new"
+            app:tint="@color/mosco_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -80,6 +81,7 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:src="@drawable/ic_bell_neon"
+            app:tint="@color/mosco_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -136,7 +138,8 @@
             android:id="@+id/iv_popup_shop"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_shop_bag"
+            android:src="@drawable/ic_shop_new"
+            app:tint="@color/mosco_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
