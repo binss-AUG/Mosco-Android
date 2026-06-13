@@ -127,6 +127,10 @@ public class User {
     @Transient
     private java.util.List<String> badges = new java.util.ArrayList<>();
 
+    // Cấp nâng cấp cao nhất của user (dùng cho hiển thị progress Golden Hammer trên Client)
+    @Transient
+    private int maxUpgradeLevel = 0;
+
     public User() {}
 
     public User(String username, String email, String passwordHash) {
@@ -254,4 +258,7 @@ public class User {
 
     public java.util.List<String> getBadges() { return badges; }
     public void setBadges(java.util.List<String> badges) { this.badges = badges; }
+
+    public int getMaxUpgradeLevel() { return maxUpgradeLevel; }
+    public void setMaxUpgradeLevel(int maxUpgradeLevel) { this.maxUpgradeLevel = maxUpgradeLevel; }
 }

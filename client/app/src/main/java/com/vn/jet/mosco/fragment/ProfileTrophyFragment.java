@@ -79,19 +79,9 @@ public class ProfileTrophyFragment extends Fragment {
             rvBadges.setVisibility(View.GONE);
             tvNoBadges.setVisibility(View.VISIBLE);
         } else {
-            // TẠI SAO: Ép cứng (Mock Data) 7 huy hiệu với 7 cấp bậc khác nhau để Admin test UI "Wow"
-            java.util.List<String> mockBadges = java.util.Arrays.asList(
-                "EX Golden Hammer",
-                "Diamond Collection Master",
-                "Gold Pack Master",
-                "Silver Immortal",
-                "Bronze Duo Flame",
-                "Iron Celebrity",
-                "Iron Spin Master" // Fallback
-            );
             rvBadges.setVisibility(View.VISIBLE);
             tvNoBadges.setVisibility(View.GONE);
-            rvBadges.setAdapter(new BadgeAdapter(mockBadges, stats));
+            rvBadges.setAdapter(new BadgeAdapter(stats.getBadges(), stats));
         }
     }
 
@@ -180,7 +170,12 @@ public class ProfileTrophyFragment extends Fragment {
             // Kỹ thuật Emboss 3D: Lõi mang màu kim loại tương phản, shadow và highlight giúp khối nổi bật lên
             holder.ivBadgeIcon.setImageTintList(androidx.core.content.ContextCompat.getColorStateList(holder.itemView.getContext(), iconColorRes));
 
-            holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
+            // TẠI SAO: Đổi màu chữ đỏ nổi bật cho mốc EX để tạo điểm nhấn thị giác cao cấp
+            if (isEx) {
+                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red));
+            } else {
+                holder.tvBadgeName.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
+            }
 
             // TẠI SAO: Click mở BottomSheet hiển thị tiến trình chi tiết
             final String finalTier = tier;
@@ -375,7 +370,7 @@ public class ProfileTrophyFragment extends Fragment {
             tvTitle.setTextSize(22);
             tvTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
             tvTitle.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.white));
+            tvTitle.setTextColor("EX".equals(tier) ? androidx.core.content.ContextCompat.getColor(context, R.color.badge_tier_ex_red) : androidx.core.content.ContextCompat.getColor(context, R.color.white));
             android.widget.LinearLayout.LayoutParams titleParams = new android.widget.LinearLayout.LayoutParams(
                 android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
             );
@@ -388,46 +383,47 @@ public class ProfileTrophyFragment extends Fragment {
             String desc = "";
             String unit = "";
 
+            // Lấy chỉ số thật từ UserStats thay vì Mock
             if ("Spin Master".equals(type)) {
-                int[] targets = {36, 100, 500, 1000, 6700};
+                int[] targets = {1, 36, 100, 500, 1000, 6700};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getSpinsCount();
                 desc = context.getString(R.string.badge_desc_spin);
                 unit = context.getString(R.string.badge_unit_spin);
             } else if ("Pack Master".equals(type)) {
-                int[] targets = {36, 100, 500, 1000, 6700};
+                int[] targets = {1, 36, 100, 500, 1000, 6700};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getPacksCount();
                 desc = context.getString(R.string.badge_desc_pack);
                 unit = context.getString(R.string.badge_unit_pack);
             } else if ("Collection Master".equals(type)) {
                 int[] targets = {5, 15, 35, 60, 80, 95};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getCollectionProgress();
                 desc = context.getString(R.string.badge_desc_collection);
                 unit = context.getString(R.string.badge_unit_collection);
             } else if ("Immortal".equals(type)) {
                 int[] targets = {3, 10, 30, 100, 200, 365};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getStreak();
                 desc = context.getString(R.string.badge_desc_immortal);
                 unit = context.getString(R.string.badge_unit_streak);
             } else if ("Duo Flame".equals(type)) {
                 int[] targets = {3, 10, 30, 100, 200, 365};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getCoupleStreakCount();
                 desc = context.getString(R.string.badge_desc_duo);
                 unit = context.getString(R.string.badge_unit_streak);
             } else if ("Celebrity".equals(type)) {
                 int[] targets = {5, 15, 50, 150, 300, 600};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getLikesCount();
                 desc = context.getString(R.string.badge_desc_celebrity);
                 unit = context.getString(R.string.badge_unit_likes);
             } else if ("Golden Hammer".equals(type)) {
-                int[] targets = {1, 3, 5, 8, 10};
+                int[] targets = {5, 5, 5, 5, 8, 8};
                 targetVal = getTargetForTier(tier, targets);
-                currentVal = getMockProgressForTier(tier, targets);
+                currentVal = stats.getMaxUpgradeLevel();
                 desc = context.getString(R.string.badge_desc_hammer);
                 unit = context.getString(R.string.badge_unit_level);
             }
@@ -509,19 +505,7 @@ public class ProfileTrophyFragment extends Fragment {
             return targets[0];
         }
 
-        private int getMockProgressForTier(String tier, int[] targets) {
-            int base = 0;
-            if ("Iron".equals(tier)) base = 0;
-            else if ("Bronze".equals(tier)) base = targets[0];
-            else if ("Silver".equals(tier)) base = targets[1];
-            else if ("Gold".equals(tier)) base = targets[2];
-            else if ("Diamond".equals(tier)) base = targets[3];
-            else if ("EX".equals(tier)) return targets[4];
 
-            int target = getTargetForTier(tier, targets);
-            // Điểm Mock = base + 40% khoảng cách đến target tiếp theo (để thanh Progress bar luôn nằm ở mức đẹp)
-            return base + (int) ((target - base) * 0.4f);
-        }
 
         @Override
         public int getItemCount() {

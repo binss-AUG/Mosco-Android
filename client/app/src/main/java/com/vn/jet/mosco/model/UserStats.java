@@ -91,6 +91,9 @@ public class UserStats {
     @SerializedName("coupleStreakCount")
     private int coupleStreakCount = 0;
 
+    @SerializedName("maxUpgradeLevel")
+    private int maxUpgradeLevel = 0;
+
     // Getters and Setters for new fields
     public int getSpinsCount() { return spinsCount; }
     public void setSpinsCount(int spinsCount) { this.spinsCount = spinsCount; }
@@ -100,6 +103,9 @@ public class UserStats {
 
     public int getCoupleStreakCount() { return coupleStreakCount; }
     public void setCoupleStreakCount(int coupleStreakCount) { this.coupleStreakCount = coupleStreakCount; }
+
+    public int getMaxUpgradeLevel() { return maxUpgradeLevel; }
+    public void setMaxUpgradeLevel(int maxUpgradeLevel) { this.maxUpgradeLevel = maxUpgradeLevel; }
 
     // Getters
     public Long getId() { return id; }

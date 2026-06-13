@@ -260,29 +260,6 @@ public class UserController {
     private void populateUserStats(User user) {
         if (user == null) return;
         Long userId = user.getId();
-        
-        // TẠI SAO: Tự động kích hoạt toàn bộ mốc chỉ số kịch khung và mở khóa tất cả Huy hiệu cấp EX cho tài khoản admin để kiểm thử nhanh
-        if ("admin".equalsIgnoreCase(user.getUsername())) {
-            user.setStreak(365);
-            user.setTotalRolls(13400);
-            user.setCollectionProgress(100);
-            user.setSpinsCount(6700);
-            user.setPacksCount(6700);
-            user.setCoupleStreakCount(365);
-            user.setLikesCount(600);
-            
-            java.util.List<String> adminBadges = java.util.List.of(
-                "EX Spin Master",
-                "EX Pack Master",
-                "EX Collection Master",
-                "EX Immortal",
-                "EX Duo Flame",
-                "EX Celebrity",
-                "EX Golden Hammer"
-            );
-            user.setBadges(adminBadges);
-            return;
-        }
 
         long totalRolls = gachaHistoryRepository.countByUserId(userId);
         user.setTotalRolls((int) totalRolls);
@@ -419,6 +396,10 @@ public class UserController {
         } else if (maxNormalUpgrade >= 5) {
             badgesList.add("Iron Golden Hammer");
         }
+
+        // Gán giá trị nâng cấp cao nhất để Client hiển thị progress bar thật cho Golden Hammer
+        int overallMax = Math.max(Math.max(maxNormalUpgrade, maxDoubleUpgrade), Math.max(maxSpecialUpgrade, maxPremierUpgrade));
+        user.setMaxUpgradeLevel(overallMax);
 
         user.setBadges(badgesList);
     }
