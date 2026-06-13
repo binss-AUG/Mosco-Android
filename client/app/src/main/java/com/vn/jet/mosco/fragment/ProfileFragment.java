@@ -1862,7 +1862,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
             if (vvVideo != null) {
                 String cardClass = cardData.optString("class", "");
                 String videoUrl = cardData.optString("frontVideoUrl", "");
-                if ("Motion".equalsIgnoreCase(cardClass) && !videoUrl.isEmpty()) {
+                if (!videoUrl.isEmpty()) {
                     androidx.media3.exoplayer.ExoPlayer player = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(getContext(), vvVideo, videoUrl, ivImage);
                     if (player != null && showcaseAdapter != null) {
                         showcaseAdapter.putPlayer(position, player);

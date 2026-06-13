@@ -138,7 +138,7 @@ public class CollectionDetailBinder {
 
         // 1.5. Xử lý TextureView cho thẻ Motion (Apollo MP4s)
         final android.view.TextureView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
-        final boolean isMotion = "Motion".equalsIgnoreCase(entry.getCardClass()) && entry.getFrontVideoUrl() != null && !entry.getFrontVideoUrl().isEmpty() && entry.isOwned();
+        final boolean isMotion = entry.getFrontVideoUrl() != null && !entry.getFrontVideoUrl().isEmpty() && entry.isOwned();
         final boolean[] isFlipped = {false};
 
         if (vvObjetVideo != null) {
@@ -368,7 +368,13 @@ public class CollectionDetailBinder {
         if (btnCapture != null) {
             btnCapture.setVisibility(isAlbumMode ? View.GONE : View.VISIBLE);
             btnCapture.setOnClickListener(v -> {
-                Toast.makeText(context, context.getString(R.string.common_msg_coming_soon), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context, com.vn.jet.mosco.ObjetCameraActivity.class);
+                intent.putExtra(com.vn.jet.mosco.ObjetCameraActivity.EXTRA_IMAGE_URL, item.getFrontImage());
+                intent.putExtra("extra_back_image_url", item.getBackImage());
+                intent.putExtra("extra_collection_id", item.getCollectionId());
+                intent.putExtra("extra_bg_color", item.getBackgroundColor());
+                intent.putExtra("extra_upgrade_level", item.getUpgradeLevel());
+                context.startActivity(intent);
             });
         }
 

@@ -400,6 +400,7 @@ public class ShopFragment extends Fragment {
 
             h.tvName.setText(item.getName());
             h.tvDesc.setText(item.getDescription());
+            h.tvDesc.setSelected(true); // Kích hoạt hiệu ứng chạy chữ (Marquee)
             
             if (item.getEndTime() != null && item.getEndTime() != -1L) {
                 long timeLeftMs = item.getEndTime() - System.currentTimeMillis();

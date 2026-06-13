@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:name=".MoscoApplication"
         android:usesCleartextTraffic="true"
@@ -81,6 +82,18 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name=".ObjetCameraActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Mosco"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".PhotoReviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Mosco"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

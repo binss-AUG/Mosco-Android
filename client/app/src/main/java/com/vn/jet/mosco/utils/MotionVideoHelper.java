@@ -45,9 +45,9 @@ public class MotionVideoHelper {
         textureView.setVisibility(View.GONE);
 
         try {
-            // Cấu hình LoadControl đồng nhất: bắt buộc buffer tối thiểu 1.5s trước khi phát để chống giật
+            // Cấu hình LoadControl đồng nhất: bắt buộc buffer tối thiểu 3s trước khi phát để chống giật (tối ưu cho video 36MB)
             DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(5_000, 30_000, 1_500, 2_000)
+                    .setBufferDurationsMs(10_000, 50_000, 3_000, 3_000)
                     .build();
 
             ExoPlayer player = new ExoPlayer.Builder(context)

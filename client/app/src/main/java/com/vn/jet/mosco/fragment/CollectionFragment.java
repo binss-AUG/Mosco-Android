@@ -176,6 +176,22 @@ public class CollectionFragment extends Fragment {
             btnClose.setOnClickListener(v -> dialog.dismiss());
         }
 
+        // ── Nút: Camera ──────────────────────────────────────────────
+        ImageView btnCamera = dialog.findViewById(R.id.btn_camera_detail);
+        if (btnCamera != null) {
+            btnCamera.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(context, com.vn.jet.mosco.ObjetCameraActivity.class);
+                intent.putExtra(com.vn.jet.mosco.ObjetCameraActivity.EXTRA_IMAGE_URL, imageUrl);
+                if (cardJson != null) {
+                    intent.putExtra("extra_back_image_url", cardJson.optString("backImage", ""));
+                    intent.putExtra("extra_collection_id", cardJson.optString("collectionId", ""));
+                    intent.putExtra("extra_bg_color", cardJson.optString("backgroundColor", ""));
+                }
+                intent.putExtra("extra_upgrade_level", level);
+                context.startActivity(intent);
+            });
+        }
+
         // ── Button: Recycle / Refresh ────────────────────────────────────
         View btnRecycle = dialog.findViewById(R.id.btn_recycle_detail);
         if (btnRecycle != null) {
@@ -1265,7 +1281,9 @@ public class CollectionFragment extends Fragment {
             final int[] qty = { 1 };
 
             tvName.setText(item.getName());
+            tvName.setSelected(true); // Kích hoạt marquee
             tvDesc.setText(item.getDescription() != null ? item.getDescription() : "");
+            tvDesc.setSelected(true); // Kích hoạt marquee (lineshow)
             tvAvailQty.setText(getString(R.string.items_label_available,
                     (item.getQuantity() != null ? NumberUtils.format(requireContext(), item.getQuantity()) : "0")));
 
@@ -1360,13 +1378,17 @@ public class CollectionFragment extends Fragment {
             boolean isAsc = (filterBar != null) && filterBar.isAscending();
 
             for (com.vn.jet.mosco.model.UserItem item : originalItems) {
-                if (item.getName() == null || item.getName().isEmpty() || item.getName().equalsIgnoreCase("Unknown"))
+                if (item.getName() == null || item.getName().isEmpty() || item.getName().toLowerCase().contains("unknown"))
                     continue;
+
+                String type = item.getType() != null ? item.getType().toUpperCase() : "";
+                if ("BUFF".equals(type)) {
+                    continue; // Loại bỏ các item buff theo yêu cầu
+                }
 
                 if (itemsFilter.isEmpty()) {
                     filtered.add(item);
                 } else {
-                    String type = item.getType() != null ? item.getType().toUpperCase() : "";
                     boolean match = false;
                     for (String f : itemsFilter) {
                         if (f.equalsIgnoreCase(type))

@@ -23,18 +23,22 @@ public class GlideBindingAdapter {
 
     @BindingAdapter(value = {"imageUrl", "isThumbnail", "isHighQuality"}, requireAll = false)
     public static void loadImage(ImageView view, String imageIdOrUrl, boolean isThumbnail, boolean isHighQuality) {
-        if (view == null || imageIdOrUrl == null || imageIdOrUrl.isEmpty()) {
-            return;
-        }
-
-        Context context = view.getContext();
-        if (context == null) return;
+        if (view == null) return;
 
         // Tìm Skeleton View trong cùng cấp với ImageView (Standard Layout)
         // Chỉ xử lý skeleton cho ảnh mặt trước (card_iv_image) để tránh dính lỗi loading chéo với ivBack
         final View skeleton = (view.getParent() instanceof ViewGroup && view.getId() == R.id.card_iv_image) 
                 ? ((ViewGroup) view.getParent()).findViewById(R.id.layout_card_skeleton) 
                 : null;
+
+        if (imageIdOrUrl == null || imageIdOrUrl.isEmpty()) {
+            if (skeleton != null) skeleton.setVisibility(View.GONE);
+            view.setImageResource(R.drawable.ic_error_placeholder);
+            return;
+        }
+
+        Context context = view.getContext();
+        if (context == null) return;
 
         if (skeleton != null) {
             skeleton.setVisibility(View.VISIBLE);

@@ -913,7 +913,7 @@ public class UpgradeFragment extends Fragment {
                 .withEndAction(() -> {
                     // Video MP4 playback cho thẻ kết quả nâng cấp
                     if (vvResultVideo != null) {
-                        if (isSuccess && mainCard != null && "Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                        if (isSuccess && mainCard != null && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
                             if (resultVideoPlayer != null) {
                                 resultVideoPlayer.release();
                                 resultVideoPlayer = null;
@@ -1000,7 +1000,7 @@ public class UpgradeFragment extends Fragment {
                     mainVideoPlayer.release();
                     mainVideoPlayer = null;
                 }
-                if ("Motion".equalsIgnoreCase(mainCard.getCardClass()) && mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
+                if (mainCard.getFrontVideoUrl() != null && !mainCard.getFrontVideoUrl().isEmpty()) {
                     mainVideoPlayer = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(requireContext(), vvMainVideo, mainCard.getFrontVideoUrl(), ivMainCardImage);
                 } else {
                     vvMainVideo.setVisibility(View.GONE);

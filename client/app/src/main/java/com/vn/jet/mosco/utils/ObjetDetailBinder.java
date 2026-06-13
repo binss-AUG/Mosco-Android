@@ -44,6 +44,19 @@ public class ObjetDetailBinder {
         bind(dialog, context, objet);
 
         dialog.findViewById(R.id.btn_close_detail).setOnClickListener(v -> dialog.dismiss());
+        
+        ImageView btnCamera = dialog.findViewById(R.id.btn_camera_detail);
+        if (btnCamera != null) {
+            btnCamera.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(context, com.vn.jet.mosco.ObjetCameraActivity.class);
+                intent.putExtra(com.vn.jet.mosco.ObjetCameraActivity.EXTRA_IMAGE_URL, objet.getImageUrl());
+                intent.putExtra("extra_back_image_url", objet.getBackImageUrl());
+                intent.putExtra("extra_collection_id", objet.getCollectionId());
+                intent.putExtra("extra_bg_color", objet.getBackgroundColor());
+                intent.putExtra("extra_upgrade_level", objet.getCardLevel());
+                context.startActivity(intent);
+            });
+        }
         dialog.setOnDismissListener(d -> {
             try {
                 if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
@@ -70,6 +83,7 @@ public class ObjetDetailBinder {
             objet.setBackgroundColor(cardJson.optString("backgroundColor"));
             objet.setTextColor(cardJson.optString("textColor"));
             objet.setOvr(cardJson.optInt("ovr", 80));
+            objet.setBackImageUrl(cardJson.optString("backImage", ""));
             bind(dialog, context, objet);
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,7 +133,7 @@ public class ObjetDetailBinder {
 
             // ── 3.5. Xử lý TextureView cho thẻ Motion (Apollo MP4s) ──────
             final android.view.TextureView vvObjetVideo = dialog.findViewById(R.id.vv_objet_detail_video);
-            final boolean isMotion = "Motion".equalsIgnoreCase(cardClass) && objet.getFrontVideoUrl() != null && !objet.getFrontVideoUrl().isEmpty();
+            final boolean isMotion = objet.getFrontVideoUrl() != null && !objet.getFrontVideoUrl().isEmpty();
 
             if (vvObjetVideo != null) {
                 if (isMotion) {
@@ -133,10 +147,10 @@ public class ObjetDetailBinder {
                         androidx.media3.exoplayer.DefaultLoadControl loadControl =
                             new androidx.media3.exoplayer.DefaultLoadControl.Builder()
                                 .setBufferDurationsMs(
-                                    5_000,   // minBufferMs: giữ ít nhất 5s trong bộ đệm
-                                    30_000,  // maxBufferMs: tải trước tối đa 30s
-                                    1_500,   // bufferForPlaybackMs: cần 1.5s trước khi bắt đầu phát lần đầu
-                                    2_000    // bufferForPlaybackAfterRebufferMs
+                                    10_000,  // minBufferMs: giữ ít nhất 10s trong bộ đệm
+                                    50_000,  // maxBufferMs: tải trước tối đa 50s
+                                    3_000,   // bufferForPlaybackMs: cần 3s trước khi bắt đầu phát lần đầu (tối ưu cho video nặng như dco 36MB)
+                                    3_000    // bufferForPlaybackAfterRebufferMs: Cần 3s nếu bị giật lag giữa chừng
                                 )
                                 .build();
                         androidx.media3.exoplayer.ExoPlayer player = new androidx.media3.exoplayer.ExoPlayer.Builder(context)

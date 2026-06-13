@@ -745,7 +745,7 @@ public class SpinFragment extends Fragment {
         Map<String, Object> cardData = currentSpinResult != null ? currentSpinResult.getCardData() : null;
         String resultClass = cardData != null ? String.valueOf(cardData.get("class")) : "";
         String resultVideoUrl = cardData != null ? String.valueOf(cardData.get("frontVideoUrl")) : "";
-        boolean isResultMotion = "Motion".equalsIgnoreCase(resultClass) && resultVideoUrl != null && !resultVideoUrl.isEmpty();
+        boolean isResultMotion = resultVideoUrl != null && !resultVideoUrl.isEmpty();
         TextureView vvResultVideo = cardResultFinal.findViewById(R.id.vv_result_video);
         if (vvResultVideo != null) {
             if (resultVideoPlayer != null) {
@@ -1846,7 +1846,7 @@ public class SpinFragment extends Fragment {
                     com.vn.jet.mosco.utils.GlideBindingAdapter.loadImage(ivSelectedObjet, imageUrl, false);
 
                     // Khởi chạy trình phát video ExoPlayer cho thẻ Motion hy sinh (DRY)
-                    boolean isMotion = "Motion".equalsIgnoreCase(selectedObj.getCardClass()) && selectedObj.getFrontVideoUrl() != null && !selectedObj.getFrontVideoUrl().isEmpty();
+                    boolean isMotion = selectedObj.getFrontVideoUrl() != null && !selectedObj.getFrontVideoUrl().isEmpty();
                     TextureView vvSelectedObjetVideo = cardCenterSlot.findViewById(R.id.card_vv_video);
                     if (vvSelectedObjetVideo != null) {
                         if (sacrificeVideoPlayer != null) {

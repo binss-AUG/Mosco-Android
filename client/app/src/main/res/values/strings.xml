@@ -22,4 +22,5 @@
     
     <!-- Friend constants -->
     <string name="friend_default_avatar_id">1</string>
+    <string name="reveal_msg_wait">Please wait for the current action to finish...</string>
 </resources>

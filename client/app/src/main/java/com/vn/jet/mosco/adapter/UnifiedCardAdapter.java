@@ -549,11 +549,9 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void bindInventoryState(@NonNull CardViewHolder vh, @NonNull CardDisplayItem item, int position) {
         int cardBgColor = ContextCompat.getColor(mContext, R.color.mosco_card_bg_owned);
 
-        // Hiện skeleton trước, ẩn level badge → GlideListener sẽ hiện lại
-        if (vh.layoutSkeleton != null) {
-            vh.layoutSkeleton.setVisibility(View.VISIBLE);
-            if (vh.ivLevel != null) vh.ivLevel.setVisibility(View.INVISIBLE);
-        }
+        // Removed redundant layoutSkeleton visibility reset because GlideBindingAdapter handles it.
+        // We only ensure the level badge stays hidden until Glide is ready, but here we can just let
+        // the grade badge logic handle it below.
 
         // Level badge visibility
         if (vh.ivLevel != null && item.getUpgradeLevel() > 0) {
