@@ -74,19 +74,38 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
                 tools:text="Good morning! Japan looks amazing!" />
 
-            <!-- Time Stamp embedded inside bottom-right -->
-            <TextView
-                android:id="@+id/tv_chat_time"
+            <!-- Spacer + Time aligned at bottom right (Match item_chat_right.xml fix) -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="9.5sp"
-                android:textColor="@color/mosco_white_60"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="2dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="10:10" />
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- Subtle spacer -->
+                <View
+                    android:layout_width="6dp"
+                    android:layout_height="1dp" />
+
+                <!-- Time Stamp -->
+                <TextView
+                    android:id="@+id/tv_chat_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="9.5sp"
+                    android:paddingEnd="2dp"
+                    android:textColor="@color/mosco_white_60"
+                    tools:text="10:10" />
+
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
