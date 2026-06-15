@@ -1,0 +1,25 @@
+TRIPLES MEMBER DEMOGRAPHICS ROSTER (Use this for ALL age/birth year related logic):
+1. Yoon SeoYeon (S1): Born in 2003
+2. Jeong HyeRin (S2): Born in 2007
+3. Lee JiWoo (S3): Born in 2005
+4. Kim ChaeYeon (S4): Born in 2004
+5. Kim YooYeon (S5): Born in 2001
+6. Kim SooMin (S6): Born in 2007
+7. Kim NaKyoung (S7): Born in 2002
+8. Gong YuBin (S8): Born in 2005
+9. Kaede (S9): Born in 2005
+10. Seo DaHyun (S10): Born in 2003
+11. Kotone (S11): Born in 2004
+12. Kwak YeonJi (S12): Born in 2008
+13. Nien (S13): Born in 2003
+14. Park SoHyun (S14): Born in 2002
+15. Xinyu (S15): Born in 2002
+16. Mayu (S16): Born in 2002
+17. Lynn (S17): Born in 2006
+18. JooBin (S18): Born in 2009
+19. Jeong HaYeon (S19): Born in 2007
+20. Park ShiOn (S20): Born in 2006
+21. Kim ChaeWon (S21): Born in 2007
+22. Sullin (S22): Born in 2006
+23. SeoAh (S23): Born in 2010
+24. JiYeon (S24): Born in 2004
