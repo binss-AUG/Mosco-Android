@@ -60,7 +60,8 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
     private List<String> ownedBiases = new ArrayList<>();
     private String currentAvatarUrl = null;
     private boolean isGenerating = false;
-    private Call<ApiResponse<String>> currentApiCall;
+    private retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<String>> currentApiCall;
+    private okhttp3.sse.EventSource currentEventSource;
 
     @NonNull
     @Override
@@ -78,6 +79,9 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                 BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
                 behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 behavior.setSkipCollapsed(true);
+            }
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
         });
         return dialog;
@@ -117,6 +121,20 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                 sendMessage();
             }
         });
+
+        etInput.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == android.view.KeyEvent.ACTION_DOWN && keyCode == android.view.KeyEvent.KEYCODE_ENTER) {
+                if (event.isShiftPressed()) {
+                    return false; // Cho phép xuống dòng
+                } else {
+                    if (!isGenerating) {
+                        sendMessage();
+                    }
+                    return true; // Ngăn chặn việc xuống dòng mặc định
+                }
+            }
+            return false;
+        });
     }
 
     private void setupRecyclerView() {
@@ -124,6 +142,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setStackFromEnd(true);
         rvMessages.setLayoutManager(layoutManager);
+        rvMessages.setItemAnimator(null); // Fix RecyclerView SSE bounds animation stretching bug
         rvMessages.setAdapter(adapter);
     }
 
@@ -299,47 +318,130 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
         etInput.setText("");
         setLoading(true);
         
-        Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("message", content);
-        requestMap.put("biasId", biasId); // Send only the name, e.g., "HyeRin"
-        requestMap.put("language", getResources().getConfiguration().locale.getLanguage()); // Pass app language
+        okhttp3.OkHttpClient client = (okhttp3.OkHttpClient) ApiClient.getClient(requireContext()).callFactory();
         
-        currentApiCall = gameApiService.chatWithAi(requestMap);
-        currentApiCall.enqueue(new Callback<ApiResponse<String>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
-                setLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    AiChatMessage aiMsg = new AiChatMessage(biasId, response.body().getData(), true, System.currentTimeMillis());
+        org.json.JSONObject jsonBody = new org.json.JSONObject();
+        try {
+            jsonBody.put("biasId", biasId);
+            jsonBody.put("language", getResources().getConfiguration().locale.getLanguage());
+            
+            org.json.JSONArray messagesArray = new org.json.JSONArray();
+            int startIdx = Math.max(0, messageList.size() - 20); // Gửi 20 tin nhắn gần nhất
+            for (int i = startIdx; i < messageList.size(); i++) {
+                AiChatMessage msg = messageList.get(i);
+                if (msg.isThinking) continue;
+                org.json.JSONObject msgObj = new org.json.JSONObject();
+                msgObj.put("role", msg.isFromAi ? "model" : "user");
+                msgObj.put("text", msg.message);
+                messagesArray.put(msgObj);
+            }
+            jsonBody.put("messages", messagesArray);
+        } catch (Exception e) {}
+        
+        okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(
+                jsonBody.toString(),
+                okhttp3.MediaType.parse("application/json")
+        );
+        
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(com.vn.jet.mosco.utils.AppConfig.BASE_URL + "api/ai/chat/stream")
+                .post(requestBody)
+                .addHeader("Accept", "text/event-stream")
+                .build();
+                
+        currentEventSource = okhttp3.sse.EventSources.createFactory(client)
+                .newEventSource(request, new okhttp3.sse.EventSourceListener() {
                     
-                    messageList.add(aiMsg);
-                    adapter.notifyItemInserted(messageList.size() - 1);
-                    scrollToBottom();
-                    saveMessageToDb(aiMsg);
-                } else {
-                    handleErrorResponse(response);
-                }
-            }
+                    private StringBuilder responseBuilder = new StringBuilder();
+                    private AiChatMessage aiMsg = null;
+                    private boolean isAdded = false;
 
-            @Override
-            public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
-                setLoading(false);
-                if (!call.isCanceled()) {
-                    Toast.makeText(getContext(), getString(R.string.ai_chat_err_disconnect), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                    @Override
+                    public void onOpen(okhttp3.sse.EventSource eventSource, okhttp3.Response response) {
+                        aiMsg = new AiChatMessage(biasId, "", true, System.currentTimeMillis());
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            adapter.removeThinkingMessage();
+                            messageList.add(aiMsg);
+                            isAdded = true;
+                            adapter.notifyItemInserted(messageList.size() - 1);
+                            scrollToBottom();
+                            // Also update text immediately in case onEvent fired before this UI task
+                            if (responseBuilder.length() > 0) {
+                                aiMsg.message = responseBuilder.toString();
+                                adapter.notifyItemChanged(messageList.size() - 1);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onEvent(okhttp3.sse.EventSource eventSource, String id, String type, String data) {
+                        try {
+                            org.json.JSONObject obj = new org.json.JSONObject(data);
+                            String text = obj.optString("text", "");
+                            responseBuilder.append(text);
+                        } catch (Exception e) {
+                            // Fallback in case server sends raw text instead of JSON
+                            responseBuilder.append(data);
+                        }
+                        if (aiMsg != null) {
+                            aiMsg.message = responseBuilder.toString();
+                        }
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (isAdded && aiMsg != null) {
+                                int index = messageList.indexOf(aiMsg);
+                                if (index != -1) {
+                                    adapter.notifyItemChanged(index, AiChatAdapter.PAYLOAD_BUBBLE);
+                                    scrollToBottom();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onClosed(okhttp3.sse.EventSource eventSource) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            setLoading(false);
+                            if (aiMsg != null && aiMsg.message != null && !aiMsg.message.isEmpty()) {
+                                saveMessageToDb(aiMsg);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(okhttp3.sse.EventSource eventSource, Throwable t, okhttp3.Response response) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            setLoading(false);
+                            adapter.removeThinkingMessage();
+                            if (response != null) {
+                                handleErrorResponse(response);
+                            } else {
+                                Toast.makeText(getContext(), getString(R.string.ai_chat_err_disconnect), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
     }
 
     private void cancelGeneration() {
+        if (currentEventSource != null) {
+            currentEventSource.cancel();
+        }
         if (currentApiCall != null) {
             currentApiCall.cancel();
         }
         setLoading(false);
     }
 
-    private void handleErrorResponse(Response<?> response) {
-        if (response.code() == 403) {
+    private void handleErrorResponse(retrofit2.Response<?> response) {
+        handleErrorCode(response.code());
+    }
+
+    private void handleErrorResponse(okhttp3.Response response) {
+        handleErrorCode(response.code());
+    }
+
+    private void handleErrorCode(int code) {
+        if (code == 403) {
             MoscoDialogHelper.showConfirmDialog(
                     getActivity(),
                     getString(R.string.ai_chat_err_restricted_title),
@@ -369,7 +471,18 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
 
     private void scrollToBottom() {
         if (messageList.size() > 0) {
-            rvMessages.smoothScrollToPosition(messageList.size() - 1);
+            if (isGenerating) {
+                // Remove scrollBy 5000 as it can cause layout thrashing during rapid SSE
+                rvMessages.scrollToPosition(messageList.size() - 1);
+            } else {
+                rvMessages.smoothScrollToPosition(messageList.size() - 1);
+            }
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        cancelGeneration();
     }
 }
