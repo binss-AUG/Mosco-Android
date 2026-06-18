@@ -62,6 +62,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
     private boolean isGenerating = false;
     private retrofit2.Call<com.vn.jet.mosco.model.ApiResponse<String>> currentApiCall;
     private okhttp3.sse.EventSource currentEventSource;
+    private boolean isCancelledByUser = false;
 
     @NonNull
     @Override
@@ -316,6 +317,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
         saveMessageToDb(userMsg);
         
         etInput.setText("");
+        isCancelledByUser = false;
         setLoading(true);
         
         okhttp3.OkHttpClient client = (okhttp3.OkHttpClient) ApiClient.getClient(requireContext()).callFactory();
@@ -410,6 +412,10 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                     @Override
                     public void onFailure(okhttp3.sse.EventSource eventSource, Throwable t, okhttp3.Response response) {
                         new Handler(Looper.getMainLooper()).post(() -> {
+                            if (isCancelledByUser) {
+                                isCancelledByUser = false;
+                                return;
+                            }
                             setLoading(false);
                             adapter.removeThinkingMessage();
                             if (response != null) {
@@ -423,6 +429,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void cancelGeneration() {
+        isCancelledByUser = true;
         if (currentEventSource != null) {
             currentEventSource.cancel();
         }
@@ -430,6 +437,14 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
             currentApiCall.cancel();
         }
         setLoading(false);
+        // Save partial AI message if any
+        int lastIdx = messageList.size() - 1;
+        if (lastIdx >= 0) {
+            AiChatMessage lastMsg = messageList.get(lastIdx);
+            if (lastMsg.isFromAi && lastMsg.message != null && !lastMsg.message.isEmpty()) {
+                saveMessageToDb(lastMsg);
+            }
+        }
     }
 
     private void handleErrorResponse(retrofit2.Response<?> response) {
