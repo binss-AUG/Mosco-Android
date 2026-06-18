@@ -33,6 +33,7 @@ public class SessionManager {
     private static final String KEY_AVATAR_ID = "avatar_id";
     private static final String KEY_SELECTED_SHOWCASE_ID = "selected_showcase_id"; 
     private static final String KEY_AVATAR_CROP_PARAMS = "avatar_crop_params"; 
+    private static final String KEY_AI_BIAS_ID = "ai_bias_id";
     
     // --- SETTINGS KEYS ---
     private static final String KEY_DARK_MODE = "dark_mode";
@@ -157,6 +158,14 @@ public class SessionManager {
 
     public void setAvatarCropParams(String params) {
         prefs.edit().putString(KEY_AVATAR_CROP_PARAMS, params).apply();
+    }
+
+    public String getAiBiasId() {
+        return prefs.getString(KEY_AI_BIAS_ID, "S1_Seoyeon");
+    }
+
+    public void setAiBiasId(String biasId) {
+        prefs.edit().putString(KEY_AI_BIAS_ID, biasId).apply();
     }
 
     /**

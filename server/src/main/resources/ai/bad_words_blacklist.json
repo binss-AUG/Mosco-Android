@@ -1,0 +1,25 @@
+{
+  "vietnamese": [
+    "cặc", "lồn", "đụ", "địt", "phò", "đĩ", "chó đẻ", "vcl", 
+    "dkm", "đkm", "đm", "vãi", "buồi", "cứt", "đĩ điếm", "nứng",
+    "ngu", "chó", "đỉ", "đỹ", "mẹ mày", "cha mày", "bố mày", "chết mẹ",
+    "con cặc", "cái lồn", "thằng chó", "súc vật", "óc chó", "ml", "cl",
+    "đậu má", "địt cụ", "cmn", "vãi lồn", "vãi lozz", "lozz", "lzz",
+    "lồz", "cặcc", "cc", "đm", "đkm", "đmm", "đcm", "đệch", "địt mẹ",
+    "phò phạch", "đĩ thõa", "gái điếm", "cave", "thủ dâm", "quay tay"
+  ],
+  "english": [
+    "fuck", "shit", "bitch", "cunt", "slut", "whore", "nigger",
+    "asshole", "motherfucker", "dick", "pussy", "bastard", "cock",
+    "fag", "faggot", "dyke", "retard", "nigga", "twat", "wanker",
+    "cum", "jizz", "blowjob", "handjob", "tit", "tits", "boobs",
+    "son of a bitch", "dickhead", "shithead", "bullshit", "horseshit",
+    "dumbass", "jackass", "prick", "douchebag", "crap", "damn"
+  ],
+  "bypass_patterns": [
+    "c.ặ.c", "d!t", "f*ck", "b!tch", "l0n", "đ!t", "sh!t", "a$$",
+    "ng.u", "ch.ó", "đ.ỉ", "đ.ĩ", "n.g.u", "c.h.ó", "dkm", "đ*m",
+    "dịt", "đjt", "đjt me", "đ!t m3", "l.o.n", "c.a.c", "v.c.l",
+    "f u c k", "s h i t", "b i t c h", "c u n t", "a s s"
+  ]
+}

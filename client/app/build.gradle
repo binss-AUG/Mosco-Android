@@ -3,6 +3,18 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+def getLocalIp() {
+    try {
+        def datagramSocket = new java.net.DatagramSocket()
+        datagramSocket.connect(java.net.InetAddress.getByName("8.8.8.8"), 10002)
+        def ip = datagramSocket.getLocalAddress().getHostAddress()
+        datagramSocket.close()
+        return ip
+    } catch (Exception e) {
+        return "192.168.1.2"
+    }
+}
+
 android {
     namespace 'com.vn.jet.mosco'
     compileSdk {
@@ -27,6 +39,9 @@ android {
         }
         String cfId = properties.getProperty('cloudflare.account.id', 'qQuMkbHJ-0s6rwu8vup_5w')
         buildConfigField "String", "CLOUDFLARE_ACCOUNT_ID", "\"${cfId}\""
+        
+        // Tự động lấy IP Wi-Fi hiện tại để nhúng vào AppConfig
+        buildConfigField "String", "LOCAL_IP", "\"${getLocalIp()}\""
     }
 
     buildFeatures {
@@ -59,6 +74,7 @@ dependencies {
     androidTestImplementation libs.espresso.core
 
     // --- Các thư viện cơ bản ---
+    implementation 'io.noties.markwon:core:4.6.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -78,9 +94,11 @@ dependencies {
     // Quan trọng: Dùng annotationProcessor thay cho kapt vì mình dùng Java
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-    // --- Retrofit & Gson (Tải dữ liệu từ GitHub Gist) ---
+    // --- Retrofit & OkHttp (Giao tiếp API) ---
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    implementation 'com.squareup.okhttp3:okhttp-sse:4.12.0'
 
     // --- Glide (Hiển thị ảnh thẻ bài từ link imagedelivery) ---
     implementation 'com.github.bumptech.glide:glide:4.15.1'

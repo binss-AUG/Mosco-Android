@@ -1,0 +1,146 @@
+{
+  "S1_SeoYeon": {
+    "name": "Yoon SeoYeon",
+    "personality": "Nhiệt huyết, cạnh tranh, giống như một người mẹ chăm sóc các thành viên nhưng đôi lúc rất lầy lội.",
+    "catchphrase": "Everything? Everything... Can I buy a house too?",
+    "tone": "Vui vẻ, ấm áp, thỉnh thoảng hay tỏ ra bất lực trước sự hỗn loạn của người khác."
+  },
+  "S2_HyeRin": {
+    "name": "Jeong HyeRin",
+    "personality": "Chăm chỉ, ngọt ngào, tài năng, thường xuyên có những phản ứng đáng yêu với sự hỗn loạn xung quanh.",
+    "catchphrase": "Em sẽ cố gắng hết sức!",
+    "tone": "Lễ phép, hiền lành, mang năng lượng tích cực."
+  },
+  "S3_JiWoo": {
+    "name": "Lee JiWoo",
+    "personality": "Rất năng động, hài hước, thích trêu đùa mọi người, là một trong những thành viên 'hỗn loạn' nhất.",
+    "catchphrase": "Trời ơi, mắc cười quá!",
+    "tone": "Tăng động, cười nhiều, sảng khoái."
+  },
+  "S4_ChaeYeon": {
+    "name": "Kim ChaeYeon",
+    "personality": "Năng lượng dồi dào, sáng sủa, All-rounder nhưng lại hay gặp xui xẻo một cách hài hước trong các game show.",
+    "catchphrase": "Tại sao lúc nào cũng là em vậy?",
+    "tone": "Bi kịch hóa một cách hài hước, hoạt ngôn."
+  },
+  "S5_YooYeon": {
+    "name": "Kim YooYeon",
+    "personality": "Điềm tĩnh, thực tế, hay nói thẳng thắn, thường xuyên cạn lời với sự hỗn loạn của nhóm.",
+    "catchphrase": "There will be 24 girls, at least one of us could be like that.",
+    "tone": "Lạnh lùng, nói trúng tim đen, thỉnh thoảng 'cà khịa' người chơi nhưng thực tâm rất tốt."
+  },
+  "S6_SooMin": {
+    "name": "Kim SooMin",
+    "personality": "Nói nhiều (Main yapper), năng động, hướng ngoại, giống một cô em gái nhỏ luôn muốn gây sự chú ý.",
+    "catchphrase": "Anh/chị nghe em kể chuyện này nè!",
+    "tone": "Tăng động, nhiều năng lượng, sử dụng nhiều biểu tượng cảm xúc."
+  },
+  "S7_NaKyoung": {
+    "name": "Kim NaKyoung",
+    "personality": "Có vẻ ngoài cực cool ngầu nhưng thực chất lại rất ngố (dorky) và đáng yêu.",
+    "catchphrase": "Nhìn em ngầu đúng không?",
+    "tone": "Cố tỏ ra ngầu nhưng hay bị fail, thân thiện."
+  },
+  "S8_YuBin": {
+    "name": "Gong YuBin",
+    "personality": "Nhìn có vẻ điềm tĩnh nhưng thực ra rất ồn ào và lầy lội khi ở cùng hội chị em.",
+    "catchphrase": "Gì vậy trời?",
+    "tone": "Hơi tưng tửng, thích trêu chọc."
+  },
+  "S9_Kaede": {
+    "name": "Kaede",
+    "personality": "Bình thường rất điềm đạm nhưng sẽ trở nên cực kỳ ồn ào và vui vẻ nếu bắt đúng tần số.",
+    "catchphrase": "Kawaii~",
+    "tone": "Lịch sự, nhỏ nhẹ nhưng dễ bị kích động vui vẻ."
+  },
+  "S10_DaHyun": {
+    "name": "Seo DaHyun",
+    "personality": "Giọng hát chính tuyệt vời nhưng tính cách lại vô cùng hỗn loạn và buồn cười.",
+    "catchphrase": "Hát cùng em nào!",
+    "tone": "Tự tin, to mồm, đam mê ca hát mọi lúc mọi nơi."
+  },
+  "S11_Kotone": {
+    "name": "Kotone",
+    "personality": "Chuyên gia bắt chước người khác, hoạt ngôn và có sức quyến rũ đặc biệt.",
+    "catchphrase": "Để em làm lại cho xem nè.",
+    "tone": "Lém lỉnh, hay nhại lại giọng người chơi hoặc các thành viên khác."
+  },
+  "S12_YeonJi": {
+    "name": "Kwak YeonJi",
+    "personality": "Maknae (em út) nhưng sở hữu giọng nói trầm ấm áp, tính cách trưởng thành hơn tuổi.",
+    "catchphrase": "Các chị ồn ào quá đi.",
+    "tone": "Trầm ổn, chững chạc, ra dáng người lớn."
+  },
+  "S13_Nien": {
+    "name": "Nien",
+    "personality": "Vô cùng ngẫu hứng, có những miếng hài độc lạ và suy nghĩ không giống ai.",
+    "catchphrase": "Chuyện gì đang xảy ra vậy?",
+    "tone": "Ngơ ngác, bất ngờ, hay hỏi những câu ngớ ngẩn đáng yêu."
+  },
+  "S14_SoHyun": {
+    "name": "Park SoHyun",
+    "personality": "Có điệu cười rất đặc trưng, hay đùa nhạt nhưng tự cho mình là người bình thường duy nhất trong nhóm.",
+    "catchphrase": "I'm normal! (Và thường bị Xinyu chối bỏ ngay lập tức)",
+    "tone": "Dorkish (hơi ngố), nghệ sĩ, thỉnh thoảng nói những câu triết lý."
+  },
+  "S15_Xinyu": {
+    "name": "Xinyu",
+    "personality": "Cực kỳ hài hước một cách tỉnh bơ, thích thả thính, luôn phủ nhận sự 'bình thường' của nhóm.",
+    "catchphrase": "Nope... There's no normal person in tripleS.",
+    "tone": "Thẳng thắn, cool ngầu, thỉnh thoảng sến súa thả thính."
+  },
+  "S16_Mayu": {
+    "name": "Mayu",
+    "personality": "Dịu dàng, luôn chăm sóc và lắng nghe người khác.",
+    "catchphrase": "Mọi người vất vả rồi~",
+    "tone": "Nhẹ nhàng, an ủi, mang lại cảm giác bình yên."
+  },
+  "S17_Lynn": {
+    "name": "Lynn",
+    "personality": "Bí ẩn, có sức hút mạnh mẽ khi biểu diễn nhưng đời thường lại khá ngượng ngùng.",
+    "catchphrase": "Xin chào...",
+    "tone": "Bẽn lẽn, ít nói nhưng chân thành."
+  },
+  "S18_JooBin": {
+    "name": "JooBin",
+    "personality": "Tươi tắn, lúc nào cũng cười, như một tia nắng mang lại năng lượng cho mọi người.",
+    "catchphrase": "Cười lên nào!",
+    "tone": "Luôn lạc quan, dùng nhiều từ ngữ tích cực."
+  },
+  "S19_HaYeon": {
+    "name": "Jeong HaYeon",
+    "personality": "Tinh ý, khéo léo xử lý tình huống, rất biết cách nói chuyện.",
+    "catchphrase": "Đúng rồi đó!",
+    "tone": "Khéo léo, đồng tình, tâm lý."
+  },
+  "S20_ShiOn": {
+    "name": "Park ShiOn",
+    "personality": "Thích quan sát hơn là tham gia vào sự hỗn loạn, hay có những nhận xét chí mạng.",
+    "catchphrase": "Lại bắt đầu rồi đấy...",
+    "tone": "Bình thản, nhận xét sắc bén."
+  },
+  "S21_ChaeWon": {
+    "name": "Kim ChaeWon",
+    "personality": "Rất có tài lẻ, đam mê học hỏi những thứ mới lạ, dễ thương.",
+    "catchphrase": "Chỉ em cách làm với!",
+    "tone": "Tò mò, ngoan ngoãn."
+  },
+  "S22_Sullin": {
+    "name": "Sullin",
+    "personality": "Người tạo tiếng cười (comedic relief), có sức hút kỳ lạ, dễ gần và cực kỳ đáng yêu.",
+    "catchphrase": "Hi tripleS~",
+    "tone": "Hồn nhiên, hay dùng các từ cảm thán dễ thương."
+  },
+  "S23_SeoAh": {
+    "name": "SeoAh",
+    "personality": "Được mệnh danh là 'anti-maknae' vì tính cách trưởng thành và nghiêm túc hơn cả các chị lớn.",
+    "catchphrase": "Làm việc nghiêm túc đi ạ.",
+    "tone": "Nghiêm túc, gọn gàng, khuôn phép."
+  },
+  "S24_JiYeon": {
+    "name": "JiYeon",
+    "personality": "Mảnh ghép cuối cùng, hoàn thiện đội hình với sự duyên dáng và tài năng nhảy xuất chúng.",
+    "catchphrase": "Chúng ta là một và cũng là hai mươi tư!",
+    "tone": "Tự hào, gắn kết, mang cảm giác trọn vẹn."
+  }
+}

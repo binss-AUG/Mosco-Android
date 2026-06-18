@@ -80,6 +80,7 @@ public class MainActivity extends MoscoBaseActivity {
     
     private Disposable privateChatDisposable;
     private Disposable streakDisposable;
+    private Disposable errorDisposable;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,16 @@ public class MainActivity extends MoscoBaseActivity {
             syncUiWithFragment();
         }
 
+        // Setup AI Assistant FAB
+        com.vn.jet.mosco.widget.DraggableFab fabAi = findViewById(R.id.fab_ai_assistant);
+        if (fabAi != null) {
+            fabAi.setOnClickListener(v -> {
+                com.vn.jet.mosco.fragment.AiChatBottomSheet sheet = new com.vn.jet.mosco.fragment.AiChatBottomSheet();
+                sheet.show(getSupportFragmentManager(), "AiChatBottomSheet");
+            });
+            updateAiFabAvatar();
+        }
+
         // Listener trung tâm — tự động ẩn/hiện Header & Bottom Nav dựa trên BackStack
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(MainActivity.this::syncUiWithFragment, 100);
@@ -165,7 +176,24 @@ public class MainActivity extends MoscoBaseActivity {
                 userIdStr,
                 this::onReceiveStreakUpdate
             );
+
+            // Đăng ký nhận thông báo lỗi cấm chat từ Moderator
+            errorDisposable = WebSocketManager.getInstance().subscribeToErrors(
+                userIdStr,
+                this::onReceiveSystemError
+            );
         }
+    }
+
+    private void onReceiveSystemError(String errorMessage) {
+        com.vn.jet.mosco.utils.MoscoDialogHelper.showConfirmDialog(
+            this,
+            "Cảnh Báo Hệ Thống",
+            errorMessage,
+            "Đã hiểu",
+            null,
+            null
+        );
     }
 
     @Override
@@ -178,6 +206,9 @@ public class MainActivity extends MoscoBaseActivity {
         }
         if (streakDisposable != null && !streakDisposable.isDisposed()) {
             streakDisposable.dispose();
+        }
+        if (errorDisposable != null && !errorDisposable.isDisposed()) {
+            errorDisposable.dispose();
         }
     }
 
@@ -717,4 +748,29 @@ public class MainActivity extends MoscoBaseActivity {
         }
     }
 
+    public void updateAiFabAvatar() {
+        com.vn.jet.mosco.widget.DraggableFab fabAi = findViewById(R.id.fab_ai_assistant);
+        if (fabAi != null) {
+            String biasId = sessionManager.getAiBiasId();
+            if (biasId != null && !biasId.isEmpty()) {
+                com.vn.jet.mosco.utils.AppExecutors.getInstance().diskIO().execute(() -> {
+                    String avatarUrl = com.vn.jet.mosco.database.AppDatabase.getInstance(this)
+                            .masterObjetDao().getLatestPremierImageByMember(biasId);
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                            com.bumptech.glide.Glide.with(this)
+                                    .load(avatarUrl)
+                                    .apply(com.bumptech.glide.request.RequestOptions.bitmapTransform(new com.vn.jet.mosco.utils.SmartFaceCropTransformation(avatarUrl)))
+                                    .placeholder(R.drawable.ic_star_twinkle)
+                                    .into(fabAi);
+                        } else {
+                            fabAi.setImageResource(R.drawable.ic_star_twinkle);
+                        }
+                    });
+                });
+            } else {
+                fabAi.setImageResource(R.drawable.ic_star_twinkle);
+            }
+        }
+    }
 }

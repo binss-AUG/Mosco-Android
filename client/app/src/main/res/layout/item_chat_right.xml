@@ -26,14 +26,20 @@
             android:id="@+id/tv_chat_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="240dp"
+            app:layout_constraintWidth_max="240dp"
             android:textColor="@color/white"
             android:textSize="15sp"
             android:lineSpacingExtra="2dp"
+            android:textIsSelectable="true"
+            android:breakStrategy="simple"
+            android:clipToPadding="false"
             android:paddingEnd="40dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="0.0"
             tools:text="Good morning! Japan looks amazing!" />
 
         <!-- Spacer + Time aligned at bottom right -->
@@ -43,6 +49,8 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -57,6 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="9.5sp"
+                android:paddingEnd="2dp"
                 android:textColor="@color/mosco_white_60"
                 tools:text="10:10" />
 

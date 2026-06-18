@@ -603,10 +603,21 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
         });
 
+        final long[] lastWorldChatSendTime = {0};
+
         if (btnHomeSend != null) {
             btnHomeSend.setOnClickListener(v -> {
                 String msg = etHomeChat.getText().toString().trim();
                 if (!msg.isEmpty()) {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - lastWorldChatSendTime[0] < 3000) {
+                        if (getContext() != null) {
+                            android.widget.Toast.makeText(getContext(), "Vui lòng chờ 3s trước khi gửi tin nhắn tiếp theo!", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                        return;
+                    }
+                    lastWorldChatSendTime[0] = currentTime;
+
                     String myName = sessionManager.getIngameName();
                     String myAvatar = sessionManager.getAvatarId();
                     String currentUserId = sessionManager.getUserId() != null ? String.valueOf(sessionManager.getUserId()) : "guest";

@@ -25,4 +25,17 @@
     <string name="friend_default_avatar_id">1</string>
     <string name="reveal_msg_wait">Please wait for the current action to finish...</string>
     <string name="search_hint">Search names, numbers, classes...</string>
+
+    <!-- AI Chat Strings -->
+    <string name="ai_chat_title_choose_bias">Choose AI Partner</string>
+    <string name="ai_chat_default_greeting">Hello %s! I\'m your AI partner. Ask me anything about tripleS!</string>
+    <string name="ai_chat_err_cooldown">Too fast! Please wait before sending another message.</string>
+    <string name="ai_chat_err_disconnect">Connection lost. Please check your network.</string>
+    <string name="ai_chat_err_restricted_title">Access Restricted</string>
+    <string name="ai_chat_err_restricted_msg">This content is not available due to restrictions.</string>
+    <string name="ai_chat_err_understood">I Understand</string>
+    <string name="ai_chat_err_server">Server error. Please try again later.</string>
+    <string name="ai_chat_status_online">Online</string>
+    <string name="ai_chat_input_hint">Ask me anything...</string>
+    <string name="ai_chat_thinking">Thinking...</string>
 </resources>

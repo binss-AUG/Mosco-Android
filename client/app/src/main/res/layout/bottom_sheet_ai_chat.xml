@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lg_background"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- HEADER SECTION -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_ai_chat_header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/chat_header_height"
+        android:paddingHorizontal="@dimen/spacing_12dp"
+        android:background="@color/mosco_chat_header_bg"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Button (Arrow left) -->
+        <ImageView
+            android:id="@+id/btn_close_chat"
+            android:layout_width="@dimen/spacing_40dp"
+            android:layout_height="@dimen/spacing_40dp"
+            android:src="@drawable/ic_back_arrow"
+            android:padding="@dimen/spacing_8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Avatar with Status Dot -->
+        <FrameLayout
+            android:id="@+id/layout_ai_avatar_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintStart_toEndOf="@id/btn_close_chat"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="@dimen/spacing_48dp"
+                android:layout_height="@dimen/spacing_48dp"
+                app:cardCornerRadius="@dimen/spacing_24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/mosco_card_bg_variant"
+                app:strokeWidth="0dp">
+                <ImageView
+                    android:id="@+id/iv_ai_avatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_star_twinkle" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <View
+                android:layout_width="@dimen/spacing_12dp"
+                android:layout_height="@dimen/spacing_12dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/spacing_2dp"
+                android:background="@drawable/bg_status_online" />
+        </FrameLayout>
+
+        <!-- Header Info Group -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ll_ai_name_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_12dp"
+            android:layout_marginEnd="@dimen/spacing_8dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintStart_toEndOf="@id/layout_ai_avatar_group"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/layout_ai_avatar_group"
+            app:layout_constraintBottom_toBottomOf="@id/layout_ai_avatar_group">
+
+            <TextView
+                android:id="@+id/tv_ai_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                app:layout_constrainedWidth="true"
+                style="@style/MoscoText.Luxury.SubHeader"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                tools:text="SeoYeon AI" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ai_chat_status_online"
+                style="@style/MoscoText.Luxury.Label"
+                android:textSize="@dimen/text_size_body_xs"
+                android:textColor="@color/galactic_accent_cyan"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_ai_name" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Bottom Separator for Premium visual boundary -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_thin"
+            android:background="@color/mosco_surface"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- MESSAGE LIST -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_ai_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="@dimen/spacing_md"
+        app:layout_constraintTop_toBottomOf="@id/layout_ai_chat_header"
+        app:layout_constraintBottom_toTopOf="@id/layout_ai_input" />
+
+    <!-- INPUT BAR -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_ai_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_md"
+        android:background="@drawable/bg_glass_input"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="@dimen/spacing_sm"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/et_ai_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:hint="@string/ai_chat_input_hint"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white_25"
+            android:textSize="@dimen/text_size_body_md"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:maxLines="4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_ai_send"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageView
+            android:id="@+id/btn_ai_send"
+            android:layout_width="@dimen/spacing_32dp"
+            android:layout_height="@dimen/spacing_32dp"
+            android:src="@drawable/ic_send"
+            app:tint="@color/galactic_accent_cyan"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+            
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

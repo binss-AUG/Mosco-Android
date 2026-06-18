@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <!-- AI Message (Left aligned) -->
+    <LinearLayout
+        android:id="@+id/ll_msg_ai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginEnd="48dp"
+        android:visibility="gone">
+        
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/mosco_card_bg_variant"
+            app:strokeWidth="0dp"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="8dp">
+            <ImageView
+                android:id="@+id/iv_ai_message_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_star_twinkle" />
+        </com.google.android.material.card.MaterialCardView>
+            
+        <TextView
+            android:id="@+id/tv_msg_ai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bubble_ai"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="@color/semantic_text_primary"
+            android:textSize="15sp"
+            tools:text="Hello, I am AI." />
+    </LinearLayout>
+
+    <!-- User Message (Right aligned) -->
+    <LinearLayout
+        android:id="@+id/ll_msg_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="48dp"
+        android:gravity="end"
+        android:visibility="gone">
+        
+        <TextView
+            android:id="@+id/tv_msg_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_bubble_user"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            tools:text="Hi AI." />
+    </LinearLayout>
+
+</LinearLayout>

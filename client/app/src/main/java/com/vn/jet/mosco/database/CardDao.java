@@ -26,4 +26,7 @@ public interface CardDao {
 
     @Query("SELECT * FROM cards WHERE id = :id")
     CardEntity getCardById(String id);
+
+    @Query("SELECT DISTINCT memberName FROM cards ORDER BY memberName ASC")
+    List<String> getOwnedMembersSync();
 }

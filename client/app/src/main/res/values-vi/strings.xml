@@ -24,4 +24,17 @@
     <string name="friend_default_avatar_id">1</string>
     
     <string name="search_hint">Tìm kiếm thẻ, tên, loại...</string>
+
+    <!-- AI Chat Strings -->
+    <string name="ai_chat_title_choose_bias">Chọn AI Partner</string>
+    <string name="ai_chat_default_greeting">Chào %s! Mình là AI partner của bạn. Hỏi mình bất cứ điều gì về tripleS nhé!</string>
+    <string name="ai_chat_err_cooldown">Gửi nhanh quá rồi! Vui lòng đợi một chút.</string>
+    <string name="ai_chat_err_disconnect">Mất kết nối. Vui lòng kiểm tra mạng của bạn.</string>
+    <string name="ai_chat_err_restricted_title">Truy cập bị giới hạn</string>
+    <string name="ai_chat_err_restricted_msg">Nội dung này không khả dụng do hạn chế truy cập.</string>
+    <string name="ai_chat_err_understood">Đã hiểu</string>
+    <string name="ai_chat_err_server">Lỗi máy chủ. Vui lòng thử lại sau.</string>
+    <string name="ai_chat_status_online">Đang hoạt động</string>
+    <string name="ai_chat_input_hint">Hỏi mình bất cứ điều gì...</string>
+    <string name="ai_chat_thinking">Đang suy nghĩ...</string>
 </resources>
