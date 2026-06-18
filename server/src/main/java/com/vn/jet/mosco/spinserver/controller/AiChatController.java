@@ -236,8 +236,8 @@ public class AiChatController {
                             emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event().data(Map.of("text", token), org.springframework.http.MediaType.APPLICATION_JSON));
                             Thread.sleep(30);
                         } catch (Exception sendEx) {
-                            logger.error("Error sending SSE data: {}", sendEx.getMessage());
-                            emitter.completeWithError(sendEx);
+                            logger.error("Client disconnected, stopping SSE stream: {}", sendEx.getMessage() != null ? sendEx.getMessage() : "IOException");
+                            emitter.complete();
                             return;
                         }
                     }
@@ -245,7 +245,7 @@ public class AiChatController {
                 emitter.complete();
             } catch (Exception e) {
                 logger.error("Error during SSE streaming process: {}", e.getMessage(), e);
-                emitter.completeWithError(e);
+                try { emitter.complete(); } catch (Exception ignored) {}
             }
         }).start();
         return emitter;
