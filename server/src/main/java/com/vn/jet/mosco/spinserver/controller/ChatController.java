@@ -32,29 +32,77 @@ public class ChatController {
     private final PrivateMessageRepository privateMessageRepository;
     private final CoupleStreakService coupleStreakService;
     private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+    private final com.vn.jet.mosco.spinserver.service.AiModeratorService aiModeratorService;
+
+    private void sendSystemError(long userId, String message) {
+        com.vn.jet.mosco.spinserver.dto.ApiResponse<String> errorRes = com.vn.jet.mosco.spinserver.dto.ApiResponse.error(403, message);
+        messagingTemplate.convertAndSend("/topic/errors." + userId, errorRes);
+    }
 
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/world")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        String safeContent = HtmlUtils.htmlEscape(chatMessage.getContent());
+    public void sendMessage(@Payload ChatMessage chatMessage) {
+        long senderId = Long.parseLong(chatMessage.getSenderId());
+        
+        if (aiModeratorService.isBanned(senderId)) {
+            long remaining = aiModeratorService.getBanRemainingSeconds(senderId);
+            sendSystemError(senderId, "Bạn đang bị cấm chat. Còn lại: " + remaining + " giây.");
+            return;
+        }
+
+        String content = chatMessage.getContent();
+        
+        // Layer 1: Regex Blacklist
+        if (aiModeratorService.containsBadWords(content)) {
+            aiModeratorService.applyPenalty(senderId);
+            long remaining = aiModeratorService.getBanRemainingSeconds(senderId);
+            sendSystemError(senderId, "Phát hiện ngôn từ độc hại (Lớp 1)! Bạn bị cấm chat " + remaining + " giây.");
+            return;
+        }
+
+        // Layer 2: AI Context
+        if (aiModeratorService.checkContextWithAi(content)) {
+            aiModeratorService.applyPenalty(senderId);
+            long remaining = aiModeratorService.getBanRemainingSeconds(senderId);
+            sendSystemError(senderId, "Phát hiện nội dung vi phạm chuẩn mực (Lớp 2 AI)! Bạn bị cấm chat " + remaining + " giây.");
+            return;
+        }
+
+        String safeContent = HtmlUtils.htmlEscape(content);
         chatMessage.setContent(safeContent);
         chatMessage.setTimestamp(System.currentTimeMillis());
         log.info("World Chat message from {}: {}", chatMessage.getSenderName(), safeContent);
-        return chatMessage;
+        messagingTemplate.convertAndSend("/topic/world", chatMessage);
     }
+
 
     /**
      * Private Chat - saved directly to MySQL database.
      */
     @MessageMapping("/chat.private")
     public void sendPrivateMessage(@Payload com.vn.jet.mosco.spinserver.dto.PrivateChatMessage privateMessage) {
-        String safeContent = HtmlUtils.htmlEscape(privateMessage.getContent());
+        long senderId = Long.parseLong(privateMessage.getSenderId());
+        
+        if (aiModeratorService.isBanned(senderId)) {
+            long remaining = aiModeratorService.getBanRemainingSeconds(senderId);
+            sendSystemError(senderId, "Bạn đang bị cấm chat. Còn lại: " + remaining + " giây.");
+            return;
+        }
+
+        String content = privateMessage.getContent();
+        
+        if (aiModeratorService.containsBadWords(content) || aiModeratorService.checkContextWithAi(content)) {
+            aiModeratorService.applyPenalty(senderId);
+            long remaining = aiModeratorService.getBanRemainingSeconds(senderId);
+            sendSystemError(senderId, "Hành vi chat độc hại bị phát hiện! Bạn bị cấm chat " + remaining + " giây.");
+            return;
+        }
+
+        String safeContent = HtmlUtils.htmlEscape(content);
         privateMessage.setContent(safeContent);
 
         long currentTimestamp = (privateMessage.getTimestamp() > 0) ? privateMessage.getTimestamp() : System.currentTimeMillis();
         privateMessage.setTimestamp(currentTimestamp);
 
-        long senderId = Long.parseLong(privateMessage.getSenderId());
         long receiverId = Long.parseLong(privateMessage.getReceiverId());
         
         com.vn.jet.mosco.spinserver.utils.UserSessionTracker.updateActivity(senderId);

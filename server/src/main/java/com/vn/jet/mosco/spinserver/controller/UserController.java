@@ -55,6 +55,7 @@ public class UserController {
     private final UserCardRepository userCardRepository;
     private final GachaHistoryRepository gachaHistoryRepository;
     private final CoupleStreakRepository coupleStreakRepository;
+    private final com.vn.jet.mosco.spinserver.service.AiModeratorService aiModeratorService;
 
     // Danh sách tên hệ thống bị cấm — chống giả mạo quyền hạn
     private static final Set<String> RESERVED_NAMES = Set.of(
@@ -76,7 +77,8 @@ public class UserController {
                           CardRepository cardRepository,
                           UserCardRepository userCardRepository,
                           GachaHistoryRepository gachaHistoryRepository,
-                          CoupleStreakRepository coupleStreakRepository) {
+                          CoupleStreakRepository coupleStreakRepository,
+                          com.vn.jet.mosco.spinserver.service.AiModeratorService aiModeratorService) {
         this.userRepository = userRepository;
         this.userLikeRepository = userLikeRepository;
         this.friendshipRepository = friendshipRepository;
@@ -85,6 +87,7 @@ public class UserController {
         this.userCardRepository = userCardRepository;
         this.gachaHistoryRepository = gachaHistoryRepository;
         this.coupleStreakRepository = coupleStreakRepository;
+        this.aiModeratorService = aiModeratorService;
     }
 
     /**
@@ -140,11 +143,25 @@ public class UserController {
             @RequestAttribute("userId") Long userId,
             @RequestBody DisplayNameRequest body) {
 
+        if (aiModeratorService.isBanned(userId)) {
+            long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(403, "Tài khoản đang bị khóa thao tác! Còn lại: " + remaining + " giây."));
+        }
+
         // Validate tên theo Galactic Name Shield
         String validationError = validateIngameName(body.getIngameName(), userId);
         if (validationError != null) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(400, validationError));
+        }
+
+        // AI Moderation Layer
+        if (aiModeratorService.containsBadWords(body.getIngameName()) || aiModeratorService.checkContextWithAi(body.getIngameName())) {
+            aiModeratorService.applyPenalty(userId);
+            long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Tên hiển thị vi phạm chuẩn mực! Bạn bị khóa thao tác " + remaining + " giây."));
         }
 
         String sanitized = sanitizeName(body.getIngameName());
@@ -192,11 +209,26 @@ public class UserController {
         if (body.getIngameName() != null) {
             String sanitized = sanitizeName(body.getIngameName());
             if (!sanitized.equals(user.getIngameName())) {
+                if (aiModeratorService.isBanned(userId)) {
+                    long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error(403, "Tài khoản đang bị khóa thao tác! Còn lại: " + remaining + " giây."));
+                }
+                
                 String validationError = validateIngameName(body.getIngameName(), userId);
                 if (validationError != null) {
                     return ResponseEntity.badRequest()
                             .body(ApiResponse.error(400, validationError));
                 }
+                
+                // AI Moderation Layer
+                if (aiModeratorService.containsBadWords(body.getIngameName()) || aiModeratorService.checkContextWithAi(body.getIngameName())) {
+                    aiModeratorService.applyPenalty(userId);
+                    long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error(400, "Tên hiển thị vi phạm chuẩn mực! Bạn bị khóa thao tác " + remaining + " giây."));
+                }
+                
                 user.setIngameName(sanitized);
             }
         }

@@ -1,6 +1,7 @@
 package com.vn.jet.mosco.spinserver.controller;
 
 import com.vn.jet.mosco.spinserver.service.AssetManagementService;
+import com.vn.jet.mosco.spinserver.service.RagEtlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,28 @@ public class AdminController {
     @Autowired
     private AssetManagementService assetService;
 
+    @Autowired
+    private RagEtlService ragEtlService;
+
     @Value("${ADMIN_SECRET:mosco_admin_2026}")
     private String adminSecret;
+
+    @PostMapping("/rag-etl")
+    public ResponseEntity<String> triggerRagEtl(@RequestParam(value = "key", defaultValue = "") String key) {
+        if (!adminSecret.equals(key)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Key");
+        }
+        
+        new Thread(() -> {
+            try {
+                ragEtlService.runEtl();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        return ResponseEntity.ok("RAG ETL is now running in the background. Please check the console logs.");
+    }
 
     @GetMapping(value = "/assets", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> dashboard(@RequestParam(value = "key", defaultValue = "") String key) {

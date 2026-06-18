@@ -31,8 +31,8 @@ public class JwtAuthFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        // Allow CORS preflight
-        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
+        // Allow CORS preflight and public ETL trigger
+        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod()) || httpRequest.getRequestURI().contains("/api/ai/etl/run")) {
             chain.doFilter(request, response);
             return;
         }
