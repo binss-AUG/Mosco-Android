@@ -35,8 +35,10 @@ Dự án **Mosco** (Hệ thống Mosco Gacha & Collection) được đề xuất
 
 **1.4.2. Mục tiêu thực tiễn và xây dựng phần mềm**
 *   Xây dựng thành công ứng dụng Android Native (Client) sử dụng ngôn ngữ Java thuần, kết hợp kiến trúc MVVM và Room SQLite để quản lý kho đồ cục bộ.
-*   Xây dựng hệ thống máy chủ Spring Boot (Backend) quản lý khối lượng dữ liệu khổng lồ lên đến 20,000+ thực thể thẻ bài.
-*   Triển khai bộ đệm (OkHttp Interceptor) ép định dạng WebP từ CDN Cloudflare, cam kết không xảy ra tình trạng tràn bộ nhớ (OOM) trên các giả lập cấu hình thấp.
+*   Xây dựng hệ thống máy chủ Spring Boot (Backend) quản lý khối lượng dữ liệu thực thể thẻ bài.
+*   Tích hợp hệ thống trợ lý ảo thông minh dựa trên kỹ thuật RAG (Retrieval-Augmented Generation), kết hợp giữa mô hình ngôn ngữ lớn (LLM) và kho dữ liệu tri thức chuyên biệt.
+*   Xây dựng dịch vụ bổ trợ (Python Sidecar) để thực hiện các tác vụ thu thập dữ liệu và xử lý ngôn ngữ bổ trợ cho hệ thống chính.
+*   Triển khai bộ đệm (OkHttp Interceptor) tối ưu hóa việc tải tài nguyên hình ảnh, đảm bảo tính ổn định trên các thiết bị cấu hình thấp.
 
 ### 1.5. Đối tượng và Phạm vi nghiên cứu
 *   **Đối tượng nghiên cứu:** Kiến trúc hệ thống phân tán Client-Server, cơ sở dữ liệu quan hệ (RDBMS) và SQLite, các thuật toán xử lý tương tranh, tối ưu hóa bộ nhớ trên nền tảng Android.
