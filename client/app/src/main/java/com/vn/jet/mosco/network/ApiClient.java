@@ -60,8 +60,10 @@ public class ApiClient {
                                     // TẠI SAO: Nếu API gọi thành công, cập nhật trạng thái mạng hoạt động ổn định
                                     com.vn.jet.mosco.utils.NetworkMonitor.getInstance(appContext).setConnected(true);
                                 } catch (java.io.IOException e) {
-                                    // TẠI SAO: Nếu gặp lỗi kết nối mạng (Server offline, timeout, DNS hỏng...), cập nhật trạng thái mất kết nối
-                                    com.vn.jet.mosco.utils.NetworkMonitor.getInstance(appContext).setConnected(false);
+                                    // KHÔNG đánh dấu mất mạng nếu request bị user chủ động hủy (pause chat)
+                                    if (!"Canceled".equals(e.getMessage())) {
+                                        com.vn.jet.mosco.utils.NetworkMonitor.getInstance(appContext).setConnected(false);
+                                    }
                                     throw e;
                                 }
                                 
