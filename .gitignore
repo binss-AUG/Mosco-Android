@@ -31,3 +31,6 @@ server/test_starter.zip
 server/logs/
 server/storage/
 
+
+# Spring Boot application config (secrets externalized to .env)
+server/src/main/resources/application.properties
