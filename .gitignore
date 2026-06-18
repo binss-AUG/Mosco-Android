@@ -34,3 +34,4 @@ server/storage/
 
 # Spring Boot application config (secrets externalized to .env)
 server/src/main/resources/application.properties
+$t_phu_luc_3_mau_bao_cao.docx
