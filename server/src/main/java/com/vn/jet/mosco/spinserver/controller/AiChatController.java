@@ -64,17 +64,19 @@ public class AiChatController {
         }
     }
 
-    private String buildSystemInstruction(String biasId, Long userId, String language) {
-        String langInstruction = "vi".equalsIgnoreCase(language)
-                ? "You MUST answer COMPLETELY in natural, conversational Vietnamese. Keep the tone friendly, slightly playful, and use appropriate pronouns like 'mình' and 'bạn' or 'cậu'."
-                : "You MUST answer COMPLETELY in English. Keep the tone friendly and slightly playful.";
+    private String buildSystemInstruction(String biasId, Long userId, String language, String latestMsg) {
+        // Improved Language Detection Hint
+        String detectedLang = latestMsg.matches(".*[áàảãạâấầẩẫậăắằẳẵặéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ].*") ? "VIETNAMESE" : "ENGLISH";
+        String langInstruction = "CRITICAL: The user is speaking in " + detectedLang + ". You MUST respond 100% in " + detectedLang + ". " +
+                "If the detected language is VIETNAMESE, use Vietnamese terms for game features (e.g., 'Cửa hàng' instead of 'Shop').";
 
         String systemInstruction = "You are an NPC idol in the Mosco game. DO NOT claim to be an AI. " +
                 "[CRITICAL RULE]: System time is " + java.time.LocalDateTime.now() + ". Use this to calculate age, relative time, etc.\n" +
                 "[CRITICAL LOGIC RULE]: To determine if someone is older, their birth year MUST be mathematically SMALLER than yours. If their birth year is LARGER, they are YOUNGER. (e.g. 2005 is older than 2006. 2008 is younger than 2006).\n" +
                 "[CRITICAL RULE]: When asked about member ages, birth years, or who is older/younger, YOU MUST ONLY USE the TRIPLES MEMBER DEMOGRAPHICS ROSTER provided below. DO NOT GUESS OR INVENT YEARS.\n" +
                 "[CRITICAL RULE]: " + langInstruction + " Answer concisely (max 5 sentences) using Markdown. " +
-                "Strictly use information from [NEW KNOWLEDGE] only. Reply 'I don't know' if missing.";
+                "Strictly use information from [NEW KNOWLEDGE] only. If the knowledge contains dates in the future or seems inconsistent with the album name, mention that the information might be being updated.\n" +
+                "If information is missing, reply 'I don't know'. DO NOT hallucinate awards or dates.";
         
         JsonNode bias = null;
         if (biasPrompts != null) {
@@ -92,9 +94,10 @@ public class AiChatController {
             }
         }
 
+        systemInstruction += "\n\nBỐI CẢNH GAME MOSCO (HƯỚNG DẪN VỊ TRÍ CHỨC NĂNG):\n" + gameKnowledge + "\n\n";
+
         if (bias != null) {
-            systemInstruction += "\n\nBỐI CẢNH GAME MOSCO:\n" + gameKnowledge + "\n\n" +
-                                 "THÔNG TIN CỦA BẠN (BIAS):\n" +
+            systemInstruction += "THÔNG TIN CỦA BẠN (BIAS):\n" +
                                  "Tên: " + bias.path("name").asText() + ".\n" +
                                  "Thân phận: Thành viên của tripleS. (Hãy dịch các thông tin này ra tiếng Anh khi chat)\n" +
                                  "Tính cách: " + bias.path("personality").asText() + ".\n" +
@@ -167,12 +170,15 @@ public class AiChatController {
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "Message cannot be empty"));
         }
 
-        String systemInstruction = buildSystemInstruction(biasId, userId, language);
+        String latestMsg = getLatestMessage(contentsList);
+        String systemInstruction = buildSystemInstruction(biasId, userId, language, latestMsg);
         systemInstruction = augmentSystemInstructionWithRag(systemInstruction, contentsList, biasId);
 
         logger.info("User {} chatting with AI Bias {}", userId, biasId);
         String responseVi = geminiApiService.generateContent(systemInstruction, contentsList);
         return ResponseEntity.ok(ApiResponse.success("Success", responseVi));
+    }
+
     @PostMapping(value = "/chat/stream", produces = org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE)
     public org.springframework.web.servlet.mvc.method.annotation.SseEmitter chatStreamWithAi(
             @RequestAttribute("userId") Long userId,
@@ -201,7 +207,7 @@ public class AiChatController {
             }
         }
 
-        String systemInstruction = buildSystemInstruction(biasId, userId, language);
+        String systemInstruction = buildSystemInstruction(biasId, userId, language, latestMsg);
         systemInstruction = augmentSystemInstructionWithRag(systemInstruction, contentsList, biasId);
 
         logger.info("User {} streaming AI Bias {} with Fake SSE", userId, biasId);
@@ -226,12 +232,19 @@ public class AiChatController {
                 while (tokenizer.hasMoreTokens()) {
                     String token = tokenizer.nextToken();
                     if (!token.isEmpty()) {
-                        emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event().data(Map.of("text", token), org.springframework.http.MediaType.APPLICATION_JSON));
-                        Thread.sleep(30);
+                        try {
+                            emitter.send(org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event().data(Map.of("text", token), org.springframework.http.MediaType.APPLICATION_JSON));
+                            Thread.sleep(30);
+                        } catch (Exception sendEx) {
+                            logger.error("Error sending SSE data: {}", sendEx.getMessage());
+                            emitter.completeWithError(sendEx);
+                            return;
+                        }
                     }
                 }
                 emitter.complete();
             } catch (Exception e) {
+                logger.error("Error during SSE streaming process: {}", e.getMessage(), e);
                 emitter.completeWithError(e);
             }
         }).start();
@@ -278,18 +291,18 @@ public class AiChatController {
         } else {
             // Direct Route with Multi-Query Retrieval
             // Query 1: Optimized query anchored to the Idol (for personal questions like "What is your height?")
-            String optimizedQuery = translationService.optimizeQueryForRag(latestUserMsg, biasId);
+            String optimizedQuery = translationService.optimizeQueryForRag(latestUserMsg, biasId, contentsList);
             logger.info("Direct RAG search query (Optimized): {}", optimizedQuery);
             
             CompletableFuture<List<VectorDocument>> f1 = CompletableFuture.supplyAsync(() -> {
                 List<Double> emb = geminiApiService.embedQuery(optimizedQuery);
-                return vectorStoreService.search(emb, 3);
+                return vectorStoreService.search(emb, 8);
             });
             
             // Query 2: Raw user query (for world questions like "What about album LOVE&POP?")
             CompletableFuture<List<VectorDocument>> f2 = CompletableFuture.supplyAsync(() -> {
                 List<Double> emb = geminiApiService.embedQuery(latestUserMsg);
-                return vectorStoreService.search(emb, 3);
+                return vectorStoreService.search(emb, 8);
             });
             
             try {
@@ -323,8 +336,39 @@ public class AiChatController {
             }
         }
 
+        // Intent Router 2: Awards/Wins
+        boolean isAskingAwards = containsKeyword(latestUserMsg, "giải thưởng", "thành tích", "cup", "thắng", "win", "award", "prize", "trophy");
+        if (isAskingAwards) {
+            logger.info("Award/Win Query routing triggered: {}", latestUserMsg);
+            String awardQuery = "tripleS music show wins awards achievements " + latestUserMsg;
+            List<Double> awardEmbedding = geminiApiService.embedQuery(awardQuery);
+            if (!awardEmbedding.isEmpty()) {
+                List<VectorDocument> awardDocs = vectorStoreService.search(awardEmbedding, 3);
+                for (VectorDocument doc : awardDocs) {
+                    if (relevantDocs.stream().noneMatch(d -> d.getId().equals(doc.getId()))) {
+                        relevantDocs.add(doc);
+                    }
+                }
+            }
+        }
+
+        // Intent Router 3: Project Structure/Context
+        boolean isAskingProject = containsKeyword(latestUserMsg, "thư mục", "vị trí", "code", "file", "module", "cấu trúc", "đường dẫn", "path", "directory", "folder", "màn hình");
+        if (isAskingProject) {
+            logger.info("Project Context Query routing triggered: {}", latestUserMsg);
+            List<Double> projEmbedding = geminiApiService.embedQuery("project structure files folders modules paths " + latestUserMsg);
+            if (!projEmbedding.isEmpty()) {
+                List<VectorDocument> projDocs = vectorStoreService.searchWithPreFilter(projEmbedding, 5, Map.of("entity_type", "project_context"));
+                for (VectorDocument doc : projDocs) {
+                    if (relevantDocs.stream().noneMatch(d -> d.getId().equals(doc.getId()))) {
+                        relevantDocs.add(doc);
+                    }
+                }
+            }
+        }
+
         if (!relevantDocs.isEmpty()) {
-            StringBuilder ragContext = new StringBuilder("\n\n[NEW KNOWLEDGE FROM KPOPPING WIKI]\n");
+            StringBuilder ragContext = new StringBuilder("\n\n[NEW KNOWLEDGE FROM PROJECT CONTEXT & WIKI]\n");
             for (VectorDocument doc : relevantDocs) {
                 ragContext.append("- ").append(doc.getContent()).append("\n");
             }
@@ -336,11 +380,10 @@ public class AiChatController {
     }
 
     private boolean containsKeyword(String text, String... keywords) {
-        String lower = text.toLowerCase();
-        for (String kw : keywords) {
-            if (lower.contains(kw)) {
-                return true;
-            }
+        if (text == null) return false;
+        String lowerText = text.toLowerCase();
+        for (String key : keywords) {
+            if (lowerText.contains(key.toLowerCase())) return true;
         }
         return false;
     }
