@@ -137,6 +137,13 @@ public interface GameApiService {
     Call<ResponseBody> saveUserFormation(@Path("userId") Long userId, @Body java.util.List<Long> slotIds);
 
     // ══════════════════════════════════════════════════════════════
+    //  AI CHAT
+    // ══════════════════════════════════════════════════════════════
+
+    @POST("/api/ai/chat")
+    Call<com.vn.jet.mosco.model.ApiResponse<String>> chatWithAi(@Body java.util.Map<String, String> body);
+
+    // ══════════════════════════════════════════════════════════════
     //  COLLECTION BOOK — Bộ Sưu Tập (Pokédex-style)
     // ══════════════════════════════════════════════════════════════
 

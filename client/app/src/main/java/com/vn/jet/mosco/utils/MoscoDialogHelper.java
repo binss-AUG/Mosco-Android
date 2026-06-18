@@ -170,7 +170,18 @@ public class MoscoDialogHelper {
             }
             radioGroup.addView(rb);
         }
-        flContent.addView(radioGroup);
+        android.widget.ScrollView scrollView = new android.widget.ScrollView(activity) {
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                int maxHeight = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.45);
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST);
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            }
+        };
+        // Tắt scrollbar để giữ giao diện clean ("Quiet Luxury")
+        scrollView.setVerticalScrollBarEnabled(false);
+        scrollView.addView(radioGroup);
+        flContent.addView(scrollView);
 
         btnPositive.setText("Select");
         btnNegative.setText("Cancel");

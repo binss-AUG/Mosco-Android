@@ -39,4 +39,7 @@ public interface MasterObjetDao {
         public String memberName;
         public String frontImageId;
     }
+
+    @Query("SELECT frontImageId FROM master_objets WHERE memberName LIKE '%' || :memberName || '%' AND rarityClass = 'Premier' ORDER BY collectionId DESC LIMIT 1")
+    String getLatestPremierImageByMember(String memberName);
 }

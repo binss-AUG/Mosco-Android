@@ -175,4 +175,30 @@ public class WebSocketManager {
     public interface OnStreakUpdateReceived {
         void onReceived(com.vn.jet.mosco.model.CoupleStreakDto data);
     }
+
+    /**
+     * Subscribe to Error topic for moderation alerts.
+     */
+    public Disposable subscribeToErrors(String userId, OnErrorReceived listener) {
+        Log.d(TAG, "Subscribing to /topic/errors." + userId + "...");
+        return stompClient.topic("/topic/errors." + userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    try {
+                        com.vn.jet.mosco.model.ApiResponse<?> errorRes = gson.fromJson(topicMessage.getPayload(), com.vn.jet.mosco.model.ApiResponse.class);
+                        if (errorRes != null) {
+                            listener.onReceived(errorRes.getMessage());
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing error message", e);
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic /topic/errors." + userId, throwable);
+                });
+    }
+
+    public interface OnErrorReceived {
+        void onReceived(String errorMessage);
+    }
 }
