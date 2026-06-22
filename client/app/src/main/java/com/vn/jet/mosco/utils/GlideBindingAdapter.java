@@ -94,7 +94,7 @@ public class GlideBindingAdapter {
             request = request.thumbnail(
                     Glide.with(context).load(thumbSource)
                         .apply(new com.bumptech.glide.request.RequestOptions()
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .diskCacheStrategy(thumbSource instanceof java.io.File ? DiskCacheStrategy.NONE : DiskCacheStrategy.ALL)
                                 .format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565)
                                 .override(150, 231))
                         .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
