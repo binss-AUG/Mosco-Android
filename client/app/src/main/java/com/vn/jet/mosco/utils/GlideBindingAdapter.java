@@ -62,8 +62,12 @@ public class GlideBindingAdapter {
         com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
                 .diskCacheStrategy(loadSource instanceof java.io.File ? DiskCacheStrategy.NONE : DiskCacheStrategy.ALL)
                 .priority(isHighQuality ? Priority.IMMEDIATE : Priority.NORMAL)
-                .placeholder(R.drawable.bg_skeleton_card)
                 .error(R.drawable.ic_error_placeholder);
+                
+        // Chỉ dùng placeholder cho thumbnail. High quality dùng chính thumbnail đè lên nên không cần placeholder xám
+        if (!isHighQuality) {
+            options = options.placeholder(R.drawable.bg_skeleton_card);
+        }
 
         // Toi uu RAM: Dung RGB_565 cho thumbnail (giam 50% RAM so voi ARGB_8888)
         if (effectiveThumbnail) {
@@ -162,7 +166,7 @@ public class GlideBindingAdapter {
      */
     public static String convertImageIdToUrl(String imageIdOrUrl, boolean isThumbnail) {
         if (imageIdOrUrl == null || imageIdOrUrl.isEmpty()) return "";
-        String variant = isThumbnail ? "thumbnail" : "original";
+        String variant = isThumbnail ? "thumbnail" : "2x";
         if (imageIdOrUrl.startsWith("http")) {
             return CardAssetManager.convertToVariant(imageIdOrUrl, variant);
         }
