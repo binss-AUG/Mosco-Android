@@ -12,68 +12,60 @@
 > 2. **Click đúp chuột** vào file **`run_setup.bat`** (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
 > 3. Kịch bản sẽ tự động: Quét địa chỉ **IPv4 LAN** thực tế của Host để cấu hình kết nối API cho Android Client ➔ Tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
 
-Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu.
+Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu cho hàng vạn vật phẩm.
 
-## Điểm Nổi Bật của Dự án
+## 🌟 Điểm Nổi Bật của Dự án
 
-### 1. Hệ thống Typography Chuẩn hóa
-Dự án sử dụng hệ thống phông chữ đa tầng để phân tách rõ rệt vai trò của từng loại thông tin:
-- Mosco Luxury (Pretendard): Sử dụng cho toàn bộ phần thân văn bản, mô tả và các nhãn điều hướng. Mang lại cảm giác hiện đại và dễ đọc.
-- Mosco Galactic (Orbitron): Dành riêng cho các tiêu đề module và các thành phần mang tính thương hiệu, tạo phong cách tương lai.
-- Mosco Technical (Chakra Petch): Sử dụng cho các con số kỹ thuật, chỉ số thẻ bài (OVR, Level, HP, ATK) để tạo sự chính xác và chuyên nghiệp.
+### 1. Kiến trúc Tài nguyên Local-First (Offline Support)
+Để đảm bảo tốc độ phản hồi tối ưu trên mọi dòng máy (kể cả giả lập Android 9):
+- **Room Database:** Lưu trữ tạm thời siêu dữ liệu và cấu hình giao diện. Ngay khi mở app, dữ liệu hiển thị tức thì (Zero-latency) từ Local DB trước khi đồng bộ với Server.
+- **Tối ưu Băng thông (OkHttp Interceptor):** Tự động ép kiểu nhận ảnh định dạng `WebP` từ Cloudflare (giảm 80% dung lượng mạng) khi load danh sách, chỉ tải ảnh gốc khi xem chi tiết.
+- **Skeleton & Shimmer UI:** Mọi thao tác tải dữ liệu đều sử dụng Shimmer Animation, giúp UX luôn mượt mà.
 
-### 2. Kiến trúc Tài nguyên Local-First
-Để đảm bảo tốc độ phản hồi tối ưu, Mosco triển khai kiến trúc tài nguyên thông minh:
-- Tải dữ liệu đa luồng: Sử dụng hệ thống quản lý luồng (CardAssetManager) để tải tài nguyên từ server ngay khi khởi động.
-- Caching Hybrid: Kết hợp lưu trữ tạm thời và bộ nhớ cục bộ để hiển thị hình ảnh tức thì.
-- Tối ưu hóa hiệu năng: Xử lý sắp xếp và lọc dữ liệu ở luồng nền để đảm bảo giao diện mượt mà.
-- Kiểm soát tốc độ cuộn: Hệ thống giới hạn tốc độ cuộn (ViewUtils) giúp quản lý việc render hình ảnh đồng thời, tránh quá tải bộ nhớ.
+### 2. Xử lý Thời gian thực & Tối ưu Giao tiếp (Real-time & Optimistic UI)
+- **World Chat (WebSocket):** Hệ thống kênh chat toàn cầu tích hợp công nghệ **Optimistic UI**, tin nhắn được in ra màn hình ngay lập tức mà không có độ trễ mạng, kết hợp cơ chế Deduplication (khử trùng lặp) thông minh.
+- **Debounce API:** Mọi nút bấm đều tích hợp cơ chế chống Spam click, bảo vệ Server khỏi các cuộc tấn công DDoS ngầm.
 
-### 3. Hệ thống Trợ lý AI (RAG Architecture)
-Điểm đặc biệt của dự án là việc tích hợp mô hình ngôn ngữ lớn (LLM) với kỹ thuật RAG (Retrieval-Augmented Generation):
-- Trợ lý thông minh: AI có khả năng trả lời về kiến thức nghệ sĩ và hướng dẫn sử dụng các chức năng trong ứng dụng.
-- Python Sidecar: Sử dụng một dịch vụ bổ trợ (FastAPI) để xử lý việc thu thập dữ liệu (Scraping) và xử lý ngôn ngữ tự nhiên.
-- Vector Store: Lưu trữ kiến thức dưới dạng Vector để truy xuất thông tin chính xác theo ngữ nghĩa.
+### 3. Hệ thống Gacha & Cốt lõi Backend
+- **Pessimistic Locking (Khóa bi quan):** Thuật toán nâng cấp thẻ (giống FO4 mechanic) và giao dịch tài nguyên được đặt trong `@Transactional` và `@Lock(LockModeType.PESSIMISTIC_WRITE)` để chặn đứng 100% lỗi Race Condition hay Double-spending (tiêu tiền 2 lần).
+- **Phân trang (Pagination) toàn diện:** Mọi API trả về danh sách thẻ bài đều bắt buộc dùng `Pageable` để tránh OOM (Out Of Memory) cho Client.
+- **ETL (Extract, Transform, Load):** Background Jobs (`@Scheduled`) của Spring Boot chịu trách nhiệm cào dữ liệu thẻ bài mới từ các nguồn dữ liệu ngoài và đồng bộ (UPSERT) tự động vào cơ sở dữ liệu.
 
-### 4. Tính năng Hệ thống
-- Hệ thống Gacha: Thuật toán ngẫu nhiên dựa trên lý thuyết hỗn loạn (Chaos Theory) đảm bảo tính minh bạch.
-- Nâng cấp thẻ bài: Cơ chế nâng cấp vật phẩm với tỷ lệ thành công được tính toán dựa trên cấp độ và số lượng phôi sử dụng.
-- Đội hình Cộng hưởng: Hệ thống tự động tính toán điểm thưởng dựa trên sự kết hợp giữa các thẻ bài trong đội hình.
-- Chụp ảnh mô phỏng (Overlay): Cho phép người dùng tương tác với thẻ bài trong không gian camera của thiết bị.
+### 4. Hệ thống Trợ lý AI & Kiểm duyệt (RAG Architecture)
+- **AI Moderation:** Trí tuệ nhân tạo kiểm duyệt nội dung chat theo thời gian thực (Real-time). Tự động cấm chat (Ban) nếu phát hiện ngôn từ độc hại qua 2 lớp Regex & Semantic Context.
+- **Python Sidecar:** Một dịch vụ bổ trợ (FastAPI) để xử lý việc thu thập dữ liệu và xử lý ngôn ngữ tự nhiên.
+- **Vector Store:** Lưu trữ kiến thức nghệ sĩ/thẻ bài dưới dạng Vector để truy xuất thông tin chính xác theo ngữ nghĩa.
 
-## Công nghệ Sử dụng
+## ⚙️ Công nghệ Sử dụng
 
-- Client: Java Android Native, Retrofit 2, OkHttp, Glide, Lottie Animation, Google ML Kit.
-- Server: Java 21, Spring Boot 3.x, Spring Data JPA, MySQL 8.x.
-- AI: Python FastAPI (Sidecar), Google Gemini API (LLM & Embeddings).
-- Thiết kế: Modern Flat Design, Glassmorphism nhẹ.
+- **Client:** Java Android Native, Retrofit 2, OkHttp, Glide, Lottie Animation, Room DB.
+- **Server:** Java 21, Spring Boot 3.x, Spring Data JPA, Hibernate, MySQL 8.x, WebSocket.
+- **AI / ETL:** Python FastAPI (Sidecar), Google Gemini API (LLM & Embeddings).
+- **Thiết kế:** Modern Flat Design, Galactic UI, Typography 3 tầng (Pretendard, Orbitron, Chakra Petch).
 
-## Cấu Trúc Dự án
+## 📁 Cấu Trúc Dự án (Source Code)
 
-- client/app/src/main/java: Mã nguồn ứng dụng Android.
-- server/src/main/java: Mã nguồn backend Spring Boot.
-- tools/rag_sidecar: Dịch vụ bổ trợ AI xử lý dữ liệu.
-- res/values/: Hệ thống tài nguyên (colors, strings, dimens, styles).
+- `client/app/src/main/java`: Mã nguồn ứng dụng Android (MVVM Pattern).
+- `server/src/main/java`: Mã nguồn backend Spring Boot (MVC Pattern).
+- `tools/rag_sidecar`: Dịch vụ bổ trợ AI xử lý dữ liệu NLP.
+- `scripts/`: Các script tự động hóa cài đặt và triển khai.
+- `raw-doc/`: Tài liệu dự án và báo cáo kết luận.
 
-## Hướng Dẫn Cài Đặt
+## 📜 Hướng Dẫn Cài Đặt (Manual)
+
+Trường hợp không dùng script 1-click `run_setup.bat`, có thể chạy thủ công:
 
 ### Phía Cơ sở hạ tầng (Docker)
-1. Cài đặt Docker Desktop trên Windows.
-2. Mở terminal tại thư mục gốc và chạy: `docker-compose up -d`.
-   * Lệnh này sẽ khởi động MySQL (port 3306) và Redis (port 6379).
+1. Cài đặt Docker Desktop.
+2. Mở terminal tại thư mục gốc và chạy: `docker compose up -d` để khởi động MySQL và Redis.
 
 ### Phía Backend
-1. Cấu hình thông số MySQL trong file `application.properties` hoặc `.env`.
-2. Chạy lệnh `gradlew bootRun` để khởi động server (mặc định port 8080).
+1. Đảm bảo Java 21 đã được cài đặt.
+2. Chạy lệnh `gradlew bootRun` trong thư mục `server/` để khởi động Spring Boot.
 
 ### Phía Client
-1. Cập nhật địa chỉ IP của server trong `strings_config.xml`.
-2. Build ứng dụng bằng Android Studio.
+1. Cập nhật địa chỉ IP của máy tính tại biến `BASE_URL` hoặc trong tệp `strings_config.xml`.
+2. Mở thư mục `client/` bằng Android Studio và tiến hành Sync Gradle -> Run.
 
-## Quy Tắc Phát Triển
-
-- Ngôn ngữ mã nguồn: Sử dụng duy nhất ngôn ngữ Java cho phía Client.
-- Ghi chú: Ghi chú bằng tiếng Việt để giải thích lý do (WHY) thực hiện logic.
-- Commit: Tuân thủ định dạng type(scope): description (ví dụ: style(ui): update typography styles).
-
-Copyright 2026 Mosco Project.
+---
+*Copyright © 2026 Mosco Project. Developed as a high-performance demonstration.*
