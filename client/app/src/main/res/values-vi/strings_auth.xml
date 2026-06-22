@@ -41,6 +41,9 @@
     <string name="auth_error_empty_field">Trường này là bắt buộc</string>
     <string name="auth_error_invalid_email">Định dạng email không hợp lệ</string>
     <string name="auth_error_short_password">Mật khẩu phải chứa ít nhất 6 ký tự</string>
+    <string name="auth_error_invalid_username">Tên đăng nhập không được chứa dấu hoặc khoảng trắng</string>
+    <string name="auth_err_username_exists">Tên đăng nhập đã được sử dụng.</string>
+    <string name="auth_err_email_in_use">Email đã được đăng ký bởi người dùng khác.</string>
     <string name="auth_format_resend_timer">%ds</string>
     <string name="auth_label_or_continue">Hoặc tiếp tục bằng</string>
     <string name="auth_action_google">Google</string>
@@ -50,6 +53,7 @@
     <string name="auth_subtitle_verify">Nhập mã gồm 6 chữ số đã được gửi đến %1$s</string>
     <string name="auth_action_verify">Xác thực &amp; Tiếp tục</string>
     <string name="auth_msg_otp_sent">Mã xác thực đã được gửi đi!</string>
+    <string name="auth_msg_didnt_get_code">Chưa nhận được mã? </string>
 
     <!-- Display Name Setup -->
     <string name="setup_title">CHỌN TÊN CỦA BẠN</string>

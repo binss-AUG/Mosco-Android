@@ -41,6 +41,9 @@
     <string name="auth_error_empty_field">This field is required</string>
     <string name="auth_error_invalid_email">Invalid email format</string>
     <string name="auth_error_short_password">Password must be at least 6 characters</string>
+    <string name="auth_error_invalid_username">Username cannot contain spaces or special characters</string>
+    <string name="auth_err_username_exists">Username already exists.</string>
+    <string name="auth_err_email_in_use">Email is already in use.</string>
     <string name="auth_format_resend_timer">%ds</string>
     <string name="auth_label_or_continue">Or continue with</string>
     <string name="auth_action_google">Google</string>

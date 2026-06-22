@@ -37,6 +37,17 @@ public class AuthController {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @GetMapping("/check-exists")
+    public ResponseEntity<AuthResponse> checkExists(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        AuthResponse response = authService.checkExists(username, email);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
     @PostMapping("/send-code")
     public ResponseEntity<AuthResponse> sendCode(@RequestParam String email) {
         AuthResponse response = authService.sendVerificationCode(email);

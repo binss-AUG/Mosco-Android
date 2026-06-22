@@ -16,6 +16,9 @@ public interface AuthApiService {
     @POST("/api/auth/signin")
     retrofit2.Call<AuthResponse> signin(@Body AuthRequest request);
 
+    @retrofit2.http.GET("/api/auth/check-exists")
+    retrofit2.Call<AuthResponse> checkExists(@retrofit2.http.Query("username") String username, @retrofit2.http.Query("email") String email);
+
     @retrofit2.http.POST("/api/auth/send-code")
     retrofit2.Call<AuthResponse> sendCode(@retrofit2.http.Query("email") String email);
 

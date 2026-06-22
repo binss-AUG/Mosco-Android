@@ -211,8 +211,16 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.common_error_unknown);
-                        tilVerificationCode.setError(msg);
+                        String msg = getString(R.string.common_error_unknown);
+                        try {
+                            if (response.errorBody() != null) {
+                                org.json.JSONObject errorJson = new org.json.JSONObject(response.errorBody().string());
+                                if (errorJson.has("message")) msg = errorJson.getString("message");
+                            } else if (response.body() != null) {
+                                msg = response.body().getMessage();
+                            }
+                        } catch (Exception ignored) {}
+                        tilVerificationCode.setError(ErrorTranslator.translate(OtpVerificationActivity.this, msg));
                     }
                 }
 
@@ -238,8 +246,16 @@ public class OtpVerificationActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        String msg = (response.body() != null) ? response.body().getMessage() : getString(R.string.settings_delete_verify_failed);
-                        tilVerificationCode.setError(msg);
+                        String msg = getString(R.string.settings_delete_verify_failed);
+                        try {
+                            if (response.errorBody() != null) {
+                                org.json.JSONObject errorJson = new org.json.JSONObject(response.errorBody().string());
+                                if (errorJson.has("message")) msg = errorJson.getString("message");
+                            } else if (response.body() != null) {
+                                msg = response.body().getMessage();
+                            }
+                        } catch (Exception ignored) {}
+                        tilVerificationCode.setError(ErrorTranslator.translate(OtpVerificationActivity.this, msg));
                     }
                 }
 
