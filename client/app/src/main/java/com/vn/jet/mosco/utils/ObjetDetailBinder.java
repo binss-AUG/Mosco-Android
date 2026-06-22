@@ -154,7 +154,7 @@ public class ObjetDetailBinder {
                             vvObjetVideo.setVisibility(View.VISIBLE);
                             vvObjetVideo.setAlpha(0f);
                         }
-                    }, 250);
+                    }, 450);
                 } else {
                     vvObjetVideo.setVisibility(View.VISIBLE);
                     vvObjetVideo.setAlpha(0f);

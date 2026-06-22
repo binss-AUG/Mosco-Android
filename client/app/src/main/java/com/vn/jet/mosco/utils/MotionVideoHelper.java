@@ -53,8 +53,9 @@ public class MotionVideoHelper {
 
         try {
             // Tối ưu RAM cho Giả lập Android 9: Tăng buffer lên mức hợp lý để tránh giật lag khi mạng chậm
+            // Tăng bufferForPlaybackMs lên 4000ms để chắc chắn tải được một đoạn dài trước khi chiếu
             DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(15_000, 30_000, 2_000, 5_000)
+                    .setBufferDurationsMs(15_000, 30_000, 4_000, 5_000)
                     .build();
 
             ExoPlayer player = new ExoPlayer.Builder(context)
@@ -95,12 +96,13 @@ public class MotionVideoHelper {
                         // Đặt cờ báo hiệu video đã sẵn sàng để logic lật thẻ không bật lại ảnh tĩnh đè lên video
                         textureView.setTag(com.vn.jet.mosco.R.id.vv_objet_detail_video, true);
                         
-                        // Độ trễ 200ms giúp ẩn ảnh đệm tĩnh sau khi video đã vẽ thành công frame đầu tiên
+                        // Độ trễ 450ms (thay vì 200ms) giúp video vẽ được thêm 2-3 frame nữa trước khi mở màn,
+                        // đảm bảo 100% video đã chạy mượt mà thì mới ẩn ảnh đệm tĩnh đi (tránh lag lần đầu)
                         textureView.postDelayed(() -> {
                             if (fallbackImageView != null) {
                                 fallbackImageView.setVisibility(View.INVISIBLE);
                             }
-                        }, 200);
+                        }, 450);
                     }
                 }
 
