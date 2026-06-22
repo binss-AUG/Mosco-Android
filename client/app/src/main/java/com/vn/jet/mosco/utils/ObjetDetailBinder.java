@@ -141,19 +141,18 @@ public class ObjetDetailBinder {
                     // lên mặt TextureView trước khi video sẵn sàng
                     vvObjetVideo.setVisibility(View.GONE);
                     
-                    try {
-                        androidx.media3.exoplayer.ExoPlayer player = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(context, vvObjetVideo, objet.getFrontVideoUrl(), ivObjet);
-                        dialog.getWindow().getDecorView().setTag(player);
-
-                        // Giải phóng tài nguyên ExoPlayer triệt để khi đóng dialog
-                        // (Đã xử lý ở setOnDismissListener phía trên, nhưng cẩn thận có thể đính kèm lại)
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        if (ivObjet != null) {
-                            ivObjet.setVisibility(View.VISIBLE);
+                    vvObjetVideo.postDelayed(() -> {
+                        try {
+                            androidx.media3.exoplayer.ExoPlayer player = com.vn.jet.mosco.utils.MotionVideoHelper.playMotionVideo(context, vvObjetVideo, objet.getFrontVideoUrl(), ivObjet);
+                            if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                                dialog.getWindow().getDecorView().setTag(player);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
+                            vvObjetVideo.setVisibility(View.GONE);
                         }
-                        vvObjetVideo.setVisibility(View.GONE);
-                    }
+                    }, 250);
                 } else {
                     vvObjetVideo.setVisibility(View.GONE);
                 }
@@ -328,15 +327,19 @@ public class ObjetDetailBinder {
                                 isFlipped[0] = shouldShowBack;
                                 if (!shouldShowBack) {
                                     if (isMotion && vvObjetVideo != null) {
-                                        vvObjetVideo.setVisibility(View.VISIBLE);
-                                        try {
-                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
-                                            if (mp != null) mp.play();
-                                        } catch (Exception e) {}
-                                        
-                                        // CHỈ Ẩn ảnh tĩnh nếu video đã thực sự tải xong
-                                        if (Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video))) {
+                                        boolean isVideoReady = Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video));
+                                        if (isVideoReady) {
+                                            vvObjetVideo.setVisibility(View.VISIBLE);
                                             if (ivObjet != null) ivObjet.setVisibility(View.INVISIBLE);
+                                            try {
+                                                if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                                                    androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                                    if (mp != null) mp.play();
+                                                }
+                                            } catch (Exception e) {}
+                                        } else {
+                                            vvObjetVideo.setVisibility(View.INVISIBLE);
+                                            if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
                                         }
                                     } else {
                                         if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
@@ -350,8 +353,10 @@ public class ObjetDetailBinder {
                                     if (isMotion && vvObjetVideo != null) {
                                         vvObjetVideo.setVisibility(View.INVISIBLE);
                                         try {
-                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
-                                            if (mp != null) mp.pause();
+                                            if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                                                androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                                if (mp != null) mp.pause();
+                                            }
                                         } catch (Exception e) {}
                                     }
                                     if (ivObjet != null) ivObjet.setVisibility(View.GONE);
@@ -404,15 +409,19 @@ public class ObjetDetailBinder {
                                         isFlipped[0] = finalBack;
                                         if (!finalBack) {
                                             if (isMotion && vvObjetVideo != null) {
-                                                vvObjetVideo.setVisibility(View.VISIBLE);
-                                                try {
-                                                    androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
-                                                    if (mp != null) mp.play();
-                                                } catch (Exception e) {}
-                                                
-                                                // CHỈ Ẩn ảnh tĩnh nếu video đã thực sự tải xong
-                                                if (Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video))) {
+                                                boolean isVideoReady = Boolean.TRUE.equals(vvObjetVideo.getTag(R.id.vv_objet_detail_video));
+                                                if (isVideoReady) {
+                                                    vvObjetVideo.setVisibility(View.VISIBLE);
                                                     if (ivObjet != null) ivObjet.setVisibility(View.INVISIBLE);
+                                                    try {
+                                                        if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                                                            androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                                            if (mp != null) mp.play();
+                                                        }
+                                                    } catch (Exception e) {}
+                                                } else {
+                                                    vvObjetVideo.setVisibility(View.INVISIBLE);
+                                                    if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
                                                 }
                                             } else {
                                                 if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
@@ -423,8 +432,10 @@ public class ObjetDetailBinder {
                                         } else {
                                             if (isMotion && vvObjetVideo != null) {
                                                 try {
-                                                    androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
-                                                    if (mp != null) mp.pause();
+                                                    if (dialog.getWindow() != null && dialog.getWindow().getDecorView() != null) {
+                                                        androidx.media3.exoplayer.ExoPlayer mp = (androidx.media3.exoplayer.ExoPlayer) dialog.getWindow().getDecorView().getTag();
+                                                        if (mp != null) mp.pause();
+                                                    }
                                                 } catch (Exception e) {}
                                             }
                                             if (ivObjet != null) ivObjet.setVisibility(View.GONE);

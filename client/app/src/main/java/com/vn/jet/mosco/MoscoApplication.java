@@ -32,8 +32,8 @@ public class MoscoApplication extends Application {
     private synchronized void initCache() {
         if (simpleCache == null) {
             File cacheDir = new File(getCacheDir(), "media_cache");
-            // Tối đa 512MB bộ nhớ đệm cho Video Motion
-            LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024);
+            // Tối đa 150MB bộ nhớ đệm cho Video Motion (khoảng 3-4 video) để tiết kiệm dung lượng
+            LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(150 * 1024 * 1024);
             DatabaseProvider databaseProvider = new StandaloneDatabaseProvider(this);
             simpleCache = new SimpleCache(cacheDir, evictor, databaseProvider);
 
