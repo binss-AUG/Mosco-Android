@@ -879,6 +879,14 @@ public class UpgradeFragment extends Fragment {
                     doneHeaderView.setAlpha(1f);
                 }
                 resetUpgradeButton();
+
+                // Khôi phục Navbar
+                if (getActivity() != null) {
+                    View customNavBar = getActivity().findViewById(R.id.cl_custom_bottom_navigation);
+                    if (customNavBar != null) {
+                        customNavBar.setVisibility(View.VISIBLE);
+                    }
+                }
                 
                 // Clear dữ liệu ngay lập tức trên UI thread để tránh gởi ID cũ lên server lần 2
                 for (int i = 0; i < 5; i++) materialCards[i] = null;
