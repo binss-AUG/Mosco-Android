@@ -77,10 +77,25 @@ public class GlideBindingAdapter {
             options = options.override(com.bumptech.glide.request.target.Target.SIZE_ORIGINAL);
         }
 
-        Glide.with(context)
+        com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> request = Glide.with(context)
                 .load(loadSource)
-                .apply(options)
-                .transition(loadSource instanceof java.io.File ? DrawableTransitionOptions.withCrossFade(0) : DrawableTransitionOptions.withCrossFade())
+                .apply(options);
+
+        // HACK: Nếu đang load high quality, dùng chính thumbnail (đã cache) làm ảnh đệm để không bao giờ bị trong suốt
+        if (isHighQuality && !effectiveThumbnail) {
+            String thumbUrl = convertImageIdToUrl(imageIdOrUrl, true);
+            java.io.File localThumb = CardAssetManager.getLocalFile(context, thumbUrl);
+            Object thumbSource = (localThumb != null && localThumb.exists()) ? localThumb : thumbUrl;
+            
+            request = request.thumbnail(
+                    Glide.with(context).load(thumbSource)
+                        .apply(new com.bumptech.glide.request.RequestOptions()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565))
+            );
+        }
+
+        request.transition(loadSource instanceof java.io.File ? DrawableTransitionOptions.withCrossFade(0) : DrawableTransitionOptions.withCrossFade())
                 .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, 

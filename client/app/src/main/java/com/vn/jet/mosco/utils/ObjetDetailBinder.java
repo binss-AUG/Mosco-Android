@@ -137,9 +137,9 @@ public class ObjetDetailBinder {
 
             if (vvObjetVideo != null) {
                 if (isMotion) {
-                    // Ẩn hoàn toàn (GONE) để ExoPlayer không render black frame
-                    // lên mặt TextureView trước khi video sẵn sàng
-                    vvObjetVideo.setVisibility(View.GONE);
+                    // Ẩn mờ (INVISIBLE) thay vì GONE để TextureView vẫn giữ Surface
+                    // Điều này giúp ExoPlayer có thể render frame đầu tiên một cách mượt mà ngầm
+                    vvObjetVideo.setVisibility(View.INVISIBLE);
                     
                     vvObjetVideo.postDelayed(() -> {
                         try {
@@ -150,11 +150,11 @@ public class ObjetDetailBinder {
                         } catch (Exception e) {
                             e.printStackTrace();
                             if (ivObjet != null) ivObjet.setVisibility(View.VISIBLE);
-                            vvObjetVideo.setVisibility(View.GONE);
+                            vvObjetVideo.setVisibility(View.INVISIBLE);
                         }
                     }, 250);
                 } else {
-                    vvObjetVideo.setVisibility(View.GONE);
+                    vvObjetVideo.setVisibility(View.INVISIBLE);
                 }
             }
 
