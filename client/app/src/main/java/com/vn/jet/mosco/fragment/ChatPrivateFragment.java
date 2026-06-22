@@ -192,6 +192,7 @@ public class ChatPrivateFragment extends Fragment {
         chatAdapter = new WorldChatAdapter();
         chatAdapter.setPrivateChat(true);
         chatAdapter.setCurrentUserId(String.valueOf(sessionManager.getUserId()));
+        chatAdapter.setPartnerAvatarId(partnerAvatar);
         layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setStackFromEnd(true);
         rvChat.setLayoutManager(layoutManager);
@@ -978,6 +979,9 @@ public class ChatPrivateFragment extends Fragment {
         }
         if (stats.getAvatarId() != null && !stats.getAvatarId().isEmpty()) {
             partnerAvatar = stats.getAvatarId();
+            if (chatAdapter != null) {
+                chatAdapter.setPartnerAvatarId(partnerAvatar);
+            }
             if (ivHeaderAvatar != null) {
                 AvatarUtils.loadAvatar(getContext(), ivHeaderAvatar, partnerId, partnerAvatar);
             }

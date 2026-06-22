@@ -35,6 +35,14 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private boolean isPartnerOnline = false;
     private boolean isPrivateChat = false;
     private int lastAnimatedPosition = -1;
+    private String partnerAvatarId = null;
+
+    public void setPartnerAvatarId(String partnerAvatarId) {
+        this.partnerAvatarId = partnerAvatarId;
+        if (isPrivateChat) {
+            notifyDataSetChanged();
+        }
+    }
 
     public void setCurrentUserId(String userId) {
         this.currentUserId = userId;
@@ -267,8 +275,8 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
 
             if (otherHolder.ivAvatar != null) {
-                AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null,
-                        msg.getAvatarId());
+                String avatarToLoad = (isPrivateChat && partnerAvatarId != null) ? partnerAvatarId : msg.getAvatarId();
+                AvatarUtils.loadAvatar(otherHolder.itemView.getContext(), otherHolder.ivAvatar, null, avatarToLoad);
             }
 
             if (otherHolder.tvTime != null) {

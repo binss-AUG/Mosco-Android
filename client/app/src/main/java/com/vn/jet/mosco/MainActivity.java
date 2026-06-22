@@ -236,7 +236,15 @@ public class MainActivity extends MoscoBaseActivity {
 
         // TẠI SAO: Hiển thị banner HUD neon luxury thông báo cho người dùng và phản hồi rung tactile
         String senderName = msg.getSenderName() != null ? msg.getSenderName() : "User";
-        String displayMsg = senderName + ": " + msg.getContent();
+        // TẠI SAO: Giải mã các ký tự HTML (VD: ch&agrave;o -> chào) để hiển thị thông báo mượt mà
+        String decodedContent = msg.getContent();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            decodedContent = android.text.Html.fromHtml(msg.getContent(), android.text.Html.FROM_HTML_MODE_LEGACY).toString();
+        } else {
+            decodedContent = android.text.Html.fromHtml(msg.getContent()).toString();
+        }
+
+        String displayMsg = senderName + ": " + decodedContent;
         com.vn.jet.mosco.widget.MoscoNotification.showSuccess(this, displayMsg);
         
         View decor = getWindow().getDecorView();

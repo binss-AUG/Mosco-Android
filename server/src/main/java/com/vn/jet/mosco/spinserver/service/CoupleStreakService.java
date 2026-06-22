@@ -128,6 +128,7 @@ public class CoupleStreakService {
                 }
 
                 // Nếu cả hai người đều đã nhắn tin trong ngày hôm nay, mới tiến hành tính streak
+                boolean shouldNotify = false;
                 if (today.equals(streak.getRequesterInteractionDate()) && today.equals(streak.getPartnerInteractionDate())) {
                     LocalDate last = streak.getLastInteractionDate();
                     
@@ -135,16 +136,24 @@ public class CoupleStreakService {
                         if (last != null && last.isEqual(today.minusDays(1))) {
                             streak.setStreakCount(streak.getStreakCount() + 1);
                             log.info("[STREAK] Streak INCREASED for users {} and {}. New count: {}", senderId, receiverId, streak.getStreakCount());
+                            shouldNotify = true;
                         } else if (last != null) {
                             streak.setStreakCount(1);
                             log.info("[STREAK] Streak RESTARTED for users {} and {}. Count: 1", senderId, receiverId);
+                            shouldNotify = true;
+                        } else {
+                            // First time streak activated
+                            streak.setStreakCount(1);
+                            shouldNotify = true;
                         }
                         streak.setLastInteractionDate(today);
                     }
                 }
                 
                 CoupleStreak saved = streakRepository.save(streak);
-                notifyStreakUpdate(saved);
+                if (shouldNotify) {
+                    notifyStreakUpdate(saved);
+                }
             }
         }
     }

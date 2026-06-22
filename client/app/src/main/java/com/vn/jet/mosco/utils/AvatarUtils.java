@@ -99,8 +99,11 @@ public class AvatarUtils {
                 imgUrl = GlideBindingAdapter.convertImageIdToUrl(imgUrl, isThumbnail);
             }
 
+            // Tại sao (WHY): Dùng imageView.getDrawable() làm placeholder để tránh chớp nháy (flicker)
+            // khi load lại Avatar mới đè lên Avatar cũ (ảnh cũ sẽ hiển thị mượt mà cho đến khi tải xong ảnh mới).
+            android.graphics.drawable.Drawable currentDrawable = imageView.getDrawable();
             com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
-                    .placeholder(R.drawable.ic_user)
+                    .placeholder(currentDrawable != null ? currentDrawable : androidx.core.content.ContextCompat.getDrawable(context, R.drawable.ic_user))
                     .error(R.drawable.ic_user);
 
             if (hasCropParams) {
