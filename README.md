@@ -14,6 +14,17 @@
 >
 > 💡 **CƠ CHẾ AUTO-IP THÔNG MINH (DÀNH CHO CHẤM ĐỒ ÁN):**
 > Bạn **KHÔNG CẦN** thay đổi IP thủ công khi đổi mạng Wi-Fi (ví dụ mang máy lên trường). Script `getLocalIp()` trong `client/app/build.gradle` sẽ tự động "ping" ra ngoài và dò tìm chính xác IPv4 LAN hiện tại của máy tính. Bạn chỉ việc mở Android Studio và bấm **Run**, hệ thống sẽ tự động gắn IP mới nhất vào App Client để kết nối với Backend.
+>
+> 🔑 **TÀI KHOẢN ADMIN (DÙNG ĐỂ CHẤM ĐIỂM/TESTING):**
+> - **Username:** `admin`
+> - **Password:** `admin123`
+> - *Lưu ý:* Khi khởi động Server, hệ thống sẽ tự động import file `dump.sql` để dựng sẵn toàn bộ hệ thống thẻ bài, ĐỒNG THỜI tự động bơm cho tài khoản Admin này **1 Tỷ Vàng**, **1 Tỷ Kim cương**, **x999 Gói Thẻ** và mở khóa sẵn TẤT CẢ Thẻ bài ở Level 1 để Hội đồng/Thầy cô có thể test các tính năng Nâng cấp/Gacha ngay lập tức.
+>
+> 🐋 **KIẾN TRÚC DOCKER BAO GỒM 3 SERVICES CHÍNH:**
+> Khi chạy `docker compose up -d`, hệ thống tự động build các image mới nhất trực tiếp từ mã nguồn:
+> 1. `mysql` (Port 3307): CSDL MySQL 8.0, tự động mount dữ liệu seed ban đầu từ `dump.sql`.
+> 2. `backend` (Port 8080): Spring Boot Java Server.
+> 3. `rag_sidecar` (Port 5001): Python FastAPI Server chứa mô hình RAG AI để kiểm duyệt nội dung tự động.
 
 Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu cho hàng vạn vật phẩm.
 
