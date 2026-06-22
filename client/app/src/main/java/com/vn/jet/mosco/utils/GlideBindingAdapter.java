@@ -81,7 +81,7 @@ public class GlideBindingAdapter {
                 .load(loadSource)
                 .apply(options);
 
-        // HACK: Nếu đang load high quality, dùng chính thumbnail (đã cache) làm ảnh đệm để không bao giờ bị trong suốt
+        // Nếu đang load high quality, dùng chính thumbnail (đã cache) làm ảnh đệm để không bao giờ bị trong suốt
         if (isHighQuality && !effectiveThumbnail) {
             String thumbUrl = convertImageIdToUrl(imageIdOrUrl, true);
             java.io.File localThumb = CardAssetManager.getLocalFile(context, thumbUrl);
@@ -91,7 +91,24 @@ public class GlideBindingAdapter {
                     Glide.with(context).load(thumbSource)
                         .apply(new com.bumptech.glide.request.RequestOptions()
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565))
+                                .format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565)
+                                .override(150, 231))
+                        .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                                if (skeleton != null) {
+                                    Object r = skeleton.getTag(R.id.tag_skeleton_runnable);
+                                    if (r instanceof Runnable) skeleton.removeCallbacks((Runnable) r);
+                                    skeleton.setVisibility(View.GONE);
+                                }
+                                return false;
+                            }
+                        })
             );
         }
 
