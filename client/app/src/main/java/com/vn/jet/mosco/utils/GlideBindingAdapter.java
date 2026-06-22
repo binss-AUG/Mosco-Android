@@ -94,7 +94,7 @@ public class GlideBindingAdapter {
             request = request.thumbnail(
                     Glide.with(context).load(thumbSource)
                         .apply(new com.bumptech.glide.request.RequestOptions()
-                                .diskCacheStrategy(thumbSource instanceof java.io.File ? DiskCacheStrategy.NONE : DiskCacheStrategy.ALL)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .format(com.bumptech.glide.load.DecodeFormat.PREFER_RGB_565)
                                 .override(150, 231))
                         .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
@@ -116,7 +116,8 @@ public class GlideBindingAdapter {
             );
         }
 
-        request.transition(loadSource instanceof java.io.File ? DrawableTransitionOptions.withCrossFade(0) : DrawableTransitionOptions.withCrossFade())
+        // Xoá bỏ hoàn toàn CrossFade để tránh lỗi "khoảng giao nhau bị trong suốt" khi Thumbnail chuyển sang High Quality
+        request.transition(DrawableTransitionOptions.withCrossFade(0))
                 .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, 

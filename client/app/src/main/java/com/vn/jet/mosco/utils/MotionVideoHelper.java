@@ -92,18 +92,20 @@ public class MotionVideoHelper {
                         player.play();
                         textureView.setVisibility(View.VISIBLE);
                         textureView.setAlpha(1.0f);
-                        
-                        // Đặt cờ báo hiệu video đã sẵn sàng để logic lật thẻ không bật lại ảnh tĩnh đè lên video
-                        textureView.setTag(com.vn.jet.mosco.R.id.vv_objet_detail_video, true);
-                        
-                        // Độ trễ 450ms (thay vì 200ms) giúp video vẽ được thêm 2-3 frame nữa trước khi mở màn,
-                        // đảm bảo 100% video đã chạy mượt mà thì mới ẩn ảnh đệm tĩnh đi (tránh lag lần đầu)
-                        textureView.postDelayed(() -> {
-                            if (fallbackImageView != null) {
-                                fallbackImageView.setVisibility(View.INVISIBLE);
-                            }
-                        }, 450);
                     }
+                }
+
+                @Override
+                public void onRenderedFirstFrame() {
+                    // Đặt cờ báo hiệu video đã thực sự vẽ xong frame đầu tiên lên màn hình
+                    textureView.setTag(com.vn.jet.mosco.R.id.vv_objet_detail_video, true);
+                    
+                    // Độ trễ 150ms giúp video chạy mượt mà 1-2 nhịp rồi mới tắt ảnh tĩnh đè bên trên
+                    textureView.postDelayed(() -> {
+                        if (fallbackImageView != null) {
+                            fallbackImageView.setVisibility(View.INVISIBLE);
+                        }
+                    }, 150);
                 }
 
                 @Override
