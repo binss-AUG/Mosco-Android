@@ -1,149 +1,22 @@
-# PHASE 2: Bóc Tách Tính Năng & Đặc Tả Use-Case - Dự án Mosco
+# PHỤ LỤC: ĐẶC TẢ CHI TIẾT USE-CASE
 
-Tài liệu này bóc tách toàn bộ các tính năng thực tế từ mã nguồn của dự án Mosco (Client Android & Backend Spring Boot). Tài liệu đã được cập nhật dựa trên phản hồi thực tế của nhà phát triển.
+## 3.7. ĐẶC TẢ CHI TIẾT USE-CASE
 
----
 
-## Sơ đồ Use-case Tổng quát (PlantUML)
-*Bạn có thể copy đoạn code dưới đây và dán vào [PlantText.com](https://www.planttext.com/) để lấy hình ảnh Sơ đồ Use-case chuẩn UML bỏ vào báo cáo.*
 
-```text
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Khách vãng lai" as Guest
-actor "Người chơi" as User
-
-package "Hệ thống Mosco Gacha & Collection" {
-  usecase "Đăng ký / Khôi phục mật khẩu" as UC1
-  usecase "Đăng nhập (Thường & Social)" as UC2
-  usecase "Đồng bộ Master Data (ETL)" as UC3
-  usecase "Quản lý Hồ sơ & Showcase" as UC4
-  usecase "Quản lý Kho đồ (Local Cache)" as UC5
-  usecase "Nâng cấp thẻ bài (FO4 Style)" as UC6
-  usecase "Quay Gacha & Mở Pack" as UC7
-  usecase "Phái cử đi cảnh (AFK)" as UC8
-  usecase "Chat Realtime & Kết bạn" as UC9
-}
-
-Guest --> UC1
-Guest --> UC2
-
-User --> UC2
-User --> UC4
-User --> UC5
-User --> UC6
-User --> UC7
-User --> UC8
-User --> UC9
-
-UC2 ..> UC3 : <<include>>
-UC4 ..> UC5 : <<include>>
-@enduml
-```
 
 ### Các Sơ đồ Phân rã (Chi tiết từng phân hệ)
 *Trong báo cáo KLTN, sau khi có sơ đồ tổng quát, bạn cần đưa thêm các sơ đồ phân rã chi tiết để chứng minh độ sâu của hệ thống.*
 
 **1. Sơ đồ Phân hệ Tài khoản (Auth & Profile)**
-```text
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Khách vãng lai" as Guest
-actor "Người chơi" as User
-
-package "Phân hệ Tài khoản" {
-  usecase "Đăng ký" as UC1
-  usecase "Đăng nhập" as UC2
-  usecase "Khôi phục mật khẩu" as UC3
-  usecase "Thiết lập Tên hiển thị" as UC4
-  usecase "Chỉnh sửa Hồ sơ" as UC5
-  usecase "Thiết lập Showcase" as UC6
-  usecase "Cập nhật Avatar (ML Kit)" as UC7
-}
-
-Guest --> UC1
-Guest --> UC2
-Guest --> UC3
-
-User --> UC4
-User --> UC5
-User --> UC6
-User --> UC7
-
-UC1 ..> UC4 : <<include>>
-@enduml
-```
 
 **2. Sơ đồ Phân hệ Gameplay (Gacha, Upgrade, AFK)**
-```text
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Người chơi" as User
-
-package "Phân hệ Gameplay" {
-  usecase "Xem Sổ tay (Pokédex)" as UC1
-  usecase "Quản lý Kho đồ" as UC2
-  usecase "Quay gói Gacha" as UC3
-  usecase "Nâng cấp thẻ (FO4)" as UC4
-  usecase "Hiến tế thẻ (Spin)" as UC5
-  usecase "Mở gói phôi" as UC6
-  usecase "Thám hiểm bản đồ (AFK)" as UC7
-  usecase "Điểm danh hàng ngày" as UC8
-}
-
-User --> UC1
-User --> UC2
-User --> UC3
-User --> UC4
-User --> UC5
-User --> UC6
-User --> UC7
-User --> UC8
-
-UC3 ..> UC2 : <<include>>
-UC4 ..> UC2 : <<include>>
-@enduml
-```
 
 **3. Sơ đồ Phân hệ Xã hội (Social, Chat & Streak)**
-```text
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Người chơi" as User
-
-package "Phân hệ Xã hội" {
-  usecase "Chat Thế giới" as UC1
-  usecase "Chat Riêng tư" as UC2
-  usecase "Gửi lời mời kết bạn" as UC3
-  usecase "Thích hồ sơ (Like)" as UC4
-  usecase "Kết đôi (Couple Streak)" as UC5
-  usecase "Gửi tặng thẻ bài" as UC6
-  usecase "Nhận thư hệ thống (Mailbox)" as UC7
-}
-
-User --> UC1
-User --> UC2
-User --> UC3
-User --> UC4
-User --> UC5
-User --> UC6
-User --> UC7
-
-UC2 ..> UC5 : <<extend>>
-@enduml
-```
 
 ---
 
-## 📌 Hướng dẫn Bố cục trình bày Use-case vào file Word (Docx)
+### 3.7.1. Use-case Authentication
 *Để báo cáo chuẩn format KLTN, bạn nên bốc các phần dưới đây và sắp xếp theo cấu trúc mục lục sau:*
 
 **2.1. Phân tích chức năng hệ thống**
@@ -166,7 +39,7 @@ UC2 ..> UC5 : <<extend>>
 
 ## 1. Tính năng Đăng nhập & Đăng ký (Authentication)
 
-### Use-Case 1.0: Giới thiệu ứng dụng (Onboarding)
+#### Use-Case 1.0: Giới thiệu ứng dụng (Onboarding)
 *   **Tác nhân (Actor):** Khách vãng lai (Guest)
 *   **Luồng xử lý chính (Main flow):**
     1.  Khi người dùng mở ứng dụng lần đầu tiên (hoặc khi chưa đăng nhập), Client tự động hiển thị màn hình [OnboardingActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/OnboardingActivity.java).
@@ -175,7 +48,7 @@ UC2 ..> UC5 : <<extend>>
     4.  Người chơi nhấn nút "Tiếp tục" (Next) để chuyển sang trang tiếp theo, hoặc vuốt màn hình.
     5.  Tại trang giới thiệu cuối cùng, nút bấm chuyển nhãn thành "Bắt đầu" (Get Started). Khi người dùng nhấn nút này, Client chuyển hướng người dùng sang màn hình Đăng nhập [SignInActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SignInActivity.java).
 
-### Use-Case 1.0B: Khởi chạy và Đồng bộ tài nguyên lúc khởi động (App Startup & Galactic Resource Sync Pipeline)
+#### Use-Case 1.0B: Khởi chạy và Đồng bộ tài nguyên lúc khởi động (App Startup & Galactic Resource Sync Pipeline)
 *   **Tác nhân (Actor):** Người chơi (User) / Khách vãng lai (Guest)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng mở ứng dụng, màn hình khởi chạy [SplashActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SplashActivity.java) được hiển thị kèm hiệu ứng chuyển động Logo Lottie mượt mà và nền chuyển động Aurora.
@@ -199,7 +72,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Không có kết nối mạng:* Client phát hiện qua `ConnectivityManager.NetworkCallback` hoặc lỗi API, lập tức hiển thị giao diện báo lỗi kết nối mạng (Retry Connection) và ẩn Logo Lottie. Người chơi nhấn nút "Thử lại" để tải lại tài nguyên.
 
-### Use-Case 1.1: Đăng ký tài khoản (Sign Up)
+#### Use-Case 1.1: Đăng ký tài khoản (Sign Up)
 *   **Tác nhân (Actor):** Khách vãng lai (Guest)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng nhập Username, Email, Password tại màn hình [SignUpActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SignUpActivity.java).
@@ -213,7 +86,7 @@ UC2 ..> UC5 : <<extend>>
     *   *Email đã tồn tại / Sai định dạng:* Server trả về thông báo lỗi, Client hiển thị lỗi tương ứng lên màn hình đăng ký.
     *   *Mã xác thực hết hạn hoặc sai:* Server trả về lỗi 400 "Mã xác thực không hợp lệ", Client yêu cầu người dùng kiểm tra lại hoặc gửi lại mã.
 
-### Use-Case 1.2: Đăng nhập (Sign In & Social Login)
+#### Use-Case 1.2: Đăng nhập (Sign In & Social Login)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng nhập Username/Email và Password tại [SignInActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/SignInActivity.java).
@@ -236,7 +109,7 @@ UC2 ..> UC5 : <<extend>>
     *   *Không lấy được thông tin email từ Firebase/Discord:* Server từ chối liên kết đăng nhập, trả về lỗi 400.
     *   *Mất kết nối mạng:* Client nhận diện lỗi IO, hiển thị thông báo yêu cầu kiểm tra kết nối mạng.
 
-### Use-Case 1.3: Quên mật khẩu & Đặt lại mật khẩu (Forgot & Reset Password)
+#### Use-Case 1.3: Quên mật khẩu & Đặt lại mật khẩu (Forgot & Reset Password)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng bấm nút "Quên mật khẩu" tại màn hình đăng nhập.
@@ -250,7 +123,7 @@ UC2 ..> UC5 : <<extend>>
     *   *Email không tồn tại trong hệ thống:* Server trả về thông báo lỗi, Client hiển thị "Email không khớp với bất kỳ tài khoản nào".
     *   *Mã OTP không chính xác hoặc đã hết hạn (quá 10 phút):* Server phản hồi lỗi 400, Client yêu cầu người chơi kiểm tra hoặc yêu cầu gửi lại mã OTP mới.
 
-### Use-Case 1.4: Thiết lập tên hiển thị lần đầu (Display Name Setup)
+#### Use-Case 1.4: Thiết lập tên hiển thị lần đầu (Display Name Setup)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Đối với tài khoản mới tạo (hoặc tài khoản chưa từng đặt Ingame Name), sau khi đăng nhập thành công, Client tự động chuyển hướng người dùng tới màn hình [DisplayNameSetupActivity](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/DisplayNameSetupActivity.java) để bắt buộc thiết lập Tên hiển thị độc nhất.
@@ -282,7 +155,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Cache trống & Mất mạng:* Client hiển thị Shimmer Loading vô hạn hoặc thông báo lỗi tải dữ liệu, hiển thị nút "Tải lại".
 
-### Use-Case 2.2: Chọn và Crop Avatar (AI Auto-Crop & Manual Crop)
+#### Use-Case 2.2: Chọn và Crop Avatar (AI Auto-Crop & Manual Crop)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại Profile, người dùng chọn một ảnh từ thiết bị làm Avatar.
@@ -296,7 +169,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Cài đặt lại app / Chuyển thiết bị (Survive Reinstall):* Client chỉ cần kéo `avatarId` và `avatarCropParams` từ server về để tự động vẽ lại ảnh avatar đã crop chính xác mà không cần người dùng tải lại ảnh gốc.
 
-### Use-Case 2.3: Trưng bày thẻ bài (Showcase Setup)
+#### Use-Case 2.1: Xem và chỉnh sửa hồ sơ cá nhân
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại màn hình Profile, người dùng nhấn vào các slot showcase trống (tối đa 8 slot hiển thị dạng Carousel).
@@ -312,7 +185,7 @@ UC2 ..> UC5 : <<extend>>
         3.  Nếu phát hiện thẻ bài trong showcase không còn tồn tại trong kho đồ, hệ thống tự động gỡ bỏ (unequip) thẻ bài đó ra khỏi slot showcase cục bộ.
         4.  Client ngay lập tức gọi API của ViewModel để đồng bộ danh sách Showcase đã được dọn sạch lên MySQL Server.
 
-### Use-Case 2.4: Thích hồ sơ người chơi khác (Profile Likes)
+#### Use-Case 2.4: Thích hồ sơ người chơi khác (Profile Likes)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng truy cập vào trang hồ sơ của một người chơi khác (như qua bảng xếp hạng, danh sách bạn bè, hoặc world chat).
@@ -326,7 +199,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Người chơi tự thích chính mình:* Server trả về lỗi 400 "Không thể tự thích hồ sơ của chính mình", Client hiển thị Toast cảnh báo.
 
-### Use-Case 2.5: Khôi phục chuỗi đăng nhập (Streak Restore)
+#### Use-Case 4.5: Duy trì chuỗi tương tác (Couple Streak)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Nếu người chơi quên điểm danh hoặc không đăng nhập một ngày, chuỗi Streak điểm danh của họ sẽ bị reset về 0 hoặc đứt đoạn.
@@ -353,7 +226,7 @@ UC2 ..> UC5 : <<extend>>
     3.  Người dùng thực hiện lọc (Artist, Class hiếm, Season) hoặc sắp xếp (OVR, Cấp độ, Mới nhất).
     4.  Client thực hiện lọc và sắp xếp trực tiếp trên danh sách cache/Room DB cục bộ ở thiết bị giúp phản hồi giao diện tức thì mà không cần tải lại trang từ mạng.
 
-### Use-Case 3.2: Sổ tay sưu tầm Pokédex-style (Collection Book)
+#### Use-Case 3.4: Bộ sưu tập (Collection Book)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng truy cập màn hình "Sổ tay sưu tập" (Collection Book / Pokédex).
@@ -371,7 +244,7 @@ UC2 ..> UC5 : <<extend>>
 
 ## 4. Tính năng Gacha & Quay thưởng (Gacha & Spin System)
 
-### Use-Case 4.1A: Quay gói thẻ bài Gacha (Gacha Roll)
+#### Use-Case 3.1: Quay thẻ Gacha (Gacha Roll)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại màn hình [ShopFragment](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/fragment/ShopFragment.java), người dùng chọn mua và quay một gói gacha cụ thể (VD: "PACK_METAL").
@@ -395,7 +268,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Số lượng gói phôi không đủ:* Server trả về lỗi 400 "Bạn không sở hữu gói thẻ này", Client thông báo lỗi lên màn hình.
 
-### Use-Case 4.2: Vòng quay trao đổi thẻ bài (Gacha Spin / Card Sacrifice)
+#### Use-Case 3.1: Quay thẻ Gacha (Gacha Roll)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng truy cập màn hình [SpinFragment](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/fragment/SpinFragment.java).
@@ -462,7 +335,7 @@ UC2 ..> UC5 : <<extend>>
 
 ## 7. Tính năng Đồng hành & Streak (Couple Streak)
 
-### Use-Case 7.1: Kết nối Couple và Kích hoạt Streak
+#### Use-Case 4.5: Duy trì chuỗi tương tác (Couple Streak)
 *   **Tác nhân (Actor):** Người chơi (User) và Bạn bè (Friend)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại màn hình bạn bè hoặc profile của bạn bè, người dùng bấm nút "Kết đôi" để gửi yêu cầu bắt đầu chuỗi Streak.
@@ -475,7 +348,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Từ chối kết đôi:* Người được mời bấm "Từ chối", Client gửi POST tới `/api/v1/streaks/decline` kèm Query Parameters (`?userId=xxx&requesterId=yyy`). Server cập nhật trạng thái thành `DECLINED`. (Chặn không cho từ chối nếu trạng thái đã là `ACTIVE`).
 
-### Use-Case 7.2: Trưng bày Objet trong Couple Streak
+#### Use-Case 4.5: Duy trì chuỗi tương tác (Couple Streak)
 *   **Tác nhân (Actor):** Cặp đôi người chơi (Couple Users)
 *   **Luồng xử lý chính (Main flow):**
     1.  Trong giao diện Couple Streak, người chơi nhấn vào khu vực trưng bày Objet của mình.
@@ -489,7 +362,7 @@ UC2 ..> UC5 : <<extend>>
 
 ## 8. Tính năng Trò chuyện Thời gian thực (Realtime Chat)
 
-### Use-Case 8.1: Chat Thế giới (World Chat)
+#### Use-Case 4.3: Chat thế giới (World Chat)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng mở hộp chat trên màn hình chính.
@@ -500,7 +373,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Mất kết nối WebSocket:* Client chuyển trạng thái hiển thị chat sang màu xám/báo offline, và chạy luồng tự động kết nối lại (auto-reconnect) ngầm.
 
-### Use-Case 8.2: Chat Riêng tư & Duy trì Streak (Private Chat)
+#### Use-Case 4.4: Nhắn tin riêng tư (Private Chat)
 *   **Tác nhân (Actor):** Cặp đôi người chơi (Couple Users)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người chơi mở màn hình chat riêng tư [ChatPrivateFragment](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/fragment/ChatPrivateFragment.java) với một người bạn.
@@ -594,7 +467,7 @@ UC2 ..> UC5 : <<extend>>
     6.  Server cập nhật trạng thái phiên thám hiểm thành `CLAIMED`.
     7.  Client nhận thông tin quà thưởng, cập nhật số dư hiển thị và mở khóa các thẻ bài trong kho đồ.
 
-### Use-Case 10.4: Hủy bỏ thám hiểm đi cảnh giữa chừng (Abort Stage Expedition)
+#### Use-Case 3.6: Cử đội hình đi thám hiểm (AFK Stage)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại màn hình thám hiểm, đối với một phiên thám hiểm đang trong trạng thái chạy (`ACTIVE`), người chơi có thể chọn "Hủy bỏ" (Abort) nếu muốn thu hồi thẻ bài gấp.
@@ -609,7 +482,7 @@ UC2 ..> UC5 : <<extend>>
 
 ## 11. Tính năng Hòm thư & Gửi tặng (Mailbox & Gift)
 
-### Use-Case 11.1: Nhận quà từ thư hệ thống (Mailbox Claim)
+#### Use-Case 3.7: Hộp thư (Mailbox)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng mở [MailboxFragment](file:///d:/MEox/UITer/DOAN/Mosco_Megre/Mosco/client/app/src/main/java/com/vn/jet/mosco/fragment/MailboxFragment.java).
@@ -619,7 +492,7 @@ UC2 ..> UC5 : <<extend>>
     5.  **Nhận tất cả:** Client gửi POST tới `/api/mailbox/claim-all/{userId}`. Server quét toàn bộ các thư chưa nhận kèm khóa bảo vệ, gom tổng số Coin và Diamond lại cộng 1 lần duy nhất vào user, sau đó cập nhật toàn bộ thư thành đã nhận.
     6.  Client nhận phản hồi thành công, cộng tiền trên thanh header và cập nhật trạng thái thư hiển thị.
 
-### Use-Case 11.2: Tặng thẻ bài trực tiếp cho bạn bè (Gifting)
+#### Use-Case 4.6: Tặng quà (Gift)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Tại kho đồ hoặc profile của bạn bè, người chơi nhấn chọn "Tặng quà".
@@ -636,7 +509,7 @@ UC2 ..> UC5 : <<extend>>
 *   **Luồng rẽ nhánh / lỗi (Alternative/Exception flow):**
     *   *Thẻ được chọn nằm trong showcase:* Sau khi tặng thành công, thẻ tự động unequip khỏi showcase của người tặng khi người tặng tải lại Profile (Use-Case 2.3).
 
-### Use-Case 11.3: Quản lý hộp quà và lượt tặng còn lại (Gift Inbox & Daily Limits Tracking)
+#### Use-Case 4.6: Tặng quà (Gift)
 *   **Tác nhân (Actor):** Người chơi (User)
 *   **Luồng xử lý chính (Main flow):**
     1.  Người dùng mở giao diện "Hộp Quà" (Gift Inbox).
@@ -773,3 +646,7 @@ UC2 ..> UC5 : <<extend>>
     *   *Không đủ tài nguyên thanh toán:* Server từ chối giao dịch, trả về thông báo lỗi 400 "Not enough resources". Client hiển thị popup nhắc nhở nạp thêm tài nguyên.
 
 ---
+
+
+---
+
