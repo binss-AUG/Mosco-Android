@@ -12,8 +12,6 @@ services:
       - "3307:3306"
     volumes:
       - mosco_mysql_data:/var/lib/mysql
-      # Tự động nạp tệp dump.sql vào CSDL ngay lần đầu khởi tạo
-      - ./scripts/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
   #  Spring Boot Backend Service
   backend:

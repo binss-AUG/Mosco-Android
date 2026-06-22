@@ -8,7 +8,7 @@
 > Máy tính cần cài sẵn và đang bật ứng dụng **Docker Desktop**.
 > 
 > ### Các bước thực hiện:
-> 1. Mở thư mục **`scripts/`**, đảm bảo có sẵn file dữ liệu **`dump.sql`** tại đây.
+> 1. Mở thư mục **`scripts/`**.
 > 2. **Click đúp chuột** vào file **`run_setup.bat`** (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
 > 3. Kịch bản sẽ tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
 >
@@ -18,11 +18,11 @@
 > 🔑 **TÀI KHOẢN ADMIN (DÙNG ĐỂ CHẤM ĐIỂM/TESTING):**
 > - **Username:** `admin`
 > - **Password:** `admin123`
-> - *Lưu ý:* Khi khởi động Server, hệ thống sẽ tự động import file `dump.sql` để dựng sẵn toàn bộ hệ thống thẻ bài, ĐỒNG THỜI tự động bơm cho tài khoản Admin này **1 Tỷ Vàng**, **1 Tỷ Kim cương**, **x999 Gói Thẻ** và mở khóa sẵn TẤT CẢ Thẻ bài ở Level 1 để Hội đồng/Thầy cô có thể test các tính năng Nâng cấp/Gacha ngay lập tức.
+> - *Lưu ý:* Khi khởi động Server, hệ thống sẽ tự động tạo bảng (Auto-DDL) và nạp toàn bộ 9000+ thẻ bài từ file `database.json`, ĐỒNG THỜI tự động bơm cho tài khoản Admin này **1 Tỷ Vàng**, **1 Tỷ Kim cương**, **x999 Gói Thẻ** và mở khóa sẵn TẤT CẢ Thẻ bài ở Level 1 để Hội đồng/Thầy cô có thể test các tính năng Nâng cấp/Gacha ngay lập tức.
 >
 > 🐋 **KIẾN TRÚC DOCKER BAO GỒM 3 SERVICES CHÍNH:**
 > Khi chạy `docker compose up -d`, hệ thống tự động build các image mới nhất trực tiếp từ mã nguồn:
-> 1. `mysql` (Port 3307): CSDL MySQL 8.0, tự động mount dữ liệu seed ban đầu từ `dump.sql`.
+> 1. `mysql` (Port 3307): CSDL MySQL 8.0. Dữ liệu sẽ được Spring Boot tự động khởi tạo (Auto-DDL) và nạp dữ liệu siêu việt (9000+ thẻ) từ file `database.json`.
 > 2. `backend` (Port 8080): Spring Boot Java Server.
 > 3. `rag_sidecar` (Port 5001): Python FastAPI Server chứa mô hình RAG AI để kiểm duyệt nội dung tự động.
 
