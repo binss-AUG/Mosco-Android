@@ -10,7 +10,10 @@
 > ### Các bước thực hiện:
 > 1. Mở thư mục **`scripts/`**, đảm bảo có sẵn file dữ liệu **`dump.sql`** tại đây.
 > 2. **Click đúp chuột** vào file **`run_setup.bat`** (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
-> 3. Kịch bản sẽ tự động: Quét địa chỉ **IPv4 LAN** thực tế của Host để cấu hình kết nối API cho Android Client ➔ Tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
+> 3. Kịch bản sẽ tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
+>
+> 💡 **CƠ CHẾ AUTO-IP THÔNG MINH (DÀNH CHO CHẤM ĐỒ ÁN):**
+> Bạn **KHÔNG CẦN** thay đổi IP thủ công khi đổi mạng Wi-Fi (ví dụ mang máy lên trường). Script `getLocalIp()` trong `client/app/build.gradle` sẽ tự động "ping" ra ngoài và dò tìm chính xác IPv4 LAN hiện tại của máy tính. Bạn chỉ việc mở Android Studio và bấm **Run**, hệ thống sẽ tự động gắn IP mới nhất vào App Client để kết nối với Backend.
 
 Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu cho hàng vạn vật phẩm.
 
