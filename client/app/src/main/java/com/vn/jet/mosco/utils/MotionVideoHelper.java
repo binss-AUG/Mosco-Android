@@ -47,7 +47,9 @@ public class MotionVideoHelper {
             return null;
         }
 
-        textureView.setVisibility(View.GONE);
+        // KHÔNG set GONE ở đây. Nếu view đang là VISIBLE (với alpha=0) thì việc set GONE sẽ phá huỷ SurfaceTexture
+        // dẫn đến ExoPlayer bị mất frame đầu tiên và giật lag khi chuyển sang VISIBLE.
+        // textureView.setVisibility(View.GONE);
 
         try {
             // Tối ưu RAM cho Giả lập Android 9: Tăng buffer lên mức hợp lý để tránh giật lag khi mạng chậm
