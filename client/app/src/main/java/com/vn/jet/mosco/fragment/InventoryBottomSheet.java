@@ -67,25 +67,31 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
     private final com.vn.jet.mosco.utils.DatabaseLoader.OnInventoryChangeListener inventoryChangeListener = () -> {
         if (getActivity() != null && isAdded()) {
-            getActivity().runOnUiThread(() -> {
+            new Thread(() -> {
                 if (com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory != null) {
                     List<CardDisplayItem> displayItems = new ArrayList<>(com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory.size());
-                    busyIds.clear();
+                    java.util.Set<Long> tempBusyIds = new java.util.HashSet<>();
                     for (com.vn.jet.mosco.utils.DatabaseLoader.UserInventoryItem item : com.vn.jet.mosco.utils.DatabaseLoader.cachedUserInventory) {
                         CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
                         displayItems.add(displayItem);
                         if (!isShowcaseMode && displayItem.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(displayItem.getStatus())) {
-                            busyIds.add(displayItem.getId());
+                            tempBusyIds.add(displayItem.getId());
                         }
                     }
-                    originalObjets = displayItems;
-                    if (adapter != null) {
-                        adapter.updateData(originalObjets);
-                        updateDisabledStates();
-                        applyFilters();
+                    if (getActivity() != null && isAdded()) {
+                        getActivity().runOnUiThread(() -> {
+                            busyIds.clear();
+                            busyIds.addAll(tempBusyIds);
+                            originalObjets = displayItems;
+                            if (adapter != null) {
+                                adapter.updateData(originalObjets);
+                                updateDisabledStates();
+                                applyFilters();
+                            }
+                        });
                     }
                 }
-            });
+            }).start();
         }
     };
 
@@ -327,24 +333,32 @@ public class InventoryBottomSheet extends BottomSheetDialogFragment {
 
         // BƯỚC 1: Hiển thị từ Cache NGAY LẬP TỨC
         if (DatabaseLoader.cachedUserInventory != null && !DatabaseLoader.cachedUserInventory.isEmpty()) {
-            List<CardDisplayItem> displayItems = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
-            busyIds.clear();
-            for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
-                CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
-                displayItems.add(displayItem);
-                // [SHOWCASE FIX] Nếu là chế độ trưng bày, không khóa thẻ BUSY
-                if (!isShowcaseMode && displayItem.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(displayItem.getStatus())) {
-                    busyIds.add(displayItem.getId());
-                }
-            }
-            originalObjets = displayItems;
-            adapter.updateData(originalObjets);
-            layoutEmptyState.setVisibility(View.GONE);
+            adapter.setLoading(true);
             rvInventory.setVisibility(View.VISIBLE);
             if (loaderLottie != null) loaderLottie.setVisibility(View.GONE);
-            
-            updateDisabledStates();
-            rvInventory.post(this::applyFilters);
+
+            new Thread(() -> {
+                List<CardDisplayItem> displayItems = new ArrayList<>(DatabaseLoader.cachedUserInventory.size());
+                java.util.Set<Long> tempBusyIds = new java.util.HashSet<>();
+                for (DatabaseLoader.UserInventoryItem item : DatabaseLoader.cachedUserInventory) {
+                    CardDisplayItem displayItem = CardDisplayItem.fromCacheItem(item);
+                    displayItems.add(displayItem);
+                    if (!isShowcaseMode && displayItem.getStatus() != null && !"AVAILABLE".equalsIgnoreCase(displayItem.getStatus())) {
+                        tempBusyIds.add(displayItem.getId());
+                    }
+                }
+                if (getActivity() != null && isAdded()) {
+                    getActivity().runOnUiThread(() -> {
+                        busyIds.clear();
+                        busyIds.addAll(tempBusyIds);
+                        originalObjets = displayItems;
+                        adapter.updateData(originalObjets);
+                        layoutEmptyState.setVisibility(View.GONE);
+                        updateDisabledStates();
+                        applyFilters();
+                    });
+                }
+            }).start();
         } else {
             adapter.setLoading(true);
             rvInventory.setVisibility(View.VISIBLE);

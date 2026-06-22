@@ -16,4 +16,5 @@
     <item name="tag_original_image_drawable" type="id" />
     <item name="tag_is_skeletonized" type="id" />
     <item name="tag_original_visibility" type="id" />
+    <item name="tag_skeleton_runnable" type="id" />
 </resources>

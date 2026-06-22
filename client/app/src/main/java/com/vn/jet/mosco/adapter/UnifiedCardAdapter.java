@@ -476,11 +476,6 @@ public class UnifiedCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
      * Đồng thời quản lý Skeleton visibility.
      */
     private void bindImage(@NonNull CardViewHolder vh, @NonNull CardDisplayItem item) {
-        // Hiện skeleton trước khi ảnh load xong
-        if (vh.layoutSkeleton != null) {
-            vh.layoutSkeleton.setVisibility(View.VISIBLE);
-        }
-
         // Sử dụng GlideBindingAdapter chuẩn hóa — 1 luồng duy nhất
         GlideBindingAdapter.loadImage(vh.ivCardImage, item.getFrontImage(), true);
 

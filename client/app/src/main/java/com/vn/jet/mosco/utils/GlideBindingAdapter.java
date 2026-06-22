@@ -41,7 +41,14 @@ public class GlideBindingAdapter {
         if (context == null) return;
 
         if (skeleton != null) {
-            skeleton.setVisibility(View.VISIBLE);
+            Object oldRunnable = skeleton.getTag(R.id.tag_skeleton_runnable);
+            if (oldRunnable instanceof Runnable) {
+                skeleton.removeCallbacks((Runnable) oldRunnable);
+            }
+            Runnable showSkeleton = () -> skeleton.setVisibility(View.VISIBLE);
+            skeleton.setTag(R.id.tag_skeleton_runnable, showSkeleton);
+            skeleton.setVisibility(View.GONE);
+            skeleton.postDelayed(showSkeleton, 50);
         }
 
         // Ưu tiên isHighQuality nếu được set
@@ -78,7 +85,11 @@ public class GlideBindingAdapter {
                     @Override
                     public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model, 
                                               com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                        if (skeleton != null) skeleton.setVisibility(View.GONE);
+                        if (skeleton != null) {
+                            Object r = skeleton.getTag(R.id.tag_skeleton_runnable);
+                            if (r instanceof Runnable) skeleton.removeCallbacks((Runnable) r);
+                            skeleton.setVisibility(View.GONE);
+                        }
                         return false;
                     }
 
@@ -86,7 +97,11 @@ public class GlideBindingAdapter {
                     public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, 
                                                  com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, 
                                                  com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                        if (skeleton != null) skeleton.setVisibility(View.GONE);
+                        if (skeleton != null) {
+                            Object r = skeleton.getTag(R.id.tag_skeleton_runnable);
+                            if (r instanceof Runnable) skeleton.removeCallbacks((Runnable) r);
+                            skeleton.setVisibility(View.GONE);
+                        }
                         return false;
                     }
                 })

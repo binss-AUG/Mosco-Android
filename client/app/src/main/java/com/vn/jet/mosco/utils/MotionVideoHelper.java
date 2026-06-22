@@ -50,9 +50,9 @@ public class MotionVideoHelper {
         textureView.setVisibility(View.GONE);
 
         try {
-            // Tối ưu RAM cho Giả lập Android 9: Giảm buffer từ 10s/50s xuống 1.5s/3s để chống OOM cho file video lớn 36MB
+            // Tối ưu RAM cho Giả lập Android 9: Tăng buffer lên mức hợp lý để tránh giật lag khi mạng chậm
             DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(1_500, 3_000, 500, 500)
+                    .setBufferDurationsMs(15_000, 30_000, 2_000, 5_000)
                     .build();
 
             ExoPlayer player = new ExoPlayer.Builder(context)
