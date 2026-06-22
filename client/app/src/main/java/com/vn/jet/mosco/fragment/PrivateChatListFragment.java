@@ -260,9 +260,16 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                     avatar
                             );
                             wrapper.setUnreadCount(unreadCount);
-                            // Tại sao (WHY): Mặc định tất cả là stranger, tránh flash "User" → "User • Stranger"
-                            // khi syncRealtimeOnlineStatuses chạy xong (delay ~1-2s)
-                            wrapper.setStranger(true);
+                            // Tại sao (WHY): Kế thừa trạng thái isStranger từ danh sách cũ nếu có, nếu không mặc định false
+                            // để tránh bị chớp nháy chữ "Stranger" (người lạ) ở lần tải đầu tiên.
+                            boolean isStranger = false;
+                            for (ConversationAdapter.ConversationWrapper existing : conversationsList) {
+                                if (existing.getPartnerId().equals(partnerId)) {
+                                    isStranger = existing.isStranger();
+                                    break;
+                                }
+                            }
+                            wrapper.setStranger(isStranger);
                             uniqueWrappers.add(wrapper);
                         }
                     }
@@ -451,6 +458,24 @@ public class PrivateChatListFragment extends Fragment implements ConversationAda
                                 if (avatar != null && !avatar.isEmpty()) {
                                     avatarMap.put(friendId, avatar);
                                 }
+
+                                // Tại sao (WHY): Lưu lại avatar và tên mới nhất của bạn bè vào Room DB để 
+                                // lần sau mở app lên sẽ không bị hiện avatar "cũ rít" từ cache cũ.
+                                final String finalName = name;
+                                final String finalAvatar = avatar;
+                                AppExecutors.getInstance().diskIO().execute(() -> {
+                                    try {
+                                        AppDatabase dbInstance = AppDatabase.getInstance(context);
+                                        if (dbInstance != null) {
+                                            dbInstance.messageDao().updatePartnerName(friendId, finalName);
+                                            if (finalAvatar != null && !finalAvatar.isEmpty()) {
+                                                dbInstance.messageDao().updatePartnerAvatar(friendId, finalAvatar);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        Log.e("PrivateChatListFragment", "Error saving friend stats to Room DB", e);
+                                    }
+                                });
                             }
                         }
                     }

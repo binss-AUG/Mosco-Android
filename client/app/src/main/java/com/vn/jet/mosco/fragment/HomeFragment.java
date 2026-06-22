@@ -218,6 +218,9 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         super.onPause();
         stopBannerAutoScroll();
         stopRankAutoScroll();
+        if (chatDisposable != null && !chatDisposable.isDisposed()) {
+            chatDisposable.dispose();
+        }
     }
 
 
@@ -625,6 +628,15 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
                     // Gửi qua WebSocket (Server sẽ broadcast lại cho mọi người)
                     com.vn.jet.mosco.model.WorldChatMessage chatMsg = 
                         new com.vn.jet.mosco.model.WorldChatMessage(currentUserId, myName, myAvatar, msg);
+
+                    // Tại sao (WHY): Optimistic UI - In ra màn hình ngay lập tức để tránh cảm giác lag
+                    if (worldChatAdapter != null) {
+                        worldChatAdapter.addMessage(chatMsg);
+                        if (rvWorldChatExpanded != null && worldChatAdapter.getItemCount() > 0) {
+                            rvWorldChatExpanded.scrollToPosition(worldChatAdapter.getItemCount() - 1);
+                        }
+                    }
+
                     wsManager.sendWorldMessage(chatMsg);
                     
                     v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);

@@ -85,6 +85,13 @@ public class WorldChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
 
+        // Tại sao (WHY): Chống duplicate tin nhắn khi WebSocket dội lại tin nhắn do chính mình vừa gửi (Optimistic UI)
+        if (lastRealMsg != null && lastRealMsg.getSenderId().equals(msg.getSenderId()) 
+                && lastRealMsg.getContent().equals(msg.getContent())) {
+            // Cùng sender và content -> Bỏ qua
+            return;
+        }
+
         if (lastRealMsg == null || isDifferentDay(lastRealMsg.getTimestamp(), msg.getTimestamp())) {
             WorldChatMessage dateSep = new WorldChatMessage(
                     "DATE_SEPARATOR",
