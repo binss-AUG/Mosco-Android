@@ -198,7 +198,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
         stopChatTicker();
         if (rgbAnimator != null) rgbAnimator.cancel();
         
-        // --- 🌐 WORLD CHAT: Cleanup WebSocket ---
+        // ---  WORLD CHAT: Cleanup WebSocket ---
         if (chatDisposable != null && !chatDisposable.isDisposed()) {
             chatDisposable.dispose();
         }
@@ -594,7 +594,7 @@ public class HomeFragment extends Fragment implements DatabaseLoader.OnInventory
             }
         }
 
-        // --- 🌐 WORLD CHAT: WebSocket Integration ---
+        // ---  WORLD CHAT: WebSocket Integration ---
         wsManager = com.vn.jet.mosco.network.WebSocketManager.getInstance();
         wsManager.connect();
         

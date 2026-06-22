@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 👑 BaseInventoryAdapter (V5 - Local First)
+ *  BaseInventoryAdapter (V5 - Local First)
  * Chiến thuật "Local First": Ảnh bản 2x lưu sẵn ở máy → scale down hiển thị Grid.
  * Không cần gọi mạng → tốc độ tải 0ms, cuộn mượt như bơ.
  */
@@ -177,7 +177,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             displayObjets.addAll(nextChunk);
             notifyItemRangeInserted(insertPos, nextChunk.size());
 
-            // 🚀 PROGRESSIVE LOADING: Prefetch ảnh cho trang tiếp theo (60-120 item tiếp)
+            //  PROGRESSIVE LOADING: Prefetch ảnh cho trang tiếp theo (60-120 item tiếp)
             preloadNextPageImages();
         }, 300);
     }
@@ -276,7 +276,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                 itemHolder.ivLevel.setVisibility(View.GONE);
             }
 
-            // 🚀 LOCAL FIRST: Tìm file ảnh 2x trong bộ nhớ máy
+            //  LOCAL FIRST: Tìm file ảnh 2x trong bộ nhớ máy
             File localFile = CardAssetManager.getLocalFile(mContext, item.getImageUrl());
 
             com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable> glideListener = new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
@@ -297,7 +297,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             };
 
             if (localFile != null && localFile.exists()) {
-                // ✅ Ảnh có sẵn ở máy → Nạp từ file local, scale down cho Grid
+                //  Ảnh có sẵn ở máy → Nạp từ file local, scale down cho Grid
                 Glide.with(mContext)
                         .load(localFile)
                         .override(GRID_WIDTH, GRID_HEIGHT) // Scale down 2x → kích thước grid nhỏ
@@ -308,7 +308,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .listener(glideListener)
                         .into(itemHolder.ivObjet);
             } else {
-                // ⚡ Fallback: Ảnh chưa tải → Gọi URL bản 1x từ Cloudflare (nhẹ nhất)
+                //  Fallback: Ảnh chưa tải → Gọi URL bản 1x từ Cloudflare (nhẹ nhất)
                 String fallbackUrl = CardAssetManager.convertToVariant(item.getImageUrl(), "1x");
                 Glide.with(mContext)
                         .load(fallbackUrl)
@@ -326,7 +326,7 @@ public class BaseInventoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                 itemHolder.tvOvr.setVisibility(View.GONE);
             }
 
-            // 🔥 BIND MULTI-SELECT OVERLAY & DISABLED STATE
+            //  BIND MULTI-SELECT OVERLAY & DISABLED STATE
             boolean isSelected = selectedIds.contains(item.getId());
             boolean isDisabled = disabledIds.contains(item.getId()) || 
                                (item.getMember() != null && disabledMembers.contains(item.getMember().trim().toLowerCase()) && !isSelected);

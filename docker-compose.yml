@@ -1,5 +1,5 @@
 services:
-  # 🗄️ MySQL Database Service
+  # ️ MySQL Database Service
   mysql:
     image: mysql:8.0
     container_name: mosco-mysql
@@ -15,7 +15,7 @@ services:
       # Tự động nạp tệp dump.sql vào CSDL ngay lần đầu khởi tạo
       - ./scripts/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
-  # 🚀 Spring Boot Backend Service
+  #  Spring Boot Backend Service
   backend:
     build:
       context: ./server
@@ -33,7 +33,7 @@ services:
     depends_on:
       - mysql
 
-  # 🤖 Python AI RAG Sidecar Service
+  #  Python AI RAG Sidecar Service
   rag_sidecar:
     build:
       context: ./tools/rag_sidecar
@@ -45,6 +45,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
 
-# 💾 Khai báo Volume để lưu dữ liệu CSDL vĩnh viễn trên Host
+#  Khai báo Volume để lưu dữ liệu CSDL vĩnh viễn trên Host
 volumes:
   mosco_mysql_data:

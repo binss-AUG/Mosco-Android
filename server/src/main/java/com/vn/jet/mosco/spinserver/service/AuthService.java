@@ -255,7 +255,7 @@ public class AuthService {
     }
 
     /**
-     * 🔥 LOGIC DAILY STREAK (GLOBAL)
+     *  LOGIC DAILY STREAK (GLOBAL)
      * Được gọi mỗi khi User login hoặc lấy thông tin Profile.
      * Đảm bảo streak luôn được cập nhật ngay cả khi dùng Auto-login.
      */

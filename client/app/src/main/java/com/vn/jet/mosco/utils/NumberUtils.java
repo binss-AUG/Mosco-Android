@@ -4,7 +4,7 @@ import android.content.Context;
 import com.vn.jet.mosco.R;
 
 /**
- * 📊 NumberUtils — Tiện ích định dạng con số lớn (K, M, B, T).
+ *  NumberUtils — Tiện ích định dạng con số lớn (K, M, B, T).
  * Giúp hiển thị tài nguyên/giá cả gọn gàng, tránh vỡ layout khi số quá dài.
  */
 public class NumberUtils {

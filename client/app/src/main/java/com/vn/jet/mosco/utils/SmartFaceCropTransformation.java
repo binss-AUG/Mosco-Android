@@ -60,7 +60,7 @@ public class SmartFaceCropTransformation extends BitmapTransformation {
     }
 
     private Bitmap performTransform(BitmapPool pool, Bitmap toTransform) {
-        // --- 🛡️ BẢO VỆ CHÓT: LOẠI BỎ HOÀN TOÀN VIỀN MÀU BÊN PHẢI ---
+        // --- ️ BẢO VỆ CHÓT: LOẠI BỎ HOÀN TOÀN VIỀN MÀU BÊN PHẢI ---
         int usableWidth = (int) (toTransform.getWidth() * 0.82f);
         int size = Math.min(usableWidth, toTransform.getHeight());
 

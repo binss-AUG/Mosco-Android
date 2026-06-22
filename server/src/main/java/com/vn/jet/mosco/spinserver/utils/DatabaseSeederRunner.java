@@ -109,7 +109,7 @@ public class DatabaseSeederRunner implements CommandLineRunner {
         admin.setTotalDiamonds(1_000_000_000L);
         userRepository.save(admin);
 
-        // 🛑 CLEANUP STAGE DATA FOR ADMIN (As requested for re-testing)
+        //  CLEANUP STAGE DATA FOR ADMIN (As requested for re-testing)
         log.info("Cleaning up old Stage data for admin...");
         java.util.List<com.vn.jet.mosco.spinserver.model.StageSession> sessions = sessionRepository.findByUserId(admin.getId());
         for (com.vn.jet.mosco.spinserver.model.StageSession session : sessions) {
@@ -144,7 +144,7 @@ public class DatabaseSeederRunner implements CommandLineRunner {
         mails.add(new com.vn.jet.mosco.spinserver.model.UserMail(admin, "Admin Sync", "Server has been restarted. Your resources and collection have been reset to maximum.", "PACK_PREMIUM", 10));
         userMailRepository.saveAll(mails);
 
-        // 🚀 FULL OBJET: Thêm TOÀN BỘ thẻ trong database.json vào kho admin (Level 10, +10)
+        //  FULL OBJET: Thêm TOÀN BỘ thẻ trong database.json vào kho admin (Level 10, +10)
         try {
             log.info("Syncing missing cards for admin from database.json...");
             List<UserCard> existingCards = userCardRepository.findByUserId(admin.getId());

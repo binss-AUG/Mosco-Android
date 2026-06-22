@@ -55,7 +55,7 @@ public class GlideBindingAdapter {
         boolean effectiveThumbnail = isThumbnail && !isHighQuality;
         String finalUrl = convertImageIdToUrl(imageIdOrUrl, effectiveThumbnail);
 
-        // 🚀 LOCAL FIRST: Check if the asset exists locally (2x or original)
+        //  LOCAL FIRST: Check if the asset exists locally (2x or original)
         java.io.File localFile = CardAssetManager.getLocalFile(context, finalUrl);
         Object loadSource = (localFile != null && localFile.exists()) ? localFile : finalUrl;
 

@@ -36,7 +36,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 📝 TEXT TRẠNG THÁI -->
+        <!--  TEXT TRẠNG THÁI -->
         <TextView
             android:id="@+id/tv_download_status"
             style="@style/MoscoText.Luxury.SubHeader"
@@ -47,7 +47,7 @@
             android:textColor="@color/white_80"
             android:gravity="center" />
 
-        <!-- 🚀 KHU VỰC TẢI DỮ LIỆU -->
+        <!--  KHU VỰC TẢI DỮ LIỆU -->
         <LinearLayout
             android:id="@+id/layout_download_progress"
             android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                 android:textSize="@dimen/text_size_body" />
         </LinearLayout>
 
-        <!-- ❌ KHU VỰC BÁO LỖI KẾT NỐI -->
+        <!--  KHU VỰC BÁO LỖI KẾT NỐI -->
         <LinearLayout
             android:id="@+id/layout_retry_connection"
             android:layout_width="match_parent"

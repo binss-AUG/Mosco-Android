@@ -124,10 +124,10 @@ public class MainActivity extends MoscoBaseActivity {
         // 2. Setup custom Liquid Glass bottom navigation bar (Visual & functional mapping)
         setupCustomBottomNavigation(bottomNav);
 
-        // --- 🚀 AUTO-BACKUP SYSTEM (PHASE 3) ---
+        // ---  AUTO-BACKUP SYSTEM (PHASE 3) ---
         com.vn.jet.mosco.utils.WorkScheduler.scheduleAutoBackup(this);
 
-        // --- 🚀 EXIT CONFIRMATION SYSTEM ---
+        // ---  EXIT CONFIRMATION SYSTEM ---
         setupExitConfirmation();
 
         // Đồng bộ UI lần đầu — nếu khởi tạo mới thì mặc định Home

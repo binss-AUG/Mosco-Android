@@ -233,24 +233,24 @@ public class UserController {
             }
         }
 
-        // --- 🎭 AVATAR UPDATE LOGIC ---
+        // ---  AVATAR UPDATE LOGIC ---
         // Cập nhật avatarId từ kho Objet nếu có gửi lên
         if (body.getAvatarId() != null && !body.getAvatarId().isEmpty()) {
             user.setAvatarId(body.getAvatarId());
         }
 
-        // --- 🖋️ BIO UPDATE LOGIC ---
+        // --- ️ BIO UPDATE LOGIC ---
         if (body.getBio() != null) {
             user.setBio(body.getBio());
         }
 
-        // --- 🖼️ SHOWCASE UPDATE LOGIC ---
+        // --- ️ SHOWCASE UPDATE LOGIC ---
         if (body.getShowcaseCardIds() != null) {
             user.getShowcaseCardIds().clear();
             user.getShowcaseCardIds().addAll(body.getShowcaseCardIds());
         }
 
-        // --- 📊 STATS UPDATE LOGIC ---
+        // ---  STATS UPDATE LOGIC ---
         if (body.getLikesCount() != null) {
             user.setLikesCount(body.getLikesCount());
         }

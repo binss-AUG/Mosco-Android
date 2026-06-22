@@ -401,7 +401,7 @@ public class SpinFragment extends Fragment {
         if (backPressedCallback != null) backPressedCallback.setEnabled(false);
         playVideo(R.raw.spin_reward_animation, 100, 100, this::showFinalResultWithNeonEffect);
 
-        // 🚀 WARMUP PERFORMANCE: Nạp và vẽ nháp màn hình kết quả ngầm trong khi Video đang chạy
+        //  WARMUP PERFORMANCE: Nạp và vẽ nháp màn hình kết quả ngầm trong khi Video đang chạy
         warmupResultUI();
     }
 
@@ -415,7 +415,7 @@ public class SpinFragment extends Fragment {
         String frontUrl = getCardImageUrl(selectedPosition, true);
         String backUrl = getCardImageUrl(selectedPosition, false);
 
-        // 🎯 THẺ KẾT QUẢ: Nạp chất lượng cao (isHighQuality = true)
+        //  THẺ KẾT QUẢ: Nạp chất lượng cao (isHighQuality = true)
         loadCardImageInto(frontUrl, ivResultImage, true);
         loadCardImageInto(backUrl, ivResultBack, true);
 
@@ -572,7 +572,7 @@ public class SpinFragment extends Fragment {
 
             String url = String.valueOf(urlObj);
 
-            // 🎯 INTELLIGENT URL VARIANT SELECTION (TC-01)
+            //  INTELLIGENT URL VARIANT SELECTION (TC-01)
             if (position == sessionResultIndex) {
                 // Bắt buộc lấy bản gốc cho thẻ trúng thưởng
                 if (url.endsWith("/1x")) url = url.substring(0, url.length() - 3) + "/original";
@@ -605,11 +605,11 @@ public class SpinFragment extends Fragment {
                 String backUrl = String.valueOf(card.get("backImage"));
 
                 if (i == sessionResultIndex) {
-                    // 🎯 KẾT QUẢ CƯỜNG HÓA: Phải tải bản 4x Xịn nhất (Cả 2 mặt)
+                    //  KẾT QUẢ CƯỜNG HÓA: Phải tải bản 4x Xịn nhất (Cả 2 mặt)
                     if (frontUrl != null && !frontUrl.isEmpty() && !frontUrl.equals("null")) priorityUrls.add(frontUrl);
                     if (backUrl != null && !backUrl.isEmpty() && !backUrl.equals("null")) priorityUrls.add(backUrl);
                 } else {
-                    // 🗑️ THẺ RÁC: Chỉ cần bản 1x nhẹ nhàng để hiện Grid
+                    // ️ THẺ RÁC: Chỉ cần bản 1x nhẹ nhàng để hiện Grid
                     if (frontUrl == null || frontUrl.equalsIgnoreCase("null") || frontUrl.isEmpty()) {
                         // Rác mặc định, không cần tải mạng
                     } else {
@@ -670,11 +670,11 @@ public class SpinFragment extends Fragment {
         try {
             imageView.setAlpha(1.0f);
             
-            // 🚀 HARDWARE ACCELERATION: Kích hoạt cho animation lật thẻ mượt mà (TC-03)
+            //  HARDWARE ACCELERATION: Kích hoạt cho animation lật thẻ mượt mà (TC-03)
             imageView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
             if (url.equals("dummy://trash_object")) {
-                // 🚀 TỐI ƯU CỰC ĐẠI: Dùng trực tiếp Resource để tránh Glide delay cho rác
+                //  TỐI ƯU CỰC ĐẠI: Dùng trực tiếp Resource để tránh Glide delay cho rác
                 imageView.setImageResource(R.drawable.trash_objet);
                 imageView.setAlpha(0.6f);
             } else {
@@ -689,7 +689,7 @@ public class SpinFragment extends Fragment {
     private void showFinalResultWithNeonEffect() {
         if (!isAdded() || layoutResultReveal == null) return;
 
-        // 🚀 TỐI ƯU JANK: Chuẩn bị RecyclerView ngầm trên GPU trước khi người dùng bấm Reveal
+        //  TỐI ƯU JANK: Chuẩn bị RecyclerView ngầm trên GPU trước khi người dùng bấm Reveal
         prepareRevealResultGridOffscreen();
 
         // Kết thúc warmup: hiện thị hoàn toàn
@@ -1297,7 +1297,7 @@ public class SpinFragment extends Fragment {
             holder.cardRoot.setStrokeWidth(strokeWidth);
 
             if (isAdded()) {
-                // 🚀 TỐI ƯU CỰC ĐẠI: Card Back là ảnh tĩnh, không được dùng Glide để tránh Jank khi hiện 16 thẻ cùng lúc
+                //  TỐI ƯU CỰC ĐẠI: Card Back là ảnh tĩnh, không được dùng Glide để tránh Jank khi hiện 16 thẻ cùng lúc
                 holder.ivCardBack.setImageResource(R.drawable.objet_back_spin);
 
                 // Set the shimmer background for metallic shine
@@ -1432,12 +1432,12 @@ public class SpinFragment extends Fragment {
             holder.cardRoot.setStrokeWidth(0);
 
             if (isAdded()) {
-                // 🚀 TỐI ƯU: Nạp trực tiếp mặt sau thẻ tĩnh
+                //  TỐI ƯU: Nạp trực tiếp mặt sau thẻ tĩnh
                 holder.ivCardBack.setImageResource(R.drawable.objet_back_spin);
 
                 String frontUrl = getCardImageUrl(position, true);
                 boolean isWinner = (position == winPosition);
-                // 🎯 REVEAL GRID: Chỉ thẻ trúng thưởng mới được nạp chất lượng cao (TC-01)
+                //  REVEAL GRID: Chỉ thẻ trúng thưởng mới được nạp chất lượng cao (TC-01)
                 loadCardImageInto(frontUrl, holder.ivCardFront, isWinner);
 
                 // Set the shimmer background for metallic shine
@@ -1901,7 +1901,7 @@ public class SpinFragment extends Fragment {
                         com.vn.jet.mosco.utils.CardEffectHelper.apply(cardCenterSlot, shimmer, selectedObj, true);
                     }
 
-                    // 💎 Load ảnh mặt sau (backImage) - Hiện đã được nạp trực tiếp trong Unified Model
+                    //  Load ảnh mặt sau (backImage) - Hiện đã được nạp trực tiếp trong Unified Model
                     sacrificeBackImageUrl = selectedObj.getBackImage();
                     if (ivSacrificeBack != null && sacrificeBackImageUrl != null && !sacrificeBackImageUrl.isEmpty()) {
                         // Luồng tải ưu tiên: Mặt sau thẻ hy sinh cũng dùng bản Original

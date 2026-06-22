@@ -81,7 +81,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             holder.tvName.setText(entry.optString("ingameName", "Unknown"));
             holder.tvLevel.setText(holder.itemView.getContext().getString(R.string.format_level_short, entry.optInt("level", 1)));
 
-            // --- 🟢 STATUS GLOW LOGIC (Sử dụng data thực từ server) ---
+            // ---  STATUS GLOW LOGIC (Sử dụng data thực từ server) ---
             boolean isOnline = entry.optBoolean("online", false); 
             holder.viewStatus.setVisibility(isOnline ? View.VISIBLE : View.GONE);
 

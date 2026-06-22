@@ -84,7 +84,7 @@ public class SessionManager {
         long newUserId = userData.getId() != null ? userData.getId() : -1L;
         long oldUserId = prefs.getLong(KEY_USER_ID, -1L);
         
-        // --- 🔄 FORCE SYNC LOGIC ---
+        // ---  FORCE SYNC LOGIC ---
         // Nếu phát hiện đăng nhập bằng tài khoản khác, thực hiện dọn dẹp Cache RAM ngay lập tức
         if (oldUserId != -1L && oldUserId != newUserId) {
             DatabaseLoader.clearUserCache();
