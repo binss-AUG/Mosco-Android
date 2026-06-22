@@ -48,6 +48,16 @@ public class AuthService {
         this.mailSender = mailSender;
     }
 
+    public AuthResponse checkExists(String username, String email) {
+        if (username != null && !username.trim().isEmpty() && userRepository.existsByUsername(username.trim())) {
+            return new AuthResponse(false, MessageConstants.USERNAME_EXISTS, null, null);
+        }
+        if (email != null && !email.trim().isEmpty() && userRepository.existsByEmail(email.trim().toLowerCase(Locale.ROOT))) {
+            return new AuthResponse(false, MessageConstants.EMAIL_IN_USE, null, null);
+        }
+        return new AuthResponse(true, "Available", null, null);
+    }
+
     public AuthResponse register(String username, String     email, String password, String code) {
         if (username == null || username.trim().isEmpty() ||
             email == null || email.trim().isEmpty() ||

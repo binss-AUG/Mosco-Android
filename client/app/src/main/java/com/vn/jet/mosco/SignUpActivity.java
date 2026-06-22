@@ -230,6 +230,10 @@ public class SignUpActivity extends AppCompatActivity {
             tilUsername.setError(getString(R.string.auth_error_empty_field));
             return;
         }
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            tilUsername.setError(getString(R.string.auth_error_invalid_username));
+            return;
+        }
         if (email.isEmpty()) {
             tilEmail.setError(getString(R.string.auth_error_empty_field));
             return;
@@ -251,8 +255,44 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // Gửi mã OTP về email trước khi chuyển sang màn hình xác thực chuyên biệt
-        viewModel.sendVerificationCode(email);
+        // Kiểm tra xem username/email đã tồn tại chưa trước khi gửi mã OTP
+        setLoading(true);
+        com.vn.jet.mosco.network.AuthApiService tempApiService = com.vn.jet.mosco.network.ApiClient.getClient(this).create(com.vn.jet.mosco.network.AuthApiService.class);
+        tempApiService.checkExists(username, email).enqueue(new retrofit2.Callback<com.vn.jet.mosco.model.AuthResponse>() {
+            @Override
+            public void onResponse(@androidx.annotation.NonNull retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, @androidx.annotation.NonNull retrofit2.Response<com.vn.jet.mosco.model.AuthResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    // Cả username và email đều hợp lệ (chưa tồn tại)
+                    setLoading(false);
+                    viewModel.sendVerificationCode(email);
+                } else {
+                    setLoading(false);
+                    String msg = getString(R.string.common_error_unknown);
+                    try {
+                        if (response.errorBody() != null) {
+                            org.json.JSONObject errorJson = new org.json.JSONObject(response.errorBody().string());
+                            if (errorJson.has("message")) msg = errorJson.getString("message");
+                        } else if (response.body() != null && response.body().getMessage() != null) {
+                            msg = response.body().getMessage();
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    if (msg.toLowerCase().contains("username") || msg.contains("Tên đăng nhập")) {
+                        tilUsername.setError(com.vn.jet.mosco.utils.ErrorTranslator.translate(SignUpActivity.this, msg));
+                    } else if (msg.toLowerCase().contains("email")) {
+                        tilEmail.setError(com.vn.jet.mosco.utils.ErrorTranslator.translate(SignUpActivity.this, msg));
+                    } else {
+                        android.widget.Toast.makeText(SignUpActivity.this, com.vn.jet.mosco.utils.ErrorTranslator.translate(SignUpActivity.this, msg), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@androidx.annotation.NonNull retrofit2.Call<com.vn.jet.mosco.model.AuthResponse> call, @androidx.annotation.NonNull Throwable t) {
+                setLoading(false);
+                android.widget.Toast.makeText(SignUpActivity.this, getString(R.string.common_error_network), android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setLoading(boolean isLoading) {

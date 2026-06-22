@@ -116,6 +116,7 @@
                             android:drawablePadding="@dimen/spacing_15dp"
                             android:hint="@string/auth_prompt_verification_code"
                             android:inputType="number"
+                            android:digits="0123456789"
                             android:maxLength="6"
                             android:paddingStart="@dimen/spacing_md"
                             android:textCursorDrawable="@null" />
@@ -144,6 +145,7 @@
                             style="@style/MoscoText.Luxury.Link"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
                             android:text="@string/auth_action_resend"
                             android:textSize="@dimen/text_size_body_xs"
                             android:focusable="true" />

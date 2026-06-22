@@ -21,8 +21,8 @@ public final class MessageConstants {
     public static final String INVALID_EMAIL = "Định dạng email không hợp lệ.";
     public static final String INVALID_EMAIL_FORMAT = "Invalid email format.";
     public static final String INVALID_PASSWORD_LENGTH = "Password must be at least 6 characters.";
-    public static final String USERNAME_EXISTS = "Username already exists.";
-    public static final String EMAIL_IN_USE = "Email đã được sử dụng bởi người dùng khác.";
+    public static final String USERNAME_EXISTS = "auth_err_username_exists";
+    public static final String EMAIL_IN_USE = "auth_err_email_in_use";
     public static final String REGISTRATION_SUCCESS = "Đăng ký tài khoản thành công!";
     public static final String MISSING_EMAIL = "Vui lòng nhập email.";
     public static final String OTP_SENT_SUCCESS = "Mã xác nhận đã được gửi thành công đến ";
