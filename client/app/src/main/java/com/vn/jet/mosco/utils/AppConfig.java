@@ -11,8 +11,8 @@ import com.vn.jet.mosco.BuildConfig;
 public class AppConfig {
 
     // 1. API Endpoints
-    // Tu dong lay IP Wi-Fi thuc te cua may tinh qua BuildConfig. Khong can sua thu cong nua!
-    public static final String BASE_URL = "http://" + BuildConfig.LOCAL_IP + ":8080/";
+    // Su dung Ngrok Dev Domain de public server. Khong can quan tam IP mang LAN!
+    public static final String BASE_URL = "https://seldom-oozy-angelfish.ngrok-free.dev/";
 
     // WebSocket URL - Tu dong chuyen doi tu BASE_URL (Khong duoc xoa)
     public static final String WS_URL = BASE_URL.replace("http", "ws") + "ws-mosco/websocket";
