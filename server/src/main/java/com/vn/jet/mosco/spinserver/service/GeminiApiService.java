@@ -20,7 +20,7 @@ public class GeminiApiService {
     @Value("${ai.gemini.api-key:}")
     private String geminiApiKey;
 
-    @Value("${ai.openrouter.api-key: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}")
+    @Value("${ai.openrouter.api-key:}")
     private String openRouterApiKey;
 
     @Value("${ai.gemini.fallback-message:Thôi chết tớ bận quá, mạng mẽo bị gì rồi nè, để lát tớ nhắn lại nha!}")

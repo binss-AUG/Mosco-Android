@@ -15,7 +15,8 @@ Hệ thống đã được Container hóa toàn diện, giúp bạn không cần
 1. Mở thư mục `scripts/`.
 2. Chạy file `run_setup.bat` (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
 3. Kịch bản sẽ tự động tải các thư viện cần thiết, biên dịch mã nguồn Backend và khởi tạo toàn bộ cơ sở dữ liệu MySQL thông qua lệnh `docker compose up -d`.
-4. Mở thư mục `client/` bằng Android Studio và bấm **Run**. Bạn không cần thay đổi IP thủ công khi đổi mạng (ví dụ mang máy tính đi nơi khác), script `getLocalIp()` trong `client/app/build.gradle` sẽ tự động dò tìm IP LAN và kết nối với Backend.
+4. Khởi động Ngrok bằng lệnh: `ngrok http --domain=seldom-oozy-angelfish.ngrok-free.dev 8080` để public Server.
+5. Mở thư mục `client/` bằng Android Studio và bấm **Run**. App đã được cấu hình tự động trỏ đến tên miền tĩnh Ngrok nên sẽ kết nối thành công bất kể bạn đang dùng mạng nào.
 
 ### Phương Pháp 2: Khởi Chạy Thủ Công
 Trường hợp không dùng script tự động, bạn có thể chạy thủ công theo các bước sau:
@@ -29,8 +30,8 @@ Trường hợp không dùng script tự động, bạn có thể chạy thủ c
 2. Mở terminal tại thư mục `server/` và chạy lệnh: `gradlew bootRun` (hoặc `.\gradlew bootRun` trên Windows) để khởi động Spring Boot.
 
 **Phía Client**
-1. Cập nhật địa chỉ IP của máy tính tại biến `BASE_URL` hoặc trong tệp `strings_config.xml`.
-2. Mở thư mục `client/` bằng Android Studio, đợi đồng bộ Gradle (Sync) và bấm **Run**.
+1. Mở terminal và chạy lệnh `ngrok http --domain=seldom-oozy-angelfish.ngrok-free.dev 8080` (Cần cài đặt Ngrok trước).
+2. Mở thư mục `client/` bằng Android Studio, đợi đồng bộ Gradle (Sync) và bấm **Run**. Không cần phải cấu hình lại IP LAN.
 
 ## Tài Khoản Kiểm Thử
 
