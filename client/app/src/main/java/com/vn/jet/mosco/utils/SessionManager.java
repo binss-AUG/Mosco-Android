@@ -89,7 +89,7 @@ public class SessionManager {
         if (oldUserId != -1L && oldUserId != newUserId) {
             DatabaseLoader.clearUserCache();
             // Xóa đường dẫn Avatar cũ để đảm bảo không load nhầm cache đĩa của Glide
-            prefs.edit().remove(KEY_AVATAR).apply();
+            prefs.edit().remove(KEY_AVATAR).remove(KEY_AVATAR_CROP_PARAMS).apply();
         }
 
         prefs.edit()

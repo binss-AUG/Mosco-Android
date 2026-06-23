@@ -241,6 +241,12 @@ public class UserController {
 
         // --- ️ BIO UPDATE LOGIC ---
         if (body.getBio() != null) {
+            if (aiModeratorService.containsBadWords(body.getBio()) || aiModeratorService.checkContextWithAi(body.getBio())) {
+                aiModeratorService.applyPenalty(userId);
+                long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error(400, "Tiểu sử vi phạm chuẩn mực! Bạn bị khóa thao tác " + remaining + " giây."));
+            }
             user.setBio(body.getBio());
         }
 
@@ -535,10 +541,8 @@ public class UserController {
         }
 
         // Rule 5: Unique — kiểm tra trùng (trừ chính user hiện tại)
-        Optional<User> existingUser = userRepository.findAll().stream()
-                .filter(u -> sanitized.equalsIgnoreCase(u.getIngameName()) && !u.getId().equals(currentUserId))
-                .findFirst();
-        if (existingUser.isPresent()) {
+        Optional<User> existingUser = userRepository.findByIngameNameIgnoreCase(sanitized);
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(currentUserId)) {
             return MessageConstants.DISPLAY_NAME_IN_USE;
         }
 

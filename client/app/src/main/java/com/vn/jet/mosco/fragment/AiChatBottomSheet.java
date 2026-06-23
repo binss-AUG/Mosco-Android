@@ -362,6 +362,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                     public void onOpen(okhttp3.sse.EventSource eventSource, okhttp3.Response response) {
                         aiMsg = new AiChatMessage(biasId, "", true, System.currentTimeMillis());
                         new Handler(Looper.getMainLooper()).post(() -> {
+                            if (!isAdded() || getContext() == null || getView() == null) return;
                             adapter.removeThinkingMessage();
                             messageList.add(aiMsg);
                             isAdded = true;
@@ -389,6 +390,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                             aiMsg.message = responseBuilder.toString();
                         }
                         new Handler(Looper.getMainLooper()).post(() -> {
+                            if (!isAdded() || getContext() == null || getView() == null) return;
                             if (isAdded && aiMsg != null) {
                                 int index = messageList.indexOf(aiMsg);
                                 if (index != -1) {
@@ -402,6 +404,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                     @Override
                     public void onClosed(okhttp3.sse.EventSource eventSource) {
                         new Handler(Looper.getMainLooper()).post(() -> {
+                            if (!isAdded() || getContext() == null || getView() == null) return;
                             setLoading(false);
                             if (aiMsg != null && aiMsg.message != null && !aiMsg.message.isEmpty()) {
                                 saveMessageToDb(aiMsg);
@@ -412,6 +415,7 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
                     @Override
                     public void onFailure(okhttp3.sse.EventSource eventSource, Throwable t, okhttp3.Response response) {
                         new Handler(Looper.getMainLooper()).post(() -> {
+                            if (!isAdded() || getContext() == null || getView() == null) return;
                             if (isCancelledByUser) {
                                 isCancelledByUser = false;
                                 return;
@@ -436,13 +440,20 @@ public class AiChatBottomSheet extends BottomSheetDialogFragment {
         if (currentApiCall != null) {
             currentApiCall.cancel();
         }
-        setLoading(false);
-        // Save partial AI message if any
-        int lastIdx = messageList.size() - 1;
-        if (lastIdx >= 0) {
-            AiChatMessage lastMsg = messageList.get(lastIdx);
-            if (lastMsg.isFromAi && lastMsg.message != null && !lastMsg.message.isEmpty()) {
-                saveMessageToDb(lastMsg);
+        if (isAdded() && getView() != null) {
+            setLoading(false);
+        } else {
+            isGenerating = false;
+        }
+        // Save partial AI message if any. Only save if we were still generating.
+        // If it was already finished, onClosed has already saved it.
+        if (isGenerating) {
+            int lastIdx = messageList.size() - 1;
+            if (lastIdx >= 0) {
+                AiChatMessage lastMsg = messageList.get(lastIdx);
+                if (lastMsg.isFromAi && lastMsg.message != null && !lastMsg.message.isEmpty()) {
+                    saveMessageToDb(lastMsg);
+                }
             }
         }
     }

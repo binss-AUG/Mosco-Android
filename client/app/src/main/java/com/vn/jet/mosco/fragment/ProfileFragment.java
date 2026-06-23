@@ -128,6 +128,8 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     // Phase 2: Backup & Export Launchers
     private ActivityResultLauncher<Intent> exportLauncher;
     private ActivityResultLauncher<Intent> importLauncher;
+    
+    private android.app.AlertDialog loadingDialog;
 
     public ProfileFragment() {
         // Constructor mặc định cho Fragment
@@ -1230,6 +1232,38 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
     /**
      * Hiện dialog xác nhận hủy thay đổi (đồng bộ style với dialog_logout_confirm)
      */
+     
+    private void showLoadingDialog() {
+        if (getActivity() == null || getActivity().isFinishing()) return;
+
+        com.airbnb.lottie.LottieAnimationView lottie = new com.airbnb.lottie.LottieAnimationView(requireContext());
+        lottie.setAnimation(R.raw.loading);
+        lottie.setRepeatCount(com.airbnb.lottie.LottieDrawable.INFINITE);
+        lottie.playAnimation();
+
+        int size = (int) (getResources().getDisplayMetrics().density * 120);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(size, size);
+        lp.gravity = android.view.Gravity.CENTER;
+        container.addView(lottie, lp);
+
+        loadingDialog = new android.app.AlertDialog.Builder(requireContext())
+                .setView(container)
+                .setCancelable(false)
+                .create();
+
+        if (loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+        loadingDialog.show();
+    }
+
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+            loadingDialog = null;
+        }
+    }
 
     /**
      * Lưu các thay đổi từ Edit Mode: avatar + username + display name
@@ -1277,6 +1311,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
         }
 
         if (gameApiService != null && getContext() != null) {
+            showLoadingDialog();
             // Capture ApplicationContext trước khi gửi vào callback bất đồng bộ — tránh NPE
             // khi Fragment bị detach
             final android.content.Context appCtx = getContext().getApplicationContext();
@@ -1286,6 +1321,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         public void onResponse(
                                 Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
                                 Response<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> response) {
+                            dismissLoadingDialog();
                             if (response.isSuccessful() && response.body() != null) {
                                 // Cập nhật Session local
                                 if (newDisplayName != null && !newDisplayName.isEmpty()) {
@@ -1327,6 +1363,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                         public void onFailure(
                                 Call<com.vn.jet.mosco.model.ApiResponse<com.vn.jet.mosco.model.UserStats>> call,
                                 Throwable t) {
+                            dismissLoadingDialog();
                             if (isAdded() && getContext() != null) {
                                 Toast.makeText(getContext(), getString(R.string.common_error_network),
                                         Toast.LENGTH_SHORT).show();
