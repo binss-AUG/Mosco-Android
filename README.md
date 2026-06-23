@@ -1,85 +1,81 @@
 # Mosco - Dự án Gacha Vũ trụ Cao cấp
 
-> [!IMPORTANT]
-> ## 🚀 HƯỚNG DẪN KHỞI CHẠY TỰ ĐỘNG (DOCKER COMPOSER 1-CLICK)
-> **Hệ thống đã được Container hóa toàn diện từ A đến Z. Dẹp bỏ hoàn toàn việc cài đặt thủ công Java hay MySQL trên máy khách!**
-> 
-> ### Yêu cầu duy nhất:
-> Máy tính cần cài sẵn và đang bật ứng dụng **Docker Desktop**.
-> 
-> ### Các bước thực hiện:
-> 1. Mở thư mục **`scripts/`**.
-> 2. **Click đúp chuột** vào file **`run_setup.bat`** (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
-> 3. Kịch bản sẽ tự động tải hình ảnh, biên dịch mã nguồn Backend từ A đến Z và dựng hình toàn bộ CSDL MySQL thông qua lệnh **`docker compose up -d`**!
->
-> 💡 **CƠ CHẾ AUTO-IP THÔNG MINH (DÀNH CHO CHẤM ĐỒ ÁN):**
-> Bạn **KHÔNG CẦN** thay đổi IP thủ công khi đổi mạng Wi-Fi (ví dụ mang máy lên trường). Script `getLocalIp()` trong `client/app/build.gradle` sẽ tự động "ping" ra ngoài và dò tìm chính xác IPv4 LAN hiện tại của máy tính. Bạn chỉ việc mở Android Studio và bấm **Run**, hệ thống sẽ tự động gắn IP mới nhất vào App Client để kết nối với Backend.
->
-> 🔑 **TÀI KHOẢN ADMIN (DÙNG ĐỂ CHẤM ĐIỂM/TESTING):**
-> - **Username:** `admin`
-> - **Password:** `admin123`
-> - *Lưu ý:* Khi khởi động Server, hệ thống sẽ tự động tạo bảng (Auto-DDL) và nạp toàn bộ 9000+ thẻ bài từ file `database.json`, ĐỒNG THỜI tự động bơm cho tài khoản Admin này **1 Tỷ Vàng**, **1 Tỷ Kim cương**, **x999 Gói Thẻ** và mở khóa sẵn TẤT CẢ Thẻ bài ở Level 1 để Hội đồng/Thầy cô có thể test các tính năng Nâng cấp/Gacha ngay lập tức.
->
-> 🐋 **KIẾN TRÚC DOCKER BAO GỒM 3 SERVICES CHÍNH:**
-> Khi chạy `docker compose up -d`, hệ thống tự động build các image mới nhất trực tiếp từ mã nguồn:
-> 1. `mysql` (Port 3307): CSDL MySQL 8.0. Dữ liệu sẽ được Spring Boot tự động khởi tạo (Auto-DDL) và nạp dữ liệu siêu việt (9000+ thẻ) từ file `database.json`.
-> 2. `backend` (Port 8080): Spring Boot Java Server.
-> 3. `rag_sidecar` (Port 5001): Python FastAPI Server chứa mô hình RAG AI để kiểm duyệt nội dung tự động.
-
 Mosco là một ứng dụng di động mô phỏng game thẻ bài (Gacha) cao cấp, được xây dựng trên nền tảng Android Native với triết lý thiết kế "Quiet Luxury" và kiến trúc "Local-First". Dự án tập trung vào trải nghiệm người dùng mượt mà, giao diện mang phong cách vũ trụ (Galactic UI) và hệ thống quản lý tài nguyên tối ưu cho hàng vạn vật phẩm.
 
-## 🌟 Điểm Nổi Bật của Dự án
+## Hướng Dẫn Cài Đặt và Khởi Chạy
+
+Dự án hỗ trợ hai phương pháp khởi chạy: Tự động qua Docker (khuyến nghị) và Chạy thủ công.
+
+### Phương Pháp 1: Khởi Chạy Tự Động (Docker Compose 1-Click)
+Hệ thống đã được Container hóa toàn diện, giúp bạn không cần cài đặt thủ công Java hay MySQL trên máy khách.
+
+**Yêu cầu:** Máy tính cần cài sẵn và đang bật ứng dụng Docker Desktop.
+
+**Các bước thực hiện:**
+1. Mở thư mục `scripts/`.
+2. Chạy file `run_setup.bat` (Hệ thống sẽ tự động gọi PowerShell với quyền Admin).
+3. Kịch bản sẽ tự động tải các thư viện cần thiết, biên dịch mã nguồn Backend và khởi tạo toàn bộ cơ sở dữ liệu MySQL thông qua lệnh `docker compose up -d`.
+4. Mở thư mục `client/` bằng Android Studio và bấm **Run**. Bạn không cần thay đổi IP thủ công khi đổi mạng (ví dụ mang máy tính đi nơi khác), script `getLocalIp()` trong `client/app/build.gradle` sẽ tự động dò tìm IP LAN và kết nối với Backend.
+
+### Phương Pháp 2: Khởi Chạy Thủ Công
+Trường hợp không dùng script tự động, bạn có thể chạy thủ công theo các bước sau:
+
+**Phía Cơ sở hạ tầng (Docker)**
+1. Cài đặt Docker Desktop.
+2. Mở terminal tại thư mục gốc dự án và chạy lệnh: `docker compose up -d` để khởi động MySQL.
+
+**Phía Backend**
+1. Đảm bảo Java 21 đã được cài đặt trên máy.
+2. Mở terminal tại thư mục `server/` và chạy lệnh: `gradlew bootRun` (hoặc `.\gradlew bootRun` trên Windows) để khởi động Spring Boot.
+
+**Phía Client**
+1. Cập nhật địa chỉ IP của máy tính tại biến `BASE_URL` hoặc trong tệp `strings_config.xml`.
+2. Mở thư mục `client/` bằng Android Studio, đợi đồng bộ Gradle (Sync) và bấm **Run**.
+
+## Tài Khoản Kiểm Thử
+
+Để thuận tiện cho việc đánh giá hoặc thử nghiệm, hệ thống tự động tạo sẵn tài khoản Admin:
+- **Tên đăng nhập:** `admin`
+- **Mật khẩu:** `admin123`
+
+*Lưu ý:* Khi khởi động Server, hệ thống sẽ tự động tạo bảng (Auto-DDL) và nạp dữ liệu thẻ bài. Tài khoản Admin được cung cấp sẵn lượng lớn tài nguyên (1 Tỷ Vàng, 1 Tỷ Kim cương, x999 Gói Thẻ) và mở khóa tất cả các thẻ bài ở Level 1 để thử nghiệm tính năng Nâng cấp/Gacha ngay lập tức.
+
+## Điểm Nổi Bật của Dự án
 
 ### 1. Kiến trúc Tài nguyên Local-First (Offline Support)
-Để đảm bảo tốc độ phản hồi tối ưu trên mọi dòng máy (kể cả giả lập Android 9):
-- **Room Database:** Lưu trữ tạm thời siêu dữ liệu và cấu hình giao diện. Ngay khi mở app, dữ liệu hiển thị tức thì (Zero-latency) từ Local DB trước khi đồng bộ với Server.
-- **Tối ưu Băng thông (OkHttp Interceptor):** Tự động ép kiểu nhận ảnh định dạng `WebP` từ Cloudflare (giảm 80% dung lượng mạng) khi load danh sách, chỉ tải ảnh gốc khi xem chi tiết.
-- **Skeleton & Shimmer UI:** Mọi thao tác tải dữ liệu đều sử dụng Shimmer Animation, giúp UX luôn mượt mà.
+Để đảm bảo tốc độ phản hồi tối ưu trên mọi dòng máy:
+- **Room Database:** Lưu trữ tạm thời siêu dữ liệu và cấu hình giao diện. Ngay khi mở app, dữ liệu hiển thị tức thì từ Local DB trước khi đồng bộ với Server.
+- **Tối ưu Băng thông (OkHttp Interceptor):** Tự động ép kiểu nhận ảnh định dạng WebP từ Cloudflare (giảm 80% dung lượng) khi tải danh sách, chỉ tải ảnh gốc khi xem chi tiết.
+- **Skeleton & Shimmer UI:** Mọi thao tác tải dữ liệu đều sử dụng Shimmer Animation, giúp trải nghiệm người dùng luôn mượt mà.
 
 ### 2. Xử lý Thời gian thực & Tối ưu Giao tiếp (Real-time & Optimistic UI)
-- **World Chat (WebSocket):** Hệ thống kênh chat toàn cầu tích hợp công nghệ **Optimistic UI**, tin nhắn được in ra màn hình ngay lập tức mà không có độ trễ mạng, kết hợp cơ chế Deduplication (khử trùng lặp) thông minh.
-- **Debounce API:** Mọi nút bấm đều tích hợp cơ chế chống Spam click, bảo vệ Server khỏi các cuộc tấn công DDoS ngầm.
+- **World Chat (WebSocket):** Hệ thống kênh chat toàn cầu tích hợp công nghệ Optimistic UI. Tin nhắn hiển thị ngay lập tức mà không có độ trễ, kết hợp cơ chế khử trùng lặp (Deduplication) thông minh.
+- **Debounce API:** Mọi nút bấm đều tích hợp cơ chế chống spam, bảo vệ Server khỏi các cuộc tấn công dạng từ chối dịch vụ.
 
 ### 3. Hệ thống Gacha & Cốt lõi Backend
-- **Pessimistic Locking (Khóa bi quan):** Thuật toán nâng cấp thẻ (giống FO4 mechanic) và giao dịch tài nguyên được đặt trong `@Transactional` và `@Lock(LockModeType.PESSIMISTIC_WRITE)` để chặn đứng 100% lỗi Race Condition hay Double-spending (tiêu tiền 2 lần).
-- **Phân trang (Pagination) toàn diện:** Mọi API trả về danh sách thẻ bài đều bắt buộc dùng `Pageable` để tránh OOM (Out Of Memory) cho Client.
-- **ETL (Extract, Transform, Load):** Background Jobs (`@Scheduled`) của Spring Boot chịu trách nhiệm cào dữ liệu thẻ bài mới từ các nguồn dữ liệu ngoài và đồng bộ (UPSERT) tự động vào cơ sở dữ liệu.
+- **Khóa bi quan (Pessimistic Locking):** Thuật toán nâng cấp thẻ và giao dịch tài nguyên được đặt trong `@Transactional` và `@Lock(LockModeType.PESSIMISTIC_WRITE)` để ngăn chặn hoàn toàn lỗi Race Condition hay Double-spending (tiêu tiền hai lần).
+- **Phân trang (Pagination) toàn diện:** Các API trả về danh sách thẻ bài đều bắt buộc dùng Pageable để tránh lỗi hết bộ nhớ (OOM) cho Client.
+- **ETL (Extract, Transform, Load):** Background Jobs (`@Scheduled`) của Spring Boot đảm nhận việc thu thập dữ liệu thẻ bài mới từ nguồn ngoài và tự động đồng bộ (UPSERT) vào cơ sở dữ liệu.
 
 ### 4. Hệ thống Trợ lý AI & Kiểm duyệt (RAG Architecture)
-- **AI Moderation:** Trí tuệ nhân tạo kiểm duyệt nội dung chat theo thời gian thực (Real-time). Tự động cấm chat (Ban) nếu phát hiện ngôn từ độc hại qua 2 lớp Regex & Semantic Context.
-- **Python Sidecar:** Một dịch vụ bổ trợ (FastAPI) để xử lý việc thu thập dữ liệu và xử lý ngôn ngữ tự nhiên.
-- **Vector Store:** Lưu trữ kiến thức nghệ sĩ/thẻ bài dưới dạng Vector để truy xuất thông tin chính xác theo ngữ nghĩa.
+- **AI Moderation:** Trí tuệ nhân tạo kiểm duyệt nội dung chat theo thời gian thực. Tự động cấm chat nếu phát hiện ngôn từ độc hại qua hai lớp Regex và Semantic Context.
+- **Python Sidecar:** Một dịch vụ bổ trợ (FastAPI) để thu thập dữ liệu và xử lý ngôn ngữ tự nhiên.
+- **Vector Store:** Lưu trữ kiến thức về nghệ sĩ và thẻ bài dưới dạng Vector để truy xuất thông tin chính xác theo ngữ nghĩa.
 
-## ⚙️ Công nghệ Sử dụng
+## Công nghệ Sử dụng
 
 - **Client:** Java Android Native, Retrofit 2, OkHttp, Glide, Lottie Animation, Room DB.
 - **Server:** Java 21, Spring Boot 3.x, Spring Data JPA, Hibernate, MySQL 8.x, WebSocket.
 - **AI / ETL:** Python FastAPI (Sidecar), Google Gemini API (LLM & Embeddings).
 - **Thiết kế:** Modern Flat Design, Galactic UI, Typography 3 tầng (Pretendard, Orbitron, Chakra Petch).
 
-## 📁 Cấu Trúc Dự án (Source Code)
+## Cấu Trúc Dự án (Source Code)
 
 - `client/app/src/main/java`: Mã nguồn ứng dụng Android (MVVM Pattern).
 - `server/src/main/java`: Mã nguồn backend Spring Boot (MVC Pattern).
 - `tools/rag_sidecar`: Dịch vụ bổ trợ AI xử lý dữ liệu NLP.
-- `scripts/`: Các script tự động hóa cài đặt và triển khai.
+- `scripts/`: Các kịch bản tự động hóa cài đặt và triển khai.
 - `raw-doc/`: Tài liệu dự án và báo cáo kết luận.
-
-## 📜 Hướng Dẫn Cài Đặt (Manual)
-
-Trường hợp không dùng script 1-click `run_setup.bat`, có thể chạy thủ công:
-
-### Phía Cơ sở hạ tầng (Docker)
-1. Cài đặt Docker Desktop.
-2. Mở terminal tại thư mục gốc và chạy: `docker compose up -d` để khởi động MySQL và Redis.
-
-### Phía Backend
-1. Đảm bảo Java 21 đã được cài đặt.
-2. Chạy lệnh `gradlew bootRun` trong thư mục `server/` để khởi động Spring Boot.
-
-### Phía Client
-1. Cập nhật địa chỉ IP của máy tính tại biến `BASE_URL` hoặc trong tệp `strings_config.xml`.
-2. Mở thư mục `client/` bằng Android Studio và tiến hành Sync Gradle -> Run.
 
 ---
 *Copyright © 2026 Mosco Project. Developed as a high-performance demonstration.*
