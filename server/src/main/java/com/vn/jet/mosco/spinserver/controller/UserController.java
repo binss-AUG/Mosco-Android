@@ -186,6 +186,12 @@ public class UserController {
             @RequestAttribute("userId") Long userId,
             @RequestBody UpdateProfileRequest body) {
 
+        if (aiModeratorService.isBanned(userId)) {
+            long remaining = aiModeratorService.getBanRemainingSeconds(userId);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(403, "Tài khoản đang bị khóa thao tác! Còn lại: " + remaining + " giây."));
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstants.USER_NOT_FOUND));
 

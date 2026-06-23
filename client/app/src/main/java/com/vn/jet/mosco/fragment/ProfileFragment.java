@@ -1351,6 +1351,18 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                                     Toast.makeText(getContext(), getString(R.string.common_msg_success),
                                             Toast.LENGTH_SHORT).show();
                                 }
+
+                                // Thoát Edit Mode
+                                isEditMode = false;
+                                if (previewHeader != null)
+                                    previewHeader.setVisibility(View.GONE);
+                                if (viewAvatarDim != null)
+                                    viewAvatarDim.setVisibility(View.GONE);
+                                if (ivAvatarEditIcon != null)
+                                    ivAvatarEditIcon.setVisibility(View.GONE);
+                                if (btnEditMode != null && isOwner)
+                                    btnEditMode.setVisibility(View.VISIBLE);
+                                notifyTabsEditMode(false);
                             } else {
                                 if (isAdded() && getContext() != null) {
                                     String errorMsg = getString(R.string.common_error_network);
@@ -1378,17 +1390,7 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                     });
         }
 
-        // Thoát Edit Mode (giữ lại thay đổi)
-        isEditMode = false;
-        if (previewHeader != null)
-            previewHeader.setVisibility(View.GONE);
-        if (viewAvatarDim != null)
-            viewAvatarDim.setVisibility(View.GONE);
-        if (ivAvatarEditIcon != null)
-            ivAvatarEditIcon.setVisibility(View.GONE);
-        if (btnEditMode != null && isOwner)
-            btnEditMode.setVisibility(View.VISIBLE);
-        notifyTabsEditMode(false);
+        // Không thoát Edit Mode ở đây, đợi kết quả API.
     }
 
     /**
