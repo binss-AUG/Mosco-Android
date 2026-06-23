@@ -1353,8 +1353,14 @@ public class ProfileFragment extends Fragment implements AvatarSelectorBottomShe
                                 }
                             } else {
                                 if (isAdded() && getContext() != null) {
-                                    Toast.makeText(getContext(), getString(R.string.common_error_network),
-                                            Toast.LENGTH_SHORT).show();
+                                    String errorMsg = getString(R.string.common_error_network);
+                                    try {
+                                        if (response.errorBody() != null) {
+                                            org.json.JSONObject errObj = new org.json.JSONObject(response.errorBody().string());
+                                            errorMsg = errObj.optString("message", errorMsg);
+                                        }
+                                    } catch (Exception e) {}
+                                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
