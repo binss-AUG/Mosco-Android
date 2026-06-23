@@ -90,6 +90,12 @@ public class SessionManager {
             DatabaseLoader.clearUserCache();
             // Xóa đường dẫn Avatar cũ để đảm bảo không load nhầm cache đĩa của Glide
             prefs.edit().remove(KEY_AVATAR).remove(KEY_AVATAR_CROP_PARAMS).apply();
+            
+            // Xóa file ảnh đã crop thủ công (tránh User B dùng nhầm ảnh User A)
+            java.io.File croppedFile = new java.io.File(context.getFilesDir(), context.getString(com.vn.jet.mosco.R.string.avatar_crop_cache_name));
+            if (croppedFile.exists()) {
+                croppedFile.delete();
+            }
         }
 
         prefs.edit()

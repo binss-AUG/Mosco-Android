@@ -88,8 +88,13 @@ public class AiModeratorService {
 
     // Layer 2: AI Context Moderation
     public boolean checkContextWithAi(String text) {
-        String prompt = "Bạn là AI kiểm duyệt. Hãy phân tích câu sau đây. Nếu câu mang ý nghĩa xúc phạm, chửi thề, vi phạm chuẩn mực đạo đức, đe dọa hoặc độc hại, hãy trả lời đúng 1 chữ 'YES'. Nếu câu bình thường, trả lời 'NO'.\nCâu: \"" + text + "\"";
-        String response = geminiApiService.generateContent(null, List.of(Map.of("role", "user", "parts", List.of(Map.of("text", prompt)))));
-        return response != null && response.toUpperCase().contains("YES");
+        try {
+            String prompt = "Bạn là AI kiểm duyệt. Hãy phân tích câu sau đây. Nếu câu mang ý nghĩa xúc phạm, chửi thề, vi phạm chuẩn mực đạo đức, đe dọa hoặc độc hại, hãy trả lời đúng 1 chữ 'YES'. Nếu câu bình thường, trả lời 'NO'.\nCâu: \"" + text + "\"";
+            String response = geminiApiService.generateContent(null, List.of(Map.of("role", "user", "parts", List.of(Map.of("text", prompt)))));
+            return response != null && response.toUpperCase().contains("YES");
+        } catch (Exception e) {
+            logger.error("AI Moderation failed: {}", e.getMessage());
+            return false;
+        }
     }
 }

@@ -541,7 +541,7 @@ public class UserController {
         }
 
         // Rule 5: Unique — kiểm tra trùng (trừ chính user hiện tại)
-        Optional<User> existingUser = userRepository.findByIngameNameIgnoreCase(sanitized);
+        Optional<User> existingUser = userRepository.findFirstByIngameNameIgnoreCase(sanitized);
         if (existingUser.isPresent() && !existingUser.get().getId().equals(currentUserId)) {
             return MessageConstants.DISPLAY_NAME_IN_USE;
         }

@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByIngameName(String ingameName);
-    Optional<User> findByIngameNameIgnoreCase(String ingameName);
+    Optional<User> findFirstByIngameNameIgnoreCase(String ingameName);
     
     // Ranking Fallbacks
     java.util.List<User> findTop10ByOrderByLevelDesc();
