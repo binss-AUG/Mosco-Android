@@ -77,5 +77,3 @@ Trường hợp không dùng script tự động, bạn có thể chạy thủ c
 - `scripts/`: Các kịch bản tự động hóa cài đặt và triển khai.
 - `raw-doc/`: Tài liệu dự án và báo cáo kết luận.
 
----
-*Copyright © 2026 Mosco Project. Developed as a high-performance demonstration.*
